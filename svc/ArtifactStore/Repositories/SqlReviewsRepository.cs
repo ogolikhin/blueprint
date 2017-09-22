@@ -1079,11 +1079,16 @@ namespace ArtifactStore.Repositories
 
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
 
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId);
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
 
             if (!approvalCheck.AllArtifactsRequireApproval)
             {
                 throw new BadRequestException("Not all artifacts require approval.");
+            }
+
+            if (approvalCheck.ReviewerStatus == ReviewStatus.Completed)
+            {
+                throw new BadRequestException("Cannot update approval status, reviewer has completed the review.");
             }
 
             //Check user has permission for the review and all of the artifact ids
@@ -1148,18 +1153,18 @@ namespace ArtifactStore.Repositories
             return approvalResult;
         }
 
-        public async Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, ReviewArtifactViewedInput viewedInput, int userId)
+        public async Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, bool viewed, int userId)
         {
-            if (viewedInput == null)
-            {
-                throw new BadRequestException("Viewed must be provided.");
-            }
-
             var artifactIdEnumerable = new[] {artifactId};
 
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIdEnumerable);
 
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId);
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
+
+            if (approvalCheck.ReviewerStatus == ReviewStatus.Completed)
+            {
+                throw new BadRequestException("Cannot update view status, reviewer has completed the review.");
+            }
 
             //Check user has permission for the review and all of the artifact ids
             await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIdEnumerable);
@@ -1182,7 +1187,7 @@ namespace ArtifactStore.Repositories
                     rdReviewedArtifacts.ReviewedArtifacts.Add(reviewedArtifact);
                 }
 
-                if (viewedInput.Viewed)
+                if (viewed)
                 {
                     reviewedArtifact.ViewState = ViewStateType.Viewed;
                     reviewedArtifact.ArtifactVersion = artifactVersionDictionary[artifactId];
@@ -1208,7 +1213,7 @@ namespace ArtifactStore.Repositories
 
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, new int[0]);
 
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId);
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
 
             var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { reviewId }, userId);
 
@@ -1237,6 +1242,11 @@ namespace ArtifactStore.Repositories
 
         private async Task UpdateReviewerStatusToCompletedAsync(int reviewId, int revisionId, int userId, ReviewArtifactApprovalCheck approvalCheck)
         {
+            if (approvalCheck.ReviewerStatus == ReviewStatus.NotStarted)
+            {
+                throw new BadRequestException("Cannot set reviewer status to complete when reviewer status is not started.");
+            }
+
             var requireAllReviewed = await GetRequireAllArtifactsReviewedAsync(reviewId, userId, false);
 
             if (requireAllReviewed)
@@ -1279,7 +1289,7 @@ namespace ArtifactStore.Repositories
             return _connectionWrapper.ExecuteScalarAsync<bool>("GetReviewRequireAllArtifactsReviewed", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId)
+        private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview)
         {
             //Check the review exists and is active
             if (!approvalCheck.ReviewExists
@@ -1295,7 +1305,8 @@ namespace ArtifactStore.Repositories
             }
 
             //Check user is an approver for the review
-            if (!approvalCheck.UserInReview)
+            if ((requireUserInReview && !approvalCheck.UserInReview)
+                || (!requireUserInReview && approvalCheck.ReviewType != ReviewType.Public && !approvalCheck.UserInReview))
             {
                 throw new AuthorizationException("User is not assigned for review", ErrorCodes.UserNotInReview);
             }
@@ -1493,7 +1504,7 @@ namespace ArtifactStore.Repositories
         private static void ThrowReviewClosedException()
         {
             var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
-            throw new BadRequestException(errorMessage, ErrorCodes.ReviewClosed);
+            throw new ConflictException(errorMessage, ErrorCodes.ReviewClosed);
         }
     }
 }

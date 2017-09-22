@@ -8,6 +8,6 @@ namespace ArtifactStore.Models.Review
 {
     public class ReviewArtifactViewedInput
     {
-        public bool Viewed { get; set; }
+        public bool? Viewed { get; set; }
     }
 }

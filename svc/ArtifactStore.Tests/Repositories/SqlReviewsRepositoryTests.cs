@@ -920,7 +920,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Closed()
         {
             //Arrange
@@ -1731,9 +1731,9 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                var review = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+                await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
             }
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 isExceptionThrown = true;
 
@@ -2271,7 +2271,7 @@ namespace ArtifactStore.Repositories
             {
                 await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
             }
-            catch(BadRequestException ex)
+            catch(ConflictException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.ReviewClosed);
                 return;
@@ -2293,6 +2293,24 @@ namespace ArtifactStore.Repositories
             };
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewDeleted = true);
+
+            //Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Reviewer_Status_Is_Completed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            var approvalParameter = new List<ReviewArtifactApprovalParameter>()
+            {
+                new ReviewArtifactApprovalParameter() { Approval = "Approved", ApprovalFlag = ApprovalType.Approved, ArtifactId = 3 }
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewerStatus = ReviewStatus.Completed);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -2495,7 +2513,9 @@ namespace ArtifactStore.Repositories
                 ReviewStatus = ReviewPackageStatus.Active,
                 ReviewerRole = ReviewParticipantRole.Approver,
                 ReviewExists = true,
-                UserInReview = true
+                UserInReview = true,
+                ReviewerStatus = ReviewStatus.InProgress,
+                ReviewType = ReviewType.Informal
             };
 
             setCheckResult?.Invoke(check);
@@ -2508,44 +2528,19 @@ namespace ArtifactStore.Repositories
         #region UpdateReviewArtifactViewedAsync
 
         [TestMethod]
-        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Viewed_Input_Is_Null()
-        {
-            //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = null;
-
-            //Act
-            try
-            {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
-            }
-            catch (BadRequestException ex)
-            {
-                Assert.AreEqual(ErrorCodes.BadRequest, ex.ErrorCode);
-
-                return;
-            }
-            
-            Assert.Fail("A BadRequestException was not thrown.");
-        }
-
-        [TestMethod]
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Review_Doesnt_Exist()
         {
             //Arrange
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.ReviewExists = false);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewExists = false);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -2564,14 +2559,13 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.ReviewStatus = ReviewPackageStatus.Draft);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewStatus = ReviewPackageStatus.Draft);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -2590,14 +2584,13 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.ReviewDeleted = true);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewDeleted = true);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -2616,40 +2609,42 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.ReviewStatus = ReviewPackageStatus.Closed);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewStatus = ReviewPackageStatus.Closed);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
 
                 return;
             }
 
-            Assert.Fail("A BadRequestException was not thrown.");
+            Assert.Fail("A ConflictException was not thrown.");
         }
 
         [TestMethod]
-        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Is_Not_A_Reviewer()
+        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Is_Not_A_Reviewer_And_Review_Is_Informal()
         {
             //Arrange
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.UserInReview = false);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check =>
+            {
+                check.UserInReview = false;
+                check.ReviewType = ReviewType.Informal;
+            });
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (AuthorizationException ex)
             {
@@ -2662,20 +2657,71 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Is_Not_A_Reviewer_And_Review_Is_Formal()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int artifactId = 3;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check =>
+            {
+                check.UserInReview = false;
+                check.ReviewType = ReviewType.Formal;
+            });
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+            }
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UserNotInReview, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("An AuthorizationException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Reviewer_Status_Is_Completed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int artifactId = 3;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewerStatus = ReviewStatus.Completed);
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+            }
+            catch (BadRequestException)
+            {
+                return;
+            }
+
+            Assert.Fail("A BadRequestException was not thrown.");
+        }
+
+        [TestMethod]
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Artifact_Is_Not_Part_Of_The_Review()
         {
             //Arrange
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, (check) => check.AllArtifactsInReview = false);
+            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.AllArtifactsInReview = false);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (BadRequestException ex)
             {
@@ -2694,7 +2740,6 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId });
 
@@ -2706,7 +2751,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (AuthorizationException ex)
             {
@@ -2725,7 +2770,6 @@ namespace ArtifactStore.Repositories
             int reviewId = 1;
             int userId = 2;
             int artifactId = 3;
-            ReviewArtifactViewedInput viewedInput = new ReviewArtifactViewedInput();
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId });
 
@@ -2737,7 +2781,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, userId);
+                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -2860,14 +2904,14 @@ namespace ArtifactStore.Repositories
                 await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.InProgress, userId);
             }
             //Assert
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
 
                 return;
             }
 
-            Assert.Fail("A BadRequestException was not thrown");
+            Assert.Fail("A ConflictException was not thrown");
         }
 
         [TestMethod]
@@ -3050,14 +3094,14 @@ namespace ArtifactStore.Repositories
                 await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
             }
             //Assert
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
 
                 return;
             }
 
-            Assert.Fail("A BadRequestException was not thrown");
+            Assert.Fail("A ConflictException was not thrown");
         }
 
         [TestMethod]
@@ -3112,6 +3156,26 @@ namespace ArtifactStore.Repositories
             }
 
             Assert.Fail("An AuthorizationException was not thrown");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_Reviewer_Status_Is_Not_Started()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int revisionId = int.MaxValue;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewerStatus = ReviewStatus.NotStarted);
+
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
+            {
+                {reviewId, RolePermissions.Read}
+            });
+
+            //Act
+            await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
         }
 
         [TestMethod]
@@ -3955,8 +4019,8 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_BadRequestException_WhenReviewClosed()
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewClosed()
         {
             // Arrange
             int reviewId = 1;

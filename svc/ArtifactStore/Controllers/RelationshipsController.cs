@@ -46,7 +46,7 @@ namespace ArtifactStore.Controllers
             int? versionId = null,
             int? baselineId = null)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var userId = Session.UserId;
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1)
                 || versionId.HasValue && versionId.Value < 1 || (versionId != null && baselineId != null))
             {
@@ -60,7 +60,7 @@ namespace ArtifactStore.Controllers
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
             var itemInfo = isDeleted && (versionId != null || baselineId != null) ?
                 await _artifactVersionsRepository.GetDeletedItemInfo(itemId) :
-                await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts);
+                await _artifactPermissionsRepository.GetItemInfo(itemId, userId, addDrafts);
             if (itemInfo == null)
             {
                 throw new ResourceNotFoundException("You have attempted to access an item that does not exist or you do not have permission to view.", 
@@ -75,10 +75,10 @@ namespace ArtifactStore.Controllers
             // We do not need drafts for historical artifacts 
             var effectiveAddDraft = !versionId.HasValue && addDrafts;
 
-            var result = await _relationshipsRepository.GetRelationships(artifactId, session.UserId, subArtifactId, effectiveAddDraft, versionId, baselineId);
+            var result = await _relationshipsRepository.GetRelationships(artifactId, userId, subArtifactId, effectiveAddDraft, versionId, baselineId);
             var artifactIds = new List<int> { artifactId };
             artifactIds = artifactIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
             if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new AuthorizationException();
@@ -97,7 +97,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetRelationshipDetails")]
         public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, int? subArtifactId = null)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var userId = Session.UserId;
             if (artifactId < 1)
             {
                 throw new BadRequestException();
@@ -106,11 +106,11 @@ namespace ArtifactStore.Controllers
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(artifactId);
             var artifactInfo = isDeleted ?
                 await _artifactVersionsRepository.GetDeletedItemInfo(artifactId) :
-                await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId);
+                await _artifactPermissionsRepository.GetItemInfo(artifactId, userId);
 
             if (artifactInfo == null && !isDeleted) // artifact might have been deleted in draft only
             {
-                artifactInfo = await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId, false);
+                artifactInfo = await _artifactPermissionsRepository.GetItemInfo(artifactId, userId, false);
             }
             if (artifactInfo == null)
             {
@@ -119,12 +119,12 @@ namespace ArtifactStore.Controllers
             }
 
             var itemIds = new List<int> { artifactId };
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(itemIds, userId);
             if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new AuthorizationException();
             }
-            return await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, subArtifactId, isDeleted);
+            return await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, subArtifactId, isDeleted);
         }
 
         
@@ -133,7 +133,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetReviews")]
         public async Task<ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, bool addDrafts = true, int? versionId = null)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var userId = Session.UserId;
             if (artifactId < 1 || versionId.HasValue && versionId.Value < 1)
             {
                 throw new BadRequestException();
@@ -146,7 +146,7 @@ namespace ArtifactStore.Controllers
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(artifactId);
             var itemInfo = isDeleted && versionId != null ?
                 await _artifactVersionsRepository.GetDeletedItemInfo(artifactId) :
-                await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId, addDrafts);
+                await _artifactPermissionsRepository.GetItemInfo(artifactId, userId, addDrafts);
 
             if (itemInfo == null)
             {
@@ -155,9 +155,9 @@ namespace ArtifactStore.Controllers
 
             // We do not need drafts for historical artifacts 
             var effectiveAddDraft = !versionId.HasValue && addDrafts;
-            var result = await _relationshipsRepository.GetReviewRelationships(artifactId, session.UserId, effectiveAddDraft, versionId);
+            var result = await _relationshipsRepository.GetReviewRelationships(artifactId, userId, effectiveAddDraft, versionId);
             var artifactIds = new List<int> { artifactId };
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
             if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new AuthorizationException();

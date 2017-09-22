@@ -84,6 +84,7 @@ namespace ArtifactStore.Controllers
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
         public async Task GetDiscussions_Forbidden()
         {
             //Arrange
@@ -103,15 +104,7 @@ namespace ArtifactStore.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            try
-            {
-                var result = await controller.GetDiscussions(artifactId);
-            }
-            catch (HttpResponseException e)
-            {
-                //Assert
-                Assert.AreEqual(HttpStatusCode.Forbidden, e.Response.StatusCode);
-            }
+            await controller.GetDiscussions(artifactId);
         }
 
         [TestMethod]
@@ -125,14 +118,15 @@ namespace ArtifactStore.Controllers
             {
                 var result = await controller.GetDiscussions(artifactId);
             }
-            catch (HttpResponseException e)
+            catch (BadRequestException e)
             {
                 //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
+                Assert.AreEqual(HttpStatusCode.BadRequest, (HttpStatusCode)e.ErrorCode);
             }
         }
 
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public async Task GetDiscussions_BadRequest_2()
         {
             //Arrange
@@ -140,18 +134,23 @@ namespace ArtifactStore.Controllers
             const int subArtifactId = -1;
             var controller = new DiscussionController(_discussionsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object);
             //Act
-            try
-            {
-                var result = await controller.GetDiscussions(artifactId, subArtifactId);
-            }
-            catch (HttpResponseException e)
-            {
-                //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
-            }
+            await controller.GetDiscussions(artifactId, subArtifactId);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetDiscussions_BadRequest_Same_Artifact_And_SubArtifactId()
+        {
+            //Arrange
+            const int artifactId = 1;
+            const int subArtifactId = 1;
+            var controller = new DiscussionController(_discussionsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object);
+            //Act
+            await controller.GetDiscussions(artifactId, subArtifactId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetDiscussions_NotFound()
         {
             //Arrange
@@ -172,15 +171,7 @@ namespace ArtifactStore.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            try
-            {
-                var result = await controller.GetDiscussions(artifactId);
-            }
-            catch (ResourceNotFoundException e)
-            {
-                //Assert
-                Assert.AreEqual(ErrorCodes.ArtifactNotFound, e.ErrorCode);
-            }
+            await controller.GetDiscussions(artifactId);
         }
         [TestMethod]
         public async Task GetReplies_Success()
@@ -210,6 +201,7 @@ namespace ArtifactStore.Controllers
         }
 
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public async Task GetReplies_BadRequest_1()
         {
             //Arrange
@@ -217,18 +209,11 @@ namespace ArtifactStore.Controllers
             const int discussionId = 1;
             var controller = new DiscussionController(_discussionsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object);
             //Act
-            try
-            {
-                var result = await controller.GetReplies(artifactId, discussionId);
-            }
-            catch (HttpResponseException e)
-            {
-                //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
-            }
+            await controller.GetReplies(artifactId, discussionId);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public async Task GetReplies_BadRequest_2()
         {
             //Arrange
@@ -236,18 +221,25 @@ namespace ArtifactStore.Controllers
             const int discussionId = -1;
             var controller = new DiscussionController(_discussionsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object);
             //Act
-            try
-            {
-                var result = await controller.GetReplies(artifactId, discussionId);
-            }
-            catch (HttpResponseException e)
-            {
-                //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
-            }
+            await controller.GetReplies(artifactId, discussionId);
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetReplies_BadRequest_Same_Artifact_And_SubArtifactId()
+        {
+            //Arrange
+            const int artifactId = 1;
+            const int subArtifactId = 1;
+            const int discussionId = 2;
+            var controller = new DiscussionController(_discussionsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object);
+            //Act
+            await controller.GetReplies(artifactId, discussionId, subArtifactId);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public async Task GetReplies_BadRequest_3()
         {
             //Arrange
@@ -256,18 +248,11 @@ namespace ArtifactStore.Controllers
             const int subArtifactId = -1;
             var controller = new DiscussionController(_discussionsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object);
             //Act
-            try
-            {
-                var result = await controller.GetReplies(artifactId, discussionId, subArtifactId);
-            }
-            catch (HttpResponseException e)
-            {
-                //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
-            }
+            await controller.GetReplies(artifactId, discussionId, subArtifactId);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
         public async Task GetReplies_Forbidden()
         {
             //Arrange
@@ -287,18 +272,11 @@ namespace ArtifactStore.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            try
-            {
-                await controller.GetReplies(artifactId, discussionId);
-            }
-            catch (HttpResponseException e)
-            {
-                //Assert
-                Assert.AreEqual(HttpStatusCode.Forbidden, e.Response.StatusCode);
-            }
+            await controller.GetReplies(artifactId, discussionId);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetReplies_NotFound()
         {
             //Arrange
@@ -320,15 +298,7 @@ namespace ArtifactStore.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            try
-            {
-                await controller.GetReplies(artifactId, discussionId);
-            }
-            catch (HttpResponseException e)
-            {
-                //Assert
-                Assert.AreEqual(HttpStatusCode.NotFound, e.Response.StatusCode);
-            }
+            await controller.GetReplies(artifactId, discussionId);
         }
     }
 }

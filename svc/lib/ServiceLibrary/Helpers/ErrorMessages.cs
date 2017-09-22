@@ -85,8 +85,7 @@
         public static readonly string WorkflowDescriptionLimit = "Please enter a Workflow Description up to 400 characters";
         public static readonly string CreateWorkfloModelIsEmpty = "The body of the call is malformed or has invalid parameter";
         public static readonly string WorkflowAlreadyExists = "Workflow with such a name already exists";
-
-        public static readonly string IncorrectWorkflowId = "Incorrect WorkflowId.";
+        
         //Folder
         public static readonly string FolderWithSuchNameExistsInParentFolder = "A folder with the same name already exists in the parent folder. Please use a different name.";
         public static readonly string ModelIsEmpty = "The body of the call is malformed or has invalid parameter.";
@@ -100,7 +99,7 @@
         public static readonly string FolderReferenceToItself = "The folder cannot be placed into itself. Please select a different location.";
         public static readonly string ParentFolderIdReferenceToDescendantItem = "The parent folder cannot be placed into its descendant. Please select a different location.";
         public static readonly string EditRootFolderIsForbidden = "Root folder cannot be edited.";
-        public static readonly string IncorrectFolderId = "Incorrect FolderId.";
+       
         //Project
         public static readonly string ProjectNameLimitation = "Please enter a name between 1 and 128 characters.";
         public static readonly string LocationIsRequired = "Please select a location.";

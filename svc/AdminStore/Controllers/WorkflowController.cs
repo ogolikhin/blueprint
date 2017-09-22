@@ -149,10 +149,9 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="workFlowId"></param>
         /// <param name="folderId"></param>         
-        /// <response code="200">OK. List not assigned projects for Workflow</response>
-        /// <response code="400">BadRequest if invalid workFlowId or folderId</response>
+        /// <response code="200">OK. List not assigned projects for Workflow</response>       
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">User doesn’t have permission to view workflow projects.</response>
+        /// <response code="403">User doesn’t have permission to view projects not assigned to workflow.</response>
         /// <response code="404">Not Found. The workflow with workFlowId or folder with folderId were not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// 

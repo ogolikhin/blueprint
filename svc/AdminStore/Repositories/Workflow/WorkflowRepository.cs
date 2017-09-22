@@ -521,8 +521,7 @@ namespace AdminStore.Repositories.Workflow
             prm.Add("@folderId", folderId, dbType: DbType.Int32);          
             prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var items = ((await _connectionWrapper.QueryAsync<InstanceItem>("GetWorkflowAvailableProjects", prm, commandType: CommandType.StoredProcedure))
-                    ?? Enumerable.Empty<InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
+            var items = await _connectionWrapper.QueryAsync<InstanceItem>("GetWorkflowAvailableProjects", prm, commandType: CommandType.StoredProcedure);
 
             var errorCode = prm.Get<int?>("ErrorCode");
 
@@ -537,7 +536,9 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            return items;
+            if (items != null && items.Count() > 0)
+                return items.OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
+            else return new List<InstanceItem>();           
         }
 
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)

@@ -1159,7 +1159,7 @@ namespace ArtifactStore.Repositories
 
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIdEnumerable);
 
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, false);
 
             if (approvalCheck.ReviewerStatus == ReviewStatus.Completed)
             {

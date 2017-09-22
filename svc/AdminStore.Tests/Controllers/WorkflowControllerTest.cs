@@ -775,59 +775,23 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task CreateWorkflow_InvalidNameLength_BadRequest()
+        public async Task CreateWorkflow_ModelIsValid_ReturnNewWorkflowId()
         {
             //arrange
-            Exception exception = null;
+
+            var model = new CreateWorkflowDto() { Name = "some unique name", Description = "some description" };
+            var returnId = 1;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+            _workflowServiceMock.Setup(s => s.CreateWorkflow(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(returnId);
 
             //act
-            try
-            {
-                await _controller.CreateWorkflow(new CreateWorkflowDto() {Name = "a"});
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
+            var result = await _controller.CreateWorkflow(model) as OkNegotiatedContentResult<int>;
 
             //assert
-            Assert.IsNotNull(exception);
-            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
-            Assert.AreEqual(ErrorMessages.WorkflowNameError, exception.Message);
-        }
-
-        [TestMethod]
-        public async Task CreateWorkflow_DescriptionLimitReached_BadRequest()
-        {
-            //arrange
-            Exception exception = null;
-            _privilegesRepositoryMock
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
-            //act
-            try
-            {
-                await
-                    _controller.CreateWorkflow(new CreateWorkflowDto()
-                    {
-                        Name = "aasdff",
-                        Description =
-                            "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenati"
-                    });
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-
-            //assert
-            Assert.IsNotNull(exception);
-            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
-            Assert.AreEqual(ErrorMessages.WorkflowDescriptionLimit, exception.Message);
+            Assert.AreEqual(returnId, result.Content);
+            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<int>));
         }
 
         #endregion

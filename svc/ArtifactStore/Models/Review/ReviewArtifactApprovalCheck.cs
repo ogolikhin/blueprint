@@ -15,5 +15,7 @@ namespace ArtifactStore.Models.Review
         public bool AllArtifactsRequireApproval { get; set; }
         public bool UserInReview { get; set; }
         public ReviewParticipantRole ReviewerRole { get; set; }
+        public ReviewType ReviewType { get; set; }
+        public ReviewStatus ReviewerStatus { get; set; }
     }
 }

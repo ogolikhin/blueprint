@@ -6,6 +6,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
+using System;
+using ServiceLibrary.Exceptions;
+using AdminStore.Models;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -175,5 +179,156 @@ namespace AdminStore.Repositories
         }
 
         #endregion
+
+        #region GetWorkflowAvailableProjectsAsync
+        [TestMethod]
+         public async Task GetWorkflowAvailableProjectsAsync_ExistsAvailableProjects_QueryReturnAvailableProjects()
+         {
+             //arrange
+             var cxn = new SqlConnectionWrapperMock();
+             var sqlHelperMock = new Mock<ISqlHelper>();
+             var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
+ 
+             var workflowId = 1;
+             var folderId = 2;
+ 
+             var listAvailableProjects = new List<InstanceItem>
+             {
+                 new InstanceItem
+                 {
+                     Id=4,
+                     ParentFolderId=2,
+                     Name="Project11",
+                     Type=(InstanceItemTypeEnum)1
+                 },
+                 new InstanceItem
+                 {
+                     Id=7,
+                     ParentFolderId=2,
+                     Name="Project12",
+                     Type=(InstanceItemTypeEnum)1
+                 }
+             };
+ 
+             cxn.SetupQueryAsync("GetWorkflowAvailableProjects", It.IsAny<Dictionary<string, object>>(), listAvailableProjects);
+ 
+             //act
+             var result = await repository.GetWorkflowAvailableProjectsAsync(workflowId, folderId);
+ 
+             //assert
+             Assert.IsNotNull(result);
+         }
+ 
+         [TestMethod]
+         public async Task GetWorkflowAvailableProjects_InvalidWorkflowId_ReturnArgumentOutOfRangeException()
+         {
+             //arrange
+             Exception exception = null;
+             var cxn = new SqlConnectionWrapperMock();
+             var sqlHelperMock = new Mock<ISqlHelper>();
+             var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
+ 
+             var workflowId = 0;
+             var folderId = 1;
+ 
+             //act
+             try
+             {
+                 await repository.GetWorkflowAvailableProjectsAsync(workflowId, folderId);
+             }
+             catch (Exception ex)
+             {
+                 exception = ex;
+             }
+ 
+             //assert
+             Assert.IsNotNull(exception);
+             Assert.IsInstanceOfType(exception, typeof(ArgumentOutOfRangeException));
+         }
+ 
+         [TestMethod]
+         public async Task GetWorkflowAvailableProjects_InvalidFolderId_ReturnArgumentOutOfRangeException()
+         {
+             //arrange
+             Exception exception = null;
+             var cxn = new SqlConnectionWrapperMock();
+             var sqlHelperMock = new Mock<ISqlHelper>();
+             var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
+ 
+             var workflowId = 1;
+             var folderId = 0;
+ 
+             //act
+             try
+             {
+                 await repository.GetWorkflowAvailableProjectsAsync(workflowId, folderId);
+             }
+             catch (Exception ex)
+             {
+                 exception = ex;
+             }
+ 
+             //assert
+             Assert.IsNotNull(exception);
+             Assert.IsInstanceOfType(exception, typeof(ArgumentOutOfRangeException));
+         }
+ 
+         [TestMethod]
+         public async Task GetWorkflowAvailableProjects_NotExistFolderByFolderId_ReturnResourceNotFoundException()
+         {
+             //arrange
+             Exception exception = null;
+             var cxn = new SqlConnectionWrapperMock();
+             var sqlHelperMock = new Mock<ISqlHelper>();
+             var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
+ 
+             var workflowId = 1;
+             var folderId = 1;
+ 
+             cxn.SetupQueryAsync("GetWorkflowAvailableProjects", It.IsAny<Dictionary<string, object>>(), new List<InstanceItem>(), new Dictionary<string, object> { { "ErrorCode" , (int)SqlErrorCodes.FolderWithCurrentIdNotExist} });
+ 
+             //act
+             try
+             {
+                 await repository.GetWorkflowAvailableProjectsAsync(workflowId, folderId);
+             }
+             catch (Exception ex)
+             {
+                 exception = ex;
+             }
+ 
+             //assert
+             Assert.IsNotNull(exception);
+             Assert.IsInstanceOfType(exception, typeof(ResourceNotFoundException));
+         }
+ 
+         [TestMethod]
+         public async Task GetWorkflowAvailableProjects_NotExistWorkflowByWorkflowId_ReturnResourceNotFoundException()
+         {
+             //arrange
+             Exception exception = null;
+             var cxn = new SqlConnectionWrapperMock();
+             var sqlHelperMock = new Mock<ISqlHelper>();
+             var repository = new WorkflowRepository(cxn.Object, sqlHelperMock.Object);
+ 
+             var workflowId = 1;
+             var folderId = 1;
+ 
+             cxn.SetupQueryAsync("GetWorkflowAvailableProjects", It.IsAny<Dictionary<string, object>>(), new List<InstanceItem>(), new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist } });
+ 
+             //act
+             try
+             {
+                 await repository.GetWorkflowAvailableProjectsAsync(workflowId, folderId);
+             }
+             catch (Exception ex)
+             {
+                 exception = ex;
+             }
+             //assert
+             Assert.IsNotNull(exception);
+             Assert.IsInstanceOfType(exception, typeof(ResourceNotFoundException));
+         }
+         #endregion
     }
 }

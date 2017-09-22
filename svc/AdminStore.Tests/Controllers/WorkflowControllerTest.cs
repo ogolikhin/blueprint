@@ -796,5 +796,54 @@ namespace AdminStore.Controllers
 
         #endregion
 
+        #region GetWorkflowAvailableProjects
+        [TestMethod]
+         public async Task GetWorkflowAvailableProjects_AllParamsAreCorrectAndPermissionsOk_ReturnListInstanceItem()
+         {
+             //arrange
+             int folderId = 1;
+             int workflowId = 1;
+           
+             _privilegesRepositoryMock
+                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+ 
+             _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(workflowId, folderId)).ReturnsAsync(new List<InstanceItem>());
+ 
+             //act
+             var actualResult = await _controller.GetWorkflowAvailableProjects(workflowId, folderId);
+ 
+             //assert
+             Assert.IsNotNull(actualResult);
+         }
+ 
+         [TestMethod]
+         public async Task GetWorkflowAvailableProjects_InvalidPermission_ReturnAuthorizationException()
+         {
+             //arrange
+             Exception exception = null;
+             int folderId = 1;
+             int workflowId = 1;          
+             _privilegesRepositoryMock
+                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                 .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
+ 
+             _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(workflowId, folderId)).ReturnsAsync(new List<InstanceItem>());
+ 
+             //act
+             try
+             {
+                 await _controller.GetWorkflowAvailableProjects(workflowId, folderId);
+             }
+             catch (Exception ex)
+             {
+                 exception = ex;
+             }
+ 
+             //assert
+             Assert.IsNotNull(exception);
+             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+         }        
+         #endregion
     }
 }

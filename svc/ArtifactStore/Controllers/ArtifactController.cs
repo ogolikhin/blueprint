@@ -57,8 +57,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetProjectChildren")]
         public async Task<List<Artifact>> GetProjectChildrenAsync(int projectId)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, session.UserId);
+            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, Session.UserId);
         }
 
         /// <summary>
@@ -79,8 +78,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetArtifactChildren")]
         public async Task<List<Artifact>> GetArtifactChildrenAsync(int projectId, int artifactId)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, session.UserId);
+            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, Session.UserId);
         }
 
         /// <summary>
@@ -127,10 +125,11 @@ namespace ArtifactStore.Controllers
         public async Task<List<Artifact>> GetExpandedTreeToArtifactAsync(int projectId, int expandedToArtifactId, bool includeChildren = false)
         {
             if(expandedToArtifactId < 1)
+            {
                 throw new BadRequestException(string.Format("Parameter {0} must be greater than 0.", nameof(expandedToArtifactId)), ErrorCodes.OutOfRangeParameter);
+            }
 
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetExpandedTreeToArtifactAsync(projectId, expandedToArtifactId, includeChildren, session.UserId);
+            return await ArtifactRepository.GetExpandedTreeToArtifactAsync(projectId, expandedToArtifactId, includeChildren, Session.UserId);
         }
 
         /// <summary>
@@ -149,8 +148,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetArtifactNavigationPath")]
         public async Task<List<Artifact>> GetArtifactNavigationPathAsync(int artifactId)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetArtifactNavigationPathAsync(artifactId, session.UserId);
+            return await ArtifactRepository.GetArtifactNavigationPathAsync(artifactId, Session.UserId);
         }
 
         /// <summary>
@@ -167,8 +165,7 @@ namespace ArtifactStore.Controllers
         [Route("artifacts/authorHistories"), SessionRequired]        
         public async Task<IEnumerable<AuthorHistory>> GetArtifactsAuthorHistories([FromBody] ISet<int> artifactIds)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, session.UserId);
+            return await ArtifactRepository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, Session.UserId);
         }
 
         /// <summary>
@@ -185,8 +182,7 @@ namespace ArtifactStore.Controllers
         [Route("artifacts/baselineInfo"), SessionRequired]
         public async Task<IEnumerable<BaselineInfo>> GetBaselineInfo([FromBody] ISet<int> artifactIds)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetBaselineInfo(artifactIds, session.UserId, true, int.MaxValue);
+            return await ArtifactRepository.GetBaselineInfo(artifactIds, Session.UserId, true, int.MaxValue);
         }
 
         /// <summary>

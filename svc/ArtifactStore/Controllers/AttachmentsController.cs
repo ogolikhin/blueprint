@@ -67,12 +67,12 @@ namespace ArtifactStore.Controllers
             {
                 addDrafts = false;
             }
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var userId = Session.UserId;
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
             var isDeleted = await ArtifactVersionsRepository.IsItemDeleted(itemId);
             var itemInfo = isDeleted && (versionId != null || baselineId != null) ?
                 (await ArtifactVersionsRepository.GetDeletedItemInfo(itemId)) :
-                (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
+                (await ArtifactPermissionsRepository.GetItemInfo(itemId, userId, addDrafts));
             if (itemInfo == null)
             {
                 throw new ResourceNotFoundException("You have attempted to access an item that does not exist or you do not have permission to view.",
@@ -85,13 +85,13 @@ namespace ArtifactStore.Controllers
                     throw new BadRequestException();
                 }
             }
-            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, versionId, subArtifactId, addDrafts, baselineId);
+            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, userId, versionId, subArtifactId, addDrafts, baselineId);
             var artifactIds = new List<int> { artifactId };
             foreach (var documentReference in result.DocumentReferences)
             {
                 artifactIds.Add(documentReference.ArtifactId);
             }
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
             if(!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);

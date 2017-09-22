@@ -50,7 +50,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetArtifactHistory")]
         public async Task<ArtifactHistoryResultSet> GetArtifactHistory(int artifactId, int limit = DEFAULT_LIMIT, int offset = DEFAULT_OFFSET, int? userId = null, bool asc = false, bool includeDrafts = true)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var sessionUserId = Session.UserId;
             if (limit < MIN_LIMIT || offset < 0 || userId < 1)
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
@@ -69,7 +69,7 @@ namespace ArtifactStore.Controllers
             }
 
             var artifactIds = new [] { artifactId };
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId, false, revisionId);
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, sessionUserId, false, revisionId);
 
             RolePermissions permission = RolePermissions.None;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
@@ -77,7 +77,7 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
-            var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc, session.UserId, includeDrafts);
+            var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId, includeDrafts);
             return result;
         }
 
@@ -97,8 +97,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetVersionControlArtifactInfo")]
         public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int? baselineId = null)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, baselineId, session.UserId);
+            return await ArtifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, baselineId, Session.UserId);
         }
     }
 }

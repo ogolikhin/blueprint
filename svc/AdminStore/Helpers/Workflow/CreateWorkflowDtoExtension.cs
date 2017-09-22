@@ -8,11 +8,7 @@ namespace AdminStore.Helpers.Workflow
     {
         public static void Validate(this CreateWorkflowDto dto)
         {
-            if (dto == null)
-            {
-                throw new BadRequestException(ErrorMessages.CreateWorkfloModelIsEmpty, ErrorCodes.BadRequest);
-            }
-            if (dto.Name == null || dto.Name.Length < 4 || dto.Name.Length > 64)
+            if (dto.Name == null || dto.Name.Length < 4 || dto.Name.Length > 24)
             {
                 throw new BadRequestException(ErrorMessages.WorkflowNameError, ErrorCodes.BadRequest);
             }

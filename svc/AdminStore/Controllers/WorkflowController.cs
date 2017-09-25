@@ -56,6 +56,35 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
+        /// Assign projects and standart artifacts to the workflow
+        /// </summary>
+        /// <param name="workFlowid"></param>
+        /// <param name="workflowAssign"></param>
+        /// <response code="200">OK. The projects and artifacts were assigned to the workflow.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions to assign projects and artifacts</response>
+        /// <response code="404">NotFound. The workflow with the current workflowId doesn’t exist or removed from the system.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// <returns></returns>
+        [HttpPost]       
+        [Route("{workflowId:int:min(1)}/assign"), SessionRequired]
+        [ResponseType(typeof(AssignResult))]
+        public async Task<IHttpActionResult> AssignProjectsAndArtifactsToWorkflow(int workFlowid, [FromBody] WorkflowAssignScope workflowAssign)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            if (workflowAssign == null || workflowAssign.IsEmpty())
+            {
+                throw new BadRequestException(ErrorMessages.AssignMemberScopeEmpty, ErrorCodes.BadRequest);
+            }
+
+            var result = await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(workFlowid, workflowAssign);
+
+            return Ok(new AssignResult() { TotalAssigned = result });
+        }
+
+        /// <summary>
         /// Import Workflow
         /// </summary>
         /// <remarks>

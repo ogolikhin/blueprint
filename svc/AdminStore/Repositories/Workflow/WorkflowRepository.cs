@@ -739,6 +739,31 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
+        public async Task<int> AssignProjectsAndArtifactsToWorkflow(int workflowId, WorkflowAssignScope scope)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@WorkflowId", workflowId);
+            parameters.Add("@AllArtifacts", scope.AllArtifacts);
+            parameters.Add("@AllProjects", scope.AllProjects);
+            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds));
+            parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.ProjectIds));            
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactsToWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {                                           
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+
+            return result;           
+        }
+
         #endregion
     }
 }

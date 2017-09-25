@@ -74,5 +74,7 @@ namespace AdminStore.Repositories.Workflow
         Task<int> CreateWorkflow(SqlWorkflow workflow, int revision, IDbTransaction transaction);
 
         Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId);
+
+        Task<int> AssignProjectsAndArtifactsToWorkflow(int workFlowId, WorkflowAssignScope scope);
     }
 }

@@ -124,7 +124,7 @@ namespace ArtifactStore.Controllers
 
             if (discussionId < 1)
             {
-                throw new BadRequestException(string.Format("Parameter: {0} is out of the range of valid values", nameof(discussionId)));
+                throw new BadRequestException(I18NHelper.FormatInvariant("Parameter: {0} is out of the range of valid values", nameof(discussionId)));
             }
 
             var userId = Session.UserId;
@@ -175,12 +175,12 @@ namespace ArtifactStore.Controllers
         {
             if (artifactId < 1)
             {
-                throw new BadRequestException(string.Format("Parameter: {0} is out of the range of valid values", nameof(artifactId)));
+                throw new BadRequestException(I18NHelper.FormatInvariant("Parameter: {0} is out of the range of valid values", nameof(artifactId)));
             }
 
             if (subArtifactId.HasValue && subArtifactId.Value < 1)
             {
-                throw new BadRequestException(string.Format("Parameter: {0} is out of the range of valid values", nameof(subArtifactId)));
+                throw new BadRequestException(I18NHelper.FormatInvariant("Parameter: {0} is out of the range of valid values", nameof(subArtifactId)));
             }
 
             if (subArtifactId.HasValue && artifactId == subArtifactId.Value)

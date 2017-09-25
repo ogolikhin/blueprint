@@ -301,6 +301,7 @@
     <Compile Include="Models\VersionControl\SqlJournalEntry.cs" />
     <Compile Include="Models\VersionControl\SqlPublishResult.cs" />
     <Compile Include="Models\VersionControl\VersionControlArtifactInfo.cs" />
+    <Compile Include="Models\WorkflowAssignScope.cs" />
     <Compile Include="Models\Workflow\Actions\EmailNotificationAction.cs" />
     <Compile Include="Models\Workflow\Actions\GenerateAction.cs" />
     <Compile Include="Models\Workflow\Actions\GenerateChildrenAction.cs" />

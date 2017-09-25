@@ -1159,7 +1159,7 @@ namespace ArtifactStore.Repositories
 
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIdEnumerable);
 
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, false);
 
             if (approvalCheck.ReviewerStatus == ReviewStatus.Completed)
             {
@@ -1333,7 +1333,7 @@ namespace ArtifactStore.Repositories
 
             if (artifactIds.Any(artifactId => !SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read)))
             {
-                throw new ResourceNotFoundException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.ArtifactNotFound);
+                throw new AuthorizationException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.UnauthorizedAccess);
             }
         }
 

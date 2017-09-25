@@ -2,11 +2,9 @@
 using System.Threading.Tasks;
 using System.Web.Http;
 using SearchService.Models;
-using SearchService.Repositories;
 using SearchService.Services;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
-using ServiceLibrary.Repositories;
 
 namespace SearchService.Controllers
 {
@@ -19,14 +17,10 @@ namespace SearchService.Controllers
         public override string LogSource => "SearchService.SemanticSearch";
 
         public SemanticSearchController() : this(
-            new SemanticSearchService(
-                new SemanticSearchRepository(),
-                new SqlArtifactPermissionsRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)),
-                new SqlUsersRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)), 
-                new SqlArtifactRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString))))
+            new SemanticSearchService())
         {
-            
         }
+
         internal SemanticSearchController(ISemanticSearchService semanticSearchService)
         {
             _semanticSearchService = semanticSearchService;
@@ -36,15 +30,7 @@ namespace SearchService.Controllers
         [Route("{id}")]
         public async Task<SuggestionsSearchResult> GetSuggestions(int id)
         {
-            try
-            {
-                return await _semanticSearchService.Suggests(id, Session.UserId);
-            }
-            catch (Exception ex)
-            {
-                await Log.LogError(LogSource, ex);
-                throw;
-            }
+            return await _semanticSearchService.Suggests(id, Session.UserId);
         }
     }
 }

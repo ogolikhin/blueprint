@@ -20,6 +20,14 @@ namespace SearchService.Services
         private IUsersRepository _usersRepository;
         private ISqlArtifactRepository _sqlArtifactRepository;
 
+        public SemanticSearchService() : this(
+                new SemanticSearchRepository(),
+                new SqlArtifactPermissionsRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)),
+                new SqlUsersRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)), 
+                new SqlArtifactRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)))
+        {
+            
+        }
         public SemanticSearchService(
             ISemanticSearchRepository semanticSearchRepository, 
             IArtifactPermissionsRepository artifactPermissionRepository,

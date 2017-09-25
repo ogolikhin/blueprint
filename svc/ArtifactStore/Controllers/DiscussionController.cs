@@ -49,11 +49,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetDiscussions")]
         public async Task<DiscussionResultSet> GetDiscussions(int artifactId, int? subArtifactId = null)
         {
-            if (artifactId < 1 || (subArtifactId.HasValue && (subArtifactId.Value < 1 || artifactId == subArtifactId)))
-            {
-                throw new BadRequestException();
-            }
-
+            ValidateRequestParameters(artifactId, subArtifactId);
             var userId = Session.UserId;
 
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
@@ -82,7 +78,7 @@ namespace ArtifactStore.Controllers
             RolePermissions permission = RolePermissions.None;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
-                throw new AuthorizationException();
+                throw new AuthorizationException("You do not have permission to access the artifact");
             }
 
             var discussions = await _discussionsRepository.GetDiscussions(itemId, itemInfo.ProjectId);
@@ -124,9 +120,11 @@ namespace ArtifactStore.Controllers
         [ActionName("GetReplies")]
         public async Task<IEnumerable<Reply>> GetReplies(int artifactId, int discussionId, int? subArtifactId = null)
         {
-            if (artifactId < 1 || discussionId < 1 || (subArtifactId.HasValue && (subArtifactId.Value < 1 || artifactId == subArtifactId)))
+            ValidateRequestParameters(artifactId, subArtifactId);
+
+            if (discussionId < 1)
             {
-                throw new BadRequestException();
+                throw new BadRequestException(string.Format("Parameter: {0} is out of the range of valid values", nameof(discussionId)));
             }
 
             var userId = Session.UserId;
@@ -159,7 +157,7 @@ namespace ArtifactStore.Controllers
             RolePermissions permission = RolePermissions.None;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
-                throw new AuthorizationException();
+                throw new AuthorizationException("You do not have permission to access the artifact");
             }
             var result = await _discussionsRepository.GetReplies(discussionId, itemInfo.ProjectId);
             foreach (var reply in result)
@@ -171,6 +169,24 @@ namespace ArtifactStore.Controllers
             }
 
             return result;
+        }
+
+        private void ValidateRequestParameters(int artifactId, int? subArtifactId)
+        {
+            if (artifactId < 1)
+            {
+                throw new BadRequestException(string.Format("Parameter: {0} is out of the range of valid values", nameof(artifactId)));
+            }
+
+            if (subArtifactId.HasValue && subArtifactId.Value < 1)
+            {
+                throw new BadRequestException(string.Format("Parameter: {0} is out of the range of valid values", nameof(subArtifactId)));
+            }
+
+            if (subArtifactId.HasValue && artifactId == subArtifactId.Value)
+            {
+                throw new BadRequestException("Please provide a proper subartifact Id");
+            }
         }
     }
 }

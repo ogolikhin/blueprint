@@ -90,7 +90,7 @@ namespace ArtifactStore.Controllers
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
             if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
-                throw new AuthorizationException();
+                throw new AuthorizationException("You do not have permission to access the artifact");
             }
             var docRef = result.DocumentReferences.ToList();
             foreach (var documentReference in docRef)

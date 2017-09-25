@@ -2475,7 +2475,7 @@ namespace ArtifactStore.Repositories
             }
             catch (AuthorizationException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, ErrorCodes.ArtifactNotFound);
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
                 return;
             }
 
@@ -2785,7 +2785,7 @@ namespace ArtifactStore.Repositories
             }
             catch (AuthorizationException ex)
             {
-                Assert.AreEqual(ErrorCodes.ArtifactNotFound, ex.ErrorCode);
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
 
                 return;
             }

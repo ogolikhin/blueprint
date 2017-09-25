@@ -11,7 +11,7 @@ namespace SearchService.Services
 {
     public interface ISemanticSearchService
     {
-        Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(int id, int userId);
+        Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(SemanticSearchSuggestionParameters parameters);
     }
     public class SemanticSearchService: ISemanticSearchService
     {
@@ -40,12 +40,15 @@ namespace SearchService.Services
             _sqlArtifactRepository = sqlArtifactRepository;
         }
 
-        public async Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(int id, int userId)
+        public async Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(SemanticSearchSuggestionParameters parameters)
         {
+            var id = parameters.ArtifactId;
+            var userId = parameters.UserId;
             if (id <= 0)
             {
                 throw new BadRequestException("Please specify a valid artifact id");
             }
+
             var artifactDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(id, userId);
             var itemTypePredefined = (ItemTypePredefined) artifactDetails.PrimitiveItemTypePredefined;
 

@@ -27,10 +27,11 @@ namespace SearchService.Controllers
         }
         
         [HttpGet, NoCache, SessionRequired]
-        [Route("{id}")]
-        public async Task<SuggestionsSearchResult> GetSuggestions(int id)
+        [Route("{artifactId}")]
+        public async Task<SuggestionsSearchResult> GetSuggestions([FromUri] SuggestionsSearchCriteria searchCriteria)
         {
-            return await _semanticSearchService.GetSemanticSearchSuggestions(id, Session.UserId);
+            var suggestionParameters = new SemanticSearchSuggestionParameters(searchCriteria.ArtifactId, Session.UserId);
+            return await _semanticSearchService.GetSemanticSearchSuggestions(suggestionParameters);
         }
     }
 }

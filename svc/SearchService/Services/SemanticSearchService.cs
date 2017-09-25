@@ -11,7 +11,7 @@ namespace SearchService.Services
 {
     public interface ISemanticSearchService
     {
-        Task<SuggestionsSearchResult> Suggests(int id, int userId);
+        Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(int id, int userId);
     }
     public class SemanticSearchService: ISemanticSearchService
     {
@@ -40,7 +40,7 @@ namespace SearchService.Services
             _sqlArtifactRepository = sqlArtifactRepository;
         }
 
-        public async Task<SuggestionsSearchResult> Suggests(int id, int userId)
+        public async Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(int id, int userId)
         {
             if (id <= 0)
             {

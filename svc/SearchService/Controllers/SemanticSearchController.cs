@@ -30,7 +30,7 @@ namespace SearchService.Controllers
         [Route("{id}")]
         public async Task<SuggestionsSearchResult> GetSuggestions(int id)
         {
-            return await _semanticSearchService.Suggests(id, Session.UserId);
+            return await _semanticSearchService.GetSemanticSearchSuggestions(id, Session.UserId);
         }
     }
 }

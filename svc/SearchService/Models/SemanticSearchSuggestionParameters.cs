@@ -2,10 +2,10 @@
 {
     public class SemanticSearchSuggestionParameters
     {
-        public int ArtifactId { get; set; }
-        public int UserId { get; set; }
-        public int PageSize { get; set; }
-        public int Page { get; set; }
+        public int ArtifactId { get; }
+        public int UserId { get; }
+        public int PageSize { get; }
+        public int Page { get; }
 
         public SemanticSearchSuggestionParameters(int artifactId, int userId, int pageSize = 10, int page = 0)
         {

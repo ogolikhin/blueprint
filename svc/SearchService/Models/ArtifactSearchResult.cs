@@ -1,21 +1,34 @@
-﻿using ServiceLibrary.Models;
+﻿using Newtonsoft.Json;
+using ServiceLibrary.Models;
 
 namespace SearchService.Models
 {
+    [JsonObject]
     public class ArtifactSearchResult : SearchResult
     {
-        public int Id { get; set; }
+        [JsonProperty]
+        public int Id
+        {
+            get { return ItemId; }
+            set { ItemId = value; }
+        }
 
+        [JsonProperty]
         public int ProjectId { get; set; }
 
-        public int ProjectName { get; set; }
+        [JsonProperty]
+        public string ProjectName { get; set; }
 
+        [JsonProperty]
         public int ItemTypeId { get; set; }
 
-        public string Prefix { get; set; }
+        [JsonProperty]
+        public string TypePrefix { get; set; }
 
-        public int ItemTypeIconId { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? ItemTypeIconId { get; set; }
 
+        [JsonProperty]
         public ItemTypePredefined PredefinedType { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SearchService.Models;
 using SearchService.Repositories;
@@ -71,10 +72,12 @@ namespace SearchService.Services
             var isInstanceAdmin = await _usersRepository.IsInstanceAdmin(false, userId);
             var accessibleProjectIds = isInstanceAdmin ? new List<int>() : await _semanticSearchRepository.GetAccessibleProjectIds(userId);
 
-            var suggestedArtifactIds = _semanticSearchRepository.GetSuggestedArtifacts(id, isInstanceAdmin, accessibleProjectIds);
+            var suggestedArtifactIds = await _semanticSearchRepository.GetSuggestedArtifacts(id, isInstanceAdmin, accessibleProjectIds);
+
+            var artifactsInfos = await _semanticSearchRepository.GetSuggestedArtifactDetails(suggestedArtifactIds, userId);
 
             //Get list of some basic artifact details from the list of returned ids.
-            //suggestionsSearchResult.SuggestedArtifacts.AddRange(suggestions);
+            suggestionsSearchResult.Items = artifactsInfos;
 
             return suggestionsSearchResult;
         }

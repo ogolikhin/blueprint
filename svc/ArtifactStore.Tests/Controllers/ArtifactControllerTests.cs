@@ -10,6 +10,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Web.Http;
 using System.Net;
+using AdminStore.Repositories;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 
@@ -25,6 +26,7 @@ namespace ArtifactStore.Controllers
         private Mock<ISqlArtifactRepository> mockArtifactRepository;
         private Mock<IServiceLogRepository> mockServiceLogRepository;
         private Mock<IArtifactPermissionsRepository> mockArtifactPermissionsRepository;
+        private Mock<IPrivilegesRepository> _mockSqlPrivilegesRepository;
         private ArtifactController artifactController;
 
         [TestInitialize]
@@ -54,8 +56,9 @@ namespace ArtifactStore.Controllers
             mockArtifactRepository = new Mock<ISqlArtifactRepository>();
             mockServiceLogRepository = new Mock<IServiceLogRepository>();
             mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            _mockSqlPrivilegesRepository = new Mock<IPrivilegesRepository>();
             artifactController = new ArtifactController(mockArtifactRepository.Object,
-                mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+                mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -75,7 +78,7 @@ namespace ArtifactStore.Controllers
             mockArtifactRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId)).ReturnsAsync(children);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -101,7 +104,7 @@ namespace ArtifactStore.Controllers
             mockArtifactRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, artifactId, userId)).ReturnsAsync(children);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -127,7 +130,7 @@ namespace ArtifactStore.Controllers
             mockArtifactRepository.Setup(r => r.GetExpandedTreeToArtifactAsync(projectId, artifactId, true, userId)).ReturnsAsync(rootChildren);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -152,7 +155,7 @@ namespace ArtifactStore.Controllers
             var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -179,7 +182,7 @@ namespace ArtifactStore.Controllers
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
 
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object) { Request = new HttpRequestMessage() };
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object) { Request = new HttpRequestMessage() };
             artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             HttpResponseException result = null;
@@ -212,7 +215,7 @@ namespace ArtifactStore.Controllers
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
 
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object) { Request = new HttpRequestMessage() };
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object) { Request = new HttpRequestMessage() };
             artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
@@ -235,7 +238,7 @@ namespace ArtifactStore.Controllers
             mockArtifactRepository.Setup(r => r.GetArtifactNavigationPathAsync(artifactId, userId)).ReturnsAsync(navPath);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -276,6 +279,41 @@ namespace ArtifactStore.Controllers
             //Act
             var result = await artifactController.GetProcessInformationAsync(artifactIds);
 
+        }
+
+        [TestMethod]
+        public async Task GetStandardArtifactTypes_SuccessResult()
+        {
+            // Arrange
+            var artifacts = new List<StandardArtifactType> {new StandardArtifactType {Id = 1, Name = "CustomActor"} };
+            mockArtifactRepository.Setup(r => r.GetStandardArtifactTypes())
+                                  .ReturnsAsync(artifacts);
+
+            _mockSqlPrivilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            // Act
+            var result = await artifactController.GetStandardArtifactTypes();
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result, artifacts);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetStandardArtifactTypes_AuthorizationException()
+        {
+            // Arrange
+            _mockSqlPrivilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
+
+            // Act
+            await artifactController.GetStandardArtifactTypes();
+
+            //Assert
         }
     }
 }

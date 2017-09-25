@@ -215,6 +215,10 @@ namespace AdminStore.Controllers
         private const int SessionUserId = 1;
         private const int WorkflowId = 1;
         private const InstanceAdminPrivileges AllProjectDataPermissions = InstanceAdminPrivileges.AccessAllProjectData;
+        private Exception _exception;
+        private int _folderId;
+
+
 
         [TestInitialize]
         public void Initialize()
@@ -233,6 +237,9 @@ namespace AdminStore.Controllers
             };
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
+
+            _folderId = 1;
+            _exception = null;
         }
 
         #region GetWorkflow
@@ -800,18 +807,15 @@ namespace AdminStore.Controllers
         [TestMethod]
          public async Task GetWorkflowAvailableProjects_AllParamsAreCorrectAndPermissionsOk_ReturnListInstanceItem()
          {
-             //arrange
-             int folderId = 1;
-             int workflowId = 1;
-           
+             //arrange                       
              _privilegesRepositoryMock
                  .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                  .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
  
-             _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(workflowId, folderId)).ReturnsAsync(new List<InstanceItem>());
+             _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(WorkflowId, _folderId)).ReturnsAsync(new List<InstanceItem>());
  
              //act
-             var actualResult = await _controller.GetWorkflowAvailableProjects(workflowId, folderId);
+             var actualResult = await _controller.GetWorkflowAvailableProjects(WorkflowId, _folderId);
  
              //assert
              Assert.IsNotNull(actualResult);
@@ -820,29 +824,26 @@ namespace AdminStore.Controllers
          [TestMethod]
          public async Task GetWorkflowAvailableProjects_InvalidPermission_ReturnAuthorizationException()
          {
-             //arrange
-             Exception exception = null;
-             int folderId = 1;
-             int workflowId = 1;          
+             //arrange                                  
              _privilegesRepositoryMock
                  .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                  .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
  
-             _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(workflowId, folderId)).ReturnsAsync(new List<InstanceItem>());
+             _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(WorkflowId, _folderId)).ReturnsAsync(new List<InstanceItem>());
  
              //act
              try
              {
-                 await _controller.GetWorkflowAvailableProjects(workflowId, folderId);
+                 await _controller.GetWorkflowAvailableProjects(WorkflowId, _folderId);
              }
              catch (Exception ex)
              {
-                 exception = ex;
+                 _exception = ex;
              }
  
              //assert
-             Assert.IsNotNull(exception);
-             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+             Assert.IsNotNull(_exception);
+             Assert.IsInstanceOfType(_exception, typeof(AuthorizationException));
          }        
          #endregion
     }

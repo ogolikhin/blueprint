@@ -1333,7 +1333,7 @@ namespace ArtifactStore.Repositories
 
             if (artifactIds.Any(artifactId => !SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read)))
             {
-                throw new AuthorizationException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.ArtifactNotFound);
+                throw new AuthorizationException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.UnauthorizedAccess);
             }
         }
 

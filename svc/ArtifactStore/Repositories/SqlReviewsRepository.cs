@@ -394,6 +394,7 @@ namespace ArtifactStore.Repositories
                         artifact.HasAttachments = reviewedArtifact.HasAttachments;
                         artifact.HasRelationships = reviewedArtifact.HasRelationships;
                         artifact.HasAccess = true;
+                        artifact.ViewState = reviewedArtifact.ViewState;
                     }
                 }
                 else
@@ -1271,7 +1272,7 @@ namespace ArtifactStore.Repositories
 
             if (reviewerRole == ReviewParticipantRole.Reviewer)
             {
-                return artifact.ViewedArtifactVersion == artifact.ArtifactVersion;
+                return artifact.ViewState == ViewStateType.Viewed && artifact.ViewedArtifactVersion == artifact.ArtifactVersion;
             }
 
             return !artifact.IsApprovalRequired

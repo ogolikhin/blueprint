@@ -1,12 +1,11 @@
 ﻿using Dapper;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
 using System.Data;
 using System.Threading.Tasks;
-using ServiceLibrary.Exceptions;
 
-namespace AdminStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     public class SqlPrivilegesRepository : IPrivilegesRepository
     {
@@ -36,10 +35,12 @@ namespace AdminStore.Repositories
             parameters.Add("@ProjectId", projectId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var permissions =
-                await
-                    _connectionWrapper.ExecuteScalarAsync<ProjectAdminPrivileges>("GetProjectAdminPermissions",
-                        parameters, commandType: CommandType.StoredProcedure);
+            var permissions = await _connectionWrapper.ExecuteScalarAsync<ProjectAdminPrivileges>
+            (
+                "GetProjectAdminPermissions",
+                parameters, 
+                commandType: CommandType.StoredProcedure
+            );
 
             var errorCode = parameters.Get<int?>("ErrorCode");
 
@@ -47,6 +48,7 @@ namespace AdminStore.Repositories
             {
                 throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
             }
+
             return permissions;
         }
     }

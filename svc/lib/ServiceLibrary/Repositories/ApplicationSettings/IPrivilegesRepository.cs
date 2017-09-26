@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using ServiceLibrary.Models;
 using System.Threading.Tasks;
-using ServiceLibrary.Models;
 
-namespace AdminStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     public interface IPrivilegesRepository
     {

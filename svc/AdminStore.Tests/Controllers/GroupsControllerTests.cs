@@ -7,6 +7,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Net;

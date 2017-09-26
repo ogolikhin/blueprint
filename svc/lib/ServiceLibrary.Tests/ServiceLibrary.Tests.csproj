@@ -96,6 +96,7 @@
     <Compile Include="Exceptions\AuthorizationExceptionTests.cs" />
     <Compile Include="Helpers\Cache\AsyncCacheTests.cs" />
     <Compile Include="Helpers\HttpFilterHelper.cs" />
+    <Compile Include="Helpers\PrivilegesManagerTests.cs" />
     <Compile Include="Helpers\PropertyHelperTests.cs" />
     <Compile Include="Helpers\SqlHelperMock.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Repositories\SqlConnectionWrapperMock.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepositoryTests.cs" />
     <Compile Include="Repositories\SqlInstanceSettingsRepositoryMock.cs" />
+    <Compile Include="Repositories\SqlPrivilegesRepositoryTest.cs" />
     <Compile Include="Repositories\SqlUserRepositoryMock.cs" />
     <Compile Include="Repositories\SqlFeaturesRepositoryTests.cs" />
     <Compile Include="Services\FeaturesServiceTests.cs" />

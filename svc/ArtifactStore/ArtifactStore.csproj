@@ -233,10 +233,6 @@
       <Project>{03bd78ca-0bb7-4488-a0b3-4e07ce05391f}</Project>
       <Name>BluePrintSys.Messaging.Models.Actions</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AdminStore\AdminStore.csproj">
-      <Project>{AA349995-9A2A-45C5-9EC1-19908667BD4E}</Project>
-      <Name>AdminStore</Name>
-    </ProjectReference>
     <ProjectReference Include="..\lib\HtmlLibrary\HtmlLibrary.csproj">
       <Project>{fbb16370-f443-4e45-9c18-64d11239ae44}</Project>
       <Name>HtmlLibrary</Name>

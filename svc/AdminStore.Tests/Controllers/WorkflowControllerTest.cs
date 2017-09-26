@@ -1,6 +1,6 @@
 ﻿using AdminStore.Models;
+using AdminStore.Models.DTO;
 using AdminStore.Models.Workflow;
-using AdminStore.Repositories;
 using AdminStore.Repositories.Workflow;
 using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,6 +9,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,6 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using System.Xml.Schema;
-using AdminStore.Models.DTO;
 
 namespace AdminStore.Controllers
 {

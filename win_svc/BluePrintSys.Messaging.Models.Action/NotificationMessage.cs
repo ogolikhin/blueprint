@@ -19,7 +19,6 @@ namespace BluePrintSys.Messaging.Models.Actions
         public int RevisionId { get; set; }
         public int ArtifactTypeId { get; set; }
         public int ArtifactTypePredefined { get; set; }
-        public string LogoImageSrc { get; set; }
         public string BlueprintUrl { get; set; }
     }
 }

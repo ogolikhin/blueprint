@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
@@ -34,6 +35,14 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                 return await Task.FromResult(SendEmailResult.Error);
             }
 
+            //Get the logo
+            byte[] logoImageArray = new LogoDataProvider().GetLogo();
+            string logoImageSrc = null;
+            if (logoImageArray != null)
+            {
+                logoImageSrc = GetImageSrc(logoImageArray, DDiscussionEmail.LogoImageAttachmentContentId);
+            }
+
             var notificationEmail = new NotificationEmail(
                 message.ProjectId,
                 message.ProjectName,
@@ -42,7 +51,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                 message.ArtifactUrl,
                 message.Message,
                 message.Header,
-                message.LogoImageSrc,
+                logoImageSrc,
                 message.BlueprintUrl);
 
             var emailMessage = new Message
@@ -54,6 +63,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                 IsBodyHtml = true,
                 Body = new NotificationEmailContent(notificationEmail).TransformText()
             };
+
+            if (logoImageArray != null)
+            {
+                emailMessage.DiscussionEmail = new DDiscussionEmail
+                {
+                    LogoImageSrc = logoImageSrc,
+                    LogoImageAttachmentArray = logoImageArray
+                };
+            }
 
             var smtpClientConfiguration = new SMTPClientConfiguration
             {
@@ -76,6 +94,19 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
             InternalSendEmail(smtpClientConfiguration, emailMessage, repository);
             Logger.Log("Email Sent", message, tenant, LogLevel.Debug);
             return await Task.FromResult(SendEmailResult.Success);
+        }
+
+        private static string GetImageSrc(byte[] imageArray, string attachmentContentId)
+        {
+            if (imageArray == null)
+            {
+                return null;
+            }
+            if (attachmentContentId == null)
+            {
+                return "data:image/png;base64," + Convert.ToBase64String(imageArray);
+            }
+            return "cid:" + attachmentContentId;
         }
 
         //for unit testing

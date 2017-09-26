@@ -50,7 +50,6 @@ namespace BlueprintSys.RC.Services.Tests
                 RevisionId = 5,
                 Subject = "Test Email",
                 UserId = 1,
-                LogoImageSrc = "",
                 BlueprintUrl = ""
             };
             _emailSettings = new EmailSettings
@@ -94,7 +93,6 @@ namespace BlueprintSys.RC.Services.Tests
             _notificationMessage.ProjectName = null;
             _notificationMessage.Subject = null;
             _notificationMessage.From = null;
-            _notificationMessage.LogoImageSrc = null;
             _notificationMessage.BlueprintUrl = null;
             _mockNotificationRepository.Setup(m => m.GetEmailSettings()).ReturnsAsync(_emailSettings);
             _mockNotificationRepository.Setup(m => m.SendEmail(It.IsAny<SMTPClientConfiguration>(), It.IsAny<Message>()));

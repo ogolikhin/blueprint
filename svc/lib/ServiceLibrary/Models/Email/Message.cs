@@ -28,5 +28,7 @@ namespace ServiceLibrary.Models.Email
         /// 
         /// </summary>
         public bool IsBodyHtml { get; set; }
+
+        public DDiscussionEmail DiscussionEmail { get; set; }
     }
 }

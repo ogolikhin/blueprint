@@ -541,6 +541,52 @@ namespace AdminStore.Repositories.Workflow
             else return new List<InstanceItem>();           
         }
 
+        public async Task<QueryResult<WorkflowProjectArtifacts>> GetProjectArtifactsAssignedtoWorkflowAsync(int workflowId, Pagination pagination, 
+                                            Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
+        {
+            if (workflowId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(workflowId));
+            }
+
+            var orderField = string.Empty;
+            if (sort != null && sorting != null)
+            {
+                orderField = sort(sorting);
+            }
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@Offset", pagination.Offset);
+            prm.Add("@WorkflowId", workflowId, dbType: DbType.Int32);
+            prm.Add("@Limit", pagination.Limit);
+            prm.Add("@OrderField", orderField);
+            prm.Add("@Search", search ?? string.Empty);
+            prm.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var items = (await _connectionWrapper.QueryAsync<WorkflowProjectArtifacts>("GetWorkflowProjectsArtifactTypes", prm, commandType: CommandType.StoredProcedure));
+            var groupedItems = items.GroupBy(x => x.ProjectName);
+            var groupedProjectArtifacts = groupedItems.SelectMany(@group => @group).ToList();
+
+            var errorCode = prm.Get<int?>("ErrorCode");
+            var total = prm.Get<int?>("Total");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+
+            return new QueryResult<WorkflowProjectArtifacts>() { Items = groupedProjectArtifacts, Total = total ?? 0 };
+        }
+
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
         {
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);

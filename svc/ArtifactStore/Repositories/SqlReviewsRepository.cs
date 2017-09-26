@@ -389,11 +389,12 @@ namespace ArtifactStore.Repositories
                         artifact.ArtifactVersion = reviewedArtifact.ArtifactVersion;
                         artifact.PublishedOnTimestamp = reviewedArtifact.PublishedOnTimestamp;
                         artifact.UserDisplayName = reviewedArtifact.UserDisplayName;
-                        artifact.ViewedArtifactVersion = reviewedArtifact.ViewedArtifactVersion;
+                        artifact.ViewedArtifactVersion = reviewedArtifact.ViewState == ViewStateType.Viewed ? reviewedArtifact.ViewedArtifactVersion : 0;
                         artifact.SignedOnTimestamp = reviewedArtifact.SignedOnTimestamp;
                         artifact.HasAttachments = reviewedArtifact.HasAttachments;
                         artifact.HasRelationships = reviewedArtifact.HasRelationships;
                         artifact.HasAccess = true;
+                        artifact.ViewState = reviewedArtifact.ViewState;
                     }
                 }
                 else
@@ -782,8 +783,8 @@ namespace ArtifactStore.Repositories
 
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
                     tocItem.ArtifactVersion = artifact.ArtifactVersion;
-                    tocItem.ApprovalStatus = (ApprovalType)artifact?.ApprovalFlag;
-                    tocItem.ViewedArtifactVersion = artifact?.ViewedArtifactVersion;
+                    tocItem.ApprovalStatus = artifact.ApprovalFlag;
+                    tocItem.ViewedArtifactVersion = artifact.ViewState == ViewStateType.Viewed ? artifact.ViewedArtifactVersion : 0;
                 }
                 else
                 {
@@ -1271,7 +1272,7 @@ namespace ArtifactStore.Repositories
 
             if (reviewerRole == ReviewParticipantRole.Reviewer)
             {
-                return artifact.ViewedArtifactVersion == artifact.ArtifactVersion;
+                return artifact.ViewState == ViewStateType.Viewed && artifact.ViewedArtifactVersion == artifact.ArtifactVersion;
             }
 
             return !artifact.IsApprovalRequired
@@ -1314,7 +1315,7 @@ namespace ArtifactStore.Repositories
             //Check artifacts are part of the review and require approval
             if (!approvalCheck.AllArtifactsInReview)
             {
-                throw new BadRequestException("Artifact is not a part of this review.");
+                throw new BadRequestException("Artifact is not a part of this review.", ErrorCodes.ArtifactNotFound);
             }
         }
 

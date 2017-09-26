@@ -140,6 +140,7 @@
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
+    <Compile Include="Helpers\PrivilegesManager.cs" />
     <Compile Include="Helpers\ProcessInfoMapper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
     <Compile Include="Models\Email\DDiscussionEmail.cs" />
+    <Compile Include="Models\StandardArtifactType.cs" />
     <Compile Include="Models\PropertyType\ChoicePropertyValidator.cs" />
     <Compile Include="Helpers\Validators\EmailValidator.cs" />
     <Compile Include="Helpers\Validators\IPropertyValidator.cs" />
@@ -352,6 +354,7 @@
     <Compile Include="Models\Workflow\XmlWorkflowEventTriggers.cs" />
     <Compile Include="Models\Email\NotificationEmail.cs" />
     <Compile Include="Repositories\ApplicationSettings\ApplicationSettingsRepository.cs" />
+    <Compile Include="Repositories\ApplicationSettings\IPrivilegesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\SqlFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\IFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
@@ -390,6 +393,7 @@
     <Compile Include="Repositories\ServiceDependencyStatusRepository.cs" />
     <Compile Include="Repositories\SqlItemInfoRepository.cs" />
     <Compile Include="Repositories\SqlItemTypeRepository.cs" />
+    <Compile Include="Repositories\SqlPrivilegesRepository.cs" />
     <Compile Include="Repositories\SqlStatusRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IStatusRepository.cs" />

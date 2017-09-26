@@ -1,17 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
-using AdminStore.Helpers;
+﻿using AdminStore.Helpers;
+using AdminStore.Models;
 using AdminStore.Models.Emails;
 using AdminStore.Repositories;
-using AdminStore.Models;
 using AdminStore.Services.Email;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Security;
 using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.InstanceSettings;
 using ServiceLibrary.Services;
+using System.Threading.Tasks;
 
 namespace AdminStore.Services.Instance
 {
@@ -26,12 +26,16 @@ namespace AdminStore.Services.Instance
 
         private const string TestEmailSubject = "Blueprint Test Email";
 
-        public EmailSettingsService() : this(new PrivilegesManager(new SqlPrivilegesRepository()),
-                                             new SqlUserRepository(),
-                                             new EmailHelper(),
-                                             new WebsiteAddressService(),
-                                             new SqlInstanceSettingsRepository(),
-                                             new IncomingEmailService())
+        public EmailSettingsService() : 
+            this
+            (
+                new PrivilegesManager(new SqlPrivilegesRepository()),
+                new SqlUserRepository(),
+                new EmailHelper(),
+                new WebsiteAddressService(),
+                new SqlInstanceSettingsRepository(),
+                new IncomingEmailService()
+            )
         {
         }
 

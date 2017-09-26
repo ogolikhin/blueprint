@@ -507,18 +507,8 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        public async Task<ReviewParticipantsContent> GetReviewParticipantsAsync(int reviewId, int? offset, int? limit, int userId, int? versionId = null, bool? addDrafts = true)
+        public async Task<ReviewParticipantsContent> GetReviewParticipantsAsync(int reviewId, Pagination pagination, int userId, int? versionId = null, bool? addDrafts = true)
         {
-            if (limit < 1)
-            {
-                throw new BadRequestException(nameof(limit) + " cannot be less than 1.", ErrorCodes.InvalidParameter);
-            }
-
-            if (offset < 0)
-            {
-                throw new BadRequestException(nameof(offset) + " cannot be less than 0.", ErrorCodes.InvalidParameter);
-            }
-
             if (versionId < 1)
             {
                 throw new BadRequestException(nameof(versionId) + " cannot be less than 1.", ErrorCodes.InvalidParameter);
@@ -534,8 +524,8 @@ namespace ArtifactStore.Repositories
             var param = new DynamicParameters();
 
             param.Add("@reviewId", reviewId);
-            param.Add("@offset", offset);
-            param.Add("@limit", limit);
+            param.Add("@offset", pagination.Offset);
+            param.Add("@limit", pagination.Limit);
             param.Add("@revisionId", revisionId);
             param.Add("@userId", userId);
             param.Add("@addDrafts", addDrafts);
@@ -553,7 +543,7 @@ namespace ArtifactStore.Repositories
             return reviewersRoot;
         }
 
-        public async Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipant(int artifactId, int reviewId, int? offset, int? limit, int userId, int? versionId = null, bool? addDrafts = true)
+        public async Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipant(int artifactId, int reviewId, Pagination pagination, int userId, int? versionId = null, bool? addDrafts = true)
         {
             var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(new[] {reviewId, artifactId}, userId);
 
@@ -575,8 +565,8 @@ namespace ArtifactStore.Repositories
             var param = new DynamicParameters();
             param.Add("@artifactId", artifactId);
             param.Add("@reviewId", reviewId);
-            param.Add("@offset", offset);
-            param.Add("@limit", limit);
+            param.Add("@offset", pagination.Offset);
+            param.Add("@limit", pagination.Limit);
             param.Add("@revisionId", revisionId);
             param.Add("@userId", userId);
             param.Add("@addDrafts", addDrafts);

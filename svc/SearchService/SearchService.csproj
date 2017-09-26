@@ -117,6 +117,10 @@
     <Compile Include="Helpers\SearchConfiguration.cs" />
     <Compile Include="Helpers\ISearchConfiguration.cs" />
     <Compile Include="Helpers\SearchConfigurationProvider.cs" />
+    <Compile Include="Helpers\SemanticSearch\ElasticSearchEngine.cs" />
+    <Compile Include="Helpers\SemanticSearch\SearchEngine.cs" />
+    <Compile Include="Helpers\SemanticSearch\SemanticSearchExecutor.cs" />
+    <Compile Include="Helpers\SemanticSearch\SqlSearchEngine.cs" />
     <Compile Include="Models\ArtifactSearchResult.cs" />
     <Compile Include="Models\ItemNameSearchResult.cs" />
     <Compile Include="Models\FullTextSearchCriteria.cs" />
@@ -131,6 +135,8 @@
     <Compile Include="Models\ProjectSearchResult.cs" />
     <Compile Include="Models\SearchResultSet.cs" />
     <Compile Include="Models\SearchResult.cs" />
+    <Compile Include="Models\SemanticSearchEngine.cs" />
+    <Compile Include="Models\SemanticSearchSetting.cs" />
     <Compile Include="Models\SemanticSearchSuggestionParameters.cs" />
     <Compile Include="Models\SuggestionsSearchCriteria.cs" />
     <Compile Include="Models\SuggestionsSearchResult.cs" />

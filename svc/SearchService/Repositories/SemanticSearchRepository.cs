@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SearchService.Models;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 
@@ -98,6 +97,11 @@ namespace SearchService.Repositories
             prm.Add("@userId", userId);
 
             return (await _connectionWrapper.QueryAsync<int>("GetAccessibleProjectIds", prm, commandType: CommandType.StoredProcedure)).ToList();
+        }
+
+        public async Task<SemanticSearchSetting> GetSemanticSearchSetting()
+        {
+            return (await _connectionWrapper.QueryAsync<SemanticSearchSetting>("GetSemanticSearchSetting", commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
     }
 }

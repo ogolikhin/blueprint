@@ -389,7 +389,7 @@ namespace ArtifactStore.Repositories
                         artifact.ArtifactVersion = reviewedArtifact.ArtifactVersion;
                         artifact.PublishedOnTimestamp = reviewedArtifact.PublishedOnTimestamp;
                         artifact.UserDisplayName = reviewedArtifact.UserDisplayName;
-                        artifact.ViewedArtifactVersion = reviewedArtifact.ViewedArtifactVersion;
+                        artifact.ViewedArtifactVersion = reviewedArtifact.ViewState == ViewStateType.Viewed ? reviewedArtifact.ViewedArtifactVersion : 0;
                         artifact.SignedOnTimestamp = reviewedArtifact.SignedOnTimestamp;
                         artifact.HasAttachments = reviewedArtifact.HasAttachments;
                         artifact.HasRelationships = reviewedArtifact.HasRelationships;

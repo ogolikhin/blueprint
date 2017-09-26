@@ -2473,9 +2473,9 @@ namespace ArtifactStore.Repositories
             {
                 await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
             }
-            catch (ResourceNotFoundException ex)
+            catch (AuthorizationException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, ErrorCodes.ArtifactNotFound);
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
                 return;
             }
 
@@ -2783,9 +2783,9 @@ namespace ArtifactStore.Repositories
             {
                 await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
             }
-            catch (ResourceNotFoundException ex)
+            catch (AuthorizationException ex)
             {
-                Assert.AreEqual(ErrorCodes.ArtifactNotFound, ex.ErrorCode);
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
 
                 return;
             }

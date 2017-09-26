@@ -14,10 +14,10 @@ namespace ServiceLibrary.Helpers
     {
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Helpers.PrivilegesManager")]
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "ServiceLibrary.Helpers.PrivilegesManager")]
         public void Construction_NoPrivilegeProvider_ThrowsArgumentNullException()
         {
-            var manager = new PrivilegesManager(null);
+            new PrivilegesManager(null);
         }
 
         [TestMethod]

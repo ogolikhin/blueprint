@@ -783,8 +783,8 @@ namespace ArtifactStore.Repositories
 
                     var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
                     tocItem.ArtifactVersion = artifact.ArtifactVersion;
-                    tocItem.ApprovalStatus = (ApprovalType)artifact?.ApprovalFlag;
-                    tocItem.ViewedArtifactVersion = artifact?.ViewedArtifactVersion;
+                    tocItem.ApprovalStatus = artifact.ApprovalFlag;
+                    tocItem.ViewedArtifactVersion = artifact.ViewState == ViewStateType.Viewed ? artifact.ViewedArtifactVersion : 0;
                 }
                 else
                 {

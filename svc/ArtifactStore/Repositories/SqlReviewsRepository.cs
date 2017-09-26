@@ -1314,7 +1314,7 @@ namespace ArtifactStore.Repositories
             //Check artifacts are part of the review and require approval
             if (!approvalCheck.AllArtifactsInReview)
             {
-                throw new BadRequestException("Artifact is not a part of this review.");
+                throw new BadRequestException("Artifact is not a part of this review.", ErrorCodes.ArtifactNotFound);
             }
         }
 

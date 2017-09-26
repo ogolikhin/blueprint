@@ -2725,7 +2725,7 @@ namespace ArtifactStore.Repositories
             }
             catch (BadRequestException ex)
             {
-                Assert.AreEqual(ErrorCodes.BadRequest, ex.ErrorCode);
+                Assert.AreEqual(ErrorCodes.ArtifactNotFound, ex.ErrorCode);
 
                 return;
             }

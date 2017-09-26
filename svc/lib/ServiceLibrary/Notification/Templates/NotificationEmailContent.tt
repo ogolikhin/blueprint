@@ -1,8 +1,5 @@
 ﻿<#@ template debug="false" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Text" #>
-<#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".txt" #>
 
 <!doctype html>
@@ -10,47 +7,58 @@
 <head>
 <meta charset="utf-8">
 <title>Email</title>
-<style>
-th, td {
-	text-align: left;
-	padding: 10px;
-}
-</style>
 </head>
-
 <body style="margin:0; padding:0;">
 
-	<p><#= Email.Header #></p>
-
-	<table>
-		<tr>
-			<th>Property</th>
-			<th>Value</th>
-		</tr>
-
-		<tr>
-			<td>Project Name</td>
-			<td><#= Email.ProjectName #></td>
-		</tr>
-
-		<tr>
-			<td>Artifact Name</td>
-			<td><#= Email.ArtifactName #></td>
-		</tr>
-
-		<tr>
-			<td>Message</td>
-			<td><#= Email.Body #></td>
-		</tr>
-
-		<tr>
-			<td>URL</td>
-			<td style="color:#1b1b1b; font-family:Arial; font-size: 12px;"> Having trouble with the link below? Just copy and paste the URL below into your browser.<br> 
-				<a href="<#= Email.ArtifactUrl #>"><#= Email.ArtifactUrl #></a>
-			</td>
-		</tr>
-
-	</table>
+<table cellpadding="0" cellspacing="0" border="0" style="width:100%;">
+	<tr>
+		<td colspan="3" style="background: #ececec; height:10px;"></td>
+	</tr>
+	<tr style="background: #ececec;">
+		<td style="width:10px;"></td>
+		<td>
+			<table cellpadding="0" cellspacing="10" border="0" style="width:100%; background:#fff;">
+				<tr>
+					<td align="center"><img src="<#= Email.LogoImageSrc #>"/></td>
+				</tr>
+				<tr>
+					<td style="color:#606060; font-family:Arial; font-size: 13px;"><#= Email.Header #></td>
+				</tr>
+				<tr>
+					<td style="background: #ddd;">
+						<table cellpadding="5" cellspacing="5" border="0" style="width:100%;">
+							<tr>
+								<td valign="top" style="color:#fff; font-family:Arial; font-size: 13px;background: #001E5F; width: 100px; font-weight:bold;">Project Name</td>
+								<td style="color:#606060; font-family:Arial; font-size: 13px;background: #f5f5f5;"><#= Email.ProjectName #></td>
+							</tr>
+							<tr>
+								<td valign="top" style="color:#fff; font-family:Arial; font-size: 13px;background: #001E5F; width: 100px; font-weight:bold;">Artifact Name</td>
+								<td style="color:#606060; font-family:Arial; font-size: 13px;background: #f5f5f5;"><#= Email.ArtifactName #></td>
+							</tr>
+							<tr>
+								<td valign="top" style="color:#fff; font-family:Arial; font-size: 13px;background: #001E5F; width: 100px; font-weight:bold;">Message</td>
+								<td style="color:#606060; font-family:Arial; font-size: 13px;background: #f5f5f5;"><#= Email.Message #></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td style="color:#1b1b1b; font-family:Arial; font-size: 12px;">Having trouble with the link below? Just copy and paste the URL below into your browser.<br><a href="<#= Email.ArtifactUrl #>"><#= Email.ArtifactUrl #></a></td>
+				</tr>
+				<tr>
+					<td style="height:5px;"></td>
+				</tr>
+				<tr>
+					<td align="right" style="color:#1b1b1b; font-family:Arial; font-size: 10px; font-style:italic;">This email was sent to you as a registered <a href="http://www.blueprintsys.com/">Blueprint</a> user from <a href="<#= Email.BlueprintUrl #>"><#= Email.BlueprintUrl #></a></td>
+				</tr>
+			</table>
+		</td>
+		<td style="width:10px;"></td>
+	</tr>
+	<tr style="background: #ececec;">
+		<td colspan="3" style="height:10px;"></td>
+	</tr>
+</table>
 
 </body>
 </html>

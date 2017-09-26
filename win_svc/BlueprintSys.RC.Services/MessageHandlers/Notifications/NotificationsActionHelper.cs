@@ -34,15 +34,16 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                 return await Task.FromResult(SendEmailResult.Error);
             }
 
-            //don't pass null values to the template
             var notificationEmail = new NotificationEmail(
                 message.ProjectId,
-                message.ProjectName ?? string.Empty,
+                message.ProjectName,
                 message.ArtifactId,
-                message.ArtifactName ?? string.Empty,
-                message.ArtifactUrl ?? string.Empty,
-                message.MessageTemplate ?? string.Empty,
-                message.Header ?? string.Empty);
+                message.ArtifactName,
+                message.ArtifactUrl,
+                message.Message,
+                message.Header,
+                message.LogoImageSrc,
+                message.BlueprintUrl);
 
             var emailMessage = new Message
             {

@@ -6,7 +6,7 @@ namespace ServiceLibrary.Models.Email
     /// <summary>
     ///
     /// </summary>
-    public class DDiscussionEmail
+    public class DiscussionEmail
     {
         #region Public Classes
 

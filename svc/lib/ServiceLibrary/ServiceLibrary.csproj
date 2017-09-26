@@ -161,7 +161,7 @@
     <Compile Include="Helpers\I18NHelper.cs" />
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
-    <Compile Include="Models\Email\DDiscussionEmail.cs" />
+    <Compile Include="Models\Email\DiscussionEmail.cs" />
     <Compile Include="Models\StandardArtifactType.cs" />
     <Compile Include="Models\PropertyType\ChoicePropertyValidator.cs" />
     <Compile Include="Helpers\Validators\EmailValidator.cs" />

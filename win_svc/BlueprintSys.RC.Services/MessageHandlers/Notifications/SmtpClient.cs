@@ -96,13 +96,13 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                 if (message.DiscussionEmail.LogoImageAttachmentArray != null)
                 {
                     mailMessage.Attachments.Add(message.DiscussionEmail.LogoImageAttachmentArray,
-                        DDiscussionEmail.LogoImageAttachmentContentId, DDiscussionEmail.LogoImageAttachmentContentId,
+                        DiscussionEmail.LogoImageAttachmentContentId, DiscussionEmail.LogoImageAttachmentContentId,
                         null, null, NewAttachmentOptions.Inline | NewAttachmentOptions.ReplaceIfExists, MailTransferEncoding.Base64);
                 }
                 if (message.DiscussionEmail.ArtifactImageAttachmentArray != null)
                 {
                     mailMessage.Attachments.Add(message.DiscussionEmail.ArtifactImageAttachmentArray,
-                        DDiscussionEmail.ArtifactImageAttachmentContentId, DDiscussionEmail.ArtifactImageAttachmentContentId,
+                        DiscussionEmail.ArtifactImageAttachmentContentId, DiscussionEmail.ArtifactImageAttachmentContentId,
                         null, null, NewAttachmentOptions.Inline | NewAttachmentOptions.ReplaceIfExists, MailTransferEncoding.Base64);
                 }
             }

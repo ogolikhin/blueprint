@@ -40,7 +40,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
             string logoImageSrc = null;
             if (logoImageArray != null)
             {
-                logoImageSrc = GetImageSrc(logoImageArray, DDiscussionEmail.LogoImageAttachmentContentId);
+                logoImageSrc = GetImageSrc(logoImageArray, DiscussionEmail.LogoImageAttachmentContentId);
             }
 
             var notificationEmail = new NotificationEmail(
@@ -66,7 +66,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
 
             if (logoImageArray != null)
             {
-                emailMessage.DiscussionEmail = new DDiscussionEmail
+                emailMessage.DiscussionEmail = new DiscussionEmail
                 {
                     LogoImageSrc = logoImageSrc,
                     LogoImageAttachmentArray = logoImageArray

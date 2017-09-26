@@ -1,13 +1,13 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using AdminStore.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
-namespace AdminStore.Helpers
+namespace ServiceLibrary.Helpers
 {
     [TestClass]
     public class PrivilegesManagerTests
@@ -17,7 +17,7 @@ namespace AdminStore.Helpers
         [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Helpers.PrivilegesManager")]
         public void Construction_NoPrivilegeProvider_ThrowsArgumentNullException()
         {
-            new PrivilegesManager(null);
+            var manager = new PrivilegesManager(null);
         }
 
         [TestMethod]

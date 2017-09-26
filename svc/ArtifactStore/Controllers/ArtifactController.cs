@@ -8,12 +8,8 @@ using ServiceLibrary.Repositories.ConfigControl;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.UI.WebControls.Expressions;
-using AdminStore.Helpers;
-using AdminStore.Repositories;
 
 namespace ArtifactStore.Controllers
 {

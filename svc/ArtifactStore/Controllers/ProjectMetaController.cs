@@ -48,8 +48,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetProjectTypes")]
         public async Task<ProjectTypes> GetProjectTypesAsync(int projectId)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ProjectMetaRepository.GetCustomProjectTypesAsync(projectId, session.UserId);
+            return await ProjectMetaRepository.GetCustomProjectTypesAsync(projectId, Session.UserId);
         }
 
         /// <summary>
@@ -67,8 +66,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetProjectApprovalStatuses")]
         public Task<IEnumerable<ProjectApprovalStatus>> GetProjectApprovalStatusesAsync(int projectId)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return ProjectMetaRepository.GetApprovalStatusesAsync(projectId, session.UserId);
+            return ProjectMetaRepository.GetApprovalStatusesAsync(projectId, Session.UserId);
         }
     }
 }

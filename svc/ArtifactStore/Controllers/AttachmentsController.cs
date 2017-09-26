@@ -8,7 +8,6 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -61,40 +60,37 @@ namespace ArtifactStore.Controllers
         {
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1) || (versionId != null && baselineId != null))
             {
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
+                throw new BadRequestException();
             }
             if (addDrafts && versionId != null)
             {
                 addDrafts = false;
             }
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var userId = Session.UserId;
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
             var isDeleted = await ArtifactVersionsRepository.IsItemDeleted(itemId);
             var itemInfo = isDeleted && (versionId != null || baselineId != null) ?
                 (await ArtifactVersionsRepository.GetDeletedItemInfo(itemId)) :
-                (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
+                (await ArtifactPermissionsRepository.GetItemInfo(itemId, userId, addDrafts));
             if (itemInfo == null)
             {
                 throw new ResourceNotFoundException("You have attempted to access an item that does not exist or you do not have permission to view.",
                     subArtifactId.HasValue ? ErrorCodes.SubartifactNotFound : ErrorCodes.ArtifactNotFound);
             }
-            if (subArtifactId.HasValue)
+            if (subArtifactId.HasValue && itemInfo.ArtifactId != artifactId)
             {
-                if (itemInfo.ArtifactId != artifactId)
-                {
-                    throw new BadRequestException();
-                }
+                throw new BadRequestException("Please provide a proper subartifact Id");
             }
-            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, versionId, subArtifactId, addDrafts, baselineId);
+            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, userId, versionId, subArtifactId, addDrafts, baselineId);
             var artifactIds = new List<int> { artifactId };
             foreach (var documentReference in result.DocumentReferences)
             {
                 artifactIds.Add(documentReference.ArtifactId);
             }
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
-            if(!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
+            if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
-                throw new HttpResponseException(HttpStatusCode.Forbidden);
+                throw new AuthorizationException("You do not have permission to access the artifact");
             }
             var docRef = result.DocumentReferences.ToList();
             foreach (var documentReference in docRef)

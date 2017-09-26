@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.Files;
+using AdminStore.Models;
 
 namespace AdminStore.Repositories.Workflow
 {
@@ -71,5 +72,7 @@ namespace AdminStore.Repositories.Workflow
         Task<IEnumerable<SqlWorkflowEventData>> GetWorkflowEventsAsync(int workflowId);
         Task UpdateWorkflowsChangedWithRevisionsAsync(int workflowId, int revisionId, IDbTransaction transaction = null);
         Task<int> CreateWorkflow(SqlWorkflow workflow, int revision, IDbTransaction transaction);
+
+        Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId);
     }
 }

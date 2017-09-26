@@ -44,6 +44,7 @@ namespace ArtifactStore.Controllers
         }
 
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public async Task GetAttachmentsAndDocumentReferences_BadParameters_ExceptionThrown()
         {
             int artifactId = -1;
@@ -56,15 +57,7 @@ namespace ArtifactStore.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            try
-            {
-                var result = await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
-            }
-            catch (HttpResponseException e)
-            {
-                //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
-            }
+            await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
         }
 
         [TestMethod]
@@ -122,6 +115,7 @@ namespace ArtifactStore.Controllers
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
         public async Task GetAttachmentsAndDocumentReferences_NoItemPermission_ExceptionThrown()
         {
             //arrange
@@ -142,15 +136,7 @@ namespace ArtifactStore.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            try
-            {
-                var result = await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
-            }
-            catch (HttpResponseException e)
-            {
-                //Assert
-                Assert.AreEqual(HttpStatusCode.Forbidden, e.Response.StatusCode);
-            }
+            await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
         }
 
         [TestMethod]

@@ -7,6 +7,7 @@ using ServiceLibrary.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ServiceLibrary.Exceptions;
 
 namespace ArtifactStore.Controllers
 {
@@ -43,8 +44,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{containerId:int:min(1)}"), SessionRequired]
         public Task<ReviewSummary> GetReviewSummary(int containerId)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetReviewSummary(containerId, session.UserId);
+            return _sqlReviewsRepository.GetReviewSummary(containerId, Session.UserId);
         }
 
         /// <summary>
@@ -65,9 +65,8 @@ namespace ArtifactStore.Controllers
         [Route("containers/{containerId:int:min(1)}/artifacts"), SessionRequired]
         public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, int? revisionId = int.MaxValue)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             pagination.SetDefaultValues(0, 10);
-            return _sqlReviewsRepository.GetReviewedArtifacts(containerId, session.UserId, pagination, revisionId.Value);
+            return _sqlReviewsRepository.GetReviewedArtifacts(containerId, Session.UserId, pagination, revisionId.Value);
         }
 
         /// <summary>
@@ -86,9 +85,8 @@ namespace ArtifactStore.Controllers
         [Route("containers/{containerId:int:min(1)}/content"), SessionRequired]
         public Task<QueryResult<ReviewArtifact>> GetContentAsync(int containerId, [FromUri] Pagination pagination, int? versionId = null)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             pagination.SetDefaultValues(0, 10);
-            return _sqlReviewsRepository.GetReviewArtifactsContentAsync(containerId, session.UserId, pagination, versionId);
+            return _sqlReviewsRepository.GetReviewArtifactsContentAsync(containerId, Session.UserId, pagination, versionId);
         }
 
         /// <summary>
@@ -107,8 +105,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/content"), SessionRequired]
         public Task<AddArtifactsResult> AddArtifactsToReview(int reviewId, [FromBody] AddArtifactsParameter content)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.AddArtifactsToReviewAsync(reviewId, session.UserId, content);
+            return _sqlReviewsRepository.AddArtifactsToReviewAsync(reviewId, Session.UserId, content);
         }
 
         /// <summary>
@@ -127,9 +124,8 @@ namespace ArtifactStore.Controllers
         [Route("containers/{containerId:int:min(1)}/toc"), SessionRequired]
         public Task<QueryResult<ReviewTableOfContentItem>> GetTableOfContentAsync(int containerId, [FromUri] Pagination pagination, int? revisionId = int.MaxValue)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             pagination.SetDefaultValues(0, 50);
-            return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId.Value, session.UserId, pagination);
+            return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId.Value, Session.UserId, pagination);
         }
 
         /// <summary>
@@ -149,8 +145,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{containerId:int:min(1)}/participants"), SessionRequired]
         public Task<ReviewParticipantsContent> GetParticipantsAsync(int containerId, int? offset = 0, int? limit = 50, int? versionId = null)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetReviewParticipantsAsync(containerId, offset, limit, session.UserId, versionId);
+            return _sqlReviewsRepository.GetReviewParticipantsAsync(containerId, offset, limit, Session.UserId, versionId);
         }
 
         /// <summary>
@@ -169,8 +164,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/participants"), SessionRequired]
         public Task<AddParticipantsResult> AddParticipantsToReview(int reviewId, [FromBody] AddParticipantsParameter content)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.AddParticipantsToReviewAsync(reviewId, session.UserId, content);
+            return _sqlReviewsRepository.AddParticipantsToReviewAsync(reviewId, Session.UserId, content);
         }
 
         /// <summary>
@@ -191,8 +185,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{containerId:int:min(1)}/artifactreviewers/{artifactId=artifactId}"), SessionRequired]
         public Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipantAsync(int artifactId, int containerId, int? offset = 0, int? limit = 50, int? versionId = null)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetReviewArtifactStatusesByParticipant(artifactId, containerId, offset, limit, session.UserId, versionId);
+            return _sqlReviewsRepository.GetReviewArtifactStatusesByParticipant(artifactId, containerId, offset, limit, Session.UserId, versionId);
         }
 
         /// <summary>
@@ -211,8 +204,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/artifacts/approval"), SessionRequired]
         public Task AssignApprovalRequiredToArtifacts(int reviewId, [FromBody] AssignArtifactsApprovalParameter content)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, session.UserId, content);
+            return _sqlReviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, Session.UserId, content);
         }
 
 
@@ -232,8 +224,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/reviewers/approval"), SessionRequired]
         public Task AssignRolesToReviewers(int reviewId, [FromBody] AssignReviewerRolesParameter content)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.AssignRolesToReviewers(reviewId,  content, session.UserId);
+            return _sqlReviewsRepository.AssignRolesToReviewers(reviewId, content, Session.UserId);
         }
 
 
@@ -254,8 +245,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/index/{artifactId:int:min(1)}"), SessionRequired]
         public Task<ReviewArtifactIndex> GetReviewArtifactIndex(int reviewId, int artifactId, int? revisionId = int.MaxValue)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetReviewArtifactIndexAsync(reviewId, revisionId.Value, artifactId, session.UserId);
+            return _sqlReviewsRepository.GetReviewArtifactIndexAsync(reviewId, revisionId.Value, artifactId, Session.UserId);
         }
 
         /// <summary>
@@ -275,8 +265,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/toc/index/{artifactId:int:min(1)}"), SessionRequired]
         public Task<ReviewArtifactIndex> GetReviewTableOfContentArtifactIndex(int reviewId, int artifactId, int? revisionId = int.MaxValue)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId.Value, artifactId, session.UserId);
+            return _sqlReviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId.Value, artifactId, Session.UserId);
         }
 
         /// <summary>
@@ -295,8 +284,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/experience/approval")]
         public Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactApprovalAsync(int reviewId, [FromBody] IEnumerable<ReviewArtifactApprovalParameter> reviewArtifactApprovalParameters)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, reviewArtifactApprovalParameters, session.UserId);
+            return _sqlReviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, reviewArtifactApprovalParameters, Session.UserId);
         }
 
         /// <summary>
@@ -316,8 +304,12 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/artifacts/{artifactId:int:min(1)}/viewed")]
         public Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, [FromBody] ReviewArtifactViewedInput viewedInput)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput, session.UserId);
+            if (viewedInput == null || !viewedInput.Viewed.HasValue)
+            {
+                throw new BadRequestException("Viewed must be provided.");
+            }
+
+            return _sqlReviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput.Viewed.Value, Session.UserId);
         }
 
         /// <summary>
@@ -336,8 +328,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/participants/{participantId:int:min(1)}/artifactstats"), SessionRequired]
         public Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, [FromUri] Pagination pagination)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, session.UserId, pagination);
+            return _sqlReviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, Session.UserId, pagination);
         }
 
         /// <summary>
@@ -364,8 +355,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/reviewer/status")]
         public Task UpdateReviewerStatusAsync(int reviewId, [FromBody] ReviewerStatusParameter reviewStatusParameter, int revisionId = int.MaxValue)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, reviewStatusParameter.Status, session.UserId);
+            return _sqlReviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, reviewStatusParameter.Status, Session.UserId);
         }
     }
 }

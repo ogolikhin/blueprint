@@ -7,7 +7,6 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -50,36 +49,36 @@ namespace ArtifactStore.Controllers
         [ActionName("GetDiscussions")]
         public async Task<DiscussionResultSet> GetDiscussions(int artifactId, int? subArtifactId = null)
         {
-            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
-            {
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
-            }
-
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            ValidateRequestParameters(artifactId, subArtifactId);
+            var userId = Session.UserId;
 
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
             var revisionId = int.MaxValue;
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
             var itemInfo = isDeleted ?
                 await _artifactVersionsRepository.GetDeletedItemInfo(itemId) :
-                await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId, false);
-            if (isDeleted)
-            {
-                revisionId = ((DeletedItemInfo)itemInfo).VersionId;
-            }
+                await _artifactPermissionsRepository.GetItemInfo(itemId, userId, false);
             if (itemInfo == null)
             {
                 throw new ResourceNotFoundException("You have attempted to access an item that does not exist or you do not have permission to view.",
                     subArtifactId.HasValue ? ErrorCodes.SubartifactNotFound : ErrorCodes.ArtifactNotFound);
             }
+            if (subArtifactId.HasValue && itemInfo.ArtifactId != artifactId)
+            {
+                throw new BadRequestException("Please provide a proper subartifact Id");
+            }
+            if (isDeleted)
+            {
+                revisionId = ((DeletedItemInfo)itemInfo).VersionId;
+            }
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, session.UserId, false, revisionId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, userId, false, revisionId);
             var projectPermissions = await _artifactPermissionsRepository.GetProjectPermissions(itemInfo.ProjectId);
 
             RolePermissions permission = RolePermissions.None;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
-                throw new HttpResponseException(HttpStatusCode.Forbidden);
+                throw new AuthorizationException("You do not have permission to access the artifact");
             }
 
             var discussions = await _discussionsRepository.GetDiscussions(itemId, itemInfo.ProjectId);
@@ -88,9 +87,9 @@ namespace ArtifactStore.Controllers
             {
                 discussion.CanDelete = !projectPermissions.HasFlag(ProjectPermissions.CommentsDeletionDisabled)
                           && permissions.TryGetValue(artifactId, out permission) &&
-                    (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId));
+                    (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == userId));
                 discussion.CanEdit = !projectPermissions.HasFlag(ProjectPermissions.CommentsModificationDisabled) 
-                          && permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId);
+                          && permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == userId);
             }
 
             var availableStatuses = await _discussionsRepository.GetThreadStatusCollection(itemInfo.ProjectId);
@@ -121,47 +120,73 @@ namespace ArtifactStore.Controllers
         [ActionName("GetReplies")]
         public async Task<IEnumerable<Reply>> GetReplies(int artifactId, int discussionId, int? subArtifactId = null)
         {
-            if (artifactId < 1 || discussionId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
+            ValidateRequestParameters(artifactId, subArtifactId);
+
+            if (discussionId < 1)
             {
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
+                throw new BadRequestException(I18NHelper.FormatInvariant("Parameter: {0} is out of the range of valid values", nameof(discussionId)));
             }
 
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var userId = Session.UserId;
 
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
             var revisionId = int.MaxValue;
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
             var itemInfo = isDeleted ?
                 await _artifactVersionsRepository.GetDeletedItemInfo(itemId):
-                await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId, false);
+                await _artifactPermissionsRepository.GetItemInfo(itemId, userId, false);
+
+            if (itemInfo == null || await _discussionsRepository.IsDiscussionDeleted(discussionId))
+            {
+                throw new ResourceNotFoundException();
+            }
+
+            if (subArtifactId.HasValue && itemInfo.ArtifactId != artifactId)
+            {
+                throw new BadRequestException("Please provide a proper subartifact Id");
+            }
 
             if (isDeleted)
             {
                 revisionId = ((DeletedItemInfo)itemInfo).VersionId;
             }
-            if (itemInfo == null || await _discussionsRepository.IsDiscussionDeleted(discussionId))
-            {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
-            }
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, session.UserId, false, revisionId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, Session.UserId, false, revisionId);
             var projectPermissions = await _artifactPermissionsRepository.GetProjectPermissions(itemInfo.ProjectId);
 
             RolePermissions permission = RolePermissions.None;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
-                throw new HttpResponseException(HttpStatusCode.Forbidden);
+                throw new AuthorizationException("You do not have permission to access the artifact");
             }
             var result = await _discussionsRepository.GetReplies(discussionId, itemInfo.ProjectId);
             foreach (var reply in result)
             {
                 reply.CanDelete = !projectPermissions.HasFlag(ProjectPermissions.CommentsDeletionDisabled) && permissions.TryGetValue(artifactId, out permission) &&
-                    (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId));
+                    (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && reply.UserId == userId));
                 reply.CanEdit = !projectPermissions.HasFlag(ProjectPermissions.CommentsModificationDisabled) &&
-                    permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId);
+                    permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && reply.UserId == userId);
             }
 
             return result;
+        }
+
+        private void ValidateRequestParameters(int artifactId, int? subArtifactId)
+        {
+            if (artifactId < 1)
+            {
+                throw new BadRequestException(I18NHelper.FormatInvariant("Parameter: {0} is out of the range of valid values", nameof(artifactId)));
+            }
+
+            if (subArtifactId.HasValue && subArtifactId.Value < 1)
+            {
+                throw new BadRequestException(I18NHelper.FormatInvariant("Parameter: {0} is out of the range of valid values", nameof(subArtifactId)));
+            }
+
+            if (subArtifactId.HasValue && artifactId == subArtifactId.Value)
+            {
+                throw new BadRequestException("Please provide a proper subartifact Id");
+            }
         }
     }
 }

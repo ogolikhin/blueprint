@@ -764,5 +764,10 @@ namespace ServiceLibrary.Repositories
             return ProcessInfoMapper.Map(artifacts.ToList());
             
         }
+
+        public async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId)
+        {
+            return await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
+        }
     }
 }

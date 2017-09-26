@@ -13,7 +13,7 @@ namespace ServiceLibrary.Models.Email
         /// <summary>
         ///
         /// </summary>
-        public class DDiscussionEmailReply
+        public class DiscussionEmailReply
         {
             /// <summary>
             ///
@@ -62,7 +62,7 @@ namespace ServiceLibrary.Models.Email
         /// <summary>
         ///
         /// </summary>
-        public class DDiscussionEmailComment : DDiscussionEmailReply
+        public class DiscussionEmailComment : DiscussionEmailReply
         {
             /// <summary>
             ///
@@ -138,7 +138,7 @@ namespace ServiceLibrary.Models.Email
         /// <summary>
         ///
         /// </summary>
-        public DDiscussionEmailComment Comment
+        public DiscussionEmailComment Comment
         {
             get;
             internal set;
@@ -147,7 +147,7 @@ namespace ServiceLibrary.Models.Email
         /// <summary>
         ///
         /// </summary>
-        public ICollection<DDiscussionEmailReply> Replies
+        public ICollection<DiscussionEmailReply> Replies
         {
             get;
             internal set;

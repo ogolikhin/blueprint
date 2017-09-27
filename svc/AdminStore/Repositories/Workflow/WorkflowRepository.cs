@@ -41,6 +41,34 @@ namespace AdminStore.Repositories.Workflow
         #endregion
 
         #region Interface implementation
+        public async Task<int> AssignProjectsAndArtifactsToWorkflow(int workflowId, WorkflowAssignScope scope)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@WorkflowId", workflowId);
+            parameters.Add("@AllArtifacts", scope.AllArtifacts, dbType: DbType.Boolean);
+            parameters.Add("@AllProjects", scope.AllProjects, dbType: DbType.Boolean);
+            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.ProjectIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactsToWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
+
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
+                }
+            }
+
+            return result;
+        }
+
 
         public async Task<IEnumerable<SqlWorkflow>> CreateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int publishRevision, IDbTransaction transaction = null)
         {
@@ -737,40 +765,7 @@ namespace AdminStore.Repositories.Workflow
             }
 
             return table;
-        }
-
-        public async Task<int> AssignProjectsAndArtifactsToWorkflow(int workflowId, WorkflowAssignScope scope)
-        {
-            var listart = scope.ArtifactIds.ToList();
-            var listpro = scope.ProjectIds.ToList();
-
-
-            var parameters = new DynamicParameters();
-            parameters.Add("@WorkflowId", workflowId);
-            parameters.Add("@AllArtifacts", scope.AllArtifacts, dbType: DbType.Boolean);
-            parameters.Add("@AllProjects", scope.AllProjects, dbType: DbType.Boolean);      
-            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(listart, "Int32Collection", "Int32Value"));
-            parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(listpro, "Int32Collection", "Int32Value"));
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-             
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactsToWorkflow", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");
-
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
-
-                    case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
-                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
-                }
-            }
-
-            return result;            
-        }
-
+        }       
         #endregion
     }
 }

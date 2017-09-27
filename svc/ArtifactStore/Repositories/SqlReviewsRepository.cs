@@ -434,6 +434,18 @@ namespace ArtifactStore.Repositories
             return _connectionWrapper.QueryAsync<ReviewedArtifact>("GetReviewArtifactsByParticipant", param, commandType: CommandType.StoredProcedure);
         }
 
+        private async Task<IEnumerable<int>> GetReviewArtifactsForApproveAsync(int reviewId, int userId, int? revisionId = null, bool? addDrafts = true)
+        {
+            int refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@revisionId", revisionId);
+            param.Add("@userId", userId);
+            param.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
+            param.Add("@refreshInterval", refreshInterval);
+
+            return (await _connectionWrapper.QueryAsync<int>("GetReviewArtifactsForApprove", param, commandType: CommandType.StoredProcedure)).ToList();
+        }
         private async Task<ReviewArtifactsQueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
             where T : BaseReviewArtifact
         {
@@ -1068,22 +1080,7 @@ namespace ArtifactStore.Repositories
 
             var artifactIds = reviewArtifactApprovalParameters.Select(a => a.ArtifactId).ToList();
 
-            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
-
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
-
-            if (!approvalCheck.AllArtifactsRequireApproval)
-            {
-                throw new BadRequestException("Not all artifacts require approval.");
-            }
-
-            if (approvalCheck.ReviewerStatus == ReviewStatus.Completed)
-            {
-                throw new BadRequestException("Cannot update approval status, reviewer has completed the review.");
-            }
-
-            //Check user has permission for the review and all of the artifact ids
-            await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIds);
+            await CheckApprovalAndPermissions(reviewId, userId, artifactIds);
 
             var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
 
@@ -1142,6 +1139,112 @@ namespace ArtifactStore.Repositories
             await UpdateReviewUserStatsXmlAsync(reviewId, userId, rdReviewedArtifacts);
 
             return approvalResult;
+        }
+
+        public async Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactBulkApprovalAsync(int reviewId, ReviewArtifactApprovalBulkParameter reviewArtifactApprovalParameters, int userId)
+        {
+            if (reviewArtifactApprovalParameters == null || !reviewArtifactApprovalParameters.IsBulk && (reviewArtifactApprovalParameters.ArtifactIds == null ||
+                !reviewArtifactApprovalParameters.ArtifactIds.Any()))
+            {
+                throw new BadRequestException("No artifacts provided", ErrorCodes.OutOfRangeParameter);
+            }
+
+            List<int> artifactIds = new List<int>();
+
+            if (reviewArtifactApprovalParameters.IsBulk)
+            {
+                artifactIds.AddRange(await GetReviewArtifactsForApproveAsync(reviewId, userId, reviewArtifactApprovalParameters.RevisionId.Value, false));
+
+                if (reviewArtifactApprovalParameters.ArtifactIds != null && reviewArtifactApprovalParameters.ArtifactIds.Any())
+                {
+                    artifactIds.RemoveAll(a => reviewArtifactApprovalParameters.ArtifactIds.Contains(a));
+                }
+            }
+            else
+            {
+                artifactIds.AddRange(reviewArtifactApprovalParameters.ArtifactIds);
+            }
+
+            await CheckApprovalAndPermissions(reviewId, userId, artifactIds);
+
+            var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
+
+            var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, artifactIds);
+
+            var approvalResult = new List<ReviewArtifactApprovalResult>();
+
+            var timestamp = _currentDateTimeService.GetUtcNow();
+            //Update approvals for the specified artifacts
+            foreach (var id in artifactIds)
+            {
+                var reviewArtifactApproval = rdReviewedArtifacts.ReviewedArtifacts.FirstOrDefault(ra => ra.ArtifactId == id);
+
+                if (reviewArtifactApproval == null)
+                {
+                    reviewArtifactApproval = new ReviewArtifactXml
+                    {
+                        ArtifactId = id
+                    };
+
+                    rdReviewedArtifacts.ReviewedArtifacts.Add(reviewArtifactApproval);
+                }
+
+                if (reviewArtifactApproval.ViewState == ViewStateType.NotViewed)
+                {
+                    reviewArtifactApproval.ViewState = ViewStateType.Viewed;
+                }
+
+                if (reviewArtifactApprovalParameters.ApprovalFlag == ApprovalType.NotSpecified &&
+                    reviewArtifactApprovalParameters.Approval.Equals(PENDING, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    reviewArtifactApproval.ESignedOn = null;
+                }
+                else if (reviewArtifactApproval.Approval != reviewArtifactApprovalParameters.Approval
+                         || reviewArtifactApproval.ApprovalFlag != reviewArtifactApprovalParameters.ApprovalFlag)
+                {
+                    reviewArtifactApproval.ESignedOn = timestamp;
+                }
+
+                ApprovalType prevFlag = reviewArtifactApproval.ApprovalFlag;
+                reviewArtifactApproval.Approval = reviewArtifactApprovalParameters.Approval;
+                reviewArtifactApproval.ApprovalFlag = reviewArtifactApprovalParameters.ApprovalFlag;
+
+                if (artifactVersionDictionary.ContainsKey(id))
+                {
+                    reviewArtifactApproval.ArtifactVersion = artifactVersionDictionary[id];
+                }
+
+                approvalResult.Add(new ReviewArtifactApprovalResult()
+                {
+                    ArtifactId = reviewArtifactApproval.ArtifactId,
+                    Timestamp = reviewArtifactApproval.ESignedOn,
+                    OldApprovalFlag = prevFlag
+                });
+            }
+
+            await UpdateReviewUserStatsXmlAsync(reviewId, userId, rdReviewedArtifacts);
+
+            return approvalResult;
+        }
+
+        private async Task CheckApprovalAndPermissions(int reviewId, int userId, IEnumerable<int> artifactIds)
+        {
+            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
+
+            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
+
+            if (!approvalCheck.AllArtifactsRequireApproval)
+            {
+                throw new BadRequestException("Not all artifacts require approval.");
+            }
+
+            if (approvalCheck.ReviewerStatus == ReviewStatus.Completed)
+            {
+                throw new BadRequestException("Cannot update approval status, reviewer has completed the review.");
+            }
+
+            //Check user has permission for the review and all of the artifact ids
+            await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIds);
         }
 
         public async Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, bool viewed, int userId)

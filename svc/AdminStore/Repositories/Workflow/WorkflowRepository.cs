@@ -572,7 +572,7 @@ namespace AdminStore.Repositories.Workflow
             {
                 var artifacts = workflowArtifacts.Where(x => x.ProjectId == projectId).ToList();
                 
-                var projArtifacts = artifacts.Select(artifact => new WorkflowArtifact()
+                var projectArtifacts = artifacts.Select(artifact => new WorkflowArtifact()
                 {
                     Id = artifact.ArtifactId, Name = artifact.ArtifactName
                 }).ToList();
@@ -583,7 +583,7 @@ namespace AdminStore.Repositories.Workflow
                 {
                     ProjectId = projectId,
                     ProjectName = projectName,
-                    Artifacts = projArtifacts
+                    Artifacts = projectArtifacts
                 };
                 groupedList.Add(groupedProjectArtifacts);
             }

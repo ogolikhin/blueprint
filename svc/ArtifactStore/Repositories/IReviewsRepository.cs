@@ -20,6 +20,7 @@ namespace ArtifactStore.Repositories
         Task<ReviewArtifactIndex> GetReviewArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId, bool? addDraft = true);
         Task<ReviewArtifactIndex> GetReviewTableOfContentArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId);
         Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactApprovalAsync(int reviewId, IEnumerable<ReviewArtifactApprovalParameter> reviewArtifactApproval, int userId);
+        Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactBulkApprovalAsync(int reviewId, ReviewArtifactApprovalBulkParameter reviewArtifactApproval, int userId);
         Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, bool viewed, int userId);
         Task UpdateReviewerStatusAsync(int reviewId, int revisionId, ReviewStatus status, int userId);
         Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, int userId, Pagination pagination);

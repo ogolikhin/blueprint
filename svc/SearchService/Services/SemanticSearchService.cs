@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using SearchService.Models;
 using SearchService.Repositories;
@@ -43,36 +42,36 @@ namespace SearchService.Services
 
         public async Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(SemanticSearchSuggestionParameters parameters)
         {
-            var id = parameters.ArtifactId;
+            var artifactId = parameters.ArtifactId;
             var userId = parameters.UserId;
-            if (id <= 0)
+            if (artifactId <= 0)
             {
                 throw new BadRequestException("Please specify a valid artifact id");
             }
 
-            var artifactDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(id, userId);
+            var artifactDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(artifactId, userId);
             var itemTypePredefined = (ItemTypePredefined) artifactDetails.PrimitiveItemTypePredefined;
 
             if (!itemTypePredefined.IsRegularArtifactType() || itemTypePredefined.IsProjectOrFolderArtifactType())
             {
-                throw new BadRequestException(I18NHelper.FormatInvariant($"Artifact type '{itemTypePredefined.ToString()}' is not supported for suggestions"));
+                throw new BadRequestException(I18NHelper.FormatInvariant($"Artifact type '{itemTypePredefined}' is not supported for suggestions"));
             }
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] {id}, userId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] {artifactId}, userId);
 
-            RolePermissions permission = RolePermissions.None;
-            if (!permissions.TryGetValue(id, out permission) || !permission.HasFlag(RolePermissions.Read))
+            RolePermissions permission;
+            if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
                 throw new AuthorizationException("User is not authorized to view artifact");
             }
 
             var suggestionsSearchResult = new SuggestionsSearchResult();
-            suggestionsSearchResult.SourceId = id;
+            suggestionsSearchResult.SourceId = artifactId;
 
             var isInstanceAdmin = await _usersRepository.IsInstanceAdmin(false, userId);
             var accessibleProjectIds = isInstanceAdmin ? new List<int>() : await _semanticSearchRepository.GetAccessibleProjectIds(userId);
 
-            var suggestedArtifactIds = await _semanticSearchRepository.GetSuggestedArtifacts(id, isInstanceAdmin, accessibleProjectIds);
+            var suggestedArtifactIds = await _semanticSearchRepository.GetSuggestedArtifacts(artifactId, isInstanceAdmin, accessibleProjectIds);
 
             var artifactsInfos = await _semanticSearchRepository.GetSuggestedArtifactDetails(suggestedArtifactIds, userId);
 

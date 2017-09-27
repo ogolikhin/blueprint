@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
@@ -34,15 +35,24 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                 return await Task.FromResult(SendEmailResult.Error);
             }
 
-            //don't pass null values to the template
+            //Get the logo
+            byte[] logoImageArray = new LogoDataProvider().GetLogo();
+            string logoImageSrc = null;
+            if (logoImageArray != null)
+            {
+                logoImageSrc = GetImageSrc(logoImageArray, DiscussionEmail.LogoImageAttachmentContentId);
+            }
+
             var notificationEmail = new NotificationEmail(
                 message.ProjectId,
-                message.ProjectName ?? string.Empty,
+                message.ProjectName,
                 message.ArtifactId,
-                message.ArtifactName ?? string.Empty,
-                message.ArtifactUrl ?? string.Empty,
-                message.MessageTemplate ?? string.Empty,
-                message.Header ?? string.Empty);
+                message.ArtifactName,
+                message.ArtifactUrl,
+                message.Message,
+                message.Header,
+                logoImageSrc,
+                message.BlueprintUrl);
 
             var emailMessage = new Message
             {
@@ -53,6 +63,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                 IsBodyHtml = true,
                 Body = new NotificationEmailContent(notificationEmail).TransformText()
             };
+
+            if (logoImageArray != null)
+            {
+                emailMessage.DiscussionEmail = new DiscussionEmail
+                {
+                    LogoImageSrc = logoImageSrc,
+                    LogoImageAttachmentArray = logoImageArray
+                };
+            }
 
             var smtpClientConfiguration = new SMTPClientConfiguration
             {
@@ -75,6 +94,19 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
             InternalSendEmail(smtpClientConfiguration, emailMessage, repository);
             Logger.Log("Email Sent", message, tenant, LogLevel.Debug);
             return await Task.FromResult(SendEmailResult.Success);
+        }
+
+        private static string GetImageSrc(byte[] imageArray, string attachmentContentId)
+        {
+            if (imageArray == null)
+            {
+                return null;
+            }
+            if (attachmentContentId == null)
+            {
+                return "data:image/png;base64," + Convert.ToBase64String(imageArray);
+            }
+            return "cid:" + attachmentContentId;
         }
 
         //for unit testing

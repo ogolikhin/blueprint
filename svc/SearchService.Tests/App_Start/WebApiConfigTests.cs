@@ -22,13 +22,14 @@ namespace SearchService
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(6, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(7, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ItemSearchController>("SearchFullText", HttpMethod.Post, "itemsearch/fulltext");
             config.AssertAction<ItemSearchController>("FullTextMetaData", HttpMethod.Post, "itemsearch/fulltextmetadata");
             config.AssertAction<ItemSearchController>("SearchName", HttpMethod.Post, "itemsearch/name");
             config.AssertAction<ProjectSearchController>("SearchName", HttpMethod.Post, "projectsearch/name");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
             config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
+            config.AssertAction<SemanticSearchController>("GetSuggestions", HttpMethod.Get, "semanticsearch/1");
         }
 
         public void Register_GetAndHeadMethods_HaveNoCacheAttribute()

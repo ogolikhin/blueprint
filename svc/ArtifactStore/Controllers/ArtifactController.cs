@@ -8,10 +8,8 @@ using ServiceLibrary.Repositories.ConfigControl;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.UI.WebControls.Expressions;
 
 namespace ArtifactStore.Controllers
 {
@@ -21,23 +19,26 @@ namespace ArtifactStore.Controllers
     {
         private readonly ISqlArtifactRepository ArtifactRepository;
         private readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
+        private readonly PrivilegesManager _privilegesManager;
 
         public override string LogSource { get; } = "ArtifactStore.Artifact";
 
-        public ArtifactController() : this(new SqlArtifactRepository(), new SqlArtifactPermissionsRepository())
+        public ArtifactController() : this(new SqlArtifactRepository(), new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository())
         {
         }
 
-        public ArtifactController(ISqlArtifactRepository instanceRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
+        public ArtifactController(ISqlArtifactRepository instanceRepository, IArtifactPermissionsRepository artifactPermissionsRepository, IPrivilegesRepository privilegesRepository) : base()
         {
             ArtifactRepository = instanceRepository;
             ArtifactPermissionsRepository = artifactPermissionsRepository;
+            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
-        public ArtifactController(ISqlArtifactRepository instanceRepository, IArtifactPermissionsRepository artifactPermissionsRepository, IServiceLogRepository log) : base(log)
+        public ArtifactController(ISqlArtifactRepository instanceRepository, IArtifactPermissionsRepository artifactPermissionsRepository, IPrivilegesRepository privilegesRepository, IServiceLogRepository log) : base(log)
         {
             ArtifactRepository = instanceRepository;
             ArtifactPermissionsRepository = artifactPermissionsRepository;
+            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -204,6 +205,26 @@ namespace ArtifactStore.Controllers
             }
 
             return await ArtifactRepository.GetProcessInformationAsync(artifactIds);
+        }
+
+        /// <summary>
+        /// Get a list of all standard artifact types in the system.
+        /// </summary>
+        /// <remarks>
+        /// Returns the list of standard artifact types. Every item of the list contains id and name of artifact. 
+        /// </remarks>
+        /// <response code="200">OK. The list of standard artifact types.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>   
+        /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard artifact types.</response>           
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("artifacts/standardartifacttypes"), SessionRequired]
+        public async Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes()
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            var artifacts = await ArtifactRepository.GetStandardArtifactTypes();
+            return artifacts;
         }
     }
 }

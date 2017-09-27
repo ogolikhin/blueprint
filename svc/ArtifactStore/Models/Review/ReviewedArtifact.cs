@@ -16,6 +16,8 @@ namespace ArtifactStore.Models.Review
         /// </summary>
         public int? ViewedArtifactVersion { get; set; }
 
+        public ViewStateType ViewState { get; set; }
+
         /// <summary>
         /// Display name of the user published the artifact  
         /// </summary>

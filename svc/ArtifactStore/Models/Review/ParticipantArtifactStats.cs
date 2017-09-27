@@ -32,7 +32,7 @@
 
         private static ViewStateType GetViewState(ReviewedArtifact reviewedArtifact)
         {
-            if (!reviewedArtifact.ViewedArtifactVersion.HasValue)
+            if (reviewedArtifact.ViewState == ViewStateType.NotViewed || !reviewedArtifact.ViewedArtifactVersion.HasValue)
             {
                 return ViewStateType.NotViewed;
             }

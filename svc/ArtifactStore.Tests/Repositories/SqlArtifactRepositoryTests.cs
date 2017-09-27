@@ -60,5 +60,20 @@ namespace ArtifactStore.Repositories
             // Act
             await repository.GetProcessInformationAsync(artifactIds);
         }
+
+        [TestMethod]
+        public async Task GetStandardArtifactTypes_AllRequirementsAreSatisfied_SuccessResult()
+        {
+            // Arrange
+            var artifacts = new List<StandardArtifactType> { new StandardArtifactType { Id = 1, Name = "CustomActor" } };
+            cxn.SetupQueryAsync("GetStandardArtifactTypes", It.IsAny<Dictionary<string, object>>(), artifacts);
+
+            // Act
+            var standardArtifacts = await repository.GetStandardArtifactTypes();
+
+            // Assert
+            Assert.IsNotNull(standardArtifacts);
+            Assert.AreEqual(artifacts, standardArtifacts);
+        }
     }
 }

@@ -7,6 +7,7 @@ using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;

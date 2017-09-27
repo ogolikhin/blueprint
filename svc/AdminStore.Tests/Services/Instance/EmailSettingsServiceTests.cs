@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using AdminStore.Helpers;
+﻿using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Emails;
 using AdminStore.Repositories;
@@ -10,8 +8,11 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.InstanceSettings;
 using ServiceLibrary.Services;
+using System;
+using System.Threading.Tasks;
 
 namespace AdminStore.Services.Instance
 {

@@ -13,8 +13,8 @@ namespace ServiceLibrary.Exceptions
             AuthorizationException exception = new AuthorizationException();
 
             //Assert
-            Assert.AreEqual("Exception of type 'ServiceLibrary.Exceptions.AuthorizationException' was thrown.", exception.Message);
-            Assert.AreEqual(0, exception.ErrorCode);
+            Assert.AreEqual(string.Empty, exception.Message);
+            Assert.AreEqual(ErrorCodes.Forbidden, exception.ErrorCode);
             Assert.AreEqual(null, exception.Content);
         }
 
@@ -29,7 +29,7 @@ namespace ServiceLibrary.Exceptions
 
             //Assert
             Assert.AreEqual(message, exception.Message);
-            Assert.AreEqual(0, exception.ErrorCode);
+            Assert.AreEqual(ErrorCodes.Forbidden, exception.ErrorCode);
             Assert.AreEqual(null, exception.Content);
         }
 

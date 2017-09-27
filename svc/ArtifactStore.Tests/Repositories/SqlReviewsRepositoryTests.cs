@@ -2725,7 +2725,7 @@ namespace ArtifactStore.Repositories
             }
             catch (BadRequestException ex)
             {
-                Assert.AreEqual(ErrorCodes.BadRequest, ex.ErrorCode);
+                Assert.AreEqual(ErrorCodes.ArtifactNotFound, ex.ErrorCode);
 
                 return;
             }
@@ -3337,6 +3337,7 @@ namespace ArtifactStore.Repositories
             {
                 ra.ArtifactVersion = 2;
                 ra.ViewedArtifactVersion = 2;
+                ra.ViewState = ViewStateType.Viewed;
             });
 
             //Act
@@ -3367,8 +3368,49 @@ namespace ArtifactStore.Repositories
 
             SetupReviewedArtifactsQueries(reviewId, userId, ra =>
             {
+                ra.ViewState = ViewStateType.NotViewed;
+            });
+
+            //Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
+            }
+            //Assert
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.NotAllArtifactsReviewed, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A Conflict Exception was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_RequireAllApproval_Is_True_And_Participant_Is_Reviewer_And_Artifact_Is_Changed()
+        {
+            //Arrange
+            int reviewId = 1;
+            int userId = 2;
+            int revisionId = int.MaxValue;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
+
+            SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
+            {
+                {reviewId, RolePermissions.Read}
+            });
+
+            _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+
+            SetupGetRequireAllArtifactsReviewedQuery(reviewId, userId, false, true);
+
+            SetupReviewedArtifactsQueries(reviewId, userId, ra =>
+            {
+                ra.ViewState = ViewStateType.Viewed;;
                 ra.ArtifactVersion = 2;
-                ra.ViewedArtifactVersion = 0;
+                ra.ViewedArtifactVersion = 1;
             });
 
             //Act
@@ -3674,6 +3716,7 @@ namespace ArtifactStore.Repositories
             {
                 ArtifactVersion = 1,
                 ViewedArtifactVersion = 1,
+                ViewState = ViewStateType.Viewed,
                 Approval = "Approved"
             };
 
@@ -3734,6 +3777,7 @@ namespace ArtifactStore.Repositories
             {
                 ArtifactVersion = 1,
                 ViewedArtifactVersion = 1,
+                ViewState = ViewStateType.Viewed,
                 Approval = "Approved"
             };
 
@@ -3787,8 +3831,52 @@ namespace ArtifactStore.Repositories
 
             var participantReviewArtifact = new ReviewedArtifact()
             {
+                ViewState = ViewStateType.Viewed,
                 ArtifactVersion = 3,
                 ViewedArtifactVersion = null
+            };
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                VersionCount = 1
+            });
+
+            SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
+
+            _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
+            {
+                { reviewId, RolePermissions.Read },
+                { reviewArtifact.Id, RolePermissions.Read }
+            });
+
+            SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
+
+            //Act
+            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+
+            //Assert
+            _cxn.Verify();
+            Assert.AreEqual(artifactStatsResult.Total, 1);
+            Assert.AreEqual(ViewStateType.NotViewed, artifactStatsResult.Items.First().ViewState);
+        }
+
+        [TestMethod]
+        public async Task GetReviewParticipantArtifactStatsAsync_ViewState_Should_Be_Not_Viewed_When_ViewState_Is_Not_Viewed()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var participantId = 3;
+            var reviewArtifact = new ReviewedArtifact()
+            {
+                Id = 4
+            };
+
+            var participantReviewArtifact = new ReviewedArtifact()
+            {
+                ViewState = ViewStateType.NotViewed
             };
 
             _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
@@ -3831,6 +3919,7 @@ namespace ArtifactStore.Repositories
 
             var participantReviewArtifact = new ReviewedArtifact()
             {
+                ViewState = ViewStateType.Viewed,
                 ArtifactVersion = 3,
                 ViewedArtifactVersion = 1
             };

@@ -1236,7 +1236,7 @@ namespace ArtifactStore.Repositories
             return approvalResult;
         }
 
-        private async Task CheckApprovalAndPermissions(int reviewId, int userId, List<int> artifactIds)
+        private async Task CheckApprovalAndPermissions(int reviewId, int userId, IEnumerable<int> artifactIds)
         {
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
 

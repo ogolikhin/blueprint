@@ -6,7 +6,7 @@ namespace ServiceLibrary.Exceptions
     [Serializable]
     public class ConflictException : ExceptionWithErrorCode
     {
-        public ConflictException() : this("")
+        public ConflictException() : this(string.Empty)
         {
         }
 

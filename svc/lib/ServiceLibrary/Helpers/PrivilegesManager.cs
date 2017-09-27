@@ -1,12 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AdminStore.Repositories;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
+﻿using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using System;
+using System.Threading.Tasks;
 
-namespace AdminStore.Helpers
+namespace ServiceLibrary.Helpers
 {
     public class PrivilegesManager
     {
@@ -21,7 +19,6 @@ namespace AdminStore.Helpers
 
             _privilegeRepository = privilegeRepository;
         }
-
 
         public async Task Demand(int userId, InstanceAdminPrivileges privileges)
         {
@@ -42,7 +39,7 @@ namespace AdminStore.Helpers
                 {
                     throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
                 }
-            }          
+            }
         }
     }
 }

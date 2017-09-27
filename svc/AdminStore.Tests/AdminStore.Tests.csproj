@@ -101,7 +101,6 @@
     <Compile Include="Extensions\CreateWorkflowDtoExtensionTests.cs" />
     <Compile Include="Helpers\EmailHelperTests.cs" />
     <Compile Include="Helpers\HashingUtilitiesTests.cs" />
-    <Compile Include="Helpers\PrivilegesManagerTests.cs" />
     <Compile Include="Helpers\SearchFieldValidatorTest.cs" />
     <Compile Include="Helpers\SystemEncryptionsTests.cs" />
     <Compile Include="Helpers\LoginInfoTests.cs" />
@@ -114,7 +113,6 @@
     <Compile Include="Repositories\SamlRepositoryTests.cs" />
     <Compile Include="Repositories\SqlGroupRepositoryTests.cs" />
     <Compile Include="Repositories\SqlInstanceRepositoryTests.cs" />
-    <Compile Include="Repositories\SqlPrivilegesRepositoryTest.cs" />
     <Compile Include="Repositories\SqlSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlUserRepositoryTests.cs" />
     <Compile Include="Repositories\LdapRepositoryTests.cs" />

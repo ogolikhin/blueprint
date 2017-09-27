@@ -734,6 +734,12 @@ namespace ServiceLibrary.Repositories
             }).ToList();
         }
 
+        public async Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes()
+        {
+            var artifacts = await ConnectionWrapper.QueryAsync<StandardArtifactType>("GetStandardArtifactTypes", null, commandType: CommandType.StoredProcedure);
+            return artifacts;
+        }
+      
         public Task<bool> IsArtifactLockedByUserAsync(int artifactId, int userId)
         {
             var parameters = new DynamicParameters();
@@ -757,6 +763,11 @@ namespace ServiceLibrary.Repositories
             
             return ProcessInfoMapper.Map(artifacts.ToList());
             
+        }
+
+        public async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId)
+        {
+            return await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
         }
     }
 }

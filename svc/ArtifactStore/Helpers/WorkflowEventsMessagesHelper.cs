@@ -59,6 +59,7 @@ namespace ArtifactStore.Helpers
                             projectName,
                             notificationAction,
                             artifactUrl,
+                            baseHostUri,
                             repository,
                             transaction);
                         if (notificationMessage == null)
@@ -187,6 +188,7 @@ namespace ArtifactStore.Helpers
             string projectName,
             EmailNotificationAction notificationAction,
             string artifactUrl,
+            string blueprintUrl,
             IUsersRepository repository,
             IDbTransaction transaction)
         {
@@ -196,6 +198,7 @@ namespace ArtifactStore.Helpers
             {
                 return null;
             }
+            var baseUrl = blueprintUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
             var emails = new List<string>();
             if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
             {
@@ -221,7 +224,7 @@ namespace ArtifactStore.Helpers
                 Subject = I18NHelper.FormatInvariant("Artifact {0} has been updated.", artifactInfo.Id),
                 From = notificationAction.FromDisplayName,
                 To = emails,
-                MessageTemplate = notificationAction.Message,
+                Message = notificationAction.Message,
                 RevisionId = revisionId,
                 UserId = userId,
                 ArtifactTypeId = artifactInfo.ItemTypeId,
@@ -229,7 +232,8 @@ namespace ArtifactStore.Helpers
                 ArtifactUrl = artifactPartUrl,
                 ArtifactTypePredefined = (int)artifactInfo.PredefinedType,
                 ProjectId = artifactInfo.ProjectId,
-                Header = messageHeader
+                Header = messageHeader,
+                BlueprintUrl = baseUrl
             };
             return notificationMessage;
         }

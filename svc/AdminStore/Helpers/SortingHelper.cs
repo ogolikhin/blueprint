@@ -27,25 +27,6 @@ namespace AdminStore.Helpers
             return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
         }
 
-        public static string SortProjectArtifactsAssignedToWorkflow(Sorting sorting)
-        {
-            var defaultSortColumn = "projectName";
-
-            var sortableColumns = new HashSet<string>
-            {
-                defaultSortColumn,
-                "prefix",
-                "artifactName"
-            };
-
-            var column = sorting.Sort;
-            var sortColumn = !string.IsNullOrWhiteSpace(column) && sortableColumns.Contains(column)
-                ? column
-                : defaultSortColumn;
-
-            return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
-        }
-
         public static string SortUsergroups(Sorting sorting)
         {
             var defaultSortColumn = "displayName";

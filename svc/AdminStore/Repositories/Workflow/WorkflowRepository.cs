@@ -542,17 +542,11 @@ namespace AdminStore.Repositories.Workflow
         }
 
         public async Task<QueryResult<WorkflowProjectArtifacts>> GetProjectArtifactsAssignedtoWorkflowAsync(int workflowId, Pagination pagination, 
-                                            Sorting sorting = null, string search = null, Func<Sorting, string> sort = null)
+                                            string search = null)
         {
             if (workflowId < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(workflowId));
-            }
-
-            var orderField = string.Empty;
-            if (sort != null && sorting != null)
-            {
-                orderField = sort(sorting);
             }
             if (search != null)
             {
@@ -563,7 +557,6 @@ namespace AdminStore.Repositories.Workflow
             prm.Add("@Offset", pagination.Offset);
             prm.Add("@WorkflowId", workflowId, dbType: DbType.Int32);
             prm.Add("@Limit", pagination.Limit);
-            prm.Add("@OrderField", orderField);
             prm.Add("@Search", search ?? string.Empty);
             prm.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
             prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);

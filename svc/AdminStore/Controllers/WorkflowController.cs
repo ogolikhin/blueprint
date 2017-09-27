@@ -172,7 +172,6 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="workFlowId"></param>   
         /// <param name="pagination">Limit and offset values to query workflows</param>
-        /// <param name="sorting">(optional) Sort and its order</param>
         /// <param name="search">(optional) Search query parameter</param>      
         /// <response code="200">OK. List of assigned project artifact type for Workflow</response>       
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
@@ -183,7 +182,7 @@ namespace AdminStore.Controllers
         [HttpGet, NoCache]
         [Route("{workflowId:int:min(1)}/projects"), SessionRequired]
         [ResponseType(typeof(QueryResult<WorkflowProjectArtifacts>))]
-        public async Task<IHttpActionResult> GetProjectArtifactsAssignedtoWorkflowAsync(int workFlowId, [FromUri] Pagination pagination, [FromUri] Sorting sorting = null, string search = null)
+        public async Task<IHttpActionResult> GetProjectArtifactsAssignedtoWorkflowAsync(int workFlowId, [FromUri] Pagination pagination, string search = null)
         {
             pagination.Validate();
             SearchFieldValidator.Validate(search);
@@ -191,7 +190,7 @@ namespace AdminStore.Controllers
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
             var availiableProjects = await _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(workFlowId, pagination, 
-                sorting, search, SortingHelper.SortProjectArtifactsAssignedToWorkflow);
+                 search);
 
             return Ok(availiableProjects);
         }

@@ -74,7 +74,6 @@ namespace AdminStore.Repositories.Workflow
         Task<int> CreateWorkflow(SqlWorkflow workflow, int revision, IDbTransaction transaction);
 
         Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId);
-        Task<QueryResult<WorkflowProjectArtifacts>> GetProjectArtifactsAssignedtoWorkflowAsync(int workFlowId, Pagination pagination, Sorting sorting = null, string search = null,
-            Func<Sorting, string> sort = null);
+        Task<QueryResult<WorkflowProjectArtifacts>> GetProjectArtifactsAssignedtoWorkflowAsync(int workflowId, Pagination pagination, string search = null);
     }
 }

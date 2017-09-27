@@ -10,7 +10,7 @@ namespace BluePrintSys.Messaging.Models.Actions
         public string From { get; set; }
         public string Subject { get; set; }
         public string Header { get; set; }
-        public string MessageTemplate { get; set; }
+        public string Message { get; set; }
         public int ArtifactId { get; set; }
         public string ArtifactName { get; set; }
         public int ProjectId { get; set; }
@@ -19,5 +19,6 @@ namespace BluePrintSys.Messaging.Models.Actions
         public int RevisionId { get; set; }
         public int ArtifactTypeId { get; set; }
         public int ArtifactTypePredefined { get; set; }
+        public string BlueprintUrl { get; set; }
     }
 }

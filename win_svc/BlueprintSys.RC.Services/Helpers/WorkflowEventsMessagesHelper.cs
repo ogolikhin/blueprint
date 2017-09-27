@@ -58,6 +58,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             projectName,
                             notificationAction,
                             artifactUrl,
+                            baseHostUri,
                             repository);
                         if (notificationMessage == null)
                         {
@@ -216,6 +217,7 @@ namespace BlueprintSys.RC.Services.Helpers
             string projectName,
             EmailNotificationAction notificationAction,
             string artifactUrl,
+            string blueprintUrl,
             IUsersRepository repository)
         {
             string messageHeader = I18NHelper.FormatInvariant("You are being notified because artifact with Id: {0} has been created.", artifactInfo.Id);
@@ -224,8 +226,8 @@ namespace BlueprintSys.RC.Services.Helpers
             {
                 return null;
             }
-            
-           var  emails = await GetEmailValues(revisionId, artifactInfo.Id, notificationAction, repository);
+            var baseUrl = blueprintUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
+            var emails = await GetEmailValues(revisionId, artifactInfo.Id, notificationAction, repository);
 
             var notificationMessage = new NotificationMessage
             {
@@ -234,7 +236,7 @@ namespace BlueprintSys.RC.Services.Helpers
                 Subject = I18NHelper.FormatInvariant("Artifact {0} has been created.",artifactInfo.Id),
                 From = notificationAction.FromDisplayName,
                 To = emails,
-                MessageTemplate = notificationAction.Message,
+                Message = notificationAction.Message,
                 RevisionId = revisionId,
                 UserId = userId,
                 ArtifactTypeId = artifactInfo.ItemTypeId,
@@ -242,7 +244,8 @@ namespace BlueprintSys.RC.Services.Helpers
                 ArtifactUrl = artifactPartUrl,
                 ArtifactTypePredefined = (int)artifactInfo.PredefinedType,
                 ProjectId = artifactInfo.ProjectId,
-                Header = messageHeader
+                Header = messageHeader,
+                BlueprintUrl = baseUrl
             };
             return notificationMessage;
         }

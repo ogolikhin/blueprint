@@ -235,6 +235,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     I18NHelper.FormatInvariant("You are being notified because artifact with Id: {0} has been updated.",
                         artifactId);
                 var artifactPartUrl = artifact.Url ?? ServerUriHelper.GetArtifactUrl(artifactId, true);
+                var blueprintUrl = artifact.BaseUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
                 var emails = await WorkflowEventsMessagesHelper.GetEmailValues(message.RevisionId, artifactId,
                     notificationAction, repository.UsersRepository);
 
@@ -246,14 +247,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     From = notificationAction.FromDisplayName,
                     To = emails,
                     Header = messageHeader,
-                    MessageTemplate = notificationAction.Message,
+                    Message = notificationAction.Message,
                     RevisionId = message.RevisionId,
                     UserId = message.UserId,
                     ArtifactTypeId = currentStateInfo.ItemTypeId,
                     ArtifactId = artifactId,
                     ArtifactUrl = artifactPartUrl,
                     ArtifactTypePredefined = artifact.Predefined,
-                    ProjectId = artifact.ProjectId
+                    ProjectId = artifact.ProjectId,
+                    BlueprintUrl = blueprintUrl
                 };
 
                 if (notificationMessages.ContainsKey(artifactId))
@@ -351,6 +353,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     I18NHelper.FormatInvariant("You are being notified because artifact with Id: {0} has been updated.",
                         artifactId);
                 var artifactPartUrl = artifact.Url ?? ServerUriHelper.GetArtifactUrl(artifactId, true);
+                var blueprintUrl = artifact.BaseUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
                 var emails = await WorkflowEventsMessagesHelper.GetEmailValues(message.RevisionId, artifactId,
                     notificationAction, repository.UsersRepository);
 
@@ -362,14 +365,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
                     From = notificationAction.FromDisplayName,
                     To = emails,
                     Header = messageHeader,
-                    MessageTemplate = notificationAction.Message,
+                    Message = notificationAction.Message,
                     RevisionId = message.RevisionId,
                     UserId = message.UserId,
                     ArtifactTypeId = currentStateInfo.ItemTypeId,
                     ArtifactId = artifactId,
                     ArtifactUrl = artifactPartUrl,
                     ArtifactTypePredefined = artifact.Predefined,
-                    ProjectId = artifact.ProjectId
+                    ProjectId = artifact.ProjectId,
+                    BlueprintUrl = blueprintUrl
                 };
 
                 if (notificationMessages.ContainsKey(artifactId))

@@ -9,9 +9,6 @@
 // ------------------------------------------------------------------------------
 namespace ServiceLibrary.Notification.Templates
 {
-    using System.Linq;
-    using System.Text;
-    using System.Collections.Generic;
     using System;
     
     /// <summary>
@@ -28,54 +25,114 @@ namespace ServiceLibrary.Notification.Templates
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\r\n<!doctype html>\r\n<html>\r\n<head>\r\n<meta charset=\"utf-8\">\r\n<title>Email</title>\r\n" +
-                    "<style>\r\nth, td {\r\n\ttext-align: left;\r\n\tpadding: 10px;\r\n}\r\n</style>\r\n</head>\r\n\r\n" +
-                    "<body style=\"margin:0; padding:0;\">\r\n\r\n\t<p>");
+            this.Write(@"
+<!doctype html>
+<html>
+<head>
+<meta charset=""utf-8"">
+<title>Email</title>
+</head>
+<body style=""margin:0; padding:0;"">
+
+<table cellpadding=""0"" cellspacing=""0"" border=""0"" style=""width:100%;"">
+	<tr>
+		<td colspan=""3"" style=""background: #ececec; height:10px;""></td>
+	</tr>
+	<tr style=""background: #ececec;"">
+		<td style=""width:10px;""></td>
+		<td>
+			<table cellpadding=""0"" cellspacing=""10"" border=""0"" style=""width:100%; background:#fff;"">
+				<tr>
+					<td align=""center""><img src=""");
             
-            #line 23 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 22 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Email.LogoImageSrc));
+            
+            #line default
+            #line hidden
+            this.Write("\"/></td>\r\n\t\t\t\t</tr>\r\n\t\t\t\t<tr>\r\n\t\t\t\t\t<td style=\"color:#606060; font-family:Arial; " +
+                    "font-size: 13px;\">");
+            
+            #line 25 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.Header));
             
             #line default
             #line hidden
-            this.Write("</p>\r\n\r\n\t<table>\r\n\t\t<tr>\r\n\t\t\t<th>Property</th>\r\n\t\t\t<th>Value</th>\r\n\t\t</tr>\r\n\r\n\t\t<" +
-                    "tr>\r\n\t\t\t<td>Project Name</td>\r\n\t\t\t<td>");
+            this.Write(@"</td>
+				</tr>
+				<tr>
+					<td style=""background: #ddd;"">
+						<table cellpadding=""5"" cellspacing=""5"" border=""0"" style=""width:100%;"">
+							<tr>
+								<td valign=""top"" style=""color:#fff; font-family:Arial; font-size: 13px;background: #001E5F; width: 100px; font-weight:bold;"">Project Name</td>
+								<td style=""color:#606060; font-family:Arial; font-size: 13px;background: #f5f5f5;"">");
             
-            #line 33 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 32 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ProjectName));
             
             #line default
             #line hidden
-            this.Write("</td>\r\n\t\t</tr>\r\n\r\n\t\t<tr>\r\n\t\t\t<td>Artifact Name</td>\r\n\t\t\t<td>");
+            this.Write(@"</td>
+							</tr>
+							<tr>
+								<td valign=""top"" style=""color:#fff; font-family:Arial; font-size: 13px;background: #001E5F; width: 100px; font-weight:bold;"">Artifact Name</td>
+								<td style=""color:#606060; font-family:Arial; font-size: 13px;background: #f5f5f5;"">");
             
-            #line 38 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 36 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ArtifactName));
             
             #line default
             #line hidden
-            this.Write("</td>\r\n\t\t</tr>\r\n\r\n\t\t<tr>\r\n\t\t\t<td>Message</td>\r\n\t\t\t<td>");
+            this.Write(@"</td>
+							</tr>
+							<tr>
+								<td valign=""top"" style=""color:#fff; font-family:Arial; font-size: 13px;background: #001E5F; width: 100px; font-weight:bold;"">Message</td>
+								<td style=""color:#606060; font-family:Arial; font-size: 13px;background: #f5f5f5;"">");
             
-            #line 43 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Email.Body));
+            #line 40 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Email.Message));
             
             #line default
             #line hidden
-            this.Write("</td>\r\n\t\t</tr>\r\n\r\n\t\t<tr>\r\n\t\t\t<td>URL</td>\r\n\t\t\t<td style=\"color:#1b1b1b; font-fami" +
-                    "ly:Arial; font-size: 12px;\"> Having trouble with the link below? Just copy and p" +
-                    "aste the URL below into your browser.<br> \r\n\t\t\t\t<a href=\"");
+            this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t</table>\r\n\t\t\t\t\t</td>\r\n\t\t\t\t</tr>\r\n\t\t\t\t<tr>\r\n\t\t\t\t\t<td st" +
+                    "yle=\"color:#1b1b1b; font-family:Arial; font-size: 12px;\">Having trouble with the" +
+                    " link below? Just copy and paste the URL below into your browser.<br><a href=\"");
             
-            #line 49 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 46 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ArtifactUrl));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 49 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            #line 46 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Email.ArtifactUrl));
             
             #line default
             #line hidden
-            this.Write("</a>\r\n\t\t\t</td>\r\n\t\t</tr>\r\n\r\n\t</table>\r\n\r\n</body>\r\n</html>");
+            this.Write(@"</a></td>
+				</tr>
+				<tr>
+					<td style=""height:5px;""></td>
+				</tr>
+				<tr>
+					<td align=""right"" style=""color:#1b1b1b; font-family:Arial; font-size: 10px; font-style:italic;"">This email was sent to you as a registered <a href=""http://www.blueprintsys.com/"">Blueprint</a> user from <a href=""");
+            
+            #line 52 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Email.BlueprintUrl));
+            
+            #line default
+            #line hidden
+            this.Write("\">");
+            
+            #line 52 "C:\source\blueprint\svc\lib\ServiceLibrary\Notification\Templates\NotificationEmailContent.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Email.BlueprintUrl));
+            
+            #line default
+            #line hidden
+            this.Write("</a></td>\r\n\t\t\t\t</tr>\r\n\t\t\t</table>\r\n\t\t</td>\r\n\t\t<td style=\"width:10px;\"></td>\r\n\t</t" +
+                    "r>\r\n\t<tr style=\"background: #ececec;\">\r\n\t\t<td colspan=\"3\" style=\"height:10px;\"><" +
+                    "/td>\r\n\t</tr>\r\n</table>\r\n\r\n</body>\r\n</html>\r\n");
             return this.GenerationEnvironment.ToString();
         }
     }

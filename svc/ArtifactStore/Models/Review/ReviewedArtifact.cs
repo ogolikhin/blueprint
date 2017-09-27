@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Models.Review
@@ -16,6 +17,7 @@ namespace ArtifactStore.Models.Review
         /// </summary>
         public int? ViewedArtifactVersion { get; set; }
 
+        [JsonIgnore]
         public ViewStateType ViewState { get; set; }
 
         /// <summary>

@@ -442,8 +442,8 @@ namespace ArtifactStore.Repositories
             param.Add("@userId", userId);
             param.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
             param.Add("@refreshInterval", refreshInterval);
+
             return (await _connectionWrapper.QueryAsync<int>("GetReviewArtifactsForApprove", param, commandType: CommandType.StoredProcedure)).ToList();
-           
         }
         private async Task<ReviewArtifactsQueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
             where T : BaseReviewArtifact
@@ -1157,18 +1157,23 @@ namespace ArtifactStore.Repositories
             {
                 throw new BadRequestException("No artifacts provided", ErrorCodes.OutOfRangeParameter);
             }
+
             List<int> artifactIds = new List<int>();
+
             if (reviewArtifactApprovalParameters.IsBulk)
             {
                 artifactIds.AddRange(await GetReviewArtifactsForApproveAsync(reviewId, userId, reviewArtifactApprovalParameters.RevisionId.Value, false));
-                //artifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
+
                 if (reviewArtifactApprovalParameters.ArtifactIds != null && reviewArtifactApprovalParameters.ArtifactIds.Any())
                 {
                     artifactIds.RemoveAll(a => reviewArtifactApprovalParameters.ArtifactIds.Contains(a));
                 }
             }
             else
+            {
                 artifactIds.AddRange(reviewArtifactApprovalParameters.ArtifactIds);
+            }
+
             await CheckApprovalAndPermissions(reviewId, userId, artifactIds);
 
             var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
@@ -1208,6 +1213,7 @@ namespace ArtifactStore.Repositories
                 {
                     reviewArtifactApproval.ESignedOn = timestamp;
                 }
+
                 ApprovalType prevFlag = reviewArtifactApproval.ApprovalFlag;
                 reviewArtifactApproval.Approval = reviewArtifactApprovalParameters.Approval;
                 reviewArtifactApproval.ApprovalFlag = reviewArtifactApprovalParameters.ApprovalFlag;

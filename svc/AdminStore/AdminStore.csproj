@@ -120,7 +120,6 @@
     <Compile Include="Helpers\SearchFieldValidator.cs" />
     <Compile Include="Helpers\SortingHelper.cs" />
     <Compile Include="Helpers\UserConverter.cs" />
-    <Compile Include="Helpers\PrivilegesManager.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
     <Compile Include="Helpers\Workflow\CreateWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\WorkflowHelper.cs" />
@@ -136,6 +135,9 @@
     <Compile Include="Models\Emails\EmailIncomingSettings.cs" />
     <Compile Include="Models\Emails\EmailOutgoingSettings.cs" />
     <Compile Include="Models\Emails\EmailSettingsDto.cs" />
+    <Compile Include="Models\WorkflowArtifact.cs" />
+    <Compile Include="Models\WorkflowProjectArtifacts.cs" />
+    <Compile Include="Models\WorkflowProjectArtifactsDTO.cs" />
     <Compile Include="Models\Workflow\IeUsersGroups.cs" />
     <Compile Include="Models\Workflow\WorkflowDetailsDto.cs" />
     <Compile Include="Services\Email\EmailClientExceptionHandler.cs" />
@@ -223,14 +225,12 @@
     <Compile Include="Repositories\IAuthenticationRepository.cs" />
     <Compile Include="Repositories\ILdapRepository.cs" />
     <Compile Include="Repositories\IInstanceRepository.cs" />
-    <Compile Include="Repositories\IPrivilegesRepository.cs" />
     <Compile Include="Repositories\IGroupRepository.cs" />
     <Compile Include="Repositories\ISqlSettingsRepository.cs" />
     <Compile Include="Repositories\IUserRepository.cs" />
     <Compile Include="Repositories\LdapRepository.cs" />
     <Compile Include="Repositories\SqlGroupRepository.cs" />
     <Compile Include="Repositories\SqlInstanceRepository.cs" />
-    <Compile Include="Repositories\SqlPrivilegesRepository.cs" />
     <Compile Include="Repositories\SqlSettingsRepository.cs" />
     <Compile Include="Repositories\SqlUserRepository.cs" />
     <Compile Include="Repositories\Workflow\IWorkflowRepository.cs" />

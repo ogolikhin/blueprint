@@ -65,6 +65,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{containerId:int:min(1)}/artifacts"), SessionRequired]
         public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, int? revisionId = int.MaxValue)
         {
+            pagination.Validate();
             pagination.SetDefaultValues(0, 10);
             return _sqlReviewsRepository.GetReviewedArtifacts(containerId, Session.UserId, pagination, revisionId.Value);
         }
@@ -85,6 +86,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{containerId:int:min(1)}/content"), SessionRequired]
         public Task<QueryResult<ReviewArtifact>> GetContentAsync(int containerId, [FromUri] Pagination pagination, int? versionId = null)
         {
+            pagination.Validate();
             pagination.SetDefaultValues(0, 10);
             return _sqlReviewsRepository.GetReviewArtifactsContentAsync(containerId, Session.UserId, pagination, versionId);
         }
@@ -124,6 +126,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{containerId:int:min(1)}/toc"), SessionRequired]
         public Task<QueryResult<ReviewTableOfContentItem>> GetTableOfContentAsync(int containerId, [FromUri] Pagination pagination, int? revisionId = int.MaxValue)
         {
+            pagination.Validate();
             pagination.SetDefaultValues(0, 50);
             return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId.Value, Session.UserId, pagination);
         }
@@ -132,8 +135,7 @@ namespace ArtifactStore.Controllers
         /// Gets review participants for a review given offset and limit, also returns total count.
         /// </summary>
         /// <param name="containerId"></param>
-        /// <param name="offset"></param>
-        /// <param name="limit"></param>
+        /// <param name="pagination"></param>
         /// <param name="versionId"></param>
         /// <returns></returns>
         /// <response code="200">OK.</response>
@@ -143,9 +145,11 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/participants"), SessionRequired]
-        public Task<ReviewParticipantsContent> GetParticipantsAsync(int containerId, int? offset = 0, int? limit = 50, int? versionId = null)
+        public Task<ReviewParticipantsContent> GetParticipantsAsync(int containerId, [FromUri] Pagination pagination, int? versionId = null)
         {
-            return _sqlReviewsRepository.GetReviewParticipantsAsync(containerId, offset, limit, Session.UserId, versionId);
+            pagination.Validate();
+            pagination.SetDefaultValues(0, 50);
+            return _sqlReviewsRepository.GetReviewParticipantsAsync(containerId, pagination, Session.UserId, versionId);
         }
 
         /// <summary>
@@ -172,8 +176,7 @@ namespace ArtifactStore.Controllers
         /// </summary>
         /// <param name="artifactId"></param>
         /// <param name="containerId"></param>
-        /// <param name="offset"></param>
-        /// <param name="limit"></param>
+        /// <param name="pagination"></param>
         /// <param name="versionId"></param>
         /// <returns></returns>
         /// <response code="200">OK.</response>
@@ -183,9 +186,11 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/artifactreviewers/{artifactId=artifactId}"), SessionRequired]
-        public Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipantAsync(int artifactId, int containerId, int? offset = 0, int? limit = 50, int? versionId = null)
+        public Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipantAsync(int artifactId, int containerId, [FromUri] Pagination pagination, int? versionId = null)
         {
-            return _sqlReviewsRepository.GetReviewArtifactStatusesByParticipant(artifactId, containerId, offset, limit, Session.UserId, versionId);
+            pagination.Validate();
+            pagination.SetDefaultValues(0, 50);
+            return _sqlReviewsRepository.GetReviewArtifactStatusesByParticipant(artifactId, containerId, pagination, Session.UserId, versionId);
         }
 
         /// <summary>

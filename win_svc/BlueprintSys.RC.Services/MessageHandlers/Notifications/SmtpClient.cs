@@ -91,7 +91,21 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                 mailMessage.BodyPlainText = message.Body;
             }
 
-
+            if (message.DiscussionEmail != null)
+            {
+                if (message.DiscussionEmail.LogoImageAttachmentArray != null)
+                {
+                    mailMessage.Attachments.Add(message.DiscussionEmail.LogoImageAttachmentArray,
+                        DiscussionEmail.LogoImageAttachmentContentId, DiscussionEmail.LogoImageAttachmentContentId,
+                        null, null, NewAttachmentOptions.Inline | NewAttachmentOptions.ReplaceIfExists, MailTransferEncoding.Base64);
+                }
+                if (message.DiscussionEmail.ArtifactImageAttachmentArray != null)
+                {
+                    mailMessage.Attachments.Add(message.DiscussionEmail.ArtifactImageAttachmentArray,
+                        DiscussionEmail.ArtifactImageAttachmentContentId, DiscussionEmail.ArtifactImageAttachmentContentId,
+                        null, null, NewAttachmentOptions.Inline | NewAttachmentOptions.ReplaceIfExists, MailTransferEncoding.Base64);
+                }
+            }
 
             var smtp = new Smtp();
             smtp.SmtpServers.Add(smtpServer);

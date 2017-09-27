@@ -1,19 +1,16 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace AdminStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     [TestClass]
     public class SqlPrivilegesRepositoryTest
     {
-        #region GetUserPermissionsAsync
-
         [TestMethod]
         public async Task GetInstanceAdminPrivilegesAsync_ExistingUser_ReturnUsersPermissions()
         {
@@ -32,9 +29,6 @@ namespace AdminStore.Repositories
             Assert.AreEqual(result, permissions);
         }
 
-        #endregion GetUserPermissionsAsync
-
-        #region GetProjectAdminPermissionsAsync
 
         [TestMethod]
         public async Task GetProjectAdminPermissionsAsync_ExistingUserAndProject_ReturnUsersPermissionsForProject()
@@ -73,7 +67,5 @@ namespace AdminStore.Repositories
             // Assert
             cxn.Verify();
         }
-
-        #endregion
     }
 }

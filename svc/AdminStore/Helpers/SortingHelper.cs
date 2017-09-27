@@ -26,6 +26,7 @@ namespace AdminStore.Helpers
 
             return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
         }
+
         public static string SortUsergroups(Sorting sorting)
         {
             var defaultSortColumn = "displayName";

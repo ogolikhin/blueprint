@@ -541,6 +541,68 @@ namespace AdminStore.Repositories.Workflow
             else return new List<InstanceItem>();           
         }
 
+        public async Task<QueryResult<WorkflowProjectArtifactsDto>> GetProjectArtifactsAssignedtoWorkflowAsync(int workflowId, Pagination pagination, 
+                                            string search = null)
+        {
+            if (workflowId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(workflowId));
+            }
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@Offset", pagination.Offset);
+            prm.Add("@WorkflowId", workflowId, dbType: DbType.Int32);
+            prm.Add("@Limit", pagination.Limit);
+            prm.Add("@Search", search ?? string.Empty);
+            prm.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var items = (await _connectionWrapper.QueryAsync<WorkflowProjectArtifacts>("GetWorkflowProjectsArtifactTypes", prm, commandType: CommandType.StoredProcedure));
+
+            var workflowArtifacts = items as WorkflowProjectArtifacts[] ?? items.ToArray();
+            var projectIds = workflowArtifacts.Select(x => x.ProjectId).Distinct().ToList();
+
+            var groupedList = new List<WorkflowProjectArtifactsDto>();
+
+            foreach (var projectId in projectIds)
+            {
+                var artifacts = workflowArtifacts.Where(x => x.ProjectId == projectId).ToList();
+                
+                var projectArtifacts = artifacts.Select(artifact => new WorkflowArtifact()
+                {
+                    Id = artifact.ArtifactId, Name = artifact.ArtifactName
+                }).ToList();
+
+                string projectName = artifacts[0].ProjectName;
+
+                var groupedProjectArtifacts = new WorkflowProjectArtifactsDto()
+                {
+                    ProjectId = projectId,
+                    ProjectName = projectName,
+                    Artifacts = projectArtifacts
+                };
+                groupedList.Add(groupedProjectArtifacts);
+            }
+
+            var errorCode = prm.Get<int?>("ErrorCode");
+            var total = groupedList.Count;
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+
+            return new QueryResult<WorkflowProjectArtifactsDto>() { Items = groupedList, Total = total };
+        }
+
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
         {
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);

@@ -1,4 +1,22 @@
-﻿using System;
+﻿using AdminStore.Helpers;
+using AdminStore.Helpers.Workflow;
+using AdminStore.Models;
+using AdminStore.Models.DTO;
+using AdminStore.Models.Workflow;
+using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow;
+using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Files;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Files;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -9,24 +27,6 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Xml;
-using AdminStore.Helpers;
-using AdminStore.Helpers.Workflow;
-using AdminStore.Models;
-using AdminStore.Models.DTO;
-using AdminStore.Models.Workflow;
-using AdminStore.Repositories;
-using AdminStore.Repositories.Workflow;
-using AdminStore.Services.Workflow;
-using ServiceLibrary.Attributes;
-using ServiceLibrary.Controllers;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Helpers.Files;
-using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Repositories.Files;
-using System.Collections.Generic;
 
 namespace AdminStore.Controllers
 {
@@ -145,14 +145,14 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get not assigned projects for Workflow by workFlowId and by folderId 
+        /// Get not assigned projects for Workflow by workflowId and by folderId 
         /// </summary>
         /// <param name="workFlowId"></param>
         /// <param name="folderId"></param>         
         /// <response code="200">OK. List not assigned projects for Workflow</response>       
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">User doesn’t have permission to view projects not assigned to workflow.</response>
-        /// <response code="404">Not Found. The workflow with workFlowId or folder with folderId were not found.</response>
+        /// <response code="404">Not Found. The workflow with workflowId or folder with folderId were not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// 
         [HttpGet, NoCache]
@@ -165,6 +165,34 @@ namespace AdminStore.Controllers
             var availiableProjects = await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId);          
 
             return Ok(availiableProjects);        
+        }
+
+        /// <summary>
+        /// Get list of project artifact type assigned to a workflowId
+        /// </summary>
+        /// <param name="workflowId"></param>   
+        /// <param name="pagination">Limit and offset values to query workflows</param>
+        /// <param name="search">(optional) Search query parameter</param>      
+        /// <response code="200">OK. List of assigned project artifact type for Workflow</response>       
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">User doesn’t have permission to access project artifact type assigned to workflow.</response>
+        /// <response code="404">Not Found. Project artifact type with workflowId were not found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// 
+        [HttpGet, NoCache]
+        [Route("{workflowId:int:min(1)}/projects"), SessionRequired]
+        [ResponseType(typeof(QueryResult<WorkflowProjectArtifactsDto>))]
+        public async Task<IHttpActionResult> GetProjectArtifactsAssignedtoWorkflowAsync(int workflowId, [FromUri] Pagination pagination, string search = null)
+        {
+            pagination.Validate();
+            SearchFieldValidator.Validate(search);
+
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            var availiableProjects = await _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(workflowId, pagination, 
+                 search);
+
+            return Ok(availiableProjects);
         }
 
         /// <summary>

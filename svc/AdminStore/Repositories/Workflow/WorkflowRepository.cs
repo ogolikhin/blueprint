@@ -755,9 +755,12 @@ namespace AdminStore.Repositories.Workflow
             if (errorCode.HasValue)
             {
                 switch (errorCode.Value)
-                {                                           
-                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
+
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
                 }
             }
 

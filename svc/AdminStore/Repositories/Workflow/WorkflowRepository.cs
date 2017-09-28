@@ -61,6 +61,9 @@ namespace AdminStore.Repositories.Workflow
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
 
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
                         throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
                 }

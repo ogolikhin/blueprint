@@ -64,6 +64,7 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions to assign projects and artifacts</response>
+        /// <response code="404">Not Found. The workflow with workflowId were not found.</response> 
         /// <response code="409">Conflict. Workflow name with workFlowid is active.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns></returns>

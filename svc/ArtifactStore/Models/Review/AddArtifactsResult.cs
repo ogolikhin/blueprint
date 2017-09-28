@@ -22,5 +22,6 @@ namespace ArtifactStore.Models.Review
         public IEnumerable<int> ArtifactIds { get; set; }
         public int Nonexistent { get; set; }
         public int Unpublished { get; set; }
+        public bool IsBaselineAdded { get; set; }
     }
 }

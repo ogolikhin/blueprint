@@ -242,6 +242,10 @@ namespace ArtifactStore.Repositories
 
             var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml, new HashSet<int>(effectiveIds.ArtifactIds), out alreadyIncludedCount);
             await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
+            if (effectiveIds.IsBaselineAdded)
+            {
+                await CreateOrUpdateReviewBaselineLink(reviewId, content.ArtifactIds.First(), propertyResult.ProjectId.Value, userId);
+            }
 
             return new AddArtifactsResult()
             {
@@ -300,13 +304,25 @@ namespace ArtifactStore.Repositories
             param.Add("@userId", userId);
             param.Add("@projectId", projectId);
 
-            var result = await _connectionWrapper.QueryMultipleAsync<int, int, int>("GetEffectiveArtifactIds", param, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.QueryMultipleAsync<int, int, int, bool>("GetEffectiveArtifactIds", param, commandType: CommandType.StoredProcedure);
             return new EffectiveArtifactIdsResult()
             {
                 ArtifactIds = result.Item1.ToList(),
                 Unpublished = result.Item2.SingleOrDefault(),
-                Nonexistent = result.Item3.SingleOrDefault()
+                Nonexistent = result.Item3.SingleOrDefault(),
+                IsBaselineAdded = result.Item4.SingleOrDefault()
             };
+        }
+
+        private async Task CreateOrUpdateReviewBaselineLink(int reviewId, int baselineId, int projectId, int userId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@baselineId", baselineId);
+            param.Add("@projectId", projectId);
+            param.Add("@userId", userId);
+
+            await _connectionWrapper.ExecuteAsync("CreateOrUpdateReviewBaselineLink", param, commandType: CommandType.StoredProcedure);
         }
 
         private string AddArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToAdd, out int alreadyIncluded)

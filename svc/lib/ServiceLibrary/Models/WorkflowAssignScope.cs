@@ -22,8 +22,8 @@ namespace AdminStore.Models
             else if (AllArtifacts && !AllProjects && (ProjectIds == null || !ProjectIds.Any()))
                 return true;
             else if (!AllArtifacts && !AllProjects
-                && (ArtifactIds == null || !ArtifactIds.Any())
-                && (ProjectIds == null || !ProjectIds.Any()))
+                && ((ArtifactIds == null || !ArtifactIds.Any())
+                || (ProjectIds == null || !ProjectIds.Any())))
                 return true;
             else return false;
         }

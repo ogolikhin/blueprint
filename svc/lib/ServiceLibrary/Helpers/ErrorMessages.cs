@@ -76,7 +76,7 @@
         public static readonly string ProjectIdIsInvalid = "The project Id is invalid";
         //Workflow
         public static readonly string WorkflowNotExist = "The workflow with the current workflowId doesn’t exist or removed from the system.";
-        public static readonly string WorkflowIsActive = "The workflow with the current workflowId is active.";
+        public static readonly string WorkflowIsActive = "The workflow with the current id is active.";
         public static readonly string WorkflowModelIsEmpty = "The model is empty.";
         public static readonly string WorkflowVersionsNotEqual = "The current version the workflow from the request doesn’t match the current version in DB.";
         public static readonly string WorkflowWasNotUpdated = "The workflow with current parameters was not updated.";

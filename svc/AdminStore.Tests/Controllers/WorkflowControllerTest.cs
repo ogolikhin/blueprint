@@ -900,7 +900,6 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task GetProjectArtifactsAssignedToWorkflowAsync_PaginationIsNull_ReturnBadRequestResult()
         {
             // Arrange
@@ -913,19 +912,30 @@ namespace AdminStore.Controllers
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
                                    .ReturnsAsync(_expectedArtifacts);
 
-            
-            //act
-            var actualResult =
+            BadRequestException exception = null;
+
+            //Act
+            try
+            {
+                var actualResult =
                 await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
                                                                             as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactsDto>>;
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
-            // Exception
+            //Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.InvalidPagination);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task GetProjectArtifactsAssignedToWorkflowAsync_OffsetIsNull_ReturnBadRequestResult()
         {
             // Arrange
@@ -938,18 +948,29 @@ namespace AdminStore.Controllers
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
                                    .ReturnsAsync(_expectedArtifacts);
 
-            //act
-            var actualResult =
+            BadRequestException exception = null;
+
+            //Act
+            try
+            {
+                var actualResult =
                 await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
                                                                             as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactsDto>>;
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
-            // Exception
+            //Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.IncorrectOffsetParameter);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task GetProjectArtifactsAssignedToWorkflowAsync_OffsetLessThenZero_ReturnBadRequestResult()
         {
             // Arrange
@@ -962,18 +983,29 @@ namespace AdminStore.Controllers
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
                                    .ReturnsAsync(_expectedArtifacts);
 
-            //act
-            var actualResult =
+            BadRequestException exception = null;
+
+            //Act
+            try
+            {
+                var actualResult =
                 await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
                                                                             as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactsDto>>;
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
-            // Exception
+            //Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.IncorrectOffsetParameter);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task GetProjectArtifactsAssignedToWorkflowAsync_LimitIsNull_ReturnBadRequestResult()
         {
             // Arrange
@@ -986,18 +1018,29 @@ namespace AdminStore.Controllers
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
                                    .ReturnsAsync(_expectedArtifacts);
 
-            //act
-            var actualResult =
+            BadRequestException exception = null;
+
+            //Act
+            try
+            {
+                var actualResult =
                 await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
                                                                             as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactsDto>>;
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
-            // Exception
+            //Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.IncorrectLimitParameter);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task GetProjectArtifactsAssignedToWorkflowAsync_LimitLessthenZero_ReturnBadRequestResult()
         {
             // Arrange
@@ -1010,18 +1053,29 @@ namespace AdminStore.Controllers
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
                                    .ReturnsAsync(_expectedArtifacts);
 
-            //act
-            var actualResult =
+            BadRequestException exception = null;
+
+            //Act
+            try
+            {
+                var actualResult =
                 await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
                                                                             as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactsDto>>;
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
-            // Exception
+            //Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.IncorrectLimitParameter);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task GetProjectArtifactsAssignedToWorkflowAsync_SearchExceedsLimit_ReturnBadRequestResult()
         {
             // Arrange
@@ -1031,20 +1085,32 @@ namespace AdminStore.Controllers
             
             //should be <= 250
             string search =
-                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium.";
-                
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium q";
+
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, search))
                                    .ReturnsAsync(_expectedArtifacts);
 
 
-            //act
-            var actualResult =
+            BadRequestException exception = null;
+
+            //Act
+            try
+            {
+                var actualResult =
                 await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             search)
                                                                             as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactsDto>>;
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
 
-            // Exception
+            //Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.SearchFieldLimitation);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
         }
 
         [TestMethod]
@@ -1057,13 +1123,14 @@ namespace AdminStore.Controllers
             
             //250 characters - OK 
             string search =
-                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium q";
+
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium.";
 
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, search))
                                    .ReturnsAsync(_expectedArtifacts);
 
 
-            //act
+            //Act
             var actualResult =
                 await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
                                                                             _pagination,

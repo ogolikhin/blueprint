@@ -347,10 +347,10 @@ namespace AdminStore.Repositories
          }
         #endregion
 
-        #region GetProjectArtifactsAssignedtoWorkflowAsync
-        
+        #region GetProjectArtifactsAssignedToWorkflowAsync
+
         [TestMethod]
-        public async Task GetProjectArtifactsAssignedtoWorkflowAsync_ArtifactsFound_SuccessfulResult()
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_ArtifactsAreFound_SuccessfulResult()
         {
             // Arrange
             int errorCode = 0;
@@ -386,7 +386,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetProjectArtifactsAssignedtoWorkflowAsync_InvalidWorkflowId_ReturnResourceNotFoundException()
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_InvalidWorkflowId_ReturnResourceNotFoundException()
         {
             // Arrange
             int errorCode = 50024;
@@ -412,7 +412,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetProjectArtifactsAssignedtoWorkflowAsync_WorkflowIdNotValid_ThrowsArgumentOutOfRangeException()
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_WorkflowIdNotValid_ThrowsArgumentOutOfRangeException()
         {
             //Arrange
             WorkflowId = 0;

@@ -870,10 +870,10 @@ namespace AdminStore.Controllers
          }
         #endregion
 
-        #region GetProjectArtifactsAssignedtoWorkflowAsync
+        #region GetProjectArtifactsAssignedToWorkflowAsync
 
         [TestMethod]
-        public async Task GetProjectArtifactsAssignedtoWorkflowAsync_SuccessfulGettingArtifacts_OkResult()
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_SuccessfulGettingArtifacts_OkResult()
         {
             // Arrange
             _privilegesRepositoryMock
@@ -901,18 +901,19 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task GetProjectArtifactsAssignedtoWorkflowAsync_IncorrectPagination_ReturnBadRequestResult()
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_PaginationIsNull_ReturnBadRequestResult()
         {
             // Arrange
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
+            _pagination = null;
+
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
                                    .ReturnsAsync(_expectedArtifacts);
 
-            _pagination = null;
-
+            
             //act
             var actualResult =
                 await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
@@ -925,7 +926,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task GetProjectArtifactsAssignedtoWorkflowAsync_IncorrectOffset_ReturnBadRequestResult()
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_OffsetIsNull_ReturnBadRequestResult()
         {
             // Arrange
             _privilegesRepositoryMock
@@ -937,7 +938,29 @@ namespace AdminStore.Controllers
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
                                    .ReturnsAsync(_expectedArtifacts);
 
-            _pagination = null;
+            //act
+            var actualResult =
+                await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
+                                                                            _pagination,
+                                                                            string.Empty)
+                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactsDto>>;
+
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_OffsetLessThenZero_ReturnBadRequestResult()
+        {
+            // Arrange
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _pagination.Offset = -1;
+
+            _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
+                                   .ReturnsAsync(_expectedArtifacts);
 
             //act
             var actualResult =
@@ -951,7 +974,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task GetProjectArtifactsAssignedtoWorkflowAsync_IncorrectLimit_ReturnBadRequestResult()
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_LimitIsNull_ReturnBadRequestResult()
         {
             // Arrange
             _privilegesRepositoryMock
@@ -963,7 +986,29 @@ namespace AdminStore.Controllers
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
                                    .ReturnsAsync(_expectedArtifacts);
 
-            _pagination = null;
+            //act
+            var actualResult =
+                await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
+                                                                            _pagination,
+                                                                            string.Empty)
+                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactsDto>>;
+
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_LimitLessthenZero_ReturnBadRequestResult()
+        {
+            // Arrange
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _pagination.Limit = -1;
+
+            _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
+                                   .ReturnsAsync(_expectedArtifacts);
 
             //act
             var actualResult =
@@ -977,15 +1022,17 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task GetProjectArtifactsAssignedtoWorkflowAsync_SearchExceedsLimit_ReturnBadRequestResult()
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_SearchExceedsLimit_ReturnBadRequestResult()
         {
             // Arrange
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
-            string search = GetRandomString(251); //should be <= 250
-
+            
+            //should be <= 250
+            string search =
+                "njleKcAa5c6jXviC5O4Lg1QAUW4sYupNTYM061FkGsKGpNglq9X4lCGT0pWBD5Eqy4JLkdGZa7NnopeYfsSFRk0abB5YN5jLW3MOwlUzduNwCzHQGPgZHlRVrEPaKjykHCoTh9ENVezddvyw0rzpRCGOZi7UzPnZ1uodFZmhE4whgowNO0C0MR7t3aSK7nTcRQzAixkAaD42UmKeSyphQGJqv4chaWyMjEnqX6BjVRwy68GpM2s270Obo1y";
+                
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, search))
                                    .ReturnsAsync(_expectedArtifacts);
 
@@ -1001,14 +1048,16 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetProjectArtifactsAssignedtoWorkflowAsync_SearchIsInLimit_SuccessfulGettingArtifacts_OkResult()
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_SearchIsInLimit_SuccessfulGettingArtifacts_OkResult()
         {
             // Arrange
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
-            string search = GetRandomString(250); //Ok
+            
+            //250 characters - OK 
+            string search =
+                "vgixdGRc98UO9vd9VDHYsT6eak6lIF55xGuTCgW7Al4GfUYV3l35bLIAX85FaztT4DShkZWLDNnolNDf4FDAE15YYGTYqzg3oY2q2dAH7bJQURn0vaOiKrAZLsQWeVHABCLVwgJChJg8HSbniGh53FaFKNWrVkBN2ImyFKZ21MUC0WFJJJXNMDxULUkfq656jQUTZAUETo1zQH4lRPaulBlLs4SJ0DELRhJdYuTnZGdRicrAQzYO4Bc6Js";
 
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, search))
                                    .ReturnsAsync(_expectedArtifacts);
@@ -1031,7 +1080,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetProjectRoleAssignments_IncorrectUserPermissions_ReturnForbiddenErrorResult()
+        public async Task GetProjectArtifactsAssignedToWorkflowAsync_IncorrectUserPermissions_ReturnForbiddenErrorResult()
         {
             // Arrange
             _privilegesRepositoryMock

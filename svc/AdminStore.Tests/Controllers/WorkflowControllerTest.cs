@@ -236,6 +236,83 @@ namespace AdminStore.Controllers
             _controller.Request.RequestUri = new Uri("http://localhost");            
         }
 
+        #region AssignProjectsAndArtifactsToWorkflow
+        [TestMethod]
+        public async Task AssignProjectsAndArtifactsToWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnListInstanceItem()
+        {
+            // arrange            
+            var scope = new WorkflowAssignScope()
+            {
+                AllArtifacts = true,
+                AllProjects = true,
+                ArtifactIds = new List<int>(),
+                ProjectIds = new List<int>(),
+            };
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowRepositoryMock.Setup(q => q.AssignProjectsAndArtifactsToWorkflow(WorkflowId, new WorkflowAssignScope())).ReturnsAsync(2);
+
+            //act            
+            var result = await _controller.AssignProjectsAndArtifactsToWorkflow(WorkflowId, scope);
+
+            //assert
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task AssignProjectsAndArtifactsToWorkflow_InvalidPermission_ReturnAuthorizationException()
+        {
+            //arrange         
+            Exception exception = null;
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
+
+            //act
+            try
+            {
+                await _controller.AssignProjectsAndArtifactsToWorkflow(WorkflowId, new WorkflowAssignScope());
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        [TestMethod]
+        public async Task AssignProjectsAndArtifactsToWorkflow_InvalidWorkflowAssignScope_ReturnBadRequestException()
+        {
+            //arrange         
+            Exception exception = null;
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            try
+            {
+                await _controller.AssignProjectsAndArtifactsToWorkflow(WorkflowId, null);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+        }
+        #endregion
+
         #region GetWorkflow
 
         [TestMethod]

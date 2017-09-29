@@ -21,12 +21,94 @@ namespace AdminStore.Repositories
         {
             _sqlConnectionWrapperMock = new SqlConnectionWrapperMock();
             _sqlHelperMock = new Mock<ISqlHelper>();
-            _workflowRepository = new WorkflowRepository(_sqlConnectionWrapperMock.Object, _sqlHelperMock.Object);            
+            _workflowRepository = new WorkflowRepository(_sqlConnectionWrapperMock.Object, _sqlHelperMock.Object);     
+            _workflowAssignScope = new WorkflowAssignScope() { AllArtifacts = true, AllProjects = true, ArtifactIds = new List<int>() { 145, 148 }, ProjectIds = new List<int>() { 1, 4 } };
+            _workflowId = 1;
         }
        
         private SqlConnectionWrapperMock _sqlConnectionWrapperMock;
         private WorkflowRepository _workflowRepository;
         private Mock<ISqlHelper> _sqlHelperMock;
+        private WorkflowAssignScope _workflowAssignScope;
+        private int _workflowId;
+
+        #region AssignProjectsAndArtifactsToWorkflow
+        [TestMethod]
+        public async Task AssignProjectsAndArtifactsToWorkflow_ExistsAssignedProjects_QueryReturnCountAssignedProjects()
+        {
+            //arrange    
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactsToWorkflow", It.IsAny<Dictionary<string, object>>(), 2);
+
+            //act
+            var result = await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(_workflowId, _workflowAssignScope);
+
+            //assert
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task AssignProjectsAndArtifactsToWorkflow_WorkflowByWorkflowIdIsActive_ReturnConflictExceptionE()
+        {
+            //arrange      
+            Exception exception = null;            
+
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactsToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive } });
+            //act
+            try
+            {
+                await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(_workflowId, _workflowAssignScope);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(ConflictException));
+        }
+
+        [TestMethod]
+        public async Task AssignProjectsAndArtifactsToWorkflow_WorkflowByWorkflowIdIsNotFound_ReturnResourceNotFoundExceptionE()
+        {
+            //arrange                  
+            Exception exception = null;            
+
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactsToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist } });
+            //act
+            try
+            {
+                await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(_workflowId, _workflowAssignScope);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(ResourceNotFoundException));
+        }
+
+        [TestMethod]
+        public async Task AssignProjectsAndArtifactsToWorkflow_GeneralSQLException_ReturnException()
+        {
+            //arrange                  
+            Exception exception = null;           
+
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactsToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
+            //act
+            try
+            {
+                await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(_workflowId, _workflowAssignScope);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(Exception));
+        }
+        #endregion
 
         #region GetWorkflowDetailsAsync
 

@@ -269,7 +269,7 @@ namespace AdminStore.Controllers
         [Route("create")]
         [HttpPost]
         [ResponseType(typeof(int))]
-        public async Task<IHttpActionResult> CreateWorkflow([FromBody]CreateWorkflowDto createWorkflowDto)
+        public async Task<HttpResponseMessage> CreateWorkflow([FromBody]CreateWorkflowDto createWorkflowDto)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             if (createWorkflowDto != null)
@@ -285,7 +285,7 @@ namespace AdminStore.Controllers
             createWorkflowDto.Validate();
 
             var result = await _workflowService.CreateWorkflow(createWorkflowDto.Name, createWorkflowDto.Description, Session.UserId);
-            return Ok(result);
+            return Request.CreateResponse(HttpStatusCode.Created, result);
         }
 
         /// <summary>

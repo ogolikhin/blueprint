@@ -776,7 +776,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task CreateWorkflow_ModelIsValid_ReturnNewWorkflowId()
+        public async Task CreateWorkflow_ModelIsValid_ReturnSuccessResult()
         {
             //arrange
 
@@ -788,11 +788,11 @@ namespace AdminStore.Controllers
             _workflowServiceMock.Setup(s => s.CreateWorkflow(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(returnId);
 
             //act
-            var result = await _controller.CreateWorkflow(model) as OkNegotiatedContentResult<int>;
+            var result = await _controller.CreateWorkflow(model);
 
             //assert
-            Assert.AreEqual(returnId, result.Content);
-            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<int>));
+            Assert.IsNotNull(result.Content);
+            Assert.IsInstanceOfType(result, typeof(HttpResponseMessage));
         }
 
         #endregion

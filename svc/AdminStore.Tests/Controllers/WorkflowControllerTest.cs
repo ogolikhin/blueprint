@@ -1031,7 +1031,7 @@ namespace AdminStore.Controllers
             
             //should be <= 250
             string search =
-                "njleKcAa5c6jXviC5O4Lg1QAUW4sYupNTYM061FkGsKGpNglq9X4lCGT0pWBD5Eqy4JLkdGZa7NnopeYfsSFRk0abB5YN5jLW3MOwlUzduNwCzHQGPgZHlRVrEPaKjykHCoTh9ENVezddvyw0rzpRCGOZi7UzPnZ1uodFZmhE4whgowNO0C0MR7t3aSK7nTcRQzAixkAaD42UmKeSyphQGJqv4chaWyMjEnqX6BjVRwy68GpM2s270Obo1y";
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium.";
                 
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, search))
                                    .ReturnsAsync(_expectedArtifacts);
@@ -1057,7 +1057,7 @@ namespace AdminStore.Controllers
             
             //250 characters - OK 
             string search =
-                "vgixdGRc98UO9vd9VDHYsT6eak6lIF55xGuTCgW7Al4GfUYV3l35bLIAX85FaztT4DShkZWLDNnolNDf4FDAE15YYGTYqzg3oY2q2dAH7bJQURn0vaOiKrAZLsQWeVHABCLVwgJChJg8HSbniGh53FaFKNWrVkBN2ImyFKZ21MUC0WFJJJXNMDxULUkfq656jQUTZAUETo1zQH4lRPaulBlLs4SJ0DELRhJdYuTnZGdRicrAQzYO4Bc6Js";
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium q";
 
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, search))
                                    .ReturnsAsync(_expectedArtifacts);

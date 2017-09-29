@@ -241,11 +241,18 @@ namespace ArtifactStore.Repositories
             var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId.Value);
 
             var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml, new HashSet<int>(effectiveIds.ArtifactIds), out alreadyIncludedCount);
-            await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
-            if (effectiveIds.IsBaselineAdded)
+
+            Func<IDbTransaction, Task> transactionAction = async (transaction) =>
             {
-                await CreateOrUpdateReviewBaselineLink(reviewId, content.ArtifactIds.First(), propertyResult.ProjectId.Value, userId);
-            }
+                await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, transaction);
+                if (effectiveIds.IsBaselineAdded)
+                {
+                    await CreateOrUpdateReviewBaselineLink(reviewId, content.ArtifactIds.First(),
+                        propertyResult.ProjectId.Value, userId, transaction);
+                }
+            };
+
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
 
             return new AddArtifactsResult()
             {
@@ -314,7 +321,8 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task CreateOrUpdateReviewBaselineLink(int reviewId, int baselineId, int projectId, int userId)
+        private async Task CreateOrUpdateReviewBaselineLink(int reviewId, int baselineId, int projectId,
+            int userId, IDbTransaction transaction)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
@@ -322,7 +330,16 @@ namespace ArtifactStore.Repositories
             param.Add("@projectId", projectId);
             param.Add("@userId", userId);
 
-            await _connectionWrapper.ExecuteAsync("CreateOrUpdateReviewBaselineLink", param, commandType: CommandType.StoredProcedure);
+            if (transaction == null)
+            {
+                await _connectionWrapper.ExecuteAsync("CreateOrUpdateReviewBaselineLink", param, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await transaction.Connection.ExecuteAsync("CreateOrUpdateReviewBaselineLink", param, commandType: CommandType.StoredProcedure);
+            }
+
+            
         }
 
         private string AddArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToAdd, out int alreadyIncluded)
@@ -486,7 +503,8 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task<int> UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts, bool addReviewSubArtifactIfNeeded = true)
+        private async Task<int> UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts,
+            IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
@@ -494,7 +512,16 @@ namespace ArtifactStore.Repositories
             param.Add("@xmlArtifacts", xmlArtifacts);
             param.Add("@addReviewSubArtifactIfNeeded", addReviewSubArtifactIfNeeded);
 
-            return await _connectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+            if (transaction == null)
+            {
+                return await _connectionWrapper.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                return await transaction.Connection.ExecuteAsync("UpdateReviewArtifacts", param, commandType: CommandType.StoredProcedure);
+            }
+
+            
         }
 
         private async Task<int> GetRebuildReviewArtifactHierarchyInterval()
@@ -865,7 +892,7 @@ namespace ArtifactStore.Repositories
                 }
             }
             var artifactXmlResult = ReviewRawDataHelper.GetStoreData(rdReviewContents);
-            await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult);
+            await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, null);
         }
 
         public async Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
@@ -921,7 +948,7 @@ namespace ArtifactStore.Repositories
             var artifactXmlResult = UpdateApprovalRequiredForArtifactsXML(propertyResult.ArtifactXml, content, reviewId, out hasChanges);
             if (hasChanges)
             {
-                await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, false);
+                await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, null, false);
             }
         }
         private string UpdatePermissionRolesXML(string xmlArtifacts, AssignReviewerRolesParameter content, int reviewId)

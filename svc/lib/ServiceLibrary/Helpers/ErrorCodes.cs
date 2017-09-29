@@ -129,5 +129,6 @@
         public const int WorkflowInvalidPropertyChange = 16001;
         public const int WorkflowAlreadyExists = 16002;
         public const int GeneralErrorOfCreatingWorkflow = 16003;
+        public const int WorkflowIsActive = 16004;
     }
 }

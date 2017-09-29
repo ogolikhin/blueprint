@@ -1218,7 +1218,7 @@ namespace ArtifactStore.Repositories
                 {
                     ArtifactId = reviewArtifactApproval.ArtifactId,
                     Timestamp = reviewArtifactApproval.ESignedOn,
-                    OldApprovalFlag = prevFlag
+                    PreviousApprovalFlag = prevFlag
                 });
             }
 

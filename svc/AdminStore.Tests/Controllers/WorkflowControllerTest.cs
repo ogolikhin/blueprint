@@ -1102,28 +1102,5 @@ namespace AdminStore.Controllers
 
 
         #endregion
-
-        #region Private methods
-
-        //copy past from FileStreamRepositoryTests.cs 
-        private string GetRandomString(int length)
-        {
-            string result = string.Empty;
-
-            if (length < 1) length = 1;
-            // each string is 11 chars 
-            // combine to make a string of size length 
-            int loop = ((int)(length / 11)) + 1;
-            for (int i = 0; i < loop; i++)
-            {
-                string path = Path.GetRandomFileName();
-                path = path.Replace(".", ""); // Remove period.
-                result += path;
-            }
-
-            return result.Substring(0, length);
-        }
-
-        #endregion
     }
 }

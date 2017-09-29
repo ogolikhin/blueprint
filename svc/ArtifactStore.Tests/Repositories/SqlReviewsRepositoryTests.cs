@@ -1278,10 +1278,10 @@ namespace ArtifactStore.Repositories
             Dictionary<string, object> outParameters = new Dictionary<string, object>()
             {
                {"ArtifactIds",  ids},
-                { "Unpublished", 0},
-                {"Nonexistent", 0},
-                {"IsBaselineAdded", false},
-        };
+               {"Unpublished", 0},
+               {"Nonexistent", 0},
+               {"IsBaselineAdded", false}
+            };
 
             var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>,IEnumerable <int>, IEnumerable<bool>> (ArtifactIds, Unpublished, Nonexistent, IsBaselineAdded);
             

@@ -620,7 +620,7 @@ namespace AdminStore.Repositories.Workflow
             }
 
             var errorCode = prm.Get<int?>("ErrorCode");
-            var total = groupedList.Count;
+            var total = prm.Get<int?>("Total");
 
             if (errorCode.HasValue)
             {
@@ -631,7 +631,7 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            return new QueryResult<WorkflowProjectArtifactsDto>() { Items = groupedList, Total = total };
+            return new QueryResult<WorkflowProjectArtifactsDto>() { Items = groupedList, Total = total ?? 0 };
         }
 
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)

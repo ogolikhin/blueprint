@@ -76,16 +76,19 @@ namespace ArtifactStore.Services.VersionControl
             }
 
             PublishEnvironment environment;
+
             if (transaction == null)
             {
-                environment = await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain,
-                    GetPublishTransactionAction(parameters, artifactIdsList));
+                environment = await _sqlHelper.RunInTransactionAsync
+                (
+                    ServiceConstants.RaptorMain,
+                    GetPublishTransactionAction(parameters, artifactIdsList)
+                );
             }
             else
             {
                 environment = await TransactionalPublishArtifact(parameters, artifactIdsList, transaction);
             }
-
 
             var discardPublishDetailsResult =
                 await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, artifactIdsList, true, transaction);

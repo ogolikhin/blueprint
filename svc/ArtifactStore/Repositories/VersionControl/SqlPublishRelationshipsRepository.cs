@@ -113,19 +113,28 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 return;
             }
-            var prm = new DynamicParameters();
-            prm.Add("@versionIds", SqlConnectionWrapper.ToDataTable(deleteLinkVersionsIds));
+            var parameters = new DynamicParameters();
+            parameters.Add("@versionIds", SqlConnectionWrapper.ToDataTable(deleteLinkVersionsIds));
+
             if (transaction == null)
             {
-                await
-                    ConnectionWrapper.ExecuteAsync("RemoveLinkVersions", prm,  commandType: CommandType.StoredProcedure);
+                await ConnectionWrapper.ExecuteAsync
+                (
+                    "RemoveLinkVersions", 
+                    parameters, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                await
-                    transaction.Connection.ExecuteAsync("RemoveLinkVersions", prm, transaction, commandType: CommandType.StoredProcedure);
+                await transaction.Connection.ExecuteAsync
+                (
+                    "RemoveLinkVersions", 
+                    parameters, 
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
-
         }
 
         // Was in AReuse in Raptor solution
@@ -133,10 +142,10 @@ namespace ArtifactStore.Repositories.VersionControl
         {
             int artifactId1 = Math.Min(artifactIdA, artifactIdB);
             int artifactId2 = Math.Max(artifactIdA, artifactIdB);
-            var prm = new DynamicParameters();
-            prm.Add("@revisionId", revisionId);
-            prm.Add("@artifactId1", artifactId1);
-            prm.Add("@artifactId2", artifactId2);
+            var parameters = new DynamicParameters();
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@artifactId1", artifactId1);
+            parameters.Add("@artifactId2", artifactId2);
             string sqlString = @"
 UPDATE dbo.ReusedItems
 SET EndRevision = @revisionId - 1
@@ -146,29 +155,54 @@ WHERE Artifact1Id = @artifactId1
 
             if (transaction == null)
             {
-                await ConnectionWrapper.ExecuteAsync(sqlString, prm, commandType: CommandType.Text);
+                await ConnectionWrapper.ExecuteAsync
+                (
+                    sqlString, 
+                    parameters, 
+                    commandType: CommandType.Text
+                );
             }
             else
             {
-
-                await transaction.Connection.ExecuteAsync(sqlString, prm, transaction, commandType: CommandType.Text);
+                await transaction.Connection.ExecuteAsync
+                (
+                    sqlString, 
+                    parameters, 
+                    transaction, 
+                    commandType: CommandType.Text
+                );
             }
-
         }
 
         private async Task<ICollection<DraftAndLatestLink>> GetDraftAndLatestLinks(HashSet<int> artifactIds, int userId, IDbTransaction transaction = null)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@userId", userId);
-            prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
 
             if (transaction == null)
             {
-                return (await ConnectionWrapper.QueryAsync<DraftAndLatestLink>(
-                    "GetDraftAndLatestLinks", prm, commandType: CommandType.StoredProcedure)).ToList();
+                return 
+                (
+                    await ConnectionWrapper.QueryAsync<DraftAndLatestLink>
+                    (
+                        "GetDraftAndLatestLinks", 
+                        parameters, 
+                        commandType: CommandType.StoredProcedure
+                    )
+                ).ToList();
             }
-            return (await transaction.Connection.QueryAsync<DraftAndLatestLink>(
-                "GetDraftAndLatestLinks", prm, transaction, commandType: CommandType.StoredProcedure)).ToList();
+
+            return 
+            (
+                await transaction.Connection.QueryAsync<DraftAndLatestLink>
+                (
+                    "GetDraftAndLatestLinks", 
+                    parameters, 
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                )
+            ).ToList();
         }
 
         private void MarkArtifactsAsAffectedIfRequired(DraftAndLatestLink link, HashSet<int> artifactIds, PublishEnvironment env)

@@ -91,20 +91,30 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@publishRevision", publishRevision);
-            prm.Add("@workflows", ToWorkflowsCollectionDataTable(dWorkflows));
+            var parameters = new DynamicParameters();
+            parameters.Add("@publishRevision", publishRevision);
+            parameters.Add("@workflows", ToWorkflowsCollectionDataTable(dWorkflows));
 
             IEnumerable<SqlWorkflow> result;
+
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlWorkflow>("CreateWorkflows", prm,
-                    commandType: CommandType.StoredProcedure);
+                result = await _connectionWrapper.QueryAsync<SqlWorkflow>
+                (
+                    "CreateWorkflows", 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlWorkflow>("CreateWorkflows", prm,
-                    transaction, commandType: CommandType.StoredProcedure);
+                result = await transaction.Connection.QueryAsync<SqlWorkflow>
+                (
+                    "CreateWorkflows", 
+                    parameters,
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
 
             return result;
@@ -128,20 +138,30 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@publishRevision", publishRevision);
-            prm.Add("@workflowStates", ToWorkflowStatesCollectionDataTable(dWorkflowStates));
+            var parameters = new DynamicParameters();
+            parameters.Add("@publishRevision", publishRevision);
+            parameters.Add("@workflowStates", ToWorkflowStatesCollectionDataTable(dWorkflowStates));
 
             IEnumerable<SqlState> result;
+
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlState>("CreateWorkflowStates", prm,
-                    commandType: CommandType.StoredProcedure);
+                result = await _connectionWrapper.QueryAsync<SqlState>
+                (
+                    "CreateWorkflowStates", 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlState>("CreateWorkflowStates", prm,
-                    transaction, commandType: CommandType.StoredProcedure);
+                result = await transaction.Connection.QueryAsync<SqlState>
+                (
+                    "CreateWorkflowStates", 
+                    parameters,
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
 
             return result;
@@ -165,20 +185,30 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@publishRevision", publishRevision);
-            prm.Add("@workflowStates", ToWorkflowStatesCollectionDataTable(dWorkflowStates));
+            var parameters = new DynamicParameters();
+            parameters.Add("@publishRevision", publishRevision);
+            parameters.Add("@workflowStates", ToWorkflowStatesCollectionDataTable(dWorkflowStates));
 
             IEnumerable<SqlState> result;
+
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlState>("UpdateWorkflowStates", prm, null,
-                    commandType: CommandType.StoredProcedure);
+                result = await _connectionWrapper.QueryAsync<SqlState>
+                (
+                    "UpdateWorkflowStates", 
+                    parameters, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlState>("UpdateWorkflowStates", prm, transaction,
-                    commandType: CommandType.StoredProcedure);
+                result = await transaction.Connection.QueryAsync<SqlState>
+                (
+                    "UpdateWorkflowStates", 
+                    parameters, 
+                    transaction,
+                    commandType: CommandType.StoredProcedure
+                );
             }
 
             return result;
@@ -202,20 +232,30 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@publishRevision", publishRevision);
-            prm.Add("@workflowStateIds", SqlConnectionWrapper.ToDataTable(listWorkflowStateIds));
+            var parameters = new DynamicParameters();
+            parameters.Add("@publishRevision", publishRevision);
+            parameters.Add("@workflowStateIds", SqlConnectionWrapper.ToDataTable(listWorkflowStateIds));
 
             IEnumerable<SqlState> result;
+
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlState>("DeleteWorkflowStates", prm, null,
-                    commandType: CommandType.StoredProcedure);
+                result = await _connectionWrapper.QueryAsync<SqlState>
+                (
+                    "DeleteWorkflowStates", 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlState>("DeleteWorkflowStates", prm, transaction,
-                    commandType: CommandType.StoredProcedure);
+                result = await transaction.Connection.QueryAsync<SqlState>
+                (
+                    "DeleteWorkflowStates", 
+                    parameters, 
+                    transaction,
+                    commandType: CommandType.StoredProcedure
+                );
             }
 
             return result.Select(s => s.WorkflowStateId);
@@ -256,13 +296,22 @@ namespace AdminStore.Repositories.Workflow
 
             if (transaction == null)
             {
-                await _connectionWrapper.ExecuteAsync("UpdateWorkflowsChangedWithRevisions", parameters,
-                    null, commandType: CommandType.StoredProcedure);
+                await _connectionWrapper.ExecuteAsync
+                (
+                    "UpdateWorkflowsChangedWithRevisions", 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                await transaction.Connection.ExecuteAsync("UpdateWorkflowsChangedWithRevisions", parameters,
-                    transaction, commandType: CommandType.StoredProcedure);
+                await transaction.Connection.ExecuteAsync
+                (
+                    "UpdateWorkflowsChangedWithRevisions", 
+                    parameters,
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
         }
 
@@ -275,13 +324,25 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             int result;
+
             if (transaction == null)
             {
-                result = await _connectionWrapper.ExecuteScalarAsync<int>("CreateWorkflow", parameters, null, commandType: CommandType.StoredProcedure);
+                result = await _connectionWrapper.ExecuteScalarAsync<int>
+                (
+                    "CreateWorkflow", 
+                    parameters, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                result = await transaction.Connection.ExecuteScalarAsync<int>("CreateWorkflow", parameters, transaction, commandType: CommandType.StoredProcedure);
+                result = await transaction.Connection.ExecuteScalarAsync<int>
+                (
+                    "CreateWorkflow", 
+                    parameters, 
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
 
             var errorCode = parameters.Get<int?>("ErrorCode");
@@ -317,20 +378,30 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@publishRevision", publishRevision);
-            prm.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
+            var parameters = new DynamicParameters();
+            parameters.Add("@publishRevision", publishRevision);
+            parameters.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
 
             IEnumerable<SqlWorkflowEvent> result;
+
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>("CreateWorkflowEvents", prm,
-                    commandType: CommandType.StoredProcedure);
+                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
+                (
+                    "CreateWorkflowEvents", 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>("CreateWorkflowEvents", prm,
-                    transaction, commandType: CommandType.StoredProcedure);
+                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
+                (
+                    "CreateWorkflowEvents", 
+                    parameters,
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
 
             return result;
@@ -354,20 +425,30 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@publishRevision", publishRevision);
-            prm.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
+            var parameters = new DynamicParameters();
+            parameters.Add("@publishRevision", publishRevision);
+            parameters.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
 
             IEnumerable<SqlWorkflowEvent> result;
+
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>("UpdateWorkflowEvents", prm,
-                    null, commandType: CommandType.StoredProcedure);
+                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
+                (
+                    "UpdateWorkflowEvents", 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>("UpdateWorkflowEvents", prm,
-                    transaction, commandType: CommandType.StoredProcedure);
+                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
+                (
+                    "UpdateWorkflowEvents", 
+                    parameters,
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
 
             return result;
@@ -391,20 +472,30 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@publishRevision", publishRevision);
-            prm.Add("@workflowEventIds", SqlConnectionWrapper.ToDataTable(listWorkflowStateIds));
+            var parameters = new DynamicParameters();
+            parameters.Add("@publishRevision", publishRevision);
+            parameters.Add("@workflowEventIds", SqlConnectionWrapper.ToDataTable(listWorkflowStateIds));
 
             IEnumerable<SqlWorkflowEvent> result;
+
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>("DeleteWorkflowEvents", prm,
-                    null, commandType: CommandType.StoredProcedure);
+                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
+                (
+                    "DeleteWorkflowEvents", 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>("DeleteWorkflowEvents", prm,
-                    transaction, commandType: CommandType.StoredProcedure);
+                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
+                (
+                    "DeleteWorkflowEvents", 
+                    parameters,
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
 
             return result.Select(s => s.WorkflowEventId);
@@ -437,20 +528,29 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.", nameof(publishRevision)));
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@projectArtifactTypePairs", SqlConnectionWrapper.ToIdStringMapDataTable(projectArtifactTypePairList));
-            prm.Add("@revisionId", publishRevision);
-            prm.Add("@workflowId", workflowId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@projectArtifactTypePairs", SqlConnectionWrapper.ToIdStringMapDataTable(projectArtifactTypePairList));
+            parameters.Add("@revisionId", publishRevision);
+            parameters.Add("@workflowId", workflowId);
 
             if (transaction == null)
             {
-                await _connectionWrapper.ExecuteAsync("UpdateItemTypeVersionsWithWorkflowId", prm,
-                    null, commandType: CommandType.StoredProcedure);
+                await _connectionWrapper.ExecuteAsync
+                (
+                    "UpdateItemTypeVersionsWithWorkflowId", 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                await transaction.Connection.ExecuteAsync("UpdateItemTypeVersionsWithWorkflowId", prm,
-                    transaction, commandType: CommandType.StoredProcedure);
+                await transaction.Connection.ExecuteAsync
+                (
+                    "UpdateItemTypeVersionsWithWorkflowId", 
+                    parameters,
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
         }
 

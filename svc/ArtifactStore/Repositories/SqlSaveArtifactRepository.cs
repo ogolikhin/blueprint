@@ -43,23 +43,32 @@ namespace ArtifactStore.Repositories
 
             var propertyValueImagesTable = PopulateImagePropertyValueVersionsTable();
 
-            var param = new DynamicParameters();
-            param.Add("@propertyValueVersions", propertyValueVersionsTable);
-            param.Add("@propertyValueImages", propertyValueImagesTable);
-            param.Add("@userId", userId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@propertyValueVersions", propertyValueVersionsTable);
+            parameters.Add("@propertyValueImages", propertyValueImagesTable);
+            parameters.Add("@userId", userId);
 
             const string storedProcedure = "SavePropertyValueVersions";
+
             if (transaction == null)
             {
-                await
-                    _connectionWrapper.QueryAsync<dynamic>(storedProcedure, param, commandType: CommandType.StoredProcedure);
+                await _connectionWrapper.QueryAsync<dynamic>
+                (
+                    storedProcedure, 
+                    parameters, 
+                    commandType: CommandType.StoredProcedure
+                );
                 
             }
             else
             {
-                await
-                    transaction.Connection.QueryAsync<dynamic>(storedProcedure, param, transaction,
-                        commandType: CommandType.StoredProcedure);
+                await transaction.Connection.QueryAsync<dynamic>
+                (
+                    storedProcedure, 
+                    parameters, 
+                    transaction,
+                    commandType: CommandType.StoredProcedure
+                );
             }
         }
 
@@ -69,24 +78,32 @@ namespace ArtifactStore.Repositories
             string artifactName,
             IDbTransaction transaction = null)
         {
-            var param = new DynamicParameters();
-            param.Add("@userId", userId);
-            param.Add("@artifactId", artifactId);
-            param.Add("@artifactName", artifactName);
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactId", artifactId);
+            parameters.Add("@artifactName", artifactName);
 
             object result;
             const string storedProcedure = "UpdateArtifactName";
+
             if (transaction == null)
             {
-                result = await
-                    _connectionWrapper.QueryAsync<dynamic>(storedProcedure, param, commandType: CommandType.StoredProcedure);
-
+                result = await _connectionWrapper.QueryAsync<dynamic>
+                (
+                    storedProcedure, 
+                    parameters, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
             else
             {
-                result = await
-                    transaction.Connection.QueryAsync<dynamic>(storedProcedure, param, transaction,
-                        commandType: CommandType.StoredProcedure);
+                result = await transaction.Connection.QueryAsync<dynamic>
+                (
+                    storedProcedure, 
+                    parameters, 
+                    transaction,
+                    commandType: CommandType.StoredProcedure
+                );
             }
 
             int? errorCode = (result as IEnumerable<dynamic>)?.FirstOrDefault()?.Error;

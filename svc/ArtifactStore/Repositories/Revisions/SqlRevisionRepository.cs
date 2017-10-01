@@ -45,17 +45,33 @@ namespace ArtifactStore.Repositories.Revisions
 
         private async Task<int?> CreateNewRevisionInternal(int userId, string comment, IDbTransaction transaction)
         {
-            var param = new DynamicParameters();
-            param.Add("@userId", userId);
-            param.Add("@comment", comment);
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@comment", comment);
+
             if (transaction == null)
             {
-                return (await ConnectionWrapper.QueryAsync<int?>("CreateRevision", param,
-                commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                return 
+                (
+                    await ConnectionWrapper.QueryAsync<int?>
+                    (
+                        "CreateRevision", 
+                        parameters,
+                        commandType: CommandType.StoredProcedure
+                    )
+                ).FirstOrDefault();
             }
 
-            return (await transaction.Connection.QueryAsync<int?>("CreateRevision", param, transaction,
-                commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return 
+            (
+                await transaction.Connection.QueryAsync<int?>
+                (
+                    "CreateRevision", 
+                    parameters, 
+                    transaction,
+                    commandType: CommandType.StoredProcedure
+                )
+            ).FirstOrDefault();
         }
 
         private async Task<IEnumerable<int>> AddHistoryInternal(int revisionId, ISet<int> artifactIds, IDbTransaction transaction)
@@ -65,19 +81,28 @@ namespace ArtifactStore.Repositories.Revisions
                 return await Task.FromResult(new[] { 0 });
             }
 
-            var param = new DynamicParameters();
-            param.Add("@revisionId", revisionId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@revisionId", revisionId);
             var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds);
-            param.Add("@artifactIds", artifactIdsTable);
+            parameters.Add("@artifactIds", artifactIdsTable);
 
             if (transaction == null)
             {
-                return (await ConnectionWrapper.QueryAsync<int>("AddHistory", param,
-                commandType: CommandType.StoredProcedure));
+                return await ConnectionWrapper.QueryAsync<int>
+                (
+                    "AddHistory", 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
 
-            return (await transaction.Connection.QueryAsync<int>("AddHistory", param, transaction,
-                commandType: CommandType.StoredProcedure));
+            return await transaction.Connection.QueryAsync<int>
+            (
+                "AddHistory", 
+                parameters, 
+                transaction,
+                commandType: CommandType.StoredProcedure
+            );
         }
     }
 }

@@ -27,6 +27,7 @@
         RoleAssignmentAlreadyExists = 50021,
         RoleAssignmentNotExists = 50022,
         WorkflowWithSuchANameAlreadyExists = 50023,
-        WorkflowWithCurrentIdNotExist = 50024
+        WorkflowWithCurrentIdNotExist = 50024,
+        WorkflowWithCurrentIdIsActive = 50025
     }
 }

@@ -66,23 +66,37 @@ namespace ServiceLibrary.Repositories.Reuse
         /// <param name="transaction"></param>
         /// <returns>Dictionary with Type Id as Key</returns>
         public async Task<IDictionary<int, ItemTypeReuseTemplate>> GetReuseItemTypeTemplatesAsyc(
-            IEnumerable<int> instanceItemTypeIds, 
+            IEnumerable<int> instanceItemTypeIds,
             IDbTransaction transaction = null)
         {
-            var param = new DynamicParameters();
-            param.Add("@instanceItemTypeIds", SqlConnectionWrapper.ToDataTable(instanceItemTypeIds));
-            IEnumerable<IGrouping<int, SqlItemTypeReuseTemplate>> result = null;
+            var parameters = new DynamicParameters();
+            parameters.Add("@instanceItemTypeIds", SqlConnectionWrapper.ToDataTable(instanceItemTypeIds));
+            IEnumerable<IGrouping<int, SqlItemTypeReuseTemplate>> result;
+
             if (transaction == null)
             {
-                result = (await
-                    ConnectionWrapper.QueryAsync<SqlItemTypeReuseTemplate>("GetReuseItemTypeTemplates", param,
-                        commandType: CommandType.StoredProcedure)).GroupBy(v => v.TypeId);
+                result = 
+                (
+                    await ConnectionWrapper.QueryAsync<SqlItemTypeReuseTemplate>
+                    (
+                        "GetReuseItemTypeTemplates",
+                        parameters,
+                        commandType: CommandType.StoredProcedure
+                    )
+                ).GroupBy(v => v.TypeId);
             }
             else
             {
-                result = (await
-                    transaction.Connection.QueryAsync<SqlItemTypeReuseTemplate>("GetReuseItemTypeTemplates", param,
-                        commandType: CommandType.StoredProcedure)).GroupBy(v => v.TypeId);
+                result = 
+                (
+                    await transaction.Connection.QueryAsync<SqlItemTypeReuseTemplate>
+                    (
+                        "GetReuseItemTypeTemplates",
+                        parameters,
+                        transaction,
+                        commandType: CommandType.StoredProcedure
+                    )
+                ).GroupBy(v => v.TypeId);
             }
 
             var templates = new Dictionary<int, ItemTypeReuseTemplate>();
@@ -125,32 +139,55 @@ namespace ServiceLibrary.Repositories.Reuse
 
         public async Task<IEnumerable<SqlModifiedItems>> GetModificationsForRevisionIdAsyc(int revisionId, IDbTransaction transaction = null)
         {
-            var param = new DynamicParameters();
-            param.Add("@revisionId", revisionId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@revisionId", revisionId);
 
             if (transaction == null)
             {
-                return await ConnectionWrapper.QueryAsync<SqlModifiedItems>("GetModificationsForRevisionId", param,
-                            commandType: CommandType.StoredProcedure);
+                return await ConnectionWrapper.QueryAsync<SqlModifiedItems>
+                (
+                    "GetModificationsForRevisionId",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
-            return await transaction.Connection.QueryAsync<SqlModifiedItems>("GetModificationsForRevisionId", param, transaction,
-                            commandType: CommandType.StoredProcedure);
+
+            return await transaction.Connection.QueryAsync<SqlModifiedItems>
+            (
+                "GetModificationsForRevisionId",
+                parameters,
+                transaction,
+                commandType: CommandType.StoredProcedure
+            );
         }
 
         public async Task<Dictionary<int, bool>> DoItemsContainReadonlyReuse(IEnumerable<int> itemIds, IDbTransaction transaction = null)
         {
-            var param = new DynamicParameters();
-            param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
+            var parameters = new DynamicParameters();
+            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
 
             if (transaction == null)
             {
-                return (await ConnectionWrapper.QueryAsync<dynamic>("DoItemsContainReadonlyReuse", param,
-                            commandType: CommandType.StoredProcedure)).ToDictionary(a=> (int)a.ItemId, b=> (bool)b.IsReadOnlyReuse);
+                return 
+                (
+                    await ConnectionWrapper.QueryAsync<dynamic>
+                    (
+                        "DoItemsContainReadonlyReuse",
+                        parameters,
+                        commandType: CommandType.StoredProcedure
+                    )
+                ).ToDictionary(a => (int)a.ItemId, b => (bool)b.IsReadOnlyReuse);
             }
-            return (await transaction.Connection.QueryAsync<dynamic> ("DoItemsContainReadonlyReuse", param, transaction,
-                            commandType: CommandType.StoredProcedure)).ToDictionary(a => (int)a.ItemId, b => (bool)b.IsReadOnlyReuse);
+            return 
+            (
+                await transaction.Connection.QueryAsync<dynamic>
+                (
+                    "DoItemsContainReadonlyReuse", 
+                    parameters, 
+                    transaction,
+                    commandType: CommandType.StoredProcedure
+                )
+            ).ToDictionary(a => (int)a.ItemId, b => (bool)b.IsReadOnlyReuse);
         }
-
     }
-
 }

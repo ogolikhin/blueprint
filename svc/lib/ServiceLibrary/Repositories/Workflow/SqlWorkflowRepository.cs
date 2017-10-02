@@ -402,17 +402,35 @@ namespace ServiceLibrary.Repositories.Workflow
 
         private async Task<WorkflowState> ChangeStateForArtifactInternal(int userId, int artifactId, int desiredStateId, IDbTransaction transaction = null)
         {
-            var param = new DynamicParameters();
-            param.Add("@userId", userId);
-            param.Add("@artifactId", artifactId);
-            param.Add("@desiredStateId", desiredStateId);
-            param.Add("@result");
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactId", artifactId);
+            parameters.Add("@desiredStateId", desiredStateId);
+            parameters.Add("@result");
+
+            IEnumerable<SqlWorkFlowState> result;
 
             if (transaction == null)
             {
-                return ToWorkflowStates(await ConnectionWrapper.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                result = await ConnectionWrapper.QueryAsync<SqlWorkFlowState>
+                (
+                    "ChangeStateForArtifact",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
-            return ToWorkflowStates(await transaction.Connection.QueryAsync<SqlWorkFlowState>("ChangeStateForArtifact", param, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            else
+            {
+                result = await transaction.Connection.QueryAsync<SqlWorkFlowState>
+                (
+                    "ChangeStateForArtifact",
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+
+            return ToWorkflowStates(result).FirstOrDefault();
         }
 
         private IList<WorkflowState> ToWorkflowStates(IEnumerable<SqlWorkFlowState> sqlWorkFlowStates)
@@ -429,17 +447,36 @@ namespace ServiceLibrary.Repositories.Workflow
             int projectId,
             IDbTransaction transaction = null)
         {
-            var param = new DynamicParameters();
-            param.Add("@instanceItemTypeIds", SqlConnectionWrapper.ToDataTable(itemTypeIds));
-            param.Add("@instancePropertyIds", SqlConnectionWrapper.ToDataTable(instancePropertyTypeIds));
-            param.Add("@projectId", projectId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@instanceItemTypeIds", SqlConnectionWrapper.ToDataTable(itemTypeIds));
+            parameters.Add("@instancePropertyIds", SqlConnectionWrapper.ToDataTable(instancePropertyTypeIds));
+            parameters.Add("@projectId", projectId);
 
             const string storedProcedure = "GetCustomPropertyTypesFromStandardIds";
+
+            IEnumerable<SqlPropertyType> result;
+
             if (transaction == null)
             {
-                return ToItemTypePropertyTypesDictionary(await ConnectionWrapper.QueryAsync<SqlPropertyType>(storedProcedure, param, commandType: CommandType.StoredProcedure));
+                result = await ConnectionWrapper.QueryAsync<SqlPropertyType>
+                (
+                    storedProcedure,
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
             }
-            return ToItemTypePropertyTypesDictionary(await transaction.Connection.QueryAsync<SqlPropertyType>(storedProcedure, param, transaction, commandType: CommandType.StoredProcedure));
+            else
+            {
+                result = await transaction.Connection.QueryAsync<SqlPropertyType>
+                (
+                    storedProcedure,
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+
+            return ToItemTypePropertyTypesDictionary(result);
         }
 
         private Dictionary<int, List<WorkflowPropertyType>> ToItemTypePropertyTypesDictionary(IEnumerable<SqlPropertyType> sqlPropertyTypes)

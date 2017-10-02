@@ -118,5 +118,32 @@ namespace SearchService.Services
             //act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetSemanticSearchSuggestions_WhenArtifactIsLatestDeleted_ThrowsNotFoundException()
+        {
+            //arrange
+            var parameters = new SemanticSearchSuggestionParameters(1, 1);
+
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(new ArtifactBasicDetails() {LatestDeleted = true});
+
+            //act
+            await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetSemanticSearchSuggestions_WhenArtifactIsDraftDeleted_ThrowsNotFoundException()
+        {
+            //arrange
+            var parameters = new SemanticSearchSuggestionParameters(1, 1);
+
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(new ArtifactBasicDetails() { DraftDeleted = true });
+
+            //act
+            await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
+        }
     }
 }

@@ -1048,41 +1048,6 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetProjectArtifactsAssignedToWorkflowAsync_OffsetLessThenZero_ReturnBadRequestResult()
-        {
-            // Arrange
-            _privilegesRepositoryMock
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
-            _pagination.Offset = -1;
-
-            _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
-                                   .ReturnsAsync(_expectedArtifacts);
-
-            BadRequestException exception = null;
-
-            //Act
-            try
-            {
-                var actualResult =
-                await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
-                                                                            _pagination,
-                                                                            string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactsDto>>;
-            }
-            catch (BadRequestException ex)
-            {
-                exception = ex;
-            }
-
-            //Assert
-            Assert.IsNotNull(exception);
-            Assert.AreEqual(exception.Message, ErrorMessages.IncorrectOffsetParameter);
-            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
-        }
-
-        [TestMethod]
         public async Task GetProjectArtifactsAssignedToWorkflowAsync_LimitIsNull_ReturnBadRequestResult()
         {
             // Arrange
@@ -1091,41 +1056,6 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             _pagination.Limit = null;
-
-            _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
-                                   .ReturnsAsync(_expectedArtifacts);
-
-            BadRequestException exception = null;
-
-            //Act
-            try
-            {
-                var actualResult =
-                await _controller.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId,
-                                                                            _pagination,
-                                                                            string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactsDto>>;
-            }
-            catch (BadRequestException ex)
-            {
-                exception = ex;
-            }
-
-            //Assert
-            Assert.IsNotNull(exception);
-            Assert.AreEqual(exception.Message, ErrorMessages.IncorrectLimitParameter);
-            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
-        }
-
-        [TestMethod]
-        public async Task GetProjectArtifactsAssignedToWorkflowAsync_LimitLessthenZero_ReturnBadRequestResult()
-        {
-            // Arrange
-            _privilegesRepositoryMock
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
-            _pagination.Limit = -1;
 
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
                                    .ReturnsAsync(_expectedArtifacts);

@@ -71,7 +71,7 @@ namespace SearchService.Repositories
             ids.Add(artifactId);
             var multipleResult = await GetArtifactsProjects(ids, userId, 0, false);
             var projectId = multipleResult.Item1.ToList()[0].VersionProjectId;
-            var resultArtifactIds = (await GetProjectArtifactIds(userId, projectId)).ToList();
+            var resultArtifactIds = (await GetProjectArtifactIds(userId, projectId)).ToList().Take(10);
 //// TEMPORARRY CODE ----------------------------------------------
 
             var prm = new DynamicParameters();

@@ -72,8 +72,9 @@ namespace SearchService.Services
             var accessibleProjectIds = isInstanceAdmin ? new List<int>() : await _semanticSearchRepository.GetAccessibleProjectIds(userId);
 
             var suggestedArtifactIds = await _semanticSearchRepository.GetSuggestedArtifacts(artifactId, isInstanceAdmin, accessibleProjectIds);
-
-            var artifactsInfos = await _semanticSearchRepository.GetSuggestedArtifactDetails(suggestedArtifactIds, userId);
+            
+            // TEMPORARY ADDED artifactId
+            var artifactsInfos = await _semanticSearchRepository.GetSuggestedArtifactDetails(suggestedArtifactIds, userId, artifactId);
 
             //Get list of some basic artifact details from the list of returned ids.
             suggestionsSearchResult.Items = artifactsInfos;

@@ -20,9 +20,10 @@ namespace SearchService.Helpers.SemanticSearch
 
         public abstract Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters);
 
-        protected async Task<IEnumerable<ArtifactSearchResult>> GetArtifactSearchResultsFromItemIds(List<int> itemIds, int userId)
+        protected async Task<IEnumerable<ArtifactSearchResult>> GetArtifactSearchResultsFromItemIds(List<int> itemIds, int userId, int itemId)
         {
-            return await SemanticSearchRepository.GetSuggestedArtifactDetails(itemIds, userId);
+            //TEMPORARY - added itemId as part of the call
+            return await SemanticSearchRepository.GetSuggestedArtifactDetails(itemIds, userId, itemId);
         }
     }
 }

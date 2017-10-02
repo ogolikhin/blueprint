@@ -25,7 +25,7 @@ namespace SearchService.Helpers.SemanticSearch
             // use searchText to execute Elasticsearch query
             var itemIds = new List<int>();
             // parse the artifact ids into a artifactsearchresult to return to the caller
-            return await GetArtifactSearchResultsFromItemIds(itemIds, searchEngineParameters.UserId);
+            return await GetArtifactSearchResultsFromItemIds(itemIds, searchEngineParameters.UserId, searchEngineParameters.ArtifactId);
         }
     }
 }

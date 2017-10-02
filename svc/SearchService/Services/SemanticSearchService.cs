@@ -51,6 +51,11 @@ namespace SearchService.Services
             }
 
             var artifactDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(artifactId, userId);
+            if (artifactDetails == null)
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Artifact Id {0} is not found", artifactId), ErrorCodes.ArtifactNotFound);
+            }
+
             var itemTypePredefined = (ItemTypePredefined) artifactDetails.PrimitiveItemTypePredefined;
 
             if (!itemTypePredefined.IsRegularArtifactType() || itemTypePredefined.IsProjectOrFolderArtifactType())

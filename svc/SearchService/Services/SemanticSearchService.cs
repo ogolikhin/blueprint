@@ -50,6 +50,15 @@ namespace SearchService.Services
             }
 
             var artifactDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(artifactId, userId);
+            if (artifactDetails == null)
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Artifact Id {0} is not found", artifactId), ErrorCodes.ArtifactNotFound);
+            }
+            if (artifactDetails.LatestDeleted || artifactDetails.DraftDeleted)
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Artifact Id {0} is deleted", artifactId), ErrorCodes.ArtifactNotFound);
+            }
+
             var itemTypePredefined = (ItemTypePredefined) artifactDetails.PrimitiveItemTypePredefined;
 
             if (!itemTypePredefined.IsRegularArtifactType() || itemTypePredefined.IsProjectOrFolderArtifactType())
@@ -72,8 +81,9 @@ namespace SearchService.Services
             var accessibleProjectIds = isInstanceAdmin ? new List<int>() : await _semanticSearchRepository.GetAccessibleProjectIds(userId);
 
             var suggestedArtifactIds = await _semanticSearchRepository.GetSuggestedArtifacts(artifactId, isInstanceAdmin, accessibleProjectIds);
-
-            var artifactsInfos = await _semanticSearchRepository.GetSuggestedArtifactDetails(suggestedArtifactIds, userId);
+            
+            // TEMPORARY ADDED artifactId
+            var artifactsInfos = await _semanticSearchRepository.GetSuggestedArtifactDetails(suggestedArtifactIds, userId, artifactId);
 
             //Get list of some basic artifact details from the list of returned ids.
             suggestionsSearchResult.Items = artifactsInfos;

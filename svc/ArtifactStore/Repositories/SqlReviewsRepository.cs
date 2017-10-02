@@ -908,7 +908,13 @@ namespace ArtifactStore.Repositories
                 }
             }
             var artifactXmlResult = ReviewRawDataHelper.GetStoreData(rdReviewContents);
-            await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, null);
+
+            Func<IDbTransaction, Task> transactionAction = async (transaction) =>
+            {
+                await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, transaction);
+            };
+
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
         }
 
         public async Task AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
@@ -964,7 +970,12 @@ namespace ArtifactStore.Repositories
             var artifactXmlResult = UpdateApprovalRequiredForArtifactsXML(propertyResult.ArtifactXml, content, reviewId, out hasChanges);
             if (hasChanges)
             {
-                await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, null, false);
+                Func<IDbTransaction, Task> transactionAction = async (transaction) =>
+                {
+                    await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, transaction, false);
+                };
+
+                await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
             }
         }
         private string UpdatePermissionRolesXML(string xmlArtifacts, AssignReviewerRolesParameter content, int reviewId)

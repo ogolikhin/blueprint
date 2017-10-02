@@ -54,6 +54,10 @@ namespace SearchService.Services
             {
                 throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Artifact Id {0} is not found", artifactId), ErrorCodes.ArtifactNotFound);
             }
+            if (artifactDetails.LatestDeleted || artifactDetails.DraftDeleted)
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Artifact Id {0} is deleted", artifactId), ErrorCodes.ArtifactNotFound);
+            }
 
             var itemTypePredefined = (ItemTypePredefined) artifactDetails.PrimitiveItemTypePredefined;
 

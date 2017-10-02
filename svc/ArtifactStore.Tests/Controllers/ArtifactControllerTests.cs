@@ -253,7 +253,7 @@ namespace ArtifactStore.Controllers
         public async Task Artifact_GetProcessInfo_Success()
         {
             //Arrange
-            mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds))
+            mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId))
                                   .ReturnsAsync(processInfo);
 
             //Act
@@ -270,8 +270,8 @@ namespace ArtifactStore.Controllers
             //Arrange
             artifactIds = null;
             processInfo = new List<ProcessInfoDto>() {};
-            
-            mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds))
+
+            mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId))
                                   .ReturnsAsync(processInfo);
 
             //Act

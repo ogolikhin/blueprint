@@ -2,6 +2,7 @@
 using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 
 namespace SearchService.Helpers.SemanticSearch
 {
@@ -24,7 +25,7 @@ namespace SearchService.Helpers.SemanticSearch
                 default:
                 {
                     throw new SearchEngineNotFoundException(
-                        $"Search enging type {settings?.SemanticSearchEngineType} is unrecognized");
+                        I18NHelper.FormatInvariant("Search enging type {0} is unrecognized", settings?.SemanticSearchEngineType));
                 }
             }
         }

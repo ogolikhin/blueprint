@@ -23,26 +23,10 @@ namespace AdminStore.Repositories
             _sqlConnectionWrapperMock = new SqlConnectionWrapperMock();
             _sqlHelperMock = new Mock<ISqlHelper>();
             _workflowRepository = new WorkflowRepository(_sqlConnectionWrapperMock.Object, _sqlHelperMock.Object);
+            _workflowAssignScope = new WorkflowAssignScope() { AllArtifacts = true, AllProjects = true, ArtifactIds = new List<int>() { 145, 148 }, ProjectIds = new List<int>() { 1, 4 } };
 
-            WorkflowId = 1;
-            Pagination = new Pagination() { Limit = int.MaxValue, Offset = 0 };
-
-            ExpectedArtifacts = new List<WorkflowProjectArtifactsDto>
-            {
-                new WorkflowProjectArtifactsDto()
-                {
-                    ProjectId = 1,
-                    ProjectName = "TestProject",
-                    Artifacts = new List<WorkflowArtifact>()
-                    {
-                        new WorkflowArtifact()
-                        {
-                            Id = 1,
-                            Name = "TestArtifact"
-                        }
-                    }
-                }
-            };
+            _workflowId = 1;
+            _pagination = new Pagination() { Limit = int.MaxValue, Offset = 0 };
         }
        
         private SqlConnectionWrapperMock _sqlConnectionWrapperMock;
@@ -50,6 +34,7 @@ namespace AdminStore.Repositories
         private Mock<ISqlHelper> _sqlHelperMock;
         private WorkflowAssignScope _workflowAssignScope;
         private int _workflowId;
+        private Pagination _pagination;
 
         #region AssignProjectsAndArtifactsToWorkflow
         [TestMethod]
@@ -454,7 +439,7 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             var artifacts = await
-                _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, Pagination);
+                _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(_workflowId, _pagination);
 
             // Assert
             Assert.IsNotNull(artifacts);
@@ -467,7 +452,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             int errorCode = 50024;
-            WorkflowId = 1000;
+            _workflowId = 1000;
             int total = 0;
 
             _sqlConnectionWrapperMock.SetupQueryAsync("GetWorkflowProjectsArtifactTypes",
@@ -480,7 +465,7 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             await
-                _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, Pagination);
+                _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(_workflowId, _pagination);
 
             // Assert
             _sqlConnectionWrapperMock.Verify();
@@ -492,11 +477,11 @@ namespace AdminStore.Repositories
         public async Task GetProjectArtifactsAssignedToWorkflowAsync_WorkflowIdNotValid_ThrowsArgumentOutOfRangeException()
         {
             //Arrange
-            WorkflowId = 0;
+            _workflowId = 0;
 
             // Act
             await
-                _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(WorkflowId, Pagination);
+                _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(_workflowId, _pagination);
 
             // Assert
             _sqlConnectionWrapperMock.Verify();

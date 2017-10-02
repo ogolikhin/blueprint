@@ -2,7 +2,7 @@
 {
     public enum SemanticSearchEngine
     {
-        Sql,
-        ElasticSearch
+        Sql = 0,
+        ElasticSearch = 1
     }
 }

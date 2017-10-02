@@ -5,10 +5,10 @@ using SearchService.Repositories;
 
 namespace SearchService.Helpers.SemanticSearch
 {
-    public class ElasticSearchEngine: SearchEngine
+    public sealed class ElasticSearchEngine: SearchEngine
     {
-        protected const string IndexPrefix = "semanticsdb_";
-        protected string IndexName { get; }
+        private const string IndexPrefix = "semanticsdb_";
+        private string IndexName { get; }
         
 
         public ElasticSearchEngine(string connectionString, string tenantId, ISemanticSearchRepository semanticSearchRepository) 

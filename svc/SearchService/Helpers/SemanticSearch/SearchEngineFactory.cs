@@ -16,7 +16,7 @@ namespace SearchService.Helpers.SemanticSearch
             {
                 case SemanticSearchEngine.ElasticSearch:
                 {
-                    return new ElasticSearchEngine(settings.ElasticsearchConnectionString, settings.TenantId, semanticSearchRepository);
+                    return new ElasticSearchEngine(settings.ConnectionString, settings.TenantId, semanticSearchRepository);
                 }
                 case SemanticSearchEngine.Sql:
                 {

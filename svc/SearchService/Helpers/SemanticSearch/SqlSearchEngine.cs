@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using SearchService.Models;
+using SearchService.Repositories;
 
 namespace SearchService.Helpers.SemanticSearch
 {
     public class SqlSearchEngine: SearchEngine
     {
-        protected SqlConnection Connection { get; }
-        public SqlSearchEngine(string connectionString)
+        public SqlSearchEngine(ISemanticSearchRepository semanticSearchRepository) : base (semanticSearchRepository)
         {
-            Connection = new SqlConnection(connectionString);
         }
 
-        public override IEnumerable<ArtifactSearchResult> GetSemanticSearchSuggestions(int artifactId, bool isInstanceAdmin, HashSet<int> projectIds)
+        public override async Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters)
         {
-            throw new NotImplementedException();
+            var itemIds = new List<int>();
+            
+            return await GetArtifactSearchResultsFromItemIds(itemIds, searchEngineParameters.UserId);
         }
     }
 }

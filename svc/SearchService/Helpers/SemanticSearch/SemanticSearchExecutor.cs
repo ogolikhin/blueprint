@@ -1,29 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using SearchService.Models;
+using SearchService.Repositories;
+using ServiceLibrary.Repositories;
 
 namespace SearchService.Helpers.SemanticSearch
 {
-    public delegate Task<IEnumerable<int>> GetSemanticSearchSuggestionsDelegate(int artifactId);
     public interface ISemanticSearchExecutor
     {
-        Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(int artifactId);
+        Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngingParameters);
     }
+
     public class SemanticSearchExecutor: ISemanticSearchExecutor
     {
-        private static readonly Lazy<SemanticSearchExecutor> _instance = new Lazy<SemanticSearchExecutor>(() => new SemanticSearchExecutor());
-        public static SemanticSearchExecutor Instance => _instance.Value;
+        private static readonly Lazy<SemanticSearchExecutor> _instance = 
+            new Lazy<SemanticSearchExecutor>(
+                () => new SemanticSearchExecutor(
+                    new SemanticSearchRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)))
+                );
 
-        public SemanticSearchExecutor()
+        public static ISemanticSearchExecutor Instance => _instance.Value;
+        protected ISearchEngine _searchEngine;
+
+        internal SemanticSearchExecutor(ISemanticSearchRepository semanticSearchRepository)
         {
-            
+            _searchEngine = SearchEngineFactory.CreateSearchEngine(semanticSearchRepository);
         }
-        public Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(int artifactId)
+
+        public async Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters)
         {
-            throw new NotImplementedException();
+            return await _searchEngine.GetSemanticSearchSuggestions(searchEngineParameters);
         }
     }
 }

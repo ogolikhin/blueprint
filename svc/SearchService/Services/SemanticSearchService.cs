@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using SearchService.Helpers.SemanticSearch;
 using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Exceptions;
@@ -71,12 +72,15 @@ namespace SearchService.Services
             var isInstanceAdmin = await _usersRepository.IsInstanceAdmin(false, userId);
             var accessibleProjectIds = isInstanceAdmin ? new List<int>() : await _semanticSearchRepository.GetAccessibleProjectIds(userId);
 
-            var suggestedArtifactIds = await _semanticSearchRepository.GetSuggestedArtifacts(artifactId, isInstanceAdmin, accessibleProjectIds);
+            var searchEngineParameters = new SearchEngineParameters(artifactId, userId, isInstanceAdmin, accessibleProjectIds.ToHashSet());
 
-            var artifactsInfos = await _semanticSearchRepository.GetSuggestedArtifactDetails(suggestedArtifactIds, userId);
+            var suggestedArtifactResults =
+                await
+                    SemanticSearchExecutor.Instance.GetSemanticSearchSuggestions(searchEngineParameters);
+            
 
             //Get list of some basic artifact details from the list of returned ids.
-            suggestionsSearchResult.Items = artifactsInfos;
+            suggestionsSearchResult.Items = suggestedArtifactResults;
 
             return suggestionsSearchResult;
         }

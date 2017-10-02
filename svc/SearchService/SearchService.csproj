@@ -119,6 +119,8 @@
     <Compile Include="Helpers\SearchConfigurationProvider.cs" />
     <Compile Include="Helpers\SemanticSearch\ElasticSearchEngine.cs" />
     <Compile Include="Helpers\SemanticSearch\SearchEngine.cs" />
+    <Compile Include="Helpers\SemanticSearch\SearchEngineFactory.cs" />
+    <Compile Include="Helpers\SemanticSearch\SearchEngineParameters.cs" />
     <Compile Include="Helpers\SemanticSearch\SemanticSearchExecutor.cs" />
     <Compile Include="Helpers\SemanticSearch\SqlSearchEngine.cs" />
     <Compile Include="Models\ArtifactSearchResult.cs" />

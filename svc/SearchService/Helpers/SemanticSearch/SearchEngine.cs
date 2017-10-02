@@ -1,22 +1,28 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using SearchService.Models;
+using SearchService.Repositories;
 
 namespace SearchService.Helpers.SemanticSearch
 {
     public interface ISearchEngine
     {
-        IEnumerable<ArtifactSearchResult> GetSemanticSearchSuggestions(int artifactId, bool isInstanceAdmin, HashSet<int> projectIds);
+        Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters);
     }
     public abstract class SearchEngine: ISearchEngine
     {
-        //protected string ConnectionString { get; }
+        protected ISemanticSearchRepository SemanticSearchRepository { get; }
 
-        //protected SearchEngine(string connectionString)
-        //{
-        //    ConnectionString = connectionString;
-        //}
-        public abstract IEnumerable<ArtifactSearchResult> GetSemanticSearchSuggestions(int artifactId,
-            bool isInstanceAdmin, HashSet<int> projectIds);
+        protected SearchEngine(ISemanticSearchRepository semanticSearchRepository)
+        {
+            SemanticSearchRepository = semanticSearchRepository;
+        }
 
+        public abstract Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters);
+
+        protected async Task<IEnumerable<ArtifactSearchResult>> GetArtifactSearchResultsFromItemIds(List<int> itemIds, int userId)
+        {
+            return await SemanticSearchRepository.GetSuggestedArtifactDetails(itemIds, userId);
+        }
     }
 }

@@ -1,25 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using SearchService.Models;
+using SearchService.Repositories;
 
 namespace SearchService.Helpers.SemanticSearch
 {
     public class ElasticSearchEngine: SearchEngine
     {
         protected const string IndexPrefix = "semanticsdb_";
-        public string IndexName { get; }
+        protected string IndexName { get; }
+        
 
-        public ElasticSearchEngine(string connectionString, string tenantId)
+        public ElasticSearchEngine(string connectionString, string tenantId, ISemanticSearchRepository semanticSearchRepository) 
+            : base(semanticSearchRepository)
         {
             IndexName = IndexPrefix + tenantId;
             // create ElasticClient using conneciton string
         }
 
-        public override IEnumerable<ArtifactSearchResult> GetSemanticSearchSuggestions(int artifactId, bool isInstanceAdmin, HashSet<int> projectIds)
+        public override async Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters)
         {
-            throw new NotImplementedException();
+            var searchText = await SemanticSearchRepository.GetSemanticSearchText(searchEngineParameters.ArtifactId,
+                searchEngineParameters.UserId);
+            // use searchText to execute Elasticsearch query
+            var itemIds = new List<int>();
+            // parse the artifact ids into a artifactsearchresult to return to the caller
+            return await GetArtifactSearchResultsFromItemIds(itemIds, searchEngineParameters.UserId);
         }
     }
 }

@@ -76,16 +76,19 @@
         public static readonly string ProjectIdIsInvalid = "The project Id is invalid";
         //Workflow
         public static readonly string WorkflowNotExist = "The workflow with the current workflowId doesn’t exist or removed from the system.";
+        public static readonly string WorkflowIsActive = "The workflow with the current id is active.";
         public static readonly string WorkflowModelIsEmpty = "The model is empty.";
         public static readonly string WorkflowVersionsNotEqual = "The current version the workflow from the request doesn’t match the current version in DB.";
         public static readonly string WorkflowWasNotUpdated = "The workflow with current parameters was not updated.";
         public static readonly string InvalidDeleteWorkflowsParameters = "Invalid parameters to delete workflows";
         public static readonly string GeneralErrorOfDeletingWorkflows = "An error has occurred when performed workflows (s) deletion operation";
-        public static readonly string WorkflowNameError = "Please enter a Workflow Name between 4 and 64 characters";
+        public static readonly string WorkflowNameError = "Please enter a Workflow Name between 4 and 24 characters";
         public static readonly string WorkflowDescriptionLimit = "Please enter a Workflow Description up to 400 characters";
         public static readonly string CreateWorkfloModelIsEmpty = "The body of the call is malformed or has invalid parameter";
         public static readonly string WorkflowAlreadyExists = "Workflow with such a name already exists";
         public static readonly string GeneralErrorOfCreatingWorkflow = "General error of creating workflow";
+        public static readonly string GeneralErrorOfAssignProjectsAndArtifactsToWorkflow = "General error of assign projects and artifacts to workflows";
+
 
         //Folder
         public static readonly string FolderWithSuchNameExistsInParentFolder = "A folder with the same name already exists in the parent folder. Please use a different name.";

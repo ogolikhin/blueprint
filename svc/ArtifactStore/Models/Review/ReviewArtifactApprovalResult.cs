@@ -11,6 +11,6 @@ namespace ArtifactStore.Models.Review
     {
         public int ArtifactId { get; set; }
         public DateTime? Timestamp { get; set; }
-        public ApprovalType? OldApprovalFlag { get; set; }
+        public ApprovalType? PreviousApprovalFlag { get; set; }
     }
 }

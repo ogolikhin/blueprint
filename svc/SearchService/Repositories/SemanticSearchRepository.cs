@@ -13,7 +13,8 @@ namespace SearchService.Repositories
     public interface ISemanticSearchRepository
     {
         Task<List<int>> GetAccessibleProjectIds(int userId);
-        Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId);
+        // TEMPORARY ADDED artifactId
+        Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId, int artifactId);
         Task<SemanticSearchSetting> GetSemanticSearchSetting();
         Task<string> GetSemanticSearchText(int artifactId, int userId);
     }
@@ -30,51 +31,44 @@ namespace SearchService.Repositories
             _connectionWrapper = connectionWrapper;
         }
         
-        public async Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId)
+//// TEMPORARRY CODE ----------------------------------------------
+
+        private async Task<Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, int revisionId, bool addDrafts)
         {
-            //TODO: uncomment once real artifact ids are passed in
-            //var prm = new DynamicParameters();
-            //prm.Add("@userId", userId);
-            //prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            var prm = new DynamicParameters();
+            prm.Add("@userId", sessionUserId);
+            prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
 
-            //return (await _connectionWrapper.QueryAsync<ArtifactSearchResult>("GetSuggestedArtifactDetails", prm, commandType: CommandType.StoredProcedure)).ToList();
+            return (await _connectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
+        }
 
-            return await Task.FromResult(new List<ArtifactSearchResult>()
-            {
-                new ArtifactSearchResult()
-                {
-                    ItemId = 1,
-                    ItemTypeId = 1,
-                    Name = "Fake Artifact 1",
-                    ProjectId = 1,
-                    PredefinedType = ItemTypePredefined.Actor,
-                    ProjectName = "Fake Project",
-                    TypePrefix = "FAKE",
-                    ItemTypeIconId = 1
-                },
-                 new ArtifactSearchResult()
-                {
-                    ItemId = 2,
-                    ItemTypeId = 1,
-                    Name = "Fake Artifact 2",
-                    ProjectId = 2,
-                    PredefinedType = ItemTypePredefined.Actor,
-                    ProjectName = "Fake Project 2",
-                    TypePrefix = "ABC",
-                    ItemTypeIconId = null
-                },
-                 new ArtifactSearchResult()
-                {
-                    ItemId = 9,
-                    ItemTypeId = 5,
-                    Name = "Test Process",
-                    ProjectId = 2,
-                    PredefinedType = ItemTypePredefined.Process,
-                    ProjectName = "Fake Project 2",
-                    TypePrefix = "PROTEST",
-                    ItemTypeIconId = 5
-                }
-            });
+        private async Task<ICollection<int>> GetProjectArtifactIds(int userId, int projectId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@userId", userId);
+            prm.Add("@projectId", projectId);
+            prm.Add("@revisionId", int.MaxValue);
+            prm.Add("@addDrafts", false);
+
+            return (await _connectionWrapper.QueryAsync<int>("GetProjectArtifactIds", prm, commandType: CommandType.StoredProcedure)).ToList<int>();
+        }
+//// TEMPORARRY CODE ----------------------------------------------
+
+        public async Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId, int artifactId)
+        {
+//// TEMPORARRY CODE ----------------------------------------------
+            var ids = new List<int>();
+            ids.Add(artifactId);
+            var multipleResult = await GetArtifactsProjects(ids, userId, 0, false);
+            var projectId = multipleResult.Item1.ToList()[0].VersionProjectId;
+            var resultArtifactIds = (await GetProjectArtifactIds(userId, projectId)).ToList();
+//// TEMPORARRY CODE ----------------------------------------------
+
+            var prm = new DynamicParameters();
+            prm.Add("@userId", userId);
+            prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(resultArtifactIds));
+
+            return (await _connectionWrapper.QueryAsync<ArtifactSearchResult>("GetSuggestedArtifactDetails", prm, commandType: CommandType.StoredProcedure)).ToList();
         }
 
         public async Task<List<int>> GetAccessibleProjectIds(int userId)

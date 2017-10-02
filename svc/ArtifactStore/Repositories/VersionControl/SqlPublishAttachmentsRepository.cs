@@ -90,33 +90,63 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 return;
             }
-            var prm = new DynamicParameters();
-            prm.Add("@revisionId", revisionId);
-            prm.Add("@versionIds", SqlConnectionWrapper.ToDataTable(closeVersionIds));
-            prm.Add("@keepLatest", keepLatest);
+            var parameters = new DynamicParameters();
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@versionIds", SqlConnectionWrapper.ToDataTable(closeVersionIds));
+            parameters.Add("@keepLatest", keepLatest);
 
             if (transaction == null)
             {
-                await ConnectionWrapper.ExecuteAsync("CloseAttachmentVersions", prm, commandType: CommandType.StoredProcedure);
+                await ConnectionWrapper.ExecuteAsync
+                (
+                    "CloseAttachmentVersions", 
+                    parameters, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
-             else {
-                await transaction.Connection.ExecuteAsync("CloseAttachmentVersions", prm, transaction, commandType: CommandType.StoredProcedure);
+            else
+            {
+                await transaction.Connection.ExecuteAsync
+                (
+                    "CloseAttachmentVersions", 
+                    parameters, 
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                );
             }
+
             //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some attachment versions are not closed");
         }
+
         private async Task<ICollection<DraftAndLatestAttachment>> GetDraftAndLatestAttachments(ISet<int> artifactIds, int userId, IDbTransaction transaction)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@userId", userId);
-            prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
 
             if (transaction == null)
             {
-                return (await ConnectionWrapper.QueryAsync<DraftAndLatestAttachment>(
-                    "GetDraftAndLatestAttachmentVersions", prm, commandType: CommandType.StoredProcedure)).ToList();
+                return 
+                (
+                    await ConnectionWrapper.QueryAsync<DraftAndLatestAttachment>
+                    (
+                        "GetDraftAndLatestAttachmentVersions", 
+                        parameters, 
+                        commandType: CommandType.StoredProcedure
+                    )
+                ).ToList();
             }
-            return (await transaction.Connection.QueryAsync<DraftAndLatestAttachment>(
-                "GetDraftAndLatestAttachmentVersions", prm, transaction, commandType: CommandType.StoredProcedure)).ToList();
+
+            return 
+            (
+                await transaction.Connection.QueryAsync<DraftAndLatestAttachment>
+                (
+                    "GetDraftAndLatestAttachmentVersions", 
+                    parameters, 
+                    transaction, 
+                    commandType: CommandType.StoredProcedure
+                )
+            ).ToList();
         }
 
         private void RegisterAttachmentModification(PublishEnvironment env, DraftAndLatestAttachment attachment)

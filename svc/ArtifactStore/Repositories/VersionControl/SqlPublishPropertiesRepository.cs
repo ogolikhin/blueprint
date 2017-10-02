@@ -91,19 +91,29 @@ namespace ArtifactStore.Repositories.VersionControl
                 return;
             }
 
-            var param = new DynamicParameters();
-            param.Add("@revisionId", revisionId);
-            param.Add("@versionIds", SqlConnectionWrapper.ToDataTable(closeVersionIds));
+            var parameters = new DynamicParameters();
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@versionIds", SqlConnectionWrapper.ToDataTable(closeVersionIds));
 
             if (transaction == null)
             {
-                await ConnectionWrapper.ExecuteAsync(CloseVersionsStoredProcedureName, param,
-                commandType: CommandType.StoredProcedure);
+                await ConnectionWrapper.ExecuteAsync
+                (
+                    CloseVersionsStoredProcedureName, 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
                 return;
             }
 
-            await transaction.Connection.ExecuteAsync(CloseVersionsStoredProcedureName, param, transaction,
-                commandType: CommandType.StoredProcedure);
+            await transaction.Connection.ExecuteAsync
+            (
+                CloseVersionsStoredProcedureName, 
+                parameters, 
+                transaction,
+                commandType: CommandType.StoredProcedure
+            );
 
             //TODO: Fix this assert
             //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some property versions are not closed");
@@ -142,19 +152,29 @@ namespace ArtifactStore.Repositories.VersionControl
                 return;
             }
 
-            var param = new DynamicParameters();
-            param.Add("@revisionId", revisionId);
-            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(aids));
+            var parameters = new DynamicParameters();
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(aids));
 
             if (transaction == null)
             {
-                await ConnectionWrapper.ExecuteAsync("CloseAllPropertyVersions", param,
-                commandType: CommandType.StoredProcedure);
+                await ConnectionWrapper.ExecuteAsync
+                (
+                    "CloseAllPropertyVersions", 
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
                 return;
             }
 
-            await transaction.Connection.ExecuteAsync("CloseAllPropertyVersions", param, transaction,
-                commandType: CommandType.StoredProcedure);
+            await transaction.Connection.ExecuteAsync
+            (
+                "CloseAllPropertyVersions", 
+                parameters, 
+                transaction,
+                commandType: CommandType.StoredProcedure
+            );
         }
     }
 

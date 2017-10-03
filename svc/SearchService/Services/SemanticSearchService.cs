@@ -61,9 +61,14 @@ namespace SearchService.Services
 
             var itemTypePredefined = (ItemTypePredefined) artifactDetails.PrimitiveItemTypePredefined;
 
-            if (!itemTypePredefined.IsRegularArtifactType() || itemTypePredefined.IsProjectOrFolderArtifactType())
+            if (isInvalidSemanticSearchArtifactType(itemTypePredefined))
             {
-                throw new BadRequestException(I18NHelper.FormatInvariant($"Artifact type '{itemTypePredefined}' is not supported for suggestions"));
+                throw new BadRequestException(I18NHelper.FormatInvariant($"Artifact type '{itemTypePredefined}' is not supported for semantic search"));
+            }
+
+            if (artifactDetails.ArtifactId != artifactId && artifactDetails.ItemId == artifactId)
+            {
+                throw new BadRequestException("Subartifacts are not supported for semantic search");
             }
 
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] {artifactId}, userId);
@@ -89,6 +94,12 @@ namespace SearchService.Services
             suggestionsSearchResult.Items = artifactsInfos;
 
             return suggestionsSearchResult;
+        }
+
+        private bool isInvalidSemanticSearchArtifactType(ItemTypePredefined itemTypePredefined)
+        {
+            return !itemTypePredefined.IsRegularArtifactType() || itemTypePredefined.IsProjectOrFolderArtifactType() ||
+                   itemTypePredefined.IsSubArtifactType();
         }
     }
 }

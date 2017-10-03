@@ -81,6 +81,13 @@ namespace SearchService.Services
         {
             await ExecuteItemTypeTests(ItemTypePredefined.Project);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetSemanticSearchSuggestions_WhenItemTypeIsSubartifact_ThrowsBadRequestException()
+        {
+            await ExecuteItemTypeTests(ItemTypePredefined.PROShape);
+        }
         #endregion
 
         [TestMethod]
@@ -141,6 +148,27 @@ namespace SearchService.Services
 
             _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(new ArtifactBasicDetails() { DraftDeleted = true });
+
+            //act
+            await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetSemanticSearchSuggestions_WhenSubartifactId_ThrowsBadRequestException()
+        {
+            //arrange
+            var parameters = new SemanticSearchSuggestionParameters(1, 1);
+
+
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(new ArtifactBasicDetails()
+                {
+                    PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor,
+                    ArtifactId = 2,
+                    ItemId = parameters.ArtifactId
+                });
 
             //act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);

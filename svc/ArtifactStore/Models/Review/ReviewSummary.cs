@@ -17,6 +17,8 @@ namespace ArtifactStore.Models.Review
 
         public int TotalArtifacts { get; set; }
 
+        public int TotalViewable { get; set; }
+
         public ReviewType ReviewType { get; set; }
 
         public ReviewParticipantRole? ReviewParticipantRole { get; set; }
@@ -57,6 +59,8 @@ namespace ArtifactStore.Models.Review
         public int TotalReviewers { get; set; }
 
         public int TotalArtifacts { get; set; }
+
+        public int TotalViewable { get; set; }
 
         public int Approved { get; set; }
 

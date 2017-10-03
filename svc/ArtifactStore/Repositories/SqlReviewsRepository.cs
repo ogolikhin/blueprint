@@ -113,6 +113,7 @@ namespace ArtifactStore.Repositories
                 Source = reviewSource,
                 ReviewParticipantRole = reviewDetails.ReviewParticipantRole,
                 TotalArtifacts = reviewDetails.TotalArtifacts,
+                TotalViewable = reviewDetails.TotalViewable,
                 Status = reviewDetails.ReviewStatus,
                 ReviewPackageStatus = reviewDetails.ReviewPackageStatus,
                 RequireAllArtifactsReviewed = reviewDetails.RequireAllArtifactsReviewed,

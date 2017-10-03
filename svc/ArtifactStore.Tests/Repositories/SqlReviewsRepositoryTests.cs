@@ -76,6 +76,7 @@ namespace ArtifactStore.Repositories
                 ReviewPackageStatus = ReviewPackageStatus.Active,
                 ReviewParticipantRole = ReviewParticipantRole.Approver,
                 TotalArtifacts = totalArtifacts,
+                TotalViewable = 7,
                 TotalReviewers = 5,
                 ReviewStatus = reviewStatus,
                 Approved = 5,
@@ -109,6 +110,7 @@ namespace ArtifactStore.Repositories
             _cxn.Verify();
 
             Assert.AreEqual(totalArtifacts, review.TotalArtifacts);
+            Assert.AreEqual(7, review.TotalViewable);
             Assert.AreEqual(baselineId, review.Source.Id);
             Assert.AreEqual(reviewStatus, review.Status);
             Assert.AreEqual(reviewName, review.Name);

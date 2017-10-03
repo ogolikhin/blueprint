@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SearchService.Models;
 using SearchService.Repositories;
@@ -71,6 +72,8 @@ namespace SearchService.Services
                 throw new BadRequestException("Subartifacts are not supported for semantic search");
             }
 
+            var currentProject = (await _sqlArtifactRepository.GetProjectNameByIdsAsync(new[] {artifactDetails.ProjectId})).FirstOrDefault();
+
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] {artifactId}, userId);
 
             RolePermissions permission;
@@ -81,6 +84,7 @@ namespace SearchService.Services
 
             var suggestionsSearchResult = new SuggestionsSearchResult();
             suggestionsSearchResult.SourceId = artifactId;
+            suggestionsSearchResult.SourceProjectName = currentProject?.Name;
 
             var isInstanceAdmin = await _usersRepository.IsInstanceAdmin(false, userId);
             var accessibleProjectIds = isInstanceAdmin ? new List<int>() : await _semanticSearchRepository.GetAccessibleProjectIds(userId);
@@ -92,7 +96,6 @@ namespace SearchService.Services
 
             //Get list of some basic artifact details from the list of returned ids.
             suggestionsSearchResult.Items = artifactsInfos;
-
             return suggestionsSearchResult;
         }
 

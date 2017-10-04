@@ -217,6 +217,7 @@ namespace AdminStore.Controllers
         private const int WorkflowId = 1;
         private const InstanceAdminPrivileges AllProjectDataPermissions = InstanceAdminPrivileges.AccessAllProjectData;
         private const int FolderId = 1;
+        private const int ProjectId = 1;
 
         private QueryResult<WorkflowProjectArtifactsDto> _expectedArtifacts;
         private Pagination _pagination;
@@ -328,6 +329,90 @@ namespace AdminStore.Controllers
             try
             {
                 await _controller.AssignProjectsAndArtifactsToWorkflow(WorkflowId, null);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+        }
+        #endregion
+
+        #region AssignArtifactsToProjectInWorkflow
+        [TestMethod]
+        public async Task AssignArtifactsToProjectInWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnSyncResult()
+        {
+            // arrange            
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowRepositoryMock.Setup(q => q.AssignArtifactsToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 })).ReturnsAsync(new SyncResult { TotalAdded = 2, TotalDeleted = 1 });
+
+            //act            
+            var result = await _controller.AssignArtifactsToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 });
+
+            //assert
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task AssignArtifactsToProjectInWorkflow_InvalidPermission_ReturnAuthorizationException()
+        {
+            //arrange         
+            Exception exception = null;
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
+
+            //act
+            try
+            {
+                await _controller.AssignArtifactsToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 });
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        [TestMethod]
+        public async Task AssignArtifactsToProjectInWorkflow_InvalidArtifactIds_ReturnBadRequestException()
+        {
+            //arrange         
+            Exception exception = null;
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            try
+            {
+                await _controller.AssignArtifactsToProjectInWorkflow(WorkflowId, ProjectId, null);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+
+
+            //act
+            try
+            {
+                await _controller.AssignArtifactsToProjectInWorkflow(WorkflowId, ProjectId, new List<int>());
             }
             catch (Exception ex)
             {

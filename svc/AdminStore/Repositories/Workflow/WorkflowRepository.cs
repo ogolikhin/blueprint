@@ -941,10 +941,8 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@ProjectId", projectId);
             parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactsIds, "Int32Collection", "Int32Value"));           
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@TotalAdded", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@TotalDeleted", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            var result = await _connectionWrapper.QueryAsync<int>("AssignArtifactsToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);
+        
+            var result = await _connectionWrapper.QueryAsync<SyncResult>("AssignArtifactsToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");                      
 
             if (errorCode.HasValue)
@@ -968,13 +966,7 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            var syncResult = new SyncResult()
-            {
-                TotalAdded = parameters.Get<int>("TotalAdded"),
-                TotalDeleted = parameters.Get<int>("TotalDeleted")
-            };
-
-            return syncResult;
+            return result.FirstOrDefault();
         }
         #endregion
     }

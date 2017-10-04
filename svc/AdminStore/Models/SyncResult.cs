@@ -10,7 +10,6 @@ namespace AdminStore.Models
         public static SyncResult Empty => new SyncResult { TotalAdded = 0, TotalDeleted = 0 };
 
         public int TotalAdded { get; set; }
-        public int TotalDeleted { get; set; }
-        public int TotalSynced { get { return TotalAdded + TotalDeleted; } }
+        public int TotalDeleted { get; set; }       
     }
 }

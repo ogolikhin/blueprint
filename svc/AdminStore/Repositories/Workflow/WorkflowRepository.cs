@@ -968,9 +968,11 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            var syncResult = new SyncResult();
-            syncResult.TotalAdded = parameters.Get<int>("TotalAdded");
-            syncResult.TotalDeleted = parameters.Get<int>("TotalDeleted");
+            var syncResult = new SyncResult()
+            {
+                TotalAdded = parameters.Get<int>("TotalAdded"),
+                TotalDeleted = parameters.Get<int>("TotalDeleted")
+            };
 
             return syncResult;
         }

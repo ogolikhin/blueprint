@@ -37,7 +37,7 @@ namespace AdminStore.Repositories
         private const int _projectId = 1;
         private Pagination _pagination;
         private List<int> _listArtifactsIds;
-        private SyncResult _outputSyncResult = new SyncResult { TotalAdded = 2, TotalDeleted = 1 };
+        private IEnumerable<SyncResult> _outputSyncResult = new List<SyncResult>() { new SyncResult { TotalAdded = 2, TotalDeleted = 1 } };
 
         #region AssignProjectsAndArtifactsToWorkflow
         [TestMethod]
@@ -122,7 +122,7 @@ namespace AdminStore.Repositories
         public async Task AssignArtifactsToProjectInWorkflow_ExistsAssignedProjects_QueryReturnCountAddedAndDeletedProjects()
         {
             //arrange    
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), 3, new Dictionary<string, object> { { "TotalAdded", 2 }, { "TotalDeleted", 1 } });
+            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult);
 
             //act
             var result = await _workflowRepository.AssignArtifactsToProjectInWorkflow(_workflowId,_projectId, _listArtifactsIds);
@@ -137,7 +137,7 @@ namespace AdminStore.Repositories
             //arrange      
             Exception exception = null;
 
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive } });
+            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive } });
             //act
             try
             {
@@ -158,7 +158,7 @@ namespace AdminStore.Repositories
             //arrange                  
             Exception exception = null;
 
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist } });
+            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist } });
             //act
             try
             {
@@ -179,7 +179,7 @@ namespace AdminStore.Repositories
             //arrange                  
             Exception exception = null;
 
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
+            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
             //act
             try
             {
@@ -200,7 +200,7 @@ namespace AdminStore.Repositories
             //arrange                  
             Exception exception = null;
 
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
+            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
             //act
             try
             {
@@ -221,7 +221,7 @@ namespace AdminStore.Repositories
             //arrange                  
             Exception exception = null;
 
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
+            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
             //act
             try
             {

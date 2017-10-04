@@ -930,7 +930,39 @@ namespace AdminStore.Repositories.Workflow
             }
 
             return table;
-        }       
+        }
+
+        public async Task<int> AssignArtifactsToProjectInWorkflow(int workflowId, int projectId, IEnumerable<int> artifactsIds)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@WorkflowId", workflowId);
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactsIds, "Int32Collection", "Int32Value"));           
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignArtifactsToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
+
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
+                }
+            }
+
+            return result;
+        }
         #endregion
     }
 }

@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -86,6 +87,37 @@ namespace AdminStore.Controllers
             }
 
             var result = await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(workFlowid, workflowAssign);
+
+            return Ok(new AssignResult() { TotalAssigned = result });
+        }
+
+
+        /// <summary>
+        /// Sync the existing project artifact type assignments for the specified project: delete absent and add the new ones.
+        /// </summary>
+        /// <param name="workFlowid"></param>
+        /// <param name="projectId"></param>
+        /// <param name="ids"></param>
+        /// <response code="200">OK. The artifacts were assigned to the workflow and to the project.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions to assign projects and artifacts</response>
+        /// <response code="404">Not Found. The workflow with current id were not found.</response> 
+        /// <response code="409">Conflict. The workflow with the current id is active.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// <returns></returns>
+        [HttpPost]
+        [SessionRequired]
+        [Route("{workflowId:int:min(1)}/project/{projectId:int:min(1)}/assign"), SessionRequired]
+        [ResponseType(typeof(AssignResult))]
+        public async Task<IHttpActionResult> AssignArtifactsToProjectInWorkflow(int workFlowid, int projectId, [FromBody] IEnumerable<int> ids)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            if (ids == null || ids.Count() == 0)
+                throw new BadRequestException(ErrorMessages.ArtifactIdsNotValid, ErrorCodes.BadRequest);
+
+            var result = await _workflowRepository.AssignArtifactsToProjectInWorkflow(workFlowid, projectId, ids);
 
             return Ok(new AssignResult() { TotalAssigned = result });
         }

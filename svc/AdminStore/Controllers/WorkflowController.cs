@@ -103,13 +103,13 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions to assign projects and artifacts</response>
         /// <response code="404">Not Found. The workflow with current id were not found.</response> 
-        /// <response code="409">Conflict. The workflow with the current id is active.</response>
+        /// <response code="409">Conflict. The workflow with the current id is active or Workflow Project doesn't have any artifacts</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns></returns>
         [HttpPost]
         [SessionRequired]
         [Route("{workflowId:int:min(1)}/project/{projectId:int:min(1)}/assign"), SessionRequired]
-        [ResponseType(typeof(AssignResult))]
+        [ResponseType(typeof(SyncResult))]
         public async Task<IHttpActionResult> AssignArtifactsToProjectInWorkflow(int workFlowid, int projectId, [FromBody] IEnumerable<int> ids)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
@@ -119,7 +119,7 @@ namespace AdminStore.Controllers
 
             var result = await _workflowRepository.AssignArtifactsToProjectInWorkflow(workFlowid, projectId, ids);
 
-            return Ok(new AssignResult() { TotalAssigned = result });
+            return Ok(result);
         }
 
         /// <summary>

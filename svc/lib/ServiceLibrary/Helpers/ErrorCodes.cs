@@ -130,5 +130,6 @@
         public const int WorkflowAlreadyExists = 16002;
         public const int GeneralErrorOfCreatingWorkflow = 16003;
         public const int WorkflowIsActive = 16004;
+        public const int WorkflowProjectDoNotHasArtifacts = 16005;
     }
 }

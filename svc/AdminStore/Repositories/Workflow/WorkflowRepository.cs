@@ -65,7 +65,7 @@ namespace AdminStore.Repositories.Workflow
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
-                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);                    
                 }
             }
 
@@ -800,6 +800,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
             if (transaction != null)
             {
                 result =
@@ -932,16 +933,19 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
-        public async Task<int> AssignArtifactsToProjectInWorkflow(int workflowId, int projectId, IEnumerable<int> artifactsIds)
+        public async Task<SyncResult> AssignArtifactsToProjectInWorkflow(int workflowId, int projectId, IEnumerable<int> artifactsIds)
         {
             var parameters = new DynamicParameters();
+            
             parameters.Add("@WorkflowId", workflowId);
             parameters.Add("@ProjectId", projectId);
             parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactsIds, "Int32Collection", "Int32Value"));           
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@TotalAdded", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@TotalDeleted", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignArtifactsToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");
+            var result = await _connectionWrapper.QueryAsync<int>("AssignArtifactsToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");                      
 
             if (errorCode.HasValue)
             {
@@ -957,11 +961,18 @@ namespace AdminStore.Repositories.Workflow
                         throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
-                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);                   
+
+                    case (int)SqlErrorCodes.WorkflowProjectDoNotHasArtifacts:
+                        throw new ConflictException(ErrorMessages.WorkflowProjectDoNotHasArtifacts, ErrorCodes.WorkflowProjectDoNotHasArtifacts);
                 }
             }
 
-            return result;
+            var syncResult = new SyncResult();
+            syncResult.TotalAdded = parameters.Get<int>("TotalAdded");
+            syncResult.TotalDeleted = parameters.Get<int>("TotalDeleted");
+
+            return syncResult;
         }
         #endregion
     }

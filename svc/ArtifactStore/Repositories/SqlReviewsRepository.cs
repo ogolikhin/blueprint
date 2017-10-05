@@ -255,10 +255,15 @@ namespace ArtifactStore.Repositories
             Func<IDbTransaction, Task> transactionAction = async (transaction) =>
             {
                 await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, transaction);
+
                 if (effectiveIds.IsBaselineAdded)
                 {
                     await CreateOrUpdateReviewBaselineLink(reviewId, content.ArtifactIds.First(),
                         propertyResult.ProjectId.Value, userId, transaction);
+                }
+                else
+                {
+                    await RemoveReviewBaselineLink(reviewId, userId, transaction);
                 }
             };
 
@@ -354,6 +359,34 @@ namespace ArtifactStore.Repositories
                 await transaction.Connection.ExecuteAsync
                 (
                     "CreateOrUpdateReviewBaselineLink",
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+        }
+
+        private async Task RemoveReviewBaselineLink(int reviewId,
+            int userId, IDbTransaction transaction)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@userId", userId);
+
+            if (transaction == null)
+            {
+                await _connectionWrapper.ExecuteAsync
+                (
+                    "RemoveReviewBaselineLink",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+            else
+            {
+                await transaction.Connection.ExecuteAsync
+                (
+                    "RemoveReviewBaselineLink",
                     parameters,
                     transaction,
                     commandType: CommandType.StoredProcedure

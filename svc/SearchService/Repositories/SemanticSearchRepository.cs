@@ -5,18 +5,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SearchService.Models;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 
 namespace SearchService.Repositories
 {
     public interface ISemanticSearchRepository
     {
-        Task<List<int>> GetSuggestedArtifacts(int artifactId, bool isInstanceAdmin, IEnumerable<int> projectIds);
         Task<List<int>> GetAccessibleProjectIds(int userId);
         // TEMPORARY ADDED artifactId
         Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId, int artifactId);
+        Task<SemanticSearchSetting> GetSemanticSearchSetting();
+        Task<string> GetSemanticSearchText(int artifactId, int userId);
     }
     public class SemanticSearchRepository: ISemanticSearchRepository
     {
@@ -30,17 +29,7 @@ namespace SearchService.Repositories
         {
             _connectionWrapper = connectionWrapper;
         }
-
-        public async Task<List<int>> GetSuggestedArtifacts(int artifactId, bool isInstanceAdmin, IEnumerable<int> projectIds)
-        {
-            //var query = $"SELECT DISTINCT TOP 10 iv.VersionItemId FROM dbo.ItemVersions as iv WHERE iv.EndRevision = 2147483647 GROUP BY (iv.VersionItemId) ORDER BY iv.VersionItemId DESC";
-            //return (await _connectionWrapper.QueryAsync<int>(query, commandType: CommandType.Text)).ToList();
-            return await Task.FromResult(new List<int>()
-            {
-                // returns 10 ids from elastic search or sql
-            });
-        }
-
+        
 //// TEMPORARRY CODE ----------------------------------------------
 
         private async Task<Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, int revisionId, bool addDrafts)
@@ -92,6 +81,38 @@ namespace SearchService.Repositories
             prm.Add("@userId", userId);
 
             return (await _connectionWrapper.QueryAsync<int>("GetAccessibleProjectIds", prm, commandType: CommandType.StoredProcedure)).ToList();
+        }
+
+        public async Task<SemanticSearchSetting> GetSemanticSearchSetting()
+        {
+            return ToSearchSetting((await _connectionWrapper.QueryAsync<SqlSemanticSearchSetting>("GetSemanticSearchSetting", commandType: CommandType.StoredProcedure)).FirstOrDefault());
+        }
+
+        private SemanticSearchSetting ToSearchSetting(SqlSemanticSearchSetting sqlSemanticSearchSetting)
+        {
+            if (sqlSemanticSearchSetting == null)
+            {
+                return null;
+            }
+            return new SemanticSearchSetting()
+            {
+                TenantId = sqlSemanticSearchSetting.TenantId,
+                TenantName = sqlSemanticSearchSetting.TenantName,
+                ConnectionString = sqlSemanticSearchSetting.ElasticsearchConnectionString,
+                SemanticSearchEngineType = sqlSemanticSearchSetting.SemanticSearchEngineType
+            };
+        }
+
+        public async Task<string> GetSemanticSearchText(int artifactId, int userId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@itemId", artifactId);
+            prm.Add("@userId", userId);
+
+            return
+                (await
+                    _connectionWrapper.QueryAsync<string>("SELECT dbo.GetItemSemanticSearchText(@userId,@itemId)", prm,
+                        commandType: CommandType.Text)).FirstOrDefault();
         }
     }
 }

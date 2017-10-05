@@ -200,13 +200,13 @@ namespace AdminStore.Repositories
             //arrange                  
             Exception exception = null;
 
-            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
+            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowProjectDoNotHasArtifacts } });
             //act
             try
             {
                 await _workflowRepository.AssignArtifactsToProjectInWorkflow(_workflowId, _projectId, _listArtifactsIds);
             }
-            catch (ConflictException ex)
+            catch (Exception ex)
             {
                 exception = ex;
             }
@@ -221,7 +221,7 @@ namespace AdminStore.Repositories
             //arrange                  
             Exception exception = null;
 
-            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
+            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactsToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.ProjectWithCurrentIdNotExist } });
             //act
             try
             {

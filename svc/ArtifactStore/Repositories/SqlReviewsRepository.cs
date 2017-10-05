@@ -242,6 +242,14 @@ namespace ArtifactStore.Repositories
 
             var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId.Value);
 
+            if (effectiveIds.ArtifactIds == null || effectiveIds.ArtifactIds.IsEmpty())
+            {
+                if (effectiveIds.IsBaselineAdded)
+                {
+                    ThrowBaselineNotSealedException();
+                }
+            }
+
             var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml, new HashSet<int>(effectiveIds.ArtifactIds), out alreadyIncludedCount);
 
             Func<IDbTransaction, Task> transactionAction = async (transaction) =>
@@ -1638,6 +1646,12 @@ namespace ArtifactStore.Repositories
         {
             var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
             throw new ConflictException(errorMessage, ErrorCodes.ReviewClosed);
+        }
+
+        public static void ThrowBaselineNotSealedException()
+        {
+            var errorMessage = I18NHelper.FormatInvariant("The baseline could not be added to the review because it is not sealed.");
+            throw new BadRequestException(errorMessage, ErrorCodes.BaselineIsNotSealed);
         }
     }
 }

@@ -749,17 +749,19 @@ namespace ServiceLibrary.Repositories
             return ConnectionWrapper.ExecuteScalarAsync<bool>("IsArtifactLockedByUser", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync(IEnumerable<int> artifactIds)
+        public async Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync(IEnumerable<int> artifactIds, int userId)
         {
             if (artifactIds == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(artifactIds));
             }
 
+            var artifactsPermissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
+            artifactIds = artifactsPermissions.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
+
             var param = new DynamicParameters();
             param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value"));
             var artifacts = (await ConnectionWrapper.QueryAsync<ProcessInfo>("GetProcessInformation", param, commandType: CommandType.StoredProcedure));
-
             
             return ProcessInfoMapper.Map(artifacts.ToList());
             

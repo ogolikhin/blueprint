@@ -42,7 +42,8 @@ namespace SearchService.Services
             _sqlArtifactRepository = sqlArtifactRepository;
         }
 
-        public async Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(SemanticSearchSuggestionParameters parameters)
+        public async Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(
+            SemanticSearchSuggestionParameters parameters)
         {
             var artifactId = parameters.ArtifactId;
             var userId = parameters.UserId;
@@ -54,18 +55,22 @@ namespace SearchService.Services
             var artifactDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(artifactId, userId);
             if (artifactDetails == null)
             {
-                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Artifact Id {0} is not found", artifactId), ErrorCodes.ArtifactNotFound);
+                throw new ResourceNotFoundException(
+                    I18NHelper.FormatInvariant("Artifact Id {0} is not found", artifactId), ErrorCodes.ArtifactNotFound);
             }
             if (artifactDetails.LatestDeleted || artifactDetails.DraftDeleted)
             {
-                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Artifact Id {0} is deleted", artifactId), ErrorCodes.ArtifactNotFound);
+                throw new ResourceNotFoundException(
+                    I18NHelper.FormatInvariant("Artifact Id {0} is deleted", artifactId), ErrorCodes.ArtifactNotFound);
             }
 
             var itemTypePredefined = (ItemTypePredefined) artifactDetails.PrimitiveItemTypePredefined;
 
             if (isInvalidSemanticSearchArtifactType(itemTypePredefined))
             {
-                throw new BadRequestException(I18NHelper.FormatInvariant($"Artifact type '{itemTypePredefined}' is not supported for semantic search"));
+                throw new BadRequestException(
+                    I18NHelper.FormatInvariant(
+                        $"Artifact type '{itemTypePredefined}' is not supported for semantic search"));
             }
 
             if (artifactDetails.ArtifactId != artifactId && artifactDetails.ItemId == artifactId)
@@ -73,7 +78,9 @@ namespace SearchService.Services
                 throw new BadRequestException("Subartifacts are not supported for semantic search");
             }
 
-            var currentProject = (await _sqlArtifactRepository.GetProjectNameByIdsAsync(new[] {artifactDetails.ProjectId})).FirstOrDefault();
+            var currentProject =
+                (await _sqlArtifactRepository.GetProjectNameByIdsAsync(new[] {artifactDetails.ProjectId}))
+                    .FirstOrDefault();
 
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] {artifactId}, userId);
 
@@ -88,17 +95,23 @@ namespace SearchService.Services
             suggestionsSearchResult.SourceProjectName = currentProject?.Name;
 
             var isInstanceAdmin = await _usersRepository.IsInstanceAdmin(false, userId);
-            var accessibleProjectIds = isInstanceAdmin ? new List<int>() : await _semanticSearchRepository.GetAccessibleProjectIds(userId);
+            var accessibleProjectIds = isInstanceAdmin
+                ? new List<int>()
+                : await _semanticSearchRepository.GetAccessibleProjectIds(userId);
 
-            var searchEngineParameters = new SearchEngineParameters(artifactId, userId, isInstanceAdmin, accessibleProjectIds.ToHashSet());
+            var searchEngineParameters = new SearchEngineParameters(artifactId, userId, isInstanceAdmin,
+                accessibleProjectIds.ToHashSet());
 
             var suggestedArtifactResults =
                 await
                     SemanticSearchExecutor.Instance.GetSemanticSearchSuggestions(searchEngineParameters);
-            
+
 
             //Get list of some basic artifact details from the list of returned ids.
             suggestionsSearchResult.Items = suggestedArtifactResults;
+
+            return suggestionsSearchResult;
+        }
 
         private bool isInvalidSemanticSearchArtifactType(ItemTypePredefined itemTypePredefined)
         {

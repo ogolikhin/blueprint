@@ -204,7 +204,7 @@ namespace ArtifactStore.Controllers
                 throw new BadRequestException(ErrorMessages.ArtifactIdsNotValid);
             }
 
-            return await ArtifactRepository.GetProcessInformationAsync(artifactIds);
+            return await ArtifactRepository.GetProcessInformationAsync(artifactIds, Session.UserId);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SearchService.Helpers.SemanticSearch;
 using SearchService.Models;
@@ -55,13 +56,24 @@ namespace SearchService.Services
             {
                 throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Artifact Id {0} is not found", artifactId), ErrorCodes.ArtifactNotFound);
             }
+            if (artifactDetails.LatestDeleted || artifactDetails.DraftDeleted)
+            {
+                throw new ResourceNotFoundException(I18NHelper.FormatInvariant("Artifact Id {0} is deleted", artifactId), ErrorCodes.ArtifactNotFound);
+            }
 
             var itemTypePredefined = (ItemTypePredefined) artifactDetails.PrimitiveItemTypePredefined;
 
-            if (!itemTypePredefined.IsRegularArtifactType() || itemTypePredefined.IsProjectOrFolderArtifactType())
+            if (isInvalidSemanticSearchArtifactType(itemTypePredefined))
             {
-                throw new BadRequestException(I18NHelper.FormatInvariant($"Artifact type '{itemTypePredefined}' is not supported for suggestions"));
+                throw new BadRequestException(I18NHelper.FormatInvariant($"Artifact type '{itemTypePredefined}' is not supported for semantic search"));
             }
+
+            if (artifactDetails.ArtifactId != artifactId && artifactDetails.ItemId == artifactId)
+            {
+                throw new BadRequestException("Subartifacts are not supported for semantic search");
+            }
+
+            var currentProject = (await _sqlArtifactRepository.GetProjectNameByIdsAsync(new[] {artifactDetails.ProjectId})).FirstOrDefault();
 
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] {artifactId}, userId);
 
@@ -73,6 +85,7 @@ namespace SearchService.Services
 
             var suggestionsSearchResult = new SuggestionsSearchResult();
             suggestionsSearchResult.SourceId = artifactId;
+            suggestionsSearchResult.SourceProjectName = currentProject?.Name;
 
             var isInstanceAdmin = await _usersRepository.IsInstanceAdmin(false, userId);
             var accessibleProjectIds = isInstanceAdmin ? new List<int>() : await _semanticSearchRepository.GetAccessibleProjectIds(userId);
@@ -87,7 +100,10 @@ namespace SearchService.Services
             //Get list of some basic artifact details from the list of returned ids.
             suggestionsSearchResult.Items = suggestedArtifactResults;
 
-            return suggestionsSearchResult;
+        private bool isInvalidSemanticSearchArtifactType(ItemTypePredefined itemTypePredefined)
+        {
+            return !itemTypePredefined.IsRegularArtifactType() || itemTypePredefined.IsProjectOrFolderArtifactType() ||
+                   itemTypePredefined.IsSubArtifactType();
         }
     }
 }

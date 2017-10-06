@@ -121,6 +121,7 @@
     <Compile Include="Helpers\SortingHelper.cs" />
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
+    <Compile Include="Helpers\Workflow\UpdateWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\CreateWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\WorkflowHelper.cs" />
     <Compile Include="Models\AdminRole.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="Models\WorkflowProjectArtifactsDTO.cs" />
     <Compile Include="Models\Workflow\IeUsersGroups.cs" />
     <Compile Include="Models\Workflow\WorkflowDetailsDto.cs" />
+    <Compile Include="Models\Workflow\UpdateWorkflowDto.cs" />
     <Compile Include="Services\Email\EmailClientExceptionHandler.cs" />
     <Compile Include="Services\Email\EmailClientType.cs" />
     <Compile Include="Models\Emails\TestEmailConfigInstanceSettings.cs" />

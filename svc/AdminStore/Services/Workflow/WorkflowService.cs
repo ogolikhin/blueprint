@@ -403,6 +403,55 @@ namespace AdminStore.Services.Workflow
             return versionId;
         }
 
+        public async Task<int> UpdateWorkflowAsync(UpdateWorkflowDto workflowDto, int workflowId, int userId)
+        {
+            var versionId = 0;
+
+            var existingWorkflow = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
+            if (existingWorkflow == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            if (existingWorkflow.VersionId != workflowDto.Status.VersionId)
+            {
+                throw new ConflictException(ErrorMessages.WorkflowVersionsNotEqual, ErrorCodes.Conflict);
+            }
+
+            if (existingWorkflow.Active && workflowDto.Status.Active)
+            {
+                throw new ConflictException("xxx", ErrorCodes.Conflict);
+            }
+
+            var workflows = new List<SqlWorkflow>
+            {
+                new SqlWorkflow
+                {
+                    Name = workflowDto.Name,
+                    Description = workflowDto.Description,
+                    Active = workflowDto.Status.Active,
+                    WorkflowId = workflowId
+                }
+            };
+
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision =
+                    await
+                        _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId,
+                            $"Updating the workflow with id {workflowId}.");
+                if (publishRevision < 1)
+                {
+                    throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.",
+                        nameof(publishRevision)));
+                }
+
+                versionId = await _workflowRepository.UpdateWorkflowsAsync(workflows, publishRevision, transaction);
+            };
+            await _workflowRepository.RunInTransactionAsync(action);
+            return versionId;
+        }
+
         public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
         {
             var totalDeleted = 0;

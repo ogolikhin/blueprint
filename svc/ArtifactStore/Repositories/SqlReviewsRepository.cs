@@ -1193,7 +1193,13 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("No artifacts provided", ErrorCodes.OutOfRangeParameter);
             }
 
+            if(reviewArtifactApprovalParameters.isExcludedArtifacts && reviewArtifactApprovalParameters.RevisionId == null)
+            {
+                throw new BadRequestException("Not all parameters provided", ErrorCodes.OutOfRangeParameter);
+            }
+
             List<int> artifactIds = new List<int>();
+            bool isAllArtifactsProcessed;
 
             if (reviewArtifactApprovalParameters.isExcludedArtifacts)
             {
@@ -1209,17 +1215,20 @@ namespace ArtifactStore.Repositories
                 artifactIds.AddRange(reviewArtifactApprovalParameters.ArtifactIds);
             }
 
-            await CheckApprovalAndPermissions(reviewId, userId, artifactIds);
+            var eligibleArtifacts = await CheckApprovalsAndPermissions(reviewId, userId, artifactIds);
+            isAllArtifactsProcessed = eligibleArtifacts.Count == artifactIds.Count ?  true : false;
 
             var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
 
-            var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, artifactIds);
+            var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, eligibleArtifacts);
 
             var approvalResult = new List<ReviewArtifactApprovalResult>();
 
             var timestamp = _currentDateTimeService.GetUtcNow();
+            var approvedArtifacts = new List<ArtifactApprovalResult>();
+
             //Update approvals for the specified artifacts
-            foreach (var id in artifactIds)
+            foreach (var id in eligibleArtifacts)
             {
                 var reviewArtifactApproval = rdReviewedArtifacts.ReviewedArtifacts.FirstOrDefault(ra => ra.ArtifactId == id);
 
@@ -1257,8 +1266,7 @@ namespace ArtifactStore.Repositories
                 {
                     reviewArtifactApproval.ArtifactVersion = artifactVersionDictionary[id];
                 }
-
-                approvalResult.Add(new ReviewArtifactApprovalResult()
+                approvedArtifacts.Add(new ArtifactApprovalResult()
                 {
                     ArtifactId = reviewArtifactApproval.ArtifactId,
                     Timestamp = reviewArtifactApproval.ESignedOn,
@@ -1266,30 +1274,62 @@ namespace ArtifactStore.Repositories
                 });
             }
 
+            approvalResult.Add(new ReviewArtifactApprovalResult()
+            {
+                IsAllArtifactsProcessed = isAllArtifactsProcessed,
+                ApprovedArtifacts = approvedArtifacts
+            });
+
             await UpdateReviewUserStatsXmlAsync(reviewId, userId, rdReviewedArtifacts);
 
             return approvalResult;
         }
 
-        private async Task CheckApprovalAndPermissions(int reviewId, int userId, IEnumerable<int> artifactIds)
+        private async Task<List<int>> CheckApprovalsAndPermissions(int reviewId, int userId, IEnumerable<int> artifactIds)
         {
-            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
+            var approvalCheck = await CheckReviewArtifactsUserApprovalAsync(reviewId, userId, artifactIds);
 
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
+            CheckReviewStatsCanBeUpdated(approvalCheck.ReviewApprovalCheck, reviewId, true, true);
 
-            if (!approvalCheck.AllArtifactsRequireApproval)
+            if (approvalCheck.ReviewApprovalCheck.ReviewerStatus != ReviewStatus.InProgress)
+            {
+                throw new ConflictException("Cannot update approval status, the review is not in progress.");
+            }
+
+            if (!approvalCheck.ReviewApprovalCheck.AllArtifactsRequireApproval && (approvalCheck.ValidArtifactIds == null || !approvalCheck.ValidArtifactIds.Any()))
             {
                 throw new BadRequestException("Not all artifacts require approval.");
             }
 
-            if (approvalCheck.ReviewerStatus == ReviewStatus.Completed)
+            //Check user has permission for the review and all of the artifact ids
+            return await CheckPermissionAndRemoveElligibleArtifacts(userId, reviewId, approvalCheck.ValidArtifactIds);
+        }
+
+        private async Task<List<int>> CheckPermissionAndRemoveElligibleArtifacts(int userId, int reviewId, IEnumerable<int> artifactIds )
+        {
+            var artifactIdsList = artifactIds.ToList();
+
+            artifactIdsList.Add(reviewId);
+
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIdsList, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {
-                throw new BadRequestException("Cannot update approval status, reviewer has completed the review.");
+                ThrowUserCannotAccessReviewException(reviewId);
             }
 
-            //Check user has permission for the review and all of the artifact ids
-            await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIds);
+            artifactIdsList.RemoveAll(artifactId => !SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read));
+            artifactIdsList.Remove(reviewId);
+
+            if(!artifactIdsList.Any())
+            {
+                throw new AuthorizationException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.UnauthorizedAccess);
+            }
+
+            return artifactIdsList;
         }
+
+
 
         public async Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, bool viewed, int userId)
         {
@@ -1427,7 +1467,7 @@ namespace ArtifactStore.Repositories
             return _connectionWrapper.ExecuteScalarAsync<bool>("GetReviewRequireAllArtifactsReviewed", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview)
+        private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview, bool byPassArtifacts = false)
         {
             //Check the review exists and is active
             if (!approvalCheck.ReviewExists
@@ -1450,7 +1490,7 @@ namespace ArtifactStore.Repositories
             }
 
             //Check artifacts are part of the review and require approval
-            if (!approvalCheck.AllArtifactsInReview)
+            if (!approvalCheck.AllArtifactsInReview && !byPassArtifacts)
             {
                 throw new BadRequestException("Artifact is not a part of this review.", ErrorCodes.ArtifactNotFound);
             }
@@ -1474,6 +1514,25 @@ namespace ArtifactStore.Repositories
                 throw new AuthorizationException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.UnauthorizedAccess);
             }
         }
+
+        private async Task<ReviewApprovalCheckArtifacts> CheckReviewArtifactsUserApprovalAsync(int reviewId, int userId, IEnumerable<int> artifactIds)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            var result = await _connectionWrapper.QueryMultipleAsync<ReviewArtifactApprovalCheck, int>("CheckReviewArtifactUserApproval", parameters, commandType: CommandType.StoredProcedure);
+
+            return new ReviewApprovalCheckArtifacts
+            {
+               ReviewApprovalCheck = result.Item1.SingleOrDefault(),
+
+               ValidArtifactIds = result.Item2.ToList()
+            };
+        }
+
+
 
         private async Task<ReviewArtifactApprovalCheck> CheckReviewArtifactApprovalAsync(int reviewId, int userId, IEnumerable<int> artifactIds)
         {

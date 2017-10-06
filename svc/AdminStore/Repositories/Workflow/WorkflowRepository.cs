@@ -686,7 +686,7 @@ namespace AdminStore.Repositories.Workflow
 
             var prm = new DynamicParameters();
             prm.Add("@Offset", pagination.Offset);
-            prm.Add("@WorkflowId", workflowId, dbType: DbType.Int32);
+            prm.Add("@WorkflowId", workflowId, DbType.Int32);
             prm.Add("@Limit", pagination.Limit);
             prm.Add("@Search", search ?? string.Empty);
             prm.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
@@ -707,14 +707,14 @@ namespace AdminStore.Repositories.Workflow
                 {
                     Id = artifact.ArtifactId, Name = artifact.ArtifactName
                 }).ToList();
-
+              
                 string projectName = artifacts[0].ProjectName;
 
                 var groupedProjectArtifacts = new WorkflowProjectArtifactsDto()
                 {
                     ProjectId = projectId,
                     ProjectName = projectName,
-                    Artifacts = projectArtifacts
+                    Artifacts = projectArtifacts.OrderBy(a=>a.Name)
                 };
                 groupedList.Add(groupedProjectArtifacts);
             }

@@ -107,7 +107,6 @@ namespace AdminStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns></returns>
         [HttpPost]
-        [SessionRequired]
         [Route("{workflowId:int:min(1)}/project/{projectId:int:min(1)}/assign"), SessionRequired]
         [ResponseType(typeof(SyncResult))]
         public async Task<IHttpActionResult> AssignArtifactsToProjectInWorkflow(int workFlowid, int projectId, [FromBody] IEnumerable<int> ids)

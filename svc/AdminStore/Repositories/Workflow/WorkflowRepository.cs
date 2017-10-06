@@ -939,7 +939,7 @@ namespace AdminStore.Repositories.Workflow
             
             parameters.Add("@WorkflowId", workflowId);
             parameters.Add("@ProjectId", projectId);
-            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactsIds, "Int32Collection", "Int32Value"));           
+            parameters.Add("@ArtifactTypeIds", SqlConnectionWrapper.ToDataTable(artifactsIds, "Int32Collection", "Int32Value"));           
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
         
             var result = await _connectionWrapper.QueryAsync<SyncResult>("AssignArtifactsToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);

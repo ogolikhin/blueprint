@@ -121,6 +121,8 @@
     <Compile Include="Exceptions\BadRequestException.cs" />
     <Compile Include="Exceptions\BoundaryReachedException.cs" />
     <Compile Include="Exceptions\ConflictException.cs" />
+    <Compile Include="Exceptions\ElasticsearchConfigurationException.cs" />
+    <Compile Include="Exceptions\ElasticsearchException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\InvalidConnectionStringException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />

@@ -133,5 +133,7 @@
 
         //Search
         public const int SearchEngineNotFound = 17001;
+        public const int ElasticsearchConfigurationError = 17002;
+        public const int ElasticsearchQueryError = 17003;
     }
 }

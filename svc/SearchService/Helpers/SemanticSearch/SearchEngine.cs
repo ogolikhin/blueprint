@@ -22,7 +22,6 @@ namespace SearchService.Helpers.SemanticSearch
 
         protected async Task<IEnumerable<ArtifactSearchResult>> GetArtifactSearchResultsFromItemIds(List<int> itemIds, int userId)
         {
-            //TEMPORARY - added itemId as part of the call
             return await SemanticSearchRepository.GetSuggestedArtifactDetails(itemIds, userId);
         }
     }

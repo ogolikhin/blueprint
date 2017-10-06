@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using SearchService.Models;
 using SearchService.Repositories;
@@ -17,8 +18,8 @@ namespace SearchService.Helpers.SemanticSearch
         private static readonly Lazy<SemanticSearchExecutor> _instance = 
             new Lazy<SemanticSearchExecutor>(
                 () => new SemanticSearchExecutor(
-                    new SemanticSearchRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)))
-                );
+                    new SemanticSearchRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString))), 
+                LazyThreadSafetyMode.PublicationOnly);
 
         public static ISemanticSearchExecutor Instance => _instance.Value;
         protected ISearchEngine _searchEngine;

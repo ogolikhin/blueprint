@@ -242,15 +242,28 @@ namespace ArtifactStore.Repositories
 
             var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId.Value);
 
+            if (effectiveIds.ArtifactIds == null || effectiveIds.ArtifactIds.IsEmpty())
+            {
+                if (effectiveIds.IsBaselineAdded)
+                {
+                    ThrowBaselineNotSealedException();
+                }
+            }
+
             var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml, new HashSet<int>(effectiveIds.ArtifactIds), out alreadyIncludedCount);
 
             Func<IDbTransaction, Task> transactionAction = async (transaction) =>
             {
                 await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, transaction);
+
                 if (effectiveIds.IsBaselineAdded)
                 {
                     await CreateOrUpdateReviewBaselineLink(reviewId, content.ArtifactIds.First(),
                         propertyResult.ProjectId.Value, userId, transaction);
+                }
+                else
+                {
+                    await RemoveReviewBaselineLink(reviewId, userId, transaction);
                 }
             };
 
@@ -346,6 +359,34 @@ namespace ArtifactStore.Repositories
                 await transaction.Connection.ExecuteAsync
                 (
                     "CreateOrUpdateReviewBaselineLink",
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+        }
+
+        private async Task RemoveReviewBaselineLink(int reviewId,
+            int userId, IDbTransaction transaction)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@userId", userId);
+
+            if (transaction == null)
+            {
+                await _connectionWrapper.ExecuteAsync
+                (
+                    "RemoveReviewBaselineLink",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+            else
+            {
+                await transaction.Connection.ExecuteAsync
+                (
+                    "RemoveReviewBaselineLink",
                     parameters,
                     transaction,
                     commandType: CommandType.StoredProcedure
@@ -1638,6 +1679,12 @@ namespace ArtifactStore.Repositories
         {
             var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
             throw new ConflictException(errorMessage, ErrorCodes.ReviewClosed);
+        }
+
+        public static void ThrowBaselineNotSealedException()
+        {
+            var errorMessage = I18NHelper.FormatInvariant("The baseline could not be added to the review because it is not sealed.");
+            throw new BadRequestException(errorMessage, ErrorCodes.BaselineIsNotSealed);
         }
     }
 }

@@ -1173,12 +1173,12 @@ namespace ArtifactStore.Repositories
                 artifactIds.AddRange(reviewArtifactApprovalParameters.ArtifactIds);
             }
 
-            var eligibbleArtifacts = await CheckApprovalsAndPermissions(reviewId, userId, artifactIds);
-            isAllArtifactsProcessed = eligibbleArtifacts.Count == artifactIds.Count ?  true : false;
+            var eligibleArtifacts = await CheckApprovalsAndPermissions(reviewId, userId, artifactIds);
+            isAllArtifactsProcessed = eligibleArtifacts.Count == artifactIds.Count ?  true : false;
 
             var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
 
-            var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, eligibbleArtifacts);
+            var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, eligibleArtifacts);
 
             var approvalResult = new List<ReviewArtifactApprovalResult>();
 
@@ -1186,7 +1186,7 @@ namespace ArtifactStore.Repositories
             var approvedArtifacts = new List<ArtifactApprovalResult>();
 
             //Update approvals for the specified artifacts
-            foreach (var id in eligibbleArtifacts)
+            foreach (var id in eligibleArtifacts)
             {
                 var reviewArtifactApproval = rdReviewedArtifacts.ReviewedArtifacts.FirstOrDefault(ra => ra.ArtifactId == id);
 

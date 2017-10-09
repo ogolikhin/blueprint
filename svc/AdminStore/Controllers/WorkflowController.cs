@@ -97,7 +97,7 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="workFlowId">Id of chosen Workflow</param>
         /// <param name="projectId">Id of chosen Project</param>
-        /// <param name="artifactTypesIds">list of Id chosen Artifact Types</param>
+        /// <param name="ids">list of Id chosen Artifact Types</param>
         /// <response code="200">OK. The artifact types were assigned to the workflow and to the project.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
@@ -109,17 +109,17 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("{workflowId:int:min(1)}/project/{projectId:int:min(1)}/assign"), SessionRequired]
         [ResponseType(typeof(SyncResult))]
-        public async Task<IHttpActionResult> AssignArtifactTypesToProjectInWorkflow(int workFlowId, int projectId, [FromBody] IEnumerable<int> artifactTypesIds)
+        public async Task<IHttpActionResult> AssignArtifactTypesToProjectInWorkflow(int workFlowId, int projectId, [FromBody] IEnumerable<int> ids)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            if (artifactTypesIds == null)
+            if (ids == null)
                 throw new BadRequestException(ErrorMessages.ArtifactIdsNotValid, ErrorCodes.BadRequest);
 
-            if (!artifactTypesIds.Any())
+            if (!ids.Any())
                 return Ok(SyncResult.Empty);
 
-            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(workFlowId, projectId, artifactTypesIds);
+            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(workFlowId, projectId, ids);
 
             return Ok(result);
         }

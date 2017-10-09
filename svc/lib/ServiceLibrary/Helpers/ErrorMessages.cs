@@ -88,7 +88,7 @@
         public static readonly string WorkflowAlreadyExists = "Workflow with such a name already exists";
         public static readonly string GeneralErrorOfCreatingWorkflow = "General error of creating workflow";
         public static readonly string GeneralErrorOfAssignProjectsAndArtifactsToWorkflow = "General error of assign projects and artifacts to workflows";
-        public static readonly string WorkflowProjectDoNotHasArtifacts = "Workflow project doesn't have got assigned artifacts";
+        public static readonly string WorkflowProjectDoNotHasArtifactTypes = "Project of workflow doesn't have assigned artifact types";
 
 
         //Folder

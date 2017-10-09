@@ -93,30 +93,30 @@ namespace AdminStore.Controllers
 
 
         /// <summary>
-        /// Sync the existing project artifact type assignments for the specified project: delete absent and add the new ones.
+        /// Sync the existing project artifact types assignments for the specified project: delete absent and add the new ones.
         /// </summary>
-        /// <param name="workFlowid"></param>
-        /// <param name="projectId"></param>
-        /// <param name="ids"></param>
-        /// <response code="200">OK. The artifacts were assigned to the workflow and to the project.</response>
+        /// <param name="workFlowId">Id of chosen Workflow</param>
+        /// <param name="projectId">Id of chosen Project</param>
+        /// <param name="artifactTypesIds">list of Id chosen Artifact Types</param>
+        /// <response code="200">OK. The artifact types were assigned to the workflow and to the project.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">Forbidden. The user does not have permissions to assign projects and artifacts</response>
-        /// <response code="404">Not Found. The workflow with current id were not found.</response> 
-        /// <response code="409">Conflict. The workflow with the current id is active or Workflow Project doesn't have any artifacts</response>
+        /// <response code="403">Forbidden. The user does not have permissions to assign projects and artifact types</response>
+        /// <response code="404">Not Found. The workflow or project with current id were not found.</response> 
+        /// <response code="409">Conflict. The workflow with the current id is active or workflow's project doesn't have any artifact types</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <returns></returns>
+        /// <returns>Returns TotalAdded and TotalDeleted. TotalAdded is quantity added artifact types, TotalDeleted is quantity removed artifact types</returns>
         [HttpPost]
         [Route("{workflowId:int:min(1)}/project/{projectId:int:min(1)}/assign"), SessionRequired]
         [ResponseType(typeof(SyncResult))]
-        public async Task<IHttpActionResult> AssignArtifactsToProjectInWorkflow(int workFlowid, int projectId, [FromBody] IEnumerable<int> ids)
+        public async Task<IHttpActionResult> AssignArtifactTypesToProjectInWorkflow(int workFlowId, int projectId, [FromBody] IEnumerable<int> artifactTypesIds)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            if (ids == null || ids.Count() == 0)
+            if (artifactTypesIds == null || artifactTypesIds.Count() == 0)
                 throw new BadRequestException(ErrorMessages.ArtifactIdsNotValid, ErrorCodes.BadRequest);
 
-            var result = await _workflowRepository.AssignArtifactsToProjectInWorkflow(workFlowid, projectId, ids);
+            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(workFlowId, projectId, artifactTypesIds);
 
             return Ok(result);
         }

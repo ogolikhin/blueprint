@@ -96,7 +96,7 @@ namespace AdminStore
             config.AssertAction<InstanceController>("SearchProjectFolder", HttpMethod.Get, "instance/folderprojectsearch?offset=0&limit=20");
             config.AssertAction<InstanceController>("UpdateRoleAssignment", HttpMethod.Put, "instance/projects/1/rolesassignments/2");
             config.AssertAction<WorkflowController>("CreateWorkflow", HttpMethod.Post, "workflow/create");
-            config.AssertAction<WorkflowController>("AssignArtifactsToProjectInWorkflow", HttpMethod.Post, "workflow/1/project/1/assign");
+            config.AssertAction<WorkflowController>("AssignArtifactTypesToProjectInWorkflow", HttpMethod.Post, "workflow/1/project/1/assign");
         }
 
         [TestMethod]

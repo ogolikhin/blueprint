@@ -933,16 +933,16 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
-        public async Task<SyncResult> AssignArtifactsToProjectInWorkflow(int workflowId, int projectId, IEnumerable<int> artifactsIds)
+        public async Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workflowId, int projectId, IEnumerable<int> artifactTypesIds)
         {
             var parameters = new DynamicParameters();
             
             parameters.Add("@WorkflowId", workflowId);
             parameters.Add("@ProjectId", projectId);
-            parameters.Add("@ArtifactTypeIds", SqlConnectionWrapper.ToDataTable(artifactsIds, "Int32Collection", "Int32Value"));           
+            parameters.Add("@ArtifactTypeIds", SqlConnectionWrapper.ToDataTable(artifactTypesIds, "Int32Collection", "Int32Value"));           
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
         
-            var result = await _connectionWrapper.QueryAsync<SyncResult>("AssignArtifactsToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.QueryAsync<SyncResult>("AssignArtifactTypesToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");                      
 
             if (errorCode.HasValue)
@@ -961,8 +961,8 @@ namespace AdminStore.Repositories.Workflow
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
                         throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);                   
 
-                    case (int)SqlErrorCodes.WorkflowProjectDoNotHasArtifacts:
-                        throw new ConflictException(ErrorMessages.WorkflowProjectDoNotHasArtifacts, ErrorCodes.WorkflowProjectDoNotHasArtifacts);
+                    case (int)SqlErrorCodes.ProjectOfWorkflowDoesNotHaveArtifactTypes:
+                        throw new ConflictException(ErrorMessages.WorkflowProjectDoNotHasArtifactTypes, ErrorCodes.ProjectOfWorkflowDoesNotHaveArtifactTypes);
                 }
             }
 

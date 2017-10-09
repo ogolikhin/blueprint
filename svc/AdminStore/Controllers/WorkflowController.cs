@@ -113,8 +113,11 @@ namespace AdminStore.Controllers
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            if (artifactTypesIds == null || artifactTypesIds.Count() == 0)
+            if (artifactTypesIds == null)
                 throw new BadRequestException(ErrorMessages.ArtifactIdsNotValid, ErrorCodes.BadRequest);
+
+            if (!artifactTypesIds.Any())
+                return Ok(SyncResult.Empty);
 
             var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(workFlowId, projectId, artifactTypesIds);
 

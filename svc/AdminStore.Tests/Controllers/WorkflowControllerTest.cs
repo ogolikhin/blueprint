@@ -343,24 +343,24 @@ namespace AdminStore.Controllers
 
         #region AssignArtifactsToProjectInWorkflow
         [TestMethod]
-        public async Task AssignArtifactsToProjectInWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnSyncResult()
+        public async Task AssignArtifactTypesToProjectInWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnSyncResult()
         {
             // arrange            
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            _workflowRepositoryMock.Setup(q => q.AssignArtifactsToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 })).ReturnsAsync(new SyncResult { TotalAdded = 2, TotalDeleted = 1 });
+            _workflowRepositoryMock.Setup(q => q.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 })).ReturnsAsync(new SyncResult { TotalAdded = 2, TotalDeleted = 1 });
 
             //act            
-            var result = await _controller.AssignArtifactsToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 });
+            var result = await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 });
 
             //assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
-        public async Task AssignArtifactsToProjectInWorkflow_InvalidPermission_ReturnAuthorizationException()
+        public async Task AssignArtifactTypesToProjectInWorkflow_InvalidPermission_ReturnAuthorizationException()
         {
             //arrange         
             Exception exception = null;
@@ -372,7 +372,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                await _controller.AssignArtifactsToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 });
+                await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 });
             }
             catch (Exception ex)
             {
@@ -385,7 +385,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task AssignArtifactsToProjectInWorkflow_InvalidArtifactIds_ReturnBadRequestException()
+        public async Task AssignArtifactTypesToProjectInWorkflow_InvalidArtifactIds_ReturnBadRequestException()
         {
             //arrange         
             Exception exception = null;
@@ -397,7 +397,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                await _controller.AssignArtifactsToProjectInWorkflow(WorkflowId, ProjectId, null);
+                await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, null);
             }
             catch (Exception ex)
             {
@@ -412,7 +412,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                await _controller.AssignArtifactsToProjectInWorkflow(WorkflowId, ProjectId, new List<int>());
+                await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int>());
             }
             catch (Exception ex)
             {

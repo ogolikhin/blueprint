@@ -95,7 +95,7 @@ namespace AdminStore.Controllers
         /// <summary>
         /// Sync the existing project artifact types assignments for the specified project: delete absent and add the new ones.
         /// </summary>
-        /// <param name="workFlowId">Id of chosen Workflow</param>
+        /// <param name="workflowId">Id of chosen Workflow</param>
         /// <param name="projectId">Id of chosen Project</param>
         /// <param name="ids">list of Id chosen Artifact Types</param>
         /// <response code="200">OK. The artifact types were assigned to the workflow and to the project.</response>
@@ -105,11 +105,11 @@ namespace AdminStore.Controllers
         /// <response code="404">Not Found. The workflow or project with current id were not found.</response> 
         /// <response code="409">Conflict. The workflow with the current id is active or workflow's project doesn't have any artifact types</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <returns>Returns TotalAdded and TotalDeleted. TotalAdded is quantity added artifact types, TotalDeleted is quantity removed artifact types</returns>
+        /// <returns>Returns TotalAdded and TotalDeleted. TotalAdded is a quantity of added artifact types, TotalDeleted is a quantity of removed artifact types</returns>
         [HttpPost]
         [Route("{workflowId:int:min(1)}/project/{projectId:int:min(1)}/assign"), SessionRequired]
         [ResponseType(typeof(SyncResult))]
-        public async Task<IHttpActionResult> AssignArtifactTypesToProjectInWorkflow(int workFlowId, int projectId, [FromBody] IEnumerable<int> ids)
+        public async Task<IHttpActionResult> AssignArtifactTypesToProjectInWorkflow(int workflowId, int projectId, [FromBody] IEnumerable<int> ids)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
@@ -119,7 +119,7 @@ namespace AdminStore.Controllers
             if (!ids.Any())
                 return Ok(SyncResult.Empty);
 
-            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(workFlowId, projectId, ids);
+            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(workflowId, projectId, ids);
 
             return Ok(result);
         }

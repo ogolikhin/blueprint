@@ -124,6 +124,7 @@
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\InvalidConnectionStringException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
+    <Compile Include="Exceptions\SearchEngineNotFoundException.cs" />
     <Compile Include="Exceptions\TenantInfoNotFoundException.cs" />
     <Compile Include="Helpers\AppSettingsHelper.cs" />
     <Compile Include="Helpers\CollectionHelper.cs" />

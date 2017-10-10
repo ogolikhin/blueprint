@@ -1145,10 +1145,10 @@ namespace ArtifactStore.Repositories
 
         public async Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactApprovalAsync(int reviewId, ReviewArtifactApprovalParameter reviewArtifactApprovalParameters, int userId)
         {
-            if (reviewArtifactApprovalParameters == null || !reviewArtifactApprovalParameters.isExcludedArtifacts && (reviewArtifactApprovalParameters.ArtifactIds == null ||
-                !reviewArtifactApprovalParameters.ArtifactIds.Any()))
+            if (reviewArtifactApprovalParameters == null || reviewArtifactApprovalParameters.ArtifactIds == null || !reviewArtifactApprovalParameters.isExcludedArtifacts && 
+                !reviewArtifactApprovalParameters.ArtifactIds.Any())
             {
-                throw new BadRequestException("No artifacts provided", ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException("Bad parameters", ErrorCodes.OutOfRangeParameter);
             }
 
             if(reviewArtifactApprovalParameters.isExcludedArtifacts && reviewArtifactApprovalParameters.RevisionId == null)
@@ -1249,14 +1249,24 @@ namespace ArtifactStore.Repositories
 
             CheckReviewStatsCanBeUpdated(approvalCheck.ReviewApprovalCheck, reviewId, true, true);
 
-            if (approvalCheck.ReviewApprovalCheck.ReviewerStatus != ReviewStatus.InProgress)
+            if (approvalCheck.ReviewApprovalCheck.ReviewerStatus == ReviewStatus.Completed)
             {
-                throw new ConflictException("Cannot update approval status, the review is not in progress.");
+                throw new ConflictException("Cannot update approval status, the review is completed.");
+            }
+
+            if (approvalCheck.ReviewApprovalCheck.ReviewStatus != ReviewPackageStatus.Active)
+            {
+                throw new ConflictException("Cannot update approval status, the review is not active.");
             }
 
             if (!approvalCheck.ReviewApprovalCheck.AllArtifactsRequireApproval && (approvalCheck.ValidArtifactIds == null || !approvalCheck.ValidArtifactIds.Any()))
             {
                 throw new BadRequestException("Not all artifacts require approval.");
+            }
+
+            if (approvalCheck.ReviewApprovalCheck.ReviewerRole != ReviewParticipantRole.Approver)
+            {
+                throw new ConflictException("Cannot update approval status, participant's role is invalid.");
             }
 
             //Check user has permission for the review and all of the artifact ids

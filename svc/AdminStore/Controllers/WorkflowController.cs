@@ -326,6 +326,7 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="workflowId">workflow's id</param>
         /// <param name="scope">list of projects ids, selectAll flag</param>
+        /// <param name="search">search filter</param>
         /// <response code="200">OK. Count of deleted projects workflow assignment.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
@@ -335,7 +336,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("{workflowId:int:min(1)}/unassign")]
         [ResponseType(typeof(DeleteResult))]
-        public async Task<IHttpActionResult> UnassignProjectsAndArtifactsFromWorkflowAsync(int workflowId, [FromBody] OperationScope scope)
+        public async Task<IHttpActionResult> UnassignProjectsAndArtifactsFromWorkflowAsync(int workflowId, [FromBody] OperationScope scope, string search = null)
         {
             if (scope == null)
             {
@@ -349,7 +350,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            var result = await _workflowRepository.UnassignProjectsAndArtifactsFromWorkflowAsync(workflowId, scope);
+            var result = await _workflowRepository.UnassignProjectsAndArtifactsFromWorkflowAsync(workflowId, scope, search);
 
             return Ok(new DeleteResult { TotalDeleted = result });
         }

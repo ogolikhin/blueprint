@@ -107,7 +107,7 @@ namespace AdminStore.Services.Workflow
                 new SqlWorkflowEventData
                 {
                     WorkflowId = 10,
-                    Name = "Firs trigger",
+                    Name = "First trigger",
                     FromState = "New",
                     FromStateId = 1,
                     ToState = "Active",

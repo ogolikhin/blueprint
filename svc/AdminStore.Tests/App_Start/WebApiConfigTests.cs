@@ -97,6 +97,7 @@ namespace AdminStore
             config.AssertAction<InstanceController>("UpdateRoleAssignment", HttpMethod.Put, "instance/projects/1/rolesassignments/2");
             config.AssertAction<WorkflowController>("CreateWorkflow", HttpMethod.Post, "workflow/create");
             config.AssertAction<WorkflowController>("UnassignProjectsAndArtifactsFromWorkflowAsync", HttpMethod.Post, "workflow/1/unassign");
+            config.AssertAction<WorkflowController>("AssignArtifactTypesToProjectInWorkflow", HttpMethod.Post, "workflow/1/project/1/assign");
         }
 
         [TestMethod]

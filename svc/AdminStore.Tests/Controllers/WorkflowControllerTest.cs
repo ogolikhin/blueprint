@@ -618,6 +618,10 @@ namespace AdminStore.Controllers
             var scope = new OperationScope() { Ids = new List<int>(), SelectAll = false };
             var search = string.Empty;
 
+            _privilegesRepositoryMock
+                                    .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                                    .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
             //act
             var result = await _controller.UnassignProjectsAndArtifactsFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
 

@@ -597,13 +597,11 @@ namespace AdminStore.Repositories
                 _workflowRepository.UnassignProjectsAndArtifactsFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
 
             // Assert
-            _sqlConnectionWrapperMock.Verify();
-
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task UnassignProjectsAndArtifactsFromWorkflowAsync_WorkflowIsActive_ReturnBadRequestException()
+        [ExpectedException(typeof(Exception))]
+        public async Task UnassignProjectsAndArtifactsFromWorkflowAsync_WorkflowIsActive_ReturnException()
         {
             // Arrange
             int errorCode = 50000;
@@ -621,7 +619,6 @@ namespace AdminStore.Repositories
                 _workflowRepository.UnassignProjectsAndArtifactsFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
 
             // Assert
-            _sqlConnectionWrapperMock.Verify();
 
         }
 

@@ -835,9 +835,7 @@ namespace AdminStore.Repositories.Workflow
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
-
-            var result = 0;
-
+            
             var parameters = new DynamicParameters();
             parameters.Add("@WorkflowId", workflowId);
             parameters.Add("@AllProjects", scope.SelectAll);
@@ -845,7 +843,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Search", search);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
             
-            result = await _connectionWrapper.ExecuteScalarAsync<int>("UnassignProjectsAndArtifactTypesFromWorkflow", parameters, 
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("UnassignProjectsAndArtifactTypesFromWorkflow", parameters, 
                 commandType: CommandType.StoredProcedure);
             
             var errorCode = parameters.Get<int?>("ErrorCode");
@@ -858,7 +856,7 @@ namespace AdminStore.Repositories.Workflow
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
                         throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingWorkflows);
+                        throw new Exception(ErrorMessages.GeneralErrorOfDeletingWorkflows);
                 }
             }
 

@@ -314,6 +314,11 @@ namespace ArtifactStore.Controllers
                 throw new BadRequestException("Viewed must be provided.");
             }
 
+            if (viewedInput.ArtifactIds == null)
+            {
+                throw new BadRequestException("ArtifactIds must be provided.");
+            }
+
             return _sqlReviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewedInput, Session.UserId);
         }
 

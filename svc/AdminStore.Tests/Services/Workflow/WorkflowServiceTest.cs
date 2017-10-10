@@ -13,6 +13,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Services.Workflow
 {
@@ -34,6 +35,7 @@ namespace AdminStore.Services.Workflow
         private const InstanceAdminPrivileges AllProjectDataPermissions = InstanceAdminPrivileges.AccessAllProjectData;
 
         #endregion
+
         [TestInitialize]
         public void Initialize()
         {
@@ -56,25 +58,13 @@ namespace AdminStore.Services.Workflow
         }
 
         #region GetWorkflowDetailsAsync
-        [Ignore]
+
         [TestMethod]
         public async Task GetWorkflow_WorkflowExists_ReturnWorkflow()
         {
             //arrange
-            var workflowRepositoryMock = new Mock<IWorkflowRepository>();
-            var workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
-            var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
-            var workflowService = new WorkflowService(
-                workflowRepositoryMock.Object, 
-                workflowValidatorMock.Object,
-                _usersRepositoryMock.Object,
-                workflowValidationErrorBuilder.Object, 
-                null, 
-                null, 
-                null, 
-                null);
             var workflowId = 10;
-            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
+            var workflow = new SqlWorkflow {Name = "Workflow1", Description = "Workflow1Description"};
             var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypes>
             {
                 new SqlWorkflowArtifactTypes
@@ -87,7 +77,7 @@ namespace AdminStore.Services.Workflow
                 new SqlWorkflowArtifactTypes
                 {
                     ProjectId = 1,
-                   ProjectPath = "Project1",
+                    ProjectPath = "Project1",
                     ArtifactTypeName = "Artifact2",
                     ArtifactTypeId = 205
                 },
@@ -100,17 +90,87 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
+            var stateNew = new SqlState {Name = "New", Default = true, WorkflowStateId = 1};
+            var stateActive = new SqlState {Name = "Active", Default = true, WorkflowStateId = 2};
+            var states = new List<SqlState> {stateNew, stateActive};
 
-            workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(workflowArtifactTypesAndProjects);
+            var workflowEvents = new List<SqlWorkflowEventData>
+            {
+                new SqlWorkflowEventData
+                {
+                    Type = 0,
+                    FromState = "New",
+                    FromStateId = 1,
+                    ToState = "Active",
+                    ToStateId = 2,
+                },
+                new SqlWorkflowEventData
+                {
+                    WorkflowId = 10,
+                    Name = "Firs trigger",
+                    FromState = "New",
+                    FromStateId = 1,
+                    ToState = "Active",
+                    ToStateId = 2,
+                    Permissions = "<P S=\"0\"><G>1</G></P>",
+                    Type = 1,
+                    Triggers =
+                        "<TSR><TS><T><AEN><ES><E>test.com</E></ES><M>4QOTT0IR7W</M></AEN></T></TS></TSR>",
+                    PropertyTypeId = 1
+                },
+                new SqlWorkflowEventData
+                {
+                    WorkflowId = 10,
+                    Name = "Second Trigger",
+                    FromState = "New",
+                    FromStateId = 1,
+                    ToState = "Active",
+                    ToStateId = 2,
+                    Permissions = "<P S=\"0\"/>",
+                    Type = 1,
+                    Triggers =
+                        "<TSR><TS><T><AEN><ES><E>test.com</E></ES><M>4QOTT0IR7W</M></AEN></T></TS></TSR>",
+                    PropertyTypeId = 2
+                },
+                new SqlWorkflowEventData
+                {
+                    Type = 2,
+                    Triggers =
+                        "<TSR><TS><T><AEN><ES><E>test.com</E></ES><M>4QOTT0IR7W</M></AEN></T></TS></TSR>",
+                },
+            };
+
+            var projectTypes = new ProjectTypes();
+            projectTypes.PropertyTypes.Add(new PropertyType {Name = "Property1", Id = 1});
+            projectTypes.PropertyTypes.Add(new PropertyType {Name = "Property2", Id = 2});
+
+            var trigger = new IeTrigger();
+            var triggers = new List<IeTrigger> {trigger};
+
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
+            _projectMetaRepository.Setup(metaRepo => metaRepo.GetStandardProjectTypesAsync()).ReturnsAsync(projectTypes);
+
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(states);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>()))
+                .ReturnsAsync(workflowEvents);
+
+            _triggerConverter.Setup(
+                converter =>
+                    converter.FromXmlModel(It.IsAny<XmlWorkflowEventTriggers>(), It.IsAny<WorkflowDataNameMaps>(),
+                        It.IsAny<ISet<int>>(), It.IsAny<ISet<int>>())).Returns(triggers);
+
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>()))
+                .ReturnsAsync(workflowArtifactTypesAndProjects);
 
             //act
-            var workflowDetails = await workflowService.GetWorkflowDetailsAsync(workflowId);
+            var workflowDetails = await _service.GetWorkflowDetailsAsync(workflowId);
 
             //assert
             Assert.IsNotNull(workflowDetails);
             Assert.AreEqual(2, workflowDetails.Projects.Count());
             Assert.AreEqual(2, workflowDetails.ArtifactTypes.Count());
+            Assert.AreEqual(2, workflowDetails.NumberOfStates);
+            Assert.AreEqual(4, workflowDetails.NumberOfActions);
         }
 
         [TestMethod]
@@ -118,25 +178,14 @@ namespace AdminStore.Services.Workflow
         public async Task GetWorkflow_ThereIsNoSuchWorkflow_NotFoundResult()
         {
             //arrange
-            var workflowRepositoryMock = new Mock<IWorkflowRepository>();
-            var workflowValidatorMock = new Mock<IWorkflowXmlValidator>();
-            var userRepositoryMock = new Mock<IUserRepository>();
-            var workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
-            var workflowService = new WorkflowService(
-                workflowRepositoryMock.Object, 
-                workflowValidatorMock.Object,
-                _usersRepositoryMock.Object,
-                workflowValidationErrorBuilder.Object, 
-                null, 
-                null, 
-                null, 
-                null);
             var workflowId = 10;
 
-            workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
 
             //act
-            await workflowService.GetWorkflowDetailsAsync(workflowId);
+            await _service.GetWorkflowDetailsAsync(workflowId);
+
+            //Exception
         }
 
         #endregion

@@ -89,6 +89,7 @@
         public const int ReviewActive = 10004;
         public const int ReviewStatusChanged = 10005;
         public const int NotAllArtifactsReviewed = 10006;
+        public const int BaselineIsNotSealed = 10007;
 
         //User Review Errors
         public const int UserDisabled = 11001;
@@ -130,5 +131,11 @@
         public const int WorkflowAlreadyExists = 16002;
         public const int GeneralErrorOfCreatingWorkflow = 16003;
         public const int WorkflowIsActive = 16004;
+        public const int ProjectOfWorkflowDoesNotHaveArtifactTypes = 16005;
+
+        //Search
+        public const int SearchEngineNotFound = 17001;
+        public const int ElasticsearchConfigurationError = 17002;
+        public const int ElasticsearchQueryError = 17003;
     }
 }

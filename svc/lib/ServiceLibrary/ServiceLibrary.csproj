@@ -121,9 +121,12 @@
     <Compile Include="Exceptions\BadRequestException.cs" />
     <Compile Include="Exceptions\BoundaryReachedException.cs" />
     <Compile Include="Exceptions\ConflictException.cs" />
+    <Compile Include="Exceptions\ElasticsearchConfigurationException.cs" />
+    <Compile Include="Exceptions\ElasticsearchException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\InvalidConnectionStringException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
+    <Compile Include="Exceptions\SearchEngineNotFoundException.cs" />
     <Compile Include="Exceptions\TenantInfoNotFoundException.cs" />
     <Compile Include="Helpers\AppSettingsHelper.cs" />
     <Compile Include="Helpers\CollectionHelper.cs" />

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
 using ArtifactStore.Models.Review;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -45,28 +44,31 @@ namespace ArtifactStore.Repositories
             _artifactRepositoryMock.SetReturnsDefault(Task.FromResult(true));
             _currentDateTimeServiceMock.Setup(service => service.GetUtcNow()).Returns(new DateTime(2017, 07, 10, 13, 20, 0));
 
-            _reviewsRepository = new SqlReviewsRepository(_cxn.Object,
-                    _artifactVersionsRepositoryMock.Object,
-                    _itemInfoRepositoryMock.Object,
-                    _artifactPermissionsRepositoryMock.Object,
-                    _applicationSettingsRepositoryMock.Object,
-                    _usersRepositoryMock.Object,
-                    _artifactRepositoryMock.Object,
-                    _currentDateTimeServiceMock.Object,
-                    new SqlHelperMock());
+            _reviewsRepository = new SqlReviewsRepository
+            (
+                _cxn.Object,
+                _artifactVersionsRepositoryMock.Object,
+                _itemInfoRepositoryMock.Object,
+                _artifactPermissionsRepositoryMock.Object,
+                _applicationSettingsRepositoryMock.Object,
+                _usersRepositoryMock.Object,
+                _artifactRepositoryMock.Object,
+                _currentDateTimeServiceMock.Object,
+                new SqlHelperMock()
+            );
         }
 
         [TestMethod]
-        public async Task GetReviewContainerAsync_Formal_Success()
+        public async Task GetReviewSummary_Formal_Success()
         {
             //Arange
-            int reviewId = 1;
-            string reviewName = "My Review";
-            string reviewDescription = "My Description";
-            int userId = 2;
-            int baselineId = 3;
-            int totalArtifacts = 8;
-            int revisionId = 999;
+            var reviewId = 1;
+            var reviewName = "My Review";
+            var reviewDescription = "My Description";
+            var userId = 2;
+            var baselineId = 3;
+            var totalArtifacts = 8;
+            var revisionId = 999;
             var reviewStatus = ReviewStatus.Completed;
 
             _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
@@ -83,7 +85,8 @@ namespace ArtifactStore.Repositories
                 Disapproved = 3,
                 Pending = 2,
                 RevisionId = revisionId,
-                RequireAllArtifactsReviewed = true
+                RequireAllArtifactsReviewed = true,
+                ShowOnlyDescription = true
             };
 
             var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
@@ -118,19 +121,20 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(revisionId, review.RevisionId);
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
             Assert.AreEqual(true, review.RequireAllArtifactsReviewed);
+            Assert.AreEqual(true, review.ShowOnlyDescription);
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
             Assert.AreEqual(2, review.ArtifactsStatus.Pending);
         }
 
         [TestMethod]
-        public async Task GetReviewContainerAsync_Should_Return_ReviewType_Public_When_No_Reviewers()
+        public async Task GetReviewSummary_Should_Return_ReviewType_Public_When_No_Reviewers()
         {
             //Arange
-            int reviewId = 1;
-            string reviewName = "My Review";
-            string reviewDescription = "My Description";
-            int userId = 2;
+            var reviewId = 1;
+            var reviewName = "My Review";
+            var reviewDescription = "My Description";
+            var userId = 2;
 
             _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
             var reviewDetails = new ReviewSummaryDetails
@@ -160,11 +164,11 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task GetReviewContainerAsync_Formal_Throws_ResourceNotFoundException()
+        public async Task GetReviewSummary_Formal_Throws_ResourceNotFoundException()
         {
             //Arange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var reviewInfo = new VersionControlArtifactInfo
             {
                 PredefinedType = ItemTypePredefined.Actor
@@ -172,7 +176,7 @@ namespace ArtifactStore.Repositories
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
 
-            bool isExceptionThrown = false;
+            var isExceptionThrown = false;
             //Act
             try
             {
@@ -195,11 +199,11 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task GetReviewContainerAsync_Formal_Throws_AuthorizationException()
+        public async Task GetReviewSummary_Formal_Throws_AuthorizationException()
         {
             //Arange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var reviewInfo = new VersionControlArtifactInfo
             {
                 PredefinedType = ItemTypePredefined.ArtifactReviewPackage
@@ -216,7 +220,8 @@ namespace ArtifactStore.Repositories
             var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
             _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
 
-            bool isExceptionThrown = false;
+            var isExceptionThrown = false;
+
             //Act
             try
             {
@@ -239,6 +244,7 @@ namespace ArtifactStore.Repositories
         }
 
         #region GetReviewTableOfContentAsync
+
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetReviewTableOfContentAsync_ReviewNotFound()
@@ -680,9 +686,9 @@ namespace ArtifactStore.Repositories
         public async Task GetReviewedArtifacts_AuthorizationException()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = 999;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = 999;
             var pagination = new Pagination
             {
                 Offset = 0,
@@ -718,7 +724,7 @@ namespace ArtifactStore.Repositories
             SetupArtifactPermissionsCheck(new[] { artifact1.Id, artifact2.Id, reviewId }, userId, new Dictionary<int, RolePermissions>());
 
             //Act
-            bool isExceptionThrown = false;
+            var isExceptionThrown = false;
             try
             {
                 await _reviewsRepository.GetReviewedArtifacts(reviewId, userId, pagination, revisionId);
@@ -743,9 +749,9 @@ namespace ArtifactStore.Repositories
         public async Task GetReviewedArtifacts_Success()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = 999;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = 999;
 
             var pagination = new Pagination
             {
@@ -819,8 +825,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Throw_If_No_Users_Or_Groups()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var addParticipantsParameter = new AddParticipantsParameter()
             {
@@ -837,8 +843,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Doesnt_Exist()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var addParticipantsParameter = new AddParticipantsParameter()
             {
@@ -865,8 +871,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Not_Locked_By_User()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var addParticipantsParameter = new AddParticipantsParameter()
             {
@@ -897,8 +903,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Succeed_When_Returned_Xml_Is_Null()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var addParticipantsParameter = new AddParticipantsParameter()
             {
@@ -927,8 +933,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Throw_If_Review_Is_Closed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var addParticipantsParameter = new AddParticipantsParameter()
             {
@@ -948,8 +954,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Return_Non_Existant_Users_If_Users_Are_Deleted_Or_NonExistant()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var addParticipantsParameter = new AddParticipantsParameter()
             {
@@ -974,8 +980,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Add_Users()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var addParticipantsParameter = new AddParticipantsParameter()
             {
@@ -1003,8 +1009,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Add_Users_From_Groups()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var addParticipantsParameter = new AddParticipantsParameter()
             {
@@ -1039,8 +1045,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Not_Add_Duplicates_From_Users_And_Groups()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var addParticipantsParameter = new AddParticipantsParameter()
             {
@@ -1074,8 +1080,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Not_Add_Already_Existing_Users()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var addParticipantsParameter = new AddParticipantsParameter()
             {
@@ -1099,8 +1105,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipants_UsersAndGroups_Success()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var content = new AddParticipantsParameter()
             {
                 UserIds = new[] { 1, 2 },
@@ -1135,8 +1141,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipants_UsersExist_Success()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var content = new AddParticipantsParameter()
             {
                 UserIds = new[] { 1, 2 }
@@ -1166,8 +1172,8 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipantsToReviewAsync_Should_Fail_On_Update()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var content = new AddParticipantsParameter()
             {
                 UserIds = new[] { 1, 2 },
@@ -1229,9 +1235,9 @@ namespace ArtifactStore.Repositories
         public async Task AddArtifacts_AndCollections_Success()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int projectId = 1;
+            var reviewId = 1;
+            var userId = 2;
+            var projectId = 1;
             var ids = new[] { 1, 2 };
             var content = new AddArtifactsParameter()
             {
@@ -1279,7 +1285,7 @@ namespace ArtifactStore.Repositories
             IEnumerable<int> Nonexistent = new List<int> { 0 };
             IEnumerable<bool> IsBaselineAdded = new List<bool> { false };
 
-            Dictionary<string, object> outParameters = new Dictionary<string, object>()
+            var outParameters = new Dictionary<string, object>()
             {
                {"ArtifactIds",  ids},
                {"Unpublished", 0},
@@ -1310,9 +1316,9 @@ namespace ArtifactStore.Repositories
         public async Task AddArtifactsToReviewAsync_ShouldThrowBadRequestException()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            bool isExceptionThrown = false;
+            var reviewId = 1;
+            var userId = 2;
+            var isExceptionThrown = false;
             var content = new AddArtifactsParameter()
             {
                 ArtifactIds = null,
@@ -1348,10 +1354,10 @@ namespace ArtifactStore.Repositories
         public async Task AddArtifactsToReviewAsync_ShouldThrowReviewNotFoundException()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int projectId = 0;
-            bool isExceptionThrown = false;
+            var reviewId = 1;
+            var userId = 2;
+            var projectId = 0;
+            var isExceptionThrown = false;
             var content = new AddArtifactsParameter()
             {
                 ArtifactIds = new[] { 1, 2 },
@@ -1408,10 +1414,10 @@ namespace ArtifactStore.Repositories
         public async Task AddArtifactsToReviewAsync_ShouldThrowArtifactNotLockedException()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int projectId = 1;
-            bool isExceptionThrown = false;
+            var reviewId = 1;
+            var userId = 2;
+            var projectId = 1;
+            var isExceptionThrown = false;
             var content = new AddArtifactsParameter()
             {
                 ArtifactIds = new[] { 1, 2 },
@@ -1471,7 +1477,7 @@ namespace ArtifactStore.Repositories
         {
             //Arrange
             //   PropertyValueString result = null;
-            bool isExceptionThrown = false;
+            var isExceptionThrown = false;
             var propertyValueStringResult = new List<PropertyValueString>();
 
             var propertyValue = new PropertyValueString()
@@ -1487,8 +1493,8 @@ namespace ArtifactStore.Repositories
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            int reviewId = 1;
-            int userId = 1;
+            var reviewId = 1;
+            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1496,7 +1502,7 @@ namespace ArtifactStore.Repositories
                  { "@roleUserId", 1 }
             };
             _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
-            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            var content = new AssignReviewerRolesParameter()
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1533,7 +1539,7 @@ namespace ArtifactStore.Repositories
         {
             //Arrange
             //   PropertyValueString result = null;
-            bool isExceptionThrown = false;
+            var isExceptionThrown = false;
             var propertyValueStringResult = new List<PropertyValueString>();
 
             var propertyValue = new PropertyValueString()
@@ -1549,8 +1555,8 @@ namespace ArtifactStore.Repositories
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            int reviewId = 1;
-            int userId = 1;
+            var reviewId = 1;
+            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1558,7 +1564,7 @@ namespace ArtifactStore.Repositories
                  { "@roleUserId", 1 }
             };
             _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
-            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            var content = new AssignReviewerRolesParameter()
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1605,8 +1611,8 @@ namespace ArtifactStore.Repositories
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            int reviewId = 1;
-            int userId = 1;
+            var reviewId = 1;
+            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1614,7 +1620,7 @@ namespace ArtifactStore.Repositories
                  { "@roleUserId", 1 }
             };
             _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
-            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            var content = new AssignReviewerRolesParameter()
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1643,8 +1649,8 @@ namespace ArtifactStore.Repositories
                 IsUserDisabled = true
             };
             propertyValueStringResult.Add(propertyValue);
-            int reviewId = 1;
-            int userId = 1;
+            var reviewId = 1;
+            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1652,7 +1658,7 @@ namespace ArtifactStore.Repositories
                  { "@roleUserId", 1 }
             };
             _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
-            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            var content = new AssignReviewerRolesParameter()
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1681,8 +1687,8 @@ namespace ArtifactStore.Repositories
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            int reviewId = 1;
-            int userId = 1;
+            var reviewId = 1;
+            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1690,7 +1696,7 @@ namespace ArtifactStore.Repositories
                  { "@roleUserId", 1 }
             };
             _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
-            AssignReviewerRolesParameter content = new AssignReviewerRolesParameter()
+            var content = new AssignReviewerRolesParameter()
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1704,10 +1710,10 @@ namespace ArtifactStore.Repositories
         public async Task AddArtifactsToReviewAsync_Should_Throw_Review_Closed_ErrorCode_When_Review_Is_Closed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int projectId = 1;
-            bool isExceptionThrown = false;
+            var reviewId = 1;
+            var userId = 2;
+            var projectId = 1;
+            var isExceptionThrown = false;
             var content = new AddArtifactsParameter()
             {
                 ArtifactIds = new[] { 1, 2 },
@@ -1794,8 +1800,8 @@ namespace ArtifactStore.Repositories
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            int reviewId = 1;
-            int userId = 1;
+            var reviewId = 1;
+            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1832,8 +1838,8 @@ namespace ArtifactStore.Repositories
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            int reviewId = 1;
-            int userId = 1;
+            var reviewId = 1;
+            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1870,8 +1876,8 @@ namespace ArtifactStore.Repositories
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            int reviewId = 1;
-            int userId = 1;
+            var reviewId = 1;
+            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1896,8 +1902,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Artifacts_Collection_Is_Null()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             ReviewArtifactApprovalParameter approvalParameter = null;
 
             //Act
@@ -1909,8 +1915,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_No_Artifacts_Provided()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter();
 
             //Act
@@ -1922,8 +1928,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Succeed_With_No_Existing_Xml()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var approvalParameter = new ReviewArtifactApprovalParameter
             {
@@ -1979,8 +1985,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Add_New_Artifact_Approval()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Custom Approval",
@@ -2033,8 +2039,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Update_Existing_Approval()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Disapproved",
@@ -2139,8 +2145,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Set_Artifact_To_Viewed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2191,8 +2197,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Not_Update_Approval_Timestamp_If_Approval_Doesnt_Change()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2244,8 +2250,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Remove_Approval_Timestamp_If_Approval_Set_To_NotSpecified()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Pending",
@@ -2335,8 +2341,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Is_Draft()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2417,8 +2423,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Is_Deleted()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2454,8 +2460,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Reviewer_Status_Is_Completed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2491,8 +2497,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Not_Throw_When_User_Isnt_Approver()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
 
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
@@ -2558,8 +2564,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Artifact_Given_Is_Not_In_Review()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2612,8 +2618,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Is_Not_Part_Of_The_Review()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2650,8 +2656,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Artifact_Given_Doesnt_Require_Approval()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2703,8 +2709,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Doesnt_Have_Access_To_Review()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2748,8 +2754,8 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Doesnt_Have_Access_To_Given_Artifact()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2848,9 +2854,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Review_Doesnt_Exist()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewExists = false);
 
@@ -2873,9 +2879,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Review_Is_Draft()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewStatus = ReviewPackageStatus.Draft);
 
@@ -2898,9 +2904,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Review_Is_Deleted()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewDeleted = true);
 
@@ -2923,9 +2929,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Review_Is_Closed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewStatus = ReviewPackageStatus.Closed);
 
@@ -2948,9 +2954,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Is_Not_A_Reviewer_And_Review_Is_Informal()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check =>
             {
@@ -2977,9 +2983,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Is_Not_A_Reviewer_And_Review_Is_Formal()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check =>
             {
@@ -3006,9 +3012,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Reviewer_Status_Is_Completed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewerStatus = ReviewStatus.Completed);
 
@@ -3029,9 +3035,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Artifact_Is_Not_Part_Of_The_Review()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.AllArtifactsInReview = false);
 
@@ -3054,9 +3060,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Cannot_Access_Review()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId });
 
@@ -3084,9 +3090,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Cannot_Access_Artifact()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int artifactId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
 
             SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId });
 
@@ -3119,9 +3125,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_NotStarted_Should_Throw()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             //Act
             await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.NotStarted, userId);
@@ -3131,9 +3137,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Is_Not_Found()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewExists = false);
 
@@ -3157,9 +3163,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Has_Been_Deleted()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewDeleted = true);
 
@@ -3183,9 +3189,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Is_In_Draft()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Draft);
 
@@ -3209,9 +3215,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Is_Closed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Closed);
 
@@ -3235,9 +3241,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_User_Is_Not_In_Review()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.UserInReview = false);
 
@@ -3261,9 +3267,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_User_Does_Not_Have_Access_To_The_Review()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
@@ -3289,9 +3295,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Update_The_Users_Status_To_In_Progress()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
@@ -3321,9 +3327,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_Review_Is_Not_Found()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewExists = false);
 
@@ -3347,9 +3353,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_Review_Has_Been_Deleted()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewDeleted = true);
 
@@ -3373,9 +3379,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_Review_Is_In_Draft()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Draft);
 
@@ -3399,9 +3405,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completeds_Should_Throw_When_Review_Is_Closed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Closed);
 
@@ -3425,9 +3431,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_User_Is_Not_In_Review()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.UserInReview = false);
 
@@ -3451,9 +3457,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_User_Does_Not_Have_Access_To_The_Review()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
@@ -3480,9 +3486,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_Reviewer_Status_Is_Not_Started()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewerStatus = ReviewStatus.NotStarted);
 
@@ -3499,9 +3505,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Be_Successful_When_RequireAllApproval_Is_False()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
@@ -3523,9 +3529,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Be_Successful_When_RequireAllApproval_Is_True_And_Artifact_Is_Approved()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
@@ -3551,9 +3557,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Be_Successful_When_RequireAllApproval_Is_True_And_Artifact_Is_Disapproved()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
@@ -3579,9 +3585,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Be_Successful_When_RequireAllApproval_Is_True_And_Artifact_Is_Not_Accessible()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
@@ -3607,9 +3613,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Be_Successful_When_RequireAllApproval_Is_True_And_Artifact_Approval_Is_Not_Required()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
@@ -3635,9 +3641,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Be_Successful_When_RequireAllApproval_Is_True_And_Participant_Is_Reviewer_And_Artifact_Is_Viewed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
 
@@ -3668,9 +3674,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_RequireAllApproval_Is_True_And_Participant_Is_Reviewer_And_Artifact_Is_Not_Viewed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
 
@@ -3708,9 +3714,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_RequireAllApproval_Is_True_And_Participant_Is_Reviewer_And_Artifact_Is_Changed()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
 
@@ -3750,9 +3756,9 @@ namespace ArtifactStore.Repositories
         public async Task UpdateReviewerStatusAsync_Set_To_Completed_Should_Throw_When_RequireAllApproval_Is_True_And_Artifact_Is_Not_Approved()
         {
             //Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int revisionId = int.MaxValue;
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
@@ -4429,9 +4435,9 @@ namespace ArtifactStore.Repositories
         public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewClosed()
         {
             // Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int projectId = 3;
+            var reviewId = 1;
+            var userId = 2;
+            var projectId = 3;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -4470,8 +4476,8 @@ namespace ArtifactStore.Repositories
         public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ResourceNotFoundException_WhenProjectNull()
         {
             // Arrange
-            int reviewId = 1;
-            int userId = 2;
+            var reviewId = 1;
+            var userId = 2;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -4508,9 +4514,9 @@ namespace ArtifactStore.Repositories
         public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewNotLocked()
         {
             // Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int projectId = 2;
+            var reviewId = 1;
+            var userId = 2;
+            var projectId = 2;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -4548,10 +4554,10 @@ namespace ArtifactStore.Repositories
         public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewBaseLined()
         {
             // Arrange
-            int reviewId = 1;
-            int userId = 2;
-            int projectId = 2;
-            int baselineId = 1;
+            var reviewId = 1;
+            var userId = 2;
+            var projectId = 2;
+            var baselineId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },

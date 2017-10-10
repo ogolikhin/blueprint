@@ -65,7 +65,7 @@ namespace AdminStore.Repositories.Workflow
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
-                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);                    
                 }
             }
 
@@ -686,7 +686,7 @@ namespace AdminStore.Repositories.Workflow
 
             var prm = new DynamicParameters();
             prm.Add("@Offset", pagination.Offset);
-            prm.Add("@WorkflowId", workflowId, dbType: DbType.Int32);
+            prm.Add("@WorkflowId", workflowId, DbType.Int32);
             prm.Add("@Limit", pagination.Limit);
             prm.Add("@Search", search ?? string.Empty);
             prm.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
@@ -707,14 +707,14 @@ namespace AdminStore.Repositories.Workflow
                 {
                     Id = artifact.ArtifactId, Name = artifact.ArtifactName
                 }).ToList();
-
+              
                 string projectName = artifacts[0].ProjectName;
 
                 var groupedProjectArtifacts = new WorkflowProjectArtifactsDto()
                 {
                     ProjectId = projectId,
                     ProjectName = projectName,
-                    Artifacts = projectArtifacts
+                    Artifacts = projectArtifacts.OrderBy(a=>a.Name)
                 };
                 groupedList.Add(groupedProjectArtifacts);
             }
@@ -800,6 +800,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
             if (transaction != null)
             {
                 result =
@@ -930,7 +931,43 @@ namespace AdminStore.Repositories.Workflow
             }
 
             return table;
-        }       
+        }
+
+        public async Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workflowId, int projectId, IEnumerable<int> artifactTypeIds)
+        {
+            var parameters = new DynamicParameters();
+            
+            parameters.Add("@WorkflowId", workflowId);
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@ArtifactTypeIds", SqlConnectionWrapper.ToDataTable(artifactTypeIds, "Int32Collection", "Int32Value"));           
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+        
+            var result = await _connectionWrapper.QueryAsync<SyncResult>("AssignArtifactTypesToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");                      
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
+
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);                   
+
+                    case (int)SqlErrorCodes.ProjectOfWorkflowDoesNotHaveArtifactTypes:
+                        throw new ConflictException(ErrorMessages.WorkflowProjectDoNotHasArtifactTypes, ErrorCodes.ProjectOfWorkflowDoesNotHaveArtifactTypes);
+                }
+            }
+
+            return result.FirstOrDefault();
+        }
         #endregion
     }
 }

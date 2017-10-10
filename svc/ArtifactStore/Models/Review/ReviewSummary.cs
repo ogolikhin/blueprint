@@ -36,6 +36,8 @@ namespace ArtifactStore.Models.Review
         public int ProjectId { get; set; }
 
         public bool RequireAllArtifactsReviewed { get; set; }
+
+        public bool ShowOnlyDescription { get; set; }
     }
 
     internal class ReviewSummaryDetails
@@ -53,6 +55,8 @@ namespace ArtifactStore.Models.Review
         public ReviewStatus ReviewStatus { get; set; }
 
         public bool RequireAllArtifactsReviewed { get; set; }
+
+        public bool ShowOnlyDescription { get; set; }
 
         public int RevisionId { get; set; }
 

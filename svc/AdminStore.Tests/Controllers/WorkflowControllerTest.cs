@@ -217,6 +217,7 @@ namespace AdminStore.Controllers
         private const int WorkflowId = 1;
         private const InstanceAdminPrivileges AllProjectDataPermissions = InstanceAdminPrivileges.AccessAllProjectData;
         private const int FolderId = 1;
+        private const int ProjectId = 1;
 
         private QueryResult<WorkflowProjectArtifactsDto> _expectedArtifacts;
         private Pagination _pagination;
@@ -337,6 +338,96 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+        }
+        #endregion
+
+        #region AssignArtifactTypesToProjectInWorkflow
+        [TestMethod]
+        public async Task AssignArtifactTypesToProjectInWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnSyncResult()
+        {
+            // arrange            
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+            var expectedResult = new SyncResult { TotalAdded = 2, TotalDeleted = 1 };
+
+            _workflowRepositoryMock.Setup(q => q.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 })).ReturnsAsync(new SyncResult { TotalAdded = 2, TotalDeleted = 1 });
+
+            //act            
+            var result = await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 }) as OkNegotiatedContentResult<SyncResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedResult.TotalAdded, result.Content.TotalAdded);
+            Assert.AreEqual(expectedResult.TotalDeleted, result.Content.TotalDeleted);
+        }
+
+        [TestMethod]
+        public async Task AssignArtifactTypesToProjectInWorkflow_InvalidPermission_ReturnAuthorizationException()
+        {
+            //arrange         
+            Exception exception = null;
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
+
+            //act
+            try
+            {
+                await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 });
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        [TestMethod]
+        public async Task AssignArtifactTypesToProjectInWorkflow_ArtifactTypesIdsIsNull_ReturnBadRequestException()
+        {
+            //arrange         
+            Exception exception = null;
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            try
+            {
+                await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, null);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+        }
+
+        [TestMethod]
+        public async Task AssignArtifactTypesToProjectInWorkflow_ArtifactTypesIdsIsEmpty_ReturnEmptySyncResult()
+        {
+            //arrange         
+            var expectedResult = new OkNegotiatedContentResult<SyncResult>(SyncResult.Empty, _controller);
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            var result = await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { }) as
+                    OkNegotiatedContentResult<SyncResult>;
+       
+            Assert.AreEqual(expectedResult.Content.TotalAdded, result.Content.TotalAdded);
+            Assert.AreEqual(expectedResult.Content.TotalDeleted, result.Content.TotalDeleted);
         }
         #endregion
 

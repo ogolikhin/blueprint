@@ -136,6 +136,7 @@
     <Compile Include="Models\Emails\EmailIncomingSettings.cs" />
     <Compile Include="Models\Emails\EmailOutgoingSettings.cs" />
     <Compile Include="Models\Emails\EmailSettingsDto.cs" />
+    <Compile Include="Models\SyncResult.cs" />
     <Compile Include="Models\WorkflowArtifact.cs" />
     <Compile Include="Models\WorkflowProjectArtifacts.cs" />
     <Compile Include="Models\WorkflowProjectArtifactsDTO.cs" />

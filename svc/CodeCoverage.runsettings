@@ -29,6 +29,10 @@
                 <ModulePath>.*testadapter\.dll$</ModulePath>
                 <ModulePath>.*HtmlAgilityPack\.dll$</ModulePath>
                 <ModulePath>.*Logging.Database\.dll$</ModulePath>
+				<ModulePath>.*NServiceBus.Core\.dll$</ModulePath>
+				<ModulePath>.*NServiceBus.Transport.SqlServer\.dll$</ModulePath>
+				<ModulePath>.*NServiceBus.Transports.RabbitMQ\.dll$</ModulePath>
+				<ModulePath>.*BluePrintSys.Messaging.CrossCutting\.dll$</ModulePath>
               </Exclude>
             </ModulePaths>
             <Attributes>

@@ -2594,7 +2594,7 @@ namespace ArtifactStore.Repositories
 
         #endregion
 
-        #region UpdateReviewArtifactViewedAsync
+        #region UpdateReviewArtifactsViewedAsync
 
         [TestMethod]
         public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_Review_Doesnt_Exist()
@@ -2602,14 +2602,18 @@ namespace ArtifactStore.Repositories
             //Arrange
             var reviewId = 1;
             var userId = 2;
-            var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput()
+            {
+                ArtifactIds = new[] { 3 },
+                Viewed =  true
+            };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewExists = false);
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds, check => check.ReviewExists = false);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -2627,14 +2631,18 @@ namespace ArtifactStore.Repositories
             //Arrange
             var reviewId = 1;
             var userId = 2;
-            var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput()
+            {
+                ArtifactIds = new[] { 3 },
+                Viewed = true
+            };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewStatus = ReviewPackageStatus.Draft);
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds, check => check.ReviewStatus = ReviewPackageStatus.Draft);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -2652,14 +2660,18 @@ namespace ArtifactStore.Repositories
             //Arrange
             var reviewId = 1;
             var userId = 2;
-            var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput()
+            {
+                ArtifactIds = new[] { 3 },
+                Viewed = true
+            };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewDeleted = true);
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds, check => check.ReviewDeleted = true);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -2677,14 +2689,18 @@ namespace ArtifactStore.Repositories
             //Arrange
             var reviewId = 1;
             var userId = 2;
-            var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput()
+            {
+                ArtifactIds = new[] { 3 },
+                Viewed = true
+            };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewStatus = ReviewPackageStatus.Closed);
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds, check => check.ReviewStatus = ReviewPackageStatus.Closed);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
             }
             catch (ConflictException ex)
             {
@@ -2702,9 +2718,13 @@ namespace ArtifactStore.Repositories
             //Arrange
             var reviewId = 1;
             var userId = 2;
-            var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput()
+            {
+                ArtifactIds = new[] { 3 },
+                Viewed = true
+            };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check =>
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds, check =>
             {
                 check.UserInReview = false;
                 check.ReviewType = ReviewType.Informal;
@@ -2713,7 +2733,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
             }
             catch (AuthorizationException ex)
             {
@@ -2731,9 +2751,13 @@ namespace ArtifactStore.Repositories
             //Arrange
             var reviewId = 1;
             var userId = 2;
-            var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput()
+            {
+                ArtifactIds = new[] { 3 },
+                Viewed = true
+            };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check =>
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds, check =>
             {
                 check.UserInReview = false;
                 check.ReviewType = ReviewType.Formal;
@@ -2742,7 +2766,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
             }
             catch (AuthorizationException ex)
             {
@@ -2760,14 +2784,18 @@ namespace ArtifactStore.Repositories
             //Arrange
             var reviewId = 1;
             var userId = 2;
-            var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput()
+            {
+                ArtifactIds = new[] { 3 },
+                Viewed = true
+            };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.ReviewerStatus = ReviewStatus.Completed);
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds, check => check.ReviewerStatus = ReviewStatus.Completed);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
             }
             catch (BadRequestException)
             {
@@ -2783,14 +2811,18 @@ namespace ArtifactStore.Repositories
             //Arrange
             var reviewId = 1;
             var userId = 2;
-            var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput()
+            {
+                ArtifactIds = new[] { 3 },
+                Viewed = true
+            };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId }, check => check.AllArtifactsInReview = false);
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds, check => check.AllArtifactsInReview = false);
 
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
             }
             catch (BadRequestException ex)
             {
@@ -2809,8 +2841,13 @@ namespace ArtifactStore.Repositories
             var reviewId = 1;
             var userId = 2;
             var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput()
+            {
+                ArtifactIds = new[] { artifactId },
+                Viewed = true
+            };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId });
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds);
 
             SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
@@ -2820,7 +2857,7 @@ namespace ArtifactStore.Repositories
             //Act
             try
             {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
             }
             catch (AuthorizationException ex)
             {
@@ -2830,36 +2867,6 @@ namespace ArtifactStore.Repositories
             }
 
             Assert.Fail("An AuthorizationException was not thrown.");
-        }
-
-        [TestMethod]
-        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Cannot_Access_Artifact()
-        {
-            //Arrange
-            var reviewId = 1;
-            var userId = 2;
-            var artifactId = 3;
-
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { artifactId });
-
-            SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, new Dictionary<int, RolePermissions>()
-            {
-                { 1, RolePermissions.Read }
-            });
-
-            //Act
-            try
-            {
-                await _reviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, true, userId);
-            }
-            catch (AuthorizationException ex)
-            {
-                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
-
-                return;
-            }
-
-            Assert.Fail("A ResourceNotFoundException was not thrown.");
         }
 
         #endregion

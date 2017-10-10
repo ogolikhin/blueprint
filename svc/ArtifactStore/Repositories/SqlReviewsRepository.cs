@@ -9,6 +9,7 @@ using ServiceLibrary.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.ProjectMeta;
@@ -1331,11 +1332,11 @@ namespace ArtifactStore.Repositories
 
 
 
-        public async Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, bool viewed, int userId)
+        public async Task UpdateReviewArtifactsViewedAsync(int reviewId, ReviewArtifactViewedInput viewedInput, int userId)
         {
-            var artifactIdEnumerable = new[] { artifactId };
+            var artifactIds = viewedInput.ArtifactIds.ToList();
 
-            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIdEnumerable);
+            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
 
             CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, false);
 
@@ -1344,37 +1345,55 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Cannot update view status, reviewer has completed the review.");
             }
 
+            var permissionIds = new List<int>(artifactIds)
+            {
+                reviewId
+            };
+
             //Check user has permission for the review and all of the artifact ids
-            await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIdEnumerable);
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(permissionIds, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                ThrowUserCannotAccessReviewException(reviewId);
+            }
 
             Func<IDbTransaction, Task> transactionAction = async (transaction) =>
             {
                 var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId, transaction);
 
-                var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, artifactIdEnumerable, transaction);
+                var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, artifactIds, transaction);
 
-                var reviewedArtifact = rdReviewedArtifacts.ReviewedArtifacts.FirstOrDefault(ra => ra.ArtifactId == artifactId);
-
-                if (reviewedArtifact == null)
+                foreach (var artifactId in artifactIds)
                 {
-                    reviewedArtifact = new ReviewArtifactXml()
+                    var reviewedArtifact = rdReviewedArtifacts.ReviewedArtifacts.FirstOrDefault(ra => ra.ArtifactId == artifactId);
+
+                    if(!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
                     {
-                        ArtifactId = artifactId
-                    };
+                        continue;
+                    }
 
-                    rdReviewedArtifacts.ReviewedArtifacts.Add(reviewedArtifact);
-                }
+                    if (reviewedArtifact == null)
+                    {
+                        reviewedArtifact = new ReviewArtifactXml()
+                        {
+                            ArtifactId = artifactId
+                        };
 
-                if (viewed)
-                {
-                    reviewedArtifact.ViewState = ViewStateType.Viewed;
-                    reviewedArtifact.ArtifactVersion = artifactVersionDictionary[artifactId];
-                }
-                else
-                {
-                    reviewedArtifact.ViewState = ViewStateType.NotViewed;
-                    reviewedArtifact.ArtifactVersion = 0;
-                }
+                        rdReviewedArtifacts.ReviewedArtifacts.Add(reviewedArtifact);
+                    }
+
+                    if (viewedInput.Viewed.Value)
+                    {
+                        reviewedArtifact.ViewState = ViewStateType.Viewed;
+                        reviewedArtifact.ArtifactVersion = artifactVersionDictionary[artifactId];
+                    }
+                    else
+                    {
+                        reviewedArtifact.ViewState = ViewStateType.NotViewed;
+                        reviewedArtifact.ArtifactVersion = 0;
+                    }
+                }   
 
                 await UpdateReviewUserStatsXmlAsync(reviewId, userId, rdReviewedArtifacts, transaction);
             };

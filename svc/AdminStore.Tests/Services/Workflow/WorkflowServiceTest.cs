@@ -56,7 +56,7 @@ namespace AdminStore.Services.Workflow
         }
 
         #region GetWorkflowDetailsAsync
-
+        [Ignore]
         [TestMethod]
         public async Task GetWorkflow_WorkflowExists_ReturnWorkflow()
         {

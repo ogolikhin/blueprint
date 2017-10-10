@@ -15,7 +15,7 @@ namespace SearchService.Helpers.SemanticSearch
         {
             var itemIds = new List<int>();
             
-            return await GetArtifactSearchResultsFromItemIds(itemIds, searchEngineParameters.UserId, searchEngineParameters.ArtifactId);
+            return await GetArtifactSearchResultsFromItemIds(itemIds, searchEngineParameters.UserId);
         }
     }
 }

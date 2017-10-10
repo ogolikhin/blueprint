@@ -26,7 +26,8 @@ namespace ServiceLibrary.Attributes
             { typeof(AuthorizationException), HttpStatusCode.Forbidden },
             { typeof(SqlTimeoutException), HttpStatusCode.ServiceUnavailable },
             { typeof(ConflictException), HttpStatusCode.Conflict },
-            { typeof(TenantInfoNotFoundException), HttpStatusCode.InternalServerError }
+            { typeof(TenantInfoNotFoundException), HttpStatusCode.InternalServerError },
+            { typeof(ElasticsearchConfigurationException), HttpStatusCode.NotFound }
         };
 
         public override async Task OnExceptionAsync(HttpActionExecutedContext context, CancellationToken cancellationToken)

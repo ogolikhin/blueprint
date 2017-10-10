@@ -341,7 +341,7 @@ namespace AdminStore.Controllers
         }
         #endregion
 
-        #region AssignArtifactsToProjectInWorkflow
+        #region AssignArtifactTypesToProjectInWorkflow
         [TestMethod]
         public async Task AssignArtifactTypesToProjectInWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnSyncResult()
         {
@@ -349,14 +349,17 @@ namespace AdminStore.Controllers
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+            var expectedResult = new SyncResult { TotalAdded = 2, TotalDeleted = 1 };
 
             _workflowRepositoryMock.Setup(q => q.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 })).ReturnsAsync(new SyncResult { TotalAdded = 2, TotalDeleted = 1 });
 
             //act            
-            var result = await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 });
+            var result = await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 }) as OkNegotiatedContentResult<SyncResult>;
 
             //assert
             Assert.IsNotNull(result);
+            Assert.AreEqual(expectedResult.TotalAdded, result.Content.TotalAdded);
+            Assert.AreEqual(expectedResult.TotalDeleted, result.Content.TotalDeleted);
         }
 
         [TestMethod]

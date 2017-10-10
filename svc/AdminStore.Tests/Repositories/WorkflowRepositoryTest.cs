@@ -132,7 +132,7 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task AssignArtifactTypesToProjectInWorkflow_WorkflowByWorkflowIdIsActive_ReturnConflictExceptionE()
+        public async Task AssignArtifactTypesToProjectInWorkflow_WorkflowWithCurrentIdIsActive_ReturnConflictException()
         {
             //arrange      
             Exception exception = null;
@@ -153,7 +153,7 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task AssignArtifactTypesToProjectInWorkflow_WorkflowByWorkflowIdIsNotFound_ReturnResourceNotFoundException()
+        public async Task AssignArtifactTypesToProjectInWorkflow_WorkflowWithCurrentIdNotExist_ReturnResourceNotFoundException()
         {
             //arrange                  
             Exception exception = null;
@@ -195,7 +195,7 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task AssignArtifactTypesToProjectInWorkflow_WorkflowProjectDoNotHasArtifacts_ReturnConflictException()
+        public async Task AssignArtifactTypesToProjectInWorkflow_ProjectOfWorkflowDoesNotHaveArtifactTypes_ReturnConflictException()
         {
             //arrange                  
             Exception exception = null;

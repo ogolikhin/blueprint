@@ -149,6 +149,7 @@
     <Compile Include="Models\SearchResult.cs" />
     <Compile Include="Models\SemanticSearchEngine.cs" />
     <Compile Include="Models\SemanticSearchSetting.cs" />
+    <Compile Include="Models\SemanticSearchText.cs" />
     <Compile Include="Models\SqlSemanticSearchSetting.cs" />
     <Compile Include="Models\SemanticSearchSuggestionParameters.cs" />
     <Compile Include="Models\SuggestionsSearchCriteria.cs" />

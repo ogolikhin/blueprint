@@ -134,6 +134,96 @@ namespace ArtifactStore.Repositories
             return reviewContainer;
         }
 
+        public async Task<ReviewSummaryMetrics> GetReviewSummaryMetrics(int containerId, int userId)
+        {
+            var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(containerId, null, userId);
+            if (reviewInfo.IsDeleted || reviewInfo.PredefinedType != ItemTypePredefined.ArtifactReviewPackage)
+            {
+                ThrowReviewNotFoundException(containerId);
+            }
+
+            var reviewDetails = await GetReviewSummaryDetails(containerId, userId);
+
+            if (reviewDetails == null)
+            {
+                ThrowReviewNotFoundException(containerId);
+            }
+
+            if (reviewDetails.ReviewPackageStatus == ReviewPackageStatus.Draft)
+            {
+                ThrowReviewNotFoundException(containerId);
+            }
+
+            if (!reviewDetails.ReviewParticipantRole.HasValue && reviewDetails.TotalReviewers > 0)
+            {
+                ThrowUserCannotAccessReviewException(containerId);
+            }
+
+            var reviewSource = new ReviewSource();
+            if (reviewDetails.BaselineId.HasValue)
+            {
+                var baselineInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewDetails.BaselineId.Value, null, userId);
+                reviewSource.Id = baselineInfo.Id;
+                reviewSource.Name = baselineInfo.Name;
+                reviewSource.Prefix = baselineInfo.Prefix;
+            }
+
+            var participants = await GetAllReviewParticipantsAsync(containerId, userId);
+            var description = await _itemInfoRepository.GetItemDescription(containerId, userId, false, int.MaxValue);
+
+            var reviewContainer = new ReviewSummaryMetrics
+            {
+                Id = containerId,
+                
+                RevisionId = reviewDetails.RevisionId,
+                
+                Status = reviewDetails.ReviewStatus,
+
+                Artifacts = new ArtifactsMetrics
+                {
+                    Total = reviewDetails.TotalArtifacts,
+                    ArtifactStatus = new ReviewArtifactsStatus
+                    {
+                        Pending = reviewDetails.Pending,
+                        Approved = reviewDetails.Approved,
+                        Disapproved = reviewDetails.Disapproved,
+                        Viewed = reviewDetails.Viewed,
+                        Unviewed = reviewDetails.TotalArtifacts - reviewDetails.Viewed
+                    },
+                    RequestStatus = new ReviewRequestStatus
+                    {
+                        ApprovalRequested = participants.TotalArtifactsRequestedApproval,
+                        ReviewRequested = participants.TotalArtifacts - participants.TotalArtifactsRequestedApproval
+                    }
+
+                },
+
+                Participants = new ParticipantsMetrics
+                {
+                    Total = participants.Total,
+                    RoleStatus = new ParticipantRoles
+                    {
+                        Approvers = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver).ToList().Count,
+                        Reviewers = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer).ToList().Count
+                    },
+                    ApproverStatus = new ParticipantStatus
+                    {
+                        Completed = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.Completed).ToList().Count,
+                        InProgress = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.InProgress).ToList().Count,
+                        NotStarted = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.NotStarted).ToList().Count
+                    },
+                    ReviewerStatus = new ParticipantStatus
+                    {
+                        Completed = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.Completed).ToList().Count,
+                        InProgress = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.InProgress).ToList().Count,
+                        NotStarted = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.NotStarted).ToList().Count
+                    }
+                }
+            };
+
+            return reviewContainer;
+        }
+
         private ReviewType GetReviewType(ReviewSummaryDetails reviewDetails)
         {
             if (reviewDetails.TotalReviewers == 0)
@@ -654,6 +744,54 @@ namespace ArtifactStore.Repositories
             param.Add("@addDrafts", addDrafts);
 
             var participants = await _connectionWrapper.QueryMultipleAsync<ReviewParticipant, int, int, int>("GetReviewParticipants", param, commandType: CommandType.StoredProcedure);
+
+            var reviewersRoot = new ReviewParticipantsContent()
+            {
+                Items = participants.Item1.ToList(),
+                Total = participants.Item2.SingleOrDefault(),
+                TotalArtifacts = participants.Item3.SingleOrDefault(),
+                TotalArtifactsRequestedApproval = participants.Item4.SingleOrDefault()
+            };
+
+            var meaningOfSignatures = await GetMeaningOfSignaturesForParticipantAsync(reviewId, userId);
+
+            foreach (var reviewer in reviewersRoot.Items)
+            {
+                if (meaningOfSignatures.ContainsKey(reviewer.UserId))
+                {
+                    reviewer.MeaningOfSignatureIds = meaningOfSignatures[reviewer.UserId];
+                }
+                else
+                {
+                    reviewer.MeaningOfSignatureIds = new int[0];
+                }
+            }
+
+            return reviewersRoot;
+        }
+
+        public async Task<ReviewParticipantsContent> GetAllReviewParticipantsAsync(int reviewId, int userId, int? versionId = null, bool? addDrafts = true)
+        {
+            if (versionId < 1)
+            {
+                throw new BadRequestException(nameof(versionId) + " cannot be less than 1.", ErrorCodes.InvalidParameter);
+            }
+
+            int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
+
+            if (revisionId < int.MaxValue)
+            {
+                addDrafts = false;
+            }
+
+            var param = new DynamicParameters();
+
+            param.Add("@reviewId", reviewId);
+            param.Add("@revisionId", revisionId);
+            param.Add("@userId", userId);
+            param.Add("@addDrafts", addDrafts);
+
+            var participants = await _connectionWrapper.QueryMultipleAsync<ReviewParticipant, int, int, int>("GetAllReviewParticipants", param, commandType: CommandType.StoredProcedure);
 
             var reviewersRoot = new ReviewParticipantsContent()
             {

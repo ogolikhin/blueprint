@@ -14,7 +14,7 @@ namespace SearchService.Repositories
         Task<List<int>> GetAccessibleProjectIds(int userId);
         Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId);
         Task<SemanticSearchSetting> GetSemanticSearchSetting();
-        Task<string> GetSemanticSearchText(int artifactId, int userId);
+        Task<SemanticSearchText> GetSemanticSearchText(int artifactId, int userId);
     }
     public class SemanticSearchRepository: ISemanticSearchRepository
     {
@@ -71,7 +71,7 @@ namespace SearchService.Repositories
             };
         }
 
-        public async Task<string> GetSemanticSearchText(int artifactId, int userId)
+        public async Task<SemanticSearchText> GetSemanticSearchText(int artifactId, int userId)
         {
             var prm = new DynamicParameters();
             prm.Add("@itemId", artifactId);
@@ -79,7 +79,7 @@ namespace SearchService.Repositories
 
             return
                 (await
-                    _connectionWrapper.QueryAsync<string>("SELECT dbo.GetItemSemanticSearchText(@userId,@itemId)", prm,
+                    _connectionWrapper.QueryAsync<SemanticSearchText>("SELECT * FROM dbo.GetItemSemanticSearchNameSearchText(@userId,@itemId)", prm,
                         commandType: CommandType.Text)).FirstOrDefault();
         }
     }

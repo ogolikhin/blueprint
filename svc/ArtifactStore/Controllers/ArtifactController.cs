@@ -201,7 +201,7 @@ namespace ArtifactStore.Controllers
         {
             if (artifactIds == null)
             {
-                throw new BadRequestException(ErrorMessages.ArtifactIdsNotValid);
+                throw new BadRequestException(ErrorMessages.ArtifactTypeIdsNotValid);
             }
 
             return await ArtifactRepository.GetProcessInformationAsync(artifactIds, Session.UserId);

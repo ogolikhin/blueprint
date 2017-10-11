@@ -137,6 +137,7 @@
     <Compile Include="Helpers\WorkflowEventsMessagesHelper.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
+    <Compile Include="Models\Review\ReviewApprovalCheckArtifacts.cs" />
     <Compile Include="Models\Review\ReviewArtifactApprovalResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactId.cs" />
     <Compile Include="Models\Review\ReviewArtifactsQueryResult.cs" />

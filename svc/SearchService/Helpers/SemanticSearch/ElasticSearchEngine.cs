@@ -20,6 +20,8 @@ namespace SearchService.Helpers.SemanticSearch
 
         public int LatestChangingRevision;
 
+        public string Name;
+
         public string SearchText;
     }
     public sealed class ElasticSearchEngine: SearchEngine
@@ -112,15 +114,19 @@ namespace SearchService.Helpers.SemanticSearch
             }
         }
 
-        private QueryContainerDescriptor<SemanticSearchItem> GetMoreLikeThisQuery(string searchText)
+        private QueryContainerDescriptor<SemanticSearchItem> GetMoreLikeThisQuery(SemanticSearchText searchText)
         {
             var container = new QueryContainerDescriptor<SemanticSearchItem>();
-            container.MoreLikeThis(
-                fs => fs.Fields(
-                    f => f.Field(a => a.SearchText)).Like(
-                        l => l.Text(searchText))
-                    .MinDocumentFrequency(1)
-                    .MinTermFrequency(1));
+            container.MoreLikeThis(fs => fs
+                .Fields(
+                    f => f.Field(a => a.SearchText).Field(b=>b.Name)
+                )
+                .Like(
+                    l => l.Document(
+                        d =>d.Document(new SemanticSearchItem() {Name = searchText.Name, SearchText = searchText.SearchText}))
+                )
+                .MinDocumentFrequency(1)
+                .MinTermFrequency(1));
 
             // Only retrieve live items at time of migration
             container.Terms(t => t.Field(f => f.EndRevision).Terms(ServiceConstants.VersionHead));

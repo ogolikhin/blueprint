@@ -9,6 +9,7 @@ using ServiceLibrary.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.ProjectMeta;
@@ -256,15 +257,15 @@ namespace ArtifactStore.Repositories
             {
                 await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, transaction);
 
+                int? baselineId = null;
                 if (effectiveIds.IsBaselineAdded)
                 {
-                    await CreateOrUpdateReviewBaselineLink(reviewId, content.ArtifactIds.First(),
-                        propertyResult.ProjectId.Value, userId, transaction);
+                    baselineId = content.ArtifactIds.First();
                 }
-                else
-                {
-                    await RemoveReviewBaselineLink(reviewId, userId, transaction);
-                }
+
+                await CreateUpdateRemoveReviewBaselineLink(reviewId, propertyResult.ProjectId.Value,
+                    userId, !effectiveIds.IsBaselineAdded, baselineId,  transaction);
+
             };
 
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
@@ -336,20 +337,21 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task CreateOrUpdateReviewBaselineLink(int reviewId, int baselineId, int projectId,
-            int userId, IDbTransaction transaction)
+        private async Task CreateUpdateRemoveReviewBaselineLink(int reviewId, int projectId,
+            int userId, bool onlyRemoveLink, int? baselineId, IDbTransaction transaction)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@reviewId", reviewId);
-            parameters.Add("@baselineId", baselineId);
             parameters.Add("@projectId", projectId);
             parameters.Add("@userId", userId);
+            parameters.Add("@onlyRemoveLink", onlyRemoveLink);
+            parameters.Add("@baselineId", baselineId != null ? baselineId.Value : 0);
 
             if (transaction == null)
             {
                 await _connectionWrapper.ExecuteAsync
                 (
-                    "CreateOrUpdateReviewBaselineLink",
+                    "CreateUpdateRemoveReviewBaselineLink",
                     parameters,
                     commandType: CommandType.StoredProcedure
                 );
@@ -358,7 +360,7 @@ namespace ArtifactStore.Repositories
             {
                 await transaction.Connection.ExecuteAsync
                 (
-                    "CreateOrUpdateReviewBaselineLink",
+                    "CreateUpdateRemoveReviewBaselineLink",
                     parameters,
                     transaction,
                     commandType: CommandType.StoredProcedure
@@ -1187,13 +1189,19 @@ namespace ArtifactStore.Repositories
 
         public async Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactApprovalAsync(int reviewId, ReviewArtifactApprovalParameter reviewArtifactApprovalParameters, int userId)
         {
-            if (reviewArtifactApprovalParameters == null || !reviewArtifactApprovalParameters.isExcludedArtifacts && (reviewArtifactApprovalParameters.ArtifactIds == null ||
-                !reviewArtifactApprovalParameters.ArtifactIds.Any()))
+            if (reviewArtifactApprovalParameters == null || reviewArtifactApprovalParameters.ArtifactIds == null || !reviewArtifactApprovalParameters.isExcludedArtifacts && 
+                !reviewArtifactApprovalParameters.ArtifactIds.Any())
             {
-                throw new BadRequestException("No artifacts provided", ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException("Bad parameters", ErrorCodes.OutOfRangeParameter);
+            }
+
+            if(reviewArtifactApprovalParameters.isExcludedArtifacts && reviewArtifactApprovalParameters.RevisionId == null)
+            {
+                throw new BadRequestException("Not all parameters provided", ErrorCodes.OutOfRangeParameter);
             }
 
             List<int> artifactIds = new List<int>();
+            bool isAllArtifactsProcessed;
 
             if (reviewArtifactApprovalParameters.isExcludedArtifacts)
             {
@@ -1209,17 +1217,20 @@ namespace ArtifactStore.Repositories
                 artifactIds.AddRange(reviewArtifactApprovalParameters.ArtifactIds);
             }
 
-            await CheckApprovalAndPermissions(reviewId, userId, artifactIds);
+            var eligibleArtifacts = await CheckApprovalsAndPermissions(reviewId, userId, artifactIds);
+            isAllArtifactsProcessed = eligibleArtifacts.Count == artifactIds.Count ?  true : false;
 
             var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
 
-            var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, artifactIds);
+            var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, eligibleArtifacts);
 
             var approvalResult = new List<ReviewArtifactApprovalResult>();
 
             var timestamp = _currentDateTimeService.GetUtcNow();
+            var approvedArtifacts = new List<ArtifactApprovalResult>();
+
             //Update approvals for the specified artifacts
-            foreach (var id in artifactIds)
+            foreach (var id in eligibleArtifacts)
             {
                 var reviewArtifactApproval = rdReviewedArtifacts.ReviewedArtifacts.FirstOrDefault(ra => ra.ArtifactId == id);
 
@@ -1257,8 +1268,7 @@ namespace ArtifactStore.Repositories
                 {
                     reviewArtifactApproval.ArtifactVersion = artifactVersionDictionary[id];
                 }
-
-                approvalResult.Add(new ReviewArtifactApprovalResult()
+                approvedArtifacts.Add(new ArtifactApprovalResult()
                 {
                     ArtifactId = reviewArtifactApproval.ArtifactId,
                     Timestamp = reviewArtifactApproval.ESignedOn,
@@ -1266,36 +1276,78 @@ namespace ArtifactStore.Repositories
                 });
             }
 
+            approvalResult.Add(new ReviewArtifactApprovalResult()
+            {
+                IsAllArtifactsProcessed = isAllArtifactsProcessed,
+                ApprovedArtifacts = approvedArtifacts
+            });
+
             await UpdateReviewUserStatsXmlAsync(reviewId, userId, rdReviewedArtifacts);
 
             return approvalResult;
         }
 
-        private async Task CheckApprovalAndPermissions(int reviewId, int userId, IEnumerable<int> artifactIds)
+        private async Task<List<int>> CheckApprovalsAndPermissions(int reviewId, int userId, IEnumerable<int> artifactIds)
         {
-            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
+            var approvalCheck = await CheckReviewArtifactsUserApprovalAsync(reviewId, userId, artifactIds);
 
-            CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);
+            CheckReviewStatsCanBeUpdated(approvalCheck.ReviewApprovalCheck, reviewId, true, true);
 
-            if (!approvalCheck.AllArtifactsRequireApproval)
+            if (approvalCheck.ReviewApprovalCheck.ReviewerStatus == ReviewStatus.Completed)
+            {
+                throw new ConflictException("Cannot update approval status, the review is completed.");
+            }
+
+            if (approvalCheck.ReviewApprovalCheck.ReviewStatus != ReviewPackageStatus.Active)
+            {
+                throw new ConflictException("Cannot update approval status, the review is not active.");
+            }
+
+            if (!approvalCheck.ReviewApprovalCheck.AllArtifactsRequireApproval && (approvalCheck.ValidArtifactIds == null || !approvalCheck.ValidArtifactIds.Any()))
             {
                 throw new BadRequestException("Not all artifacts require approval.");
             }
 
-            if (approvalCheck.ReviewerStatus == ReviewStatus.Completed)
+            if (approvalCheck.ReviewApprovalCheck.ReviewerRole != ReviewParticipantRole.Approver)
             {
-                throw new BadRequestException("Cannot update approval status, reviewer has completed the review.");
+                throw new ConflictException("Cannot update approval status, participant's role is invalid.");
             }
 
             //Check user has permission for the review and all of the artifact ids
-            await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIds);
+            return await CheckPermissionAndRemoveElligibleArtifacts(userId, reviewId, approvalCheck.ValidArtifactIds);
         }
 
-        public async Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, bool viewed, int userId)
+        private async Task<List<int>> CheckPermissionAndRemoveElligibleArtifacts(int userId, int reviewId, IEnumerable<int> artifactIds )
         {
-            var artifactIdEnumerable = new[] { artifactId };
+            var artifactIdsList = artifactIds.ToList();
 
-            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIdEnumerable);
+            artifactIdsList.Add(reviewId);
+
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIdsList, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                ThrowUserCannotAccessReviewException(reviewId);
+            }
+
+            artifactIdsList.RemoveAll(artifactId => !SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read));
+            artifactIdsList.Remove(reviewId);
+
+            if(!artifactIdsList.Any())
+            {
+                throw new AuthorizationException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.UnauthorizedAccess);
+            }
+
+            return artifactIdsList;
+        }
+
+
+
+        public async Task UpdateReviewArtifactsViewedAsync(int reviewId, ReviewArtifactViewedInput viewedInput, int userId)
+        {
+            var artifactIds = viewedInput.ArtifactIds.ToList();
+
+            var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, artifactIds);
 
             CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, false);
 
@@ -1304,37 +1356,55 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Cannot update view status, reviewer has completed the review.");
             }
 
+            var permissionIds = new List<int>(artifactIds)
+            {
+                reviewId
+            };
+
             //Check user has permission for the review and all of the artifact ids
-            await CheckReviewAndArtifactPermissions(userId, reviewId, artifactIdEnumerable);
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(permissionIds, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                ThrowUserCannotAccessReviewException(reviewId);
+            }
 
             Func<IDbTransaction, Task> transactionAction = async (transaction) =>
             {
                 var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId, transaction);
 
-                var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, artifactIdEnumerable, transaction);
+                var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, artifactIds, transaction);
 
-                var reviewedArtifact = rdReviewedArtifacts.ReviewedArtifacts.FirstOrDefault(ra => ra.ArtifactId == artifactId);
-
-                if (reviewedArtifact == null)
+                foreach (var artifactId in artifactIds)
                 {
-                    reviewedArtifact = new ReviewArtifactXml()
+                    var reviewedArtifact = rdReviewedArtifacts.ReviewedArtifacts.FirstOrDefault(ra => ra.ArtifactId == artifactId);
+
+                    if(!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
                     {
-                        ArtifactId = artifactId
-                    };
+                        continue;
+                    }
 
-                    rdReviewedArtifacts.ReviewedArtifacts.Add(reviewedArtifact);
-                }
+                    if (reviewedArtifact == null)
+                    {
+                        reviewedArtifact = new ReviewArtifactXml()
+                        {
+                            ArtifactId = artifactId
+                        };
 
-                if (viewed)
-                {
-                    reviewedArtifact.ViewState = ViewStateType.Viewed;
-                    reviewedArtifact.ArtifactVersion = artifactVersionDictionary[artifactId];
-                }
-                else
-                {
-                    reviewedArtifact.ViewState = ViewStateType.NotViewed;
-                    reviewedArtifact.ArtifactVersion = 0;
-                }
+                        rdReviewedArtifacts.ReviewedArtifacts.Add(reviewedArtifact);
+                    }
+
+                    if (viewedInput.Viewed.Value)
+                    {
+                        reviewedArtifact.ViewState = ViewStateType.Viewed;
+                        reviewedArtifact.ArtifactVersion = artifactVersionDictionary[artifactId];
+                    }
+                    else
+                    {
+                        reviewedArtifact.ViewState = ViewStateType.NotViewed;
+                        reviewedArtifact.ArtifactVersion = 0;
+                    }
+                }   
 
                 await UpdateReviewUserStatsXmlAsync(reviewId, userId, rdReviewedArtifacts, transaction);
             };
@@ -1427,7 +1497,7 @@ namespace ArtifactStore.Repositories
             return _connectionWrapper.ExecuteScalarAsync<bool>("GetReviewRequireAllArtifactsReviewed", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview)
+        private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview, bool byPassArtifacts = false)
         {
             //Check the review exists and is active
             if (!approvalCheck.ReviewExists
@@ -1450,7 +1520,7 @@ namespace ArtifactStore.Repositories
             }
 
             //Check artifacts are part of the review and require approval
-            if (!approvalCheck.AllArtifactsInReview)
+            if (!approvalCheck.AllArtifactsInReview && !byPassArtifacts)
             {
                 throw new BadRequestException("Artifact is not a part of this review.", ErrorCodes.ArtifactNotFound);
             }
@@ -1474,6 +1544,25 @@ namespace ArtifactStore.Repositories
                 throw new AuthorizationException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.UnauthorizedAccess);
             }
         }
+
+        private async Task<ReviewApprovalCheckArtifacts> CheckReviewArtifactsUserApprovalAsync(int reviewId, int userId, IEnumerable<int> artifactIds)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            var result = await _connectionWrapper.QueryMultipleAsync<ReviewArtifactApprovalCheck, int>("CheckReviewArtifactUserApproval", parameters, commandType: CommandType.StoredProcedure);
+
+            return new ReviewApprovalCheckArtifacts
+            {
+               ReviewApprovalCheck = result.Item1.SingleOrDefault(),
+
+               ValidArtifactIds = result.Item2.ToList()
+            };
+        }
+
+
 
         private async Task<ReviewArtifactApprovalCheck> CheckReviewArtifactApprovalAsync(int reviewId, int userId, IEnumerable<int> artifactIds)
         {

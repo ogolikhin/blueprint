@@ -237,28 +237,28 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get list of project artifact type assigned to a workflowId
+        /// Get list of project artifact types assigned to a workflowId
         /// </summary>
         /// <param name="workflowId"></param>   
         /// <param name="pagination">Limit and offset values to query workflows</param>
         /// <param name="search">(optional) Search query parameter</param>      
-        /// <response code="200">OK. List of assigned project artifact type for Workflow</response>       
+        /// <response code="200">OK. List of assigned project artifact types for Workflow</response>       
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">User doesn’t have permission to access project artifact type assigned to workflow.</response>
-        /// <response code="404">Not Found. Project artifact type with workflowId were not found.</response>
+        /// <response code="403">User doesn’t have permission to access project artifact types assigned to workflow.</response>
+        /// <response code="404">Not Found. Project artifact types with workflowId were not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// 
         [HttpGet, NoCache]
         [Route("{workflowId:int:min(1)}/projects"), SessionRequired]
-        [ResponseType(typeof(QueryResult<WorkflowProjectArtifactsDto>))]
-        public async Task<IHttpActionResult> GetProjectArtifactsAssignedtoWorkflowAsync(int workflowId, [FromUri] Pagination pagination, string search = null)
+        [ResponseType(typeof(QueryResult<WorkflowProjectArtifactTypeDto>))]
+        public async Task<IHttpActionResult> GetProjectArtifactTypesAssignedToWorkflowAsync(int workflowId, [FromUri] Pagination pagination, string search = null)
         {
             pagination.Validate();
             SearchFieldValidator.Validate(search);
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            var availiableProjects = await _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(workflowId, pagination, 
+            var availiableProjects = await _workflowRepository.GetProjectArtifactTypesAssignedtoWorkflowAsync(workflowId, pagination, 
                  search);
 
             return Ok(availiableProjects);

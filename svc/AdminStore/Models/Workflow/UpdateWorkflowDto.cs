@@ -4,6 +4,6 @@
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public StatusUpdate Status { get; set; }
+        public bool Status { get; set; }
     }
 }

@@ -88,7 +88,10 @@
         public static readonly string WorkflowAlreadyExists = "Workflow with such a name already exists";
         public static readonly string GeneralErrorOfCreatingWorkflow = "General error of creating workflow";
         public static readonly string GeneralErrorOfAssignProjectsAndArtifactsToWorkflow = "General error of assign projects and artifacts to workflows";
-        public static readonly string WorkflowProjectDoNotHasArtifactTypes = "Project of workflow doesn't have assigned artifact types";
+        public static readonly string WorkflowProjectDoNotHasArtifactTypes = "Project of workflow doesn't have assigned artifact types.";
+        public static readonly string GeneralErrorOfUpdatingWorkflow = "General error of updating workflow.";
+        public static readonly string WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated = "Workflow without project/artifact type assignments cannot be activated.";
+        public static readonly string WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow = "There is at least one project-artifact type assigned to the current workflow which is also assigned to another active workflow.";
 
 
         //Folder

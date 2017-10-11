@@ -19,7 +19,7 @@ namespace AdminStore.Services.Workflow
 
         Task<int> UpdateWorkflowStatusAsync(StatusUpdate statusUpdate, int workflowId, int userId);
 
-        Task<int> UpdateWorkflowAsync(UpdateWorkflowDto workflowDto, int workflowId, int userId);
+        Task UpdateWorkflowAsync(UpdateWorkflowDto workflowDto, int workflowId, int userId);
 
         Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId);
 

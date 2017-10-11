@@ -867,6 +867,54 @@ namespace AdminStore.Repositories.Workflow
             return versionId;
         }
 
+        public async Task UpdateWorkflowAsync(SqlWorkflow workflow, int revision, IDbTransaction transaction = null)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@WorkflowId", workflow.WorkflowId);
+            parameters.Add("@Name", workflow.Name);
+            parameters.Add("@Description", workflow.Description);
+            parameters.Add("@Status", workflow.Active);
+            parameters.Add("@RevisionId", revision);
+
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            if (transaction != null)
+            {
+                    await
+                        transaction.Connection.ExecuteScalarAsync<int>("UpdateWorkflow", parameters, transaction,
+                            commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                    await
+                        _connectionWrapper.ExecuteScalarAsync<int>("UpdateWorkflow", parameters,
+                            commandType: CommandType.StoredProcedure);
+            }
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingWorkflow);
+
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
+
+                    case (int)SqlErrorCodes.WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated:
+                        throw new ConflictException(ErrorMessages.ParentFolderIdReferenceToDescendantItem, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow:
+                        throw new ConflictException(ErrorMessages.WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow, ErrorCodes.Conflict);
+                }
+            }
+        }
+
         #endregion
 
         #region Private methods

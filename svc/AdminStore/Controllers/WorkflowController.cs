@@ -391,10 +391,7 @@ namespace AdminStore.Controllers
         /// Update workflow
         /// </summary>
         /// <param name="workflowId">Workflow identity</param>
-        /// <param name="workflowDto">StatusUpdate model</param>
-        /// <remarks>
-        /// Returns versionId.
-        /// </remarks>
+        /// <param name="workflowDto">WorkflowDto model</param>
         /// <response code="200">Ok. Workflow is updated.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
@@ -404,9 +401,9 @@ namespace AdminStore.Controllers
         [HttpPut]
         [FeatureActivation(FeatureTypes.Workflow)]
         [SessionRequired]
-        [ResponseType(typeof(int))]
+        [ResponseType(typeof(HttpResponseMessage))]
         [Route("{workflowId:int:min(1)}")]
-        public async Task<IHttpActionResult> UpdateWorkflow(int workflowId, [FromBody] UpdateWorkflowDto workflowDto)
+        public async Task<HttpResponseMessage> UpdateWorkflow(int workflowId, [FromBody] UpdateWorkflowDto workflowDto)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
@@ -417,9 +414,9 @@ namespace AdminStore.Controllers
 
             workflowDto.Validate();
                         
-            var versionId = await _workflowService.UpdateWorkflowAsync(workflowDto, workflowId, Session.UserId);
+            await _workflowService.UpdateWorkflowAsync(workflowDto, workflowId, Session.UserId);
 
-            return Ok(versionId);
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         /// <summary>

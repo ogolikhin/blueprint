@@ -573,8 +573,6 @@ namespace AdminStore.Repositories
                 _workflowRepository.UnassignProjectsAndArtifactTypesFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
 
             // Assert
-            _sqlConnectionWrapperMock.Verify();
-
         }
 
         [TestMethod]

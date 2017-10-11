@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories.ApplicationSettings;
@@ -654,7 +655,33 @@ namespace ArtifactStore.Repositories
                 TotalArtifactsRequestedApproval = participants.Item4.SingleOrDefault()
             };
 
+            var meaningOfSignatures = await GetMeaningOfSignaturesForParticipantAsync(reviewId, userId);
+
+            foreach (var reviewer in reviewersRoot.Items)
+            {
+                if (meaningOfSignatures.ContainsKey(reviewer.UserId))
+                {
+                    reviewer.MeaningOfSignatureIds = meaningOfSignatures[reviewer.UserId];
+                }
+                else
+                {
+                    reviewer.MeaningOfSignatureIds = new int[0];
+                }
+            }
+
             return reviewersRoot;
+        }
+
+        private async Task<Dictionary<int, List<int>>> GetMeaningOfSignaturesForParticipantAsync(int reviewId, int userId)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("reviewId", reviewId);
+            parameters.Add("userId", userId);
+
+            var result = await _connectionWrapper.QueryAsync<ParticipantMeaningOfSignatureResult>("GetParticipantsMeaningOfSignatures", parameters, commandType: CommandType.StoredProcedure);
+
+            return result.GroupBy(mos => mos.ParticipantId, mos => mos.MeaningOfSignatureId).ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
         }
 
         public async Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipant(int artifactId, int reviewId, Pagination pagination, int userId, int? versionId = null, bool? addDrafts = true)

@@ -32,6 +32,9 @@ namespace ArtifactStore.Models.Review
 
         [DataMember]
         public int Viewed { get; set; }
+
+        [DataMember]
+        public IEnumerable<int> MeaningOfSignatureIds { get; set; }
     }
 
     public class ReviewParticipantsContent

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories.ApplicationSettings;
@@ -133,96 +134,6 @@ namespace ArtifactStore.Repositories
             return reviewContainer;
         }
 
-        public async Task<ReviewSummaryMetrics> GetReviewSummaryMetrics(int containerId, int userId)
-        {
-            var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(containerId, null, userId);
-            if (reviewInfo.IsDeleted || reviewInfo.PredefinedType != ItemTypePredefined.ArtifactReviewPackage)
-            {
-                ThrowReviewNotFoundException(containerId);
-            }
-
-            var reviewDetails = await GetReviewSummaryDetails(containerId, userId);
-
-            if (reviewDetails == null)
-            {
-                ThrowReviewNotFoundException(containerId);
-            }
-
-            if (reviewDetails.ReviewPackageStatus == ReviewPackageStatus.Draft)
-            {
-                ThrowReviewNotFoundException(containerId);
-            }
-
-            if (!reviewDetails.ReviewParticipantRole.HasValue && reviewDetails.TotalReviewers > 0)
-            {
-                ThrowUserCannotAccessReviewException(containerId);
-            }
-
-            var reviewSource = new ReviewSource();
-            if (reviewDetails.BaselineId.HasValue)
-            {
-                var baselineInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewDetails.BaselineId.Value, null, userId);
-                reviewSource.Id = baselineInfo.Id;
-                reviewSource.Name = baselineInfo.Name;
-                reviewSource.Prefix = baselineInfo.Prefix;
-            }
-          
-            var participants = await GetAllReviewParticipantsAsync(containerId, userId);
-            var description = await _itemInfoRepository.GetItemDescription(containerId, userId, false, int.MaxValue);
-
-            var reviewContainer = new ReviewSummaryMetrics
-            {
-                Id = containerId,
-                
-                RevisionId = reviewDetails.RevisionId,
-              
-                Status = reviewDetails.ReviewStatus,
-
-                Artifacts = new ArtifactsMetrics
-                {
-                    Total = reviewDetails.TotalArtifacts,
-                    ArtifactStatus =  new ReviewArtifactsStatus
-                    {
-                        Pending = reviewDetails.Pending,
-                        Approved = reviewDetails.Approved,
-                        Disapproved = reviewDetails.Disapproved,
-                        Viewed = reviewDetails.Viewed,
-                        Unviewed = reviewDetails.TotalArtifacts - reviewDetails.Viewed 
-                    },
-                    RequestStatus = new ReviewRequestStatus
-                    {
-                        ApprovalRequested = participants.TotalArtifactsRequestedApproval,
-                        ReviewRequested = participants.TotalArtifacts - participants.TotalArtifactsRequestedApproval
-                    }
-                    
-                },
-
-                Participants = new ParticipantsMetrics
-                {
-                    Total = participants.Total,
-                    RoleStatus = new ParticipantRoles
-                    {
-                        Approvers = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver).ToList().Count,
-                        Reviewers = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer).ToList().Count
-                    },
-                    ApproverStatus = new ParticipantStatus
-                    {
-                        Completed = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.Completed).ToList().Count,
-                        InProgress = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.InProgress).ToList().Count,
-                        NotStarted = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.NotStarted).ToList().Count
-                    },
-                    ReviewerStatus = new ParticipantStatus
-                    {
-                        Completed = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.Completed).ToList().Count,
-                        InProgress = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.InProgress).ToList().Count,
-                        NotStarted = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.NotStarted).ToList().Count
-                    }
-                }
-            };
-
-            return reviewContainer;
-        }
-
         private ReviewType GetReviewType(ReviewSummaryDetails reviewDetails)
         {
             if (reviewDetails.TotalReviewers == 0)
@@ -341,7 +252,13 @@ namespace ArtifactStore.Repositories
                 }
             }
 
-            var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml, new HashSet<int>(effectiveIds.ArtifactIds), out alreadyIncludedCount);
+            // We replace all artifacts if baseline was added or baseline was replaced
+            bool replaceAllArtifacts = effectiveIds.IsBaselineAdded || propertyResult.BaselineId != null;
+
+            var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml,
+                new HashSet<int>(effectiveIds.ArtifactIds),
+                replaceAllArtifacts,
+                out alreadyIncludedCount);
 
             Func<IDbTransaction, Task> transactionAction = async (transaction) =>
             {
@@ -486,11 +403,11 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        private string AddArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToAdd, out int alreadyIncluded)
+        private string AddArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToAdd, bool replaceAllArtifacts, out int alreadyIncluded)
         {
             alreadyIncluded = 0;
             RDReviewContents rdReviewContents;
-            if (string.IsNullOrEmpty(xmlArtifacts))
+            if (replaceAllArtifacts || string.IsNullOrEmpty(xmlArtifacts))
             {
                 rdReviewContents = new RDReviewContents();
                 rdReviewContents.Artifacts = new List<RDArtifact>();
@@ -746,41 +663,33 @@ namespace ArtifactStore.Repositories
                 TotalArtifactsRequestedApproval = participants.Item4.SingleOrDefault()
             };
 
+            var meaningOfSignatures = await GetMeaningOfSignaturesForParticipantAsync(reviewId, userId);
+
+            foreach (var reviewer in reviewersRoot.Items)
+            {
+                if (meaningOfSignatures.ContainsKey(reviewer.UserId))
+                {
+                    reviewer.MeaningOfSignatureIds = meaningOfSignatures[reviewer.UserId];
+                }
+                else
+                {
+                    reviewer.MeaningOfSignatureIds = new int[0];
+                }
+            }
+
             return reviewersRoot;
         }
 
-        public async Task<ReviewParticipantsContent> GetAllReviewParticipantsAsync(int reviewId, int userId, int? versionId = null, bool? addDrafts = true)
+        private async Task<Dictionary<int, List<int>>> GetMeaningOfSignaturesForParticipantAsync(int reviewId, int userId)
         {
-            if (versionId < 1)
-            {
-                throw new BadRequestException(nameof(versionId) + " cannot be less than 1.", ErrorCodes.InvalidParameter);
-            }
+            var parameters = new DynamicParameters();
 
-            int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
+            parameters.Add("reviewId", reviewId);
+            parameters.Add("userId", userId);
 
-            if (revisionId < int.MaxValue)
-            {
-                addDrafts = false;
-            }
+            var result = await _connectionWrapper.QueryAsync<ParticipantMeaningOfSignatureResult>("GetParticipantsMeaningOfSignatures", parameters, commandType: CommandType.StoredProcedure);
 
-            var param = new DynamicParameters();
-
-            param.Add("@reviewId", reviewId);
-            param.Add("@revisionId", revisionId);
-            param.Add("@userId", userId);
-            param.Add("@addDrafts", addDrafts);
-
-            var participants = await _connectionWrapper.QueryMultipleAsync<ReviewParticipant, int, int, int>("GetAllReviewParticipants", param, commandType: CommandType.StoredProcedure);
-
-            var reviewersRoot = new ReviewParticipantsContent()
-            {
-                Items = participants.Item1.ToList(),
-                Total = participants.Item2.SingleOrDefault(),
-                TotalArtifacts = participants.Item3.SingleOrDefault(),
-                TotalArtifactsRequestedApproval = participants.Item4.SingleOrDefault()
-            };
-
-            return reviewersRoot;
+            return result.GroupBy(mos => mos.ParticipantId, mos => mos.MeaningOfSignatureId).ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
         }
 
         public async Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipant(int artifactId, int reviewId, Pagination pagination, int userId, int? versionId = null, bool? addDrafts = true)
@@ -1316,12 +1225,12 @@ namespace ArtifactStore.Repositories
             if (reviewArtifactApprovalParameters == null || reviewArtifactApprovalParameters.ArtifactIds == null || !reviewArtifactApprovalParameters.isExcludedArtifacts && 
                 !reviewArtifactApprovalParameters.ArtifactIds.Any())
             {
-                throw new BadRequestException("Bad parameters", ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException("Bad parameters.", ErrorCodes.OutOfRangeParameter);
             }
 
             if(reviewArtifactApprovalParameters.isExcludedArtifacts && reviewArtifactApprovalParameters.RevisionId == null)
             {
-                throw new BadRequestException("Not all parameters provided", ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException("Not all parameters provided.", ErrorCodes.OutOfRangeParameter);
             }
 
             List<int> artifactIds = new List<int>();
@@ -1417,9 +1326,9 @@ namespace ArtifactStore.Repositories
 
             CheckReviewStatsCanBeUpdated(approvalCheck.ReviewApprovalCheck, reviewId, true, true);
 
-            if (approvalCheck.ReviewApprovalCheck.ReviewerStatus == ReviewStatus.Completed)
+            if (approvalCheck.ReviewApprovalCheck.ReviewerStatus != ReviewStatus.InProgress)
             {
-                throw new ConflictException("Cannot update approval status, the review is completed.");
+                throw new ConflictException("Cannot update approval status, the review is not in progress.");
             }
 
             if (approvalCheck.ReviewApprovalCheck.ReviewStatus != ReviewPackageStatus.Active)
@@ -1437,6 +1346,11 @@ namespace ArtifactStore.Repositories
                 throw new ConflictException("Cannot update approval status, participant's role is invalid.");
             }
 
+            if (!approvalCheck.ValidArtifactIds.Any())
+            {
+                throw new BadRequestException("The status cannot be updated for the requested artifacts.");
+            }
+
             //Check user has permission for the review and all of the artifact ids
             return await CheckPermissionAndRemoveElligibleArtifacts(userId, reviewId, approvalCheck.ValidArtifactIds);
         }
@@ -1449,7 +1363,8 @@ namespace ArtifactStore.Repositories
 
             var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIdsList, userId);
 
-            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            // Count = 2 because it includes review id 
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read) && artifactIdsList.Count == 2 )
             {
                 ThrowUserCannotAccessReviewException(reviewId);
             }

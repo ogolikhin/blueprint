@@ -29,10 +29,11 @@
                 <ModulePath>.*testadapter\.dll$</ModulePath>
                 <ModulePath>.*HtmlAgilityPack\.dll$</ModulePath>
                 <ModulePath>.*Logging.Database\.dll$</ModulePath>
-				<ModulePath>.*NServiceBus.Core\.dll$</ModulePath>
-				<ModulePath>.*NServiceBus.Transport.SqlServer\.dll$</ModulePath>
-				<ModulePath>.*NServiceBus.Transports.RabbitMQ\.dll$</ModulePath>
-				<ModulePath>.*BluePrintSys.Messaging.CrossCutting\.dll$</ModulePath>
+                <ModulePath>.*NServiceBus.Core\.dll$</ModulePath>
+                <ModulePath>.*NServiceBus.Transport.SqlServer\.dll$</ModulePath>
+                <ModulePath>.*NServiceBus.Transports.RabbitMQ\.dll$</ModulePath>
+                <ModulePath>.*BluePrintSys.Messaging.CrossCutting\.dll$</ModulePath>
+                <ModulePath>.*BluePrintSys.Messaging.Models.Actions\.dll$</ModulePath>
               </Exclude>
             </ModulePaths>
             <Attributes>
@@ -44,6 +45,12 @@
                 <Attribute>^System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute$</Attribute>
               </Exclude>
             </Attributes>
+            <Functions>
+              <Exclude>
+                <!-- Skip some namespaces for which unit tests would have little value --> 
+                <Function>^ArtifactStore\.Repositories\.VersionControl\..*</Function> 
+              </Exclude>  
+            </Functions>
           </CodeCoverage>
         </Configuration>
       </DataCollector>

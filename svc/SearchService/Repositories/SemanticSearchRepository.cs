@@ -15,6 +15,8 @@ namespace SearchService.Repositories
         Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId);
         Task<SemanticSearchSetting> GetSemanticSearchSetting();
         Task<SemanticSearchText> GetSemanticSearchText(int artifactId, int userId);
+        Task<List<int>> GetItemSimilarItemIds(int artifactId, int userId, int limit, bool isInstanceAdmin,
+            IEnumerable<int> projectIds);
     }
     public class SemanticSearchRepository: ISemanticSearchRepository
     {
@@ -81,6 +83,19 @@ namespace SearchService.Repositories
                 (await
                     _connectionWrapper.QueryAsync<SemanticSearchText>("SELECT * FROM dbo.GetItemSemanticSearchNameSearchText(@userId,@itemId)", prm,
                         commandType: CommandType.Text)).FirstOrDefault();
+        }
+
+        public async Task<List<int>> GetItemSimilarItemIds(int artifactId, int userId, int limit, bool isInstanceAdmin, IEnumerable<int> projectIds)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@itemId", artifactId);
+            prm.Add("@userId", userId);
+            prm.Add("@limit", limit);
+            prm.Add("@allProjects", isInstanceAdmin);
+            prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(projectIds));
+
+            return (await
+                    _connectionWrapper.QueryAsync<int>("GetItemSimilarItemIds", prm, commandType: CommandType.StoredProcedure)).ToList();
         }
     }
 }

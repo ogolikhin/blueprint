@@ -1190,12 +1190,12 @@ namespace ArtifactStore.Repositories
             if (reviewArtifactApprovalParameters == null || reviewArtifactApprovalParameters.ArtifactIds == null || !reviewArtifactApprovalParameters.isExcludedArtifacts && 
                 !reviewArtifactApprovalParameters.ArtifactIds.Any())
             {
-                throw new BadRequestException("Bad parameters", ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException("Bad parameters.", ErrorCodes.OutOfRangeParameter);
             }
 
             if(reviewArtifactApprovalParameters.isExcludedArtifacts && reviewArtifactApprovalParameters.RevisionId == null)
             {
-                throw new BadRequestException("Not all parameters provided", ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException("Not all parameters provided.", ErrorCodes.OutOfRangeParameter);
             }
 
             List<int> artifactIds = new List<int>();
@@ -1291,9 +1291,9 @@ namespace ArtifactStore.Repositories
 
             CheckReviewStatsCanBeUpdated(approvalCheck.ReviewApprovalCheck, reviewId, true, true);
 
-            if (approvalCheck.ReviewApprovalCheck.ReviewerStatus == ReviewStatus.Completed)
+            if (approvalCheck.ReviewApprovalCheck.ReviewerStatus != ReviewStatus.InProgress)
             {
-                throw new ConflictException("Cannot update approval status, the review is completed.");
+                throw new ConflictException("Cannot update approval status, the review is not in progress.");
             }
 
             if (approvalCheck.ReviewApprovalCheck.ReviewStatus != ReviewPackageStatus.Active)
@@ -1311,6 +1311,11 @@ namespace ArtifactStore.Repositories
                 throw new ConflictException("Cannot update approval status, participant's role is invalid.");
             }
 
+            if (!approvalCheck.ValidArtifactIds.Any())
+            {
+                throw new BadRequestException("The status cannot be updated for the requested artifacts.");
+            }
+
             //Check user has permission for the review and all of the artifact ids
             return await CheckPermissionAndRemoveElligibleArtifacts(userId, reviewId, approvalCheck.ValidArtifactIds);
         }
@@ -1323,7 +1328,7 @@ namespace ArtifactStore.Repositories
 
             var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIdsList, userId);
 
-            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read) && artifactIdsList.Count == 1 )
             {
                 ThrowUserCannotAccessReviewException(reviewId);
             }

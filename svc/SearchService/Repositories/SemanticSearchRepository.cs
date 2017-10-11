@@ -12,10 +12,9 @@ namespace SearchService.Repositories
     public interface ISemanticSearchRepository
     {
         Task<List<int>> GetAccessibleProjectIds(int userId);
-        // TEMPORARY ADDED artifactId
-        Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId, int artifactId);
+        Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId);
         Task<SemanticSearchSetting> GetSemanticSearchSetting();
-        Task<string> GetSemanticSearchText(int artifactId, int userId);
+        Task<SemanticSearchText> GetSemanticSearchText(int artifactId, int userId);
     }
     public class SemanticSearchRepository: ISemanticSearchRepository
     {
@@ -29,43 +28,12 @@ namespace SearchService.Repositories
         {
             _connectionWrapper = connectionWrapper;
         }
-        
-//// TEMPORARRY CODE ----------------------------------------------
 
-        private async Task<Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, int revisionId, bool addDrafts)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@userId", sessionUserId);
-            prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
-
-            return (await _connectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
-        }
-
-        private async Task<ICollection<int>> GetProjectArtifactIds(int userId, int projectId)
+        public async Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId)
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", userId);
-            prm.Add("@projectId", projectId);
-            prm.Add("@revisionId", int.MaxValue);
-            prm.Add("@addDrafts", false);
-
-            return (await _connectionWrapper.QueryAsync<int>("GetProjectArtifactIds", prm, commandType: CommandType.StoredProcedure)).ToList<int>();
-        }
-//// TEMPORARRY CODE ----------------------------------------------
-
-        public async Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId, int artifactId)
-        {
-//// TEMPORARRY CODE ----------------------------------------------
-            var ids = new List<int>();
-            ids.Add(artifactId);
-            var multipleResult = await GetArtifactsProjects(ids, userId, 0, false);
-            var projectId = multipleResult.Item1.ToList()[0].VersionProjectId;
-            var resultArtifactIds = (await GetProjectArtifactIds(userId, projectId)).ToList().Take(10);
-//// TEMPORARRY CODE ----------------------------------------------
-
-            var prm = new DynamicParameters();
-            prm.Add("@userId", userId);
-            prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(resultArtifactIds));
+            prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
 
             return (await _connectionWrapper.QueryAsync<ArtifactSearchResult>("GetSuggestedArtifactDetails", prm, commandType: CommandType.StoredProcedure)).ToList();
         }
@@ -103,7 +71,7 @@ namespace SearchService.Repositories
             };
         }
 
-        public async Task<string> GetSemanticSearchText(int artifactId, int userId)
+        public async Task<SemanticSearchText> GetSemanticSearchText(int artifactId, int userId)
         {
             var prm = new DynamicParameters();
             prm.Add("@itemId", artifactId);
@@ -111,7 +79,7 @@ namespace SearchService.Repositories
 
             return
                 (await
-                    _connectionWrapper.QueryAsync<string>("SELECT dbo.GetItemSemanticSearchText(@userId,@itemId)", prm,
+                    _connectionWrapper.QueryAsync<SemanticSearchText>("SELECT * FROM dbo.GetItemSemanticSearchNameSearchText(@userId,@itemId)", prm,
                         commandType: CommandType.Text)).FirstOrDefault();
         }
     }

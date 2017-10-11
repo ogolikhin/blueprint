@@ -87,7 +87,7 @@
         public static readonly string CreateWorkfloModelIsEmpty = "The body of the call is malformed or has invalid parameter";
         public static readonly string WorkflowAlreadyExists = "Workflow with such a name already exists";
         public static readonly string GeneralErrorOfCreatingWorkflow = "General error of creating workflow";
-        public static readonly string GeneralErrorOfAssignProjectsAndArtifactsToWorkflow = "General error of assign projects and artifacts to workflows";
+        public static readonly string GeneralErrorOfAssignProjectsAndArtifactTypesToWorkflow = "General error of assign projects and artifacts to workflows";
         public static readonly string WorkflowProjectDoNotHasArtifactTypes = "Project of workflow doesn't have assigned artifact types";
 
 
@@ -129,7 +129,7 @@
         public static readonly string RoleAssignmentNotFound = "Project Role Assignment with the current id is not found.";
 
         //Artifacts
-        public static readonly string ArtifactIdsNotValid = "Please provide valid artifact ids";
+        public static readonly string ArtifactTypeIdsNotValid = "Please provide valid artifact ids";
 
     }
 }

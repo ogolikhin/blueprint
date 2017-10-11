@@ -41,17 +41,17 @@ namespace AdminStore.Repositories.Workflow
         #endregion
 
         #region Interface implementation
-        public async Task<int> AssignProjectsAndArtifactsToWorkflow(int workflowId, WorkflowAssignScope scope)
+        public async Task<int> AssignProjectsAndArtifactTypesToWorkflow(int workflowId, WorkflowAssignScope scope)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@WorkflowId", workflowId);
-            parameters.Add("@AllArtifacts", scope.AllArtifacts, dbType: DbType.Boolean);
+            parameters.Add("@AllArtifactTypes", scope.AllArtifacts, dbType: DbType.Boolean);
             parameters.Add("@AllProjects", scope.AllProjects, dbType: DbType.Boolean);
-            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@ArtifactTypesIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds, "Int32Collection", "Int32Value"));
             parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.ProjectIds, "Int32Collection", "Int32Value"));
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactsToWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactTypesToWorkflow", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
 
             if (errorCode.HasValue)
@@ -59,7 +59,7 @@ namespace AdminStore.Repositories.Workflow
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
+                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactTypesToWorkflow);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
@@ -672,7 +672,7 @@ namespace AdminStore.Repositories.Workflow
             else return new List<InstanceItem>();           
         }
 
-        public async Task<QueryResult<WorkflowProjectArtifactsDto>> GetProjectArtifactsAssignedtoWorkflowAsync(int workflowId, Pagination pagination, 
+        public async Task<QueryResult<WorkflowProjectArtifactTypeDto>> GetProjectArtifactTypesAssignedtoWorkflowAsync(int workflowId, Pagination pagination, 
                                             string search = null)
         {
             if (workflowId < 1)
@@ -692,16 +692,16 @@ namespace AdminStore.Repositories.Workflow
             prm.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
             prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var items = (await _connectionWrapper.QueryAsync<WorkflowProjectArtifacts>("GetWorkflowProjectsArtifactTypes", prm, commandType: CommandType.StoredProcedure));
+            var items = (await _connectionWrapper.QueryAsync<WorkflowProjectArtifactType>("GetWorkflowProjectsArtifactTypes", prm, commandType: CommandType.StoredProcedure));
 
-            var workflowArtifacts = items as WorkflowProjectArtifacts[] ?? items.ToArray();
-            var projectIds = workflowArtifacts.Select(x => x.ProjectId).Distinct().ToList();
+            var workflowArtifactTypes = items as WorkflowProjectArtifactType[] ?? items.ToArray();
+            var projectIds = workflowArtifactTypes.Select(x => x.ProjectId).Distinct().ToList();
 
-            var groupedList = new List<WorkflowProjectArtifactsDto>();
+            var groupedList = new List<WorkflowProjectArtifactTypeDto>();
 
             foreach (var projectId in projectIds)
             {
-                var artifacts = workflowArtifacts.Where(x => x.ProjectId == projectId).ToList();
+                var artifacts = workflowArtifactTypes.Where(x => x.ProjectId == projectId).ToList();
                 
                 var projectArtifacts = artifacts.Select(artifact => new WorkflowArtifact()
                 {
@@ -710,7 +710,7 @@ namespace AdminStore.Repositories.Workflow
               
                 string projectName = artifacts[0].ProjectName;
 
-                var groupedProjectArtifacts = new WorkflowProjectArtifactsDto()
+                var groupedProjectArtifacts = new WorkflowProjectArtifactTypeDto()
                 {
                     ProjectId = projectId,
                     ProjectName = projectName,
@@ -731,7 +731,7 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            return new QueryResult<WorkflowProjectArtifactsDto>() { Items = groupedList, Total = total ?? 0 };
+            return new QueryResult<WorkflowProjectArtifactTypeDto>() { Items = groupedList, Total = total ?? 0 };
         }
 
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
@@ -984,7 +984,7 @@ namespace AdminStore.Repositories.Workflow
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
+                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactTypesToWorkflow);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);

@@ -42,31 +42,31 @@ namespace AdminStore.Repositories
         private List<int> _listArtifactTypesIds;
         private IEnumerable<SyncResult> _outputSyncResult = new List<SyncResult>() { new SyncResult { TotalAdded = 2, TotalDeleted = 1 } };
 
-        #region AssignProjectsAndArtifactsToWorkflow
+        #region AssignProjectsAndArtifactTypesToWorkflow
         [TestMethod]
-        public async Task AssignProjectsAndArtifactsToWorkflow_ExistsAssignedProjects_QueryReturnCountAssignedProjects()
+        public async Task AssignProjectsAndArtifactTypesToWorkflow_ExistsAssignedProjects_QueryReturnCountAssignedProjects()
         {
             //arrange    
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactsToWorkflow", It.IsAny<Dictionary<string, object>>(), 2);
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactTypesToWorkflow", It.IsAny<Dictionary<string, object>>(), 2);
 
             //act
-            var result = await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(_workflowId, _workflowAssignScope);
+            var result = await _workflowRepository.AssignProjectsAndArtifactTypesToWorkflow(_workflowId, _workflowAssignScope);
 
             //assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
-        public async Task AssignProjectsAndArtifactsToWorkflow_WorkflowByWorkflowIdIsActive_ReturnConflictExceptionE()
+        public async Task AssignProjectsAndArtifactTypesToWorkflow_WorkflowByWorkflowIdIsActive_ReturnConflictExceptionE()
         {
             //arrange      
             Exception exception = null;            
 
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactsToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive } });
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactTypesToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive } });
             //act
             try
             {
-                await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(_workflowId, _workflowAssignScope);
+                await _workflowRepository.AssignProjectsAndArtifactTypesToWorkflow(_workflowId, _workflowAssignScope);
             }
             catch (Exception ex)
             {
@@ -78,16 +78,16 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task AssignProjectsAndArtifactsToWorkflow_WorkflowByWorkflowIdIsNotFound_ReturnResourceNotFoundExceptionE()
+        public async Task AssignProjectsAndArtifactTypesToWorkflow_WorkflowByWorkflowIdIsNotFound_ReturnResourceNotFoundExceptionE()
         {
             //arrange                  
             Exception exception = null;            
 
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactsToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist } });
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactTypesToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist } });
             //act
             try
             {
-                await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(_workflowId, _workflowAssignScope);
+                await _workflowRepository.AssignProjectsAndArtifactTypesToWorkflow(_workflowId, _workflowAssignScope);
             }
             catch (Exception ex)
             {
@@ -99,16 +99,16 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task AssignProjectsAndArtifactsToWorkflow_GeneralSQLException_ReturnException()
+        public async Task AssignProjectsAndArtifactTypesToWorkflow_GeneralSQLException_ReturnException()
         {
             //arrange                  
             Exception exception = null;           
 
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactsToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactTypesToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.GeneralSqlError } });
             //act
             try
             {
-                await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(_workflowId, _workflowAssignScope);
+                await _workflowRepository.AssignProjectsAndArtifactTypesToWorkflow(_workflowId, _workflowAssignScope);
             }
             catch (Exception ex)
             {
@@ -624,18 +624,18 @@ namespace AdminStore.Repositories
 
         #endregion
 
-        #region GetProjectArtifactsAssignedToWorkflowAsync
+        #region GetProjectArtifactTypesAssignedToWorkflowAsync
 
         [TestMethod]
-        public async Task GetProjectArtifactsAssignedToWorkflowAsync_ArtifactsAreFound_SuccessfulResult()
+        public async Task GetProjectArtifactTypesAssignedtoWorkflowAsync_ArtifactsAreFound_SuccessfulResult()
         {
             // Arrange
             int errorCode = 0;
             int total = 1;
 
-            var spResult = new List<WorkflowProjectArtifacts>
+            var spResult = new List<WorkflowProjectArtifactType>
             {
-                new WorkflowProjectArtifacts()
+                new WorkflowProjectArtifactType()
                 {
                     ProjectId = 1,
                     ProjectName = "TestProject",
@@ -654,7 +654,7 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             var artifacts = await
-                _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(_workflowId, _pagination);
+                _workflowRepository.GetProjectArtifactTypesAssignedtoWorkflowAsync(_workflowId, _pagination);
 
             // Assert
             Assert.IsNotNull(artifacts);
@@ -663,7 +663,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetProjectArtifactsAssignedToWorkflowAsync_InvalidWorkflowId_ReturnResourceNotFoundException()
+        public async Task GetProjectArtifactTypesAssignedtoWorkflowAsync_InvalidWorkflowId_ReturnResourceNotFoundException()
         {
             // Arrange
             int errorCode = 50024;
@@ -672,7 +672,7 @@ namespace AdminStore.Repositories
 
             _sqlConnectionWrapperMock.SetupQueryAsync("GetWorkflowProjectsArtifactTypes",
                                                         It.IsAny<Dictionary<string, object>>(),
-                                                        new List<WorkflowProjectArtifacts>(),
+                                                        new List<WorkflowProjectArtifactType>(),
                                                         new Dictionary<string, object>
                                                         {
                                                             { "ErrorCode", errorCode },
@@ -680,7 +680,7 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             await
-                _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(_workflowId, _pagination);
+                _workflowRepository.GetProjectArtifactTypesAssignedtoWorkflowAsync(_workflowId, _pagination);
 
             // Assert
             _sqlConnectionWrapperMock.Verify();
@@ -689,14 +689,14 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetProjectArtifactsAssignedToWorkflowAsync_WorkflowIdNotValid_ThrowsArgumentOutOfRangeException()
+        public async Task GetProjectArtifactTypesAssignedtoWorkflowAsync_WorkflowIdNotValid_ThrowsArgumentOutOfRangeException()
         {
             //Arrange
             _workflowId = 0;
 
             // Act
             await
-                _workflowRepository.GetProjectArtifactsAssignedtoWorkflowAsync(_workflowId, _pagination);
+                _workflowRepository.GetProjectArtifactTypesAssignedtoWorkflowAsync(_workflowId, _pagination);
 
             // Assert
             _sqlConnectionWrapperMock.Verify();

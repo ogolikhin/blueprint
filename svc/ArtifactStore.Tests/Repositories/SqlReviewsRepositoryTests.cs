@@ -2036,7 +2036,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Ignore]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Update_Existing_Approval()
         {
             //Arrange
@@ -2046,13 +2045,13 @@ namespace ArtifactStore.Repositories
             {
                 Approval = "Disapproved",
                 ApprovalFlag = ApprovalType.Disapproved,
-                ArtifactIds = new List<int>() { 3 }
+                ArtifactIds = new List<int>() { 3 },
+                isExcludedArtifacts = false
             };
 
             var artifactIds = new[] { 3 };
 
-            SetupArtifactApprovalCheck(reviewId, userId, artifactIds);
-
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds);
             SetupGetVersionNumber(reviewId, artifactIds);
 
             SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>()
@@ -2060,6 +2059,19 @@ namespace ArtifactStore.Repositories
                 { 1, RolePermissions.Read },
                 { 3, RolePermissions.Read }
             });
+
+            var revApppCheck = new ReviewArtifactApprovalCheck()
+            {
+                ReviewExists = true,
+                ReviewStatus = ReviewPackageStatus.Active,
+                ReviewDeleted = false,
+                AllArtifactsInReview = true,
+                AllArtifactsRequireApproval = true,
+                UserInReview = true,
+                ReviewerRole = ReviewParticipantRole.Approver,
+                ReviewType = ReviewType.Formal,
+                ReviewerStatus = ReviewStatus.InProgress
+            };
 
             var getXmlParameters = new Dictionary<string, object>()
             {
@@ -2089,8 +2101,47 @@ namespace ArtifactStore.Repositories
             _cxn.Verify();
         }
 
+        private void SetupReviewArtifactsUserApprovalCheck(int reviewId, int userId, IEnumerable<int> artifactIds, ReviewArtifactApprovalCheck[] reviewApprovalCheck = null)
+        {
+            if (reviewApprovalCheck == null)
+            {
+                reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+               {
+                new ReviewArtifactApprovalCheck() {
+                ReviewExists = true,
+                ReviewStatus = ReviewPackageStatus.Active,
+                ReviewDeleted = false,
+                AllArtifactsInReview = true,
+                AllArtifactsRequireApproval = true,
+                UserInReview = true,
+                ReviewerRole = ReviewParticipantRole.Approver,
+                ReviewType = ReviewType.Formal,
+                ReviewerStatus = ReviewStatus.InProgress
+                }
+               };
+            }
+
+            var mockResult = new Tuple<IEnumerable<ReviewArtifactApprovalCheck>, IEnumerable<int>>(reviewApprovalCheck, artifactIds);
+
+            Dictionary<string, object> outParameters = new Dictionary<string, object>()
+            {
+               {"ArtifactIds",  artifactIds},
+               {"Unpublished", 0},
+               {"Nonexistent", 0},
+               {"IsBaselineAdded", false}
+            };
+
+            var getCheckParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) }
+            };
+            _cxn.SetupQueryMultipleAsync<ReviewArtifactApprovalCheck, int>("CheckReviewArtifactUserApproval", getCheckParameters, mockResult, outParameters);
+        }
+
+
         [TestMethod]
-        [Ignore]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Set_Artifact_To_Viewed()
         {
             //Arrange
@@ -2100,15 +2151,14 @@ namespace ArtifactStore.Repositories
             {
                 Approval = "Approved",
                 ApprovalFlag = ApprovalType.Approved,
-                ArtifactIds = new List<int>() { 3 }
+                ArtifactIds = new List<int>() { 3 },
+                isExcludedArtifacts = false
             };
 
             var artifactIds = new[] { 3 };
 
-            SetupArtifactApprovalCheck(reviewId, userId, artifactIds);
-
             SetupGetVersionNumber(reviewId, artifactIds);
-
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds);
             SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 1, RolePermissions.Read },
@@ -2144,7 +2194,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Ignore]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Not_Update_Approval_Timestamp_If_Approval_Doesnt_Change()
         {
             //Arrange
@@ -2159,7 +2208,7 @@ namespace ArtifactStore.Repositories
 
             var artifactIds = new[] { 3 };
 
-            SetupArtifactApprovalCheck(reviewId, userId, artifactIds);
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds);
 
             SetupGetVersionNumber(reviewId, artifactIds);
 
@@ -2198,7 +2247,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Ignore]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Remove_Approval_Timestamp_If_Approval_Set_To_NotSpecified()
         {
             //Arrange
@@ -2213,7 +2261,7 @@ namespace ArtifactStore.Repositories
 
             var artifactIds = new[] { 3 };
 
-            SetupArtifactApprovalCheck(reviewId, userId, artifactIds);
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds);
 
             SetupGetVersionNumber(reviewId, artifactIds);
 
@@ -2252,13 +2300,13 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Ignore]
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Doesnt_Exist()
         {
             //Arrange
-            var reviewId = 1;
-            var userId = 2;
+            int reviewId = 1;
+            int userId = 2;
+            var artifactIds = new[] { 3 };
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2266,14 +2314,29 @@ namespace ArtifactStore.Repositories
                 ArtifactIds = new List<int>() { 3 }
             };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewExists = false);
+            var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+            {
+                new ReviewArtifactApprovalCheck()
+                {
+                    ReviewExists = false,
+                    ReviewStatus = ReviewPackageStatus.Active,
+                    ReviewDeleted = false,
+                    AllArtifactsInReview = true,
+                    AllArtifactsRequireApproval = true,
+                    UserInReview = true,
+                    ReviewerRole = ReviewParticipantRole.Approver,
+                    ReviewType = ReviewType.Formal,
+                    ReviewerStatus = ReviewStatus.InProgress
+                }
+            };
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
 
         [TestMethod]
-        [Ignore]
+       
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Is_Draft()
         {
@@ -2286,20 +2349,36 @@ namespace ArtifactStore.Repositories
                 ApprovalFlag = ApprovalType.Approved,
                 ArtifactIds = new List<int> { 3 }
             };
-
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewStatus = ReviewPackageStatus.Draft);
+            var artifactIds = new[] { 3 };
+            var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+            {
+                new ReviewArtifactApprovalCheck()
+                {
+                    ReviewExists = true,
+                    ReviewStatus = ReviewPackageStatus.Draft,
+                    ReviewDeleted = false,
+                    AllArtifactsInReview = true,
+                    AllArtifactsRequireApproval = true,
+                    UserInReview = true,
+                    ReviewerRole = ReviewParticipantRole.Approver,
+                    ReviewType = ReviewType.Formal,
+                    ReviewerStatus = ReviewStatus.NotStarted
+                }
+            };
+           
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
 
         [TestMethod]
-        [Ignore]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Is_Closed()
         {
             //Arrange
-            var reviewId = 1;
-            var userId = 2;
+            int reviewId = 1;
+            int userId = 2;
+            var artifactIds = new[] { 3 };
             var approvalParameter = new ReviewArtifactApprovalParameter()
             {
                 Approval = "Approved",
@@ -2307,7 +2386,23 @@ namespace ArtifactStore.Repositories
                 ArtifactIds = new List<int>() { 3 }
             };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewStatus = ReviewPackageStatus.Closed);
+            var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+            {
+                new ReviewArtifactApprovalCheck()
+                {
+                    ReviewExists = true,
+                    ReviewStatus = ReviewPackageStatus.Closed,
+                    ReviewDeleted = false,
+                    AllArtifactsInReview = true,
+                    AllArtifactsRequireApproval = true,
+                    UserInReview = true,
+                    ReviewerRole = ReviewParticipantRole.Approver,
+                    ReviewType = ReviewType.Formal,
+                    ReviewerStatus = ReviewStatus.InProgress
+                }
+            };
+
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
             //Act
             try
@@ -2324,7 +2419,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Ignore]
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Is_Deleted()
         {
@@ -2337,16 +2431,32 @@ namespace ArtifactStore.Repositories
                 ApprovalFlag = ApprovalType.Approved,
                 ArtifactIds = new List<int>() { 3 }
             };
+            var artifactIds = new[] { 3 };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewDeleted = true);
+            var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+            {
+                new ReviewArtifactApprovalCheck()
+                {
+                    ReviewExists = true,
+                    ReviewStatus = ReviewPackageStatus.Active,
+                    ReviewDeleted = true,
+                    AllArtifactsInReview = true,
+                    AllArtifactsRequireApproval = true,
+                    UserInReview = true,
+                    ReviewerRole = ReviewParticipantRole.Approver,
+                    ReviewType = ReviewType.Formal,
+                    ReviewerStatus = ReviewStatus.InProgress
+                }
+            };
 
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
+  
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
 
         [TestMethod]
-        [Ignore]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Reviewer_Status_Is_Completed()
         {
             //Arrange
@@ -2359,7 +2469,24 @@ namespace ArtifactStore.Repositories
                 ArtifactIds = new List<int>() { 3 }
             };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.ReviewerStatus = ReviewStatus.Completed);
+            var artifactIds = new[] { 3 };
+
+            var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+            {
+                new ReviewArtifactApprovalCheck()
+                {
+                    ReviewExists = true,
+                    ReviewStatus = ReviewPackageStatus.Active,
+                    ReviewDeleted = false,
+                    AllArtifactsInReview = true,
+                    AllArtifactsRequireApproval = true,
+                    UserInReview = true,
+                    ReviewerRole = ReviewParticipantRole.Approver,
+                    ReviewType = ReviewType.Formal,
+                    ReviewerStatus = ReviewStatus.Completed
+                }
+            };
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -2382,7 +2509,23 @@ namespace ArtifactStore.Repositories
 
             var artifactIds = new[] { 3 };
 
-            SetupArtifactApprovalCheck(reviewId, userId, artifactIds, check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
+             var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+            {
+                new ReviewArtifactApprovalCheck()
+                {
+                    ReviewExists = true,
+                    ReviewStatus = ReviewPackageStatus.Active,
+                    ReviewDeleted = false,
+                    AllArtifactsInReview = true,
+                    AllArtifactsRequireApproval = true,
+                    UserInReview = true,
+                    ReviewerRole = ReviewParticipantRole.Reviewer,
+                    ReviewType = ReviewType.Formal,
+                    ReviewerStatus = ReviewStatus.InProgress
+                }
+            };
+
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
             SetupGetVersionNumber(reviewId, artifactIds);
 
@@ -2417,7 +2560,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [Ignore]
         [ExpectedException(typeof(BadRequestException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Artifact_Given_Is_Not_In_Review()
         {
@@ -2431,14 +2573,47 @@ namespace ArtifactStore.Repositories
                 ArtifactIds = new List<int>() { 3 }
             };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.AllArtifactsInReview = false);
+            var artifactIds = new List<int>();
+
+            var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+             {
+                new ReviewArtifactApprovalCheck() {
+                ReviewExists = true,
+                ReviewStatus = ReviewPackageStatus.Active,
+                ReviewDeleted = false,
+                AllArtifactsInReview = false,
+                AllArtifactsRequireApproval = false,
+                UserInReview = true,
+                ReviewerRole = ReviewParticipantRole.Approver,
+                ReviewType = ReviewType.Formal,
+                ReviewerStatus = ReviewStatus.InProgress
+                }
+             };
+
+            var mockResult = new Tuple<IEnumerable<ReviewArtifactApprovalCheck>, IEnumerable<int>>(reviewApprovalCheck, artifactIds);
+
+            Dictionary<string, object> outParameters = new Dictionary<string, object>()
+            {
+               {"ArtifactIds",  artifactIds},
+               {"Unpublished", 0},
+               {"Nonexistent", 0},
+               {"IsBaselineAdded", false}
+            };
+
+            var getCheckParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "artifactIds", SqlConnectionWrapper.ToDataTable(new List<int>() { 3 }) }
+            };
+
+            _cxn.SetupQueryMultipleAsync<ReviewArtifactApprovalCheck, int>("CheckReviewArtifactUserApproval", getCheckParameters, mockResult, outParameters);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
 
         [TestMethod]
-        [Ignore]
         [ExpectedException(typeof(AuthorizationException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Is_Not_Part_Of_The_Review()
         {
@@ -2452,14 +2627,31 @@ namespace ArtifactStore.Repositories
                 ArtifactIds = new List<int>() { 3 }
             };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.UserInReview = false);
+            var artifactIds = new[] { 3 };
 
+            var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+            {
+                new ReviewArtifactApprovalCheck()
+                {
+                    ReviewExists = true,
+                    ReviewStatus = ReviewPackageStatus.Active,
+                    ReviewDeleted = false,
+                    AllArtifactsInReview = true,
+                    AllArtifactsRequireApproval = true,
+                    UserInReview = false,
+                    ReviewerRole = ReviewParticipantRole.Approver,
+                    ReviewType = ReviewType.Formal,
+                    ReviewerStatus = ReviewStatus.InProgress
+                }
+            };
+
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
+         
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
 
         [TestMethod]
-        [Ignore]
         [ExpectedException(typeof(BadRequestException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Artifact_Given_Doesnt_Require_Approval()
         {
@@ -2472,15 +2664,48 @@ namespace ArtifactStore.Repositories
                 ApprovalFlag = ApprovalType.Approved,
                 ArtifactIds = new List<int>() { 3 }
             };
+           var artifactIds = new List<int>();
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 }, check => check.AllArtifactsRequireApproval = false);
+           var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+            {
+                new ReviewArtifactApprovalCheck() {
+                ReviewExists = true,
+                ReviewStatus = ReviewPackageStatus.Active,
+                ReviewDeleted = false,
+                AllArtifactsInReview = true,
+                AllArtifactsRequireApproval = false,
+                UserInReview = true,
+                ReviewerRole = ReviewParticipantRole.Approver,
+                ReviewType = ReviewType.Formal,
+                ReviewerStatus = ReviewStatus.InProgress
+                }
+            };
+
+            var mockResult = new Tuple<IEnumerable<ReviewArtifactApprovalCheck>, IEnumerable<int>>(reviewApprovalCheck, artifactIds);
+
+            Dictionary<string, object> outParameters = new Dictionary<string, object>()
+            {
+               {"ArtifactIds",  artifactIds},
+               {"Unpublished", 0},
+               {"Nonexistent", 0},
+               {"IsBaselineAdded", false}
+            };
+
+            var getCheckParameters = new Dictionary<string, object>()
+            {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "artifactIds", SqlConnectionWrapper.ToDataTable(new List<int>() { 3 }) }
+            };
+
+            _cxn.SetupQueryMultipleAsync<ReviewArtifactApprovalCheck, int>("CheckReviewArtifactUserApproval", getCheckParameters, mockResult, outParameters);
 
             //Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
 
         [TestMethod]
-        [Ignore]
+        [ExpectedException(typeof(AuthorizationException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_User_Doesnt_Have_Access_To_Review()
         {
             //Arrange
@@ -2493,7 +2718,25 @@ namespace ArtifactStore.Repositories
                 ArtifactIds = new List<int>() { 3 }
             };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 });
+            var artifactIds = new[] { 3 };
+
+            var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+            {
+                new ReviewArtifactApprovalCheck()
+                {
+                    ReviewExists = true,
+                    ReviewStatus = ReviewPackageStatus.Active,
+                    ReviewDeleted = false,
+                    AllArtifactsInReview = true,
+                    AllArtifactsRequireApproval = true,
+                    UserInReview = true,
+                    ReviewerRole = ReviewParticipantRole.Approver,
+                    ReviewType = ReviewType.Formal,
+                    ReviewerStatus = ReviewStatus.InProgress
+                }
+            };
+
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
             SetupArtifactPermissionsCheck(new[] { 3, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
@@ -2501,18 +2744,10 @@ namespace ArtifactStore.Repositories
             });
 
             //Act
-            try
-            {
-                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
-            }
-            catch (AuthorizationException ex)
-            {
-                Assert.AreEqual(ex.ErrorCode, ErrorCodes.UnauthorizedAccess);
-                return;
-            }
-
-            Assert.Fail();
+           
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
+
 
         [TestMethod]
         [Ignore]
@@ -2529,7 +2764,26 @@ namespace ArtifactStore.Repositories
                 isExcludedArtifacts = false
             };
 
-            SetupArtifactApprovalCheck(reviewId, userId, new[] { 3 });
+            var artifactIds = new[] { 3 };
+
+            // SetupArtifactApprovalCheck(reviewId, userId, artifactIds, check => check.ReviewerRole = ReviewParticipantRole.Reviewer);
+            var reviewApprovalCheck = new ReviewArtifactApprovalCheck[]
+            {
+                new ReviewArtifactApprovalCheck()
+                {
+                    ReviewExists = true,
+                    ReviewStatus = ReviewPackageStatus.Active,
+                    ReviewDeleted = false,
+                    AllArtifactsInReview = true,
+                    AllArtifactsRequireApproval = true,
+                    UserInReview = true,
+                    ReviewerRole = ReviewParticipantRole.Approver,
+                    ReviewType = ReviewType.Formal,
+                    ReviewerStatus = ReviewStatus.InProgress
+                }
+            };
+
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
             SetupArtifactPermissionsCheck(new[] { 3, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
@@ -4345,3 +4599,4 @@ namespace ArtifactStore.Repositories
 
     }
 }
+        

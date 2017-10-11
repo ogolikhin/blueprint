@@ -326,8 +326,6 @@ namespace AdminStore.Services.Workflow
             return importResult;
         }
 
-        
-
         public async Task<WorkflowDetailsDto> GetWorkflowDetailsAsync(int workflowId)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
@@ -342,8 +340,51 @@ namespace AdminStore.Services.Workflow
                 Description = workflowDetails.Description,
                 Active = workflowDetails.Active,
                 WorkflowId = workflowDetails.WorkflowId,
-                VersionId = workflowDetails.VersionId
+                VersionId = workflowDetails.VersionId,
+                LastModified = workflowDetails.LastModified,
+                LastModifiedBy = workflowDetails.LastModifiedBy
             };
+
+            var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
+
+            var workflowStates = (await _workflowRepository.GetWorkflowStatesAsync(workflowId)).ToList();
+            var workflowEvents = (await _workflowRepository.GetWorkflowEventsAsync(workflowId)).ToList();
+
+            var dataMaps = LoadDataMaps(standardTypes,
+                workflowStates.ToDictionary(s => s.WorkflowStateId, s => s.Name));
+
+            workflowDetailsDto.NumberOfStates = workflowStates.Distinct().Count();
+
+            var transitionEventsCount = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.Transition
+                                                                  && e.FromStateId.HasValue 
+                                                                  && dataMaps.StateMap.ContainsKey(e.FromStateId.Value)
+                                                                  && e.ToStateId.HasValue 
+                                                                  && dataMaps.StateMap.ContainsKey(e.ToStateId.Value)).Distinct().Count();
+
+            var userIds = new HashSet<int>();
+            var groupIds = new HashSet<int>();
+
+            var propertyChangeEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.PropertyChange
+                                                                 && e.PropertyTypeId.HasValue
+                                                                 && (dataMaps.PropertyTypeMap.ContainsKey(e.PropertyTypeId.Value)
+                                                                 || WorkflowHelper.IsNameOrDescriptionProperty(e.PropertyTypeId.Value)))
+                                                                .Select(e => new IePropertyChangeEvent
+                                                                {
+                                                                    Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
+                                                                }).Distinct().ToList();
+
+            propertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
+            var propertyChangeEventsCount = propertyChangeEvents.Count;
+
+            var newArtifactEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.NewArtifact).Select(e => new IeNewArtifactEvent
+                                                                {
+                                                                    Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
+                                                                }).Distinct().ToList();
+
+            newArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
+            var newArtifactEventsCount = newArtifactEvents.Count;
+
+            workflowDetailsDto.NumberOfActions = transitionEventsCount + propertyChangeEventsCount + newArtifactEventsCount;
 
             var workflowProjectsAndArtifactTypes =
                 (await _workflowRepository.GetWorkflowArtifactTypesAsync(workflowId)).ToList();

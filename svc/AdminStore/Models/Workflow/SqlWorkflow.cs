@@ -1,4 +1,6 @@
-﻿namespace AdminStore.Models.Workflow
+﻿using System;
+
+namespace AdminStore.Models.Workflow
 {
     public class SqlWorkflow
     {
@@ -15,6 +17,10 @@
         public string Description { get; set; }
 
         public bool Active { get; set; }
+
+        public string LastModifiedBy { get; set; }
+
+        public DateTime LastModified { get; set; }
     }
 
     public class SqlWorkflowMapItem

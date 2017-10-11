@@ -252,7 +252,13 @@ namespace ArtifactStore.Repositories
                 }
             }
 
-            var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml, new HashSet<int>(effectiveIds.ArtifactIds), out alreadyIncludedCount);
+            // We replace all artifacts if baseline was added or baseline was replaced
+            bool replaceAllArtifacts = effectiveIds.IsBaselineAdded || propertyResult.BaselineId != null;
+
+            var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml,
+                new HashSet<int>(effectiveIds.ArtifactIds),
+                replaceAllArtifacts,
+                out alreadyIncludedCount);
 
             Func<IDbTransaction, Task> transactionAction = async (transaction) =>
             {
@@ -397,11 +403,11 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        private string AddArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToAdd, out int alreadyIncluded)
+        private string AddArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToAdd, bool replaceAllArtifacts, out int alreadyIncluded)
         {
             alreadyIncluded = 0;
             RDReviewContents rdReviewContents;
-            if (string.IsNullOrEmpty(xmlArtifacts))
+            if (replaceAllArtifacts || string.IsNullOrEmpty(xmlArtifacts))
             {
                 rdReviewContents = new RDReviewContents();
                 rdReviewContents.Artifacts = new List<RDArtifact>();

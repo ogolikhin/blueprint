@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace AdminStore.Models
 {
-    public class WorkflowProjectArtifactsDto
+    public class WorkflowProjectArtifactTypeDto
     {
         public int ProjectId { get; set; }
         public string ProjectName { get; set; }

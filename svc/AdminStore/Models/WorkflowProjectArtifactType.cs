@@ -1,6 +1,6 @@
 ﻿namespace AdminStore.Models
 {
-    public class WorkflowProjectArtifacts
+    public class WorkflowProjectArtifactType
     {
         public int ProjectId { get; set; }
         public string ProjectName { get; set; }

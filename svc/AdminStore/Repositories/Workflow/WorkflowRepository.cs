@@ -829,6 +829,40 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
+        public async Task<int> UnassignProjectsAndArtifactTypesFromWorkflowAsync(int workflowId, OperationScope scope, string search = null)
+        {
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+            
+            var parameters = new DynamicParameters();
+            parameters.Add("@WorkflowId", workflowId);
+            parameters.Add("@AllProjects", scope.SelectAll);
+            parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.Ids));
+            parameters.Add("@Search", search);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("UnassignProjectsAndArtifactTypesFromWorkflow", parameters, 
+                commandType: CommandType.StoredProcedure);
+            
+            var errorCode = parameters.Get<int?>("ErrorCode");
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfDeletingWorkflows);
+                }
+            }
+
+            return result;
+        }
+
         public async Task<int> UpdateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int revision, IDbTransaction transaction = null)
         {
             var versionId = 0;

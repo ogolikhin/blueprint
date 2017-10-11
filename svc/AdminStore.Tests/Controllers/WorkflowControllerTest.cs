@@ -586,6 +586,86 @@ namespace AdminStore.Controllers
 
         #endregion
 
+        #region UnassignProjectsAndArtifactTypesFromWorkflowAsync
+
+        [TestMethod]
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_AllParamsAreCorrectAndPermissionsOk_ReturnDeletedCount()
+        {
+            //arrange
+            var response = 3;
+            var scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
+            var search = string.Empty;
+
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+            _workflowRepositoryMock.Setup(w => w.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search))
+                .ReturnsAsync(response);
+
+            //act
+            var result = await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(response, result.Content.TotalDeleted);
+        }
+
+        [TestMethod]
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_ScopeIsEmpty_ReturnDeletedCount()
+        {
+            //arrange
+            var response = 0;
+            var scope = new OperationScope() { Ids = new List<int>(), SelectAll = false };
+            var search = string.Empty;
+
+            _privilegesRepositoryMock
+                                    .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                                    .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            var result = await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(response, result.Content.TotalDeleted);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_ScopeIsNull_ReturnDeletedCount()
+        {
+            //Arrange
+            OperationScope scope = null;
+            var search = string.Empty;
+
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //Act
+            var result = await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
+
+            //Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
+        {
+            //arrange
+            var search = string.Empty;
+            var scope = new OperationScope() { SelectAll = false, Ids = new List<int>() { 2, 3 } };
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.None);
+
+            //act
+            await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search);
+
+        }
+
+        #endregion
+
         #region DeleteWorkflows
 
         [TestMethod]

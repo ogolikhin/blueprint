@@ -356,6 +356,43 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
+        /// Delete the specified projects workflow assignment
+        /// </summary>
+        /// <param name="workflowId">workflow's id</param>
+        /// <param name="scope">list of projects ids, selectAll flag</param>
+        /// <param name="search">search filter</param>
+        /// <response code="200">OK. Count of deleted projects workflow assignment.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to remove projects workflow assignment</response>
+        /// <response code="404">NotFound. if the workflow with workId doesn’t exists or removed from the system.</response>
+        /// <response code="409">Conflict. The current workflow from the request is active (should not be active).</response>
+        [HttpPost]
+        [SessionRequired]
+        [Route("{workflowId:int:min(1)}/unassign")]
+        [ResponseType(typeof(DeleteResult))]
+        public async Task<IHttpActionResult> UnassignProjectsAndArtifactTypesFromWorkflowAsync(int workflowId, [FromBody] OperationScope scope, string search = null)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            
+            SearchFieldValidator.Validate(search);
+
+            if (scope == null)
+            {
+                throw new BadRequestException(ErrorMessages.AssignMemberScopeEmpty, ErrorCodes.BadRequest);
+            }
+
+            if (scope.IsEmpty())
+            {
+                return Ok(DeleteResult.Empty);
+            }
+
+            var result = await _workflowRepository.UnassignProjectsAndArtifactTypesFromWorkflowAsync(workflowId, scope, search);
+            
+            return Ok(new DeleteResult { TotalDeleted = result });
+        }
+
+        /// <summary>
         /// Update workflow's status
         /// </summary>
         /// <param name="workflowId">Workflow identity</param>

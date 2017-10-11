@@ -29,10 +29,10 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
-        /// Gets the information about review container
+        /// Gets summary metrics about review container
         /// </summary>
         /// <remarks>
-        /// Returns child artifacts of the artifact with the specified project and artifact ids.
+        /// Returns structured metrics for specific review.
         /// </remarks>
         /// <param name="containerId">Id of the review container</param>
         /// <response code="200">OK.</response>
@@ -45,6 +45,14 @@ namespace ArtifactStore.Controllers
         public Task<ReviewSummary> GetReviewSummary(int containerId)
         {
             return _sqlReviewsRepository.GetReviewSummary(containerId, Session.UserId);
+        }
+
+
+        [HttpGet, NoCache]
+        [Route("containers/{containerId:int:min(1)}/metrics"), SessionRequired]
+        public Task<ReviewSummaryMetrics> GetReviewSummaryMetrics(int containerId)
+        {
+            return _sqlReviewsRepository.GetReviewSummaryMetrics(containerId, Session.UserId);
         }
 
         /// <summary>

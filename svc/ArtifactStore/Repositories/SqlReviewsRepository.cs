@@ -132,6 +132,102 @@ namespace ArtifactStore.Repositories
             return reviewContainer;
         }
 
+        public async Task<ReviewSummaryMetrics> GetReviewSummaryMetrics(int containerId, int userId)
+        {
+            var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(containerId, null, userId);
+            if (reviewInfo.IsDeleted || reviewInfo.PredefinedType != ItemTypePredefined.ArtifactReviewPackage)
+            {
+                ThrowReviewNotFoundException(containerId);
+            }
+
+            var reviewDetails = await GetReviewSummaryDetails(containerId, userId);
+
+            if (reviewDetails == null)
+            {
+                ThrowReviewNotFoundException(containerId);
+            }
+
+            if (reviewDetails.ReviewPackageStatus == ReviewPackageStatus.Draft)
+            {
+                ThrowReviewNotFoundException(containerId);
+            }
+
+            if (!reviewDetails.ReviewParticipantRole.HasValue && reviewDetails.TotalReviewers > 0)
+            {
+                ThrowUserCannotAccessReviewException(containerId);
+            }
+
+            var reviewSource = new ReviewSource();
+            if (reviewDetails.BaselineId.HasValue)
+            {
+                var baselineInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewDetails.BaselineId.Value, null, userId);
+                reviewSource.Id = baselineInfo.Id;
+                reviewSource.Name = baselineInfo.Name;
+                reviewSource.Prefix = baselineInfo.Prefix;
+            }
+          
+            var page = new Pagination();
+            page.SetDefaultValues(0, 50);
+            var participants = await GetReviewParticipantsAsync(containerId, page, userId);
+            var description = await _itemInfoRepository.GetItemDescription(containerId, userId, false, int.MaxValue);
+
+            var reviewContainer = new ReviewSummaryMetrics
+            {
+                Id = containerId,
+                Name = reviewInfo.Name,
+                Prefix = reviewDetails.Prefix,
+                Description = description,
+                RevisionId = reviewDetails.RevisionId,
+                ProjectId = reviewInfo.ProjectId,
+                Source = reviewSource,
+                Status = reviewDetails.ReviewStatus,
+                ReviewType = GetReviewType(reviewDetails),
+
+                Artifacts = new ArtifactsMetrics
+                {
+                    Total = reviewDetails.TotalArtifacts,
+                    ArtifactStatus =  new ReviewArtifactsStatus
+                    {
+                        Pending = reviewDetails.Pending,
+                        Approved = reviewDetails.Approved,
+                        Disapproved = reviewDetails.Disapproved,
+                        Viewed = reviewDetails.Viewed,
+                        Unviewed = reviewDetails.TotalArtifacts - reviewDetails.Viewed 
+                    },
+                    RequestStatus = new ReviewRequestStatus
+                    {
+                        ApprovalRequested = participants.TotalArtifactsRequestedApproval,
+                        ReviewRequested = participants.TotalArtifacts - participants.TotalArtifactsRequestedApproval
+                    }
+                    
+                },
+
+                Participants = new ParticipantsMetrics
+                {
+                    Total = participants.Total,
+                    RoleStatus = new ParticipantRoles
+                    {
+                        Approvers = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver).ToList().Count,
+                        Reviewers = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer).ToList().Count
+                    },
+                    ApproverStatus = new ParticipantStatus
+                    {
+                        Completed = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.Completed).ToList().Count,
+                        InProgress = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.InProgress).ToList().Count,
+                        NotStarted = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.NotStarted).ToList().Count
+                    },
+                    ReviewerStatus = new ParticipantStatus
+                    {
+                        Completed = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.Completed).ToList().Count,
+                        InProgress = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.InProgress).ToList().Count,
+                        NotStarted = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.NotStarted).ToList().Count
+                    }
+                }
+            };
+
+            return reviewContainer;
+        }
+
         private ReviewType GetReviewType(ReviewSummaryDetails reviewDetails)
         {
             if (reviewDetails.TotalReviewers == 0)

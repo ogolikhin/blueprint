@@ -586,10 +586,10 @@ namespace AdminStore.Controllers
 
         #endregion
 
-        #region UnassignProjectsAndArtifactsFromWorkflowAsync
+        #region UnassignProjectsAndArtifactTypesFromWorkflowAsync
 
         [TestMethod]
-        public async Task UnassignProjectsAndArtifactsFromWorkflowAsync_AllParamsAreCorrectAndPermissionsOk_ReturnDeletedCount()
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_AllParamsAreCorrectAndPermissionsOk_ReturnDeletedCount()
         {
             //arrange
             var response = 3;
@@ -599,11 +599,11 @@ namespace AdminStore.Controllers
             _privilegesRepositoryMock
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-            _workflowRepositoryMock.Setup(w => w.UnassignProjectsAndArtifactsFromWorkflowAsync(WorkflowId, scope, search))
+            _workflowRepositoryMock.Setup(w => w.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search))
                 .ReturnsAsync(response);
 
             //act
-            var result = await _controller.UnassignProjectsAndArtifactsFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
+            var result = await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
 
             //assert
             Assert.IsNotNull(result);
@@ -611,7 +611,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task UnassignProjectsAndArtifactsFromWorkflowAsync_ScopeIsEmpty_ReturnDeletedCount()
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_ScopeIsEmpty_ReturnDeletedCount()
         {
             //arrange
             var response = 0;
@@ -623,7 +623,7 @@ namespace AdminStore.Controllers
                                     .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             //act
-            var result = await _controller.UnassignProjectsAndArtifactsFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
+            var result = await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
 
             //assert
             Assert.IsNotNull(result);
@@ -632,7 +632,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task UnassignProjectsAndArtifactsFromWorkflowAsync_ScopeIsNull_ReturnDeletedCount()
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_ScopeIsNull_ReturnDeletedCount()
         {
             //Arrange
             OperationScope scope = null;
@@ -643,14 +643,14 @@ namespace AdminStore.Controllers
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             //Act
-            var result = await _controller.UnassignProjectsAndArtifactsFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
+            var result = await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
 
             //Assert
         }
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task UnassignProjectsAndArtifactsFromWorkflowAsync_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
             //arrange
             var search = string.Empty;
@@ -660,7 +660,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.None);
 
             //act
-            await _controller.UnassignProjectsAndArtifactsFromWorkflowAsync(WorkflowId, scope, search);
+            await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search);
 
         }
 

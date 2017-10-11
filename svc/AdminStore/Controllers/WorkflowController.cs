@@ -371,7 +371,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("{workflowId:int:min(1)}/unassign")]
         [ResponseType(typeof(DeleteResult))]
-        public async Task<IHttpActionResult> UnassignProjectsAndArtifactsFromWorkflowAsync(int workflowId, [FromBody] OperationScope scope, string search = null)
+        public async Task<IHttpActionResult> UnassignProjectsAndArtifactTypesFromWorkflowAsync(int workflowId, [FromBody] OperationScope scope, string search = null)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
             
@@ -387,7 +387,7 @@ namespace AdminStore.Controllers
                 return Ok(DeleteResult.Empty);
             }
 
-            var result = await _workflowRepository.UnassignProjectsAndArtifactsFromWorkflowAsync(workflowId, scope, search);
+            var result = await _workflowRepository.UnassignProjectsAndArtifactTypesFromWorkflowAsync(workflowId, scope, search);
             
             return Ok(new DeleteResult { TotalDeleted = result });
         }

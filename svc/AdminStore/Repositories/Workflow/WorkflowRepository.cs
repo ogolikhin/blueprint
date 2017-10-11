@@ -829,7 +829,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<int> UnassignProjectsAndArtifactsFromWorkflowAsync(int workflowId, OperationScope scope, string search = null)
+        public async Task<int> UnassignProjectsAndArtifactTypesFromWorkflowAsync(int workflowId, OperationScope scope, string search = null)
         {
             if (search != null)
             {

@@ -535,10 +535,10 @@ namespace AdminStore.Repositories
          }
         #endregion
 
-        #region UnassignProjectsAndArtifactsFromWorkflowAsync
+        #region UnassignProjectsAndArtifactTypesFromWorkflowAsync
 
         [TestMethod]
-        public async Task UnassignProjectsAndArtifactsFromWorkflowAsync_ProjectsUnassigned_SuccessfulResult()
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_ProjectsUnassigned_SuccessfulResult()
         {
             // Arrange
             var unassignedCount = 2;
@@ -546,7 +546,7 @@ namespace AdminStore.Repositories
             _sqlConnectionWrapperMock.SetupExecuteScalarAsync("UnassignProjectsAndArtifactTypesFromWorkflow", It.IsAny<Dictionary<string, object>>(), unassignedCount);
 
             //act
-            var result = await _workflowRepository.UnassignProjectsAndArtifactsFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
+            var result = await _workflowRepository.UnassignProjectsAndArtifactTypesFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
 
             //assert
             Assert.IsNotNull(result);
@@ -555,7 +555,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task UnassignProjectsAndArtifactsFromWorkflowAsync_WorkflowIdNotExist_ReturnResourceNotFoundException()
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_WorkflowIdNotExist_ReturnResourceNotFoundException()
         {
             // Arrange
             int errorCode = 50024;
@@ -570,7 +570,7 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             await
-                _workflowRepository.UnassignProjectsAndArtifactsFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
+                _workflowRepository.UnassignProjectsAndArtifactTypesFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
 
             // Assert
             _sqlConnectionWrapperMock.Verify();
@@ -579,7 +579,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
-        public async Task UnassignProjectsAndArtifactsFromWorkflowAsync_WorkflowIsActive_ReturnConflictException()
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_WorkflowIsActive_ReturnConflictException()
         {
             // Arrange
             int errorCode = 50025;
@@ -594,14 +594,14 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             await
-                _workflowRepository.UnassignProjectsAndArtifactsFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
+                _workflowRepository.UnassignProjectsAndArtifactTypesFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
 
             // Assert
         }
 
         [TestMethod]
         [ExpectedException(typeof(Exception))]
-        public async Task UnassignProjectsAndArtifactsFromWorkflowAsync_WorkflowIsActive_ReturnException()
+        public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_WorkflowIsActive_ReturnException()
         {
             // Arrange
             int errorCode = 50000;
@@ -616,7 +616,7 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             await
-                _workflowRepository.UnassignProjectsAndArtifactsFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
+                _workflowRepository.UnassignProjectsAndArtifactTypesFromWorkflowAsync(_workflowId, _projectsUnassignedScope);
 
             // Assert
 

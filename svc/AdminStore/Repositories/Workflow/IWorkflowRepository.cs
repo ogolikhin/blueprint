@@ -79,6 +79,6 @@ namespace AdminStore.Repositories.Workflow
         Task<int> AssignProjectsAndArtifactsToWorkflow(int workFlowId, WorkflowAssignScope scope);
 
         Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workFlowId, int projectId, IEnumerable<int> artifactsIds);
-        Task<int> UnassignProjectsAndArtifactsFromWorkflowAsync(int workflowId, OperationScope scope, string search = null);
+        Task<int> UnassignProjectsAndArtifactTypesFromWorkflowAsync(int workflowId, OperationScope scope, string search = null);
     }
 }

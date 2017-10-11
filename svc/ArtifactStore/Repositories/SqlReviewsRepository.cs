@@ -253,7 +253,7 @@ namespace ArtifactStore.Repositories
             }
 
             // We replace all artifacts if baseline was added or baseline was replaced
-            bool replaceAllArtifacts = effectiveIds.IsBaselineAdded || propertyResult.BaselineId != null;
+            bool replaceAllArtifacts = effectiveIds.IsBaselineAdded || (propertyResult.BaselineId != null && propertyResult.BaselineId > 0);
 
             var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml,
                 new HashSet<int>(effectiveIds.ArtifactIds),

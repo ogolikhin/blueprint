@@ -129,7 +129,7 @@
         public static readonly string RoleAssignmentNotFound = "Project Role Assignment with the current id is not found.";
 
         //Artifacts
-        public static readonly string ArtifactIdsNotValid = "Please provide valid artifact ids";
+        public static readonly string ArtifactTypeIdsNotValid = "Please provide valid artifact ids";
 
     }
 }

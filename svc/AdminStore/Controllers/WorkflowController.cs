@@ -114,7 +114,7 @@ namespace AdminStore.Controllers
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
             if (artifactTypeIds == null)
-                throw new BadRequestException(ErrorMessages.ArtifactIdsNotValid, ErrorCodes.BadRequest);
+                throw new BadRequestException(ErrorMessages.ArtifactTypeIdsNotValid, ErrorCodes.BadRequest);
 
             if (!artifactTypeIds.Any())
                 return Ok(SyncResult.Empty);

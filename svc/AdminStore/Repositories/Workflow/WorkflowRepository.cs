@@ -41,17 +41,17 @@ namespace AdminStore.Repositories.Workflow
         #endregion
 
         #region Interface implementation
-        public async Task<int> AssignProjectsAndArtifactsToWorkflow(int workflowId, WorkflowAssignScope scope)
+        public async Task<int> AssignProjectsAndArtifactTypesToWorkflow(int workflowId, WorkflowAssignScope scope)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@WorkflowId", workflowId);
-            parameters.Add("@AllArtifacts", scope.AllArtifacts, dbType: DbType.Boolean);
+            parameters.Add("@AllArtifactTypes", scope.AllArtifacts, dbType: DbType.Boolean);
             parameters.Add("@AllProjects", scope.AllProjects, dbType: DbType.Boolean);
-            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@ArtifactTypesIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds, "Int32Collection", "Int32Value"));
             parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.ProjectIds, "Int32Collection", "Int32Value"));
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactsToWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactTypesToWorkflow", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
 
             if (errorCode.HasValue)
@@ -59,7 +59,7 @@ namespace AdminStore.Repositories.Workflow
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
+                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactTypesToWorkflow);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
@@ -950,7 +950,7 @@ namespace AdminStore.Repositories.Workflow
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
+                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactTypesToWorkflow);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);

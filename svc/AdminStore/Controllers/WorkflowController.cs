@@ -57,14 +57,14 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Assign projects and standart artifacts to the workflow
+        /// Assign projects and standart artifact types to the workflow
         /// </summary>
         /// <param name="workFlowid"></param>
         /// <param name="workflowAssign"></param>
-        /// <response code="200">OK. The projects and artifacts were assigned to the workflow.</response>
+        /// <response code="200">OK. The projects and artifact types were assigned to the workflow.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">Forbidden. The user does not have permissions to assign projects and artifacts</response>
+        /// <response code="403">Forbidden. The user does not have permissions to assign projects and artifact types</response>
         /// <response code="404">Not Found. The workflow with current id were not found.</response> 
         /// <response code="409">Conflict. The workflow with the current id is active.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
@@ -72,7 +72,7 @@ namespace AdminStore.Controllers
         [HttpPost]       
         [Route("{workflowId:int:min(1)}/assign"), SessionRequired]
         [ResponseType(typeof(AssignResult))]
-        public async Task<IHttpActionResult> AssignProjectsAndArtifactsToWorkflow(int workFlowid, [FromBody] WorkflowAssignScope workflowAssign)
+        public async Task<IHttpActionResult> AssignProjectsAndArtifactTypesToWorkflow(int workFlowid, [FromBody] WorkflowAssignScope workflowAssign)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
@@ -86,7 +86,7 @@ namespace AdminStore.Controllers
                 return Ok(AssignResult.Empty);
             }
 
-            var result = await _workflowRepository.AssignProjectsAndArtifactsToWorkflow(workFlowid, workflowAssign);
+            var result = await _workflowRepository.AssignProjectsAndArtifactTypesToWorkflow(workFlowid, workflowAssign);
 
             return Ok(new AssignResult() { TotalAssigned = result });
         }

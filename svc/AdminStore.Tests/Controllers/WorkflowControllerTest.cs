@@ -264,7 +264,7 @@ namespace AdminStore.Controllers
             _pagination = new Pagination() { Limit = int.MaxValue, Offset = 0 };
         }
 
-        #region AssignProjectsAndArtifactsToWorkflow
+        #region AssignProjectsAndArtifactTypesToWorkflow
         [TestMethod]
         public async Task AssignProjectsAndArtifactsToWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnListInstanceItem()
         {
@@ -281,10 +281,10 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            _workflowRepositoryMock.Setup(q => q.AssignProjectsAndArtifactsToWorkflow(WorkflowId, new WorkflowAssignScope())).ReturnsAsync(2);
+            _workflowRepositoryMock.Setup(q => q.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, new WorkflowAssignScope())).ReturnsAsync(2);
 
             //act            
-            var result = await _controller.AssignProjectsAndArtifactsToWorkflow(WorkflowId, scope);
+            var result = await _controller.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, scope);
 
             //assert
             Assert.IsNotNull(result);
@@ -303,7 +303,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                await _controller.AssignProjectsAndArtifactsToWorkflow(WorkflowId, new WorkflowAssignScope());
+                await _controller.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, new WorkflowAssignScope());
             }
             catch (Exception ex)
             {
@@ -328,7 +328,7 @@ namespace AdminStore.Controllers
             //act
             try
             {
-                await _controller.AssignProjectsAndArtifactsToWorkflow(WorkflowId, null);
+                await _controller.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, null);
             }
             catch (Exception ex)
             {

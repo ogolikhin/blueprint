@@ -84,22 +84,10 @@ namespace ArtifactStore.Models.Review
     public class ReviewSummaryMetrics
     {
         public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        public string Prefix { get; set; }
-
-        public string Description { get; set; }
-
+       
         public int RevisionId { get; set; }
-
-        public int ProjectId { get; set; }
-
-        public ReviewSource Source { get; set; }
-
+       
         public ReviewStatus Status { get; set; }
-
-        public ReviewType ReviewType { get; set; }
 
         public ArtifactsMetrics Artifacts { get; set; }
 

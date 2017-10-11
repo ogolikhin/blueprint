@@ -305,7 +305,6 @@ namespace ArtifactStore.Controllers
         /// Sets the viewed state of the given artifact within a review for the session user.
         /// </summary>
         /// <param name="reviewId"></param>
-        /// <param name="artifactId"></param>
         /// <param name="viewedInput"></param>
         /// <returns></returns>
         /// <response code="200">OK.</response>
@@ -315,15 +314,20 @@ namespace ArtifactStore.Controllers
         /// <response code="404">Not found. An artifact for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut, SessionRequired]
-        [Route("containers/{reviewId:int:min(1)}/artifacts/{artifactId:int:min(1)}/viewed")]
-        public Task UpdateReviewArtifactViewedAsync(int reviewId, int artifactId, [FromBody] ReviewArtifactViewedInput viewedInput)
+        [Route("containers/{reviewId:int:min(1)}/artifacts/viewed")]
+        public Task UpdateReviewArtifactsViewedAsync(int reviewId, [FromBody] ReviewArtifactViewedInput viewedInput)
         {
             if (viewedInput == null || !viewedInput.Viewed.HasValue)
             {
                 throw new BadRequestException("Viewed must be provided.");
             }
 
-            return _sqlReviewsRepository.UpdateReviewArtifactViewedAsync(reviewId, artifactId, viewedInput.Viewed.Value, Session.UserId);
+            if (viewedInput.ArtifactIds == null)
+            {
+                throw new BadRequestException("ArtifactIds must be provided.");
+            }
+
+            return _sqlReviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewedInput, Session.UserId);
         }
 
         /// <summary>

@@ -41,17 +41,17 @@ namespace AdminStore.Repositories.Workflow
         #endregion
 
         #region Interface implementation
-        public async Task<int> AssignProjectsAndArtifactsToWorkflow(int workflowId, WorkflowAssignScope scope)
+        public async Task<int> AssignProjectsAndArtifactTypesToWorkflow(int workflowId, WorkflowAssignScope scope)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@WorkflowId", workflowId);
-            parameters.Add("@AllArtifacts", scope.AllArtifacts, dbType: DbType.Boolean);
+            parameters.Add("@AllArtifactTypes", scope.AllArtifacts, dbType: DbType.Boolean);
             parameters.Add("@AllProjects", scope.AllProjects, dbType: DbType.Boolean);
-            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@ArtifactTypesIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds, "Int32Collection", "Int32Value"));
             parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.ProjectIds, "Int32Collection", "Int32Value"));
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactsToWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactTypesToWorkflow", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
 
             if (errorCode.HasValue)
@@ -59,13 +59,13 @@ namespace AdminStore.Repositories.Workflow
                 switch (errorCode.Value)
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactsToWorkflow);
+                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactTypesToWorkflow);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
-                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);                    
                 }
             }
 
@@ -672,7 +672,7 @@ namespace AdminStore.Repositories.Workflow
             else return new List<InstanceItem>();           
         }
 
-        public async Task<QueryResult<WorkflowProjectArtifactsDto>> GetProjectArtifactsAssignedtoWorkflowAsync(int workflowId, Pagination pagination, 
+        public async Task<QueryResult<WorkflowProjectArtifactTypeDto>> GetProjectArtifactTypesAssignedtoWorkflowAsync(int workflowId, Pagination pagination, 
                                             string search = null)
         {
             if (workflowId < 1)
@@ -692,16 +692,16 @@ namespace AdminStore.Repositories.Workflow
             prm.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
             prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var items = (await _connectionWrapper.QueryAsync<WorkflowProjectArtifacts>("GetWorkflowProjectsArtifactTypes", prm, commandType: CommandType.StoredProcedure));
+            var items = (await _connectionWrapper.QueryAsync<WorkflowProjectArtifactType>("GetWorkflowProjectsArtifactTypes", prm, commandType: CommandType.StoredProcedure));
 
-            var workflowArtifacts = items as WorkflowProjectArtifacts[] ?? items.ToArray();
-            var projectIds = workflowArtifacts.Select(x => x.ProjectId).Distinct().ToList();
+            var workflowArtifactTypes = items as WorkflowProjectArtifactType[] ?? items.ToArray();
+            var projectIds = workflowArtifactTypes.Select(x => x.ProjectId).Distinct().ToList();
 
-            var groupedList = new List<WorkflowProjectArtifactsDto>();
+            var groupedList = new List<WorkflowProjectArtifactTypeDto>();
 
             foreach (var projectId in projectIds)
             {
-                var artifacts = workflowArtifacts.Where(x => x.ProjectId == projectId).ToList();
+                var artifacts = workflowArtifactTypes.Where(x => x.ProjectId == projectId).ToList();
                 
                 var projectArtifacts = artifacts.Select(artifact => new WorkflowArtifact()
                 {
@@ -710,7 +710,7 @@ namespace AdminStore.Repositories.Workflow
               
                 string projectName = artifacts[0].ProjectName;
 
-                var groupedProjectArtifacts = new WorkflowProjectArtifactsDto()
+                var groupedProjectArtifacts = new WorkflowProjectArtifactTypeDto()
                 {
                     ProjectId = projectId,
                     ProjectName = projectName,
@@ -731,7 +731,7 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            return new QueryResult<WorkflowProjectArtifactsDto>() { Items = groupedList, Total = total ?? 0 };
+            return new QueryResult<WorkflowProjectArtifactTypeDto>() { Items = groupedList, Total = total ?? 0 };
         }
 
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
@@ -800,6 +800,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
             if (transaction != null)
             {
                 result =
@@ -822,6 +823,40 @@ namespace AdminStore.Repositories.Workflow
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingWorkflows);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<int> UnassignProjectsAndArtifactTypesFromWorkflowAsync(int workflowId, OperationScope scope, string search = null)
+        {
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+            
+            var parameters = new DynamicParameters();
+            parameters.Add("@WorkflowId", workflowId);
+            parameters.Add("@AllProjects", scope.SelectAll);
+            parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.Ids));
+            parameters.Add("@Search", search);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("UnassignProjectsAndArtifactTypesFromWorkflow", parameters, 
+                commandType: CommandType.StoredProcedure);
+            
+            var errorCode = parameters.Get<int?>("ErrorCode");
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfDeletingWorkflows);
                 }
             }
 
@@ -930,7 +965,43 @@ namespace AdminStore.Repositories.Workflow
             }
 
             return table;
-        }       
+        }
+
+        public async Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workflowId, int projectId, IEnumerable<int> artifactTypeIds)
+        {
+            var parameters = new DynamicParameters();
+            
+            parameters.Add("@WorkflowId", workflowId);
+            parameters.Add("@ProjectId", projectId);
+            parameters.Add("@ArtifactTypeIds", SqlConnectionWrapper.ToDataTable(artifactTypeIds, "Int32Collection", "Int32Value"));           
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+        
+            var result = await _connectionWrapper.QueryAsync<SyncResult>("AssignArtifactTypesToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");                      
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfAssignProjectsAndArtifactTypesToWorkflow);
+
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
+
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);                   
+
+                    case (int)SqlErrorCodes.ProjectOfWorkflowDoesNotHaveArtifactTypes:
+                        throw new ConflictException(ErrorMessages.WorkflowProjectDoNotHasArtifactTypes, ErrorCodes.ProjectOfWorkflowDoesNotHaveArtifactTypes);
+                }
+            }
+
+            return result.FirstOrDefault();
+        }
         #endregion
     }
 }

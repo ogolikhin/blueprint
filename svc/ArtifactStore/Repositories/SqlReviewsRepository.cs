@@ -257,15 +257,15 @@ namespace ArtifactStore.Repositories
             {
                 await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, transaction);
 
+                int? baselineId = null;
                 if (effectiveIds.IsBaselineAdded)
                 {
-                    await CreateOrUpdateReviewBaselineLink(reviewId, content.ArtifactIds.First(),
-                        propertyResult.ProjectId.Value, userId, transaction);
+                    baselineId = content.ArtifactIds.First();
                 }
-                else
-                {
-                    await RemoveReviewBaselineLink(reviewId, userId, transaction);
-                }
+
+                await CreateUpdateRemoveReviewBaselineLink(reviewId, propertyResult.ProjectId.Value,
+                    userId, !effectiveIds.IsBaselineAdded, baselineId,  transaction);
+
             };
 
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
@@ -337,20 +337,21 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task CreateOrUpdateReviewBaselineLink(int reviewId, int baselineId, int projectId,
-            int userId, IDbTransaction transaction)
+        private async Task CreateUpdateRemoveReviewBaselineLink(int reviewId, int projectId,
+            int userId, bool onlyRemoveLink, int? baselineId, IDbTransaction transaction)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@reviewId", reviewId);
-            parameters.Add("@baselineId", baselineId);
             parameters.Add("@projectId", projectId);
             parameters.Add("@userId", userId);
+            parameters.Add("@onlyRemoveLink", onlyRemoveLink);
+            parameters.Add("@baselineId", baselineId != null ? baselineId.Value : 0);
 
             if (transaction == null)
             {
                 await _connectionWrapper.ExecuteAsync
                 (
-                    "CreateOrUpdateReviewBaselineLink",
+                    "CreateUpdateRemoveReviewBaselineLink",
                     parameters,
                     commandType: CommandType.StoredProcedure
                 );
@@ -359,7 +360,7 @@ namespace ArtifactStore.Repositories
             {
                 await transaction.Connection.ExecuteAsync
                 (
-                    "CreateOrUpdateReviewBaselineLink",
+                    "CreateUpdateRemoveReviewBaselineLink",
                     parameters,
                     transaction,
                     commandType: CommandType.StoredProcedure

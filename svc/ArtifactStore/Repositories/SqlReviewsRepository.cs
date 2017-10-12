@@ -168,7 +168,9 @@ namespace ArtifactStore.Repositories
                 reviewSource.Prefix = baselineInfo.Prefix;
             }
 
-            var participants = await GetAllReviewParticipantsAsync(containerId, userId);
+            var page = new Pagination();
+            page.SetDefaultValues(0, int.MaxValue);
+            var participants = await GetReviewParticipantsAsync(containerId, page, userId);
             var description = await _itemInfoRepository.GetItemDescription(containerId, userId, false, int.MaxValue);
 
             var reviewContainer = new ReviewSummaryMetrics
@@ -769,55 +771,7 @@ namespace ArtifactStore.Repositories
 
             return reviewersRoot;
         }
-
-        public async Task<ReviewParticipantsContent> GetAllReviewParticipantsAsync(int reviewId, int userId, int? versionId = null, bool? addDrafts = true)
-        {
-            if (versionId < 1)
-            {
-                throw new BadRequestException(nameof(versionId) + " cannot be less than 1.", ErrorCodes.InvalidParameter);
-            }
-
-            int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
-
-            if (revisionId < int.MaxValue)
-            {
-                addDrafts = false;
-            }
-
-            var param = new DynamicParameters();
-
-            param.Add("@reviewId", reviewId);
-            param.Add("@revisionId", revisionId);
-            param.Add("@userId", userId);
-            param.Add("@addDrafts", addDrafts);
-
-            var participants = await _connectionWrapper.QueryMultipleAsync<ReviewParticipant, int, int, int>("GetAllReviewParticipants", param, commandType: CommandType.StoredProcedure);
-
-            var reviewersRoot = new ReviewParticipantsContent()
-            {
-                Items = participants.Item1.ToList(),
-                Total = participants.Item2.SingleOrDefault(),
-                TotalArtifacts = participants.Item3.SingleOrDefault(),
-                TotalArtifactsRequestedApproval = participants.Item4.SingleOrDefault()
-            };
-
-            var meaningOfSignatures = await GetMeaningOfSignaturesForParticipantAsync(reviewId, userId);
-
-            foreach (var reviewer in reviewersRoot.Items)
-            {
-                if (meaningOfSignatures.ContainsKey(reviewer.UserId))
-                {
-                    reviewer.MeaningOfSignatureIds = meaningOfSignatures[reviewer.UserId];
-                }
-                else
-                {
-                    reviewer.MeaningOfSignatureIds = new int[0];
-                }
-            }
-
-            return reviewersRoot;
-        }
-
+       
         private async Task<Dictionary<int, List<int>>> GetMeaningOfSignaturesForParticipantAsync(int reviewId, int userId)
         {
             var parameters = new DynamicParameters();

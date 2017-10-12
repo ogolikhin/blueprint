@@ -27,6 +27,7 @@ namespace SearchService.Helpers.SemanticSearch
         internal SemanticSearchExecutor(ISemanticSearchRepository semanticSearchRepository)
         {
             _searchEngine = SearchEngineFactory.CreateSearchEngine(semanticSearchRepository);
+            _searchEngine.PerformHealthCheck();
         }
 
         public async Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters)

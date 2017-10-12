@@ -250,7 +250,7 @@ namespace AdminStore.Controllers
         /// 
         [HttpGet, NoCache]
         [Route("{workflowId:int:min(1)}/projects"), SessionRequired]
-        [ResponseType(typeof(QueryResult<WorkflowProjectArtifactTypeDto>))]
+        [ResponseType(typeof(QueryResult<WorkflowProjectArtifactTypesDto>))]
         public async Task<IHttpActionResult> GetProjectArtifactTypesAssignedToWorkflowAsync(int workflowId, [FromUri] Pagination pagination, string search = null)
         {
             pagination.Validate();

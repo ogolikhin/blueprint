@@ -5,7 +5,7 @@ using System.Web;
 
 namespace AdminStore.Models
 {
-    public class WorkflowArtifact
+    public class WorkflowArtifactType
     {
         public string Name { get; set; }
         public int Id { get; set; }

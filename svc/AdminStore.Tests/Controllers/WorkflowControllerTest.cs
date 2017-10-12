@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -425,7 +426,7 @@ namespace AdminStore.Controllers
             //act
             var result = await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { }) as
                     OkNegotiatedContentResult<SyncResult>;
-       
+
             Assert.AreEqual(expectedResult.Content.TotalAdded, result.Content.TotalAdded);
             Assert.AreEqual(expectedResult.Content.TotalDeleted, result.Content.TotalDeleted);
         }
@@ -1074,48 +1075,48 @@ namespace AdminStore.Controllers
 
         #region GetWorkflowAvailableProjects
         [TestMethod]
-         public async Task GetWorkflowAvailableProjects_AllParamsAreCorrectAndPermissionsOk_ReturnListInstanceItem()
-         {
-             //arrange                       
-             _privilegesRepositoryMock
-                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
- 
-             _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(WorkflowId, FolderId)).ReturnsAsync(new List<InstanceItem>());
- 
-             //act
-             var actualResult = await _controller.GetWorkflowAvailableProjects(WorkflowId, FolderId);
- 
-             //assert
-             Assert.IsNotNull(actualResult);
-         }
- 
-         [TestMethod]
-         public async Task GetWorkflowAvailableProjects_InvalidPermission_ReturnAuthorizationException()
-         {
+        public async Task GetWorkflowAvailableProjects_AllParamsAreCorrectAndPermissionsOk_ReturnListInstanceItem()
+        {
+            //arrange                       
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(WorkflowId, FolderId)).ReturnsAsync(new List<InstanceItem>());
+
+            //act
+            var actualResult = await _controller.GetWorkflowAvailableProjects(WorkflowId, FolderId);
+
+            //assert
+            Assert.IsNotNull(actualResult);
+        }
+
+        [TestMethod]
+        public async Task GetWorkflowAvailableProjects_InvalidPermission_ReturnAuthorizationException()
+        {
             //arrange         
             Exception exception = null;
 
-             _privilegesRepositoryMock
-                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                 .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
- 
-             _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(WorkflowId, FolderId)).ReturnsAsync(new List<InstanceItem>());
- 
-             //act
-             try
-             {
-                 await _controller.GetWorkflowAvailableProjects(WorkflowId, FolderId);
-             }
-             catch (Exception ex)
-             {
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
+
+            _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(WorkflowId, FolderId)).ReturnsAsync(new List<InstanceItem>());
+
+            //act
+            try
+            {
+                await _controller.GetWorkflowAvailableProjects(WorkflowId, FolderId);
+            }
+            catch (Exception ex)
+            {
                 exception = ex;
-             }
- 
-             //assert
-             Assert.IsNotNull(exception);
-             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
-         }
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
         #endregion
 
         #region GetProjectArtifactTypesAssignedToWorkflowAsync
@@ -1260,7 +1261,7 @@ namespace AdminStore.Controllers
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-            
+
             //should be <= 250
             string search =
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium q";
@@ -1298,7 +1299,7 @@ namespace AdminStore.Controllers
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-            
+
             //250 characters - OK 
             string search =
 
@@ -1345,6 +1346,149 @@ namespace AdminStore.Controllers
         }
 
 
+
+        #endregion
+
+        #region UpdateWorkflow
+
+        [TestMethod]
+        public async Task UpdateWorkflow_AllParametersAreFine_ReturnSuccessResult()
+        {
+            //arrange
+            var updateWorkflowDto = new UpdateWorkflowDto()
+            {
+                Description = "Some text",
+                Name = "Some name",
+                Status = true
+            };
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+            _workflowServiceMock.Setup(s => s.UpdateWorkflowAsync(It.IsAny<UpdateWorkflowDto>(), It.IsAny<int>(), It.IsAny<int>())).Returns(Task.FromResult(1));
+
+            //act
+            var result = await _controller.UpdateWorkflow(WorkflowId, updateWorkflowDto);
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.NoContent);
+            Assert.IsInstanceOfType(result, typeof(HttpResponseMessage));
+        }
+
+        [TestMethod]
+        public async Task UpdateWorkflow_UserDoesNotHaveEnoughPrivileges_ReturnForbidden()
+        {
+            //arrange
+            Exception exception = null;
+            _privilegesRepositoryMock
+              .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+              .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+
+            //act
+            try
+            {
+                await _controller.UpdateWorkflow(WorkflowId, null);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        [TestMethod]
+        public async Task UpdateWorkflow_WorkflowDtoIsNull_ReturnWorkflowModelIsEmpty()
+        {
+            //arrange
+            Exception exception = null;
+            _privilegesRepositoryMock
+              .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+              .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            try
+            {
+                await _controller.UpdateWorkflow(WorkflowId, null);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(exception.Message, ErrorMessages.WorkflowModelIsEmpty);
+        }
+
+        [TestMethod]
+        public async Task UpdateWorkflow_WorkflowNameIncorrect_ReturnBadRequestResult()
+        {
+            //arrange
+            Exception exception = null;
+            var updateWorkflowDto = new UpdateWorkflowDto()
+            {
+                Description = "some description",
+                Name = "a"
+            };
+            _privilegesRepositoryMock
+              .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+              .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            try
+            {
+                await _controller.UpdateWorkflow(WorkflowId, updateWorkflowDto);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(exception.Message, ErrorMessages.WorkflowNameError);
+        }
+
+        [TestMethod]
+        public async Task UpdateWorkflow_WorkflowDescriptionIncorrect_ReturnBadRequestResult()
+        {
+            //arrange
+            Exception exception = null;
+            //description length = 410 
+            var updateWorkflowDto = new UpdateWorkflowDto()
+            {
+                Description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit." +
+                              "Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis" +
+                              "parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. " +
+                              "Nulla consequat massa quis enim. Donec pede justo," +
+                              "fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenati",
+                Name = "some name"
+            };
+            _privilegesRepositoryMock
+              .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+              .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //act
+            try
+            {
+                await _controller.UpdateWorkflow(WorkflowId, updateWorkflowDto);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(exception.Message, ErrorMessages.WorkflowDescriptionLimit);
+        }
 
         #endregion
     }

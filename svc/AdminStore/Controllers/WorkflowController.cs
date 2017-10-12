@@ -116,9 +116,6 @@ namespace AdminStore.Controllers
             if (artifactTypeIds == null)
                 throw new BadRequestException(ErrorMessages.ArtifactTypeIdsNotValid, ErrorCodes.BadRequest);
 
-            if (!artifactTypeIds.Any())
-                return Ok(SyncResult.Empty);
-
             var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(workflowId, projectId, artifactTypeIds);
 
             return Ok(result);

@@ -1362,9 +1362,8 @@ namespace ArtifactStore.Repositories
             artifactIdsList.Add(reviewId);
 
             var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIdsList, userId);
-
-            // Count = 2 because it includes review id 
-            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read) && artifactIdsList.Count == 2 )
+ 
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
             {
                 ThrowUserCannotAccessReviewException(reviewId);
             }

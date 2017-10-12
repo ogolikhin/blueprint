@@ -444,6 +444,34 @@ namespace AdminStore.Services.Workflow
             return versionId;
         }
 
+        public async Task UpdateWorkflowAsync(UpdateWorkflowDto workflowDto, int workflowId, int userId)
+        {
+            var workflow = new SqlWorkflow
+            {
+                Name = workflowDto.Name,
+                Description = workflowDto.Description,
+                Active = workflowDto.Status,
+                WorkflowId = workflowId
+            };
+
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision =
+                    await
+                        _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId,
+                            $"Updating the workflow with id {workflowId}.");
+                if (publishRevision < 1)
+                {
+                    throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.",
+                        nameof(publishRevision)));
+                }
+
+                await _workflowRepository.UpdateWorkflowAsync(workflow, publishRevision, transaction);
+            };
+
+            await _workflowRepository.RunInTransactionAsync(action);
+        }
+
         public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
         {
             var totalDeleted = 0;

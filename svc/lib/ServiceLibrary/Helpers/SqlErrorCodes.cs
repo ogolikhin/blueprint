@@ -29,6 +29,8 @@
         WorkflowWithSuchANameAlreadyExists = 50023,
         WorkflowWithCurrentIdNotExist = 50024,
         WorkflowWithCurrentIdIsActive = 50025,
-        ProjectOfWorkflowDoesNotHaveArtifactTypes = 50026
+        WorkflowProjectHasNoArtifactTypes = 50026,
+        WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated = 50027,
+        WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow = 50028
     }
 }

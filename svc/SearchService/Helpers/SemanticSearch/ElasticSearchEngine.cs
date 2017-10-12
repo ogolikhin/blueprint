@@ -41,8 +41,6 @@ namespace SearchService.Helpers.SemanticSearch
             connectionSettings.MapDefaultTypeNames(d => d.Add(typeof (SemanticSearchItem), "semanticsearchitems"));
 
             _elasticClient = new ElasticClient(connectionSettings);
-
-            PerformElasticEngineHealthCheck();
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308: Normalize strings to uppercase", Justification = "Index name for elastic search must be lower cased")]
@@ -52,11 +50,9 @@ namespace SearchService.Helpers.SemanticSearch
             IndexName = (IndexPrefix + tenantId).ToLowerInvariant();
 
             _elasticClient = elasticClient;
-
-            PerformElasticEngineHealthCheck();
         }
 
-        private void PerformElasticEngineHealthCheck()
+        public override void PerformHealthCheck()
         {
             var ping = _elasticClient.Ping();
             if (!ping.IsValid)
@@ -76,6 +72,7 @@ namespace SearchService.Helpers.SemanticSearch
                 throw new ElasticsearchConfigurationException("Elasticsearch Type does not exist");
             }
         }
+
         public override async Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters)
         {
             try
@@ -98,7 +95,7 @@ namespace SearchService.Helpers.SemanticSearch
 
                 // Creates the search descriptor 
                 var searchDescriptor = new SearchDescriptor<SemanticSearchItem>();
-                searchDescriptor.Size(searchEngineParameters.PageSize).Query(q => q.Bool(b => boolQueryDescriptor));
+                searchDescriptor.Index(IndexName).Size(searchEngineParameters.PageSize).Query(q => q.Bool(b => boolQueryDescriptor));
 
                 var results = await _elasticClient.SearchAsync<SemanticSearchItem>(searchDescriptor);
 

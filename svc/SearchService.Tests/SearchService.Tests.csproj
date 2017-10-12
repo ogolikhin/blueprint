@@ -93,6 +93,7 @@
     <Compile Include="Helpers\SearchConfigurationProviderTest.cs" />
     <Compile Include="Helpers\CriteriaValidatorTests.cs" />
     <Compile Include="Helpers\SemanticSearch\ElasticSearchEngineTests.cs" />
+    <Compile Include="Helpers\SemanticSearch\SearchEngineFactoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\SqlItemSearchRepositoryTests.cs" />
     <Compile Include="Repositories\SqlProjectSearchRepositoryTests.cs" />

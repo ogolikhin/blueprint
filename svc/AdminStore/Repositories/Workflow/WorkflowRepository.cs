@@ -941,7 +941,7 @@ namespace AdminStore.Repositories.Workflow
                         throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
 
                     case (int)SqlErrorCodes.WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated:
-                        throw new ConflictException(ErrorMessages.ParentFolderIdReferenceToDescendantItem, ErrorCodes.Conflict);
+                        throw new ConflictException(ErrorMessages.WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated, ErrorCodes.Conflict);
 
                     case (int)SqlErrorCodes.WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow:
                         throw new ConflictException(ErrorMessages.WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow, ErrorCodes.Conflict);
@@ -1043,8 +1043,8 @@ namespace AdminStore.Repositories.Workflow
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
                         throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);                   
 
-                    case (int)SqlErrorCodes.ProjectOfWorkflowDoesNotHaveArtifactTypes:
-                        throw new ConflictException(ErrorMessages.WorkflowProjectDoNotHasArtifactTypes, ErrorCodes.ProjectOfWorkflowDoesNotHaveArtifactTypes);
+                    case (int)SqlErrorCodes.WorkflowProjectHasNoArtifactTypes:
+                        throw new ConflictException(ErrorMessages.WorkflowProjectHasNoArtifactTypes, ErrorCodes.WorkflowProjectHasNoArtifactTypes);
                 }
             }
 

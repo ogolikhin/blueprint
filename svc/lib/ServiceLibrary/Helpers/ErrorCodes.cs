@@ -131,7 +131,7 @@
         public const int WorkflowAlreadyExists = 16002;
         public const int GeneralErrorOfCreatingWorkflow = 16003;
         public const int WorkflowIsActive = 16004;
-        public const int ProjectOfWorkflowDoesNotHaveArtifactTypes = 16005;
+        public const int WorkflowProjectHasNoArtifactTypes = 16005;
 
         //Search
         public const int SearchEngineNotFound = 17001;

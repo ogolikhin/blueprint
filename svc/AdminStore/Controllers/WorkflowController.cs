@@ -429,12 +429,14 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="workflowId">Workflow identity</param>
         /// <param name="workflowDto">WorkflowDto model</param>
-        /// <response code="200">Ok. Workflow is updated.</response>
+        /// <response code="204">NoContent. Workflow is updated.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">Forbidden. The user does not have permissions for updating the workflow or Workflow license is not available.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the workflow.</response>
         /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
-        /// <response code="409">Conflict. The current version of the workflow from the request doesn’t match the current version in DB.</response>
+        /// <response code="409">Conflict. The workflow with the current id is active, 
+        /// or workflow without project/artifact type assignments cannot be activated, 
+        /// or there is at least one project-artifact type assigned to the current workflow which is also assigned to another active workflow.</response>
         [HttpPut]
         [FeatureActivation(FeatureTypes.Workflow)]
         [SessionRequired]

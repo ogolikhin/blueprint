@@ -219,7 +219,7 @@ namespace AdminStore.Controllers
         private const int FolderId = 1;
         private const int ProjectId = 1;
 
-        private QueryResult<WorkflowProjectArtifactTypeDto> _expectedArtifacts;
+        private QueryResult<WorkflowProjectArtifactTypesDto> _expectedArtifacts;
         private Pagination _pagination;
 
         [TestInitialize]
@@ -240,17 +240,17 @@ namespace AdminStore.Controllers
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
 
-            _expectedArtifacts = new QueryResult<WorkflowProjectArtifactTypeDto>
+            _expectedArtifacts = new QueryResult<WorkflowProjectArtifactTypesDto>
             {
-                Items = new List<WorkflowProjectArtifactTypeDto>()
+                Items = new List<WorkflowProjectArtifactTypesDto>()
                 {
-                    new WorkflowProjectArtifactTypeDto()
+                    new WorkflowProjectArtifactTypesDto()
                     {
                         ProjectId = 1,
                         ProjectName = "TestProject",
-                        Artifacts = new List<WorkflowArtifact>()
+                        Artifacts = new List<WorkflowArtifactType>()
                         {
-                            new WorkflowArtifact()
+                            new WorkflowArtifactType()
                             {
                                 Id = 1,
                                 Name = "TestArtifact"
@@ -1138,7 +1138,7 @@ namespace AdminStore.Controllers
                 await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypeDto>>;
+                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
 
             //assert
             Assert.IsNotNull(actualResult);
@@ -1169,7 +1169,7 @@ namespace AdminStore.Controllers
                 await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypeDto>>;
+                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
             }
             catch (BadRequestException ex)
             {
@@ -1205,7 +1205,7 @@ namespace AdminStore.Controllers
                 await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypeDto>>;
+                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
             }
             catch (BadRequestException ex)
             {
@@ -1240,7 +1240,7 @@ namespace AdminStore.Controllers
                 await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypeDto>>;
+                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
             }
             catch (BadRequestException ex)
             {
@@ -1278,7 +1278,7 @@ namespace AdminStore.Controllers
                 await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             search)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypeDto>>;
+                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
             }
             catch (BadRequestException ex)
             {
@@ -1313,7 +1313,7 @@ namespace AdminStore.Controllers
                 await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             search)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypeDto>>;
+                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
 
             // Exception
 
@@ -1340,7 +1340,7 @@ namespace AdminStore.Controllers
                 await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypeDto>>;
+                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
             // Exception
         }
 

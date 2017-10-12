@@ -672,7 +672,7 @@ namespace AdminStore.Repositories.Workflow
             else return new List<InstanceItem>();           
         }
 
-        public async Task<QueryResult<WorkflowProjectArtifactTypeDto>> GetProjectArtifactTypesAssignedtoWorkflowAsync(int workflowId, Pagination pagination, 
+        public async Task<QueryResult<WorkflowProjectArtifactTypesDto>> GetProjectArtifactTypesAssignedtoWorkflowAsync(int workflowId, Pagination pagination, 
                                             string search = null)
         {
             if (workflowId < 1)
@@ -697,20 +697,20 @@ namespace AdminStore.Repositories.Workflow
             var workflowArtifactTypes = items as WorkflowProjectArtifactType[] ?? items.ToArray();
             var projectIds = workflowArtifactTypes.Select(x => x.ProjectId).Distinct().ToList();
 
-            var groupedList = new List<WorkflowProjectArtifactTypeDto>();
+            var groupedList = new List<WorkflowProjectArtifactTypesDto>();
 
             foreach (var projectId in projectIds)
             {
                 var artifacts = workflowArtifactTypes.Where(x => x.ProjectId == projectId).ToList();
                 
-                var projectArtifacts = artifacts.Select(artifact => new WorkflowArtifact()
+                var projectArtifacts = artifacts.Select(artifact => new WorkflowArtifactType()
                 {
                     Id = artifact.ArtifactId, Name = artifact.ArtifactName
                 }).ToList();
               
                 string projectName = artifacts[0].ProjectName;
 
-                var groupedProjectArtifacts = new WorkflowProjectArtifactTypeDto()
+                var groupedProjectArtifacts = new WorkflowProjectArtifactTypesDto()
                 {
                     ProjectId = projectId,
                     ProjectName = projectName,
@@ -731,7 +731,7 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            return new QueryResult<WorkflowProjectArtifactTypeDto>() { Items = groupedList, Total = total ?? 0 };
+            return new QueryResult<WorkflowProjectArtifactTypesDto>() { Items = groupedList, Total = total ?? 0 };
         }
 
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)

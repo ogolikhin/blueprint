@@ -121,7 +121,8 @@ namespace ServiceLibrary.Helpers
             Array.Copy(BitConverter.GetBytes(bits[3]), 0, bytes, 12, 4);
             return bytes;
         }
-        
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         public static DateTime ParseDateValue(string dateValue, ITimeProvider timeProvider)
         {
             //specific date
@@ -212,7 +213,7 @@ namespace ServiceLibrary.Helpers
                 return false;
             }
             string value = htmlString.Trim();
-            if (value.StartsWith(Html) && value.EndsWith(HtmlClose))
+            if (value.StartsWith(Html, StringComparison.OrdinalIgnoreCase) && value.EndsWith(HtmlClose, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }

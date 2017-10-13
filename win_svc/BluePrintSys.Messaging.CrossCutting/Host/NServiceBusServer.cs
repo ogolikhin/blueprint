@@ -175,6 +175,8 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         protected virtual void LogInfo(string tenantId, IWorkflowMessage message, Exception exception)
         {
             if (exception == null)

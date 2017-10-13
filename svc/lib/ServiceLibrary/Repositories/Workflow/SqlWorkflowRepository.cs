@@ -240,7 +240,8 @@ namespace ServiceLibrary.Repositories.Workflow
                         ConnectionWrapper.QueryAsync<SqlWorkflowTransition>("GetTransitionAssociatedWithStates", param,
                             commandType: CommandType.StoredProcedure), userId).FirstOrDefault();
         }
-        
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         private IList<WorkflowTransition> ToWorkflowTransitions(IEnumerable<SqlWorkflowTransition> sqlWorkflowTransitions, int currentUserId)
         {
             return sqlWorkflowTransitions.Select(wt =>

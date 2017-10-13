@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace BluePrintSys.Messaging.CrossCutting.Logging
 {
@@ -34,7 +35,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
 
             if (typeof(TLogEntry) != entry.GetType())
             {
-                throw new ArgumentOutOfRangeException("entry", string.Format("Unexpected Log Entry: {0}", entry.GetType()));
+                throw new ArgumentOutOfRangeException("entry", string.Format(CultureInfo.InvariantCulture, "Unexpected Log Entry: {0}", entry.GetType()));
             }
 
             return Format((TLogEntry) entry);
@@ -55,9 +56,10 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
 
             return String.Format
             (
+                CultureInfo.InvariantCulture,
                 "GMT{0}{1}",
                 TimeZoneInfo.Local.BaseUtcOffset.Ticks > 0 ? "+" : "-",
-                TimeZoneInfo.Local.BaseUtcOffset.ToString("hh\\:mm")
+                TimeZoneInfo.Local.BaseUtcOffset.ToString("hh\\:mm", CultureInfo.InvariantCulture)
             );
         }
 
@@ -74,7 +76,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
             {
                 if (text.IndexOfAny("\",\x0A\x0D".ToCharArray()) > -1)
                 {
-                    text = String.Format("\"{0}\"", text.Replace("\"", "\"\""));
+                    text = String.Format(CultureInfo.InvariantCulture, "\"{0}\"", text.Replace("\"", "\"\""));
                 }
             }
 

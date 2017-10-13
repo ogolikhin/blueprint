@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Jobs
@@ -30,6 +31,7 @@ namespace ServiceLibrary.Models.Jobs
         [JsonProperty]
         public string DesiredArtifactTypeName { get; set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
         [JsonProperty]
         public int[] AncestorArtifactTypeIds { get; set; }
     }

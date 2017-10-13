@@ -92,6 +92,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             return null;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         private PropertySetResult PopulateDatePropertyLite()
         {
             //was Choice property

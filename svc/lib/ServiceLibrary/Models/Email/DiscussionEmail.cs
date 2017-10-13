@@ -100,6 +100,7 @@ namespace ServiceLibrary.Models.Email
         /// <summary>
         ///
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
         public byte[] LogoImageAttachmentArray
         {
             get;
@@ -109,7 +110,7 @@ namespace ServiceLibrary.Models.Email
         /// <summary>
         ///
         /// </summary>
-        public byte[] ArtifactImageAttachmentArray
+        public ICollection<byte> ArtifactImageAttachmentArray
         {
             get;
             internal set;

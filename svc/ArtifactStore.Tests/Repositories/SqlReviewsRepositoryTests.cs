@@ -58,6 +58,7 @@ namespace ArtifactStore.Repositories
             );
         }
 
+        #region GetReviewSummary
         [TestMethod]
         public async Task GetReviewSummary_Formal_Success()
         {
@@ -242,11 +243,14 @@ namespace ArtifactStore.Repositories
                 }
             }
         }
+        #endregion
+
+        #region GetReviewSummaryMetrics
 
         [TestMethod]
         public async Task GetReviewSummaryMetrics_Success()
         {
-            //Arange
+            //Arrange
             var reviewId = 1;
             var reviewName = "My Review";
             var reviewDescription = "My Description";
@@ -329,6 +333,128 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(1, review.Artifacts.ArtifactStatus.Unviewed);
         }
 
+
+        [TestMethod]
+        public async Task GetReviewSummaryMetrics_AuthorizationException()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage
+            };
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            var reviewDetails = new ReviewSummaryDetails
+            {
+                ReviewPackageStatus = ReviewPackageStatus.Active,
+                ReviewParticipantRole = null, // User is not assigned to the review
+                TotalReviewers = 2
+            };
+            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
+            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
+
+            var isExceptionThrown = false;
+
+            //Act
+            try
+            {
+                var review = await _reviewsRepository.GetReviewSummaryMetrics(reviewId, userId);
+            }
+            catch (AuthorizationException ex)
+            {
+                isExceptionThrown = true;
+                //Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+                Assert.AreEqual("User does not have permissions to access the review (Id:1).", ex.Message);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+        [TestMethod]
+        public async Task GetReviewSummaryMetrics_ResourceNotFoundException()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var isExceptionThrown = false;
+
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                PredefinedType = ItemTypePredefined.Actor   // Invalid Artifact Type
+            };
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+
+            //Act
+            try
+            {
+                var review = await _reviewsRepository.GetReviewSummaryMetrics(reviewId, userId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                isExceptionThrown = true;
+                //Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+                Assert.AreEqual("Review (Id:1) is not found.", ex.Message);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+        [TestMethod]
+        public async Task GetReviewSummaryMetrics_DraftReviewException()
+        {
+            //Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var isExceptionThrown = false;
+
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage
+            };
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+
+            var reviewDetails = new ReviewSummaryDetails
+            {
+                ReviewPackageStatus = ReviewPackageStatus.Draft  // Draft Status
+            };
+            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
+            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
+
+            //Act
+            try
+            {
+                var review = await _reviewsRepository.GetReviewSummaryMetrics(reviewId, userId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                isExceptionThrown = true;
+                //Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+                Assert.AreEqual("Review (Id:1) is not found.", ex.Message);
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+        #endregion
 
         #region GetReviewTableOfContentAsync
 

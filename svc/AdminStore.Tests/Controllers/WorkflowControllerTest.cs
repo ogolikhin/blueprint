@@ -412,24 +412,7 @@ namespace AdminStore.Controllers
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
         }
-
-        [TestMethod]
-        public async Task AssignArtifactTypesToProjectInWorkflow_ArtifactTypesIdsIsEmpty_ReturnEmptySyncResult()
-        {
-            //arrange         
-            var expectedResult = new OkNegotiatedContentResult<SyncResult>(SyncResult.Empty, _controller);
-
-            _privilegesRepositoryMock
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
-            //act
-            var result = await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { }) as
-                    OkNegotiatedContentResult<SyncResult>;
-
-            Assert.AreEqual(expectedResult.Content.TotalAdded, result.Content.TotalAdded);
-            Assert.AreEqual(expectedResult.Content.TotalDeleted, result.Content.TotalDeleted);
-        }
+        
         #endregion
 
         #region GetWorkflow

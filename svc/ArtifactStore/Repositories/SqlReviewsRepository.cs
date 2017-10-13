@@ -309,7 +309,7 @@ namespace ArtifactStore.Repositories
             int alreadyIncludedCount;
             var propertyResult = await GetReviewPropertyString(reviewId, userId);
 
-            if (propertyResult.IsReviewReadOnly)
+            if (propertyResult.ReviewStatus == ReviewPackageStatus.Closed)
             {
                 ThrowReviewClosedException();
             }
@@ -331,6 +331,16 @@ namespace ArtifactStore.Repositories
                 if (effectiveIds.IsBaselineAdded)
                 {
                     ThrowBaselineNotSealedException();
+                }
+            }
+
+            // If we adding the baseline, but review is active and not public we throw conflict exception
+            if (effectiveIds.IsBaselineAdded)
+            {
+                if (propertyResult.ReviewStatus == ReviewPackageStatus.Active &&
+                    propertyResult.ReviewType != ReviewType.Public)
+                {
+                    ThrowReviewActiveNotPublicException();
                 }
             }
 
@@ -394,19 +404,7 @@ namespace ArtifactStore.Repositories
             param.Add("@userId", userId);
             param.Add("@roleUserId", roleUserId);
 
-            var result = (await _connectionWrapper.QueryAsync<PropertyValueString>("GetReviewApprovalRolesInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
-            return new PropertyValueString()
-            {
-                IsDraftRevisionExists = result.IsDraftRevisionExists,
-                ArtifactXml = result.ArtifactXml,
-                RevewSubartifactId = result.RevewSubartifactId,
-                ProjectId = result.ProjectId,
-                IsReviewLocked = result.IsReviewLocked,
-                IsReviewReadOnly = result.IsReviewReadOnly,
-                BaselineId = result.BaselineId,
-                IsReviewDeleted = result.IsReviewDeleted,
-                IsUserDisabled = result.IsUserDisabled
-            };
+            return (await _connectionWrapper.QueryAsync<PropertyValueString>("GetReviewApprovalRolesInfo", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         private async Task<EffectiveArtifactIdsResult> GetEffectiveArtifactIds(int userId, AddArtifactsParameter content, int projectId)
@@ -1027,7 +1025,7 @@ namespace ArtifactStore.Repositories
             }
             var propertyResult = await GetReviewPropertyString(reviewId, userId);
 
-            if (propertyResult.IsReviewReadOnly)
+            if (propertyResult.ReviewStatus == ReviewPackageStatus.Closed)
             {
                 ThrowReviewClosedException();
             }
@@ -1888,6 +1886,12 @@ namespace ArtifactStore.Repositories
         {
             var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
             throw new ConflictException(errorMessage, ErrorCodes.ReviewClosed);
+        }
+
+        private static void ThrowReviewActiveNotPublicException()
+        {
+            var errorMessage = "The baseline could not be added to the review because review is active and not public.";
+            throw new ConflictException(errorMessage, ErrorCodes.ReviewActiveNotPublic);
         }
 
         public static void ThrowBaselineNotSealedException()

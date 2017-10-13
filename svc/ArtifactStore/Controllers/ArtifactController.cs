@@ -181,9 +181,9 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("artifacts/baselineInfo"), SessionRequired]
-        public async Task<IEnumerable<BaselineInfo>> GetBaselineInfo([FromBody] ISet<int> artifactIds)
+        public async Task<IEnumerable<BaselineInfo>> GetBaselineInfo([FromBody] ISet<int> artifactIds, bool addDrafts = true)
         {
-            return await ArtifactRepository.GetBaselineInfo(artifactIds, Session.UserId, true, int.MaxValue);
+            return await ArtifactRepository.GetBaselineInfo(artifactIds, Session.UserId, addDrafts, int.MaxValue);
         }
 
         /// <summary>

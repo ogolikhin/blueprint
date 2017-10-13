@@ -433,7 +433,8 @@ namespace AdminStore.Controllers
         /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
         /// <response code="409">Conflict. The workflow with the current id is active, 
         /// or workflow without project/artifact type assignments cannot be activated, 
-        /// or there is at least one project-artifact type assigned to the current workflow which is also assigned to another active workflow.</response>
+        /// or there is at least one project-artifact type assigned to the current workflow which is also assigned to another active workflow.
+        /// or if we try to make an update with  the name which is already exist</response>
         [HttpPut]
         [FeatureActivation(FeatureTypes.Workflow)]
         [SessionRequired]

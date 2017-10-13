@@ -25,5 +25,6 @@ namespace ArtifactStore.Repositories
         Task UpdateReviewerStatusAsync(int reviewId, int revisionId, ReviewStatus status, int userId);
         Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, int userId, Pagination pagination);
         Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewArtifactsRemovalParams removeParams, int userId);
+        Task RemoveParticipantsFromReviewAsync(int reviewId, ReviewParticipantsRemovalParams removeParams, int userId);
     }
 }

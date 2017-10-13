@@ -29,10 +29,10 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
-        /// Gets summary metrics about review container
+        /// Gets summary information about review container
         /// </summary>
         /// <remarks>
-        /// Returns structured metrics for specific review.
+        /// Returns summary info for specific review.
         /// </remarks>
         /// <param name="containerId">Id of the review container</param>
         /// <response code="200">OK.</response>
@@ -47,7 +47,18 @@ namespace ArtifactStore.Controllers
             return _sqlReviewsRepository.GetReviewSummary(containerId, Session.UserId);
         }
 
-
+        /// <summary>
+        /// Gets summary metrics about review container
+        /// </summary>
+        /// <remarks>
+        /// Returns structured metrics for specific review.
+        /// </remarks>
+        /// <param name="containerId">Id of the review container</param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
+        /// <response code="404">Not found. An artifact for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/metrics"), SessionRequired]
         public Task<ReviewSummaryMetrics> GetReviewSummaryMetrics(int containerId)

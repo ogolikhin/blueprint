@@ -159,19 +159,9 @@ namespace ArtifactStore.Repositories
                 ThrowUserCannotAccessReviewException(containerId);
             }
 
-            var reviewSource = new ReviewSource();
-            if (reviewDetails.BaselineId.HasValue)
-            {
-                var baselineInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewDetails.BaselineId.Value, null, userId);
-                reviewSource.Id = baselineInfo.Id;
-                reviewSource.Name = baselineInfo.Name;
-                reviewSource.Prefix = baselineInfo.Prefix;
-            }
-
             var page = new Pagination();
             page.SetDefaultValues(0, int.MaxValue);
             var participants = await GetReviewParticipantsAsync(containerId, page, userId);
-            var description = await _itemInfoRepository.GetItemDescription(containerId, userId, false, int.MaxValue);
 
             var reviewContainer = new ReviewSummaryMetrics
             {

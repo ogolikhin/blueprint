@@ -243,6 +243,93 @@ namespace ArtifactStore.Repositories
             }
         }
 
+        [TestMethod]
+        public async Task GetReviewSummaryMetrics_Success()
+        {
+            //Arange
+            var reviewId = 1;
+            var reviewName = "My Review";
+            var reviewDescription = "My Description";
+            var userId = 2;
+            var baselineId = 3;
+            var totalArtifacts = 8;
+            var revisionId = 999;
+            var reviewStatus = ReviewStatus.Completed;
+
+            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
+            var reviewDetails = new ReviewSummaryDetails
+            {
+                BaselineId = baselineId,
+                ReviewPackageStatus = ReviewPackageStatus.Active,
+                ReviewParticipantRole = ReviewParticipantRole.Approver,
+                TotalArtifacts = totalArtifacts,
+                TotalViewable = 7,
+                TotalReviewers = 5,
+                ReviewStatus = reviewStatus,
+                Approved = 5,
+                Disapproved = 3,
+                Pending = 2,
+                Viewed = 7,
+                RevisionId = revisionId,
+                RequireAllArtifactsReviewed = true,
+                ShowOnlyDescription = true
+            };
+
+            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
+            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
+
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                Name = reviewName,
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage
+            };
+            var baselineInfo = new VersionControlArtifactInfo
+            {
+                Id = baselineId,
+                PredefinedType = ItemTypePredefined.ArtifactBaseline
+            };
+
+            var page = new Pagination();
+            page.SetDefaultValues(0, int.MaxValue);
+
+            var item = new ReviewParticipant
+            {
+                UserId = userId,
+                Role = ReviewParticipantRole.Approver,
+                Status = ReviewStatus.Completed
+            };
+            IEnumerable<ReviewParticipant> rwp = new List<ReviewParticipant> { item };
+            IEnumerable<int> arts = new List<int> { 6 };
+            IEnumerable<int> total = new List<int> { 5 };
+            IEnumerable<int> reqs = new List<int> { 6 };
+            var result = new Tuple<IEnumerable<ReviewParticipant>, IEnumerable<int>, IEnumerable<int>, IEnumerable<int>>(rwp, arts, total, reqs);
+
+            bool drafts = true;
+            int max = int.MaxValue;
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, userId)).ReturnsAsync(baselineInfo);
+            _itemInfoRepositoryMock.Setup( r => r.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(max);
+
+            var pparam = new Dictionary<string, object> { { "reviewId", reviewId }, { "offset", 0 }, { "limit", max }, { "revisionId", max }, { "userId", userId }, { "addDrafts", drafts } };
+            _cxn.SetupQueryMultipleAsync<ReviewParticipant, int, int, int>("GetReviewParticipants", pparam, result);
+
+            //Act
+            var review = await _reviewsRepository.GetReviewSummaryMetrics(reviewId, userId);
+
+            //Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(reviewStatus, review.Status);
+            Assert.AreEqual(revisionId, review.RevisionId);
+            Assert.AreEqual(totalArtifacts, review.Artifacts.Total);
+            Assert.AreEqual(5, review.Artifacts.ArtifactStatus.Approved);
+            Assert.AreEqual(3, review.Artifacts.ArtifactStatus.Disapproved);
+            Assert.AreEqual(2, review.Artifacts.ArtifactStatus.Pending);
+            Assert.AreEqual(1, review.Artifacts.ArtifactStatus.Unviewed);
+        }
+
+
         #region GetReviewTableOfContentAsync
 
         [TestMethod]

@@ -70,11 +70,7 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            var isAllProjectsAssignedToWorklow = parameters.Get<bool?>("AllProjectsAssignedToWorkflow");
-
-            if (isAllProjectsAssignedToWorklow.HasValue)
-                return new AssignProjectsResult() { TotalAssigned = result, AllProjectsAssignedToWorkflow = isAllProjectsAssignedToWorklow.Value };
-            else return new AssignProjectsResult() { TotalAssigned = result, AllProjectsAssignedToWorkflow = false };
+            return new AssignProjectsResult() { TotalAssigned = result, AllProjectsAssignedToWorkflow = parameters.Get<bool>("AllProjectsAssignedToWorkflow") };
         }
 
 

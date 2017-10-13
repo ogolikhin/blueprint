@@ -46,7 +46,7 @@ namespace AdminStore.Repositories
         public async Task AssignProjectsAndArtifactTypesToWorkflow_ExistsAssignedProjects_QueryReturnCountAssignedProjects()
         {
             //arrange    
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactTypesToWorkflow", It.IsAny<Dictionary<string, object>>(), 2);
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactTypesToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "AllProjectsAssignedToWorkflow", true } });
 
             //act
             var result = await _workflowRepository.AssignProjectsAndArtifactTypesToWorkflow(_workflowId, _workflowAssignScope);

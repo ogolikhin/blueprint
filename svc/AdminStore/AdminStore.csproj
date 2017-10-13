@@ -125,6 +125,7 @@
     <Compile Include="Helpers\Workflow\CreateWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\WorkflowHelper.cs" />
     <Compile Include="Models\AdminRole.cs" />
+    <Compile Include="Models\AssignProjectsResult.cs" />
     <Compile Include="Models\AssignResult.cs" />
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />

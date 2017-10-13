@@ -88,7 +88,7 @@ namespace AdminStore.Controllers
 
             var result = await _workflowRepository.AssignProjectsAndArtifactTypesToWorkflow(workFlowid, workflowAssign);
 
-            return Ok(new AssignResult() { TotalAssigned = result });
+            return Ok(result);
         }
 
 

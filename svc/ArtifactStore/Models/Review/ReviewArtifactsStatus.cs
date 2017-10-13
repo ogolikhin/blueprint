@@ -9,5 +9,7 @@
         public int Pending { get; set; }
 
         public int Viewed { get; set; }
+
+        public int Unviewed { get; set; }
     }
 }

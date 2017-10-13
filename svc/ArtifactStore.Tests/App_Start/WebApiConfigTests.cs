@@ -22,7 +22,7 @@ namespace ArtifactStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(42, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(43, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
             config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
             config.AssertAction<ArtifactController>("GetProjectChildren", HttpMethod.Get, "projects/1/children");
@@ -44,6 +44,7 @@ namespace ArtifactStore
             config.AssertAction<WorkflowController>("GetStateForArtifact", HttpMethod.Get, "artifacts/1/state");
             config.AssertAction<WorkflowController>("ChangeStateForArtifact", HttpMethod.Post, "artifacts/1/state");
             config.AssertAction<ReviewContainersController>("GetReviewSummary", HttpMethod.Get, "containers/1");
+            config.AssertAction<ReviewContainersController>("GetReviewSummaryMetrics", HttpMethod.Get, "containers/1/metrics");
             config.AssertAction<ReviewContainersController>("GetContentAsync", HttpMethod.Get, "containers/1/content");
             config.AssertAction<ReviewContainersController>("GetParticipantsAsync", HttpMethod.Get, "containers/1/participants");
             config.AssertAction<ReviewContainersController>("AddParticipantsToReview", HttpMethod.Put, "containers/1/participants");

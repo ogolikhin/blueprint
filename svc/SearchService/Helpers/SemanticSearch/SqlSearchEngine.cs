@@ -11,6 +11,11 @@ namespace SearchService.Helpers.SemanticSearch
         {
         }
 
+        public override void PerformHealthCheck()
+        {
+            // already has valid sql connection.
+        }
+
         public override async Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters)
         {
             var itemIds = await SemanticSearchRepository.GetItemSimilarItemIds(

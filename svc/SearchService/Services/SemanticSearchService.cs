@@ -106,6 +106,17 @@ namespace SearchService.Services
                 await
                     SemanticSearchExecutor.Instance.GetSemanticSearchSuggestions(searchEngineParameters);
 
+            var artifactIds = suggestedArtifactResults.Select(s => s.Id);
+
+            var resultArtifactPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
+
+            suggestedArtifactResults.ForEach((artifact) =>
+            {
+                if (resultArtifactPermissions.ContainsKey(artifact.Id))
+                {
+                    artifact.HasReadPermission = resultArtifactPermissions[artifact.Id].HasFlag(RolePermissions.Read);
+                }
+            });
 
             //Get list of some basic artifact details from the list of returned ids.
             suggestionsSearchResult.Items = suggestedArtifactResults;

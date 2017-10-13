@@ -7,6 +7,7 @@ namespace SearchService.Helpers.SemanticSearch
 {
     public interface ISearchEngine
     {
+        void PerformHealthCheck();
         Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters);
     }
     public abstract class SearchEngine: ISearchEngine
@@ -17,6 +18,8 @@ namespace SearchService.Helpers.SemanticSearch
         {
             SemanticSearchRepository = semanticSearchRepository;
         }
+
+        public abstract void PerformHealthCheck();
 
         public abstract Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters);
 

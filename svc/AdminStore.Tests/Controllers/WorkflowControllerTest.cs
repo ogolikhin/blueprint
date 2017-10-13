@@ -281,7 +281,7 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            _workflowRepositoryMock.Setup(q => q.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, new WorkflowAssignScope())).ReturnsAsync(2);
+            _workflowRepositoryMock.Setup(q => q.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, new WorkflowAssignScope())).ReturnsAsync(new AssignProjectsResult() { TotalAssigned = 2, AllProjectsAssignedToWorkflow = false });
 
             //act            
             var result = await _controller.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, scope);

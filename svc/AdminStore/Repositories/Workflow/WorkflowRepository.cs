@@ -41,7 +41,7 @@ namespace AdminStore.Repositories.Workflow
         #endregion
 
         #region Interface implementation
-        public async Task<int> AssignProjectsAndArtifactTypesToWorkflow(int workflowId, WorkflowAssignScope scope)
+        public async Task<AssignProjectsResult> AssignProjectsAndArtifactTypesToWorkflow(int workflowId, WorkflowAssignScope scope)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@WorkflowId", workflowId);
@@ -49,6 +49,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@AllProjects", scope.AllProjects, dbType: DbType.Boolean);
             parameters.Add("@ArtifactTypesIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds, "Int32Collection", "Int32Value"));
             parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.ProjectIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@AllProjectsAssignedToWorkflow", dbType: DbType.Boolean, direction: ParameterDirection.Output); 
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactTypesToWorkflow", parameters, commandType: CommandType.StoredProcedure);
@@ -69,7 +70,11 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            return result;
+            var isAllProjectsAssignedToWorklow = parameters.Get<bool?>("AllProjectsAssignedToWorkflow");
+
+            if (isAllProjectsAssignedToWorklow.HasValue)
+                return new AssignProjectsResult() { TotalAssigned = result, AllProjectsAssignedToWorkflow = isAllProjectsAssignedToWorklow.Value };
+            else return new AssignProjectsResult() { TotalAssigned = result, AllProjectsAssignedToWorkflow = false };
         }
 
 

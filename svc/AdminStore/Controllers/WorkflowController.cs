@@ -376,7 +376,7 @@ namespace AdminStore.Controllers
 
             if (scope == null)
             {
-                throw new BadRequestException(ErrorMessages.AssignMemberScopeEmpty, ErrorCodes.BadRequest);
+                throw new BadRequestException(ErrorMessages.UnassignMemberScopeEmpty, ErrorCodes.BadRequest);
             }
 
             if (scope.IsEmpty())

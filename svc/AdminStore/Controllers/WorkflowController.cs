@@ -71,7 +71,7 @@ namespace AdminStore.Controllers
         /// <returns></returns>
         [HttpPost]       
         [Route("{workflowId:int:min(1)}/assign"), SessionRequired]
-        [ResponseType(typeof(AssignResult))]
+        [ResponseType(typeof(AssignProjectsResult))]
         public async Task<IHttpActionResult> AssignProjectsAndArtifactTypesToWorkflow(int workFlowid, [FromBody] WorkflowAssignScope workflowAssign)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
@@ -83,7 +83,7 @@ namespace AdminStore.Controllers
 
             if (workflowAssign.IsEmpty())
             {
-                return Ok(AssignResult.Empty);
+                return Ok(AssignProjectsResult.Empty);
             }
 
             var result = await _workflowRepository.AssignProjectsAndArtifactTypesToWorkflow(workFlowid, workflowAssign);

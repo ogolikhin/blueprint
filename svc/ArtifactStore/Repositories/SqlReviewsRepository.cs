@@ -644,6 +644,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
+
         private async Task<int> UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts,
             IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
         {
@@ -921,6 +922,35 @@ namespace ArtifactStore.Repositories
             return parameters.Get<int>("@returnValue");
         }
 
+
+        private async Task<int> UpdateReviewParticipants(int reviewId, int userId, string reviewXml,
+IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@xmlString", reviewXml);
+            parameters.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+
+            if (transaction == null)
+            {
+                return await _connectionWrapper.ExecuteAsync
+                (
+                    "UpdateReviewParticipants",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+
+            return await transaction.Connection.ExecuteAsync
+            (
+                "UpdateReviewParticipants",
+                parameters,
+                transaction,
+                commandType: CommandType.StoredProcedure
+            );
+        }
+
         private async Task<IEnumerable<int>> GetUsersFromGroupsAsync(IEnumerable<int> groupIds)
         {
             if (groupIds != null && groupIds.Any())
@@ -1016,19 +1046,81 @@ namespace ArtifactStore.Repositories
             return toc;
         }
 
-
-        public async Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewArtifactsRemovalParams removeParams, int userId)
+        public async Task RemoveParticipantsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId)
         {
-            if ((removeParams.artifactIds == null || removeParams.artifactIds.Count() == 0) && removeParams.SelectionType == SelectionType.Selected)
+            if ((removeParams.ItemIds == null || removeParams.ItemIds.Count() == 0) && removeParams.SelectionType == SelectionType.Selected)
             {
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }
+
+            var reviewXmlResult = await GetReviewXmlAsync(reviewId, userId);
+
+            if (!reviewXmlResult.ReviewExists)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            var reviewLockedByUser = await _artifactRepository.IsArtifactLockedByUserAsync(reviewId, userId);
+
+            if (!reviewLockedByUser)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+            }
+
+            ReviewPackageRawData reviewPackageRawData;
+
+            if (string.IsNullOrEmpty(reviewXmlResult.XmlString))
+            {
+                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+            }
+
+            reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXmlResult.XmlString);
+
+            if (reviewPackageRawData.Status == ReviewPackageStatus.Closed)
+            {
+                ThrowReviewClosedException();
+            }
+
+            if (removeParams.SelectionType == SelectionType.Selected)
+            {
+                reviewPackageRawData.Reviewers.RemoveAll(i => removeParams.ItemIds.Contains(i.UserId));
+            }
+            else
+            {
+                if (removeParams.ItemIds != null && removeParams.ItemIds.Count() > 0)
+                {
+                    reviewPackageRawData.Reviewers.RemoveAll(i => !removeParams.ItemIds.Contains(i.UserId));
+                }
+                else 
+                {
+                    reviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+                }
+            }
+
+            var participantXmlResult = ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
+
+            Func<IDbTransaction, Task> transactionAction = async (transaction) =>
+            {
+                await UpdateReviewParticipants(reviewId, userId, participantXmlResult, transaction);
+            };
+
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
+        }
+
+        public async Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId)
+        {
+            if ((removeParams.ItemIds == null || removeParams.ItemIds.Count() == 0) && removeParams.SelectionType == SelectionType.Selected)
+            {
+                throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
+            }
+
             var propertyResult = await GetReviewPropertyString(reviewId, userId);
 
             if (propertyResult.ReviewStatus == ReviewPackageStatus.Closed)
             {
                 ThrowReviewClosedException();
             }
+
             if (propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0)
             {
                 throw new BadRequestException("Review status changed", ErrorCodes.ReviewStatusChanged);
@@ -1048,23 +1140,25 @@ namespace ArtifactStore.Repositories
             {
                 ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
             }
+
             var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
-            var currentArtifactIds = rdReviewContents.Artifacts.Select(a => a.Id);
-            if (removeParams.SelectionType == SelectionType.Selected && removeParams.artifactIds != null)
+
+            if (removeParams.SelectionType == SelectionType.Selected)
             {
-                rdReviewContents.Artifacts.RemoveAll(a => removeParams.artifactIds.Contains(a.Id));
+                rdReviewContents.Artifacts.RemoveAll(i => removeParams.ItemIds.Contains(i.Id));
             }
             else
             {
-                if (removeParams.artifactIds != null && removeParams.artifactIds.Count() > 0)
+                if (removeParams.ItemIds != null && removeParams.ItemIds.Count() > 0)
                 {
-                    rdReviewContents.Artifacts.RemoveAll(a => !removeParams.artifactIds.Contains(a.Id));
+                    rdReviewContents.Artifacts.RemoveAll(i => !removeParams.ItemIds.Contains(i.Id));
                 }
-                else if (removeParams.artifactIds == null || removeParams.artifactIds.Count() == 0)
+                else
                 {
                     rdReviewContents.Artifacts = new List<RDArtifact>();
                 }
             }
+
             var artifactXmlResult = ReviewRawDataHelper.GetStoreData(rdReviewContents);
 
             Func<IDbTransaction, Task> transactionAction = async (transaction) =>
@@ -1302,13 +1396,14 @@ namespace ArtifactStore.Repositories
 
         public async Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactApprovalAsync(int reviewId, ReviewArtifactApprovalParameter reviewArtifactApprovalParameters, int userId)
         {
-            if (reviewArtifactApprovalParameters == null || reviewArtifactApprovalParameters.ArtifactIds == null || !reviewArtifactApprovalParameters.isExcludedArtifacts && 
+            if (reviewArtifactApprovalParameters == null || reviewArtifactApprovalParameters.ArtifactIds == null
+                || reviewArtifactApprovalParameters.SelectionType == SelectionType.Selected && 
                 !reviewArtifactApprovalParameters.ArtifactIds.Any())
             {
                 throw new BadRequestException("Bad parameters.", ErrorCodes.OutOfRangeParameter);
             }
 
-            if(reviewArtifactApprovalParameters.isExcludedArtifacts && reviewArtifactApprovalParameters.RevisionId == null)
+            if(reviewArtifactApprovalParameters.SelectionType == SelectionType.Excluded && reviewArtifactApprovalParameters.RevisionId == null)
             {
                 throw new BadRequestException("Not all parameters provided.", ErrorCodes.OutOfRangeParameter);
             }
@@ -1316,7 +1411,7 @@ namespace ArtifactStore.Repositories
             List<int> artifactIds = new List<int>();
             bool isAllArtifactsProcessed;
 
-            if (reviewArtifactApprovalParameters.isExcludedArtifacts)
+            if (reviewArtifactApprovalParameters.SelectionType == SelectionType.Excluded)
             {
                 artifactIds.AddRange(await GetReviewArtifactsForApproveAsync(reviewId, userId, reviewArtifactApprovalParameters.RevisionId.Value, false));
 

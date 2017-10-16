@@ -2205,7 +2205,7 @@ namespace ArtifactStore.Repositories
                 Approval = "Custom Approval",
                 ApprovalFlag = ApprovalType.Approved,
                 ArtifactIds = new List<int>() { 3 },
-                isExcludedArtifacts = false
+                SelectionType = SelectionType.Selected
             };
 
             var artifactIds = new[] { 3 };
@@ -2259,7 +2259,7 @@ namespace ArtifactStore.Repositories
                 Approval = "Disapproved",
                 ApprovalFlag = ApprovalType.Disapproved,
                 ArtifactIds = new List<int>() { 3 },
-                isExcludedArtifacts = false
+                SelectionType = SelectionType.Selected
             };
 
             var artifactIds = new[] { 3 };
@@ -2365,7 +2365,7 @@ namespace ArtifactStore.Repositories
                 Approval = "Approved",
                 ApprovalFlag = ApprovalType.Approved,
                 ArtifactIds = new List<int>() { 3 },
-                isExcludedArtifacts = false
+                SelectionType = SelectionType.Selected
             };
 
             var artifactIds = new[] { 3 };
@@ -2974,7 +2974,7 @@ namespace ArtifactStore.Repositories
                 Approval = "Approved",
                 ApprovalFlag = ApprovalType.Approved,
                 ArtifactIds = new List<int>() { 3 },
-                isExcludedArtifacts = false
+                SelectionType = SelectionType.Selected
             };
 
             var artifactIds = new[] { 3 };
@@ -4639,9 +4639,9 @@ namespace ArtifactStore.Repositories
         public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_BadRequestException()
         {
             // Arrange
-            var prms = new ReviewArtifactsRemovalParams
+            var prms = new ReviewItemsRemovalParams
             {
-                artifactIds = new List<int>(),
+                ItemIds = new List<int>(),
                 SelectionType = SelectionType.Selected
             };
             //Act
@@ -4678,9 +4678,9 @@ namespace ArtifactStore.Repositories
             };
 
             _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
-            var prms = new ReviewArtifactsRemovalParams
+            var prms = new ReviewItemsRemovalParams
             {
-                artifactIds = new List<int>() { 1, 2, 3 },
+                ItemIds = new List<int>() { 1, 2, 3 },
 
                 SelectionType = SelectionType.Selected
             };
@@ -4717,9 +4717,9 @@ namespace ArtifactStore.Repositories
             };
 
             _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
-            var prms = new ReviewArtifactsRemovalParams
+            var prms = new ReviewItemsRemovalParams
             {
-                artifactIds = new List<int>() { 1, 2, 3 },
+                ItemIds = new List<int>() { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
             };
 
@@ -4757,9 +4757,9 @@ namespace ArtifactStore.Repositories
             };
 
             _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
-            var prms = new ReviewArtifactsRemovalParams
+            var prms = new ReviewItemsRemovalParams
             {
-                artifactIds = new List<int>() { 1, 2, 3 },
+                ItemIds = new List<int>() { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
             };
 
@@ -4799,9 +4799,9 @@ namespace ArtifactStore.Repositories
             };
 
             _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, PropertyValueStringResult);
-            var prms = new ReviewArtifactsRemovalParams
+            var prms = new ReviewItemsRemovalParams
             {
-                artifactIds = new List<int>() { 1, 2, 3 },
+                ItemIds = new List<int>() { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
             };
 

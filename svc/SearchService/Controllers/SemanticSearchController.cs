@@ -31,7 +31,7 @@ namespace SearchService.Controllers
         public async Task<SuggestionsSearchResult> GetSuggestions([FromUri] SuggestionsSearchCriteria searchCriteria)
         {
             var suggestionParameters = new SemanticSearchSuggestionParameters(searchCriteria.ArtifactId, Session.UserId);
-            return await _semanticSearchService.GetSemanticSearchSuggestions(suggestionParameters, SemanticSearchExecutor.Instance);
+            return await _semanticSearchService.GetSemanticSearchSuggestions(suggestionParameters, SemanticSearchExecutor.GetSemanticSearchSuggestionsAsyncDelegate);
         }
     }
 }

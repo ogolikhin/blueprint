@@ -197,12 +197,11 @@ namespace SearchService.Services
                 .ReturnsAsync(new Dictionary<int, RolePermissions>() { { 1, RolePermissions.Read } });
 
             _usersRepository.Setup(u => u.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(true);
-
-            var semanticSearchExecutor = new Mock<ISemanticSearchExecutor>();
-            semanticSearchExecutor.Setup(s => s.GetSemanticSearchSuggestions(It.IsAny<SearchEngineParameters>())).ReturnsAsync(new List<ArtifactSearchResult>() {new ArtifactSearchResult(){ItemId = 1}});
+            
+            GetSemanticSearchSuggestionsAsyncDelegate searchDelegate = async (searchEngineParameters) => await Task.FromResult(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 1 } });
 
             //act
-            await _semanticSearchService.GetSemanticSearchSuggestions(parameters, semanticSearchExecutor.Object);
+            await _semanticSearchService.GetSemanticSearchSuggestions(parameters, searchDelegate);
 
             //assert
             _semanticSearchRepository.Verify(s=>s.GetAccessibleProjectIds(It.IsAny<int>()), Times.Never);
@@ -230,11 +229,10 @@ namespace SearchService.Services
             _semanticSearchRepository.Setup(s => s.GetAccessibleProjectIds(It.IsAny<int>()))
                 .ReturnsAsync(new List<int>());
 
-            var semanticSearchExecutor = new Mock<ISemanticSearchExecutor>();
-            semanticSearchExecutor.Setup(s => s.GetSemanticSearchSuggestions(It.IsAny<SearchEngineParameters>())).ReturnsAsync(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 1 } });
+            GetSemanticSearchSuggestionsAsyncDelegate searchDelegate = async (searchEngineParameters) => await Task.FromResult(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 1 } });
 
             //act
-            await _semanticSearchService.GetSemanticSearchSuggestions(parameters, semanticSearchExecutor.Object);
+            await _semanticSearchService.GetSemanticSearchSuggestions(parameters, searchDelegate);
 
             //assert
             _semanticSearchRepository.Verify(s => s.GetAccessibleProjectIds(It.IsAny<int>()), Times.Once);
@@ -263,17 +261,16 @@ namespace SearchService.Services
             _semanticSearchRepository.Setup(s => s.GetAccessibleProjectIds(It.IsAny<int>()))
                 .ReturnsAsync(new List<int>());
 
-            var semanticSearchExecutor = new Mock<ISemanticSearchExecutor>();
-            semanticSearchExecutor.Setup(s => s.GetSemanticSearchSuggestions(It.IsAny<SearchEngineParameters>())).ReturnsAsync(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = artifactIdWithPermissions } });
-
             _artifactPermissionsRepository.Setup(
                 s =>
                     s.GetArtifactPermissions(It.Is<IEnumerable<int>>(a=> a.FirstOrDefault() == artifactIdWithPermissions), It.IsAny<int>(), It.IsAny<bool>(),
                         It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>() {{2, RolePermissions.Read}});
 
+            GetSemanticSearchSuggestionsAsyncDelegate searchDelegate = async (searchEngineParameters) => await Task.FromResult(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = artifactIdWithPermissions }} );
+
             //act
-            var result = await _semanticSearchService.GetSemanticSearchSuggestions(parameters, semanticSearchExecutor.Object);
+            var result = await _semanticSearchService.GetSemanticSearchSuggestions(parameters, searchDelegate);
 
             //assert
             Assert.IsTrue(result.Items.Count() == 1);
@@ -302,17 +299,16 @@ namespace SearchService.Services
             _semanticSearchRepository.Setup(s => s.GetAccessibleProjectIds(It.IsAny<int>()))
                 .ReturnsAsync(new List<int>());
 
-            var semanticSearchExecutor = new Mock<ISemanticSearchExecutor>();
-            semanticSearchExecutor.Setup(s => s.GetSemanticSearchSuggestions(It.IsAny<SearchEngineParameters>())).ReturnsAsync(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 2 } });
-
             _artifactPermissionsRepository.Setup(
                 s =>
                     s.GetArtifactPermissions(It.IsIn(new List<int>() { 2 }), It.IsAny<int>(), It.IsAny<bool>(),
                         It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>() { { 2, RolePermissions.None } });
 
+            GetSemanticSearchSuggestionsAsyncDelegate searchDelegate = async (searchEngineParameters) => await Task.FromResult(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 2 } });
+
             //act
-            var result = await _semanticSearchService.GetSemanticSearchSuggestions(parameters, semanticSearchExecutor.Object);
+            var result = await _semanticSearchService.GetSemanticSearchSuggestions(parameters, searchDelegate);
 
             //assert
             Assert.IsTrue(result.Items.Count() == 1);

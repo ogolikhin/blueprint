@@ -363,7 +363,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/artifacts/remove")]
-        public Task RemoveArtifactsFromReviewAsync(int reviewId, [FromBody] ReviewArtifactsRemovalParams removeParams)
+        public Task RemoveArtifactsFromReviewAsync(int reviewId, [FromBody] ReviewItemsRemovalParams removeParams)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return _sqlReviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, removeParams, session.UserId);
@@ -383,10 +383,9 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/participants/remove")]
-        public Task RemoveParticipantsFromReviewAsync(int reviewId, [FromBody] ReviewParticipantsRemovalParams removeParams)
+        public Task RemoveParticipantsFromReviewAsync(int reviewId, [FromBody] ReviewItemsRemovalParams removeParams)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, removeParams, session.UserId);
+            return _sqlReviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, removeParams, Session.UserId);
         }
 
         [HttpPut, SessionRequired]

@@ -13,7 +13,7 @@ namespace SearchService.Services
 {
     public interface ISemanticSearchService
     {
-        Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(SemanticSearchSuggestionParameters parameters);
+        Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(SemanticSearchSuggestionParameters parameters, GetSemanticSearchSuggestionsAsyncDelegate getSuggestionsAsyncDelegate);
     }
     public class SemanticSearchService: ISemanticSearchService
     {
@@ -43,7 +43,8 @@ namespace SearchService.Services
         }
 
         public async Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(
-            SemanticSearchSuggestionParameters parameters)
+            SemanticSearchSuggestionParameters parameters,
+            GetSemanticSearchSuggestionsAsyncDelegate getSuggestionsAsyncDelegate)
         {
             var artifactId = parameters.ArtifactId;
             var userId = parameters.UserId;
@@ -102,9 +103,7 @@ namespace SearchService.Services
             var searchEngineParameters = new SearchEngineParameters(artifactId, userId, isInstanceAdmin,
                 accessibleProjectIds.ToHashSet());
 
-            var suggestedArtifactResults =
-                await
-                    SemanticSearchExecutor.Instance.GetSemanticSearchSuggestions(searchEngineParameters);
+            var suggestedArtifactResults = await getSuggestionsAsyncDelegate(searchEngineParameters);
 
             var artifactIds = suggestedArtifactResults.Select(s => s.Id);
 

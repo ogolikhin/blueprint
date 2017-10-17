@@ -259,8 +259,7 @@ namespace ArtifactStore.Repositories
 
             foreach (var reviewArtifact in reviewArtifacts.Items)
             {
-                if ((reviewArtifacts.IsFormal && reviewArtifact.HasMovedProject) ||
-                    SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
+                if (SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
                     ReviewArtifactStatus reviewArtifactStatus;
 
@@ -520,10 +519,10 @@ namespace ArtifactStore.Repositories
 
         public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId)
         {
-            return GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, false, revisionId);
+            return GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, revisionId);
         }
 
-        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, bool showArtifactsIfFormal, int revisionId = int.MaxValue, bool addDrafts = false)
+        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false)
         {
             var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
 
@@ -541,10 +540,7 @@ namespace ArtifactStore.Repositories
 
             foreach (var artifact in reviewArtifacts.Items)
             {
-                var ignorePermissionCheck = showArtifactsIfFormal && reviewArtifacts.IsFormal && artifact.HasMovedProject;
-
-                if (ignorePermissionCheck
-                    || SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
+                if (SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
                     ReviewedArtifact reviewedArtifact;
                     if (reviewedArtifacts.TryGetValue(artifact.Id, out reviewedArtifact))
@@ -1672,7 +1668,7 @@ IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
 
             if (requireAllReviewed)
             {
-                var reviewedArtifactsResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, new Pagination { Offset = 0, Limit = int.MaxValue }, true, revisionId);
+                var reviewedArtifactsResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, new Pagination { Offset = 0, Limit = int.MaxValue }, revisionId);
 
                 if (reviewedArtifactsResult.Items.Any(artifact => !IsArtifactReviewed(artifact, approvalCheck.ReviewerRole)))
                 {
@@ -1923,7 +1919,7 @@ IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
 
             pagination.SetDefaultValues(0, 50);
 
-            var reviewedArtifactResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, participantId, pagination, true, addDrafts: true);
+            var reviewedArtifactResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, participantId, pagination, addDrafts: true);
 
             return new QueryResult<ParticipantArtifactStats>()
             {

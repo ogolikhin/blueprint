@@ -4237,68 +4237,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task GetReviewParticipantArtifactStatsAsync_Should_Return_Artifact_Successfully_When_No_Read_Access_To_Artifact_And_Review_Is_Formal_And_Artifact_Has_Moved_Project()
-        {
-            //Arrange
-            var reviewId = 1;
-            var userId = 2;
-            var participantId = 3;
-            var reviewArtifact = new ReviewedArtifact()
-            {
-                Id = 4,
-                Name = "Review Artifact",
-                Prefix = "REV",
-                ItemTypeId = 5,
-                ItemTypePredefined = 6,
-                IconImageId = 7,
-                IsApprovalRequired = true,
-                HasMovedProject = true
-            };
-
-            var participantReviewArtifact = new ReviewedArtifact()
-            {
-                ArtifactVersion = 1,
-                ViewedArtifactVersion = 1,
-                ViewState = ViewStateType.Viewed,
-                Approval = "Approved"
-            };
-
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
-            {
-                VersionCount = 1
-            });
-
-            SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact, true);
-
-            _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
-
-            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
-            {
-                { reviewId, RolePermissions.Read }
-            });
-
-            SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
-
-            //Act
-            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
-
-            //Assert
-            _cxn.Verify();
-            Assert.AreEqual(artifactStatsResult.Total, 1);
-            var artifactStats = artifactStatsResult.Items.First();
-            Assert.AreEqual(true, artifactStats.HasAccess);
-            Assert.AreEqual(4, artifactStats.Id);
-            Assert.AreEqual("REV", artifactStats.Prefix);
-            Assert.AreEqual("Review Artifact", artifactStats.Name);
-            Assert.AreEqual(5, artifactStats.ItemTypeId);
-            Assert.AreEqual(6, artifactStats.ItemTypePredefined);
-            Assert.AreEqual(7, artifactStats.IconImageId);
-            Assert.AreEqual(ViewStateType.Viewed, artifactStats.ViewState);
-            Assert.AreEqual("Approved", artifactStats.ApprovalStatus);
-            Assert.AreEqual(true, artifactStats.ArtifactRequiresApproval);
-        }
-
-        [TestMethod]
         public async Task GetReviewParticipantArtifactStatsAsync_Should_Return_Artifact_Successfully()
         {
             //Arrange

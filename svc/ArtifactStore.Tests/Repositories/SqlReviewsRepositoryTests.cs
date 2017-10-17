@@ -107,6 +107,8 @@ namespace ArtifactStore.Repositories
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, userId)).ReturnsAsync(baselineInfo);
 
+            _cxn.SetupExecuteScalarAsync("GetReviewType", param, ReviewType.Formal);
+
             //Act
             var review = await _reviewsRepository.GetReviewSummary(reviewId, userId);
 

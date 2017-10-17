@@ -43,6 +43,5 @@ namespace ArtifactStore.Models.Review
         public bool? IsUserDisabled { get; set; }
         public ReviewType ReviewType { get; set; }
         public bool IsReviewReadOnly { get; set; }
-        public bool ContainsOneApproverAndArtifactRequestedApproval { get; set; }
     }
 }

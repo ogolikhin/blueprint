@@ -105,6 +105,17 @@ namespace ArtifactStore.Repositories
             }
 
             var description = await _itemInfoRepository.GetItemDescription(containerId, userId, true, int.MaxValue);
+
+            ReviewType reviewType;
+            if (reviewDetails.TotalReviewers == 0)
+            {
+                reviewType = ReviewType.Public;
+            }
+            else
+            {
+                reviewType = await GetReviewType(containerId, userId);
+            }
+
             var reviewContainer = new ReviewSummary
             {
                 Id = containerId,
@@ -127,7 +138,7 @@ namespace ArtifactStore.Repositories
                     Pending = reviewDetails.Pending,
                     Viewed = reviewDetails.Viewed
                 },
-                ReviewType = GetReviewType(reviewDetails),
+                ReviewType = reviewType,
                 RevisionId = reviewDetails.RevisionId,
                 ProjectId = reviewInfo.ProjectId
             };
@@ -216,14 +227,13 @@ namespace ArtifactStore.Repositories
             return reviewContainer;
         }
 
-        private ReviewType GetReviewType(ReviewSummaryDetails reviewDetails)
+        private Task<ReviewType> GetReviewType(int reviewId, int userId)
         {
-            if (reviewDetails.TotalReviewers == 0)
-            {
-                return ReviewType.Public;
-            }
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+            param.Add("@userId", userId);
 
-            return reviewDetails.BaselineId.HasValue ? ReviewType.Formal : ReviewType.Informal;
+            return _connectionWrapper.ExecuteScalarAsync<ReviewType>("GetReviewType", param, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<ReviewSummaryDetails> GetReviewSummaryDetails(int reviewId, int userId)
@@ -307,7 +317,7 @@ namespace ArtifactStore.Repositories
             }
 
             int alreadyIncludedCount;
-            var propertyResult = await GetReviewPropertyString(reviewId, userId, true);
+            var propertyResult = await GetReviewPropertyString(reviewId, userId);
 
             if (propertyResult.ReviewStatus == ReviewPackageStatus.Closed)
             {
@@ -338,8 +348,7 @@ namespace ArtifactStore.Repositories
             if (effectiveIds.IsBaselineAdded)
             {
                 if (propertyResult.ReviewStatus == ReviewPackageStatus.Active &&
-                    propertyResult.ReviewType != ReviewType.Public &&
-                    propertyResult.ContainsOneApproverAndArtifactRequestedApproval)
+                    propertyResult.ReviewType == ReviewType.Formal)
                 {
                     ThrowReviewActiveNotPublicException();
                 }
@@ -380,12 +389,11 @@ namespace ArtifactStore.Repositories
         }
 
 
-        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId, bool isFormalReviewCheck = false)
+        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId)
         {
             var param = new DynamicParameters();
             param.Add("@reviewId", reviewId);
             param.Add("@userId", userId);
-            param.Add("@isFormalReviewCheck", isFormalReviewCheck);
 
             return (await _connectionWrapper.QueryAsync<PropertyValueString>("GetReviewPropertyString", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }

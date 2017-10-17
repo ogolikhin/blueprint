@@ -760,11 +760,10 @@ namespace ServiceLibrary.Repositories
             artifactIds = artifactsPermissions.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
 
             var param = new DynamicParameters();
-            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value"));
-            var artifacts = (await ConnectionWrapper.QueryAsync<ProcessInfo>("GetProcessInformation", param, commandType: CommandType.StoredProcedure));
+            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            var artifacts = await ConnectionWrapper.QueryAsync<ProcessInfo>("GetProcessInformation", param, commandType: CommandType.StoredProcedure);
             
-            return ProcessInfoMapper.Map(artifacts.ToList());
-            
+            return ProcessInfoMapper.Map(artifacts);
         }
 
         public async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId)

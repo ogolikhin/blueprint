@@ -435,7 +435,7 @@ namespace ArtifactStore.Controllers
             catch (HttpResponseException e)
             {
                 //Assert
-                Assert.AreEqual(e.Response.StatusCode,HttpStatusCode.NotFound);
+                Assert.AreEqual(e.Response.StatusCode, HttpStatusCode.NotFound);
                 throw;
             }
         }
@@ -502,7 +502,7 @@ namespace ArtifactStore.Controllers
             catch (HttpResponseException e)
             {
                 //Assert
-                Assert.AreEqual(e.Response.StatusCode,HttpStatusCode.NotFound);
+                Assert.AreEqual(e.Response.StatusCode, HttpStatusCode.NotFound);
                 throw;
             }
         }

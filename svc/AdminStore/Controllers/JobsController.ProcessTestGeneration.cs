@@ -35,7 +35,7 @@ namespace AdminStore.Controllers
             var hostUri = ServerUriHelper.BaseHostUri;
             var jobId = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests, 
                 false, 
-                parameters , 
+                parameters, 
                 null, 
                 request.ProjectId,
                 request.ProjectName, 

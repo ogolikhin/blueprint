@@ -497,7 +497,7 @@ namespace AdminStore.Repositories
             var returnResult = true;
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            cxn.SetupExecuteScalarAsyncFunc("select dbo.CanCreateUsers()",null, returnResult);
+            cxn.SetupExecuteScalarAsyncFunc("select dbo.CanCreateUsers()", null, returnResult);
 
             //act
             var result = await repository.CheckIfAdminCanCreateUsers();

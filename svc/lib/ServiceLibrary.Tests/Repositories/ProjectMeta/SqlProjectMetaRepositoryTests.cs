@@ -302,10 +302,10 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     VersionId = 88,
                     PrimitiveType = PropertyPrimitiveType.Number,
                     Required = true,
-                    DecimalDefaultValue = new byte[] { 11,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0 },
+                    DecimalDefaultValue = new byte[] { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
                     DecimalPlaces = 1,
-                    MaxNumber = new byte[] { 19,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0 },
-                    MinNumber = new byte[] { 11,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0 },
+                    MaxNumber = new byte[] { 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+                    MinNumber = new byte[] { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
                     Validate = true,
                     XmlInfo = "<CPS><CP Id=\"2269\" T=\"0\" N=\"ST-Non-Functional Requirements\" R=\"0\" AM=\"1\" AC=\"1\" SId=\"337\"><VVS/></CP></CPS>"
                 }

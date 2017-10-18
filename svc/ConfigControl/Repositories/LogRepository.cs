@@ -40,7 +40,7 @@ namespace ConfigControl.Repositories
                         result.Id = (long)reader.GetValue(fieldCounter);
                     }
                     var value = reader.GetValue(fieldCounter);
-                    csvValue = value is string ? string.Concat("\"", value.ToString().Replace("\"","'"),"\"") : value;
+                    csvValue = value is string ? string.Concat("\"", value.ToString().Replace("\"", "'"), "\"") : value;
                 }
                 line.AppendFormat("{0}{1}", csvValue, csvDelemiter);
             }

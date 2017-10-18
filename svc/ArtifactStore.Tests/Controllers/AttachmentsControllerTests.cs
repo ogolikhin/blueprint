@@ -69,7 +69,7 @@ namespace ArtifactStore.Controllers
             int? subArtifactId = null;
             bool addDrafts = true;
 
-            _artifactPermissionsRepositoryMock.Setup(a => a.GetItemInfo(1, 1, true,int.MaxValue)).ReturnsAsync((ItemInfo)null);
+            _artifactPermissionsRepositoryMock.Setup(a => a.GetItemInfo(1, 1, true, int.MaxValue)).ReturnsAsync((ItemInfo)null);
             var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsMock.Object)
             {
                 Request = new HttpRequestMessage()

@@ -112,7 +112,7 @@ namespace AdminStore.Controllers
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpGet,NoCache]
+        [HttpGet, NoCache]
         [Route("foldersearch"), SessionRequired]
         [ResponseType(typeof(IEnumerable<InstanceItem>))]
         public async Task<IHttpActionResult> SearchFolderByName(string name)
@@ -336,7 +336,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetProjectAdminPermissions(int projectId)
         {
-            var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(Session.UserId , projectId );
+            var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(Session.UserId, projectId );
             return Ok(permissions);
         }
 

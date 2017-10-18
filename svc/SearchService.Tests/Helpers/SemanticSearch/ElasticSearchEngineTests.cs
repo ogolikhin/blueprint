@@ -56,7 +56,7 @@ namespace SearchService.Helpers.SemanticSearch
 
             _elasticClient.Setup(e => e.Ping(It.IsAny<Func<PingDescriptor, IPingRequest>>()))
                 .Returns(mockResponse.Object);
-            _elasticClient.Setup(e => e.IndexExists(It.IsAny<Indices>(),It.IsAny<Func<IndexExistsDescriptor, IIndexExistsRequest>>()))
+            _elasticClient.Setup(e => e.IndexExists(It.IsAny<Indices>(), It.IsAny<Func<IndexExistsDescriptor, IIndexExistsRequest>>()))
                 .Returns(mockIndexResponse.Object);
 
             _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);

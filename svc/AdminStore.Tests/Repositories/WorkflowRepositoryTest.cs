@@ -128,7 +128,7 @@ namespace AdminStore.Repositories
             _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactTypesToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult);
 
             //act
-            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId,_projectId, _listArtifactTypesIds);
+            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _listArtifactTypesIds);
 
             //assert
             Assert.IsNotNull(result);
@@ -493,7 +493,7 @@ namespace AdminStore.Repositories
             int folderId = 99999;
             Exception exception = null;
 
-            _sqlConnectionWrapperMock.SetupQueryAsync("GetWorkflowAvailableProjects", It.IsAny<Dictionary<string, object>>(), new List<InstanceItem>(), new Dictionary<string, object> { { "ErrorCode" , (int)SqlErrorCodes.FolderWithCurrentIdNotExist} });
+            _sqlConnectionWrapperMock.SetupQueryAsync("GetWorkflowAvailableProjects", It.IsAny<Dictionary<string, object>>(), new List<InstanceItem>(), new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.FolderWithCurrentIdNotExist} });
  
              //act
              try

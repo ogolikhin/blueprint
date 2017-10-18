@@ -30,7 +30,7 @@ namespace ServiceLibrary.Repositories.Workflow
 
         public SqlWorkflowRepository(ISqlConnectionWrapper connectionWrapper,
             IArtifactPermissionsRepository artifactPermissionsRepository) 
-            : base(connectionWrapper,artifactPermissionsRepository)
+            : base(connectionWrapper, artifactPermissionsRepository)
         {
         }
 

@@ -22,7 +22,7 @@ namespace ServiceLibrary.Models.Workflow
         public async Task ProcessTriggers_WhenValidationErrors_ReturnsErrorMessage()
         {
             var triggers = new WorkflowEventTriggers();
-            _workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(new PropertySetResult(fakePropertyTypeId, -1,""));
+            _workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(new PropertySetResult(fakePropertyTypeId, -1, ""));
 
             triggers.Add(new WorkflowEventTrigger() {Action = _workflowEventAction.Object, Name = defaultTriggerName });
 

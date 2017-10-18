@@ -27,7 +27,7 @@ namespace ServiceLibrary.Models
             AssertDictionariesEqual(data.ActiveLicenses, deserializedData.ActiveLicenses);
         }
 
-        private void AssertDictionariesEqual<K,V>(IDictionary<K, V> expected, IDictionary<K, V> actual)
+        private void AssertDictionariesEqual<K, V>(IDictionary<K, V> expected, IDictionary<K, V> actual)
         {
             if (ReferenceEquals(expected, actual))
                 return;

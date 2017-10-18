@@ -28,7 +28,7 @@ namespace AdminStore.Services.Workflow
             };
 
             //Act and Assert
-            ValidatePropertyValue(action, propertyType, null, null, true, true,null);
+            ValidatePropertyValue(action, propertyType, null, null, true, true, null);
         }
 
         [TestMethod]
@@ -924,7 +924,7 @@ namespace AdminStore.Services.Workflow
         #region Private methods
 
         private static void ValidatePropertyValue(IePropertyChangeAction action, PropertyType propertyType,
-            IList<SqlUser> users, IList<SqlGroup> groups, bool ignoreIds,bool expectedResult,
+            IList<SqlUser> users, IList<SqlGroup> groups, bool ignoreIds, bool expectedResult,
             WorkflowDataValidationErrorCodes? expectedErrorCode)
         {
             //Arrange

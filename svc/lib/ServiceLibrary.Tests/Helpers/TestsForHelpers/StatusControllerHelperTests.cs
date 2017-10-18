@@ -125,7 +125,7 @@ namespace ServiceLibrary.Helpers
 
        
 
-        private  IStatusRepository GetStatusRepo(string name, string accessInfo,string result)
+        private  IStatusRepository GetStatusRepo(string name, string accessInfo, string result)
         {
             List<StatusResponse> responseDatas = new List<StatusResponse>();
             var responseData = new StatusResponse()

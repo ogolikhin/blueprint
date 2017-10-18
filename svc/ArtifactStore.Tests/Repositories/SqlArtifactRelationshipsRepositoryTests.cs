@@ -192,8 +192,8 @@ namespace ArtifactStore.Repositories
             const int userId = 2;
             const bool isDeleted = false;
 
-            _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } }
-                , new List<ItemIdItemNameParentId>());
+            _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } },
+                new List<ItemIdItemNameParentId>());
 
             try
             {

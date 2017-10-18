@@ -1241,7 +1241,7 @@ namespace AdminStore.Repositories
         {
             //arrange
             var total = 1;
-            var spResult = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() { Id = 1 , Location = "path"} };
+            var spResult = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() { Id = 1, Location = "path"} };
             _connection.SetupQueryAsync("SearchProjectsAndFolders", It.IsAny<Dictionary<string, object>>(), spResult, new Dictionary<string, object> { { "Total", (int?)total } });
 
             //act

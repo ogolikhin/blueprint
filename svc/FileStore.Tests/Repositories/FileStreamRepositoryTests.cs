@@ -53,7 +53,7 @@ namespace FileStore.Repositories
 
             fsPushStream.Initialize(moqFSRepo.Object, moqConfigRepo.Object, file.FileId);
 
-            HttpContent responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>) fsPushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
+            HttpContent responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>)fsPushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
 
             Stream response = await responseContent.ReadAsStreamAsync();
 

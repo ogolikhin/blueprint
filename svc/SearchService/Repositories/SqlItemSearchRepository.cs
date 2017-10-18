@@ -41,8 +41,7 @@ namespace SearchService.Repositories
         {
         }
 
-        internal SqlItemSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration) :
-            this(connectionWrapper, configuration, new SqlArtifactPermissionsRepository(connectionWrapper), new SqlArtifactRepository(connectionWrapper))
+        internal SqlItemSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration) : this(connectionWrapper, configuration, new SqlArtifactPermissionsRepository(connectionWrapper), new SqlArtifactRepository(connectionWrapper))
         {
         }
 

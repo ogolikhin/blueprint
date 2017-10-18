@@ -9,8 +9,7 @@ namespace ArtifactStore.Repositories.VersionControl
     {
         private readonly IPublishRepositoriesContainer _repositoriesContainer;
 
-        public SqlPublishRepositoryComposer() :
-            this(new PublishRepositoriesContainer())
+        public SqlPublishRepositoryComposer() : this(new PublishRepositoriesContainer())
         { }
 
         public SqlPublishRepositoryComposer(IPublishRepositoriesContainer repositoriesContainer)

@@ -28,7 +28,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             {
                 InstancePropertyTypeId = DefaultUserInstancePropertyTypeId
             };
-            ((PropertyChangeUserGroupsAction) _propertyChangeAction).UserGroups.AddRange(DefaultUserGroups);
+            ((PropertyChangeUserGroupsAction)_propertyChangeAction).UserGroups.AddRange(DefaultUserGroups);
 
             _customPropertyTypes = new List<WorkflowPropertyType>()
             {

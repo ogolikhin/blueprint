@@ -26,8 +26,7 @@ namespace AdminStore.Services.Instance
 
         private const string TestEmailSubject = "Blueprint Test Email";
 
-        public EmailSettingsService() : 
-            this
+        public EmailSettingsService() : this
             (
                 new PrivilegesManager(new SqlPrivilegesRepository()),
                 new SqlUserRepository(),
@@ -55,7 +54,7 @@ namespace AdminStore.Services.Instance
 
             EmailSettings settings = await _instanceSettingsRepository.GetEmailSettings();
 
-            return (EmailSettingsDto) settings;
+            return (EmailSettingsDto)settings;
         }
 
         public async Task UpdateEmailSettingsAsync(int userId, EmailSettingsDto emailSettingsDto)

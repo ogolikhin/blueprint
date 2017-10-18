@@ -133,7 +133,7 @@ namespace ArtifactStore.Controllers
             var revisionId = int.MaxValue;
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
             var itemInfo = isDeleted ?
-                await _artifactVersionsRepository.GetDeletedItemInfo(itemId):
+                await _artifactVersionsRepository.GetDeletedItemInfo(itemId) :
                 await _artifactPermissionsRepository.GetItemInfo(itemId, userId, false);
 
             if (itemInfo == null || await _discussionsRepository.IsDiscussionDeleted(discussionId))

@@ -714,7 +714,7 @@ namespace AdminStore.Repositories.Workflow
                 {
                     ProjectId = projectId,
                     ProjectName = projectName,
-                    Artifacts = projectArtifacts.OrderBy(a=>a.Name)
+                    Artifacts = projectArtifacts.OrderBy(a => a.Name)
                 };
                 groupedList.Add(groupedProjectArtifacts);
             }

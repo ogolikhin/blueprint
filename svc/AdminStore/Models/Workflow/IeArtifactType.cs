@@ -41,14 +41,14 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeArtifactType) obj);
+            return Equals((IeArtifactType)obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return (Id.GetHashCode()*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                return (Id.GetHashCode() * 397) ^ (Name != null ? Name.GetHashCode() : 0);
             }
         }
 

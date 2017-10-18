@@ -140,7 +140,7 @@ namespace AdminStore.Helpers.Workflow
 
         private static bool? NormalizeNullableBool(bool? flag)
         {
-            return flag.GetValueOrDefault() ? true : (bool?) null;
+            return flag.GetValueOrDefault() ? true : (bool?)null;
         }
 
         private static List<T> NormalizeList<T>(List<T> list)
@@ -181,10 +181,10 @@ namespace AdminStore.Helpers.Workflow
             switch (action.ActionType)
             {
                 case ActionTypes.EmailNotification:
-                    NormalizeEmailNotificationAction((IeEmailNotificationAction) action);
+                    NormalizeEmailNotificationAction((IeEmailNotificationAction)action);
                     break;
                 case ActionTypes.PropertyChange:
-                    NormalizePropertyChangeAction((IePropertyChangeAction) action);
+                    NormalizePropertyChangeAction((IePropertyChangeAction)action);
                     break;
                 case ActionTypes.Generate:
                     break;

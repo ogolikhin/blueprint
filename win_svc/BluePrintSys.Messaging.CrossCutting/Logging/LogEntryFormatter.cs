@@ -38,7 +38,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
                 throw new ArgumentOutOfRangeException("entry", string.Format(CultureInfo.InvariantCulture, "Unexpected Log Entry: {0}", entry.GetType()));
             }
 
-            return Format((TLogEntry) entry);
+            return Format((TLogEntry)entry);
         }
 
         #endregion

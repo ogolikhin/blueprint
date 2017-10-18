@@ -350,7 +350,7 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
-                    case (int) SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
 
                 }

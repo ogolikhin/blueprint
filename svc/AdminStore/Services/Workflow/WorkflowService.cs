@@ -355,7 +355,7 @@ namespace AdminStore.Services.Workflow
 
             workflowDetailsDto.NumberOfStates = workflowStates.Distinct().Count();
 
-            var transitionEventsCount = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.Transition
+            var transitionEventsCount = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition
                                                                   && e.FromStateId.HasValue 
                                                                   && dataMaps.StateMap.ContainsKey(e.FromStateId.Value)
                                                                   && e.ToStateId.HasValue 
@@ -364,7 +364,7 @@ namespace AdminStore.Services.Workflow
             var userIds = new HashSet<int>();
             var groupIds = new HashSet<int>();
 
-            var propertyChangeEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.PropertyChange
+            var propertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange
                                                                  && e.PropertyTypeId.HasValue
                                                                  && (dataMaps.PropertyTypeMap.ContainsKey(e.PropertyTypeId.Value)
                                                                  || WorkflowHelper.IsNameOrDescriptionProperty(e.PropertyTypeId.Value)))
@@ -376,7 +376,7 @@ namespace AdminStore.Services.Workflow
             propertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
             var propertyChangeEventsCount = propertyChangeEvents.Count;
 
-            var newArtifactEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.NewArtifact).Select(e => new IeNewArtifactEvent
+            var newArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).Select(e => new IeNewArtifactEvent
                                                                 {
                                                                     Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                                                                 }).Distinct().ToList();
@@ -615,14 +615,14 @@ namespace AdminStore.Services.Workflow
             {
                 case EventTypes.Transition:
                     sqlEvent.Type = DWorkflowEventType.Transition;
-                    var transition = (IeTransitionEvent) wEvent;
+                    var transition = (IeTransitionEvent)wEvent;
                     var skipPermissionGroups = transition.SkipPermissionGroups.GetValueOrDefault();
                     sqlEvent.Permissions = skipPermissionGroups || !transition.PermissionGroups.IsEmpty()
                         ? sqlEvent.Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
                         {
-                            Skip = skipPermissionGroups ? 1 : (int?) null,
+                            Skip = skipPermissionGroups ? 1 : (int?)null,
                             GroupIds = transition.PermissionGroups.Select(pg =>
-                                dataMaps.GroupMap[Tuple.Create(pg.Name, (int?) null)]).ToList()
+                                dataMaps.GroupMap[Tuple.Create(pg.Name, (int?)null)]).ToList()
                         })
                         : null;
 
@@ -646,7 +646,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case EventTypes.PropertyChange:
                     sqlEvent.Type = DWorkflowEventType.PropertyChange;
-                    var pcEvent = (IePropertyChangeEvent) wEvent;
+                    var pcEvent = (IePropertyChangeEvent)wEvent;
                     int propertyTypeId;
                     if (!WorkflowHelper.TryGetNameOrDescriptionPropertyTypeId(pcEvent.PropertyName, out propertyTypeId)
                         && !dataMaps.PropertyTypeMap.TryGetValue(pcEvent.PropertyName, out propertyTypeId))
@@ -769,7 +769,7 @@ namespace AdminStore.Services.Workflow
                         .Distinct()
                         .ToList(),
                 // Do not include Transition if FromState or ToState is not found.
-                TransitionEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.Transition
+                TransitionEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition
                     && e.FromStateId.HasValue && dataMaps.StateMap.ContainsKey(e.FromStateId.Value)
                     && e.ToStateId.HasValue && dataMaps.StateMap.ContainsKey(e.ToStateId.Value)).
                     Select(e => new IeTransitionEvent
@@ -785,7 +785,7 @@ namespace AdminStore.Services.Workflow
                         Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
                 // Do not include PropertyChangeEvent if PropertyType is not found.
-                PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.PropertyChange
+                PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange
                     && e.PropertyTypeId.HasValue && (dataMaps.PropertyTypeMap.ContainsKey(e.PropertyTypeId.Value)
                     || WorkflowHelper.IsNameOrDescriptionProperty(e.PropertyTypeId.Value))).
                     Select(e => new IePropertyChangeEvent
@@ -796,7 +796,7 @@ namespace AdminStore.Services.Workflow
                         PropertyName = GetPropertyChangedName(e.PropertyTypeId, dataMaps),
                         Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
-                NewArtifactEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.NewArtifact).
+                NewArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).
                     Select(e => new IeNewArtifactEvent
                     {
                         Id = e.WorkflowEventId,
@@ -1068,7 +1068,7 @@ namespace AdminStore.Services.Workflow
                     return;
                 }
 
-                var pcAction = (IePropertyChangeAction) t.Action;
+                var pcAction = (IePropertyChangeAction)t.Action;
                 pcAction.UsersGroups?.UsersGroups?.Where(ug => ug.IsGroup.GetValueOrDefault()
                                                   && !ug.GroupProjectId.HasValue
                                                   && !string.IsNullOrWhiteSpace(ug.GroupProjectPath)).ForEach(ug =>

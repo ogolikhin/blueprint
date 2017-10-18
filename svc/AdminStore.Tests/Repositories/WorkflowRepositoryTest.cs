@@ -416,17 +416,17 @@ namespace AdminStore.Repositories
              {
                  new InstanceItem
                  {
-                     Id=4,
-                     ParentFolderId=2,
-                     Name="Project11",
-                     Type=(InstanceItemTypeEnum)1
+                     Id = 4,
+                     ParentFolderId = 2,
+                     Name = "Project11",
+                     Type = (InstanceItemTypeEnum)1
                  },
                  new InstanceItem
                  {
-                     Id=7,
-                     ParentFolderId=2,
-                     Name="Project12",
-                     Type=(InstanceItemTypeEnum)1
+                     Id = 7,
+                     ParentFolderId = 2,
+                     Name = "Project12",
+                     Type = (InstanceItemTypeEnum)1
                  }
              };
 

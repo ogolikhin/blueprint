@@ -376,7 +376,7 @@ namespace AdminStore.Services.Workflow
                     {
                         Action = new IeGenerateAction
                         {
-                            GenerateActionType =GenerateActionTypes.UserStories
+                            GenerateActionType = GenerateActionTypes.UserStories
                         }
                     }
                 }
@@ -458,7 +458,7 @@ namespace AdminStore.Services.Workflow
                     {
                         Action = new IeGenerateAction
                         {
-                            GenerateActionType =GenerateActionTypes.UserStories
+                            GenerateActionType = GenerateActionTypes.UserStories
                         }
                     }
                 }
@@ -872,7 +872,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            ((IePropertyChangeAction) _workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups.UsersGroups[2].GroupProjectId = 0;
+            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups.UsersGroups[2].GroupProjectId = 0;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -1014,8 +1014,8 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.EmailNotification)
                 {
-                    ((IeEmailNotificationAction) t.Action).Emails = null;
-                    ((IeEmailNotificationAction) t.Action).PropertyName = null;
+                    ((IeEmailNotificationAction)t.Action).Emails = null;
+                    ((IeEmailNotificationAction)t.Action).PropertyName = null;
                 }
             }));
             _workflow.PropertyChangeEvents?.ForEach(e => e.Triggers?.ForEach(t =>
@@ -1088,7 +1088,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            var action = (IeEmailNotificationAction) _workflow.PropertyChangeEvents[0].Triggers[0].Action;
+            var action = (IeEmailNotificationAction)_workflow.PropertyChangeEvents[0].Triggers[0].Action;
             action.Emails[0] = "a";
 
             // Act
@@ -1175,7 +1175,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            ((IePropertyChangeAction) _workflow.TransitionEvents[1].Triggers[0].Action).PropertyValue = null;
+            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[0].Action).PropertyValue = null;
             ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).PropertyValue = null;
 
             // Act
@@ -1232,7 +1232,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            var pcAction = (IePropertyChangeAction) _workflow.TransitionEvents[1].Triggers[1].Action;
+            var pcAction = (IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action;
             pcAction.PropertyValue = null;
             pcAction.ValidValues = null;
             pcAction.UsersGroups = new IeUsersGroups
@@ -1260,7 +1260,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.Generate)
                 {
-                    var action = (IeGenerateAction) t.Action;
+                    var action = (IeGenerateAction)t.Action;
                     if (action.GenerateActionType == GenerateActionTypes.Children)
                     {
                         action.ArtifactType = null;
@@ -1587,7 +1587,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Condition?.ConditionType == ConditionTypes.State)
                 {
-                    ((IeStateCondition) t.Condition).State = string.Empty;
+                    ((IeStateCondition)t.Condition).State = string.Empty;
                 }
             }));
 
@@ -1605,7 +1605,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            var stateCondition = (IeStateCondition) _workflow.PropertyChangeEvents[0].Triggers[0].Condition;
+            var stateCondition = (IeStateCondition)_workflow.PropertyChangeEvents[0].Triggers[0].Condition;
             stateCondition.State = "Missing State";
 
             // Act

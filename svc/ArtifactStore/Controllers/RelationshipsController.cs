@@ -77,7 +77,7 @@ namespace ArtifactStore.Controllers
 
             var result = await _relationshipsRepository.GetRelationships(artifactId, userId, subArtifactId, effectiveAddDraft, versionId, baselineId);
             var artifactIds = new List<int> { artifactId };
-            artifactIds = artifactIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
+            artifactIds = artifactIds.Union(result.ManualTraces.Select(a => a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
             if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {

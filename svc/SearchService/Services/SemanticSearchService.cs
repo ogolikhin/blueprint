@@ -64,7 +64,7 @@ namespace SearchService.Services
                     I18NHelper.FormatInvariant("Artifact Id {0} is deleted", artifactId), ErrorCodes.ArtifactNotFound);
             }
 
-            var itemTypePredefined = (ItemTypePredefined) artifactDetails.PrimitiveItemTypePredefined;
+            var itemTypePredefined = (ItemTypePredefined)artifactDetails.PrimitiveItemTypePredefined;
 
             if (isInvalidSemanticSearchArtifactType(itemTypePredefined))
             {

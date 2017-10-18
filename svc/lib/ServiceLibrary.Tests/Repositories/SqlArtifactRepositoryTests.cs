@@ -1629,7 +1629,7 @@ namespace ServiceLibrary.Repositories
             int[] artifactIds = { 1 };
             const int userId = 1;
 
-            ArtifactsNavigationPath[] queryResult ={
+            ArtifactsNavigationPath[] queryResult = {
                 new ArtifactsNavigationPath()
             };
 

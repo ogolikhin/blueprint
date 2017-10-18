@@ -86,7 +86,7 @@ namespace ArtifactStore.Repositories
             var documentReferenceArtifactInfos = (await GetDocumentArtifactInfos(referencedArtifactIds, userId, revisionId, addDrafts)).ToList();
             var documentReferenceArtifactInfoDictionary = documentReferenceArtifactInfos.ToDictionary(a => a.ArtifactId);
 
-            var distinctUsers = attachments.Select(a => a.UserId).Union(referencedArtifacts.Select(b=>b.UserId)).Distinct().ToList();
+            var distinctUsers = attachments.Select(a => a.UserId).Union(referencedArtifacts.Select(b => b.UserId)).Distinct().ToList();
             var userInfoDictionary = (await _userRepository.GetUserInfos(distinctUsers)).ToDictionary(a => a.UserId);
 
             var referenceArtifactsToBeRemoved = new List<DocumentReference>();     

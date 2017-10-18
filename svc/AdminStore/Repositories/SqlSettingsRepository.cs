@@ -20,7 +20,7 @@ namespace AdminStore.Repositories
         }
 
         internal SqlSettingsRepository(ISqlConnectionWrapper connectionWrapper)
-            :base(connectionWrapper)
+            : base(connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }

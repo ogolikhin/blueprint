@@ -321,7 +321,7 @@ namespace ServiceLibrary.Repositories.Workflow
 
         private PropertyChangeAction ToPropertyChangeAction(XmlPropertyChangeAction propertyChangeAction, int currentUserId)
         {
-            if (propertyChangeAction.UsersGroups!= null)
+            if (propertyChangeAction.UsersGroups != null)
             {
                 return ToPropertyChangeUserGroupAction(propertyChangeAction, currentUserId);
             }

@@ -93,7 +93,7 @@ namespace ServiceLibrary.Repositories
                 new OpenArtifactPermission
                 {
                     HolderId = 1,
-                    Permissions = (long) RolePermissions.CanReport
+                    Permissions = (long)RolePermissions.CanReport
                 }
             }.AsEnumerable();
             MockGetOpenArtifactPermissions(mockOpenArtifactPermissionsResult, cxn, new List<int>() { 1 });
@@ -137,7 +137,7 @@ namespace ServiceLibrary.Repositories
                 new OpenArtifactPermission
                 {
                     HolderId = 1,
-                    Permissions = (long) RolePermissions.Edit
+                    Permissions = (long)RolePermissions.Edit
                 }
             }.AsEnumerable();
             MockGetOpenArtifactPermissions(mockOpenArtifactPermissionsResult, cxn, new List<int>() { 1 }, revisionId);
@@ -187,7 +187,7 @@ namespace ServiceLibrary.Repositories
                 new OpenArtifactPermission
                 {
                     HolderId = 1,
-                    Permissions = (long) RolePermissions.Delete
+                    Permissions = (long)RolePermissions.Delete
                 }
             }.AsEnumerable();
             MockGetOpenArtifactPermissions(mockOpenArtifactPermissionsResult, cxn, new List<int>() { 1 }, revisionId);
@@ -241,7 +241,7 @@ namespace ServiceLibrary.Repositories
                 new OpenArtifactPermission
                 {
                     HolderId = 1,
-                    Permissions = (long) RolePermissions.Read
+                    Permissions = (long)RolePermissions.Read
                 }
             }.AsEnumerable();
             MockGetOpenArtifactPermissions(mockOpenArtifactPermissionsResult, cxn, new List<int>() { 1 }, revisionId);

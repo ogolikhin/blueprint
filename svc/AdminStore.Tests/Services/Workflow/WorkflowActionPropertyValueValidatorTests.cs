@@ -862,7 +862,7 @@ namespace AdminStore.Services.Workflow
                 PrimitiveType = PropertyPrimitiveType.User,
                 IsRequired = true
             };
-            var group = Tuple.Create("user", (int?) 99);
+            var group = Tuple.Create("user", (int?)99);
             var groups = new List<SqlGroup>();
             var users = new List<SqlUser>();
             var action = new IePropertyChangeAction

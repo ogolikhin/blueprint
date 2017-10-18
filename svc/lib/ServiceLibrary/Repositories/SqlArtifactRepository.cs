@@ -372,7 +372,7 @@ namespace ServiceLibrary.Repositories
                     parentSubArtifact.HasChildren = true;
                 }
                 ItemDetails itemDetails;
-                if (itemDetailsDictionary!= null && itemDetailsDictionary.TryGetValue(subArtifact.Id, out itemDetails))
+                if (itemDetailsDictionary != null && itemDetailsDictionary.TryGetValue(subArtifact.Id, out itemDetails))
                 {
                     subArtifactEntry.Value.Prefix = itemDetails.Prefix;
                 }

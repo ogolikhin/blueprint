@@ -50,7 +50,7 @@ namespace ServiceLibrary.Helpers.TestsForHelpers
             );
 
             Assert.IsNotNull(helper);
-            Assert.AreEqual((object) value, helper.Get());
+            Assert.AreEqual((object)value, helper.Get());
         }
 
         [TestMethod]

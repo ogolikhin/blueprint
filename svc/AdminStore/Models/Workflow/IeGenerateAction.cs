@@ -46,7 +46,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeGenerateAction) obj);
+            return Equals((IeGenerateAction)obj);
         }
 
         public override int GetHashCode()
@@ -54,10 +54,10 @@ namespace AdminStore.Models.Workflow
             unchecked
             {
                 int hashCode = base.GetHashCode();
-                hashCode = (hashCode*397) ^ (int) GenerateActionType;
-                hashCode = (hashCode*397) ^ ChildCount.GetHashCode();
-                hashCode = (hashCode*397) ^ (ArtifactType != null ? ArtifactType.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ ArtifactTypeId.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int)GenerateActionType;
+                hashCode = (hashCode * 397) ^ ChildCount.GetHashCode();
+                hashCode = (hashCode * 397) ^ (ArtifactType != null ? ArtifactType.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ ArtifactTypeId.GetHashCode();
                 return hashCode;
             }
         }

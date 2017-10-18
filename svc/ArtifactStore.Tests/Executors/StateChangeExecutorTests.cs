@@ -150,7 +150,7 @@ namespace ArtifactStore.Executors
                 VersionCount = CurrentVersionId,
                 LockedByUser = new UserGroup
                 {
-                    Id = UserId+10
+                    Id = UserId + 10
                 }
             };
             _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))

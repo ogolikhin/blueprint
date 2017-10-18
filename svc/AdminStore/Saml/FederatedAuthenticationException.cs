@@ -53,7 +53,7 @@ namespace AdminStore.Saml
             info.AddValue(ServiceConstants.ErrorCodeName, ErrorCode);
         }
 
-        public HttpError CreateHttpError(int errorCode=-1)
+        public HttpError CreateHttpError(int errorCode = -1)
         {
             if (errorCode < 0)
             {

@@ -19,7 +19,7 @@ namespace ArtifactStore.Controllers
 
         public override string LogSource { get; } = "ArtifactStore.Reviews";
 
-        public ReviewContainersController(): this(new SqlReviewsRepository())
+        public ReviewContainersController() : this(new SqlReviewsRepository())
         {
         }
 

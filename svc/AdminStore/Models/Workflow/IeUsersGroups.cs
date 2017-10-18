@@ -45,14 +45,14 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeUsersGroups) obj);
+            return Equals((IeUsersGroups)obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((UsersGroups != null ? UsersGroups.GetHashCode() : 0)*397) ^ IncludeCurrentUser.GetHashCode();
+                return ((UsersGroups != null ? UsersGroups.GetHashCode() : 0) * 397) ^ IncludeCurrentUser.GetHashCode();
             }
         }
 

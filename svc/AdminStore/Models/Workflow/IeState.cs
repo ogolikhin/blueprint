@@ -64,7 +64,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeState) obj);
+            return Equals((IeState)obj);
         }
 
         public override int GetHashCode()
@@ -72,8 +72,8 @@ namespace AdminStore.Models.Workflow
             unchecked
             {
                 var hashCode = Id.GetHashCode();
-                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ IsInitial.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsInitial.GetHashCode();
                 return hashCode;
             }
         }

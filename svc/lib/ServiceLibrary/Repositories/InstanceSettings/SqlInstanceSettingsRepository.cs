@@ -22,8 +22,7 @@ namespace ServiceLibrary.Repositories.InstanceSettings
         {
         }
 
-        public SqlInstanceSettingsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : 
-            base(connectionWrapper, artifactPermissionsRepository)
+        public SqlInstanceSettingsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
         {
         }
 

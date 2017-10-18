@@ -51,7 +51,7 @@ namespace FileStore.Repositories
             {
                 sqlConnection.Open();
 
-                return FileExists((SqlConnection) sqlConnection, fileId);
+                return FileExists((SqlConnection)sqlConnection, fileId);
             }
         }
 
@@ -73,7 +73,7 @@ namespace FileStore.Repositories
                 file.FileSize = GetFileSize((SqlConnection)sqlConnection, fileId);
 
                 // get file name either from AttachmentVersions table or Templates table
-                file.FileName = GetFileName((SqlConnection) sqlConnection, fileId);
+                file.FileName = GetFileName((SqlConnection)sqlConnection, fileId);
 
                 // get file type from AttachmentVersions table
                 file.FileType = GetFileTypeFromAttachmentVersions((SqlConnection)sqlConnection, fileId, file.FileName);

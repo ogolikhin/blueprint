@@ -107,7 +107,7 @@ namespace SearchService.Controllers
 
                 results.PageSize = searchPageSize;
                 results.TotalPages = results.TotalCount >= 0
-                    ? (int) Math.Ceiling((double) results.TotalCount/searchPageSize)
+                    ? (int)Math.Ceiling((double)results.TotalCount / searchPageSize)
                     : -1;
 
                 return results;

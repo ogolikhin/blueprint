@@ -149,7 +149,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.PropertyChange)
                 {
-                    var action = (IePropertyChangeAction) t.Action;
+                    var action = (IePropertyChangeAction)t.Action;
                     action.UsersGroups?.UsersGroups?.ForEach(ug =>
                     {
                         if (ug.IsGroup.GetValueOrDefault())
@@ -397,7 +397,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action.ActionType == ActionTypes.PropertyChange)
                 {
-                    var pca = (IePropertyChangeAction) t.Action;
+                    var pca = (IePropertyChangeAction)t.Action;
                     pca?.UsersGroups?.UsersGroups?.Where(IsGroupProjectIdUnassigned).ForEach(collection.Add);
                 }
             });
@@ -544,13 +544,13 @@ namespace AdminStore.Services.Workflow
             switch (action.ActionType)
             {
                 case ActionTypes.EmailNotification:
-                    ValidateEmailNotificationActionData(result, (IeEmailNotificationAction) action, ignoreIds);
+                    ValidateEmailNotificationActionData(result, (IeEmailNotificationAction)action, ignoreIds);
                     break;
                 case ActionTypes.PropertyChange:
-                    ValidatePropertyChangeActionData(result, (IePropertyChangeAction) action, ignoreIds);
+                    ValidatePropertyChangeActionData(result, (IePropertyChangeAction)action, ignoreIds);
                     break;
                 case ActionTypes.Generate:
-                    ValidateGenerateActionData(result, (IeGenerateAction) action, ignoreIds);
+                    ValidateGenerateActionData(result, (IeGenerateAction)action, ignoreIds);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.ActionType));

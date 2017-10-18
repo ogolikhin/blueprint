@@ -186,7 +186,7 @@ namespace AdminStore.Services.Workflow
             {
                 case WorkflowXmlValidationErrorCodes.WorkflowXmlSerializationError:
                     template = TemplateXmlWorkflowXmlSerializationError;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowXmlValidationErrorCodes.WorkflowNameEmpty:
                     template = TemplateXmlWorkflowNameEmpty;
@@ -214,11 +214,11 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.StateNameExceedsLimit24:
                     template = TemplateXmlStateNameExceedsLimit24;
-                    errParams = new object[] {((IeState) error.Element).Name};
+                    errParams = new object[] {((IeState)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.StateNameNotUnique:
                     template = TemplateXmlStateNameNotUnique;
-                    errParams = new object[] {((IeState) error.Element).Name};
+                    errParams = new object[] {((IeState)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.NoInitialState:
                     template = TemplateXmlNoInitialState;
@@ -234,19 +234,19 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.StateDoesNotHaveAnyTransitions:
                     template = TemplateXmlStateDoesNotHaveAnyTransitions;
-                    errParams = new object[] {(string) error.Element};
+                    errParams = new object[] { (string)error.Element};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionEventNameExceedsLimit24:
                     template = TemplateXmlTransitionEventNameExceedsLimit24;
-                    errParams = new object[] {((IeTransitionEvent) error.Element).Name};
+                    errParams = new object[] {((IeTransitionEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.PropertyChangeEventNameExceedsLimit24:
                     template = TemplateXmlPropertyChangeEventNameExceedsLimit24;
-                    errParams = new object[] {((IePropertyChangeEvent) error.Element).Name};
+                    errParams = new object[] {((IePropertyChangeEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.NewArtifactEventNameExceedsLimit24:
                     template = TemplateXmlNewArtifactEventNameExceedsLimit24;
-                    errParams = new object[] {((IeNewArtifactEvent) error.Element).Name};
+                    errParams = new object[] {((IeNewArtifactEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.StateWithDuplicateOutgoingTransitions:
                     template = TemplateXmlStateWithDuplicateOutgoingTransitions;
@@ -254,31 +254,31 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionCountOnStateExceedsLimit10:
                     template = TemplateXmlTransitionCountOnStateExceedsLimit10;
-                    errParams = new object[] {(string) error.Element};
+                    errParams = new object[] { (string)error.Element};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionStateNotFound:
                     template = TemplateXmlTransitionStateNotFound;
-                    errParams = new object[] {((IeTransitionEvent) error.Element).Name};
+                    errParams = new object[] {((IeTransitionEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionStartStateNotSpecified:
                     template = TemplateXmlTransitionStartStateNotSpecified;
-                    errParams = new object[] {((IeTransitionEvent) error.Element).Name};
+                    errParams = new object[] {((IeTransitionEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionEndStateNotSpecified:
                     template = TemplateXmlTransitionEndStateNotSpecified;
-                    errParams = new object[] {((IeTransitionEvent) error.Element).Name};
+                    errParams = new object[] {((IeTransitionEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionFromAndToStatesSame:
                     template = TemplateXmlTransitionFromAndToStatesSame;
-                    errParams = new object[] {((IeTransitionEvent) error.Element).Name};
+                    errParams = new object[] {((IeTransitionEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.TriggerCountOnEventExceedsLimit10:
                     template = TemplateXmlTriggerCountOnEventExceedsLimit10;
-                    errParams = new object[] {((IeEvent) error.Element).Name};
+                    errParams = new object[] {((IeEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.PropertyChangeEventPropertyNotSpecified:
                     template = TemplateXmlPropertyChangEventPropertyNotSpecified;
-                    errParams = new object[] {((IePropertyChangeEvent) error.Element).Name};
+                    errParams = new object[] {((IePropertyChangeEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.PropertyChangeEventDuplicateProperties:
                     template = TemplateXmlPropertyChangeEventDuplicateProperties;
@@ -443,7 +443,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectByPathNotFound:
                     template = TemplateDataProjectByPathNotFound;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectByIdNotFound:
                     template = TemplateDataProjectByIdNotFound;
@@ -455,28 +455,28 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.InstanceGroupNotFoundByName:
                     template = TemplateDataInstanceGroupNotFoundByName;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundByName:
                     template = TemplateDataStandardArtifactTypeNotFoundByName;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.ArtifactTypeInProjectAlreadyAssociatedWithWorkflow:
                     template = TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow;
-                    var t = (Tuple<int, string>) error.Element;
+                    var t = (Tuple<int, string>)error.Element;
                     errParams = new object[] { t?.Item2, t?.Item1 };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyNotFoundByName:
                     template = TemplateDataPropertyNotFoundByName;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundByName:
                     template = TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundByName;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundByName:
                     template = TemplateDataEmailNotificationActionPropertyTypeNotFoundByName;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType:
                     template = TemplateDataEmailNotificationActionUnacceptablePropertyType;
@@ -484,7 +484,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundByName:
                     template = TemplateDataPropertyChangeActionPropertyTypeNotFoundByName;
-                    errParams = new object[] { (string) error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty:
                     template = TemplateDataPropertyChangeActionRequiredPropertyValueEmpty;
@@ -528,32 +528,32 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.WorkflowActive:
                     template = TemplateDataPWorkflowActive;
-                    var workflow = (IeWorkflow) error.Element;
+                    var workflow = (IeWorkflow)error.Element;
                     errParams = new object[] { workflow.Name, workflow.Id };
                     break;
                 case WorkflowDataValidationErrorCodes.StateNotFoundByIdInCurrent:
                     template = TemplateDataStateNotFoundByIdInCurrent;
-                    var state = (IeState) error.Element;
+                    var state = (IeState)error.Element;
                     errParams = new object[] { state.Name, state.Id };
                     break;
                 case WorkflowDataValidationErrorCodes.TransitionEventNotFoundByIdInCurrent:
                     template = TemplateDataTransitionEventNotFoundByIdInCurrent;
-                    var te = (IeTransitionEvent) error.Element;
+                    var te = (IeTransitionEvent)error.Element;
                     errParams = new object[] { te.Name, te.Id };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeEventNotFoundByIdInCurrent:
                     template = TemplateDataPropertyChangeEventNotFoundByIdInCurrent;
-                    var pce = (IePropertyChangeEvent )error.Element;
+                    var pce = (IePropertyChangeEvent)error.Element;
                     errParams = new object[] { pce.Name, pce.Id };
                     break;
                 case WorkflowDataValidationErrorCodes.NewArtifactEventNotFoundByIdInCurrent:
                     template = TemplateDataNewArtifactEventNotFoundByIdInCurrent;
-                    var nae = (IeNewArtifactEvent) error.Element;
+                    var nae = (IeNewArtifactEvent)error.Element;
                     errParams = new object[] { nae.Name, nae.Id };
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectArtifactTypeNotFoundByIdInCurrent:
                     template = TemplateDataProjectArtifactTypeNotFoundByIdInCurrent;
-                    var tuple  = (Tuple<IeProject, IeArtifactType>) error.Element;
+                    var tuple  = (Tuple<IeProject, IeArtifactType>)error.Element;
                     errParams = new object[] { tuple.Item1.Id, tuple.Item2.Name, tuple.Item2.Id };
                     break;
                 case WorkflowDataValidationErrorCodes.WorkflowNothingToUpdate:
@@ -562,11 +562,11 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundById:
                     template = TemplateDataStandardArtifactTypeNotFoundById;
-                    errParams = new object[] { (int) error.Element };
+                    errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyNotFoundById:
                     template = TemplateDataPropertyNotFoundById;
-                    errParams = new object[] { (int) error.Element };
+                    errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.InstanceGroupNotFoundById:
                     template = TemplateDataInstanceGroupNotFoundById;
@@ -574,27 +574,27 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundById:
                     template = TemplateDataEmailNotificationActionPropertyTypeNotFoundById;
-                    errParams = new object[] { (int) error.Element };
+                    errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById:
                     template = TemplateDataPropertyChangeActionPropertyTypeNotFoundById;
-                    errParams = new object[] { (int) error.Element };
+                    errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById:
                     template = TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundById;
-                    errParams = new object[] { (int) error.Element };
+                    errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById:
                     template = TemplateDataPropertyChangeActionValidValueNotFoundById;
-                    errParams = new object[] { (int) error.Element };
+                    errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById:
                     template = TemplateDataPropertyChangeActionGroupNotFoundById;
-                    errParams = new object[] { (int) error.Element };
+                    errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById:
                     template = TemplateDataPropertyChangeActionUserNotFoundById;
-                    errParams = new object[] { (int) error.Element };
+                    errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:
                     template = TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable;

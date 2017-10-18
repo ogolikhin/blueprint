@@ -162,9 +162,9 @@ namespace ArtifactStore.Repositories
                 else if (propertyType is NumberPropertyType)
                 {
                     propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
-                        artifact.ProjectId, artifact.Id, artifact.Id, (int) propertyType.Predefined,
+                        artifact.ProjectId, artifact.Id, artifact.Id, (int)propertyType.Predefined,
                         //
-                        (int) PropertyPrimitiveType.Number,
+                        (int)PropertyPrimitiveType.Number,
                         PropertyHelper.GetBytes(action.PropertyLiteValue.NumberValue),
                         null, null, null, null, null,
                         //
@@ -185,9 +185,9 @@ namespace ArtifactStore.Repositories
                 else if (propertyType is UserPropertyType)
                 {
                     propertyValueVersionsTable.Rows.Add(propertyType.PropertyTypeId, false,
-                        artifact.ProjectId, artifact.Id, artifact.Id, (int) propertyType.Predefined,
+                        artifact.ProjectId, artifact.Id, artifact.Id, (int)propertyType.Predefined,
                         //
-                        (int) PropertyPrimitiveType.User,
+                        (int)PropertyPrimitiveType.User,
                         null, null,
                         PropertyHelper.ParseUserGroupsToString(action.PropertyLiteValue.UsersAndGroups), null, null,
                         null,
@@ -240,8 +240,8 @@ namespace ArtifactStore.Repositories
             //BluePrintSys.RC.CrossCutting.Logging.Log.Assert(
             //    (propertyValue != null) && propertyValue.SaveState.HasFlag(NodeSaveState.MemoryNode));
             if ( /*propertyValue.NodeDeleted ||*/
-                (((int) PropertyTypePredefined.GroupMask & (int) propertyType.Predefined) !=
-                 (int) PropertyTypePredefined.CustomGroup))
+                (((int)PropertyTypePredefined.GroupMask & (int)propertyType.Predefined) !=
+                 (int)PropertyTypePredefined.CustomGroup))
             {
                 return null;
             }

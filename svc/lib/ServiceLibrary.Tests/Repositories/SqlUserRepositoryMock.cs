@@ -15,7 +15,7 @@ namespace ServiceLibrary.Repositories
                 result.Add(new UserInfo
                            {
                                 UserId = userId,
-                                DisplayName = "User"+userId,
+                                DisplayName = "User" + userId,
                                 ImageId = userId,
                                 IsEnabled = true,
                                 IsGuest = false

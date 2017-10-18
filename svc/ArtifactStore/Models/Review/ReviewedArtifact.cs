@@ -52,7 +52,7 @@ namespace ArtifactStore.Models.Review
             }
             set
             {
-                _signedOnTimestamp = value.HasValue? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc): (DateTime?)null;
+                _signedOnTimestamp = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : (DateTime?)null;
             }
         }
     }

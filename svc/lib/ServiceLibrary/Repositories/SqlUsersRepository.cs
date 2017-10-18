@@ -154,7 +154,7 @@ namespace ServiceLibrary.Repositories
             {
                 foreach (var sqlPropertyInfo in propertyInfos)
                 {
-                    if (sqlPropertyInfo.PrimitiveType == (int) PropertyPrimitiveType.User)
+                    if (sqlPropertyInfo.PrimitiveType == (int)PropertyPrimitiveType.User)
                     {
                         var userGroups = PropertyHelper.ParseUserGroups(sqlPropertyInfo.PropertyValue);
                         if (userGroups != null)
@@ -182,7 +182,7 @@ namespace ServiceLibrary.Repositories
                             }
                         }
                     }
-                    else if (sqlPropertyInfo.PrimitiveType == (int) PropertyPrimitiveType.Text)
+                    else if (sqlPropertyInfo.PrimitiveType == (int)PropertyPrimitiveType.Text)
                     {
                         var emails = PropertyHelper.ParseEmails(sqlPropertyInfo.PropertyValue);
                         userInfos.AddRange(emails.Select(email => new UserInfo

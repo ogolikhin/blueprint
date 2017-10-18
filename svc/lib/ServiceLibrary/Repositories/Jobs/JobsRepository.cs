@@ -22,8 +22,7 @@ namespace ServiceLibrary.Repositories.Jobs
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IUsersRepository _usersRepository;
 
-        public JobsRepository() : 
-            this
+        public JobsRepository() : this
             (
                 new SqlConnectionWrapper(ServiceConstants.RaptorMain),
                 new SqlArtifactRepository(),
@@ -33,8 +32,7 @@ namespace ServiceLibrary.Repositories.Jobs
         {
         }
 
-        public JobsRepository(ISqlConnectionWrapper connectionWrapper):
-            this(connectionWrapper, new SqlArtifactRepository(connectionWrapper, 
+        public JobsRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper, new SqlArtifactRepository(connectionWrapper, 
                 new SqlItemInfoRepository(connectionWrapper), 
                 new SqlArtifactPermissionsRepository(connectionWrapper)),
                 new SqlArtifactPermissionsRepository(connectionWrapper),

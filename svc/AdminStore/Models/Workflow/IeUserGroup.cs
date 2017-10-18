@@ -69,7 +69,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeUserGroup) obj);
+            return Equals((IeUserGroup)obj);
         }
 
         public override int GetHashCode()
@@ -77,10 +77,10 @@ namespace AdminStore.Models.Workflow
             unchecked
             {
                 var hashCode = Id.GetHashCode();
-                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ IsGroup.GetHashCode();
-                hashCode = (hashCode*397) ^ (GroupProjectPath != null ? GroupProjectPath.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ GroupProjectId.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsGroup.GetHashCode();
+                hashCode = (hashCode * 397) ^ (GroupProjectPath != null ? GroupProjectPath.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ GroupProjectId.GetHashCode();
                 return hashCode;
             }
         }

@@ -171,7 +171,7 @@ namespace AccessControl.Controllers
             try
             {
                 // parameter constrain
-                if (month.HasValue )
+                if (month.HasValue)
                 {
                     if (month < minMonth || month > maxMonth) {
                         return BadRequest("Specified month is invalid");

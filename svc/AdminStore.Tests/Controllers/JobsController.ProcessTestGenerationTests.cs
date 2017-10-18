@@ -145,8 +145,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://localhost:9801/svc/adminstore/jobs/test/process", ""),
-                new HttpResponse(new StringWriter())
-                );
+                new HttpResponse(new StringWriter()));
 
             var param = new GenerateProcessTestsJobParameters();
             param.ProjectId = 1;
@@ -181,8 +180,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://localhost:9801/svc/adminstore/jobs/test/process", ""),
-                new HttpResponse(new StringWriter())
-                );
+                new HttpResponse(new StringWriter()));
 
             var param = new GenerateProcessTestsJobParameters();
             param.ProjectId = 1;

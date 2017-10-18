@@ -44,8 +44,7 @@ namespace FileStore.Controllers
 
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://tempuri.org", ""),
-                new HttpResponse(new StringWriter())
-                );
+                new HttpResponse(new StringWriter()));
 
 
             controller.Configuration.Routes.MapHttpRoute(
@@ -69,8 +68,7 @@ namespace FileStore.Controllers
             // Arrange
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://tempuri.org", ""),
-                new HttpResponse(new StringWriter())
-                );
+                new HttpResponse(new StringWriter()));
 
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
@@ -187,8 +185,7 @@ namespace FileStore.Controllers
 
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://tempuri.org", ""),
-                new HttpResponse(new StringWriter())
-                );
+                new HttpResponse(new StringWriter()));
 
 
             controller.Configuration.Routes.MapHttpRoute(

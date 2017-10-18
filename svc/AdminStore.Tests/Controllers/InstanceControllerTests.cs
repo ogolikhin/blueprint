@@ -59,8 +59,7 @@ namespace AdminStore.Controllers
                 _logRepositoryMock.Object,
                 _artifactPermissionsRepositoryMock.Object,
                 _privilegeRepositoryMock.Object,
-                _instanceServiceMock.Object
-            )
+                _instanceServiceMock.Object)
             {
                 Request = request,
                 Configuration = new HttpConfiguration()

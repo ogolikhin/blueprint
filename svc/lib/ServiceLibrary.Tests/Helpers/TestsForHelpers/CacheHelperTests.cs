@@ -18,8 +18,7 @@ namespace ServiceLibrary.Helpers.TestsForHelpers
 
             var helper = new CacheHelper<FeatureTypes>(
                 TimeSpan.FromMilliseconds(-1),
-                () => value
-            );
+                () => value);
             helper.Get();
 
             Assert.Fail("Must fail before");
@@ -32,8 +31,7 @@ namespace ServiceLibrary.Helpers.TestsForHelpers
 
             var helper = new CacheHelper<IDictionary<string, int>>(
                 TimeSpan.FromMilliseconds(10),
-                () => value
-            );
+                () => value);
 
             Assert.IsNotNull(helper);
             Assert.AreSame(value, helper.Get());
@@ -46,8 +44,7 @@ namespace ServiceLibrary.Helpers.TestsForHelpers
 
             var helper = new CacheHelper<FeatureTypes>(
                 TimeSpan.FromMilliseconds(10),
-                () => value
-            );
+                () => value);
 
             Assert.IsNotNull(helper);
             Assert.AreEqual((object)value, helper.Get());
@@ -64,8 +61,7 @@ namespace ServiceLibrary.Helpers.TestsForHelpers
             var helper = new CacheHelper<int>(
                 expirationTime,
                 factory,
-                () => currentTime
-            );
+                () => currentTime);
             helper.Get(); // don't care about result yet
 
             // Act
@@ -91,8 +87,7 @@ namespace ServiceLibrary.Helpers.TestsForHelpers
             var helper = new CacheHelper<int?>(
                 TimeSpan.FromSeconds(5),
                 factory,
-                () => currentTime
-            );
+                () => currentTime);
 
             var barrier = new Barrier(threadCount);
 
@@ -106,8 +101,7 @@ namespace ServiceLibrary.Helpers.TestsForHelpers
                         Assert.AreEqual(1, result);
 
                         Thread.Sleep(new Random(Thread.CurrentThread.ManagedThreadId).Next(10));
-                    })
-                );
+                    }));
             }
 
             tasks.ForEach(t => t.Wait(2000));

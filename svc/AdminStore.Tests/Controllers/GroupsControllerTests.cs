@@ -58,7 +58,7 @@ namespace AdminStore.Controllers
             _assignScope = new AssignScope
             {
                 SelectAll = true,
-                Members = new List<KeyValuePair<int, UserType>> {new KeyValuePair<int, UserType>(1, UserType.User)}
+                Members = new List<KeyValuePair<int, UserType>> {new KeyValuePair<int, UserType>(1, UserType.User) }
             };
         }
 
@@ -803,7 +803,7 @@ namespace AdminStore.Controllers
         public async Task AssignMembers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
             // arrange
-            var collection = new List<KeyValuePair<int, UserType>>() {new KeyValuePair<int, UserType>(1, UserType.Group)};
+            var collection = new List<KeyValuePair<int, UserType>>() {new KeyValuePair<int, UserType>(1, UserType.Group) };
             var scope = new AssignScope() {Members = collection.ToArray() };
             _privilegesRepository
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))

@@ -129,8 +129,7 @@ namespace AdminStore.Controllers
                 userRepositoryMock.Object,
                 null,
                 null,
-                null
-            )
+                null)
             {
                 Request = new HttpRequestMessage()
             };
@@ -168,8 +167,7 @@ namespace AdminStore.Controllers
                 userRepositoryMock.Object,
                 null,
                 null,
-                null
-            )
+                null)
             {
                 Request = new HttpRequestMessage()
             };
@@ -267,8 +265,7 @@ namespace AdminStore.Controllers
                 .Setup(fs => fs.GetFeaturesAsync())
                 .ReturnsAsync(features == null
                     ? new Dictionary<string, bool> { { "Workflow", true } }
-                    : features
-                );
+                    : features);
 
             var logMock = new Mock<IServiceLogRepository>();
             var controller = new ConfigController(appSettingsRepo.Object, null, null, featuresService.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };

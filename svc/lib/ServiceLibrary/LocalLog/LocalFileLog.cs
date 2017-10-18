@@ -65,8 +65,7 @@ namespace ServiceLibrary.LocalLog
                 lock (this.lockObject)
                 {
                     using (
-                        var writer = new StreamWriter(_file.Open(FileMode.Append, FileAccess.Write, FileShare.Read))
-                        )
+                        var writer = new StreamWriter(_file.Open(FileMode.Append, FileAccess.Write, FileShare.Read)))
                     {
                         writer.WriteLine(I18NHelper.FormatInvariant("[{0}] [{1}] {2}", level, DateTime.Now, message));
                         writer.Flush();

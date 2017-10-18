@@ -51,8 +51,7 @@ namespace Logging.Database
                 bufferingInterval ?? Buffering.DefaultBufferingInterval,
                 bufferingCount,
                 maxBufferSize,
-                onCompletedTimeout ?? Timeout.InfiniteTimeSpan
-                );
+                onCompletedTimeout ?? Timeout.InfiniteTimeSpan);
 
             var subscription = eventStream.Subscribe(sink);
 

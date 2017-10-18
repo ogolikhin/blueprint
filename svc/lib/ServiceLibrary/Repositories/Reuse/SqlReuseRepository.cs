@@ -81,9 +81,7 @@ namespace ServiceLibrary.Repositories.Reuse
                     (
                         "GetReuseItemTypeTemplates",
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).GroupBy(v => v.TypeId);
+                        commandType: CommandType.StoredProcedure)).GroupBy(v => v.TypeId);
             }
             else
             {
@@ -94,9 +92,7 @@ namespace ServiceLibrary.Repositories.Reuse
                         "GetReuseItemTypeTemplates",
                         parameters,
                         transaction,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).GroupBy(v => v.TypeId);
+                        commandType: CommandType.StoredProcedure)).GroupBy(v => v.TypeId);
             }
 
             var templates = new Dictionary<int, ItemTypeReuseTemplate>();
@@ -148,8 +144,7 @@ namespace ServiceLibrary.Repositories.Reuse
                 (
                     "GetModificationsForRevisionId",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return await transaction.Connection.QueryAsync<SqlModifiedItems>
@@ -157,8 +152,7 @@ namespace ServiceLibrary.Repositories.Reuse
                 "GetModificationsForRevisionId",
                 parameters,
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         public async Task<Dictionary<int, bool>> DoItemsContainReadonlyReuse(IEnumerable<int> itemIds, IDbTransaction transaction = null)
@@ -174,9 +168,7 @@ namespace ServiceLibrary.Repositories.Reuse
                     (
                         "DoItemsContainReadonlyReuse",
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToDictionary(a => (int)a.ItemId, b => (bool)b.IsReadOnlyReuse);
+                        commandType: CommandType.StoredProcedure)).ToDictionary(a => (int)a.ItemId, b => (bool)b.IsReadOnlyReuse);
             }
             return 
             (
@@ -185,9 +177,7 @@ namespace ServiceLibrary.Repositories.Reuse
                     "DoItemsContainReadonlyReuse", 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToDictionary(a => (int)a.ItemId, b => (bool)b.IsReadOnlyReuse);
+                    commandType: CommandType.StoredProcedure)).ToDictionary(a => (int)a.ItemId, b => (bool)b.IsReadOnlyReuse);
         }
     }
 }

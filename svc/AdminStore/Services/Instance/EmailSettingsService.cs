@@ -33,8 +33,7 @@ namespace AdminStore.Services.Instance
                 new EmailHelper(),
                 new WebsiteAddressService(),
                 new SqlInstanceSettingsRepository(),
-                new IncomingEmailService()
-            )
+                new IncomingEmailService())
         {
         }
 

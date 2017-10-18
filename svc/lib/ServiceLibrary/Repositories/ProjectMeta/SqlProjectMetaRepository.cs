@@ -255,7 +255,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                                       }).ToList()
                                       : null,
                 DefaultValidValueId = pv.PrimitiveType == PropertyPrimitiveType.Choice
-                                      ? FindDefaultValidValueId(propertyFromXml.ValidValues)// TODO
+                                      ? FindDefaultValidValueId(propertyFromXml.ValidValues) // TODO
                                       : null
             };
         }

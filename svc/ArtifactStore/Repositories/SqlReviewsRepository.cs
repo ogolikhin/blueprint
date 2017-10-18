@@ -450,8 +450,7 @@ namespace ArtifactStore.Repositories
                 (
                     "CreateUpdateRemoveReviewBaselineLink",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -460,8 +459,7 @@ namespace ArtifactStore.Repositories
                     "CreateUpdateRemoveReviewBaselineLink",
                     parameters,
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -478,8 +476,7 @@ namespace ArtifactStore.Repositories
                 (
                     "RemoveReviewBaselineLink",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -488,8 +485,7 @@ namespace ArtifactStore.Repositories
                     "RemoveReviewBaselineLink",
                     parameters,
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -669,8 +665,7 @@ namespace ArtifactStore.Repositories
                 (
                     "UpdateReviewArtifacts",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return await transaction.Connection.ExecuteAsync
@@ -678,8 +673,7 @@ namespace ArtifactStore.Repositories
                 "UpdateReviewArtifacts", 
                 parameters, 
                 transaction, 
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         private async Task<int> GetRebuildReviewArtifactHierarchyInterval()
@@ -1493,7 +1487,7 @@ namespace ArtifactStore.Repositories
             return await CheckPermissionAndRemoveElligibleArtifacts(userId, reviewId, approvalCheck.ValidArtifactIds);
         }
 
-        private async Task<List<int>> CheckPermissionAndRemoveElligibleArtifacts(int userId, int reviewId, IEnumerable<int> artifactIds )
+        private async Task<List<int>> CheckPermissionAndRemoveElligibleArtifacts(int userId, int reviewId, IEnumerable<int> artifactIds)
         {
             var artifactIdsList = artifactIds.ToList();
 
@@ -1766,8 +1760,7 @@ namespace ArtifactStore.Repositories
                 (
                     "GetReviewArtifactVersionNumber", 
                     parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -1776,8 +1769,7 @@ namespace ArtifactStore.Repositories
                     "GetReviewArtifactVersionNumber", 
                     parameters, 
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return artifactVersionNumbers.ToDictionary(avn => avn.ArtifactId, avn => avn.VersionNumber);
@@ -1800,9 +1792,7 @@ namespace ArtifactStore.Repositories
                     (
                         "GetReviewUserStatsXml", 
                         parameters, 
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).SingleOrDefault();
+                        commandType: CommandType.StoredProcedure)).SingleOrDefault();
             }
             else
             {
@@ -1811,8 +1801,7 @@ namespace ArtifactStore.Repositories
                     "GetReviewUserStatsXml", 
                     parameters, 
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             RDReviewedArtifacts rdReviewedArtifacts;
@@ -1858,8 +1847,7 @@ namespace ArtifactStore.Repositories
                 (
                     "UpdateReviewUserStats", 
                     parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -1868,8 +1856,7 @@ namespace ArtifactStore.Repositories
                     "UpdateReviewUserStats", 
                     parameters, 
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return resultTask;

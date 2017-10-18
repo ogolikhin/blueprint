@@ -1638,7 +1638,7 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
                 new Dictionary<string, object>
                 {
-                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value")},
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value") },
                     { "userId", userId },
                     { "revisionId", int.MaxValue },
                     { "addDrafts", true }
@@ -1683,7 +1683,7 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
                 new Dictionary<string, object>
                 {
-                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds)},
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
                     { "userId", userId },
                     { "revisionId", int.MaxValue },
                     { "addDrafts", true }
@@ -1745,7 +1745,7 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
                 new Dictionary<string, object>
                 {
-                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds)},
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
                     { "userId", userId },
                     { "revisionId", int.MaxValue },
                     { "addDrafts", true }
@@ -1798,7 +1798,7 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
                 new Dictionary<string, object>
                 {
-                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value")},
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value") },
                     { "userId", userId },
                     { "revisionId", int.MaxValue },
                     { "addDrafts", true }
@@ -1841,7 +1841,7 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories",
                 new Dictionary<string, object>
                 {
-                    {"artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds)},
+                    {"artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
                     {"revisionId", int.MaxValue}
                 },
                 authorHistories);
@@ -1932,7 +1932,7 @@ namespace ServiceLibrary.Repositories
 
         
 
-        private static Mock<IArtifactPermissionsRepository> CreatePermissionsRepositoryMock(int[] artifactIds, int userId, RolePermissions rolePermissions )
+        private static Mock<IArtifactPermissionsRepository> CreatePermissionsRepositoryMock(int[] artifactIds, int userId, RolePermissions rolePermissions)
         {
             var permissions = artifactIds.ToDictionary(id => id, id => rolePermissions);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();

@@ -116,12 +116,10 @@ namespace SearchService.Helpers.SemanticSearch
             var container = new QueryContainerDescriptor<SemanticSearchItem>();
             container.MoreLikeThis(fs => fs
                 .Fields(
-                    f => f.Field(a => a.SearchText).Field(b => b.Name)
-                )
+                    f => f.Field(a => a.SearchText).Field(b => b.Name))
                 .Like(
                     l => l.Document(
-                        d => d.Document(new SemanticSearchItem() {Name = searchText.Name, SearchText = searchText.SearchText}))
-                )
+                        d => d.Document(new SemanticSearchItem() {Name = searchText.Name, SearchText = searchText.SearchText})))
                 .MinDocumentFrequency(1)
                 .MinTermFrequency(1));
 

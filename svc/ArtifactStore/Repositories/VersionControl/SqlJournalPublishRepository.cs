@@ -52,8 +52,7 @@ namespace ArtifactStore.Repositories.VersionControl
                             ItemID = item.Value.ItemId,
                             ElementType = (int)ElementType.Artifact,
                             ActionType = (int)action
-                        }
-                    );
+                        });
                 }
                 catch (Exception)
                 {

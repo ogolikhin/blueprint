@@ -34,10 +34,8 @@ namespace FileStore.Controllers
                     },
                     "FileStore",
                     new ServiceLogRepository(),
-                    WebApiConfig.LogSourceStatus
-                ),
-                WebApiConfig.StatusCheckPreauthorizedKey
-            )
+                    WebApiConfig.LogSourceStatus),
+                WebApiConfig.StatusCheckPreauthorizedKey)
         {
         }
 

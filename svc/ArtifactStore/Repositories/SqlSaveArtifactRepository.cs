@@ -56,8 +56,7 @@ namespace ArtifactStore.Repositories
                 (
                     storedProcedure, 
                     parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
                 
             }
             else
@@ -67,8 +66,7 @@ namespace ArtifactStore.Repositories
                     storedProcedure, 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -92,8 +90,7 @@ namespace ArtifactStore.Repositories
                 (
                     storedProcedure, 
                     parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -102,8 +99,7 @@ namespace ArtifactStore.Repositories
                     storedProcedure, 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             int? errorCode = (result as IEnumerable<dynamic>)?.FirstOrDefault()?.Error;

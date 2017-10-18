@@ -27,8 +27,7 @@ namespace ServiceLibrary.Repositories.Jobs
                 new SqlConnectionWrapper(ServiceConstants.RaptorMain),
                 new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
-                new SqlUsersRepository()
-            )
+                new SqlUsersRepository())
         {
         }
 
@@ -46,8 +45,7 @@ namespace ServiceLibrary.Repositories.Jobs
             ISqlConnectionWrapper connectionWrapper, 
             ISqlArtifactRepository sqlArtifactRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
-            IUsersRepository userRepository
-        )
+            IUsersRepository userRepository)
         {
             _connectionWrapper = connectionWrapper;
             _sqlArtifactRepository = sqlArtifactRepository;
@@ -62,8 +60,7 @@ namespace ServiceLibrary.Repositories.Jobs
             int userId,
             int? offset,
             int? limit,
-            JobType? jobType = JobType.None
-        )
+            JobType? jobType = JobType.None)
         {
             var actualUserId = await GetActualUserId(userId);
             var jobResult = new JobResult();
@@ -74,8 +71,7 @@ namespace ServiceLibrary.Repositories.Jobs
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(dJobMessages.Select(job => job.JobMessageId), true);
             var projectIds = new HashSet<int>
              (
-                 dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value)
-             );
+                 dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value));
             var projectNameIdMap = await GetProjectNamesForUserMapping(projectIds, actualUserId);
 
 
@@ -194,8 +190,7 @@ namespace ServiceLibrary.Repositories.Jobs
             JobType? jobType = JobType.None,
             bool? hidden = null,
             bool? addFinished = true,
-            bool? doNotFetchResult = false
-        )
+            bool? doNotFetchResult = false)
         {
             var param = new DynamicParameters();
 
@@ -230,8 +225,7 @@ namespace ServiceLibrary.Repositories.Jobs
         (
             DJobMessage jobMessage, 
             IDictionary<int, List<SystemMessage>> systemMessageMap, 
-            IDictionary<int, string> projectNameMap
-        )
+            IDictionary<int, string> projectNameMap)
         {
             return new JobInfo
             {
@@ -258,8 +252,7 @@ namespace ServiceLibrary.Repositories.Jobs
         private async Task<IDictionary<int, List<SystemMessage>>> GetRelevantUnfinishCancelSystemJobSystemMessageMap
         (
             IEnumerable<int> jobIds, 
-            bool? doNotFetchResult = false
-        )
+            bool? doNotFetchResult = false)
         {
             var allUnfinishSystemJobs = await GetJobMessages(null, 0, int.MaxValue, JobType.System, true, false, doNotFetchResult);
 

@@ -82,8 +82,7 @@ namespace ArtifactStore.Services.VersionControl
                 environment = await _sqlHelper.RunInTransactionAsync
                 (
                     ServiceConstants.RaptorMain,
-                    GetPublishTransactionAction(parameters, artifactIdsList)
-                );
+                    GetPublishTransactionAction(parameters, artifactIdsList));
             }
             else
             {

@@ -112,16 +112,14 @@ namespace ArtifactStore.Executors
                     null,
                     _stateChangeExecutorRepositories.UsersRepository,
                     _stateChangeExecutorRepositories.ServiceLogRepository,
-                    transaction
-                    )));
+                    transaction)));
 
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
                     _stateChangeExecutorRepositories.ApplicationSettingsRepository,
                     _stateChangeExecutorRepositories.ServiceLogRepository, 
                     result.ActionMessages,
                     $"Error on successful transition of artifact: {_input.ArtifactId} from {_input.FromStateId} to {_input.ToStateId}",
-                    transaction
-                    );
+                    transaction);
 
                 return result;
             };

@@ -101,8 +101,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     "CloseAttachmentVersions", 
                     parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -111,8 +110,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     "CloseAttachmentVersions", 
                     parameters, 
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             // Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some attachment versions are not closed");
@@ -132,9 +130,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     (
                         "GetDraftAndLatestAttachmentVersions", 
                         parameters, 
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
             return 
@@ -144,9 +140,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     "GetDraftAndLatestAttachmentVersions", 
                     parameters, 
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToList();
+                    commandType: CommandType.StoredProcedure)).ToList();
         }
 
         private void RegisterAttachmentModification(PublishEnvironment env, DraftAndLatestAttachment attachment)

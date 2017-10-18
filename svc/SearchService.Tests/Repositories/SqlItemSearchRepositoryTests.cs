@@ -605,11 +605,11 @@ namespace SearchService.Repositories
             {
                 {"userId", UserId},
                 {"query", searchCriteria.Query},
-                {"projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds)},
+                {"projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds) },
                 {"maxSearchableValueStringSize", MaxSearchableValueStringSize},
                 {"startOffset", StartOffset},
                 {"pageSize", PageSize},
-                {"excludedPredefineds", SqlConnectionWrapper.ToDataTable(SqlItemSearchRepository.GetExcludedPredefineds(searchCriteria))}
+                {"excludedPredefineds", SqlConnectionWrapper.ToDataTable(SqlItemSearchRepository.GetExcludedPredefineds(searchCriteria)) }
             };
 
             if (searchCriteria.PredefinedTypeIds != null)

@@ -34,10 +34,8 @@ namespace SearchService.Controllers
                     },
                     "SearchService",
                     new ServiceLogRepository(),
-                    WebApiConfig.LogSourceStatus
-                ),
-                WebApiConfig.StatusCheckPreauthorizedKey
-            )
+                    WebApiConfig.LogSourceStatus),
+                WebApiConfig.StatusCheckPreauthorizedKey)
         {
         }
 

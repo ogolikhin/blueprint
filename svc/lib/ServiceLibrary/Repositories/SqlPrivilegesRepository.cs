@@ -39,8 +39,7 @@ namespace ServiceLibrary.Repositories
             (
                 "GetProjectAdminPermissions",
                 parameters, 
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
 
             var errorCode = parameters.Get<int?>("ErrorCode");
 

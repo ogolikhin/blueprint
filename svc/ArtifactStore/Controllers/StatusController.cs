@@ -22,13 +22,11 @@ namespace ArtifactStore.Controllers
         public StatusController()
             : this(new StatusControllerHelper(
                         new List<IStatusRepository> {   /* new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage"), //ArtifactStorage db is currently unused */
-                                                        new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB")},
+                                                        new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB") },
                         "ArtifactStore",
                         new ServiceLogRepository(),
-                        WebApiConfig.LogSourceStatus
-                    ),
-                    WebApiConfig.StatusCheckPreauthorizedKey
-                  )
+                        WebApiConfig.LogSourceStatus),
+                    WebApiConfig.StatusCheckPreauthorizedKey)
         {
         }
 

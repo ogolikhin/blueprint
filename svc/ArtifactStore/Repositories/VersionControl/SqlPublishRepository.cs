@@ -61,9 +61,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     (
                         "GetLiveItems", 
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToHashSet();
+                        commandType: CommandType.StoredProcedure)).ToHashSet();
             }
 
             return 
@@ -73,9 +71,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     "GetLiveItems", 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToHashSet();
+                    commandType: CommandType.StoredProcedure)).ToHashSet();
         }
 
         protected abstract string MarkAsLatestStoredProcedureName { get; }
@@ -96,8 +92,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     MarkAsLatestStoredProcedureName, 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
@@ -107,8 +102,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 MarkAsLatestStoredProcedureName, 
                 parameters, 
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         protected abstract string DeleteVersionsStoredProcedureName { get; }
@@ -129,8 +123,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     DeleteVersionsStoredProcedureName, 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
@@ -140,8 +133,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 DeleteVersionsStoredProcedureName, 
                 parameters, 
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         protected abstract string CloseVersionsStoredProcedureName { get; }
@@ -162,8 +154,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     CloseVersionsStoredProcedureName, 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
@@ -173,8 +164,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 CloseVersionsStoredProcedureName, 
                 parameters, 
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
 
             // Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some item versions are not closed");
         }
@@ -192,9 +182,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     (
                         "GetMaxChildOrderIndex", 
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).FirstOrDefault();
+                        commandType: CommandType.StoredProcedure)).FirstOrDefault();
             }
 
             return 
@@ -204,9 +192,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     "GetMaxChildOrderIndex", 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                )
-            ).FirstOrDefault();
+                    commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
         public async Task SetParentAndOrderIndex(int itemVersionId, int newParentId, double newOrderIndex, IDbTransaction transaction = null)
@@ -222,8 +208,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     "SetParentAndOrderIndex", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
@@ -233,8 +218,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 "SetParentAndOrderIndex", 
                 parameters, 
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         protected abstract string GetDraftAndLatestStoredProcedureName { get; }
@@ -254,9 +238,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     (
                         GetDraftAndLatestStoredProcedureName, 
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
             return 
@@ -266,9 +248,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     GetDraftAndLatestStoredProcedureName, 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToList();
+                    commandType: CommandType.StoredProcedure)).ToList();
         }
 
         protected async Task<IList<int>> GetDeletedArtifacts(int userId, ISet<int> artifactIds, IDbTransaction transaction = null)
@@ -286,9 +266,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     (
                         "GetArtifactsDeletedInDraft", 
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
             return 
@@ -298,9 +276,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     "GetArtifactsDeletedInDraft", 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToList();
+                    commandType: CommandType.StoredProcedure)).ToList();
         }
 
         protected async Task MarkReuseLinksOutOfSync(IEnumerable<int> artifactIds, PublishEnvironment environment, IDbTransaction transaction = null)
@@ -321,8 +297,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     "MarkReuseLinksOutOfSync", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
@@ -332,8 +307,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 "MarkReuseLinksOutOfSync", 
                 parameters, 
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
     }
 }

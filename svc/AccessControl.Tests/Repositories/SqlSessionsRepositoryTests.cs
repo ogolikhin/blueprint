@@ -103,8 +103,8 @@ namespace AccessControl.Repositories
             int pn = 1;
             Session[] result =
             {
-                new Session {SessionId = new Guid("12345678901234567890123456789012")},
-                new Session {SessionId = new Guid("11111111111111111111111111111111")}
+                new Session {SessionId = new Guid("12345678901234567890123456789012") },
+                new Session {SessionId = new Guid("11111111111111111111111111111111") }
             };
             cxn.SetupQueryAsync("[AdminStore].SelectSessions", new Dictionary<string, object> { { "ps", ps }, { "pn", pn } }, result);
 

@@ -71,8 +71,7 @@ namespace ArtifactStore.Executors
                 _applicationSettingsRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _usersRepositoryMock.Object),
-                _stateChangeHelperMock.Object
-                );
+                _stateChangeHelperMock.Object);
         }
 
         [TestMethod]

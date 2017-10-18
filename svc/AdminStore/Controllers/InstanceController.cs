@@ -36,8 +36,7 @@ namespace AdminStore.Controllers
 
         public InstanceController() : this(
             new SqlInstanceRepository(), new ServiceLogRepository(),
-            new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository(), new InstanceService()
-        )
+            new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository(), new InstanceService())
         {
         }
 
@@ -47,8 +46,7 @@ namespace AdminStore.Controllers
             IServiceLogRepository log,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             IPrivilegesRepository privilegesRepository,
-            IInstanceService instanceService
-        ) : base(log)
+            IInstanceService instanceService) : base(log)
         {
             _instanceRepository = instanceRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
@@ -336,7 +334,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetProjectAdminPermissions(int projectId)
         {
-            var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(Session.UserId, projectId );
+            var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(Session.UserId, projectId);
             return Ok(permissions);
         }
 

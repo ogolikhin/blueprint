@@ -35,10 +35,8 @@ namespace AdminStore.Controllers
                     },
                     "AdminStore",
                     new ServiceLogRepository(),
-                    WebApiConfig.LogSourceStatus
-                ),
-                WebApiConfig.StatusCheckPreauthorizedKey
-            )
+                    WebApiConfig.LogSourceStatus),
+                WebApiConfig.StatusCheckPreauthorizedKey)
         {
         }
 

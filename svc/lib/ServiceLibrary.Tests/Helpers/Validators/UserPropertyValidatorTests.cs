@@ -30,8 +30,7 @@ namespace ServiceLibrary.Helpers.Validators
             };
             _validationContext = new ValidationContext(
                 new List<SqlUser>() {new SqlUser() {UserId = DefaultUser.Id.Value} },
-                new List<SqlGroup>() {new SqlGroup() {GroupId = DefaultGroup.Id.Value} }
-            );
+                new List<SqlGroup>() {new SqlGroup() {GroupId = DefaultGroup.Id.Value} });
         }
 
         #region Tests

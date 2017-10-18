@@ -93,7 +93,7 @@ namespace ServiceLibrary.Models.Licenses
         public void DecryptLicenses_ReturnsLicenseTypeNone_WhenTheEncryptedLicenseHasAnInvalidFeatureName()
         {
             // Arrange
-            var license = new[] {new FeatureInformation("invalid feature name", DateTime.MaxValue)};
+            var license = new[] {new FeatureInformation("invalid feature name", DateTime.MaxValue) };
             var xml = SerializationHelper.ToXml(license);
             var encryptedXml = SystemEncryptions.Encrypt(xml);
             var encryptedLicenses = encryptedXml;

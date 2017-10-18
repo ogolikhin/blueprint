@@ -103,8 +103,7 @@ namespace AdminStore.Repositories.Workflow
                 (
                     "CreateWorkflows", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -113,8 +112,7 @@ namespace AdminStore.Repositories.Workflow
                     "CreateWorkflows", 
                     parameters,
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -150,8 +148,7 @@ namespace AdminStore.Repositories.Workflow
                 (
                     "CreateWorkflowStates", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -160,8 +157,7 @@ namespace AdminStore.Repositories.Workflow
                     "CreateWorkflowStates", 
                     parameters,
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -197,8 +193,7 @@ namespace AdminStore.Repositories.Workflow
                 (
                     "UpdateWorkflowStates", 
                     parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -207,8 +202,7 @@ namespace AdminStore.Repositories.Workflow
                     "UpdateWorkflowStates", 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -244,8 +238,7 @@ namespace AdminStore.Repositories.Workflow
                 (
                     "DeleteWorkflowStates", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -254,8 +247,7 @@ namespace AdminStore.Repositories.Workflow
                     "DeleteWorkflowStates", 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result.Select(s => s.WorkflowStateId);
@@ -300,8 +292,7 @@ namespace AdminStore.Repositories.Workflow
                 (
                     "UpdateWorkflowsChangedWithRevisions", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -310,8 +301,7 @@ namespace AdminStore.Repositories.Workflow
                     "UpdateWorkflowsChangedWithRevisions", 
                     parameters,
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -331,8 +321,7 @@ namespace AdminStore.Repositories.Workflow
                 (
                     "CreateWorkflow", 
                     parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -341,8 +330,7 @@ namespace AdminStore.Repositories.Workflow
                     "CreateWorkflow", 
                     parameters, 
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             var errorCode = parameters.Get<int?>("ErrorCode");
@@ -390,8 +378,7 @@ namespace AdminStore.Repositories.Workflow
                 (
                     "CreateWorkflowEvents", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -400,8 +387,7 @@ namespace AdminStore.Repositories.Workflow
                     "CreateWorkflowEvents", 
                     parameters,
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -437,8 +423,7 @@ namespace AdminStore.Repositories.Workflow
                 (
                     "UpdateWorkflowEvents", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -447,8 +432,7 @@ namespace AdminStore.Repositories.Workflow
                     "UpdateWorkflowEvents", 
                     parameters,
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -484,8 +468,7 @@ namespace AdminStore.Repositories.Workflow
                 (
                     "DeleteWorkflowEvents", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -494,8 +477,7 @@ namespace AdminStore.Repositories.Workflow
                     "DeleteWorkflowEvents", 
                     parameters,
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result.Select(s => s.WorkflowEventId);
@@ -539,8 +521,7 @@ namespace AdminStore.Repositories.Workflow
                 (
                     "UpdateItemTypeVersionsWithWorkflowId", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -549,8 +530,7 @@ namespace AdminStore.Repositories.Workflow
                     "UpdateItemTypeVersionsWithWorkflowId", 
                     parameters,
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
         }
 

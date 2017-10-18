@@ -62,8 +62,7 @@ namespace AdminStore.Controllers
             _controller = new UsersController(
                 _authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
                 _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object,
-                _httpClientProviderMock.Object, _privilegesRepository.Object
-            )
+                _httpClientProviderMock.Object, _privilegesRepository.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -499,11 +498,11 @@ namespace AdminStore.Controllers
             var tokenList = new List<PasswordRecoveryToken>
             {
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
-                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-20),
                     Login = "testUser", RecoveryToken = inputToken},
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
-                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
                 .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
@@ -539,9 +538,9 @@ namespace AdminStore.Controllers
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-200),
                     Login = "testUser", RecoveryToken = inputToken},
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
-                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
-                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
                 .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
@@ -581,9 +580,9 @@ namespace AdminStore.Controllers
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
                     Login = "testUser", RecoveryToken = inputToken},
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
-                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
-                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
                 .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
@@ -625,9 +624,9 @@ namespace AdminStore.Controllers
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
                     Login = "testUser", RecoveryToken = inputToken},
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
-                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
-                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
                 .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
@@ -669,9 +668,9 @@ namespace AdminStore.Controllers
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
                     Login = "testUser", RecoveryToken = inputToken},
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
-                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
-                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
                 .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
@@ -719,9 +718,9 @@ namespace AdminStore.Controllers
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
                     Login = "testUser", RecoveryToken = inputToken},
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
-                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
                 new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
-                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
                 .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))

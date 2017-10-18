@@ -99,7 +99,7 @@ namespace ServiceLibrary.Repositories
         public async Task ApplicationSettingsRepository_ReturnsWorkflowFalse_WhenLicenseFeatureNameIsInvalid()
         {
             // Arrange
-            var license = new[] {new FeatureInformation("invalid feature name", DateTime.MaxValue)};
+            var license = new[] {new FeatureInformation("invalid feature name", DateTime.MaxValue) };
             var xml = SerializationHelper.ToXml(license);
             var encryptedXml = SystemEncryptions.Encrypt(xml);
             var licenseInfoValue = encryptedXml;
@@ -153,7 +153,7 @@ namespace ServiceLibrary.Repositories
 
         private string GetEncryptedLicense(FeatureTypes feature, DateTime expiration)
         {
-            var license = new[] {new FeatureInformation(FeatureInformation.Features.Single(p => p.Value == feature).Key, expiration)};
+            var license = new[] {new FeatureInformation(FeatureInformation.Features.Single(p => p.Value == feature).Key, expiration) };
             var xml = SerializationHelper.ToXml(license);
             return SystemEncryptions.Encrypt(xml);
         }

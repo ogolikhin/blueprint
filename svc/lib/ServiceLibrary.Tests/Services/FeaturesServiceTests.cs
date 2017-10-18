@@ -49,8 +49,7 @@ namespace ServiceLibrary.Services
             var service = new FeaturesService(
                 _featuresRepositoryMock.Object,
                 _licenseHelperMock.Object,
-                AsyncCache.NoCache
-            );
+                AsyncCache.NoCache);
 
             // Act
             var actualFeatures = await service.GetFeaturesAsync();
@@ -71,8 +70,7 @@ namespace ServiceLibrary.Services
             var service = new FeaturesService(
                 _featuresRepositoryMock.Object,
                 _licenseHelperMock.Object,
-                AsyncCache.NoCache
-            );
+                AsyncCache.NoCache);
 
             // Act
             var actualFeatures = await service.GetFeaturesAsync();
@@ -93,8 +91,7 @@ namespace ServiceLibrary.Services
             var service = new FeaturesService(
                 _featuresRepositoryMock.Object,
                 _licenseHelperMock.Object,
-                AsyncCache.NoCache
-            );
+                AsyncCache.NoCache);
 
             // Act
             var actualFeatures = await service.GetFeaturesAsync();

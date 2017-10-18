@@ -138,8 +138,7 @@ namespace FileStore.Controllers
 
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://tempuri.org", ""),
-                new HttpResponse(new StringWriter())
-                );
+                new HttpResponse(new StringWriter()));
 
             controller.Configuration.Routes.MapHttpRoute(
                  name: "DefaultApi",
@@ -183,8 +182,7 @@ namespace FileStore.Controllers
 
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://tempuri.org", ""),
-                new HttpResponse(new StringWriter())
-                );
+                new HttpResponse(new StringWriter()));
 
             controller.Configuration.Routes.MapHttpRoute(
                  name: "DefaultApi",
@@ -290,8 +288,7 @@ namespace FileStore.Controllers
         {
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://tempuri.org", ""),
-                new HttpResponse(new StringWriter())
-                );
+                new HttpResponse(new StringWriter()));
 
             var context = new Mock<HttpContextWrapper>(HttpContext.Current);
             var stream = await multiPartContent.ReadAsStreamAsync();

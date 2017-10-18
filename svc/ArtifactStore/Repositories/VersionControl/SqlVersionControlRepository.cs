@@ -138,8 +138,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     "GetDiscardPublishStates", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -148,8 +147,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     "GetDiscardPublishStates", 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             foreach (var dpState in sqlDiscardPublishStates)
@@ -198,9 +196,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     (
                         "GetAllDiscardPublishArtifactIds", 
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
             else
             {
@@ -211,9 +207,7 @@ namespace ArtifactStore.Repositories.VersionControl
                         "GetAllDiscardPublishArtifactIds", 
                         parameters, 
                         transaction,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
             sqlDiscardPublishStates.ForEach
@@ -228,8 +222,7 @@ namespace ArtifactStore.Repositories.VersionControl
                                     dps.LastSaveInvalid.GetValueOrDefault(false);
                     dps.DiscardDependent = false;
                     dps.PublishDependent = false;
-                }
-            );
+                });
 
             return sqlDiscardPublishStates;
         }
@@ -255,9 +248,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     (
                         "GetDiscardPublishAncestors", 
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
             else
             {
@@ -268,9 +259,7 @@ namespace ArtifactStore.Repositories.VersionControl
                         "GetDiscardPublishAncestors", 
                         parameters, 
                         transaction,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
             var discardPublishDependentArtifacts = new List<int>(0x100);
@@ -303,10 +292,7 @@ namespace ArtifactStore.Repositories.VersionControl
                         (
                             "GetDiscardPublishDetails", 
                             parameters,
-                            commandType: CommandType.StoredProcedure
-                        )
-                    ).ToList()
-                );
+                            commandType: CommandType.StoredProcedure)).ToList());
             }
             else
             {
@@ -318,10 +304,7 @@ namespace ArtifactStore.Repositories.VersionControl
                             "GetDiscardPublishDetails", 
                             parameters, 
                             transaction,
-                            commandType: CommandType.StoredProcedure
-                        )
-                    ).ToList()
-                );
+                            commandType: CommandType.StoredProcedure)).ToList());
             }
 
             foreach (var sqlDiscardPublishDetail in result.Details)
@@ -357,9 +340,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     (
                         "GetDiscardPublishProjectsDetails", 
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
             else
             {
@@ -370,9 +351,7 @@ namespace ArtifactStore.Repositories.VersionControl
                         "GetDiscardPublishProjectsDetails", 
                         parameters, 
                         transaction,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
             foreach (var sqlDiscardPublishProjectInfo in discardPublishProjectDetails)
@@ -409,9 +388,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     (
                         "GetPublishInfo", 
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
             else
             {
@@ -422,26 +399,21 @@ namespace ArtifactStore.Repositories.VersionControl
                         "GetPublishInfo", 
                         parameters, 
                         transaction,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
             existingItemsInfo.AddRange
             (
                 ids.Except
                 (
-                    existingItemsInfo.Select(i => i.ItemId)
-                )
+                    existingItemsInfo.Select(i => i.ItemId))
                 .Select
                 (
                     id => new SqlItemInfo
                     {
                         ItemId = id,
                         NotFound = true
-                    }
-                )
-            );
+                    }));
 
             return existingItemsInfo;
         }
@@ -484,9 +456,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     (
                         "GetArtifactsDeletedInDraft", 
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
             return 
@@ -496,9 +466,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     "GetArtifactsDeletedInDraft", 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToList();
+                    commandType: CommandType.StoredProcedure)).ToList();
         }
 
         private async void DeleteAndPublishArtifactsInSql(int userId, IEnumerable<int> artifactIds, int revisionId, IDbTransaction transaction)
@@ -515,8 +483,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     "DeleteAndPublishArtifacts", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
@@ -526,8 +493,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 "DeleteAndPublishArtifacts", 
                 parameters, 
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         private async Task ReleaseLockInternal(int userId, ISet<int> artifactIds, IDbTransaction transaction)
@@ -543,8 +509,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     "ReleaseLock", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -553,8 +518,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     "ReleaseLock", 
                     parameters, 
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
         }
     }

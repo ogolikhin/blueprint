@@ -101,8 +101,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     CloseVersionsStoredProcedureName, 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
@@ -112,8 +111,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 CloseVersionsStoredProcedureName, 
                 parameters, 
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
 
             // TODO: Fix this assert
             // Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some property versions are not closed");
@@ -162,8 +160,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     "CloseAllPropertyVersions", 
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
@@ -173,8 +170,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 "CloseAllPropertyVersions", 
                 parameters, 
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
     }
 

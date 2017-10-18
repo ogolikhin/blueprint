@@ -45,8 +45,7 @@ namespace AdminStore.Controllers
             (
                 new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(),
                 new EmailHelper(), new ApplicationSettingsRepository(), new ServiceLogRepository(),
-                new HttpClientProvider(), new SqlPrivilegesRepository()
-            )
+                new HttpClientProvider(), new SqlPrivilegesRepository())
         {
         }
 
@@ -55,8 +54,7 @@ namespace AdminStore.Controllers
             IAuthenticationRepository authenticationRepository, IUserRepository userRepository,
             ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper,
             IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log,
-            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository
-        )
+            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;

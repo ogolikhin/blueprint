@@ -122,8 +122,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 (
                     "RemoveLinkVersions", 
                     parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -132,8 +131,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     "RemoveLinkVersions", 
                     parameters, 
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -159,8 +157,7 @@ WHERE Artifact1Id = @artifactId1
                 (
                     sqlString, 
                     parameters, 
-                    commandType: CommandType.Text
-                );
+                    commandType: CommandType.Text);
             }
             else
             {
@@ -169,8 +166,7 @@ WHERE Artifact1Id = @artifactId1
                     sqlString, 
                     parameters, 
                     transaction, 
-                    commandType: CommandType.Text
-                );
+                    commandType: CommandType.Text);
             }
         }
 
@@ -188,9 +184,7 @@ WHERE Artifact1Id = @artifactId1
                     (
                         "GetDraftAndLatestLinks", 
                         parameters, 
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
             return 
@@ -200,9 +194,7 @@ WHERE Artifact1Id = @artifactId1
                     "GetDraftAndLatestLinks", 
                     parameters, 
                     transaction, 
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToList();
+                    commandType: CommandType.StoredProcedure)).ToList();
         }
 
         private void MarkArtifactsAsAffectedIfRequired(DraftAndLatestLink link, HashSet<int> artifactIds, PublishEnvironment env)

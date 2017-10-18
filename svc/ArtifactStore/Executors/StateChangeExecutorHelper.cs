@@ -70,8 +70,7 @@ namespace ArtifactStore.Executors
                 propertyTypes,
                 _stateChangeExecutorRepositories.SaveArtifactRepository,
                 transaction,
-                new ValidationContext(usersAndGroups.Item1, usersAndGroups.Item2)
-                );
+                new ValidationContext(usersAndGroups.Item1, usersAndGroups.Item2));
         }
 
         private async Task<ItemTypeReuseTemplate> LoadReuseSettings(int itemTypeId, IDbTransaction transaction = null)

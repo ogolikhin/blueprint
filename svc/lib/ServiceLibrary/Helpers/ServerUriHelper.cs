@@ -119,8 +119,7 @@ namespace ServiceLibrary.Helpers
                 artifactId,
                 (versionId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeyVersionId, versionId.Value) : string.Empty),
                 (baselineId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeyBaselineId, baselineId.Value) : string.Empty),
-                (sharedViewId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeySharedViewId, sharedViewId.Value) : string.Empty)
-            );
+                (sharedViewId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeySharedViewId, sharedViewId.Value) : string.Empty));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
@@ -142,8 +141,7 @@ namespace ServiceLibrary.Helpers
                     KeyStorytellerDefaultDoc,
                     KeyStorytellerRouter,
                     artifactId,
-                    (versionId.HasValue ? string.Format(versionFormat, versionId.Value) : string.Empty)
-                );
+                    (versionId.HasValue ? string.Format(versionFormat, versionId.Value) : string.Empty));
         }
 
         private static bool IsStoryTeller(string baseUrl, ItemTypePredefined? baseItemType = null)

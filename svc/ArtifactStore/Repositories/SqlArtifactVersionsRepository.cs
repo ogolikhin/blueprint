@@ -195,8 +195,7 @@ namespace ArtifactStore.Repositories
                         DisplayName = userInfo?.DisplayName,
                         HasUserIcon = userInfo?.ImageId != null,
                         ArtifactState = artifactVersion.ArtifactState 
-                    }
-                );
+                    });
             }
 
             return new ArtifactHistoryResultSet

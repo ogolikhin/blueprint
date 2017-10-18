@@ -180,8 +180,7 @@ namespace ServiceLibrary.Helpers.Cache
                                 Interlocked.Increment(ref factoryCalls);
                                 return Task.FromResult(value);
                             },
-                            DateTime.UtcNow.AddSeconds(30)
-                        );
+                            DateTime.UtcNow.AddSeconds(30));
 
                         Assert.IsTrue(resultValue.StartsWith("Value", StringComparison.InvariantCulture));
 

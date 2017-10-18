@@ -11,8 +11,7 @@ namespace ServiceLibrary.Helpers.Files
         (
             Uri baseUri, 
             string sessionToken, 
-            int timeout = ServiceConstants.DefaultRequestTimeout
-        ) : base(baseUri, sessionToken, timeout)
+            int timeout = ServiceConstants.DefaultRequestTimeout) : base(baseUri, sessionToken, timeout)
         {
             // Making calls to FileStore with SSL (HTTPS) requires certificate validation.
             ServicePointManager.ServerCertificateValidationCallback = AcceptAllCertifications;

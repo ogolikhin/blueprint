@@ -119,8 +119,7 @@ namespace AdminStore.Repositories
             (
                 "GetFoldersByName",
                 parameters,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         public async Task<int> DeleteInstanceFolderAsync(int instanceFolderId)

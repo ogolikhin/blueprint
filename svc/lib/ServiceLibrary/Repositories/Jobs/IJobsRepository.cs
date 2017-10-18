@@ -12,8 +12,7 @@ namespace ServiceLibrary.Repositories.Jobs
             int userId,
             int? offset = null,
             int? limit = null,
-            JobType? jobType = JobType.None
-        );
+            JobType? jobType = JobType.None);
 
         Task<JobInfo> GetJob(int jobId, int userId);
 

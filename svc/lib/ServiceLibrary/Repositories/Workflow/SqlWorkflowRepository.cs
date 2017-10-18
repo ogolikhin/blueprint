@@ -343,8 +343,7 @@ namespace ServiceLibrary.Repositories.Workflow
 
         private PropertyChangeAction ToPropertyChangeUserGroupAction(
             XmlPropertyChangeAction propertyChangeAction, 
-            int currentUserId
-            )
+            int currentUserId)
         {
             var action = new PropertyChangeUserGroupsAction
             {
@@ -417,8 +416,7 @@ namespace ServiceLibrary.Repositories.Workflow
                 (
                     "ChangeStateForArtifact",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -427,8 +425,7 @@ namespace ServiceLibrary.Repositories.Workflow
                     "ChangeStateForArtifact",
                     parameters,
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return ToWorkflowStates(result).FirstOrDefault();
@@ -463,8 +460,7 @@ namespace ServiceLibrary.Repositories.Workflow
                 (
                     storedProcedure,
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -473,8 +469,7 @@ namespace ServiceLibrary.Repositories.Workflow
                     storedProcedure,
                     parameters,
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return ToItemTypePropertyTypesDictionary(result);

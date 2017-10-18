@@ -279,8 +279,7 @@ namespace ServiceLibrary.Repositories
             IEnumerable<ProjectsArtifactsItem> mockProjectsArtifactsItemsResult,
             IEnumerable<VersionProjectInfo> mockVersionProjectInfoResult,
             int revisionId = int.MaxValue,
-            bool addDrafts = true
-            )
+            bool addDrafts = true)
         {
             var tvp = SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value");
 

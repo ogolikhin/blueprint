@@ -37,7 +37,7 @@ namespace ArtifactStore.Services
                 _revisionRepository.Object, 
                 _sqlHelper.Object);
 
-            var publishParameters = new PublishParameters {ArtifactIds = new List<int>()};
+            var publishParameters = new PublishParameters {ArtifactIds = new List<int>() };
 
             await versionControlService.PublishArtifacts(publishParameters);
         }

@@ -59,8 +59,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
                 CultureInfo.InvariantCulture,
                 "GMT{0}{1}",
                 TimeZoneInfo.Local.BaseUtcOffset.Ticks > 0 ? "+" : "-",
-                TimeZoneInfo.Local.BaseUtcOffset.ToString("hh\\:mm", CultureInfo.InvariantCulture)
-            );
+                TimeZoneInfo.Local.BaseUtcOffset.ToString("hh\\:mm", CultureInfo.InvariantCulture));
         }
 
         /// <summary>

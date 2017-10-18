@@ -36,7 +36,7 @@ namespace ServiceLibrary.Attributes
                     errorMessage = "Workflow license is not available";
                     errorCode = ErrorCodes.WorkflowLicenseUnavailable;
                 }
-                var error = new HttpError(errorMessage) {[ServiceConstants.ErrorCodeName] = errorCode};
+                var error = new HttpError(errorMessage) { [ServiceConstants.ErrorCodeName] = errorCode};
                 actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Forbidden, error);
             }
         }

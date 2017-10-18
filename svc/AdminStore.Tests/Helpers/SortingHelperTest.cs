@@ -12,7 +12,7 @@ namespace AdminStore.Helpers
         public void SortProjectRolesAssignments_RoleNameAsc_CorrectResult()
         {
             // Arange
-            var sorting = new Sorting {Sort = "roleName", Order = SortOrder.Asc};
+            var sorting = new Sorting { Sort = "roleName", Order = SortOrder.Asc};
             var result = SortingHelper.SortProjectRolesAssignments(sorting);
 
             // Act

@@ -402,10 +402,10 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("DeleteUsers",
                 new Dictionary<string, object>
                 {
-                    {"UserIds", userIdTable},
-                    {"Search", ""},
-                    {"SessionUserId", 0},
-                    {"SelectAll", operationScope.SelectAll}
+                    { "UserIds", userIdTable},
+                    { "Search", ""},
+                    { "SessionUserId", 0},
+                    { "SelectAll", operationScope.SelectAll}
                 },
                 returntResult);
 
@@ -436,10 +436,10 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("DeleteUsers",
                 new Dictionary<string, object>
                 {
-                    {"UserIds", userIdTable},
-                    {"Search", ""},
-                    {"SessionUserId", 0},
-                    {"SelectAll", operationScope.SelectAll}
+                    { "UserIds", userIdTable},
+                    { "Search", ""},
+                    { "SessionUserId", 0},
+                    { "SelectAll", operationScope.SelectAll}
                 },
                 returntResult);
 

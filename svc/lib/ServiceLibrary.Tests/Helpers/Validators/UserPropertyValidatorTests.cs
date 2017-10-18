@@ -15,22 +15,22 @@ namespace ServiceLibrary.Helpers.Validators
 
         private int DefaultPropertyTypeId = 123;
         private int DefaultInstancePropertyTypeId = 10;
-        private UserGroup DefaultUser = new UserGroup() {Id = 1, IsGroup = false};
+        private UserGroup DefaultUser = new UserGroup() { Id = 1, IsGroup = false};
         private UserGroup DefaultGroup = new UserGroup() { Id = 2, IsGroup = true };
 
         [TestInitialize]
         public void TestInitialize()
         {
             _validator = new UserPropertyValidator();
-            _propertyLite = new PropertyLite() {PropertyTypeId = DefaultInstancePropertyTypeId};
+            _propertyLite = new PropertyLite() { PropertyTypeId = DefaultInstancePropertyTypeId};
             _propertyType = new UserPropertyType()
             {
                 PropertyTypeId = DefaultPropertyTypeId,
                 InstancePropertyTypeId = DefaultInstancePropertyTypeId
             };
             _validationContext = new ValidationContext(
-                new List<SqlUser>() {new SqlUser() {UserId = DefaultUser.Id.Value} },
-                new List<SqlGroup>() {new SqlGroup() {GroupId = DefaultGroup.Id.Value} });
+                new List<SqlUser>() { new SqlUser() { UserId = DefaultUser.Id.Value} },
+                new List<SqlGroup>() { new SqlGroup() { GroupId = DefaultGroup.Id.Value} });
         }
 
         #region Tests

@@ -14,8 +14,8 @@ namespace ServiceLibrary.Models.Workflow.Actions
         private WorkflowPropertyType DefaultUserPropertyType;
         private List<UserGroup> DefaultUserGroups = new List<UserGroup>()
         {
-           new UserGroup() {Id = 1, IsGroup = true},
-           new UserGroup() {Id = 1, IsGroup = false}
+           new UserGroup() { Id = 1, IsGroup = true},
+           new UserGroup() { Id = 1, IsGroup = false}
         }; 
         private void InitializeUserPropertyChangeAction()
         {

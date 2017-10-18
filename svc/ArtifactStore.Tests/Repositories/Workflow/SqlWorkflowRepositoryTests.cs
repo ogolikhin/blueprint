@@ -26,8 +26,8 @@ namespace ArtifactStore.Repositories.Workflow
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", 1},
-                    {"itemId", 1}
+                    { "userId", 1},
+                    { "itemId", 1}
               },
               new List<ArtifactBasicDetails>());
 
@@ -45,8 +45,8 @@ namespace ArtifactStore.Repositories.Workflow
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", 1},
-                    {"itemId", 1}
+                    { "userId", 1},
+                    { "itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor} });
             // Act
@@ -64,8 +64,8 @@ namespace ArtifactStore.Repositories.Workflow
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", 1},
-                    {"itemId", 1}
+                    { "userId", 1},
+                    { "itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Project } });
             // Act
@@ -82,16 +82,16 @@ namespace ArtifactStore.Repositories.Workflow
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", 1},
-                    {"itemId", 1}
+                    { "userId", 1},
+                    { "itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
             cxn.SetupQueryAsync("GetTransitionsForState",
              new Dictionary<string, object>
              {
-                 {"workflowId", 1},
+                 { "workflowId", 1},
                  { "stateId", 1 },
-                 {"userId", 1}
+                 { "userId", 1}
              },
              new List<SqlWorkflowTransition>
              {
@@ -140,8 +140,8 @@ namespace ArtifactStore.Repositories.Workflow
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", 1},
-                    {"itemId", 1}
+                    { "userId", 1},
+                    { "itemId", 1}
               },
               new List<ArtifactBasicDetails>());
 
@@ -159,8 +159,8 @@ namespace ArtifactStore.Repositories.Workflow
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", 1},
-                    {"itemId", 1}
+                    { "userId", 1},
+                    { "itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
             // Act
@@ -178,8 +178,8 @@ namespace ArtifactStore.Repositories.Workflow
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", 1},
-                    {"itemId", 1}
+                    { "userId", 1},
+                    { "itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Project } });
             // Act
@@ -212,17 +212,17 @@ namespace ArtifactStore.Repositories.Workflow
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", userId},
-                    {"itemId", 1}
+                    { "userId", userId},
+                    { "itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
             cxn.SetupQueryAsync("GetTransitionAssociatedWithStates",
              new Dictionary<string, object>
              {
-                 {"workflowId", workflowId},
+                 { "workflowId", workflowId},
                  { "fromStateId", fromStateId },
                  { "toStateId", toStateId },
-                 {"userId", userId}
+                 { "userId", userId}
              },
              new List<SqlWorkflowTransition>
              {
@@ -269,8 +269,8 @@ namespace ArtifactStore.Repositories.Workflow
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", userId},
-                    {"itemId", artifactId}
+                    { "userId", userId},
+                    { "itemId", artifactId}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
             cxn.SetupQueryAsync("ChangeStateForArtifact",
@@ -312,22 +312,22 @@ namespace ArtifactStore.Repositories.Workflow
             var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
 
             
-            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new [] {1}, "Int32Collection", "Int32Value");
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new [] { 1}, "Int32Collection", "Int32Value");
             
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", 1},
-                    {"itemId", 1}
+                    { "userId", 1},
+                    { "itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
             cxn.SetupQueryAsync("GetWorkflowStatesForArtifacts",
              new Dictionary<string, object>
              {
-                 {"userId", 1},
-                 {"artifactIds", artifactIdsTable },
-                 {"revisionId", 2147483647},
-                 {"addDrafts", true}
+                 { "userId", 1},
+                 { "artifactIds", artifactIdsTable },
+                 { "revisionId", 2147483647},
+                 { "addDrafts", true}
             },
              new List<SqlWorkFlowStateInformation>
              {
@@ -356,17 +356,17 @@ namespace ArtifactStore.Repositories.Workflow
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
-                    {"userId", 1},
-                    {"itemId", 1}
+                    { "userId", 1},
+                    { "itemId", 1}
               },
               new List<ArtifactBasicDetails> { new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor } });
             cxn.SetupQueryAsync("GetWorkflowStatesForArtifacts",
              new Dictionary<string, object>
              {
-                 {"userId", 1},
-                 {"artifactIds", artifactIdsTable },
-                 {"revisionId", 2147483647},
-                 {"addDrafts", true}
+                 { "userId", 1},
+                 { "artifactIds", artifactIdsTable },
+                 { "revisionId", 2147483647},
+                 { "addDrafts", true}
             },
              new List<SqlWorkFlowState>());
 

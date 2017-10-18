@@ -24,7 +24,7 @@ namespace ServiceLibrary.Models.Workflow
             var triggers = new WorkflowEventTriggers();
             _workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(new PropertySetResult(fakePropertyTypeId, -1, ""));
 
-            triggers.Add(new WorkflowEventTrigger() {Action = _workflowEventAction.Object, Name = defaultTriggerName });
+            triggers.Add(new WorkflowEventTrigger() { Action = _workflowEventAction.Object, Name = defaultTriggerName });
 
             var result = await triggers.ProcessTriggers(null);
 

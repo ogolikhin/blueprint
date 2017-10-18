@@ -170,7 +170,7 @@ namespace AdminStore.Services.Workflow
                     Active = false // imported workflows are inactive. Users need explicitly activate workflows via UI.
                 };
                 newWorkflow =
-                    (await _workflowRepository.CreateWorkflowsAsync(new[] {importParams}, publishRevision, transaction))
+                    (await _workflowRepository.CreateWorkflowsAsync(new[] { importParams}, publishRevision, transaction))
                         .FirstOrDefault();
 
                 if (newWorkflow != null)
@@ -391,9 +391,9 @@ namespace AdminStore.Services.Workflow
 
             workflowDetailsDto.Projects =
                 workflowProjectsAndArtifactTypes.Select(
-                    e => new WorkflowProjectDto {Id = e.ProjectId, Name = e.ProjectPath}).Distinct().ToList();
+                    e => new WorkflowProjectDto { Id = e.ProjectId, Name = e.ProjectPath}).Distinct().ToList();
             workflowDetailsDto.ArtifactTypes =
-                workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto {Name = e.ArtifactTypeName})
+                workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto { Name = e.ArtifactTypeName})
                     .Distinct()
                     .ToList();
 

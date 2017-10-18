@@ -372,7 +372,7 @@ namespace AccessControl.Controllers
             // Arrange
             int uid = 3;
             var guid = Guid.NewGuid();
-            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(new Session {SessionId = guid, EndTime = DateTime.UtcNow.AddDays(1) });
+            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(new Session { SessionId = guid, EndTime = DateTime.UtcNow.AddDays(1) });
             _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).ReturnsAsync((Session)null);
 
             // Act

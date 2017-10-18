@@ -190,27 +190,27 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.WorkflowNameEmpty:
                     template = TemplateXmlWorkflowNameEmpty;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.WorkflowNameExceedsLimit24:
                     template = TemplateXmlWorkflowNameExceedsLimit24;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.WorkflowDescriptionExceedsLimit4000:
                     template = TemplateXmlWorkflowDescriptionExceedsLimit4000;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.WorkflowDoesNotContainAnyStates:
                     template = TemplateXmlWorkflowDoesNotContainAnyStates;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.StatesCountExceedsLimit100:
                     template = TemplateXmlStatesCountExceedsLimit100;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.StateNameEmpty:
                     template = TemplateXmlStateNameEmpty;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.StateNameExceedsLimit24:
                     template = TemplateXmlStateNameExceedsLimit24;
@@ -222,15 +222,15 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.NoInitialState:
                     template = TemplateXmlNoInitialState;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.InitialStateDoesNotHaveOutgoingTransition:
                     template = TemplateXmlInitialStateDoesNotHaveOutgoingTransition;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.MultipleInitialStates:
                     template = TemplateXmlMultipleInitialStates;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.StateDoesNotHaveAnyTransitions:
                     template = TemplateXmlStateDoesNotHaveAnyTransitions;
@@ -250,7 +250,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.StateWithDuplicateOutgoingTransitions:
                     template = TemplateXmlStateWithDuplicateOutgoingTransitions;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionCountOnStateExceedsLimit10:
                     template = TemplateXmlTransitionCountOnStateExceedsLimit10;
@@ -282,11 +282,11 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.PropertyChangeEventDuplicateProperties:
                     template = TemplateXmlPropertyChangeEventDuplicateProperties;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.ProjectNoSpecified:
                     template = TemplateXmlProjectNoSpecified;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.AmbiguousProjectReference:
                     template = TemplateXmlAmbiguousProjectReference;
@@ -294,7 +294,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.InvalidId:
                     template = TemplateXmlInvalidId;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.ProjectDuplicateId:
                     template = TemplateXmlProjectDuplicateId;
@@ -310,7 +310,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.ArtifactTypeNoSpecified:
                     template = TemplateXmlArtifactTypeNoSpecified;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.PropertyChangeEventNoAnyTriggersNotSpecified:
                     template = TemplateXmlPropertyChangeEventNoAnyTriggersSpecified;
@@ -439,7 +439,7 @@ namespace AdminStore.Services.Workflow
             {
                 case WorkflowDataValidationErrorCodes.WorkflowNameNotUnique:
                     template = TemplateDataWorkflowNameNotUnique;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectByPathNotFound:
                     template = TemplateDataProjectByPathNotFound;
@@ -451,7 +451,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectDuplicate:
                     template = TemplateDataProjectIdDuplicate;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowDataValidationErrorCodes.InstanceGroupNotFoundByName:
                     template = TemplateDataInstanceGroupNotFoundByName;
@@ -598,19 +598,19 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:
                     template = TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable:
                     template = TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable:
                     template = TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
                     template = TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed;
-                    errParams = new object[] {};
+                    errParams = new object[] { };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

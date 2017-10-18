@@ -39,7 +39,7 @@ namespace AdminStore.Repositories
 
             _projectRolesAssignments = new List<RoleAssignment>
             {
-                new RoleAssignment {Id = 1, RoleName = "Role1", GroupName = "Group1"}
+                new RoleAssignment { Id = 1, RoleName = "Role1", GroupName = "Group1"}
             };
 
             _tabularData = new TabularData
@@ -954,7 +954,7 @@ namespace AdminStore.Repositories
             var projectId = 1;
             int errorCode = 50016; // there are no project with this projectId
 
-            ProjectRole[] projectRoles = {};
+            ProjectRole[] projectRoles = { };
 
             cxn.SetupQueryAsync("GetProjectRoles",
                 new Dictionary<string, object>
@@ -964,7 +964,7 @@ namespace AdminStore.Repositories
                     }
                 },
                 projectRoles,
-                new Dictionary<string, object> {{"ErrorCode", errorCode}});
+                new Dictionary<string, object> { { "ErrorCode", errorCode}});
 
             // Act
             await repository.GetProjectRolesAsync(projectId);
@@ -1088,14 +1088,14 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var createdRoleAssignmentId = 1;
-            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() {GroupId = 1, RoleId = 1};
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1};
 
             _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
                                         new Dictionary <string, object>
                                         {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId }
                                         }, 
                                         createdRoleAssignmentId, 
                                         new Dictionary<string, object> { { "ErrorCode", 0 } });
@@ -1128,8 +1128,8 @@ namespace AdminStore.Repositories
                             new Dictionary<string, object>
                             {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId }
                             },
                             createdRoleAssignmentId,
                             new Dictionary<string, object> { { "ErrorCode", errorCode } });
@@ -1158,8 +1158,8 @@ namespace AdminStore.Repositories
                             new Dictionary<string, object>
                             {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId }
                             },
                             createdRoleAssignmentId,
                             new Dictionary<string, object> { { "ErrorCode", errorCode } });
@@ -1190,8 +1190,8 @@ namespace AdminStore.Repositories
                             new Dictionary<string, object>
                             {
                                             { "ProjectId", projectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId }
                             },
                             createdRoleAssignmentId,
                             new Dictionary<string, object> { { "ErrorCode", errorCode } });
@@ -1221,8 +1221,8 @@ namespace AdminStore.Repositories
                             new Dictionary<string, object>
                             {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId }
                             },
                             createdRoleAssignmentId,
                             new Dictionary<string, object> { { "ErrorCode", errorCode } });
@@ -1281,9 +1281,9 @@ namespace AdminStore.Repositories
                                         new Dictionary<string, object>
                                         {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId },
-                                            {"RoleAssignmentId", roleAssignmentId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId },
+                                            { "RoleAssignmentId", roleAssignmentId }
                                         },
                                         0,
                                         new Dictionary<string, object> { { "ErrorCode", errorCode } });
@@ -1306,9 +1306,9 @@ namespace AdminStore.Repositories
                                         new Dictionary<string, object>
                                         {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId },
-                                            {"RoleAssignmentId", roleAssignmentId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId },
+                                            { "RoleAssignmentId", roleAssignmentId }
                                         },
                                         0,
                                         new Dictionary<string, object> { { "ErrorCode", errorCode } });
@@ -1330,9 +1330,9 @@ namespace AdminStore.Repositories
                                         new Dictionary<string, object>
                                         {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId },
-                                            {"RoleAssignmentId", roleAssignmentId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId },
+                                            { "RoleAssignmentId", roleAssignmentId }
                                         },
                                         0,
                                         new Dictionary<string, object> { { "ErrorCode", errorCode } });
@@ -1354,9 +1354,9 @@ namespace AdminStore.Repositories
                                         new Dictionary<string, object>
                                         {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId },
-                                            {"RoleAssignmentId", roleAssignmentId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId },
+                                            { "RoleAssignmentId", roleAssignmentId }
                                         },
                                         0,
                                         new Dictionary<string, object> { { "ErrorCode", errorCode } });
@@ -1378,9 +1378,9 @@ namespace AdminStore.Repositories
                                         new Dictionary<string, object>
                                         {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId },
-                                            {"RoleAssignmentId", roleAssignmentId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId },
+                                            { "RoleAssignmentId", roleAssignmentId }
                                         },
                                         0,
                                         new Dictionary<string, object> { { "ErrorCode", errorCode } });
@@ -1402,9 +1402,9 @@ namespace AdminStore.Repositories
                                         new Dictionary<string, object>
                                         {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId },
-                                            {"RoleAssignmentId", roleAssignmentId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId },
+                                            { "RoleAssignmentId", roleAssignmentId }
                                         },
                                         0,
                                         new Dictionary<string, object> { { "ErrorCode", errorCode } });
@@ -1426,9 +1426,9 @@ namespace AdminStore.Repositories
                                         new Dictionary<string, object>
                                         {
                                             { "ProjectId", ProjectId },
-                                            {"GroupId", roleAssignment.GroupId },
-                                            {"RoleId", roleAssignment.RoleId },
-                                            {"RoleAssignmentId", roleAssignmentId }
+                                            { "GroupId", roleAssignment.GroupId },
+                                            { "RoleId", roleAssignment.RoleId },
+                                            { "RoleAssignmentId", roleAssignmentId }
                                         },
                                         0,
                                         new Dictionary<string, object> { { "ErrorCode", errorCode } });

@@ -78,7 +78,7 @@ namespace ArtifactStore.Executors
             };
             var triggers = new WorkflowEventTriggers();
             triggers.Add(new WorkflowEventTrigger());
-            var sqlItemTypeInfo = new SqlItemTypeInfo() {InstanceTypeId = artifactStandardItemTypeId};
+            var sqlItemTypeInfo = new SqlItemTypeInfo() { InstanceTypeId = artifactStandardItemTypeId};
             var isArtifactReadonlyReuseDictionary = new Dictionary<int, bool>() { { artifactId, false}};
             var artifactStandardItemTypeDictionary = new Dictionary<int, SqlItemTypeInfo>() { { artifactId, sqlItemTypeInfo } };
             _reuseRepository.Setup(

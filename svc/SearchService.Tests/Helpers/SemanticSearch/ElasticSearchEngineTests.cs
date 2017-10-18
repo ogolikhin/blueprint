@@ -102,16 +102,16 @@ namespace SearchService.Helpers.SemanticSearch
                     SearchText = "searchTest"
                 });
 
-            var searchItem = new SemanticSearchItem() {ItemId = 2};
+            var searchItem = new SemanticSearchItem() { ItemId = 2};
             var searchResponse = new Mock<ISearchResponse<SemanticSearchItem>>();
-            searchResponse.SetupGet(s => s.Documents).Returns(new List<SemanticSearchItem>() {searchItem});
+            searchResponse.SetupGet(s => s.Documents).Returns(new List<SemanticSearchItem>() { searchItem});
 
             _elasticClient.Setup(
                 e => e.SearchAsync<SemanticSearchItem>(It.IsAny<ISearchRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(searchResponse.Object);
             
             _semanticSearchRepository.Setup(s => s.GetSuggestedArtifactDetails(It.IsAny<List<int>>(), It.IsAny<int>()))
-                .ReturnsAsync(new List<ArtifactSearchResult>() { new ArtifactSearchResult() {ItemId = 2}});
+                .ReturnsAsync(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 2}});
 
             _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
 

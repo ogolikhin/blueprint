@@ -83,7 +83,7 @@ namespace ArtifactStore.Executors
                 .ReturnsAsync(true);
 
             _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(It.IsAny<int>(), It.IsAny<int?>(), It.IsAny<int>()))
-                .ReturnsAsync(new VersionControlArtifactInfo() {Id = ArtifactId});
+                .ReturnsAsync(new VersionControlArtifactInfo() { Id = ArtifactId});
 
             // Act
             try

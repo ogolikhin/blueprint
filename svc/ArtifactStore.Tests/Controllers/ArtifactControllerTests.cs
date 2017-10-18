@@ -30,7 +30,7 @@ namespace ArtifactStore.Controllers
         [TestInitialize]
         public void Initialize()
         {
-            session = new Session {UserId = userId};
+            session = new Session { UserId = userId};
             artifactIds = new HashSet<int>() { 1, 2, 3 };
             processInfo = new List<ProcessInfoDto>()
             {
@@ -269,7 +269,7 @@ namespace ArtifactStore.Controllers
         {
             // Arrange
             artifactIds = null;
-            processInfo = new List<ProcessInfoDto>() {};
+            processInfo = new List<ProcessInfoDto>() { };
 
             mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId))
                                   .ReturnsAsync(processInfo);
@@ -283,7 +283,7 @@ namespace ArtifactStore.Controllers
         public async Task GetStandardArtifactTypes_SuccessResult()
         {
             // Arrange
-            var artifacts = new List<StandardArtifactType> {new StandardArtifactType {Id = 1, Name = "CustomActor"} };
+            var artifacts = new List<StandardArtifactType> { new StandardArtifactType { Id = 1, Name = "CustomActor"} };
             mockArtifactRepository.Setup(r => r.GetStandardArtifactTypes())
                                   .ReturnsAsync(artifacts);
 

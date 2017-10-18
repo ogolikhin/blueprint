@@ -106,7 +106,7 @@ namespace SearchService.Services
                 a =>
                     a.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(),
                         It.IsAny<int>(), It.IsAny<bool>()))
-                .ReturnsAsync(new Dictionary<int, RolePermissions>() { {1, RolePermissions.None} });
+                .ReturnsAsync(new Dictionary<int, RolePermissions>() { { 1, RolePermissions.None} });
 
             // act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
@@ -134,7 +134,7 @@ namespace SearchService.Services
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
             _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new ArtifactBasicDetails() {LatestDeleted = true});
+                .ReturnsAsync(new ArtifactBasicDetails() { LatestDeleted = true});
 
             // act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);

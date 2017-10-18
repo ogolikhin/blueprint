@@ -963,7 +963,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task CreateRoleAssignment_SuccessfulCreationOfAssignment_ReturnCreatedRoleAssignmentIdResult()
         {
-            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() {GroupId = 1, RoleId = 1};
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1};
             int roleAssignmentId = 1;
 
             // Arrange

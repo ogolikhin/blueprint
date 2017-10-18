@@ -13,7 +13,7 @@ namespace ServiceLibrary.Helpers
         public static ProcessInfoDto Map(ProcessInfo pi)
         {
             
-            ProcessInfoDto result = new ProcessInfoDto{ItemId = pi.ItemId};
+            ProcessInfoDto result = new ProcessInfoDto { ItemId = pi.ItemId};
 
             ProcessType enumVal;
             ProcessType defaultValue = ProcessType.None;

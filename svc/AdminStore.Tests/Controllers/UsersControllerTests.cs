@@ -236,7 +236,7 @@ namespace AdminStore.Controllers
         public async Task GetLoginUser_CheckAdminRoleRepositoryReturnsTrue_ReturnsUser()
         {
             // Arrange
-            var loginUser = new LoginUser {IsProjectAdmin = false};
+            var loginUser = new LoginUser { IsProjectAdmin = false};
 
             _usersRepoMock
                 .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
@@ -259,7 +259,7 @@ namespace AdminStore.Controllers
         public async Task GetLoginUser_CheckAdminRoleRepositoryWasNotHandled_ReturnsUser()
         {
             // Arrange
-            var loginUser = new LoginUser {InstanceAdminRoleId = 1};
+            var loginUser = new LoginUser { InstanceAdminRoleId = 1};
 
             _usersRepoMock
                 .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
@@ -497,11 +497,11 @@ namespace AdminStore.Controllers
             var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
             var tokenList = new List<PasswordRecoveryToken>
             {
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-3),
                     Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-20),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-20),
                     Login = "testUser", RecoveryToken = inputToken},
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-40),
                     Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
@@ -535,11 +535,11 @@ namespace AdminStore.Controllers
             var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
             var tokenList = new List<PasswordRecoveryToken>
             {
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-200),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-200),
                     Login = "testUser", RecoveryToken = inputToken},
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-3),
                     Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-40),
                     Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
@@ -577,11 +577,11 @@ namespace AdminStore.Controllers
             var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
             var tokenList = new List<PasswordRecoveryToken>
             {
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-2),
                     Login = "testUser", RecoveryToken = inputToken},
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-3),
                     Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-40),
                     Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
@@ -621,11 +621,11 @@ namespace AdminStore.Controllers
             var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
             var tokenList = new List<PasswordRecoveryToken>
             {
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-2),
                     Login = "testUser", RecoveryToken = inputToken},
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-3),
                     Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-40),
                     Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
@@ -665,11 +665,11 @@ namespace AdminStore.Controllers
             var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
             var tokenList = new List<PasswordRecoveryToken>
             {
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-2),
                     Login = "testUser", RecoveryToken = inputToken},
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-3),
                     Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-40),
                     Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock
@@ -715,11 +715,11 @@ namespace AdminStore.Controllers
             var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
             var tokenList = new List<PasswordRecoveryToken>
             {
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-2),
                     Login = "testUser", RecoveryToken = inputToken},
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-3),
                     Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf") },
-                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                new PasswordRecoveryToken { CreationTime = DateTime.Now.AddHours(-40),
                     Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4") }
             };
             _usersRepoMock

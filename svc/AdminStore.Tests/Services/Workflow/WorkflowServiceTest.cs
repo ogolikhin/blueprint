@@ -64,7 +64,7 @@ namespace AdminStore.Services.Workflow
         {
             // arrange
             var workflowId = 10;
-            var workflow = new SqlWorkflow {Name = "Workflow1", Description = "Workflow1Description"};
+            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description"};
             var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypes>
             {
                 new SqlWorkflowArtifactTypes
@@ -90,9 +90,9 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            var stateNew = new SqlState {Name = "New", Default = true, WorkflowStateId = 1};
-            var stateActive = new SqlState {Name = "Active", Default = true, WorkflowStateId = 2};
-            var states = new List<SqlState> {stateNew, stateActive};
+            var stateNew = new SqlState { Name = "New", Default = true, WorkflowStateId = 1};
+            var stateActive = new SqlState { Name = "Active", Default = true, WorkflowStateId = 2};
+            var states = new List<SqlState> { stateNew, stateActive};
 
             var workflowEvents = new List<SqlWorkflowEventData>
             {
@@ -141,11 +141,11 @@ namespace AdminStore.Services.Workflow
             };
 
             var projectTypes = new ProjectTypes();
-            projectTypes.PropertyTypes.Add(new PropertyType {Name = "Property1", Id = 1});
-            projectTypes.PropertyTypes.Add(new PropertyType {Name = "Property2", Id = 2});
+            projectTypes.PropertyTypes.Add(new PropertyType { Name = "Property1", Id = 1});
+            projectTypes.PropertyTypes.Add(new PropertyType { Name = "Property2", Id = 2});
 
             var trigger = new IeTrigger();
-            var triggers = new List<IeTrigger> {trigger};
+            var triggers = new List<IeTrigger> { trigger};
 
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _projectMetaRepository.Setup(metaRepo => metaRepo.GetStandardProjectTypesAsync()).ReturnsAsync(projectTypes);
@@ -258,7 +258,7 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            var workflowStates = new SqlState {Name = "new", Default = true };
+            var workflowStates = new SqlState { Name = "new", Default = true };
             var workflowsList = new List<SqlState> { workflowStates };
 
             var workflowEvents = new List<SqlWorkflowEventData>

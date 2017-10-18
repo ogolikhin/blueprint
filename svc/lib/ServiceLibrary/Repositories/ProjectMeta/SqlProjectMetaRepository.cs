@@ -251,7 +251,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                                               if (int.TryParse(v.LookupListItemId, out intValue))
                                                   vvId = intValue;
                                           }
-                                          return new ValidValue {Id = vvId, Value = v.Value};
+                                          return new ValidValue { Id = vvId, Value = v.Value};
                                       }).ToList()
                                       : null,
                 DefaultValidValueId = pv.PrimitiveType == PropertyPrimitiveType.Choice

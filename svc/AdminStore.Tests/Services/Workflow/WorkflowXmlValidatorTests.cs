@@ -1053,7 +1053,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.EmailNotification)
                 {
-                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> {"user@comapany.com"};
+                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> { "user@comapany.com"};
                     ((IeEmailNotificationAction)t.Action).PropertyName = "a";
                 }
             }));

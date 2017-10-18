@@ -157,7 +157,7 @@ namespace SearchService.Controllers
                 foreach (var searchItem in results.Items)
                 {
                     searchItem.LockedByUser = searchItem.LockedByUserId.HasValue
-                        ? new UserGroup {Id = searchItem.LockedByUserId}
+                        ? new UserGroup { Id = searchItem.LockedByUserId}
                         : null;
                 }
 

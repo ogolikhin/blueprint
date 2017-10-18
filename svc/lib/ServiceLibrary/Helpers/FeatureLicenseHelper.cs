@@ -97,7 +97,7 @@ namespace ServiceLibrary.Helpers
         {
             return new Dictionary<FeatureTypes, FeatureInformation>
             {
-                {FeatureTypes.Workflow, new FeatureInformation(FeatureTypes.Workflow.ToStringInvariant(), DateTime.MaxValue) }
+                { FeatureTypes.Workflow, new FeatureInformation(FeatureTypes.Workflow.ToStringInvariant(), DateTime.MaxValue) }
             };
         }
     }

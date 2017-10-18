@@ -130,7 +130,7 @@ namespace AdminStore.Repositories.Jobs
             var fileRepositoryMock = new Mock<IFileRepository>();
             fileRepositoryMock
                 .Setup(m => m.GetFileAsync(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(new File {Info = new FileInfo(), ContentStream = new MemoryStream() }));
+                .Returns(Task.FromResult(new File { Info = new FileInfo(), ContentStream = new MemoryStream() }));
             var jobsRepository = CreateJobsRepository(job);
 
             // Act

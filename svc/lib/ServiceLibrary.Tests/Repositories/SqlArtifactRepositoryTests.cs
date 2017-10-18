@@ -1578,7 +1578,7 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
             cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
-            var mockArtifactPermissionsRepository = CreatePermissionsRepositoryMock(new[] {artifactId}, userId, RolePermissions.Read);
+            var mockArtifactPermissionsRepository = CreatePermissionsRepositoryMock(new[] { artifactId}, userId, RolePermissions.Read);
 
             var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
 
@@ -1672,11 +1672,11 @@ namespace ServiceLibrary.Repositories
             const int userId = 1;
 
             ArtifactsNavigationPath[] queryResult = {
-                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 0, Name = "A", ParentId = projectId},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 0, Name = "B", ParentId = artifact1Id},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 1, Name = "A", ParentId = projectId},
-                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 1, Name = "P", ParentId = null},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 2, Name = "P", ParentId = null},
+                new ArtifactsNavigationPath { ArtifactId = artifact1Id, Level = 0, Name = "A", ParentId = projectId},
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 0, Name = "B", ParentId = artifact1Id},
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 1, Name = "A", ParentId = projectId},
+                new ArtifactsNavigationPath { ArtifactId = artifact1Id, Level = 1, Name = "P", ParentId = null},
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 2, Name = "P", ParentId = null},
             };
 
             var cxn = new SqlConnectionWrapperMock();
@@ -1734,11 +1734,11 @@ namespace ServiceLibrary.Repositories
             const int userId = 1;
 
             ArtifactsNavigationPath[] queryResult = {
-                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 0, Name = "A", ParentId = projectId},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 0, Name = "B", ParentId = artifact1Id},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 1, Name = "A", ParentId = projectId},
-                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 1, Name = "P", ParentId = null},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 2, Name = "P", ParentId = null},
+                new ArtifactsNavigationPath { ArtifactId = artifact1Id, Level = 0, Name = "A", ParentId = projectId},
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 0, Name = "B", ParentId = artifact1Id},
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 1, Name = "A", ParentId = projectId},
+                new ArtifactsNavigationPath { ArtifactId = artifact1Id, Level = 1, Name = "P", ParentId = null},
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 2, Name = "P", ParentId = null},
             };
 
             var cxn = new SqlConnectionWrapperMock();
@@ -1789,9 +1789,9 @@ namespace ServiceLibrary.Repositories
 
             var queryResult = new List<ArtifactsNavigationPath>
             {
-                new ArtifactsNavigationPath {ArtifactId = 1, Level = 0, Name = "ArtifactName"},
-                new ArtifactsNavigationPath {ArtifactId = 1, Level = 1, Name = "ArtifactParent"},
-                new ArtifactsNavigationPath {ArtifactId = 1, Level = 2, Name = "ArtifactGrandParent"}
+                new ArtifactsNavigationPath { ArtifactId = 1, Level = 0, Name = "ArtifactName"},
+                new ArtifactsNavigationPath { ArtifactId = 1, Level = 1, Name = "ArtifactParent"},
+                new ArtifactsNavigationPath { ArtifactId = 1, Level = 2, Name = "ArtifactGrandParent"}
             };
 
             var cxn = new SqlConnectionWrapperMock();
@@ -1841,8 +1841,8 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories",
                 new Dictionary<string, object>
                 {
-                    {"artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
-                    {"revisionId", int.MaxValue}
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
+                    { "revisionId", int.MaxValue}
                 },
                 authorHistories);
 

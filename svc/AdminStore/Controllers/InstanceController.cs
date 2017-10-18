@@ -191,7 +191,7 @@ namespace AdminStore.Controllers
             var result =
                 await
                     _instanceRepository.GetProjectsAndFolders(Session.UserId,
-                        new TabularData() {Pagination = pagination, Sorting = sorting, Search = search},
+                        new TabularData() { Pagination = pagination, Sorting = sorting, Search = search},
                         SortingHelper.SortProjectFolders);
             return Ok(result);
         }

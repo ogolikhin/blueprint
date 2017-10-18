@@ -89,7 +89,7 @@ namespace ServiceLibrary.Models.Licenses
         [TestMethod]
         public void GetFeatureType_ReturnsNone_WhenFeatureNameIsInvalid()
         {
-            var invalidFeatureNames = new[] {"invalid feature name", "Author", "Collaborate", "View", "None"};
+            var invalidFeatureNames = new[] { "invalid feature name", "Author", "Collaborate", "View", "None"};
             foreach (var name in invalidFeatureNames)
             {
                 // Arrange

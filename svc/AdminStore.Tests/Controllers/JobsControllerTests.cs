@@ -175,7 +175,7 @@ namespace AdminStore.Controllers
             {
                 await controller.GetLatestJobs(1, 201);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Assert.IsInstanceOfType(ex, typeof(BadRequestException));
                 Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageSizeNullOrOutOfRange);

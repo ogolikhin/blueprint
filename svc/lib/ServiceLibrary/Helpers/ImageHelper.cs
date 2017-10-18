@@ -16,7 +16,7 @@ namespace ServiceLibrary.Helpers
 
         public static ImageType GetImageType(byte[] image)
         {
-            if(JPG_SIGNATURE.SequenceEqual(image.Take(JPG_SIGNATURE.Length)))
+            if (JPG_SIGNATURE.SequenceEqual(image.Take(JPG_SIGNATURE.Length)))
             {
                 return ImageType.Jpg;
             }

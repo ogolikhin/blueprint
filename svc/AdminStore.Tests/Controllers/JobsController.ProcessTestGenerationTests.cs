@@ -35,7 +35,7 @@ namespace AdminStore.Controllers
             {
                 await controller.QueueGenerateProcessTestsJob(null);
             }
-            catch(BadRequestException ex)
+            catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.QueueJobEmptyRequest);
                 throw;

@@ -206,7 +206,7 @@ namespace AdminStore.Services.Workflow
                     {
                         projectPaths[project.Id.Value] = project.Path;
                     }
-                    else if(!doNotLookupProjectPaths)
+                    else if (!doNotLookupProjectPaths)
                     {
                         if (!string.IsNullOrEmpty(project.Path))
                         {
@@ -347,7 +347,7 @@ namespace AdminStore.Services.Workflow
             bool ignoreIds)
         {
             // For the workflow update Ids are already filled in.
-            if(ignoreIds)
+            if (ignoreIds)
             {
                 await FillInGroupProjectIdsAsync(result, workflow);
             }

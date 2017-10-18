@@ -775,7 +775,7 @@ namespace AdminStore.Repositories
             {
                 await _authenticationRepository.ResetPassword(_loginUser, Password, NewPassword);
             }
-            catch(ConflictException ex)
+            catch (ConflictException ex)
             {
                 exception = ex;
             }

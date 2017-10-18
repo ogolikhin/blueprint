@@ -43,7 +43,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             if (userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
 
-            if(projectId > 0)
+            if (projectId > 0)
             {
                 await CheckProjectIsAccessible(projectId, userId);
             }
@@ -275,7 +275,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 UsedInThisProject = itv.UsedInThisProject
             };
 
-            if(ptIds != null)
+            if (ptIds != null)
                 it.CustomPropertyTypeIds.AddRange(ptIds);
 
             return it;
@@ -355,12 +355,12 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 
                 bool parsed = Boolean.TryParse(approvalTypeString, out isApproved);
 
-                if(!parsed)
+                if (!parsed)
                 {
                     throw new ArgumentException("Unexpected Approval Status setting format: " + projectSetting.Setting);
                 }
 
-                if(isApproved)
+                if (isApproved)
                 {
                     approvalType = ApprovalType.Approved;
                 }

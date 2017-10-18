@@ -223,7 +223,7 @@ namespace AdminStore.Repositories
                 throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
             }
 
-            if(newPassword.ToLower() == user.Login?.ToLower())
+            if (newPassword.ToLower() == user.Login?.ToLower())
             {
                 throw new BadRequestException("Password reset failed, new password cannot be equal to login name", ErrorCodes.PasswordSameAsLogin);
             }

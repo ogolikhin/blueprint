@@ -58,7 +58,7 @@ namespace FileStore.Repositories
             catch
             {
                 // log error here
-                throw ;
+                throw;
             }
             finally
             {

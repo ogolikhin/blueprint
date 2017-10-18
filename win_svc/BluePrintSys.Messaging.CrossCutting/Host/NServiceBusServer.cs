@@ -27,7 +27,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                     {
                         if (_instance == null)
                         {
-                            _instance = (TDerivedType) Activator.CreateInstance(typeof (TDerivedType), true);
+                            _instance = (TDerivedType) Activator.CreateInstance(typeof(TDerivedType), true);
                         }
                     }
                 }

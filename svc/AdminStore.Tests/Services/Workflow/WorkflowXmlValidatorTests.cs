@@ -1691,7 +1691,7 @@ namespace AdminStore.Services.Workflow
                 return;
             }
 
-            for(var i = 0; i < toAddCount; i++)
+            for (var i = 0; i < toAddCount; i++)
             {
                 workflow.States.Add(new IeState { Name = "State " + i });
                 workflow.TransitionEvents.Add(new IeTransitionEvent

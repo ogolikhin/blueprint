@@ -474,7 +474,7 @@ namespace AdminStore.Services.Workflow
                         hasDuplicateProjectPathError = true;
                     }
 
-                    if(ValidatePropertyNotEmpty(project.Path))
+                    if (ValidatePropertyNotEmpty(project.Path))
                     {
                         projectPaths.Add(project.Path);
                     }
@@ -513,7 +513,7 @@ namespace AdminStore.Services.Workflow
                     }
                     else
                     {
-                        if(!hasDuplicateArtifactTypesInProjectError
+                        if (!hasDuplicateArtifactTypesInProjectError
                             && projectArtifactTypes.Contains(artifactType.Name))
                         {
                             result.Errors.Add(new WorkflowXmlValidationError
@@ -752,7 +752,7 @@ namespace AdminStore.Services.Workflow
                 pvCount++;
             }
 
-            if(action.UsersGroups != null)
+            if (action.UsersGroups != null)
             {
                 pvCount++;
 
@@ -801,7 +801,7 @@ namespace AdminStore.Services.Workflow
                 });
                 _hasPropertyValuePropertyChangeActionNotSpecitiedError = true;
             }
-            else if(!_hasAmbiguousPropertyValuePropertyChangeActionError
+            else if (!_hasAmbiguousPropertyValuePropertyChangeActionError
                 && pvCount > 1)
             {
                 result.Errors.Add(new WorkflowXmlValidationError

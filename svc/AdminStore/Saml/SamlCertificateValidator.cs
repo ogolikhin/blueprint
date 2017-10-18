@@ -35,7 +35,7 @@ namespace AdminStore.Saml
                     FederatedAuthenticationErrorCode.NotTrustedIssuer);
             }
 
-            if(!IsValidCertificateTime(certificate.NotBefore, certificate.NotAfter))
+            if (!IsValidCertificateTime(certificate.NotBefore, certificate.NotAfter))
             {
                 throw new FederatedAuthenticationException(
                     "Invalid usage time! Certificate was not issued by a trusted issuer",

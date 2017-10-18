@@ -38,7 +38,7 @@ namespace SearchService.Helpers.SemanticSearch
 
             // create ElasticClient using conneciton string
             var connectionSettings = new ConnectionSettings(new Uri(connectionString)).DefaultIndex(IndexName);
-            connectionSettings.MapDefaultTypeNames(d => d.Add(typeof (SemanticSearchItem), "semanticsearchitems"));
+            connectionSettings.MapDefaultTypeNames(d => d.Add(typeof(SemanticSearchItem), "semanticsearchitems"));
 
             _elasticClient = new ElasticClient(connectionSettings);
         }

@@ -169,7 +169,7 @@ namespace ServiceLibrary.Helpers
         }
 
         [TestMethod]
-        [ExpectedException(typeof (AuthorizationException))]
+        [ExpectedException(typeof(AuthorizationException))]
         public async Task DemandAny_UserWithoutAnyPrivilege_ThrowsAuthorizationException()
         {
             // arrange

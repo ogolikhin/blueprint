@@ -29,7 +29,7 @@ namespace AdminStore.Helpers
         }
 
         [TestMethod]
-        [ExpectedException(typeof (BadRequestException))]
+        [ExpectedException(typeof(BadRequestException))]
         public void Validate_SearchStringExceedsLimit_BadRequestError()
         {
             //Arange

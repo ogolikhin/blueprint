@@ -81,7 +81,7 @@ namespace AdminStore.Helpers.Workflow
         public static bool TryGetNameOrDescriptionPropertyType(int propertyTypeId, out PropertyType propertyType)
         {
             string propertyTypeName;
-            if(!NameAndDescriptionMap.TryGetValue(propertyTypeId, out propertyTypeName))
+            if (!NameAndDescriptionMap.TryGetValue(propertyTypeId, out propertyTypeName))
             {
                 propertyType = null;
                 return false;

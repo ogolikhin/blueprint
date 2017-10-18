@@ -1366,7 +1366,7 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Bad parameters.", ErrorCodes.OutOfRangeParameter);
             }
 
-            if(reviewArtifactApprovalParameters.isExcludedArtifacts && reviewArtifactApprovalParameters.RevisionId == null)
+            if (reviewArtifactApprovalParameters.isExcludedArtifacts && reviewArtifactApprovalParameters.RevisionId == null)
             {
                 throw new BadRequestException("Not all parameters provided.", ErrorCodes.OutOfRangeParameter);
             }
@@ -1509,7 +1509,7 @@ namespace ArtifactStore.Repositories
             artifactIdsList.RemoveAll(artifactId => !SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read));
             artifactIdsList.Remove(reviewId);
 
-            if(!artifactIdsList.Any())
+            if (!artifactIdsList.Any())
             {
                 throw new AuthorizationException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.UnauthorizedAccess);
             }
@@ -1555,7 +1555,7 @@ namespace ArtifactStore.Repositories
                 {
                     var reviewedArtifact = rdReviewedArtifacts.ReviewedArtifacts.FirstOrDefault(ra => ra.ArtifactId == artifactId);
 
-                    if(!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
+                    if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
                     {
                         continue;
                     }

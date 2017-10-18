@@ -107,7 +107,7 @@ namespace ServiceLibrary.Repositories.ApplicationSettings
 
                 resultValue = (T)Convert.ChangeType(value, typeof(T));
             }
-            else if (typeof (T) == typeof (bool))
+            else if (typeof(T) == typeof(bool))
             {
                 bool value;
                 if (!bool.TryParse(rawValue, out value))

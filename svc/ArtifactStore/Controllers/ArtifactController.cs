@@ -125,7 +125,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetExpandedTreeToArtifact")]
         public async Task<List<Artifact>> GetExpandedTreeToArtifactAsync(int projectId, int expandedToArtifactId, bool includeChildren = false)
         {
-            if(expandedToArtifactId < 1)
+            if (expandedToArtifactId < 1)
             {
                 throw new BadRequestException(string.Format("Parameter {0} must be greater than 0.", nameof(expandedToArtifactId)), ErrorCodes.OutOfRangeParameter);
             }

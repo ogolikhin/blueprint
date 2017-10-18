@@ -121,24 +121,24 @@ namespace ArtifactStore.Repositories
             DataTable propertyValueVersionsTable = new DataTable();
             propertyValueVersionsTable.Locale = CultureInfo.InvariantCulture;
 
-            propertyValueVersionsTable.Columns.Add("NodeId", typeof (long));
-            propertyValueVersionsTable.Columns.Add("NodeDeleted", typeof (bool));
+            propertyValueVersionsTable.Columns.Add("NodeId", typeof(long));
+            propertyValueVersionsTable.Columns.Add("NodeDeleted", typeof(bool));
             //
-            propertyValueVersionsTable.Columns.Add("VersionProjectId", typeof (int));
-            propertyValueVersionsTable.Columns.Add("VersionArtifactId", typeof (int));
-            propertyValueVersionsTable.Columns.Add("VersionItemId", typeof (int));
-            propertyValueVersionsTable.Columns.Add("PropertyTypePredefined", typeof (int));
-            propertyValueVersionsTable.Columns.Add("PrimitiveType", typeof (int));
-            propertyValueVersionsTable.Columns.Add("DecimalValue", typeof (byte[]));
-            propertyValueVersionsTable.Columns.Add("DateValue", typeof (DateTime));
-            propertyValueVersionsTable.Columns.Add("UserValue", typeof (string));
-            propertyValueVersionsTable.Columns.Add("UserLabel", typeof (string));
-            propertyValueVersionsTable.Columns.Add("StringValue", typeof (string));
-            propertyValueVersionsTable.Columns.Add("ImageValue_ImageId", typeof (int));
-            propertyValueVersionsTable.Columns.Add("CustomPropertyChar", typeof (string));
-            propertyValueVersionsTable.Columns.Add("PropertyType_PropertyTypeId", typeof (int));
+            propertyValueVersionsTable.Columns.Add("VersionProjectId", typeof(int));
+            propertyValueVersionsTable.Columns.Add("VersionArtifactId", typeof(int));
+            propertyValueVersionsTable.Columns.Add("VersionItemId", typeof(int));
+            propertyValueVersionsTable.Columns.Add("PropertyTypePredefined", typeof(int));
+            propertyValueVersionsTable.Columns.Add("PrimitiveType", typeof(int));
+            propertyValueVersionsTable.Columns.Add("DecimalValue", typeof(byte[]));
+            propertyValueVersionsTable.Columns.Add("DateValue", typeof(DateTime));
+            propertyValueVersionsTable.Columns.Add("UserValue", typeof(string));
+            propertyValueVersionsTable.Columns.Add("UserLabel", typeof(string));
+            propertyValueVersionsTable.Columns.Add("StringValue", typeof(string));
+            propertyValueVersionsTable.Columns.Add("ImageValue_ImageId", typeof(int));
+            propertyValueVersionsTable.Columns.Add("CustomPropertyChar", typeof(string));
+            propertyValueVersionsTable.Columns.Add("PropertyType_PropertyTypeId", typeof(int));
             //
-            propertyValueVersionsTable.Columns.Add("SearchableValue", typeof (string));
+            propertyValueVersionsTable.Columns.Add("SearchableValue", typeof(string));
             foreach (var action in actions)
             {
                 var propertyType =
@@ -229,8 +229,8 @@ namespace ArtifactStore.Repositories
         private DataTable PopulateImagePropertyValueVersionsTable()
         {
             var propertyValueImagesTable = new DataTable {Locale = CultureInfo.InvariantCulture};
-            propertyValueImagesTable.Columns.Add("NodeId", typeof (long));
-            propertyValueImagesTable.Columns.Add("Content", typeof (byte[]));
+            propertyValueImagesTable.Columns.Add("NodeId", typeof(long));
+            propertyValueImagesTable.Columns.Add("Content", typeof(byte[]));
             propertyValueImagesTable.SetTypeName("SavePropertyValueImagesCollection");
             return propertyValueImagesTable;
         }

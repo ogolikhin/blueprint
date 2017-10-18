@@ -105,7 +105,7 @@ namespace ArtifactStore.Repositories
                 userInfoDictionary.TryGetValue(referencedArtifact.UserId, out userInfo);
                 LinkedArtifactInfo linkedArtifactInfo;
                 documentReferenceArtifactInfoDictionary.TryGetValue(referencedArtifact.ArtifactId, out linkedArtifactInfo);
-                if(linkedArtifactInfo != null)
+                if (linkedArtifactInfo != null)
                 {
                     referencedArtifact.UserName = userInfo.DisplayName;
                     referencedArtifact.ArtifactName = linkedArtifactInfo.ArtifactName;

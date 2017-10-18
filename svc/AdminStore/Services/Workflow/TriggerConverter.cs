@@ -429,7 +429,7 @@ namespace AdminStore.Services.Workflow
                 Name = ieAction.Name,
                 GenerateActionType = ieAction.GenerateActionType
             };
-            switch(ieAction.GenerateActionType)
+            switch (ieAction.GenerateActionType)
             {
                 case GenerateActionTypes.Children:
                     xmlAction.ChildCount = ieAction.ChildCount;

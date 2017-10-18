@@ -1274,7 +1274,7 @@ namespace AdminStore.Services.Workflow
         {
             var stateMap = new Dictionary<string, int>(workflowDiffResult.UnchangedStates.ToDictionary(s => s.Name, s => s.Id.Value));
 
-            if(workflowDiffResult.DeletedStates.Any())
+            if (workflowDiffResult.DeletedStates.Any())
             {
                 await _workflowRepository.DeleteWorkflowStatesAsync(workflowDiffResult.DeletedStates.Select(s => s.Id.Value),
                     publishRevision, transaction);

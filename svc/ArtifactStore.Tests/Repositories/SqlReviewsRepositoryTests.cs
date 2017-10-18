@@ -2151,7 +2151,7 @@ namespace ArtifactStore.Repositories
                 Approval = "Approved",
                 ApprovalFlag = ApprovalType.Approved,
                 ArtifactIds = new List<int>() { 3 }
-            };
+            };  
 
             var artifactIds = new[] { 3 };
 
@@ -2184,7 +2184,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
 
             //Act
-            var result = (await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId)).FirstOrDefault();
+            var result = await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
 
             //Assert
             _cxn.Verify();

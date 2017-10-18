@@ -24,8 +24,10 @@ namespace ArtifactStore.Models.Review
 
         public ReviewParticipantRole? ReviewParticipantRole { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? ExpirationDate { get; set; }
 
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool IsExpired { get; set; }
 
         public ReviewSource Source { get; set; }

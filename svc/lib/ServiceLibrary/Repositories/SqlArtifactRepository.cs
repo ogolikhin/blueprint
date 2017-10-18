@@ -511,7 +511,7 @@ namespace ServiceLibrary.Repositories
                 var errorMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", artifactId);
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
-            var itemIdsPermissions = (await ArtifactPermissionsRepository.GetArtifactPermissions(new [] { artifactId }, userId));
+            var itemIdsPermissions = (await ArtifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, userId));
             if (!itemIdsPermissions.ContainsKey(artifactId) || !itemIdsPermissions[artifactId].HasFlag(RolePermissions.Read))
             {
                 var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactId);

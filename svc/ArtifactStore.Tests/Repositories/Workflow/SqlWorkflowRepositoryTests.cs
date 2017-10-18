@@ -312,7 +312,7 @@ namespace ArtifactStore.Repositories.Workflow
             var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
 
             
-            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new [] { 1 }, "Int32Collection", "Int32Value");
+            var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new[] { 1 }, "Int32Collection", "Int32Value");
             
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>

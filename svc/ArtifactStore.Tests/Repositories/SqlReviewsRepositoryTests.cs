@@ -795,7 +795,7 @@ namespace ArtifactStore.Repositories
                 { "reviewId", reviewId },
                 { "userId", userId },
                 { "revisionId", revisionId },
-                { "itemIds", SqlConnectionWrapper.ToDataTable(new [] { 2, 3 }) },
+                { "itemIds", SqlConnectionWrapper.ToDataTable(new[] { 2, 3 }) },
             };
             _cxn.SetupQueryAsync("GetReviewArtifactsByParticipant", param2, reviewArtifacts2);
 

@@ -170,7 +170,7 @@ namespace ServiceLibrary.Helpers
                 return Enumerable.Empty<string>();
             }
             var propValue = ConvertHtmlToPlainText(propertyValue).Replace(Environment.NewLine, " ");
-            return propValue.Split(new [] { EmailSeparator }, StringSplitOptions.RemoveEmptyEntries);
+            return propValue.Split(new[] { EmailSeparator }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         /// <summary>

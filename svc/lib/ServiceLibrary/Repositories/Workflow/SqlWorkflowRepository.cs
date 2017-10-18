@@ -196,7 +196,7 @@ namespace ServiceLibrary.Repositories.Workflow
         private async Task<WorkflowState> GetCurrentStateInternal(int userId, int artifactId, int revisionId, bool addDrafts)
         {
             return (await GetCurrentStatesInternal(userId, 
-                new [] { artifactId }, revisionId, addDrafts)).FirstOrDefault();
+                new[] { artifactId }, revisionId, addDrafts)).FirstOrDefault();
         }
 
         private async Task<IList<WorkflowState>> GetCurrentStatesInternal(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts)

@@ -3058,7 +3058,7 @@ namespace ArtifactStore.Repositories
 
             setCheckResult?.Invoke(check);
 
-            _cxn.SetupQueryAsync("CheckReviewArtifactUserApproval", getCheckParameters, new[] { check });
+            _cxn.SetupQueryMultipleAsync("CheckReviewArtifactUserApproval", getCheckParameters, Tuple.Create((new[] { check }).AsEnumerable(), (new int[0]).AsEnumerable()));
         }
 
         #endregion

@@ -1785,13 +1785,7 @@ IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
 
         private async Task<ReviewArtifactApprovalCheck> CheckReviewArtifactApprovalAsync(int reviewId, int userId, IEnumerable<int> artifactIds)
         {
-            var parameters = new DynamicParameters();
-
-            parameters.Add("@reviewId", reviewId);
-            parameters.Add("@userId", userId);
-            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
-
-            return (await _connectionWrapper.QueryAsync<ReviewArtifactApprovalCheck>("CheckReviewArtifactUserApproval", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return (await CheckReviewArtifactsUserApprovalAsync(reviewId, userId, artifactIds)).ReviewApprovalCheck;
         }
 
         private async Task<IDictionary<int, int>> GetVersionNumberForArtifacts(int reviewId, IEnumerable<int> artifactIds, IDbTransaction transaction = null)

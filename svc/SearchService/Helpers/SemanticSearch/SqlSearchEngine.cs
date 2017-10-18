@@ -5,7 +5,7 @@ using SearchService.Repositories;
 
 namespace SearchService.Helpers.SemanticSearch
 {
-    public class SqlSearchEngine: SearchEngine
+    public class SqlSearchEngine : SearchEngine
     {
         public SqlSearchEngine(ISemanticSearchRepository semanticSearchRepository) : base(semanticSearchRepository)
         {

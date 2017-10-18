@@ -18,7 +18,7 @@ namespace SearchService.Repositories
         Task<List<int>> GetItemSimilarItemIds(int artifactId, int userId, int limit, bool isInstanceAdmin,
             IEnumerable<int> projectIds);
     }
-    public class SemanticSearchRepository: ISemanticSearchRepository
+    public class SemanticSearchRepository : ISemanticSearchRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
         public SemanticSearchRepository()

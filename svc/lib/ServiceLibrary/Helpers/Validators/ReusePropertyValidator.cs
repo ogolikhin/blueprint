@@ -11,7 +11,7 @@ namespace ServiceLibrary.Helpers.Validators
             int propertyTypeId,
             ItemTypeReuseTemplate reuseTemplateSettings);
     }
-    public class ReusePropertyValidator: IReusePropertyValidator
+    public class ReusePropertyValidator : IReusePropertyValidator
     {
         public PropertySetResult ValidateReuseSettings(
             int propertyTypeId, 

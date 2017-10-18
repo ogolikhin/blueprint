@@ -1,6 +1,6 @@
 ﻿namespace BluePrintSys.Messaging.CrossCutting.Collections
 {
-    internal class ConcurrentQueue<T> :IQueue<T>
+    internal class ConcurrentQueue<T> : IQueue<T>
     {
         private readonly IQueue<T> _queue;
         private readonly Semaphore _emptySem;

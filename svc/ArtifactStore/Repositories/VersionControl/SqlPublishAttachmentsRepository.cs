@@ -78,7 +78,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 }
             }
 
-            await CloseAttachmentVersions(closeButKeepLatestVersionIds, environment.RevisionId, keepLatest: true, transaction:transaction);
+            await CloseAttachmentVersions(closeButKeepLatestVersionIds, environment.RevisionId, keepLatest: true, transaction: transaction);
             await CloseAttachmentVersions(closeVersionIds, environment.RevisionId, keepLatest: false, transaction: transaction);
             await MarkAsLatest(markAsLatestVersionIds, environment.RevisionId, transaction);
             await DeleteVersions(deleteVersionsIds, transaction);

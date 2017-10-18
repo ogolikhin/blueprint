@@ -13,7 +13,7 @@ namespace SearchService.Helpers.SemanticSearch
         Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngingParameters);
     }
 
-    public class SemanticSearchExecutor: ISemanticSearchExecutor
+    public class SemanticSearchExecutor : ISemanticSearchExecutor
     {
         private static readonly Lazy<SemanticSearchExecutor> _instance = 
             new Lazy<SemanticSearchExecutor>(

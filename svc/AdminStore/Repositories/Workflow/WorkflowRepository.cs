@@ -628,7 +628,7 @@ namespace AdminStore.Repositories.Workflow
             }
 
             var prm = new DynamicParameters();
-            prm.Add("@workflowId", workflowId, dbType:DbType.Int32);
+            prm.Add("@workflowId", workflowId, dbType: DbType.Int32);
             prm.Add("@folderId", folderId, dbType: DbType.Int32);          
             prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 

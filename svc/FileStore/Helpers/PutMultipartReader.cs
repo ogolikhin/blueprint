@@ -6,7 +6,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Helpers
 {
-    public class PutMultipartReader: MultipartReader
+    public class PutMultipartReader : MultipartReader
     {
         private readonly Func<Stream, FileChunk, Task<long>> _function;
         private readonly FileChunk _fileChunk;

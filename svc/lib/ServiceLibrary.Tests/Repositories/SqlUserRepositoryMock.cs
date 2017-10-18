@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
-    public class SqlUserRepositoryMock: IUsersRepository
+    public class SqlUserRepositoryMock : IUsersRepository
     {
         public async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds)
         {

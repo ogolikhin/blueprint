@@ -33,7 +33,7 @@
     <Rule Id="SA1021" Action="Error" />
     <Rule Id="SA1022" Action="Error" />
     <Rule Id="SA1023" Action="Error" />
-    <Rule Id="SA1024" Action="None" />
+    <Rule Id="SA1024" Action="Error" />
     <Rule Id="SA1025" Action="None" />
     <Rule Id="SA1026" Action="None" />
     <Rule Id="SA1027" Action="None" />

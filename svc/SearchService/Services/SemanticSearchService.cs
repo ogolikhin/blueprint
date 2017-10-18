@@ -15,7 +15,7 @@ namespace SearchService.Services
     {
         Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(SemanticSearchSuggestionParameters parameters);
     }
-    public class SemanticSearchService: ISemanticSearchService
+    public class SemanticSearchService : ISemanticSearchService
     {
         private IArtifactPermissionsRepository _artifactPermissionsRepository;
         private ISemanticSearchRepository _semanticSearchRepository;

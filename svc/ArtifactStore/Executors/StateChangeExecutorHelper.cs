@@ -23,7 +23,7 @@ namespace ArtifactStore.Executors
             WorkflowEventTriggers triggers, 
             IDbTransaction transaction = null);
     }
-    public class StateChangeExecutorHelper: IStateChangeExecutorHelper
+    public class StateChangeExecutorHelper : IStateChangeExecutorHelper
     {
         private IStateChangeExecutorRepositories _stateChangeExecutorRepositories;
         public StateChangeExecutorHelper(IStateChangeExecutorRepositories stateChangeExecutorRepositories)

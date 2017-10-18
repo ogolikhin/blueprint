@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FileStore.Helpers
 {
-    public abstract class MultipartReader: IDisposable
+    public abstract class MultipartReader : IDisposable
     {
         protected MultipartPartParser MultipartPartParser;
         protected IServiceLogRepository _log;

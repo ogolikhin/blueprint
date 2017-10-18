@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Helpers.Cache
 {
-    public class AsyncCache: IAsyncCache
+    public class AsyncCache : IAsyncCache
     {
         private class NoCacheImpl : IAsyncCache
         {

@@ -24,7 +24,7 @@ namespace SearchService.Helpers.SemanticSearch
 
         public string SearchText;
     }
-    public sealed class ElasticSearchEngine: SearchEngine
+    public sealed class ElasticSearchEngine : SearchEngine
     {
         private const string IndexPrefix = "semanticsdb_";
         private string IndexName { get; }

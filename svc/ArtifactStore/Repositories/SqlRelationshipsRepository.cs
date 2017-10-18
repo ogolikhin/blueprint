@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
-    public class SqlRelationshipsRepository: IRelationshipsRepository
+    public class SqlRelationshipsRepository : IRelationshipsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly ISqlItemInfoRepository _itemInfoRepository;

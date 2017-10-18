@@ -14,7 +14,7 @@ namespace SearchService.Services
     public class SemanticSearchServiceTests
     {
         private ISemanticSearchService _semanticSearchService;
-        private Mock<ISemanticSearchRepository> _semanticSearchRepository ;
+        private Mock<ISemanticSearchRepository> _semanticSearchRepository;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepository;
         private Mock<IUsersRepository> _usersRepository;
         private Mock<ISqlArtifactRepository> _artifactRepository;

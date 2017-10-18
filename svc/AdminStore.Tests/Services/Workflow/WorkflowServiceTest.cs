@@ -26,7 +26,7 @@ namespace AdminStore.Services.Workflow
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IUserRepository> _userRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
-        private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder ;
+        private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder;
         private Mock<ITriggerConverter> _triggerConverter;
         private Mock<ISqlProjectMetaRepository> _projectMetaRepository;
         private WorkflowService _service;

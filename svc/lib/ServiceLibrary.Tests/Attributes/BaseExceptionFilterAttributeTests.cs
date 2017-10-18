@@ -16,7 +16,7 @@ namespace ServiceLibrary.Attributes
     [TestClass]
     public class BaseExceptionFilterAttributeTests
     {
-        private Mock<IServiceLogRepository> _mockServiceLogRepository ;
+        private Mock<IServiceLogRepository> _mockServiceLogRepository;
         private Mock<ApiController> _mockController;
 
         [TestInitialize]

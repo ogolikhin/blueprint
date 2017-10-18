@@ -262,7 +262,7 @@ WHERE Artifact1Id = @artifactId1
             }
             #endregion
 
-            var publishedItems = await GetLiveItemsOnly(itemsToVerify);//_itemsRepo.GetLiveItemsOnly(itemsToVerify);
+            var publishedItems = await GetLiveItemsOnly(itemsToVerify); //_itemsRepo.GetLiveItemsOnly(itemsToVerify);
 
             var filteredLinks = new List<DraftAndLatestLink>();
             foreach (var link in links)

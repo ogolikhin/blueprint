@@ -26,7 +26,7 @@ namespace AdminStore.Helpers.Workflow
             {
                 return false;
             }
-            var list1 = col1.ToList() ;
+            var list1 = col1.ToList();
             var list2 = col2.ToList();
             if (list1.Count != list2.Count)
             {

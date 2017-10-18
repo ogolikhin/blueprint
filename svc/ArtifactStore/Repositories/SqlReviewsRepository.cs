@@ -1004,13 +1004,13 @@ namespace ArtifactStore.Repositories
 
             var result = await _connectionWrapper.QueryAsync<ReviewTableOfContentItem>("GetReviewTableOfContent", param, commandType: CommandType.StoredProcedure);
             var retResult = param.Get<int>("@retResult");
-            // The review is not found or not active.		
+            // The review is not found or not active.       
             if (retResult == 1 || retResult == 2)
             {
                 ThrowReviewNotFoundException(reviewId, revisionId);
             }
 
-            // The user is not a review participant.		 
+            // The user is not a review participant.         
             if (retResult == 3)
             {
                 ThrowUserCannotAccessReviewException(reviewId);

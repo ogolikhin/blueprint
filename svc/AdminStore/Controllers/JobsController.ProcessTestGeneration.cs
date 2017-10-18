@@ -11,7 +11,7 @@ using System.Web.Http.Description;
 namespace AdminStore.Controllers
 {
     public partial class JobsController
-	{
+    {
         /// <summary>
         /// Schedules a job for test generation from the provided processes
         /// </summary>
@@ -45,7 +45,7 @@ namespace AdminStore.Controllers
            
 
             return ConstructHttpResponse(jobId);
-	    }
+        }
 
         #region private methods
 
@@ -63,16 +63,16 @@ namespace AdminStore.Controllers
             return Created(requestUri, result);
         }
 
-	    void ValidateRequest(GenerateProcessTestsJobParameters request)
-	    {
+        void ValidateRequest(GenerateProcessTestsJobParameters request)
+        {
             if (request == null)
             {
                 throw new BadRequestException("Please provide a request body", ErrorCodes.QueueJobEmptyRequest);
             }
 
-	        if (request.ProjectId <= 0)
-	        {
-	            throw new BadRequestException("Please provide a valid project id", ErrorCodes.QueueJobProjectIdInvalid);
+            if (request.ProjectId <= 0)
+            {
+                throw new BadRequestException("Please provide a valid project id", ErrorCodes.QueueJobProjectIdInvalid);
             }
 
             if (string.IsNullOrEmpty(request.ProjectName))
@@ -84,8 +84,8 @@ namespace AdminStore.Controllers
             {
                 throw new BadRequestException("Please provide valid processes to generate job", ErrorCodes.QueueJobProcessesInvalid);
             }
-	    }
+        }
 
-	    #endregion
+        #endregion
     }
 }

@@ -1400,7 +1400,7 @@ IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
         }
 
 
-        public async Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactApprovalAsync(int reviewId, ReviewArtifactApprovalParameter reviewArtifactApprovalParameters, int userId)
+        public async Task<ReviewArtifactApprovalResult> UpdateReviewArtifactApprovalAsync(int reviewId, ReviewArtifactApprovalParameter reviewArtifactApprovalParameters, int userId)
         {
             if (reviewArtifactApprovalParameters == null || reviewArtifactApprovalParameters.ArtifactIds == null
                 || reviewArtifactApprovalParameters.SelectionType == SelectionType.Selected && 
@@ -1438,7 +1438,7 @@ IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
 
             var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, eligibleArtifacts);
 
-            var approvalResult = new List<ReviewArtifactApprovalResult>();
+           // var approvalResult = new ReviewArtifactApprovalResult();
 
             var timestamp = _currentDateTimeService.GetUtcNow();
             var approvedArtifacts = new List<ArtifactApprovalResult>();
@@ -1490,11 +1490,11 @@ IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
                 });
             }
 
-            approvalResult.Add(new ReviewArtifactApprovalResult()
+           var approvalResult = new  ReviewArtifactApprovalResult()
             {
                 IsAllArtifactsProcessed = isAllArtifactsProcessed,
                 ApprovedArtifacts = approvedArtifacts
-            });
+            };
 
             await UpdateReviewUserStatsXmlAsync(reviewId, userId, rdReviewedArtifacts);
 

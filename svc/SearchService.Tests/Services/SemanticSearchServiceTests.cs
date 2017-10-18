@@ -27,7 +27,7 @@ namespace SearchService.Services
             _artifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             _usersRepository = new Mock<IUsersRepository>();
             _artifactRepository = new Mock<ISqlArtifactRepository>();
-            _semanticSearchService =  new SemanticSearchService(_semanticSearchRepository.Object, _artifactPermissionsRepository.Object, _usersRepository.Object, _artifactRepository.Object);
+            _semanticSearchService = new SemanticSearchService(_semanticSearchRepository.Object, _artifactPermissionsRepository.Object, _usersRepository.Object, _artifactRepository.Object);
         }
 
         [TestMethod]

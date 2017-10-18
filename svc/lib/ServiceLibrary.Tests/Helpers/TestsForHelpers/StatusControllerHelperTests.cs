@@ -125,7 +125,7 @@ namespace ServiceLibrary.Helpers
 
        
 
-        private  IStatusRepository GetStatusRepo(string name, string accessInfo, string result)
+        private IStatusRepository GetStatusRepo(string name, string accessInfo, string result)
         {
             List<StatusResponse> responseDatas = new List<StatusResponse>();
             var responseData = new StatusResponse()
@@ -141,7 +141,7 @@ namespace ServiceLibrary.Helpers
             statusRepoMock.Setup(r => r.GetStatuses(It.IsAny<int>())).ReturnsAsync(responseDatas);
             statusRepoMock.Setup(r => r.Name).Returns(name);
             statusRepoMock.Setup(r => r.AccessInfo).Returns(accessInfo);
-            return  statusRepoMock.Object;
+            return statusRepoMock.Object;
         }
 
     }

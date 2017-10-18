@@ -61,7 +61,7 @@ namespace ServiceLibrary.Helpers
             return serviceStatus;
         }
 
-        public  ServiceStatus GetShorterStatus(ServiceStatus s)
+        public ServiceStatus GetShorterStatus(ServiceStatus s)
         {
             var serviceStatus = new ServiceStatus();
 

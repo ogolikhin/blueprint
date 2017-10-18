@@ -27,9 +27,9 @@ namespace SearchService.Repositories
 
         private static readonly DataTable PrimitiveItemTypePredefineds = SqlConnectionWrapper.ToDataTable(new[]
         {
-            (int)ItemTypePredefined.Project,                // (4097)
-            (int)ItemTypePredefined.Baseline,               // (4098)
-            (int)ItemTypePredefined.DataObject              // (32769)
+            (int)ItemTypePredefined.Project,   // (4097)
+            (int)ItemTypePredefined.Baseline,  // (4098)
+            (int)ItemTypePredefined.DataObject // (32769)
         });
 
         private readonly ISqlConnectionWrapper _connectionWrapper;

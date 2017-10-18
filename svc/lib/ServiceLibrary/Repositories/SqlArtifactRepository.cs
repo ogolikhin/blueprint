@@ -522,7 +522,7 @@ namespace ServiceLibrary.Repositories
             prm.Add("@artifactId", artifactId);
             prm.Add("@userId", userId);
 
-            var ancestorsAndSelf =  (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactNavigationPath", prm, commandType: CommandType.StoredProcedure))
+            var ancestorsAndSelf = (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactNavigationPath", prm, commandType: CommandType.StoredProcedure))
                 .ToList();
             return OrderAncestors(ancestorsAndSelf, artifactId).Select(a => new Artifact
             {

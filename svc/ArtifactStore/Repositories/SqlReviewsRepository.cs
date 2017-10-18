@@ -1383,7 +1383,7 @@ namespace ArtifactStore.Repositories
             }
 
             var eligibleArtifacts = await CheckApprovalsAndPermissions(reviewId, userId, artifactIds);
-            isAllArtifactsProcessed = eligibleArtifacts.Count == artifactIds.Count ?  true : false;
+            isAllArtifactsProcessed = eligibleArtifacts.Count == artifactIds.Count ? true : false;
 
             var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
 

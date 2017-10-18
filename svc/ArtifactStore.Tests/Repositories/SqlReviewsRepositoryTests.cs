@@ -2843,7 +2843,7 @@ namespace ArtifactStore.Repositories
             var viewInput = new ReviewArtifactViewedInput()
             {
                 ArtifactIds = new[] { 3 },
-                Viewed =  true
+                Viewed = true
             };
 
             SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds, check => check.ReviewExists = false);

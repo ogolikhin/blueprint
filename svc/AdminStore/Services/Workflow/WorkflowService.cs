@@ -891,7 +891,7 @@ namespace AdminStore.Services.Workflow
             return ieTriggers.IsEmpty() ? null : ieTriggers;
         }
 
-        private static WorkflowDataNameMaps LoadDataMaps(ProjectTypes standardTypes, IDictionary<int, string>  stateMap)
+        private static WorkflowDataNameMaps LoadDataMaps(ProjectTypes standardTypes, IDictionary<int, string> stateMap)
         {
             var dataMaps = new WorkflowDataNameMaps();
             dataMaps.StateMap.AddRange(stateMap);

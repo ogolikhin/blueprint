@@ -22,7 +22,7 @@ namespace ArtifactStore.Helpers
         public void init()
         {
 
-            _fakeEmailSettings =  new EmailSettings
+            _fakeEmailSettings = new EmailSettings
             {
                 Id = "Fake",
                 Authenticated = false,

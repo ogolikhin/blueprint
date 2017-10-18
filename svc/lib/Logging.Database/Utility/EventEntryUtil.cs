@@ -18,7 +18,7 @@ namespace Logging.Database.Utility
             {
                 var settings = new XmlWriterSettings()
                 {
-                    OmitXmlDeclaration = true   // Do not add xml declaration
+                    OmitXmlDeclaration = true // Do not add xml declaration
                 };
 
                 var writer = new StringBuilder();

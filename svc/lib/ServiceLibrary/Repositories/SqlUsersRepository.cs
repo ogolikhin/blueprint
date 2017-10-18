@@ -147,7 +147,7 @@ namespace ServiceLibrary.Repositories
             }
         }
 
-        private async Task<IEnumerable<UserInfo>>  GetUserInfos(List<SqlPropertyInfo> propertyInfos, IDbTransaction transaction = null)
+        private async Task<IEnumerable<UserInfo>> GetUserInfos(List<SqlPropertyInfo> propertyInfos, IDbTransaction transaction = null)
         {
             var userInfos = new List<UserInfo>();
             if (propertyInfos.Count > 0)

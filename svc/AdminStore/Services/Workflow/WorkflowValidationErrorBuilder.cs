@@ -553,7 +553,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.ProjectArtifactTypeNotFoundByIdInCurrent:
                     template = TemplateDataProjectArtifactTypeNotFoundByIdInCurrent;
-                    var tuple  = (Tuple<IeProject, IeArtifactType>)error.Element;
+                    var tuple = (Tuple<IeProject, IeArtifactType>)error.Element;
                     errParams = new object[] { tuple.Item1.Id, tuple.Item2.Name, tuple.Item2.Id };
                     break;
                 case WorkflowDataValidationErrorCodes.WorkflowNothingToUpdate:

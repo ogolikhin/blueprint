@@ -21,7 +21,7 @@ namespace ArtifactStore.Controllers
 
         public StatusController()
             : this(new StatusControllerHelper(
-                        new List<IStatusRepository> {   /* new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage"), //ArtifactStorage db is currently unused */
+                        new List<IStatusRepository> { /* new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage"), //ArtifactStorage db is currently unused */
                                                         new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB") },
                         "ArtifactStore",
                         new ServiceLogRepository(),

@@ -199,7 +199,7 @@ namespace ServiceLibrary.Repositories.Workflow
                 new [] { artifactId }, revisionId, addDrafts)).FirstOrDefault();
         }
 
-        private async Task<IList<WorkflowState>> GetCurrentStatesInternal(int userId, IEnumerable<int>  artifactIds, int revisionId, bool addDrafts)
+        private async Task<IList<WorkflowState>> GetCurrentStatesInternal(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);

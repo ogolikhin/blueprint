@@ -1,4 +1,6 @@
-﻿namespace ServiceLibrary.Models.ProjectMeta
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ServiceLibrary.Models.ProjectMeta
 {
     // The content is copied from the Raptor solution, and Display attributes are removed.
     // KEEP IN SYNC!
@@ -55,6 +57,7 @@
     ///
     /// CustomGroup            = 16384
     /// </remarks>
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1025:CodeMustNotContainMultipleWhitespaceInARow", Justification = "Reviewed.")]
     public enum PropertyTypePredefined
     {
         // Predefined properties

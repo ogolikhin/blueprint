@@ -90,11 +90,11 @@ namespace AdminStore.Controllers
             _instanceRepositoryMock
                 .Setup(repo => repo.GetProjectRoleAssignmentsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()))
                 .ReturnsAsync(_rolesAssignmentsQueryResult);
-            
+
             _privilegeRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectsAdmin);
-            
+
             _roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1 };
             _roleAssignmentId = 1;
 
@@ -200,7 +200,7 @@ namespace AdminStore.Controllers
             Assert.AreSame(project, result);
         }
 
-        #endregion    
+        #endregion
 
         #region GetProjectNavigationPath
 

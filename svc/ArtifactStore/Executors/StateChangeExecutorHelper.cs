@@ -20,7 +20,7 @@ namespace ArtifactStore.Executors
         Task<ExecutionParameters> BuildTriggerExecutionParameters(
             int userId,
             VersionControlArtifactInfo artifactInfo,
-            WorkflowEventTriggers triggers, 
+            WorkflowEventTriggers triggers,
             IDbTransaction transaction = null);
     }
     public class StateChangeExecutorHelper : IStateChangeExecutorHelper
@@ -28,12 +28,12 @@ namespace ArtifactStore.Executors
         private IStateChangeExecutorRepositories _stateChangeExecutorRepositories;
         public StateChangeExecutorHelper(IStateChangeExecutorRepositories stateChangeExecutorRepositories)
         {
-            _stateChangeExecutorRepositories = 
+            _stateChangeExecutorRepositories =
             _stateChangeExecutorRepositories = stateChangeExecutorRepositories;
         }
         public async Task<ExecutionParameters> BuildTriggerExecutionParameters(
             int userId,
-            VersionControlArtifactInfo artifactInfo, 
+            VersionControlArtifactInfo artifactInfo,
             WorkflowEventTriggers triggers,
             IDbTransaction transaction = null)
         {
@@ -88,8 +88,8 @@ namespace ArtifactStore.Executors
         }
 
         private async Task<Dictionary<int, List<WorkflowPropertyType>>> LoadCustomPropertyInformation(
-            IEnumerable<int> instanceItemTypeIds, 
-            WorkflowEventTriggers triggers, 
+            IEnumerable<int> instanceItemTypeIds,
+            WorkflowEventTriggers triggers,
             int projectId,
             int userId,
             int artifactId)

@@ -26,7 +26,7 @@ namespace FileStore.Controllers
             // Act
             ResponseMessageResult result = await controller.GetStatus("NOTmypreauthorizedkey") as ResponseMessageResult;
 
-            // Assert 
+            // Assert
             Assert.AreEqual(HttpStatusCode.Unauthorized, result.Response.StatusCode);
         }
 

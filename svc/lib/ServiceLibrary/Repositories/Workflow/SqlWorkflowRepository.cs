@@ -29,7 +29,7 @@ namespace ServiceLibrary.Repositories.Workflow
         }
 
         public SqlWorkflowRepository(ISqlConnectionWrapper connectionWrapper,
-            IArtifactPermissionsRepository artifactPermissionsRepository) 
+            IArtifactPermissionsRepository artifactPermissionsRepository)
             : base(connectionWrapper, artifactPermissionsRepository)
         {
         }
@@ -40,7 +40,7 @@ namespace ServiceLibrary.Repositories.Workflow
         {
             // Do not return transitions if the user does not have edit permissions
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
-            
+
             return await GetTransitionsForStateInternalAsync(userId, workflowId, stateId);
         }
 
@@ -68,22 +68,22 @@ namespace ServiceLibrary.Repositories.Workflow
         {
             // Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, revisionId);
-            
+
             return await GetCurrentStateInternal(userId, artifactId, revisionId, addDrafts);
         }
 
         public async Task<WorkflowState> ChangeStateForArtifactAsync(
-            int userId, 
-            int artifactId, 
-            WorkflowStateChangeParameterEx stateChangeParameter, 
+            int userId,
+            int artifactId,
+            WorkflowStateChangeParameterEx stateChangeParameter,
             IDbTransaction transaction = null)
         {
             // Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
 
             return await ChangeStateForArtifactInternal(
-                userId, 
-                artifactId, 
+                userId,
+                artifactId,
                 stateChangeParameter.ToStateId,
                 transaction);
         }
@@ -111,7 +111,7 @@ namespace ServiceLibrary.Repositories.Workflow
         }
 
         public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
-            IEnumerable<int> artifactIds, 
+            IEnumerable<int> artifactIds,
             int revisionId, bool addDrafts)
         {
             foreach (var artifactId in artifactIds)
@@ -150,7 +150,7 @@ namespace ServiceLibrary.Repositories.Workflow
             return GetWorkflowTriggersContainer(eventTriggers);
         }
 
-        
+
         private static WorkflowTriggersContainer GetWorkflowTriggersContainer(WorkflowEventTriggers eventTriggers)
         {
             var workflowTriggersContainer = new WorkflowTriggersContainer();
@@ -168,8 +168,8 @@ namespace ServiceLibrary.Repositories.Workflow
             return workflowTriggersContainer;
         }
 
-        private async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEventInternal(int userId, 
-            IEnumerable<int> artifactIds, 
+        private async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEventInternal(int userId,
+            IEnumerable<int> artifactIds,
             int revisionId,
             bool addDrafts)
         {
@@ -191,11 +191,11 @@ namespace ServiceLibrary.Repositories.Workflow
             return GetWorkflowTriggersContainer(eventTriggers);
         }
 
-        
+
 
         private async Task<WorkflowState> GetCurrentStateInternal(int userId, int artifactId, int revisionId, bool addDrafts)
         {
-            return (await GetCurrentStatesInternal(userId, 
+            return (await GetCurrentStatesInternal(userId,
                 new[] { artifactId }, revisionId, addDrafts)).FirstOrDefault();
         }
 
@@ -209,8 +209,8 @@ namespace ServiceLibrary.Repositories.Workflow
             param.Add("@addDrafts", addDrafts);
 
             return ToWorkflowStates(
-                await 
-                    ConnectionWrapper.QueryAsync<SqlWorkFlowStateInformation>("GetWorkflowStatesForArtifacts", param, 
+                await
+                    ConnectionWrapper.QueryAsync<SqlWorkFlowStateInformation>("GetWorkflowStatesForArtifacts", param,
                         commandType: CommandType.StoredProcedure));
         }
 
@@ -261,8 +261,8 @@ namespace ServiceLibrary.Repositories.Workflow
                         Id = wt.FromStateId,
                         Name = wt.FromStateName
                     },
-                    Name = string.IsNullOrWhiteSpace(wt.WorkflowEventName) ? 
-                            $"To: {wt.ToStateName}" : 
+                    Name = string.IsNullOrWhiteSpace(wt.WorkflowEventName) ?
+                            $"To: {wt.ToStateName}" :
                             wt.WorkflowEventName,
                     WorkflowId = wt.WorkflowId
                 };
@@ -342,7 +342,7 @@ namespace ServiceLibrary.Repositories.Workflow
         }
 
         private PropertyChangeAction ToPropertyChangeUserGroupAction(
-            XmlPropertyChangeAction propertyChangeAction, 
+            XmlPropertyChangeAction propertyChangeAction,
             int currentUserId)
         {
             var action = new PropertyChangeUserGroupsAction
@@ -440,8 +440,8 @@ namespace ServiceLibrary.Repositories.Workflow
         }
 
         private async Task<Dictionary<int, List<WorkflowPropertyType>>> GetCustomPropertyTypesFromStandardIds(
-            IEnumerable<int> itemTypeIds, 
-            IEnumerable<int> instancePropertyTypeIds, 
+            IEnumerable<int> itemTypeIds,
+            IEnumerable<int> instancePropertyTypeIds,
             int projectId,
             IDbTransaction transaction = null)
         {
@@ -602,7 +602,7 @@ namespace ServiceLibrary.Repositories.Workflow
                             Predefined = sqlPropertyType.Predefined
                         };
                         break;
-                    }                    
+                    }
                     // TODO: add other DPropertyTypes
                     default:
                         {
@@ -623,7 +623,7 @@ namespace ServiceLibrary.Repositories.Workflow
                             break;
                     }
                 }
-               
+
                 if (dictionary.ContainsKey(sqlPropertyType.ItemTypeId))
                 {
                     dictionary[sqlPropertyType.ItemTypeId].Add(workflowProperty);

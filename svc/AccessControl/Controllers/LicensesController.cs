@@ -151,14 +151,14 @@ namespace AccessControl.Controllers
         }
 
         /// <summary>
-        /// Provides license usage information 
+        /// Provides license usage information
         /// </summary>
         /// <remarks>
         /// Returns license usage for the given <paramref name="month" /> and <paramref name="year" />.
         /// </remarks>
         /// <param name="month">Optional. The number specifies the month to get license usage from.
         /// Valid value: __1-12__</param>
-        /// <param name="year">Optional. The number specifies the year to get license usage from. 
+        /// <param name="year">Optional. The number specifies the year to get license usage from.
         /// Valid value: __1900-2999__</param>
         /// <response code="200">OK.</response>
         /// <response code="400">Bad request.</response>

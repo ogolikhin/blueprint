@@ -35,8 +35,8 @@ namespace FileStore.Repositories
         // returns true if the file is found in the legacy database and false otherwise
         public bool FileExists(Guid fileId)
         {
-            // check if the legacy database is configured 
-            // if it is not available then return false 
+            // check if the legacy database is configured
+            // if it is not available then return false
             if (!IsDatabaseAvailable())
             {
                 return false;
@@ -69,7 +69,7 @@ namespace FileStore.Repositories
             {
                 sqlConnection.Open();
 
-                // get file length from the FileStream 
+                // get file length from the FileStream
                 file.FileSize = GetFileSize((SqlConnection)sqlConnection, fileId);
 
                 // get file name either from AttachmentVersions table or Templates table
@@ -110,7 +110,7 @@ namespace FileStore.Repositories
                 cmd.CommandText = "SELECT Top 1 1 FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
                 cmd.Parameters.AddWithValue("@pFileGuid", fileId);
                 var result = cmd.ExecuteScalar();
-                
+
                 return result != null;
             }
         }
@@ -123,7 +123,7 @@ namespace FileStore.Repositories
                 // get file size by checking the file content
                 cmd.CommandTimeout = _configRepository.CommandTimeout;
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = 
+                cmd.CommandText =
                     "SELECT @pLength = DATALENGTH([Content]) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
                 cmd.Parameters.AddWithValue("@pFileGuid", fileId);
                 SqlParameter pLength = cmd.Parameters.AddWithValue("@pLength", 0L);
@@ -173,7 +173,7 @@ namespace FileStore.Repositories
             {
                 cmd.Parameters.Clear();
                 cmd.CommandTimeout = _configRepository.CommandTimeout;
-                cmd.CommandText = 
+                cmd.CommandText =
                     "SELECT TOP 1 @pName = [Name] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
                 cmd.Parameters.AddWithValue("@pFileGuid", fileId);
                 SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, int.MaxValue);
@@ -200,8 +200,8 @@ namespace FileStore.Repositories
 
         public byte[] ReadChunkContent(DbConnection dbConnection, Guid fileId, long count, long position)
         {
-            // Note: this method may be called hundreds of times to retrieve chunk records if the 
-            // stored file is large. It will reuse the open database connection that is passed 
+            // Note: this method may be called hundreds of times to retrieve chunk records if the
+            // stored file is large. It will reuse the open database connection that is passed
             // in as a parameter.
 
             // Note: After all the read operations are finsihed the dbConnection object must be closed
@@ -232,7 +232,7 @@ namespace FileStore.Repositories
 
                 if (contentParam.Value is DBNull)
                 {
-                    // return null if no bytes read 
+                    // return null if no bytes read
                     content = null;
                 }
                 else

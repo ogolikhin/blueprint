@@ -34,7 +34,7 @@ namespace ArtifactStore.Controllers
             // Arrange
             var userId = 1;
             _session = new Session { UserId = userId };
-            
+
             _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             _artifactVersionsRepositoryMock = new Mock<IArtifactVersionsRepository>();
         }

@@ -491,7 +491,7 @@ namespace ArtifactStore.Executors
                 Action = workflowEventAction.Object,
                 Name = "Test'"
             });
-        
+
             _workflowRepository.Setup(
                 t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
                 .ReturnsAsync(triggerContainer);

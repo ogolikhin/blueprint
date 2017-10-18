@@ -821,7 +821,7 @@ namespace AdminStore.Repositories
 
             _applicationSettingsRepositoryMock
                 .Setup(m => m.GetSettingsAsync(false))
-                .Returns(() => Task.Run(() => new ApplicationSetting[] 
+                .Returns(() => Task.Run(() => new ApplicationSetting[]
                 {
                     new ApplicationSetting
                     {

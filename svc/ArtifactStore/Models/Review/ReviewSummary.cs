@@ -84,15 +84,15 @@ namespace ArtifactStore.Models.Review
     public class ReviewSummaryMetrics
     {
         public int Id { get; set; }
-       
+
         public int RevisionId { get; set; }
-       
+
         public ReviewStatus Status { get; set; }
 
         public ArtifactsMetrics Artifacts { get; set; }
 
         public ParticipantsMetrics Participants { get; set; }
-       
+
     }
 
     public class ArtifactsMetrics
@@ -116,7 +116,7 @@ namespace ArtifactStore.Models.Review
         // Number of Review Requests
         public int ReviewRequested { get; set; }
     }
-   
+
     public class ParticipantsMetrics
     {
         // Total number of Participants
@@ -153,5 +153,5 @@ namespace ArtifactStore.Models.Review
         public int NotStarted { get; set; }
     }
 
-   
+
 }

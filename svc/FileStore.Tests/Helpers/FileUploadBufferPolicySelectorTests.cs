@@ -26,7 +26,7 @@ namespace FileStore.Helpers
             // Arange
             var fileUploadBufferPolicySelector = new FileUploadBufferPolicySelector();
             var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-            
+
             // Act
             var result = fileUploadBufferPolicySelector.UseBufferedOutputStream(response);
 

@@ -93,7 +93,7 @@ namespace SearchService.Helpers.SemanticSearch
         [TestMethod]
         public async Task GetSemanticSearchSuggestions_WhenQuerying_ReturnsArtifactDetails()
         {
-            
+
             var searchParameters = new SearchEngineParameters(1, 1, true, new HashSet<int>());
             _semanticSearchRepository.Setup(s => s.GetSemanticSearchText(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(new SemanticSearchText()
@@ -109,7 +109,7 @@ namespace SearchService.Helpers.SemanticSearch
             _elasticClient.Setup(
                 e => e.SearchAsync<SemanticSearchItem>(It.IsAny<ISearchRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(searchResponse.Object);
-            
+
             _semanticSearchRepository.Setup(s => s.GetSuggestedArtifactDetails(It.IsAny<List<int>>(), It.IsAny<int>()))
                 .ReturnsAsync(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 2 } });
 

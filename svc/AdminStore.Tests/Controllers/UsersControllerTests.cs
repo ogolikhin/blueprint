@@ -343,7 +343,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await _controller.PostReset("ZAP%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s\n", 
+                await _controller.PostReset("ZAP%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s\n",
                     new ResetPostContent { NewPass = newPass, OldPass = oldPass });
             }
             catch (Exception ex)
@@ -366,7 +366,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await _controller.PostReset(SystemEncryptions.EncodeTo64UTF8("admin"), 
+                await _controller.PostReset(SystemEncryptions.EncodeTo64UTF8("admin"),
                     new ResetPostContent { NewPass = newPass, OldPass = "ZAP%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s\n" });
             }
             catch (Exception ex)
@@ -389,7 +389,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await _controller.PostReset(SystemEncryptions.EncodeTo64UTF8("admin"), 
+                await _controller.PostReset(SystemEncryptions.EncodeTo64UTF8("admin"),
                     new ResetPostContent { NewPass = "ZAP%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s%n%s\n", OldPass = oldPass });
             }
             catch (Exception ex)
@@ -1446,7 +1446,7 @@ namespace AdminStore.Controllers
 
             // assert
             // Exception
-        }   
+        }
 
         #region Password
 

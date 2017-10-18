@@ -144,10 +144,10 @@ namespace ArtifactStore.Repositories
         }
 
         public async Task<RelationshipResultSet> GetRelationships(
-            int artifactId, 
-            int userId, 
-            int? subArtifactId = null, 
-            bool addDrafts = true, 
+            int artifactId,
+            int userId,
+            int? subArtifactId = null,
+            bool addDrafts = true,
             int? versionId = null,
             int? baselineId = null)
         {

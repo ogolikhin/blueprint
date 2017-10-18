@@ -106,7 +106,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 await MarkAsLatest(markAsLatestLinkVersionIds, environment.RevisionId, transaction);
             // });
         }
-        
+
         private async Task DeleteLinkVersions(HashSet<int> deleteLinkVersionsIds, IDbTransaction transaction)
         {
             if (deleteLinkVersionsIds.Count == 0)
@@ -120,17 +120,17 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    "RemoveLinkVersions", 
-                    parameters, 
+                    "RemoveLinkVersions",
+                    parameters,
                     commandType: CommandType.StoredProcedure);
             }
             else
             {
                 await transaction.Connection.ExecuteAsync
                 (
-                    "RemoveLinkVersions", 
-                    parameters, 
-                    transaction, 
+                    "RemoveLinkVersions",
+                    parameters,
+                    transaction,
                     commandType: CommandType.StoredProcedure);
             }
         }
@@ -155,17 +155,17 @@ WHERE Artifact1Id = @artifactId1
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    sqlString, 
-                    parameters, 
+                    sqlString,
+                    parameters,
                     commandType: CommandType.Text);
             }
             else
             {
                 await transaction.Connection.ExecuteAsync
                 (
-                    sqlString, 
-                    parameters, 
-                    transaction, 
+                    sqlString,
+                    parameters,
+                    transaction,
                     commandType: CommandType.Text);
             }
         }
@@ -178,22 +178,22 @@ WHERE Artifact1Id = @artifactId1
 
             if (transaction == null)
             {
-                return 
+                return
                 (
                     await ConnectionWrapper.QueryAsync<DraftAndLatestLink>
                     (
-                        "GetDraftAndLatestLinks", 
-                        parameters, 
+                        "GetDraftAndLatestLinks",
+                        parameters,
                         commandType: CommandType.StoredProcedure)).ToList();
             }
 
-            return 
+            return
             (
                 await transaction.Connection.QueryAsync<DraftAndLatestLink>
                 (
-                    "GetDraftAndLatestLinks", 
-                    parameters, 
-                    transaction, 
+                    "GetDraftAndLatestLinks",
+                    parameters,
+                    transaction,
                     commandType: CommandType.StoredProcedure)).ToList();
         }
 

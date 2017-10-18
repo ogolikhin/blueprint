@@ -67,7 +67,7 @@ namespace ArtifactStore.Helpers
             ProcessInfo pi = new ProcessInfo()
             {
                 ProcessType = "sefsdfsdfsdf~@!@$@#$",
-                ItemId = 1   
+                ItemId = 1
             };
 
             ProcessInfoDto piDTO = ProcessInfoMapper.Map(pi);

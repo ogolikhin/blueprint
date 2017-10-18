@@ -106,7 +106,7 @@ namespace ServiceLibrary.Helpers
 
                 Assert.IsTrue(statusResponse.Result.Contains("ERROR: System.Exception: MyException"));
                 Assert.IsFalse(statusResponse.NoErrors);
-            } 
+            }
         }
 
         private StatusControllerHelper GetStatusControllerHelper(List<IStatusRepository> statusRepos, string serviceName)
@@ -123,7 +123,7 @@ namespace ServiceLibrary.Helpers
         }
 
 
-       
+
 
         private IStatusRepository GetStatusRepo(string name, string accessInfo, string result)
         {

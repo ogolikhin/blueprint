@@ -55,7 +55,7 @@ namespace ServiceLibrary.Helpers.Validators
         public void Validate_ReturnsNull_When_No_Errors_Exist()
         {
             // arrange
-            
+
             // As initialized
 
             // act

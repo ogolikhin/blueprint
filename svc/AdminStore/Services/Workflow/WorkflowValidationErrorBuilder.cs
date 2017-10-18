@@ -121,7 +121,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <UsersGroups> elements are used only with user-type properties.";
         private const string TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <PropertyValue> elements are not used with user-type properties.";
         private const string TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed = "<PropertyChangeAction> elements: Multiple <ValidValue> child elements are provided for a choice-type property that allows only one.";
-        
+
         #region Interface Implementation
 
         public string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors, string fileName, bool isEditFileMessage = true)

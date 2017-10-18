@@ -506,7 +506,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetApprovalStatusesAsync_Should_Throw_If_ProjectId_Isnt_Valid()
-        {   
+        {
             // Arrange
             var projectId = 0;
             var userId = 2;

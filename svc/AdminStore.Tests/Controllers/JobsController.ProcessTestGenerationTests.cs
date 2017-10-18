@@ -103,7 +103,7 @@ namespace AdminStore.Controllers
         public async Task QueueGenerateProcessTestsJob_ProcessesEmpty_ThrowsBadRequest()
         {
             var jobsRepositoryMock = new Mock<IJobsRepository>();
-            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();            
+            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
             var controller = new JobsController(jobsRepositoryMock.Object, serviceLogRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
@@ -154,7 +154,7 @@ namespace AdminStore.Controllers
 
             // Act
             var actionResult = (await controller.QueueGenerateProcessTestsJob(param)) as CreatedNegotiatedContentResult<AddJobResult>;
-            
+
 
             Assert.IsNotNull(actionResult);
             Assert.AreEqual(actionResult.Content.JobId, 2);
@@ -189,7 +189,7 @@ namespace AdminStore.Controllers
 
             // Act
             var actionResult = (await controller.QueueGenerateProcessTestsJob(param)) as CreatedNegotiatedContentResult<AddJobResult>;
-            
+
             Assert.IsNotNull(actionResult);
             Assert.AreEqual(actionResult.Location.OriginalString, "/svc/adminstore/jobs/2");
         }

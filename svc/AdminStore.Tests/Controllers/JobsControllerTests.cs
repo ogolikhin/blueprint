@@ -52,7 +52,7 @@ namespace AdminStore.Controllers
 
             // Act
             try
-            { 
+            {
                 await controller.GetLatestJobs(-5);
             }
             catch (Exception ex)
@@ -112,7 +112,7 @@ namespace AdminStore.Controllers
 
             // Act
             try
-            { 
+            {
                 await controller.GetLatestJobs(1);
             }
             catch (Exception ex)
@@ -142,7 +142,7 @@ namespace AdminStore.Controllers
 
             // Act
             try
-            { 
+            {
                 await controller.GetLatestJobs(1, -10);
             }
             catch (Exception ex)

@@ -32,9 +32,9 @@ namespace ArtifactStore.Services
         public async Task PublishArtifacts_EmptyListIds_ThrowsBadRequestException()
         {
             var versionControlService = new VersionControlService(
-                _versionControlRepository.Object, 
-                _publishRepository.Object, 
-                _revisionRepository.Object, 
+                _versionControlRepository.Object,
+                _publishRepository.Object,
+                _revisionRepository.Object,
                 _sqlHelper.Object);
 
             var publishParameters = new PublishParameters { ArtifactIds = new List<int>() };

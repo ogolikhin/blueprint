@@ -7,7 +7,7 @@ namespace AdminStore.Models.Workflow
     // !!! Updating of this class requires regenerating of the xml schema IeWorkflow.xsd is required, see below:
     // !!! xsd.exe AdminStore.dll /t:IeWorkflow
     /// <summary>
-    /// Generate Action 
+    /// Generate Action
     /// </summary>
     [XmlType("GenerateAction")]
     public class IeGenerateAction : IeBaseAction
@@ -16,7 +16,7 @@ namespace AdminStore.Models.Workflow
         public override ActionTypes ActionType => ActionTypes.Generate;
 
         [XmlElement(IsNullable = false)]
-        
+
         public GenerateActionTypes GenerateActionType { get; set; }
 
         // Used only for GenerateActionType = Children

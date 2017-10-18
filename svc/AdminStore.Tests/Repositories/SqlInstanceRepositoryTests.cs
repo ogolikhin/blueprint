@@ -649,9 +649,9 @@ namespace AdminStore.Repositories
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
-            cxn.SetupExecuteScalarAsync("UpdateFolder", 
-                                        It.IsAny<Dictionary<string, object>>(), 
-                                        folderId, 
+            cxn.SetupExecuteScalarAsync("UpdateFolder",
+                                        It.IsAny<Dictionary<string, object>>(),
+                                        folderId,
                                         new Dictionary<string, object> { { "ErrorCode", 0 } });
 
             // Act
@@ -763,7 +763,7 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task DeleteProject_AllParametersCorrect_SuccessfulDeletionOfProject()
         {
-            // Arrange            
+            // Arrange
             _instanceItems.First().ParentFolderId = ParentFolderId;
             _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
 
@@ -816,7 +816,7 @@ namespace AdminStore.Repositories
             _instanceItems.First().ProjectStatus = string.Empty;
             _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
 
-            // Act            
+            // Act
             try
             {
                 await _instanceRepository.DeleteProject(UserId, ProjectId);
@@ -1096,8 +1096,8 @@ namespace AdminStore.Repositories
                                             { "ProjectId", ProjectId },
                                             { "GroupId", roleAssignment.GroupId },
                                             { "RoleId", roleAssignment.RoleId }
-                                        }, 
-                                        createdRoleAssignmentId, 
+                                        },
+                                        createdRoleAssignmentId,
                                         new Dictionary<string, object> { { "ErrorCode", 0 } });
 
             // Act
@@ -1395,7 +1395,7 @@ namespace AdminStore.Repositories
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task UpdateRoleAssignment_ProjectNotExists_ThrowsResourceNotFoundException()
         {
-            
+
             errorCode = 50016;
 
             _connection.SetupExecuteScalarAsync("UpdateProjectRoleAssigment",

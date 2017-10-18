@@ -364,7 +364,7 @@ namespace AdminStore.Controllers
         #region roles
 
         /// <summary>
-        /// Get the list of instance administrators roles in the instance  
+        /// Get the list of instance administrators roles in the instance
         /// </summary>
         /// <remarks>
         /// Returns the list of instance administrators roles.
@@ -473,7 +473,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.DemandAny(Session.UserId, projectId,
                 InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
-            
+
             var result = await _instanceRepository.DeleteRoleAssignmentsAsync(projectId, scope, search);
 
             return Ok(new DeleteResult { TotalDeleted = result });
@@ -524,7 +524,7 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="projectId">Project's identity</param>
         /// <param name="roleAssignment">Role assignment model</param>
-        /// <param name="roleAssignmentId">Role assignment id</param> 
+        /// <param name="roleAssignmentId">Role assignment id</param>
         /// <remarks>
         /// Returns id of updated role assignment (newly created).
         /// </remarks>
@@ -552,7 +552,7 @@ namespace AdminStore.Controllers
                 InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
 
             RoleAssignmentValidator.ValidateModel(roleAssignment, OperationMode.Edit, roleAssignmentId);
-            
+
             await _instanceRepository.UpdateRoleAssignmentAsync(projectId, roleAssignmentId, roleAssignment);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);

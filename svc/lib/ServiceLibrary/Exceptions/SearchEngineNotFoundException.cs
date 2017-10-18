@@ -8,7 +8,7 @@ namespace ServiceLibrary.Exceptions
     {
         public SearchEngineNotFoundException(string message) : base(message, ErrorCodes.SearchEngineNotFound)
         {
-            
+
         }
     }
 }

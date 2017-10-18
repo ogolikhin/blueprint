@@ -88,7 +88,7 @@ namespace ArtifactStore.Controllers
                 discussion.CanDelete = !projectPermissions.HasFlag(ProjectPermissions.CommentsDeletionDisabled)
                           && permissions.TryGetValue(artifactId, out permission) &&
                     (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == userId));
-                discussion.CanEdit = !projectPermissions.HasFlag(ProjectPermissions.CommentsModificationDisabled) 
+                discussion.CanEdit = !projectPermissions.HasFlag(ProjectPermissions.CommentsModificationDisabled)
                           && permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == userId);
             }
 

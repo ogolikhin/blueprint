@@ -36,7 +36,7 @@ namespace AdminStore.Models.Workflow
         [XmlElement(IsNullable = false)]
         public IeUsersGroups UsersGroups { get; set; }
 
-        #endregion 
+        #endregion
 
         #region Generated and modified Equals and GetHashCode methods
 

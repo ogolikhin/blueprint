@@ -54,7 +54,7 @@ namespace AdminStore.Helpers.Workflow
         private static readonly IDictionary<int, string> NameAndDescriptionMap = new Dictionary<int, string>
         {
             { WorkflowConstants.PropertyTypeFakeIdName, WorkflowConstants.PropertyNameName },
-            { WorkflowConstants.PropertyTypeFakeIdDescription, WorkflowConstants.PropertyNameDescription } 
+            { WorkflowConstants.PropertyTypeFakeIdDescription, WorkflowConstants.PropertyNameDescription }
         };
 
         public static bool IsNameOrDescriptionProperty(string propertyTypeName)

@@ -88,7 +88,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
                 return GetLogManagerInstance();
             }
         }
-        
+
         private static LogManager GetLogManagerInstance()
         {
             if (_instance == null)

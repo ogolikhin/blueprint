@@ -145,12 +145,12 @@ namespace FileStore.Repositories
 
         #endregion GetFile
 
-        #region ReadChunkContent 
+        #region ReadChunkContent
 
         [TestMethod]
         public async Task Read_File_Chunks_Success()
         {
-            // This tests reading file chunks and pushing them to the output stream 
+            // This tests reading file chunks and pushing them to the output stream
 
             // Arrange
             var moqFilesRepo = new Mock<IFilesRepository>();
@@ -158,7 +158,7 @@ namespace FileStore.Repositories
 
             int fileChunkSize = 125;
             var contentString = GetRandomString(125);
-            // set the size of the content to force two loops to retrieve total of 250 bytes 
+            // set the size of the content to force two loops to retrieve total of 250 bytes
             byte[] fileStreamContent = Encoding.UTF8.GetBytes(contentString + contentString);
 
             var file = new File
@@ -210,8 +210,8 @@ namespace FileStore.Repositories
             string result = string.Empty;
 
             if (length < 1) length = 1;
-            // each string is 11 chars 
-            // combine to make a string of size length 
+            // each string is 11 chars
+            // combine to make a string of size length
             int loop = length / 11 + 1;
             for (int i = 0; i < loop; i++)
             {
@@ -250,7 +250,7 @@ namespace FileStore.Repositories
             cxn.Verify();
             Assert.AreEqual(result, id);
         }
-        
+
         [TestMethod]
         public async Task DeleteFile_QueryReturnsNull_ReturnsNotNull()
         {

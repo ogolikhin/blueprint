@@ -35,6 +35,6 @@ namespace AdminStore.Helpers
         public static List<UserDto> Map(IEnumerable<User> users)
         {
             return users.Select(Map).ToList();
-        } 
+        }
     }
 }

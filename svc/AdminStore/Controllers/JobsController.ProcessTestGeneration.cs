@@ -30,19 +30,19 @@ namespace AdminStore.Controllers
         {
             ValidateRequest(request);
 
-            var session = ServerHelper.GetSession(Request);    
+            var session = ServerHelper.GetSession(Request);
             var parameters = SerializationHelper.ToXml(request.Processes);
             var hostUri = ServerUriHelper.BaseHostUri;
-            var jobId = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests, 
-                false, 
-                parameters, 
-                null, 
+            var jobId = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests,
+                false,
+                parameters,
+                null,
                 request.ProjectId,
-                request.ProjectName, 
-                session.UserId, 
+                request.ProjectName,
+                session.UserId,
                 session.UserName,
                 hostUri.ToString());
-           
+
 
             return ConstructHttpResponse(jobId);
         }

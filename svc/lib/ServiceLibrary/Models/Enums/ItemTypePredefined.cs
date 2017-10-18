@@ -56,7 +56,7 @@
         /// </summary>
         GroupMask = 0xF000,
 
-        // None 
+        // None
         None = 0x0000,
 
         /// <summary>

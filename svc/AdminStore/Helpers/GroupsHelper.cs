@@ -24,7 +24,7 @@ namespace AdminStore.Helpers
                 "displayName",
                 "login"
             };
-            
+
             var column = sorting.Sort;
             var sortColumn = !string.IsNullOrWhiteSpace(column) && sortableColumns.Contains(column)
                 ? column

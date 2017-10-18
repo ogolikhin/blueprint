@@ -451,7 +451,7 @@ namespace AdminStore.Repositories
             parameters.Add("@projectId", projectId);
 
             var hasProjectExternalLocksAsync = await _connectionWrapper.ExecuteScalarAsync<int>("IsProjectHasForeignLocks", parameters, commandType: CommandType.StoredProcedure);
-            
+
             return hasProjectExternalLocksAsync;
         }
 
@@ -510,7 +510,7 @@ namespace AdminStore.Repositories
             {
                 throw new ArgumentOutOfRangeException(nameof(roleAssignment));
             }
-            
+
             var parameters = new DynamicParameters();
             parameters.Add("@ProjectId", projectId);
             parameters.Add("@GroupId", roleAssignment.GroupId);

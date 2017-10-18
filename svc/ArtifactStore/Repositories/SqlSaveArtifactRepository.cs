@@ -54,17 +54,17 @@ namespace ArtifactStore.Repositories
             {
                 await _connectionWrapper.QueryAsync<dynamic>
                 (
-                    storedProcedure, 
-                    parameters, 
+                    storedProcedure,
+                    parameters,
                     commandType: CommandType.StoredProcedure);
-                
+
             }
             else
             {
                 await transaction.Connection.QueryAsync<dynamic>
                 (
-                    storedProcedure, 
-                    parameters, 
+                    storedProcedure,
+                    parameters,
                     transaction,
                     commandType: CommandType.StoredProcedure);
             }
@@ -88,16 +88,16 @@ namespace ArtifactStore.Repositories
             {
                 result = await _connectionWrapper.QueryAsync<dynamic>
                 (
-                    storedProcedure, 
-                    parameters, 
+                    storedProcedure,
+                    parameters,
                     commandType: CommandType.StoredProcedure);
             }
             else
             {
                 result = await transaction.Connection.QueryAsync<dynamic>
                 (
-                    storedProcedure, 
-                    parameters, 
+                    storedProcedure,
+                    parameters,
                     transaction,
                     commandType: CommandType.StoredProcedure);
             }
@@ -197,7 +197,7 @@ namespace ArtifactStore.Repositories
                         //
                         (int)PropertyPrimitiveType.Choice,
                         null, null, null, null, action.PropertyLiteValue.TextOrChoiceValue, null,
-                        // 
+                        //
                         customPropertyChar, propertyType.PropertyTypeId, searchableValue);
                 }
             }

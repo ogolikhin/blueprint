@@ -39,19 +39,19 @@ namespace AdminStore.Services.Workflow
 
         public WorkflowService()
             : this(
-                  new WorkflowRepository(), 
-                  new WorkflowXmlValidator(), 
+                  new WorkflowRepository(),
+                  new WorkflowXmlValidator(),
                   new SqlUsersRepository(),
-                  new WorkflowValidationErrorBuilder(), 
+                  new WorkflowValidationErrorBuilder(),
                   new SqlProjectMetaRepository(),
-                  new TriggerConverter(), 
+                  new TriggerConverter(),
                   new WorkflowActionPropertyValueValidator(),
                   new WorkflowDiff())
         {
             _workflowDataValidator = new WorkflowDataValidator(
-                _workflowRepository, 
+                _workflowRepository,
                 _usersRepository,
-                _projectMetaRepository, 
+                _projectMetaRepository,
                 _propertyValueValidator);
         }
 
@@ -356,9 +356,9 @@ namespace AdminStore.Services.Workflow
             workflowDetailsDto.NumberOfStates = workflowStates.Distinct().Count();
 
             var transitionEventsCount = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition
-                                                                  && e.FromStateId.HasValue 
+                                                                  && e.FromStateId.HasValue
                                                                   && dataMaps.StateMap.ContainsKey(e.FromStateId.Value)
-                                                                  && e.ToStateId.HasValue 
+                                                                  && e.ToStateId.HasValue
                                                                   && dataMaps.StateMap.ContainsKey(e.ToStateId.Value)).Distinct().Count();
 
             var userIds = new HashSet<int>();
@@ -597,7 +597,7 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
         }
 
-        private Models.Workflow.SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, 
+        private Models.Workflow.SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId,
             WorkflowDataMaps dataMaps)
         {
             var sqlEvent = new Models.Workflow.SqlWorkflowEvent
@@ -895,7 +895,7 @@ namespace AdminStore.Services.Workflow
         {
             var dataMaps = new WorkflowDataNameMaps();
             dataMaps.StateMap.AddRange(stateMap);
-            
+
             standardTypes.ArtifactTypes.ForEach(t => dataMaps.ArtifactTypeMap.Add(t.Id, t.Name));
             standardTypes.PropertyTypes.ForEach(t => dataMaps.PropertyTypeMap.Add(t.Id, t.Name));
             standardTypes.PropertyTypes.Where(t => t.PrimitiveType == PropertyPrimitiveType.Choice)
@@ -1233,7 +1233,7 @@ namespace AdminStore.Services.Workflow
             workflowDiffResult.AddedStates?.ForEach(s => s.OrderIndex = changedMaxIndexOrder + 10 * i++);
         }
 
-        #region Update workflow entities for the workflow update via the import. 
+        #region Update workflow entities for the workflow update via the import.
 
         private async Task UpdateWorkflowEntitiesAsync(IeWorkflow workflow, WorkflowDiffResult workflowDiffResult,
             WorkflowDataValidationResult dataValidationResult, int publishRevision, IDbTransaction transaction)
@@ -1282,7 +1282,7 @@ namespace AdminStore.Services.Workflow
 
             if (workflowDiffResult.AddedStates.Any())
             {
-                var newStates = await _workflowRepository.CreateWorkflowStatesAsync(workflowDiffResult.AddedStates.Select(s => 
+                var newStates = await _workflowRepository.CreateWorkflowStatesAsync(workflowDiffResult.AddedStates.Select(s =>
                     ToSqlState(s, workflowId)), publishRevision, transaction);
                 stateMap.AddRange(newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
             }

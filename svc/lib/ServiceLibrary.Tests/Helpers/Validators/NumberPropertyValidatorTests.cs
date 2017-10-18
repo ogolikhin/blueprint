@@ -45,7 +45,7 @@ namespace ServiceLibrary.Helpers.Validators
                 new List<WorkflowPropertyType>()
                 {
                     _propertyType
-                }, 
+                },
                 new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
 
             // Assert.
@@ -133,7 +133,7 @@ namespace ServiceLibrary.Helpers.Validators
         {
             // Arrange.
             _property.NumberValue = 9;
-            
+
             ExecuteErrorResultTests();
         }
 

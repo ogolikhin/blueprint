@@ -8,7 +8,7 @@ namespace ServiceLibrary.Models
         public bool SelectAll { get; set; }
 
         public IEnumerable<int> Ids { get; set; } = Enumerable.Empty<int>();
-       
+
         public bool IsEmpty()
         {
             return !SelectAll && !Ids.Any();

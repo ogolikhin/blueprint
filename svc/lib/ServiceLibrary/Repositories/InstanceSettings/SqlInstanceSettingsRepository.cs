@@ -11,7 +11,7 @@ namespace ServiceLibrary.Repositories.InstanceSettings
     {
         public SqlInstanceSettingsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
-            
+
         }
 
         public SqlInstanceSettingsRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))

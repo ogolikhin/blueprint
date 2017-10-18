@@ -417,7 +417,7 @@ namespace AdminStore.Services.Instance
         {
             // Arrange
             _emailHelperMock.Setup(helper => helper.SendEmail(_user.Email, TestEmailSubject, It.IsAny<string>())).Throws(new EmailException("Error Message", ErrorCodes.OutgoingMailError));
-            
+
             // Act
             try
             {
@@ -1257,7 +1257,7 @@ namespace AdminStore.Services.Instance
         {
             // Act
             await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
-           
+
             // Assert
             _instanceSettingsRepositoryMock.Verify(repo => repo.UpdateEmailSettingsAsync(_emailSettings));
         }

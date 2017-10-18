@@ -24,7 +24,7 @@ namespace ServiceLibrary.LocalLog
             _file = new FileInfo(fileName);
         }
 
-        public bool IsTest { get; set; }    
+        public bool IsTest { get; set; }
 
         public void LogError(string message)
         {

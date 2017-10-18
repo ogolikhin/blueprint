@@ -99,17 +99,17 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    "CloseAttachmentVersions", 
-                    parameters, 
+                    "CloseAttachmentVersions",
+                    parameters,
                     commandType: CommandType.StoredProcedure);
             }
             else
             {
                 await transaction.Connection.ExecuteAsync
                 (
-                    "CloseAttachmentVersions", 
-                    parameters, 
-                    transaction, 
+                    "CloseAttachmentVersions",
+                    parameters,
+                    transaction,
                     commandType: CommandType.StoredProcedure);
             }
 
@@ -124,22 +124,22 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (transaction == null)
             {
-                return 
+                return
                 (
                     await ConnectionWrapper.QueryAsync<DraftAndLatestAttachment>
                     (
-                        "GetDraftAndLatestAttachmentVersions", 
-                        parameters, 
+                        "GetDraftAndLatestAttachmentVersions",
+                        parameters,
                         commandType: CommandType.StoredProcedure)).ToList();
             }
 
-            return 
+            return
             (
                 await transaction.Connection.QueryAsync<DraftAndLatestAttachment>
                 (
-                    "GetDraftAndLatestAttachmentVersions", 
-                    parameters, 
-                    transaction, 
+                    "GetDraftAndLatestAttachmentVersions",
+                    parameters,
+                    transaction,
                     commandType: CommandType.StoredProcedure)).ToList();
         }
 

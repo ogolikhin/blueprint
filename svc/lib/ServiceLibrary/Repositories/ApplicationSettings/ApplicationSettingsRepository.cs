@@ -96,7 +96,7 @@ namespace ServiceLibrary.Repositories.ApplicationSettings
 
             string rawValue = matchingSetting.Value;
             T resultValue;
-            
+
             if (typeof(T) == typeof(int))
             {
                 int value;

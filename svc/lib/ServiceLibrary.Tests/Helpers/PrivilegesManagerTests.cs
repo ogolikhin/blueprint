@@ -119,7 +119,7 @@ namespace ServiceLibrary.Helpers
             repositoryMock
                 .Setup(m => m.GetProjectAdminPermissionsAsync(userId, projectId))
                 .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
-                       
+
             var manager = new PrivilegesManager(repositoryMock.Object);
 
             // act

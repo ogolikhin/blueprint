@@ -16,7 +16,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         {
            new UserGroup() { Id = 1, IsGroup = true },
            new UserGroup() { Id = 1, IsGroup = false }
-        }; 
+        };
         private void InitializeUserPropertyChangeAction()
         {
             DefaultUserPropertyType = new UserPropertyType()
@@ -136,7 +136,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             // Assert
             Assert.IsNotNull(result);
         }
-        
+
         [TestMethod]
         public void ValidateAction_UserPropertyChangedToTextProperty_ReturnsFailureResult()
         {

@@ -67,7 +67,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetGroups_AllRequirementsSatisfied_ReturnGroups()
         {
-            // arrange         
+            // arrange
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
@@ -794,7 +794,7 @@ namespace AdminStore.Controllers
             // act
             await _controller.AssignMembers(_groupId, null);
 
-            // assert   
+            // assert
             // Exception
         }
 
@@ -949,7 +949,7 @@ namespace AdminStore.Controllers
             var result = await _controller.GetProjectGroupsAsync(projectId, null, sorting) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
 
         }
-        
+
         #endregion
     }
 }

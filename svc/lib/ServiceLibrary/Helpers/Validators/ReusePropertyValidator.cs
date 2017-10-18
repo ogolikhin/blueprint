@@ -14,7 +14,7 @@ namespace ServiceLibrary.Helpers.Validators
     public class ReusePropertyValidator : IReusePropertyValidator
     {
         public PropertySetResult ValidateReuseSettings(
-            int propertyTypeId, 
+            int propertyTypeId,
             ItemTypeReuseTemplate reuseTemplateSettings)
         {
             if (reuseTemplateSettings == null)

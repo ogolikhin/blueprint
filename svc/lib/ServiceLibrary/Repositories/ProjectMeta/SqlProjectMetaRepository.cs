@@ -134,7 +134,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             if (!project.IsAccesible.GetValueOrDefault())
             {
                 throw new AuthorizationException(string.Format("The user does not have permissions for Project (Id:{0}).", projectId), ErrorCodes.UnauthorizedAccess);
-            }  
+            }
         }
 
 
@@ -225,13 +225,13 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                                     || pv.PrimitiveType == PropertyPrimitiveType.Choice
                                     ? pv.Validate : null,
                 IsMultipleAllowed = pv.PrimitiveType == PropertyPrimitiveType.Text
-                                    || pv.PrimitiveType == PropertyPrimitiveType.Choice 
+                                    || pv.PrimitiveType == PropertyPrimitiveType.Choice
                                     ? pv.AllowMultiple : null,
                 StringDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.Text ? pv.StringDefaultValue : null,
                 DateDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.Date ? pv.DateDefaultValue : null,
                 DecimalDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.Number
                                       ? PropertyHelper.ToDecimal(pv.DecimalDefaultValue) : null,
-                UserGroupDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.User 
+                UserGroupDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.User
                                       ? PropertyHelper.ParseUserGroups(pv.UserDefaultValue) : null,
                 MinDate = pv.PrimitiveType == PropertyPrimitiveType.Date && pv.Validate.GetValueOrDefault() ? pv.MinDate : null,
                 MaxDate = pv.PrimitiveType == PropertyPrimitiveType.Date && pv.Validate.GetValueOrDefault() ? pv.MaxDate : null,
@@ -352,7 +352,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             else
             {
                 bool isApproved;
-                
+
                 bool parsed = Boolean.TryParse(approvalTypeString, out isApproved);
 
                 if (!parsed)

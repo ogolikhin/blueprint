@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
- 
+
 
 namespace ServiceLibrary.Helpers
 {
@@ -55,7 +55,7 @@ namespace ServiceLibrary.Helpers
                 List<StatusResponse> statusResult = await result;
                 serviceStatus.StatusResponses.AddRange(statusResult);
                 statusResult.ForEach((response) => { serviceStatus.NoErrors &= response.NoErrors; });
-                
+
             }
 
             return serviceStatus;
@@ -71,14 +71,14 @@ namespace ServiceLibrary.Helpers
 
             if (s.StatusResponses.Count > 0)
             {
-                
+
                 foreach (var statusResponse in s.StatusResponses)
                 {
                     statusResponses.Add(new StatusResponse { Name = statusResponse.Name, NoErrors = statusResponse.NoErrors });
                 }
             }
 
-            
+
             serviceStatus.NoErrors = true;
             foreach (var result in statusResponses)
             {
@@ -86,9 +86,9 @@ namespace ServiceLibrary.Helpers
                 serviceStatus.StatusResponses.Add(statusResult);
                 serviceStatus.NoErrors = s.NoErrors;
             }
-            
+
             return serviceStatus;
-            
+
         }
 
         /// <summary>
@@ -96,11 +96,11 @@ namespace ServiceLibrary.Helpers
         /// </summary>
         private async Task<List<StatusResponse>> TryGetStatusResponse(IStatusRepository statusRepo)
         {
-            
+
             try
             {
                 return await statusRepo.GetStatuses(GET_STATUS_TIMEOUT);
-               
+
             }
             catch (Exception ex)
             {
@@ -117,7 +117,7 @@ namespace ServiceLibrary.Helpers
                  return responseWithError;
             }
 
-           
+
         }
 
         private static string GetAssemblyFileVersion()

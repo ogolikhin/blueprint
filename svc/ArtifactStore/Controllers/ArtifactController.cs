@@ -160,10 +160,10 @@ namespace ArtifactStore.Controllers
         /// If user doesn't have read permissions for all requested artifacts method returns empty IEnumerable.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
-        [Route("artifacts/authorHistories"), SessionRequired]        
+        [Route("artifacts/authorHistories"), SessionRequired]
         public async Task<IEnumerable<AuthorHistory>> GetArtifactsAuthorHistories([FromBody] ISet<int> artifactIds)
         {
             return await ArtifactRepository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, Session.UserId);
@@ -177,7 +177,7 @@ namespace ArtifactStore.Controllers
         /// If user doesn't have read permissions for all requested artifacts method returns empty IEnumerable.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("artifacts/baselineInfo"), SessionRequired]
@@ -193,7 +193,7 @@ namespace ArtifactStore.Controllers
         /// Returns list of objects with information about Process type for artifacts passed as parameters
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("artifacts/processInfo"), SessionRequired]
@@ -211,11 +211,11 @@ namespace ArtifactStore.Controllers
         /// Get a list of all standard artifact types in the system.
         /// </summary>
         /// <remarks>
-        /// Returns the list of standard artifact types. Every item of the list contains id and name of artifact. 
+        /// Returns the list of standard artifact types. Every item of the list contains id and name of artifact.
         /// </remarks>
         /// <response code="200">OK. The list of standard artifact types.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>   
-        /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard artifact types.</response>           
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard artifact types.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("artifacts/standardartifacttypes"), SessionRequired]

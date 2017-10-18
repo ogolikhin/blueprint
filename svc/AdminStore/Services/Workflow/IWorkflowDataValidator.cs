@@ -5,7 +5,7 @@ using ServiceLibrary.Models.ProjectMeta;
 namespace AdminStore.Services.Workflow
 {
     public interface IWorkflowDataValidator
-    { 
+    {
         ProjectTypes StandardTypes { get; set; }
 
         Task<WorkflowDataValidationResult> ValidateDataAsync(IeWorkflow workflow);

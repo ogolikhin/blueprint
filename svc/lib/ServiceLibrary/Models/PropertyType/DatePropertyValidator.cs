@@ -6,8 +6,8 @@ namespace ServiceLibrary.Models.PropertyType
     public class DatePropertyValidator : PropertyValidator<DatePropertyType>
     {
         protected override PropertySetResult Validate(
-            PropertyLite property, 
-            DatePropertyType propertyType, 
+            PropertyLite property,
+            DatePropertyType propertyType,
             IValidationContext validationContext)
         {
             if (IsPropertyValueEmpty(property, propertyType) || !propertyType.IsValidate)

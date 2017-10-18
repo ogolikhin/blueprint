@@ -40,7 +40,7 @@ namespace AdminStore.Models
                 OrderIndex = d.OrderIndex,
                 Name = d.Name
             }));
-            
+
             NameClaimType = string.IsNullOrEmpty(fedAuthSettings.NameClaimType) ? "Username" : fedAuthSettings.NameClaimType;
         }
 

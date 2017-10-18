@@ -184,7 +184,7 @@ namespace AdminStore.Repositories.Jobs
             var artifactsMock = new Mock<ISqlArtifactRepository>();
             var permissionsMock = new Mock<IArtifactPermissionsRepository>();
             var usersMock = new Mock<IUsersRepository>();
-            
+
             var jobsRepository = new JobsRepository(connection.Object, artifactsMock.Object, permissionsMock.Object, usersMock.Object);
             return jobsRepository;
         }

@@ -21,7 +21,7 @@ namespace ArtifactStore.Models.Review
         public ViewStateType ViewState { get; set; }
 
         /// <summary>
-        /// Display name of the user published the artifact  
+        /// Display name of the user published the artifact
         /// </summary>
         public string UserDisplayName { get; set; }
 

@@ -21,7 +21,7 @@ namespace ArtifactStore.Repositories.Workflow
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlWorkflowRepository(cxn.Object, 
+            var repository = new SqlWorkflowRepository(cxn.Object,
                 new Mock<IArtifactPermissionsRepository>().Object);
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
@@ -197,7 +197,7 @@ namespace ArtifactStore.Repositories.Workflow
             int workflowId = 4;
             int fromStateId = 5;
             int toStateId = 6;
-            
+
             var expected = new SqlWorkflowTransition
             {
                 WorkflowEventId = 1,
@@ -254,7 +254,7 @@ namespace ArtifactStore.Repositories.Workflow
             var permissionsRepository = CreatePermissionsRepositoryMock(new[] { artifactId }, userId, RolePermissions.Edit);
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
-            
+
             var stateChangeParam = new WorkflowStateChangeParameterEx
             {
                 ToStateId = desiredStateId
@@ -311,9 +311,9 @@ namespace ArtifactStore.Repositories.Workflow
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
 
-            
+
             var artifactIdsTable = SqlConnectionWrapper.ToDataTable(new[] { 1 }, "Int32Collection", "Int32Value");
-            
+
             cxn.SetupQueryAsync("GetArtifactBasicDetails",
               new Dictionary<string, object>
               {
@@ -338,10 +338,10 @@ namespace ArtifactStore.Repositories.Workflow
                     WorkflowId = 1
                  }
              });
-            
+
             // Act
             var result = (await repository.GetStateForArtifactAsync(1, 1, int.MaxValue, true));
-            
+
             Assert.IsTrue(result != null, "Workflow State is null");
         }
         [TestMethod]
@@ -372,7 +372,7 @@ namespace ArtifactStore.Repositories.Workflow
 
             // Act
             var result = (await repository.GetStateForArtifactAsync(1, 1, int.MaxValue, true));
-            
+
             Assert.IsTrue(result == null, "Workflow State is not null");
         }
         #endregion

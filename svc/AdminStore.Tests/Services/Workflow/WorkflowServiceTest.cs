@@ -50,10 +50,10 @@ namespace AdminStore.Services.Workflow
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
                 _usersRepositoryMock.Object,
-                _workflowValidationErrorBuilder.Object, 
+                _workflowValidationErrorBuilder.Object,
                 _projectMetaRepository.Object,
-                _triggerConverter.Object, 
-                null, 
+                _triggerConverter.Object,
+                null,
                 null);
         }
 
@@ -316,9 +316,9 @@ namespace AdminStore.Services.Workflow
             // arrange
             var workflowId = 10;
             SqlWorkflow workflow = null;
-            
+
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
-            
+
             // act
             var workflowExport = await _service.GetWorkflowExportAsync(workflowId);
 

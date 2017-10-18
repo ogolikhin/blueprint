@@ -58,7 +58,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             Assert.IsNull(result);
             Assert.IsFalse(propertyLiteValue.ChoiceIds.IsEmpty());
         }
-        
+
         [TestMethod]
         public void ValidateAction_WhenValidValuesAreEmpty_TextOrCustomChoiceIsPopulated()
         {

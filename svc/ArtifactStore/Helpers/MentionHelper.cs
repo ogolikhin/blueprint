@@ -77,11 +77,11 @@ namespace ArtifactStore.Helpers
         }
 
         /// <summary>
-        /// Checks the user's email domain. 
-        /// 
+        /// Checks the user's email domain.
+        ///
         /// Returns true if email domains are enabled and if a guest user has an acceptable domain.
-        /// 
-        /// Note that permissible email domains are defined within 
+        ///
+        /// Note that permissible email domains are defined within
         ///     Main > Manage > Instance Administration > Email Settings > Edit Settings
         /// </summary>
         internal bool CheckUsersEmailDomain(string email, bool isUserEnabled, bool isGuest, EmailSettings emailSettings)

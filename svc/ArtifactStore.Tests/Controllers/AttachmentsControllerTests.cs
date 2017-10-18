@@ -26,7 +26,7 @@ namespace ArtifactStore.Controllers
 
         [TestInitialize]
         public void init()
-        {            
+        {
             // Arrange
             var userId = 1;
             _session = new Session { UserId = userId };
@@ -152,7 +152,7 @@ namespace ArtifactStore.Controllers
             _attachmentsRepositoryMock.Setup(a => a.GetAttachmentsAndDocumentReferences(artifactId, 1, versionId, subArtifactId, true, null))
                 .ReturnsAsync(
                 new FilesInfo(
-                    new List<Attachment> { new Attachment { AttachmentId = 123 } }, 
+                    new List<Attachment> { new Attachment { AttachmentId = 123 } },
                     new List<DocumentReference> { new DocumentReference { ArtifactId = 123 } }));
             _artifactPermissionsRepositoryMock.Setup(a => a.GetArtifactPermissions(new List<int> { 1, 123 }, 1, false, int.MaxValue, true))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { 1, RolePermissions.Read }, { 123, RolePermissions.Read } });

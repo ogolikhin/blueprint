@@ -690,7 +690,7 @@ namespace ArtifactStore.Repositories
             // Assert
             connectionWrapperMock.Verify();
             Assert.IsTrue(artifactInfo.HasChanges);
-        }        
+        }
 
         private SqlArtifactVersionsRepository CreateSqlRepositoryMock(int userId, int artifactId, int baselineId,
             int revisionId, ItemInfo itemInfo, ISet<int> baselineArtifacts)

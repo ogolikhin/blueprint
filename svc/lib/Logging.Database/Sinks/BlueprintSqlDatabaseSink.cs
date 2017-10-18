@@ -34,9 +34,9 @@ namespace Logging.Database.Sinks
         /// <param name="storedProcedureName">The name of the stored procedure that writes to the table.</param>
         /// <param name="bufferingInterval">The buffering interval between each batch publishing.</param>
         /// <param name="bufferingCount">The number of entries that will trigger a batch publishing.</param>
-        /// <param name="maxBufferSize">The maximum number of entries that can be buffered while it's sending to the store before the sink starts dropping entries.</param>      
+        /// <param name="maxBufferSize">The maximum number of entries that can be buffered while it's sending to the store before the sink starts dropping entries.</param>
         /// <param name="onCompletedTimeout">Defines a timeout interval for when flushing the entries after an <see cref="OnCompleted"/> call is received and before disposing the sink.
-        /// This means that if the timeout period elapses, some event entries will be dropped and not sent to the store. Normally, calling <see cref="IDisposable.Dispose"/> on 
+        /// This means that if the timeout period elapses, some event entries will be dropped and not sent to the store. Normally, calling <see cref="IDisposable.Dispose"/> on
         /// the <see cref="System.Diagnostics.Tracing.EventListener"/> will block until all the entries are flushed or the interval elapses.
         /// If <see langword="null"/> is specified, then the call will block indefinitely until the flush operation finishes.</param>
         public BlueprintSqlDatabaseSink(string instanceName, string connectionString, string tableName, string storedProcedureName, TimeSpan bufferingInterval, int bufferingCount, int maxBufferSize, TimeSpan onCompletedTimeout)
@@ -197,7 +197,7 @@ namespace Logging.Database.Sinks
                     }
                     catch (InvalidOperationException ex)
                     {
-                        // if all events were published throw                       
+                        // if all events were published throw
                         if (reader.RecordsAffected == collection.Count)
                         {
                             throw;

@@ -51,21 +51,21 @@ namespace ArtifactStore.Repositories.Revisions
 
             if (transaction == null)
             {
-                return 
+                return
                 (
                     await ConnectionWrapper.QueryAsync<int?>
                     (
-                        "CreateRevision", 
+                        "CreateRevision",
                         parameters,
                         commandType: CommandType.StoredProcedure)).FirstOrDefault();
             }
 
-            return 
+            return
             (
                 await transaction.Connection.QueryAsync<int?>
                 (
-                    "CreateRevision", 
-                    parameters, 
+                    "CreateRevision",
+                    parameters,
                     transaction,
                     commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
@@ -86,15 +86,15 @@ namespace ArtifactStore.Repositories.Revisions
             {
                 return await ConnectionWrapper.QueryAsync<int>
                 (
-                    "AddHistory", 
+                    "AddHistory",
                     parameters,
                     commandType: CommandType.StoredProcedure);
             }
 
             return await transaction.Connection.QueryAsync<int>
             (
-                "AddHistory", 
-                parameters, 
+                "AddHistory",
+                parameters,
                 transaction,
                 commandType: CommandType.StoredProcedure);
         }

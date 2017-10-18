@@ -136,7 +136,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         {
             if (ValidValues != null && ValidValues.Any())
             {
-                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, 
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty,
                     "Property type is now number property. Property change action is currently invalid.");
             }
             if (String.IsNullOrEmpty(PropertyValue))
@@ -154,7 +154,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     !Decimal.TryParse(PropertyValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
                         out value))
                 {
-                    return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, 
+                    return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty,
                         "Property type is now number property. Property change action is currently invalid.");
                 }
                 PropertyLiteValue = new PropertyLite()

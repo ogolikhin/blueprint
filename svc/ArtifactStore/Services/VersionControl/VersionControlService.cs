@@ -262,7 +262,7 @@ namespace ArtifactStore.Services.VersionControl
                     if (environment != null && environment.SensitivityCollector.ArtifactModifications != null)
                     {
                         ReuseSensitivityCollector.ArtifactModification artifactModification;
-                        if (environment.SensitivityCollector.ArtifactModifications.TryGetValue(artifact.Id, out artifactModification) 
+                        if (environment.SensitivityCollector.ArtifactModifications.TryGetValue(artifact.Id, out artifactModification)
                             && artifactModification?.ModifiedPropertyTypes != null)
                         {
                             artifactResultSet.ModifiedProperties.Add(artifact.Id, new List<Property>());

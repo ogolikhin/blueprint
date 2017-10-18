@@ -109,7 +109,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get users list according to the input parameters 
+        /// Get users list according to the input parameters
         /// </summary>
         /// <param name="pagination">Limit and offset values to query users</param>
         /// <param name="sorting">(optional) Sort and its order</param>
@@ -592,7 +592,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// The method returns all the groups currently assigned to the user. 
+        /// The method returns all the groups currently assigned to the user.
         /// </summary>
         /// <param name="userId">User's identity</param>
         /// <param name="pagination">Pagination parameters</param>

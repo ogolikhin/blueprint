@@ -22,7 +22,7 @@ namespace AdminStore
         public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
 
         public static string FileStore = ConfigurationManager.AppSettings["FileStore"];
-        
+
         public static string ServiceLogSource = typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
 
         public static string StatusCheckPreauthorizedKey = ConfigurationManager.AppSettings["StatusCheckPreauthorizedKey"];

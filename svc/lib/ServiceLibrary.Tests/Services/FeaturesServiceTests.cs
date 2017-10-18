@@ -45,7 +45,7 @@ namespace ServiceLibrary.Services
 
             SetupFeaturesRepositoryMock(CreateFeature(featureName, isFeatureEnabled));
             SetupLicenseHelperMock();
-            
+
             var service = new FeaturesService(
                 _featuresRepositoryMock.Object,
                 _licenseHelperMock.Object,

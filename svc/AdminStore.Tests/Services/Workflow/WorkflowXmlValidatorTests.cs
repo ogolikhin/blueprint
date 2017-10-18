@@ -473,7 +473,7 @@ namespace AdminStore.Services.Workflow
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.NewArtifactEventNameExceedsLimit24, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.NewArtifactEvents.Last(), result.Errors[0].Element);
         }
-        
+
         [TestMethod]
         public void Validate_TransitionStartStateNotSpecified_ReturnsTransitionStartStateNotSpecifiedError()
         {
@@ -996,7 +996,7 @@ namespace AdminStore.Services.Workflow
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
-            
+
 
             // Assert
             Assert.IsTrue(result.HasErrors);

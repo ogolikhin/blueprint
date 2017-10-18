@@ -94,7 +94,7 @@
         // User Review Errors
         public const int UserDisabled = 11001;
         public const int UserNotInReview = 11002;
-        
+
         // Action Handler Service Errors
         public const int TenantInfoNotFound = 12000;
         public const int UnsupportedActionType = 12001;
@@ -104,7 +104,7 @@
 
         // Unexpected Errors
         public const int UnexpectedError = 13001;
-    
+
         // Property Type errors
         public const int InvalidArtifactProperty = 14001;
 

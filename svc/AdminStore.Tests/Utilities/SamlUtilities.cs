@@ -108,7 +108,7 @@ namespace AdminStore.Utilities
             var signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
 
             var signingCert = new X509Certificate2(certificate, password);
-            
+
             var rsa = signingCert.PrivateKey as RSACryptoServiceProvider;
             var rsaKey = new RsaSecurityKey(rsa);
             var rsaClause = new RsaKeyIdentifierClause(rsa);

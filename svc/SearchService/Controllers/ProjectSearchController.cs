@@ -51,7 +51,7 @@ namespace SearchService.Controllers
         [HttpPost, NoCache, SessionRequired]
         [Route("name")]
         public async Task<ProjectSearchResultSet> SearchName(
-            [FromBody] SearchCriteria searchCriteria, 
+            [FromBody] SearchCriteria searchCriteria,
             int? resultCount = DefaultResultCount,
             string separatorString = DefaultSeparator)
         {

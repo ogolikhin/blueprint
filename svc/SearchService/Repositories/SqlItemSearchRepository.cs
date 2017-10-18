@@ -170,7 +170,7 @@ namespace SearchService.Repositories
         /// <param name="userId"></param>
         /// <param name="searchCriteria">SearchCriteria object</param>
         /// <param name="startOffset">Search start offset</param>
-        /// <param name="pageSize">Page Size</param>        
+        /// <param name="pageSize">Page Size</param>
         /// <returns></returns>
         public async Task<ItemNameSearchResultSet> SearchName(
             int userId,
@@ -279,8 +279,8 @@ namespace SearchService.Repositories
 
         internal static string GetQuery(string input)
         {
-            // Unfortunately, double-quotes have special meaning inside FTI, so even if you parameterize it, the FTI engine treats it as a phrase delimiter. 
-            // doubling the quote to "" fixes it. 
+            // Unfortunately, double-quotes have special meaning inside FTI, so even if you parameterize it, the FTI engine treats it as a phrase delimiter.
+            // doubling the quote to "" fixes it.
 
             return string.IsNullOrWhiteSpace(input) ? string.Empty :
                 string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("\"", "\"\"").Replace(Environment.NewLine, string.Empty));

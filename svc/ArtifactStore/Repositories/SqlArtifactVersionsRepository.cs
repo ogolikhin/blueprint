@@ -194,7 +194,7 @@ namespace ArtifactStore.Repositories
                         Timestamp = DateTime.SpecifyKind(artifactVersion.Timestamp.GetValueOrDefault(), DateTimeKind.Utc),
                         DisplayName = userInfo?.DisplayName,
                         HasUserIcon = userInfo?.ImageId != null,
-                        ArtifactState = artifactVersion.ArtifactState 
+                        ArtifactState = artifactVersion.ArtifactState
                     });
             }
 
@@ -291,7 +291,7 @@ namespace ArtifactStore.Repositories
             return artifactInfo;
         }
 
-        
+
 
         #endregion GetVersionControlArtifactInfoAsync
 

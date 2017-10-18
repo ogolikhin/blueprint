@@ -43,7 +43,7 @@ namespace ArtifactStore.Repositories.VersionControl
                     if (property.LatestVersionId.HasValue)
                     {
                         closeVersionIds.Add(property.LatestVersionId.Value);
-                        
+
                         // TODO: reviews are not handled currently
                         // _reviewProcessor.ProcessArtifactReviewPackageChanges(property, environment);
 
@@ -77,8 +77,8 @@ namespace ArtifactStore.Repositories.VersionControl
             }
 
             await ClosePropertyVersions(closeVersionIds, environment.RevisionId, transaction);
-            await CloseVersionsForCrossProjectMovedArtifacts(environment.GetArtifactsMovedAcrossProjects(parameters.AffectedArtifactIds), 
-                environment.RevisionId, 
+            await CloseVersionsForCrossProjectMovedArtifacts(environment.GetArtifactsMovedAcrossProjects(parameters.AffectedArtifactIds),
+                environment.RevisionId,
                 transaction);
             await DeleteVersions(deleteVersionsIds, transaction);
             await MarkAsLatest(markAsLatestVersionIds, environment.RevisionId, transaction);
@@ -99,7 +99,7 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    CloseVersionsStoredProcedureName, 
+                    CloseVersionsStoredProcedureName,
                     parameters,
                     commandType: CommandType.StoredProcedure);
 
@@ -108,15 +108,15 @@ namespace ArtifactStore.Repositories.VersionControl
 
             await transaction.Connection.ExecuteAsync
             (
-                CloseVersionsStoredProcedureName, 
-                parameters, 
+                CloseVersionsStoredProcedureName,
+                parameters,
                 transaction,
                 commandType: CommandType.StoredProcedure);
 
             // TODO: Fix this assert
             // Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some property versions are not closed");
         }
-        
+
         private void RegisterPropertyModification(ReuseSensitivityCollector sensitivityCollector, SqlDraftAndLatestProperty property)
         {
             if (IsSubArtifactChange(property))
@@ -158,7 +158,7 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    "CloseAllPropertyVersions", 
+                    "CloseAllPropertyVersions",
                     parameters,
                     commandType: CommandType.StoredProcedure);
 
@@ -167,8 +167,8 @@ namespace ArtifactStore.Repositories.VersionControl
 
             await transaction.Connection.ExecuteAsync
             (
-                "CloseAllPropertyVersions", 
-                parameters, 
+                "CloseAllPropertyVersions",
+                parameters,
                 transaction,
                 commandType: CommandType.StoredProcedure);
         }

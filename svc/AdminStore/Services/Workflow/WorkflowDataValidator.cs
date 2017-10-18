@@ -22,9 +22,9 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowActionPropertyValueValidator _propertyValueValidator;
 
         public WorkflowDataValidator(
-            IWorkflowRepository workflowRepository, 
+            IWorkflowRepository workflowRepository,
             IUsersRepository userRepository,
-            ISqlProjectMetaRepository projectMetaRepository, 
+            ISqlProjectMetaRepository projectMetaRepository,
             IWorkflowActionPropertyValueValidator propertyValueValidator)
         {
             _workflowRepository = workflowRepository;
@@ -297,7 +297,7 @@ namespace AdminStore.Services.Workflow
                     else
                     {
                         // Assing Id to artifact types for the workflow diffing.
-                        // A negative artifact type Id means Id is not specified in xml. 
+                        // A negative artifact type Id means Id is not specified in xml.
                         if (result.StandardArtifactTypeMapByName.TryGetValue(at.Name, out itemType)
                             && itemType != null)
                         {

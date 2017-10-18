@@ -35,7 +35,7 @@ namespace SearchService.Repositories
         /// <returns></returns>
         public async Task<ProjectSearchResultSet> SearchName(
             int userId,
-            SearchCriteria searchCriteria, 
+            SearchCriteria searchCriteria,
             int resultCount,
             string separatorString)
         {

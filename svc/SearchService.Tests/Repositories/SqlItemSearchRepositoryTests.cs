@@ -73,7 +73,7 @@ namespace SearchService.Repositories
                 ProjectIds = new[] { 1 },
                 PredefinedTypeIds = new[] { 4104 }
             };
-            
+
             var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
@@ -528,8 +528,8 @@ namespace SearchService.Repositories
         #endregion
 
         private static IItemSearchRepository CreateFullTextSearchRepository<T>(
-            FullTextSearchCriteria searchCriteria, 
-            ICollection<T> queryResult, 
+            FullTextSearchCriteria searchCriteria,
+            ICollection<T> queryResult,
             ICollection<int?> queryResult2 = null)
         {
             var connectionWrapper = new SqlConnectionWrapperMock();
@@ -579,7 +579,7 @@ namespace SearchService.Repositories
         private static IItemSearchRepository CreateFullTextSearchRepositoryWithException<T>(Exception exception)
         {
             var connectionWrapper = new Mock<ISqlConnectionWrapper>();
-            
+
             connectionWrapper.Setup(
                 t => t.QueryMultipleAsync<T, int?>("SearchFullText", It.IsAny<object>(), It.IsAny<IDbTransaction>(),
                     It.IsAny<int?>(), It.IsAny<CommandType?>())).Throws(exception);
@@ -630,7 +630,7 @@ namespace SearchService.Repositories
         }
 
         private static IItemSearchRepository CreateItemNameRepositoryWithExceptionExpectation<T>(
-            
+
             IArtifactPermissionsRepository artifactPermissionsRepository,
             ISqlArtifactRepository artifactRepository,
             Exception exception)

@@ -17,7 +17,7 @@ namespace AdminStore.Controllers
 
         public InstanceEmailSettingsController() : this(new EmailSettingsService())
         {
-            
+
         }
 
         public InstanceEmailSettingsController(IEmailSettingsService emailSettingsService)

@@ -74,7 +74,7 @@ namespace ServiceLibrary.Repositories
             ProjectSection? projectSection;
             dicUserArtifactVersions.TryGetValue(artifactId ?? projectId, out av);
 
-            // Bug 4357: Required for adjusting property hasChildren of Collections root  
+            // Bug 4357: Required for adjusting property hasChildren of Collections root
             var hasCollectionsSectionOrphans = false;
             var hasBaselinesAndReviewsSectionOrphans = false;
 
@@ -207,7 +207,7 @@ namespace ServiceLibrary.Repositories
                 LockedDateTime = v.LockedByUserTime
             }).OrderBy(a =>
             {
-                // To put Collections and Baselines and Reviews folder at the end of the project children 
+                // To put Collections and Baselines and Reviews folder at the end of the project children
                 if (a.OrderIndex >= 0)
                     return a.OrderIndex;
                 if (a.OrderIndex < 0 && a.PredefinedType == ItemTypePredefined.CollectionFolder)
@@ -256,7 +256,7 @@ namespace ServiceLibrary.Repositories
                 projectSection = ProjectSection.Artifacts;
                 return true;
             }
-            
+
             // Collections and Baselines/Reviews roots are under the project
             if (artifactVersion.ParentId != artifactVersion.VersionProjectId)
                 return false;
@@ -336,7 +336,7 @@ namespace ServiceLibrary.Repositories
             return headOrDraft;
         }
 
-        
+
 
         #endregion GetProjectOrArtifactChildrenAsync
 
@@ -504,7 +504,7 @@ namespace ServiceLibrary.Repositories
                 throw new ArgumentOutOfRangeException(nameof(artifactId));
             if (userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
-            
+
             var artifactBasicDetails = await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
             if (artifactBasicDetails == null || artifactBasicDetails.LatestDeleted)
             {
@@ -533,7 +533,7 @@ namespace ServiceLibrary.Repositories
             }).ToList();
         }
 
-        
+
 
         // This method does not return the self.
         private static IEnumerable<ArtifactVersion> OrderAncestors(List<ArtifactVersion> ancestorsAndSelf, int artifactId)
@@ -583,16 +583,16 @@ namespace ServiceLibrary.Repositories
             var artifactNavigationPaths = new Dictionary<int, IDictionary<int, Artifact>>();
 
             foreach (var artifactsNavigationPath in itemPaths)
-            {                
+            {
                 IDictionary<int, Artifact> pathArray;
                 if (!artifactNavigationPaths.TryGetValue(artifactsNavigationPath.ArtifactId, out pathArray))
                 {
-                    var addedRecord = AddNavigationPathRecord(                           
+                    var addedRecord = AddNavigationPathRecord(
                             artifactsNavigationPath.ArtifactId,
                             artifactNavigationPaths);
 
                     if (artifactsNavigationPath.ParentId.HasValue)
-                    {                        
+                    {
                         AddArtifactShortInfo(
                             artifactsNavigationPath.ParentId.Value,
                             null,
@@ -602,7 +602,7 @@ namespace ServiceLibrary.Repositories
                     }
 
                     if (includeArtifactItself || artifactsNavigationPath.Level > 0)
-                    {                        
+                    {
                         AddArtifactShortInfo(
                             artifactsNavigationPath.ArtifactId,
                             artifactsNavigationPath.Name,
@@ -656,7 +656,7 @@ namespace ServiceLibrary.Repositories
             var result = new Dictionary<int, IEnumerable<Artifact>>(artifactNavigationPaths.Count);
 
             foreach (var entry in artifactNavigationPaths)
-            {                
+            {
                 result.Add(entry.Key, entry.Value.OrderByDescending(i => i.Key).Select(j => j.Value));
             }
 
@@ -676,8 +676,8 @@ namespace ServiceLibrary.Repositories
 
         private static Dictionary<int, Artifact> AddNavigationPathRecord(int artifactId,
             Dictionary<int, IDictionary<int, Artifact>> artifactNavigationPaths)
-        {                        
-            var pathArray = new Dictionary<int, Artifact>();            
+        {
+            var pathArray = new Dictionary<int, Artifact>();
 
             artifactNavigationPaths.Add(artifactId, pathArray);
             return pathArray;
@@ -691,8 +691,8 @@ namespace ServiceLibrary.Repositories
         {
             var param = new DynamicParameters();
             param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(projectIds, "Int32Collection", "Int32Value"));
-            
-            return (await ConnectionWrapper.QueryAsync<ProjectNameIdPair>("GetProjectNameByIds", param, commandType: CommandType.StoredProcedure));            
+
+            return (await ConnectionWrapper.QueryAsync<ProjectNameIdPair>("GetProjectNameByIds", param, commandType: CommandType.StoredProcedure));
         }
 
         #endregion GetProjectNameByIdsAsync
@@ -739,7 +739,7 @@ namespace ServiceLibrary.Repositories
             var artifacts = await ConnectionWrapper.QueryAsync<StandardArtifactType>("GetStandardArtifactTypes", null, commandType: CommandType.StoredProcedure);
             return artifacts;
         }
-      
+
         public Task<bool> IsArtifactLockedByUserAsync(int artifactId, int userId)
         {
             var parameters = new DynamicParameters();
@@ -762,9 +762,9 @@ namespace ServiceLibrary.Repositories
             var param = new DynamicParameters();
             param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value"));
             var artifacts = (await ConnectionWrapper.QueryAsync<ProcessInfo>("GetProcessInformation", param, commandType: CommandType.StoredProcedure));
-            
+
             return ProcessInfoMapper.Map(artifacts.ToList());
-            
+
         }
 
         public async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId)

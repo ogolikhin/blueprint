@@ -2,7 +2,7 @@
 using System.Globalization;
 
 namespace BluePrintSys.Messaging.CrossCutting.Logging
-{   
+{
     // http://msdn.microsoft.com/en-us/library/ff648968.aspx
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1053:StaticHolderTypesShouldNotHaveConstructors")]
     // By Design: there are classes that implement this base class, relying on an accessible constructor to be present.

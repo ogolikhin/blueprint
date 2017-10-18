@@ -48,7 +48,7 @@ namespace ArtifactStore.Models
                 Setting = value.ToString() + ";" + Name;
             }
         }
-        
+
         public string Name
         {
             get

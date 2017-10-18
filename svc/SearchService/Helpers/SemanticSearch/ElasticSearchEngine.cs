@@ -31,7 +31,7 @@ namespace SearchService.Helpers.SemanticSearch
         private IElasticClient _elasticClient;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308: Normalize strings to uppercase", Justification = "Index name for elastic search must be lower cased")]
-        public ElasticSearchEngine(string connectionString, string tenantId, ISemanticSearchRepository semanticSearchRepository) 
+        public ElasticSearchEngine(string connectionString, string tenantId, ISemanticSearchRepository semanticSearchRepository)
             : base(semanticSearchRepository)
         {
             IndexName = (IndexPrefix + tenantId).ToLowerInvariant();
@@ -93,7 +93,7 @@ namespace SearchService.Helpers.SemanticSearch
                     boolQueryDescriptor.Filter(GetContainsProjectIdsQuery(searchEngineParameters.AccessibleProjectIds));
                 }
 
-                // Creates the search descriptor 
+                // Creates the search descriptor
                 var searchDescriptor = new SearchDescriptor<SemanticSearchItem>();
                 searchDescriptor.Index(IndexName).Size(searchEngineParameters.PageSize).Query(q => q.Bool(b => boolQueryDescriptor));
 

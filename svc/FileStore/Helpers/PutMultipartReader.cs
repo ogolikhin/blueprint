@@ -13,19 +13,19 @@ namespace FileStore.Helpers
         private long? _fileSize;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="fileChunk"></param>
         /// <param name="function">Function to be executed</param>
         /// <param name="log"></param>
-        public PutMultipartReader(Stream stream, FileChunk fileChunk, Func<Stream, FileChunk, Task<long>> function, IServiceLogRepository log) 
+        public PutMultipartReader(Stream stream, FileChunk fileChunk, Func<Stream, FileChunk, Task<long>> function, IServiceLogRepository log)
             : base(stream, log)
         {
             _function = function;
             _fileChunk = fileChunk;
         }
-        
+
         protected override async Task ExecuteFunctionAsync(Stream stream)
         {
             await _log.LogVerbose(WebApiConfig.LogSourceFiles, "PUT: Posting first multi-part file chunk");

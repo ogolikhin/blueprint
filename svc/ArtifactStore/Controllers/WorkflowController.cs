@@ -57,7 +57,7 @@ namespace ArtifactStore.Controllers
         /// Returns list of all possible workflow transitions based of of the current artifact and the state its in.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
         /// <response code="404">Not found. The artifact is not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
@@ -77,7 +77,7 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
-        /// Gets the current state for the artifact. 
+        /// Gets the current state for the artifact.
         /// Permission for the artifact is based on user id which is retrieved from the request.
         /// </summary>
         /// <param name="artifactId"></param>
@@ -114,7 +114,7 @@ namespace ArtifactStore.Controllers
             {
                 throw new BadRequestException("Please provide valid state change parameters");
             }
-            
+
             return Ok(await _workflowService.ChangeStateForArtifactAsync(Session.UserId, Session.UserName, artifactId, stateChangeParameter));
         }
     }

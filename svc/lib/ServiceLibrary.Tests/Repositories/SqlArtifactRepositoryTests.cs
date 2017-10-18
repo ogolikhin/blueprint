@@ -1536,7 +1536,7 @@ namespace ServiceLibrary.Repositories
             const int artifactId = 3;
             const int userId = 99;
             var arifactBasicDetails = new List<ArtifactBasicDetails> { new ArtifactBasicDetails { LatestDeleted = false } };
-            
+
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
 
@@ -1573,7 +1573,7 @@ namespace ServiceLibrary.Repositories
                 new ArtifactVersion { ItemId = 1, ParentId = null, VersionProjectId = projectId, Name = "project", ItemTypeId = 66 },
                 new ArtifactVersion { ItemId = 2, ParentId = 1, VersionProjectId = projectId, Name = "folder", ItemTypeId = 77 }
             };
-            
+
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
             cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
@@ -1657,9 +1657,9 @@ namespace ServiceLibrary.Repositories
         /**
          * P (99)
          *       \
-         *        A (100) 
+         *        A (100)
          *               \
-         *                B (101)         
+         *                B (101)
          */
         [TestMethod]
         public async Task GetArtifactsNavigationPathsAsync_TwoArtifactsNotIncludeItself_Success()
@@ -1668,7 +1668,7 @@ namespace ServiceLibrary.Repositories
             var artifact2Id = 101;
             int projectId = 99;
             // Arrange
-            int[] artifactIds = { artifact1Id, artifact2Id };            
+            int[] artifactIds = { artifact1Id, artifact2Id };
             const int userId = 1;
 
             ArtifactsNavigationPath[] queryResult = {
@@ -1719,9 +1719,9 @@ namespace ServiceLibrary.Repositories
         /**
          * P (99)
          *       \
-         *        A (100) 
+         *        A (100)
          *               \
-         *                B (101)         
+         *                B (101)
          */
         [TestMethod]
         public async Task GetArtifactsNavigationPathsAsync_TwoArtifactsIncludeItself_Success()
@@ -1868,21 +1868,21 @@ namespace ServiceLibrary.Repositories
                 ModificationTimestamp = DateTime.Today.AddHours(-1),
                 ModificationUserId = 2
             };
-            
+
             var repository = CreateSqlRepositoryWithPermissions(artifactIds, userId,
                 Enumerable.Repeat(authorHistory, 1), RolePermissions.Read);
 
             // Act
             var actual = await repository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, userId);
 
-            // Assert            
+            // Assert
             Assert.IsTrue(actual.Count() == 1);
             var firstActualResult = actual.First();
             Assert.AreEqual(firstActualResult.CreatedBy, authorHistory.CreationUserId);
             Assert.AreEqual(firstActualResult.CreatedOn, authorHistory.CreationTimestamp);
             Assert.AreEqual(firstActualResult.LastEditedBy, authorHistory.ModificationUserId);
             Assert.AreEqual(firstActualResult.LastEditedOn, authorHistory.ModificationTimestamp);
-        }        
+        }
 
 
         [TestMethod]
@@ -1890,7 +1890,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             int[] artifactIds = { 1 };
-            const int userId = 1;                      
+            const int userId = 1;
 
             var authorHistory = new SqlAuthorHistory
             {
@@ -1907,7 +1907,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var actual = await repository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, userId);
 
-            // Assert            
+            // Assert
             Assert.IsFalse(actual.Any());
         }
 
@@ -1919,18 +1919,18 @@ namespace ServiceLibrary.Repositories
             const int userId = 1;
 
             var repository = CreateSqlRepositoryWithPermissions(artifactIds, userId,
-                Enumerable.Empty<SqlAuthorHistory>(), RolePermissions.Read);            
+                Enumerable.Empty<SqlAuthorHistory>(), RolePermissions.Read);
 
             // Act
             var actual = await repository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, userId);
 
-            // Assert            
-            Assert.IsTrue(actual.Count() == 0);            
+            // Assert
+            Assert.IsTrue(actual.Count() == 0);
         }
 
         #endregion GetAuthorHistoriesWithPermissionsCheck
 
-        
+
 
         private static Mock<IArtifactPermissionsRepository> CreatePermissionsRepositoryMock(int[] artifactIds, int userId, RolePermissions rolePermissions)
         {

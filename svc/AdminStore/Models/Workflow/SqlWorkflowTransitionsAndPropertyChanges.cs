@@ -15,7 +15,7 @@ namespace AdminStore.Models.Workflow
         public string Triggers { get; set; }
         public string FromState { get; set; }
         public int? FromStateId { get; set; }
-        public string ToState { get; set; } 
+        public string ToState { get; set; }
         public int? ToStateId { get; set; }
         public int? PropertyTypeId { get; set; }
     }

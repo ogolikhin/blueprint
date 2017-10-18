@@ -11,7 +11,7 @@ namespace ServiceLibrary.Helpers
 
         public static string RaptorMain = ConfigurationManager.ConnectionStrings["RaptorMain"].ConnectionString;
 
-        // Revisions 
+        // Revisions
         public const int VersionHead = int.MaxValue;
 
         public const int VersionDraft = 1;

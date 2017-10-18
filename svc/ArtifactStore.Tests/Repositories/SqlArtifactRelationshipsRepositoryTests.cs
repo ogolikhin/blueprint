@@ -233,7 +233,7 @@ namespace ArtifactStore.Repositories
 
             var descriptionResult = new List<string> { description };
             _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, descriptionResult);
-            
+
             // Act
             var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, null, isDeleted);
 
@@ -271,7 +271,7 @@ namespace ArtifactStore.Repositories
                                                 SourceItemId = 2,
                                                 SourceProjectId = 0 });
 
-            _cxn.SetupQueryAsync("GetRelationshipLinkInfo", 
+            _cxn.SetupQueryAsync("GetRelationshipLinkInfo",
                                 new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
 
             _itemInfoRepositoryMock.Setup(a => a.GetItemsRawDataCreatedDate(userId, It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()))

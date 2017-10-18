@@ -26,7 +26,7 @@ namespace ArtifactStore.Executors
         private readonly IStateChangeExecutorRepositories _stateChangeExecutorRepositories;
         private readonly IStateChangeExecutorHelper _stateChangeExecutorHelper;
         public StateChangeExecutor(
-            int userId, WorkflowStateChangeParameterEx input, 
+            int userId, WorkflowStateChangeParameterEx input,
             ISqlHelper sqlHelper,
             IStateChangeExecutorRepositories stateChangeExecutorRepositories,
             IStateChangeExecutorHelper stateChangeExecutorHelper)
@@ -62,12 +62,12 @@ namespace ArtifactStore.Executors
                 var currentState = await ValidateCurrentState();
 
                 var triggers = await _stateChangeExecutorRepositories.WorkflowRepository.GetWorkflowEventTriggersForTransition(
-                    _userId, 
-                    _input.ArtifactId, 
-                    currentState.WorkflowId, 
-                    _input.FromStateId, 
+                    _userId,
+                    _input.ArtifactId,
+                    currentState.WorkflowId,
+                    _input.FromStateId,
                     _input.ToStateId);
-                
+
                 var constraints = new List<IConstraint>();
 
 
@@ -103,7 +103,7 @@ namespace ArtifactStore.Executors
                     _userId,
                     publishRevision,
                     _input.UserName,
-                    triggers.AsynchronousTriggers, 
+                    triggers.AsynchronousTriggers,
                     artifactInfo,
                     artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId)?.Name,
                     artifactResultSet?.ModifiedProperties,
@@ -116,7 +116,7 @@ namespace ArtifactStore.Executors
 
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
                     _stateChangeExecutorRepositories.ApplicationSettingsRepository,
-                    _stateChangeExecutorRepositories.ServiceLogRepository, 
+                    _stateChangeExecutorRepositories.ServiceLogRepository,
                     result.ActionMessages,
                     $"Error on successful transition of artifact: {_input.ArtifactId} from {_input.FromStateId} to {_input.ToStateId}",
                     transaction);
@@ -125,7 +125,7 @@ namespace ArtifactStore.Executors
             };
             return action;
         }
-        
+
         private async Task<int> CreateRevision(IDbTransaction transaction)
         {
             var publishRevision = await _sqlHelper.CreateRevisionInTransactionAsync(transaction, _userId, I18NHelper.FormatInvariant("State Change Publish: publishing changes and changing artifact {0} state to {1}", _input.ArtifactId, _input.ToStateId));

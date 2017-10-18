@@ -20,17 +20,17 @@ namespace FileStore.Repositories
         [TestMethod]
         public async Task GetFileStream_Content_Success()
         {
-            // This tests the legacy file stream retrieval logic 
+            // This tests the legacy file stream retrieval logic
 
             // Arrange
             var moqFSRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
-            int legacyFileChunkSize = 125; 
+            int legacyFileChunkSize = 125;
             var contentString = GetRandomString(125);
-            // set the size of the content to force two loops to retrieve total of 250 bytes 
+            // set the size of the content to force two loops to retrieve total of 250 bytes
             byte[] fileStreamContent = Encoding.UTF8.GetBytes(contentString + contentString);
-            
+
             var file = new File
             {
                 FileId = new Guid("22222222-2222-2222-2222-222222222222"),
@@ -65,7 +65,7 @@ namespace FileStore.Repositories
                 response.CopyTo(memoryStream);
                 resultContent = Encoding.UTF8.GetString(memoryStream.ToArray());
             }
- 
+
             // Assert
             Assert.IsTrue(originalContent.Equals(resultContent));
         }
@@ -75,11 +75,11 @@ namespace FileStore.Repositories
             string result = string.Empty;
 
             if (length < 1) length = 1;
-            // each string is 11 chars 
-            // combine to make a string of size length 
+            // each string is 11 chars
+            // combine to make a string of size length
             int loop = ((int)(length / 11)) + 1;
             for (int i = 0; i < loop; i++)
-            { 
+            {
                 string path = Path.GetRandomFileName();
                 path = path.Replace(".", ""); // Remove period.
                 result += path;

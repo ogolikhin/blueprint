@@ -107,7 +107,7 @@
         public static readonly string FolderReferenceToItself = "The folder cannot be placed into itself. Please select a different location.";
         public static readonly string ParentFolderIdReferenceToDescendantItem = "The parent folder cannot be placed into its descendant. Please select a different location.";
         public static readonly string EditRootFolderIsForbidden = "Root folder cannot be edited.";
-       
+
         // Project
         public static readonly string ProjectNameLimitation = "Please enter a name between 1 and 128 characters.";
         public static readonly string LocationIsRequired = "Please select a location.";

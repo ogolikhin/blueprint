@@ -223,7 +223,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get group's members 
+        /// Get group's members
         /// </summary>
         /// <param name="groupId">Group's identity</param>
         /// <param name="pagination">Pagination parameters</param>
@@ -316,7 +316,7 @@ namespace AdminStore.Controllers
 
 
         /// <summary>
-        /// Get the list of groups for the project  
+        /// Get the list of groups for the project
         /// </summary>
         /// <remarks>
         /// Get the list of groups for the project's id and also instance level groups that have no assignments

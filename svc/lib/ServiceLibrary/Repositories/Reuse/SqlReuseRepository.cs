@@ -28,7 +28,7 @@ namespace ServiceLibrary.Repositories.Reuse
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="artifactIds"></param>
         /// <returns>Dictionary with Item Id as Key</returns>
@@ -44,7 +44,7 @@ namespace ServiceLibrary.Repositories.Reuse
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="propertyIds"></param>
         /// <returns>Dictionary with Property Type Id as Key</returns>
@@ -60,7 +60,7 @@ namespace ServiceLibrary.Repositories.Reuse
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="instanceItemTypeIds"></param>
         /// <param name="transaction"></param>
@@ -75,7 +75,7 @@ namespace ServiceLibrary.Repositories.Reuse
 
             if (transaction == null)
             {
-                result = 
+                result =
                 (
                     await ConnectionWrapper.QueryAsync<SqlItemTypeReuseTemplate>
                     (
@@ -85,7 +85,7 @@ namespace ServiceLibrary.Repositories.Reuse
             }
             else
             {
-                result = 
+                result =
                 (
                     await transaction.Connection.QueryAsync<SqlItemTypeReuseTemplate>
                     (
@@ -162,7 +162,7 @@ namespace ServiceLibrary.Repositories.Reuse
 
             if (transaction == null)
             {
-                return 
+                return
                 (
                     await ConnectionWrapper.QueryAsync<dynamic>
                     (
@@ -170,12 +170,12 @@ namespace ServiceLibrary.Repositories.Reuse
                         parameters,
                         commandType: CommandType.StoredProcedure)).ToDictionary(a => (int)a.ItemId, b => (bool)b.IsReadOnlyReuse);
             }
-            return 
+            return
             (
                 await transaction.Connection.QueryAsync<dynamic>
                 (
-                    "DoItemsContainReadonlyReuse", 
-                    parameters, 
+                    "DoItemsContainReadonlyReuse",
+                    parameters,
                     transaction,
                     commandType: CommandType.StoredProcedure)).ToDictionary(a => (int)a.ItemId, b => (bool)b.IsReadOnlyReuse);
         }

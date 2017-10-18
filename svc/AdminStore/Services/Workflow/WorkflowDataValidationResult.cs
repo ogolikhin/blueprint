@@ -58,7 +58,7 @@ namespace AdminStore.Services.Workflow
         PropertyChangeActionInvalidDateFormat,
         PropertyChangeActionDateOutOfRange,
 
-        // 
+        //
         PropertyChangeActionNotChoicePropertyValidValuesNotApplicable,
         PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable,
         PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable,

@@ -23,7 +23,7 @@ namespace ArtifactStore.Controllers
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IRelationshipsRepository> _relationshipsRepositoryMock;
         private Mock<IArtifactVersionsRepository> _artifactVersionsRepositoryMock;
-        
+
         private Session _session;
 
         [TestInitialize]
@@ -119,7 +119,7 @@ namespace ArtifactStore.Controllers
                     }
                 }
             };
-            permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Trace | RolePermissions.Edit);       
+            permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Trace | RolePermissions.Edit);
             permisionDictionary.Add(destId, RolePermissions.Read);
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
@@ -136,7 +136,7 @@ namespace ArtifactStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.CanEdit);            
+            Assert.IsTrue(result.CanEdit);
         }
 
         [TestMethod]
@@ -149,7 +149,7 @@ namespace ArtifactStore.Controllers
             var itemInfo = new ItemInfo { ProjectId = projectId, ArtifactId = artifactId, ItemId = artifactId };
             var permisionDictionary = new Dictionary<int, RolePermissions>();
             var resultSet = new RelationshipResultSet { ManualTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } }, OtherTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } } };
-            permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Edit);                
+            permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Edit);
             permisionDictionary.Add(destId, RolePermissions.Read);
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
@@ -463,7 +463,7 @@ namespace ArtifactStore.Controllers
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
 
             _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, It.IsAny<int?>(), false, versionId, null)).ReturnsAsync(expected);
-       
+
 
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -654,8 +654,8 @@ namespace ArtifactStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
             // Act
-            
-            var result = await controller.GetReviewRelationships(artifactId);            
+
+            var result = await controller.GetReviewRelationships(artifactId);
         }
     }
 }

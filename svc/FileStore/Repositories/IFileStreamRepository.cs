@@ -17,6 +17,6 @@ namespace FileStore.Repositories
 
         byte[] ReadChunkContent(DbConnection sqlConnection, Guid fileId, long count, long position);
 
-      
+
     }
 }

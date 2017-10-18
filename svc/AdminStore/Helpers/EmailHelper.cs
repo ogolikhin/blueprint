@@ -13,7 +13,7 @@ namespace AdminStore.Helpers
     {
         void Initialize(IEmailConfigInstanceSettings configuration);
         void SendEmail(string toEmail, string subject, string body);
-        
+
     }
 
     public class EmailHelper : IEmailHelper

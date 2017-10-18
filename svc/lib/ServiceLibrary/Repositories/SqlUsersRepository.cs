@@ -74,7 +74,7 @@ namespace ServiceLibrary.Repositories
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
 
-            return (await _connectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();            
+            return (await _connectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
 
@@ -131,7 +131,7 @@ namespace ServiceLibrary.Repositories
             if (transaction != null)
             {
                 var propertyInfos = (await transaction.Connection.QueryAsync<SqlPropertyInfo>("GetPropertyInfoForWorkflowArtifact",
-                prm, 
+                prm,
                 transaction,
                 commandType: CommandType.StoredProcedure)).ToList();
                 userInfos.AddRange(await GetUserInfos(propertyInfos, transaction));

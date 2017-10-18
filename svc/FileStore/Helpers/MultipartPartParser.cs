@@ -125,7 +125,7 @@ namespace FileStore.Helpers
             if (!SearchBytePattern(DoubleNewLine, headerBytes, boundaryEnd, out headerEnd))
             {
                 // if we cant find the end of the header it could mean our header is massive
-                // and it wasnt in the initial block of bytes we read. 
+                // and it wasnt in the initial block of bytes we read.
                 throw new Exception("Content header is too large to process");
             }
             headerEnd += DoubleNewLine.Length;
@@ -256,7 +256,7 @@ namespace FileStore.Helpers
             // we can only return the parts we know for sure are not part of the next boundary
             // which is the bytes we read minus the boundary length. This will also ensure we
             // get back to the count we were originally asked for. We also need to make sure we
-            // return 0 bytes if we can not gaurentee there are no boundaries parts in what we 
+            // return 0 bytes if we can not gaurentee there are no boundaries parts in what we
             // did manage to read
             if (!isEndOfPart)
                 bytesReturned = Math.Max(0, bytesReadThisCall - BoundaryWithNewLinePrepend.Length);

@@ -8,7 +8,7 @@ namespace ServiceLibrary.Exceptions
     {
         public ElasticsearchException(string message) : base(message, ErrorCodes.ElasticsearchQueryError)
         {
-            
+
         }
     }
 }

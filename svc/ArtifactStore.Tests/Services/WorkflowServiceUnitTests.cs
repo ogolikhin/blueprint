@@ -96,7 +96,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(revisionId);
             _workflowRepositoryMock.Setup(t => t.GetStateForArtifactAsync(1, 1, revisionId, true))
                 .ReturnsAsync(expected);
-            
+
             // Act
             var result = await _workflowServiceMock.GetStateForArtifactAsync(1, 1);
 
@@ -210,7 +210,7 @@ namespace ArtifactStore.Services
                 ToStateId = toStateId,
                 FromStateId = fromStateId
             };
-            
+
             var fromState = new WorkflowState
             {
                 Id = fromStateId,

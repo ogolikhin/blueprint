@@ -43,7 +43,7 @@ namespace ServiceLibrary.Helpers.Validators
 
             // Act
             var actualResult = _validator.Validate(
-                _propertyLite, 
+                _propertyLite,
                 new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 

@@ -31,18 +31,18 @@ namespace ServiceLibrary.Repositories.Jobs
         {
         }
 
-        public JobsRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper, new SqlArtifactRepository(connectionWrapper, 
-                new SqlItemInfoRepository(connectionWrapper), 
+        public JobsRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper, new SqlArtifactRepository(connectionWrapper,
+                new SqlItemInfoRepository(connectionWrapper),
                 new SqlArtifactPermissionsRepository(connectionWrapper)),
                 new SqlArtifactPermissionsRepository(connectionWrapper),
                 new SqlUsersRepository(connectionWrapper))
         {
-            
+
         }
 
         public JobsRepository
         (
-            ISqlConnectionWrapper connectionWrapper, 
+            ISqlConnectionWrapper connectionWrapper,
             ISqlArtifactRepository sqlArtifactRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             IUsersRepository userRepository)
@@ -91,8 +91,8 @@ namespace ServiceLibrary.Repositories.Jobs
             }
 
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(new[] { jobId });
-            var projectNameMappings = job.ProjectId.HasValue ? 
-                await GetProjectNamesForUserMapping(new HashSet<int> { job.ProjectId.Value }, actualUserId) : 
+            var projectNameMappings = job.ProjectId.HasValue ?
+                await GetProjectNamesForUserMapping(new HashSet<int> { job.ProjectId.Value }, actualUserId) :
                 new Dictionary<int, string>();
 
             return GetJobInfo(job, systemMessageMap, projectNameMappings);
@@ -139,7 +139,7 @@ namespace ServiceLibrary.Repositories.Jobs
         public async Task<int?> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
             int? projectId, string projectLabel, int userId, string userName, string hostUri)
         {
-            var jobMessage = await AddJobMessageQuery(type, hidden, parameters, 
+            var jobMessage = await AddJobMessageQuery(type, hidden, parameters,
                 receiverJobServiceId, projectId, projectLabel, userId, userName, hostUri);
 
             if (jobMessage == null)
@@ -223,8 +223,8 @@ namespace ServiceLibrary.Repositories.Jobs
 
         private JobInfo GetJobInfo
         (
-            DJobMessage jobMessage, 
-            IDictionary<int, List<SystemMessage>> systemMessageMap, 
+            DJobMessage jobMessage,
+            IDictionary<int, List<SystemMessage>> systemMessageMap,
             IDictionary<int, string> projectNameMap)
         {
             return new JobInfo
@@ -251,7 +251,7 @@ namespace ServiceLibrary.Repositories.Jobs
         // Copied from raptor JobMessageDataProvider
         private async Task<IDictionary<int, List<SystemMessage>>> GetRelevantUnfinishCancelSystemJobSystemMessageMap
         (
-            IEnumerable<int> jobIds, 
+            IEnumerable<int> jobIds,
             bool? doNotFetchResult = false)
         {
             var allUnfinishSystemJobs = await GetJobMessages(null, 0, int.MaxValue, JobType.System, true, false, doNotFetchResult);

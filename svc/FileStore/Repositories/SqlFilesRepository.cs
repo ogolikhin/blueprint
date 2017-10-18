@@ -51,8 +51,8 @@ namespace FileStore.Repositories
 
         private DateTime GetDeleteFileExpirationTime(DateTime? dateTime)
         {
-            // if the expiry time is null make the expiry time equal to today 
-            // if the expiry time is before today make the expiry time equal to today 
+            // if the expiry time is null make the expiry time equal to today
+            // if the expiry time is before today make the expiry time equal to today
             // if the expiry time is in the future leave it as a future expiration time
 
             DateTime dateTimeUtc;
@@ -169,8 +169,8 @@ namespace FileStore.Repositories
 
         public byte[] ReadChunkContent(DbConnection dbConnection, Guid guid, int num)
         {
-            // Note: this method may be called hundreds of times to retrieve chunk records if the 
-            // stored file is large. It will reuse the open database connection that is passed 
+            // Note: this method may be called hundreds of times to retrieve chunk records if the
+            // stored file is large. It will reuse the open database connection that is passed
             // in as a parameter.
 
             // Note: After all the read operations are finished the dbConnection object must be closed

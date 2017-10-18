@@ -258,7 +258,7 @@ namespace ArtifactStore.Controllers
 
             // Act
             var result = await artifactController.GetProcessInformationAsync(artifactIds);
-            
+
             // Assert
             Assert.AreSame(processInfo, result);
         }

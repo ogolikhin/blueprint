@@ -1082,7 +1082,7 @@ END
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [AdminStore].[SetSchemaVersion] @value = N'8.2.0';
+EXEC [AdminStore].[SetSchemaVersion] @value = N'8.2.1';
 GO
 -- --------------------------------------------------
 

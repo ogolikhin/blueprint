@@ -162,8 +162,10 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             {
                 if (EndpointInstance == null)
                 {
-                    return;
+                    //If the Endpoint Instance is null, throw an exception so the user gets an error message
+                    throw new Exception($"EndpointInstance is null. {message.ActionType} could not be sent for tenant ID {tenantId}");
                 }
+
                 var options = new SendOptions();
                 options.SetDestination(MessageQueue);
                 options.SetHeader(ActionMessageHeaders.TenantId, tenantId);

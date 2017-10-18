@@ -1,6 +1,6 @@
 ﻿namespace BluePrintSys.Messaging.CrossCutting.Collections
 {
-    public class ConcurrentPriorityQueue<T>:IQueue<T> where T : IHavePriority
+    public class ConcurrentPriorityQueue<T> :IQueue<T> where T : IHavePriority
     {
         private readonly IQueue<T> _priQueue;
 

@@ -44,7 +44,8 @@ namespace ArtifactStore.Controllers
             int? subArtifactId = null,
             bool addDrafts = true,
             int? versionId = null,
-            int? baselineId = null)
+            int? baselineId = null,
+            bool? allLinks = null)
         {
             var userId = Session.UserId;
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1)
@@ -75,7 +76,7 @@ namespace ArtifactStore.Controllers
             // We do not need drafts for historical artifacts 
             var effectiveAddDraft = !versionId.HasValue && addDrafts;
 
-            var result = await _relationshipsRepository.GetRelationships(artifactId, userId, subArtifactId, effectiveAddDraft, versionId, baselineId);
+            var result = await _relationshipsRepository.GetRelationships(artifactId, userId, subArtifactId, effectiveAddDraft, allLinks.GetValueOrDefault(), versionId, baselineId);
             var artifactIds = new List<int> { artifactId };
             artifactIds = artifactIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);

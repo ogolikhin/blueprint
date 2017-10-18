@@ -1435,11 +1435,7 @@ IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
             isAllArtifactsProcessed = eligibleArtifacts.Count == artifactIds.Count ?  true : false;
 
             var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
-
             var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, eligibleArtifacts);
-
-           // var approvalResult = new ReviewArtifactApprovalResult();
-
             var timestamp = _currentDateTimeService.GetUtcNow();
             var approvedArtifacts = new List<ArtifactApprovalResult>();
 
@@ -1482,6 +1478,7 @@ IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
                 {
                     reviewArtifactApproval.ArtifactVersion = artifactVersionDictionary[id];
                 }
+
                 approvedArtifacts.Add(new ArtifactApprovalResult()
                 {
                     ArtifactId = reviewArtifactApproval.ArtifactId,

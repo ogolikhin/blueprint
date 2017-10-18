@@ -106,17 +106,17 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetInstanceFolderAsync_Success()
         {
-            //Arrange
+            // Arrange
             var folderId = 99;
             var folder = new InstanceItem { Id = folderId };
             _instanceRepositoryMock
                 .Setup(r => r.GetInstanceFolderAsync(folderId, UserId, It.IsAny<bool>()))
                 .ReturnsAsync(folder);
 
-            //Act
+            // Act
             var result = await _controller.GetInstanceFolderAsync(folderId);
 
-            //Assert
+            // Assert
             Assert.AreSame(folder, result);
         }
 
@@ -145,7 +145,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetInstanceFolderChildrenAsync_Success()
         {
-            //Arrange
+            // Arrange
             var folderId = 99;
             var fromAdminPortal = false;
             var children = new List<InstanceItem>();
@@ -154,10 +154,10 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(children);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
 
-            //Act
+            // Act
             var result = await _controller.GetInstanceFolderChildrenAsync(folderId);
 
-            //Assert
+            // Assert
             Assert.AreSame(children, result);
         }
 
@@ -168,7 +168,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetInstanceProjectAsync_Success()
         {
-            //Arrange
+            // Arrange
             var projectId = 99;
             var project = new InstanceItem { Id = projectId };
             var fromAdminPortal = false;
@@ -176,17 +176,17 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceProjectAsync(projectId, UserId, fromAdminPortal))
                 .ReturnsAsync(project);
 
-            //Act
+            // Act
             var result = await _controller.GetInstanceProjectAsync(projectId);
 
-            //Assert
+            // Assert
             Assert.AreSame(project, result);
         }
 
         [TestMethod]
         public async Task GetInstanceProjectAsyncFromAdminPortal_Success()
         {
-            //Arrange
+            // Arrange
             var projectId = 99;
             var project = new InstanceItem { Id = projectId };
             var fromAdminPortal = true;
@@ -194,10 +194,10 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceProjectAsync(projectId, UserId, fromAdminPortal))
                 .ReturnsAsync(project);
 
-            //Act
+            // Act
             var result = await _controller.GetInstanceProjectAsync(projectId, fromAdminPortal);
 
-            //Assert
+            // Assert
             Assert.AreSame(project, result);
         }
 
@@ -209,7 +209,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(HttpResponseException))]
         public async Task GetProjectNavigationPathAsync_InvalidPermission()
         {
-            //Arrange
+            // Arrange
             const int projectId = 99;
             const bool includeProjectItself = true;
             var repositoryResult = new List<string> { "Blueprint", "ProjectName" };
@@ -220,14 +220,14 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetArtifactPermissions(new List<int> { projectId }, UserId, false, int.MaxValue, true))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>());
 
-            //Act
+            // Act
             await _controller.GetProjectNavigationPathAsync(projectId);
         }
 
         [TestMethod]
         public async Task GetProjectNavigationPathAsync_Success()
         {
-            //Arrange
+            // Arrange
             const int projectId = 99;
             const bool includeProjectItself = true;
             var repositoryResult = new List<string> { "Blueprint", "ProjectName" };
@@ -238,10 +238,10 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetArtifactPermissions(new List<int> { projectId }, UserId, false, int.MaxValue, true))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { 99, RolePermissions.Read } });
 
-            //Act
+            // Act
             var result = await _controller.GetProjectNavigationPathAsync(projectId);
 
-            //Assert
+            // Assert
             Assert.AreSame(repositoryResult, result);
         }
 
@@ -455,7 +455,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task SearchFolderByName_PermissionaAreOkAndFolderIsExists_RenurnListOfFolders()
         {
-            //arrange
+            // arrange
             var response = new List<InstanceItem> { new InstanceItem { Id = 1 } };
             var name = "folder";
 
@@ -466,10 +466,10 @@ namespace AdminStore.Controllers
                 .Setup(repo => repo.GetFoldersByName(It.IsAny<string>()))
                 .ReturnsAsync(response);
 
-            //act
+            // act
             var result = await _controller.SearchFolderByName(name) as OkNegotiatedContentResult<IEnumerable<InstanceItem>>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(response, result.Content);
         }
@@ -553,16 +553,16 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task UpdateFolder_NoPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             _privilegeRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
-            //act
+            // act
             await _controller.UpdateInstanceFolder(FolderId, _folder);
 
-            //assert
-            //Exception
+            // assert
+            // Exception
         }
 
         [TestMethod]
@@ -694,15 +694,15 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetInstanceProjectPrivilegesAsync_AllParamsCorrect_ReturnPermissions()
         {
-            //Arrange
+            // Arrange
             _privilegeRepositoryMock
                 .Setup(r => r.GetProjectAdminPermissionsAsync(UserId, ProjectId))
                 .ReturnsAsync(It.IsAny<ProjectAdminPrivileges>());
 
-            //Act
+            // Act
             var result = await _controller.GetProjectAdminPermissions(ProjectId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<ProjectAdminPrivileges>));
         }
@@ -766,7 +766,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetProjectRolesAsync_Failed_NoPermissions_ReturnForbiddenResult()
         {
-            //arrange
+            // arrange
             var projectId = 100;
             var projectRoles = new List<ProjectRole>
             {
@@ -906,30 +906,30 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task DeleteRoleAssignment_UserdDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             var scope = new OperationScope() { SelectAll = false, Ids = new List<int>() { 2, 3 } };
             _privilegeRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
 
-            //act
+            // act
             await _controller.DeleteRoleAssignment(ProjectId, scope);
 
-            //assert
-            //Exception
+            // assert
+            // Exception
         }
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task DeleteRoleAssignment_InvalidParameteres_BadRequest()
         {
-            //arrange
+            // arrange
 
-            //act
+            // act
             await _controller.DeleteRoleAssignment(ProjectId, null);
 
-            //assert
-            //Exception
+            // assert
+            // Exception
         }
 
         #endregion
@@ -939,7 +939,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task HasProjectExternalLocks_AllParamsCorrect_ReturnBooleanValue()
         {
-            //Arrange
+            // Arrange
             var hasProjectExternalLocks = 1;
 
             _privilegeRepositoryMock
@@ -949,10 +949,10 @@ namespace AdminStore.Controllers
                 .Setup(repo => repo.HasProjectExternalLocksAsync(UserId, ProjectId))
                 .ReturnsAsync(hasProjectExternalLocks);
 
-            //Act
+            // Act
             var result = await _controller.HasProjectExternalLocks(ProjectId) as OkNegotiatedContentResult<int>;
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(hasProjectExternalLocks, result.Content);
         }
@@ -1086,7 +1086,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task SearchProjectFolder_AllParametersAreValid_ReturnSuccessResult()
         {
-            //arrange
+            // arrange
             var request = new Pagination() { Limit = 10, Offset = 0 };
             var queryResult = new QueryResult<ProjectFolderSearchDto>() { Items = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() }, Total = 1 };
             _instanceRepositoryMock.Setup(
@@ -1097,12 +1097,12 @@ namespace AdminStore.Controllers
                                 t.Pagination != null && t.Pagination.Offset.HasValue && t.Pagination.Offset >= 0 &&
                                 t.Pagination.Limit > 0), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(queryResult);
 
-            //act
+            // act
             var result =
                 await _controller.SearchProjectFolder(request) as
                     OkNegotiatedContentResult<QueryResult<ProjectFolderSearchDto>>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.Content.Total);
         }
@@ -1111,12 +1111,12 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task SearchProjectFolder_InvalidPagination_ReturnBadRequestResponse()
         {
-            //arrange
+            // arrange
 
-            //act
+            // act
             await _controller.SearchProjectFolder(new Pagination());
 
-            //assert
+            // assert
         }
         #endregion
 

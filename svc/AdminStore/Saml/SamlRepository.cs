@@ -31,15 +31,15 @@ namespace AdminStore.Saml
 
             if (token == null)
             {
-                //TODO add logging
-                //Log.DebugFormat("[SAMLHandler] Cannot read non SAML2 token.\n {0}", tokenString);
+                // TODO add logging
+                // Log.DebugFormat("[SAMLHandler] Cannot read non SAML2 token.\n {0}", tokenString);
                 throw new FederatedAuthenticationException("Cannot read token",
                                                            FederatedAuthenticationErrorCode.WrongFormat);
             }
 
             var samlSecurityTokenRequirement = new SamlSecurityTokenRequirement
             {
-                NameClaimType = settings.NameClaimType, //"Username",
+                NameClaimType = settings.NameClaimType, // "Username",
                 MapToWindows = false
             };
             var handler = new BpSaml2SecurityTokenHandler(samlResponse, samlSecurityTokenRequirement)
@@ -98,7 +98,7 @@ namespace AdminStore.Saml
             hc.IssuerNameRegistry = new SamlIssuerNameRegistry(settings.Certificate);
             hc.IssuerTokenResolver = new IssuerTokenResolver();
 
-            //need this if certificate not included into sign info
+            // need this if certificate not included into sign info
             var tokens = new List<SecurityToken> { new X509SecurityToken(settings.Certificate) };
             hc.ServiceTokenResolver = SecurityTokenResolver.CreateDefaultSecurityTokenResolver(
                 new ReadOnlyCollection<SecurityToken>(tokens), false);

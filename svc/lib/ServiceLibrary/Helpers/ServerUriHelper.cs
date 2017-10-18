@@ -185,7 +185,7 @@ namespace ServiceLibrary.Helpers
             return uriBuilder.Uri;
         }
 
-        //http://stackoverflow.com/questions/7795910/how-do-i-get-url-action-to-use-the-right-port-number
+        // http://stackoverflow.com/questions/7795910/how-do-i-get-url-action-to-use-the-right-port-number
         /// <summary>
         /// Gets the public facing URL for the given incoming HTTP request.
         /// </summary>

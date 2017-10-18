@@ -41,7 +41,7 @@ namespace SearchService.Services
         #region GetSemanticSearchSuggestions - Different item type tests
         private async Task ExecuteItemTypeTests(ItemTypePredefined itemTypePredefined)
         {
-            //arrange
+            // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
             _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
@@ -50,7 +50,7 @@ namespace SearchService.Services
                     PrimitiveItemTypePredefined = (int)itemTypePredefined
                 });
 
-            //act
+            // act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
         }
 
@@ -94,7 +94,7 @@ namespace SearchService.Services
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetSemanticSearchSuggestions_WhenNoPermissions_ThrowsAuthorizationException()
         {
-            //arrange
+            // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
             _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
@@ -108,7 +108,7 @@ namespace SearchService.Services
                         It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync( new Dictionary<int, RolePermissions>() { {1, RolePermissions.None} });
 
-            //act
+            // act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
         }
 
@@ -116,13 +116,13 @@ namespace SearchService.Services
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetSemanticSearchSuggestions_WhenArtifactNotFound_ThrowsNotFoundException()
         {
-            //arrange
+            // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
             _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync((ArtifactBasicDetails)null);
 
-            //act
+            // act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
         }
 
@@ -130,26 +130,26 @@ namespace SearchService.Services
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetSemanticSearchSuggestions_WhenArtifactIsLatestDeleted_ThrowsNotFoundException()
         {
-            //arrange
+            // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
             _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(new ArtifactBasicDetails() {LatestDeleted = true});
 
-            //act
+            // act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
         }
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetSemanticSearchSuggestions_WhenArtifactIsDraftDeleted_ThrowsNotFoundException()
         {
-            //arrange
+            // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
             _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(new ArtifactBasicDetails() { DraftDeleted = true });
 
-            //act
+            // act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
         }
 
@@ -158,7 +158,7 @@ namespace SearchService.Services
         [ExpectedException(typeof(BadRequestException))]
         public async Task GetSemanticSearchSuggestions_WhenSubartifactId_ThrowsBadRequestException()
         {
-            //arrange
+            // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
 
@@ -170,7 +170,7 @@ namespace SearchService.Services
                     ItemId = parameters.ArtifactId
                 });
 
-            //act
+            // act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);
         }
     }

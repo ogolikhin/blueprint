@@ -26,7 +26,7 @@ namespace SearchService.Helpers.SemanticSearch
             _elasticClient = new Mock<IElasticClient>();
             _semanticSearchRepository = new Mock<ISemanticSearchRepository>();
 
-            //_elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
+            // _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
         }
 
         [TestMethod]

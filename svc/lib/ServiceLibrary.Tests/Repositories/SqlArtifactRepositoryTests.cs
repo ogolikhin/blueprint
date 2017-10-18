@@ -438,9 +438,9 @@ namespace ServiceLibrary.Repositories
             input[0].ItemTypePredefined = ItemTypePredefined.Project;
             input[1].ParentId = projectId;
 
-            //NOTE:: Temporary filter Review and BaseLines ou from the list
+            // NOTE:: Temporary filter Review and BaseLines ou from the list
             // See US#809: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=809
-            //var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
+            // var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
             //    name: "BaselinesAndReviews",
             //    orderIndex: -1,
             //    itemTypePredefined: ItemTypePredefined.BaselineFolder,
@@ -449,7 +449,7 @@ namespace ServiceLibrary.Repositories
             //    lockedByUserId: null,
             //    lockedByUserTime: null,
             //    versionsCount: 1);
-            //input.Add(baselinesAndReviews);
+            // input.Add(baselinesAndReviews);
 
             var collections = CreateArtifactVersion(3, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
                 name: "Collections",
@@ -497,10 +497,10 @@ namespace ServiceLibrary.Repositories
                     ProjectId = collections.VersionProjectId,
                     Prefix = collections.Prefix
                 },
-                //NOTE:: Temporary filter Review and BaseLines ou from the list
+                // NOTE:: Temporary filter Review and BaseLines ou from the list
                 // See US#809: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=809
-                //new Artifact
-                //{
+                // new Artifact
+                // {
                 //    PredefinedType = baselinesAndReviews.ItemTypePredefined.GetValueOrDefault(),
                 //    OrderIndex = baselinesAndReviews.OrderIndex,
                 //    ParentId = baselinesAndReviews.ParentId,
@@ -514,7 +514,7 @@ namespace ServiceLibrary.Repositories
                 //    Version = baselinesAndReviews.VersionsCount,
                 //    ProjectId = baselinesAndReviews.VersionProjectId,
                 //    Prefix = baselinesAndReviews.Prefix
-                //}
+                // }
             };
 
             // Act and Assert

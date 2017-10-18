@@ -44,8 +44,8 @@ namespace ArtifactStore.Repositories.VersionControl
                     {
                         closeVersionIds.Add(property.LatestVersionId.Value);
                         
-                        //TODO: reviews are not handled currently
-                        //_reviewProcessor.ProcessArtifactReviewPackageChanges(property, environment);
+                        // TODO: reviews are not handled currently
+                        // _reviewProcessor.ProcessArtifactReviewPackageChanges(property, environment);
 
                         RegisterPropertyModification(environment.SensitivityCollector, property);
                     }
@@ -63,8 +63,8 @@ namespace ArtifactStore.Repositories.VersionControl
                             closeVersionIds.Add(property.LatestVersionId.Value);
                         }
 
-                        //TODO: reviews are not handled currently
-                        //_reviewProcessor.ProcessArtifactReviewPackageChanges(property, environment);
+                        // TODO: reviews are not handled currently
+                        // _reviewProcessor.ProcessArtifactReviewPackageChanges(property, environment);
 
                         environment.AddAffectedArtifact(property.ArtifactId);
                         RegisterPropertyModification(environment.SensitivityCollector, property);
@@ -115,8 +115,8 @@ namespace ArtifactStore.Repositories.VersionControl
                 commandType: CommandType.StoredProcedure
             );
 
-            //TODO: Fix this assert
-            //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some property versions are not closed");
+            // TODO: Fix this assert
+            // Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some property versions are not closed");
         }
         
         private void RegisterPropertyModification(ReuseSensitivityCollector sensitivityCollector, SqlDraftAndLatestProperty property)

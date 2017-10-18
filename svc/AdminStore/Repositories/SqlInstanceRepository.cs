@@ -254,8 +254,8 @@ namespace AdminStore.Repositories
 
         public async Task DeleteProject(int userId, int projectId)
         {
-            //We need to check if project is still exist in database and not makred as deleted
-            //Also we need to get the latest projectstatus to apply the right delete method
+            // We need to check if project is still exist in database and not makred as deleted
+            // Also we need to get the latest projectstatus to apply the right delete method
             ProjectStatus? projectStatus;
 
             InstanceItem project = await GetInstanceProjectAsync(projectId, userId, fromAdminPortal: true);

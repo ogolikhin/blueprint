@@ -14,11 +14,11 @@ namespace AdminStore.Extensions
         [TestMethod]
         public void Validate_InvalidNameLength_BadRequest()
         {
-            //arrange
+            // arrange
             Exception exception = null;
             var model = new CreateWorkflowDto() { Name = "a" };
 
-            //act
+            // act
             try
             {
                model.Validate();
@@ -28,7 +28,7 @@ namespace AdminStore.Extensions
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
             Assert.AreEqual(ErrorMessages.WorkflowNameError, exception.Message);
@@ -37,7 +37,7 @@ namespace AdminStore.Extensions
         [TestMethod]
         public void Validate_DescriptionLimitReached_BadRequest()
         {
-            //arrange
+            // arrange
             Exception exception = null;
             var model = new CreateWorkflowDto()
             {
@@ -46,7 +46,7 @@ namespace AdminStore.Extensions
                     "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenati"
             };
 
-            //act
+            // act
             try
             {
                 model.Validate();
@@ -56,7 +56,7 @@ namespace AdminStore.Extensions
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
             Assert.AreEqual(ErrorMessages.WorkflowDescriptionLimit, exception.Message);

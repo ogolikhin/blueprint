@@ -36,10 +36,10 @@ namespace ServiceLibrary.Helpers.Validators
         [TestMethod]
         public void Validate_DefaultNumberProperty_Success()
         {
-            //Arrange.
+            // Arrange.
             var validator = new NumberPropertyValidator();
 
-            //Act.
+            // Act.
             var actualResult = validator.Validate(
                 _property,
                 new List<WorkflowPropertyType>()
@@ -48,18 +48,18 @@ namespace ServiceLibrary.Helpers.Validators
                 }, 
                 new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
 
-            //Assert.
+            // Assert.
             Assert.AreEqual(actualResult, null, "There should not be validation errors.");
         }
 
         [TestMethod]
         public void Validate_DoNotValidateNumberGreaterThanRange_Success()
         {
-            //Arrange.
+            // Arrange.
             var validator = new NumberPropertyValidator();
             _propertyType.IsValidate = false;
             _property.NumberValue = _propertyType.Range.End + 1;
-            //Act.
+            // Act.
             var actualResult = validator.Validate(
                 _property,
                 new List<WorkflowPropertyType>()
@@ -68,18 +68,18 @@ namespace ServiceLibrary.Helpers.Validators
                 },
                 new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
 
-            //Assert.
+            // Assert.
             Assert.AreEqual(actualResult, null, "There should not be validation errors.");
         }
 
         [TestMethod]
         public void Validate_DoNotValidateNumberLessThanRange_Success()
         {
-            //Arrange.
+            // Arrange.
             var validator = new NumberPropertyValidator();
             _propertyType.IsValidate = false;
             _property.NumberValue = _propertyType.Range.Start - 1;
-            //Act.
+            // Act.
             var actualResult = validator.Validate(
                 _property,
                 new List<WorkflowPropertyType>()
@@ -88,19 +88,19 @@ namespace ServiceLibrary.Helpers.Validators
                 },
                 new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
 
-            //Assert.
+            // Assert.
             Assert.AreEqual(actualResult, null, "There should not be validation errors.");
         }
 
         [TestMethod]
         public void Validate_DoNotValidateMoreThanDecimalPlaces_Success()
         {
-            //Arrange.
+            // Arrange.
             var validator = new NumberPropertyValidator();
             _propertyType.IsValidate = false;
             _propertyType.DecimalPlaces = 2;
             _property.NumberValue = (decimal)1.1234567890;
-            //Act.
+            // Act.
             var actualResult = validator.Validate(
                 _property,
                 new List<WorkflowPropertyType>()
@@ -109,13 +109,13 @@ namespace ServiceLibrary.Helpers.Validators
                 },
                 new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
 
-            //Assert.
+            // Assert.
             Assert.AreEqual(actualResult, null, "There should not be validation errors.");
         }
         [TestMethod]
         public void Validate_ValueExceedsDecimalPlaces_ReturnsErrorResultSet()
         {
-            //Arrange.
+            // Arrange.
             _property.NumberValue = (decimal)10.123;
 
             ExecuteErrorResultTests();
@@ -123,7 +123,7 @@ namespace ServiceLibrary.Helpers.Validators
         [TestMethod]
         public void Validate_ValuGreaterThanMaximum_ReturnsErrorResultSet()
         {
-            //Arrange.
+            // Arrange.
             _property.NumberValue = 21;
 
             ExecuteErrorResultTests();
@@ -131,7 +131,7 @@ namespace ServiceLibrary.Helpers.Validators
         [TestMethod]
         public void Validate_ValueLessThanMinimum_ReturnsErrorResultSet()
         {
-            //Arrange.
+            // Arrange.
             _property.NumberValue = 9;
             
             ExecuteErrorResultTests();
@@ -140,7 +140,7 @@ namespace ServiceLibrary.Helpers.Validators
         [TestMethod]
         public void Validate_ValueEmptyForRequiredType_ReturnsErrorResultSet()
         {
-            //Arrange.
+            // Arrange.
             _propertyType.IsRequired = true;
             _property.NumberValue = null;
 
@@ -150,7 +150,7 @@ namespace ServiceLibrary.Helpers.Validators
         private void ExecuteErrorResultTests()
         {
             var validator = new NumberPropertyValidator();
-            //Act
+            // Act
             var actualResult = validator.Validate(
                 _property,
                 new List<WorkflowPropertyType>()
@@ -159,7 +159,7 @@ namespace ServiceLibrary.Helpers.Validators
                 },
                 new ValidationContext(new List<SqlUser>(), new List<SqlGroup>()));
 
-            //Assert
+            // Assert
             Assert.AreEqual(actualResult.ErrorCode, ErrorCodes.InvalidArtifactProperty,
                 "Error code is not InvalidArtifactProperty");
         }

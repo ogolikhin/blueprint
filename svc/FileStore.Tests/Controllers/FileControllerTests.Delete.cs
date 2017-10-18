@@ -16,7 +16,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public void DeleteFile_FormatException_BadRequest()
         {
-            //Arrange
+            // Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
@@ -38,10 +38,10 @@ namespace FileStore.Controllers
                  defaults: new { id = RouteParameter.Optional });
 
 
-            //ct
+            // ct
             var result = controller.DeleteFile("");
 
-            //Assert
+            // Assert
             Assert.IsInstanceOfType(result.Result, typeof(BadRequestResult), "Result should be BadRequestResult");
         }
 
@@ -49,7 +49,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public void DeleteFile_Exception_InternalServerError()
         {
-            //Arrange
+            // Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
@@ -71,10 +71,10 @@ namespace FileStore.Controllers
                  routeTemplate: "files/{id}",
                  defaults: new { id = RouteParameter.Optional });
 
-            //Assert
+            // Assert
             var result = controller.DeleteFile(Guid.NewGuid().ToString("N"));
 
-            //Act
+            // Act
             Assert.IsInstanceOfType(result.Result, typeof(ExceptionResult), "Result should be ExceptionResult");
 
         }
@@ -83,7 +83,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public void DeleteFile_FileNotFound()
         {
-            //Arrange
+            // Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
@@ -105,10 +105,10 @@ namespace FileStore.Controllers
                  routeTemplate: "files/{id}",
                  defaults: new { id = RouteParameter.Optional });
 
-            //Assert
+            // Assert
             var result = controller.DeleteFile(Guid.NewGuid().ToString("N"));
 
-            //Act
+            // Act
             Assert.IsInstanceOfType(result.Result, typeof(NotFoundResult), "Result should be NotFound");
 
         }
@@ -117,7 +117,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public void DeleteFile_FileFound_Successfull()
         {
-            //Arrange
+            // Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
@@ -140,10 +140,10 @@ namespace FileStore.Controllers
                  routeTemplate: "files/{id}",
                  defaults: new { id = RouteParameter.Optional });
 
-            //Assert
+            // Assert
             var result = controller.DeleteFile(guid.ToString("N"));
 
-            //Act
+            // Act
             var okNegotiatedContentResult = result.Result as OkNegotiatedContentResult<string>;
 
             Assert.IsNotNull(okNegotiatedContentResult);
@@ -155,7 +155,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public void DeleteFile_FileFoundDateSupplied_Successfull()
         {
-            //Arrange
+            // Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
@@ -178,10 +178,10 @@ namespace FileStore.Controllers
                  routeTemplate: "files/{id}",
                  defaults: new { id = RouteParameter.Optional });
 
-            //Assert
+            // Assert
             var result = controller.DeleteFile(guid.ToString("N"), DateTime.Now);
 
-            //Act
+            // Act
             var okNegotiatedContentResult = result.Result as OkNegotiatedContentResult<string>;
 
             Assert.IsNotNull(okNegotiatedContentResult);
@@ -193,7 +193,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public void DeleteFile_FileFoundHistoricalDateSupplied_Successfull()
         {
-            //Arrange
+            // Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
@@ -216,10 +216,10 @@ namespace FileStore.Controllers
                  routeTemplate: "files/{id}",
                  defaults: new { id = RouteParameter.Optional });
 
-            //Assert
+            // Assert
             var result = controller.DeleteFile(guid.ToString("N"), DateTime.Now.AddDays(-10));
 
-            //Act
+            // Act
             var okNegotiatedContentResult = result.Result as OkNegotiatedContentResult<string>;
 
             Assert.IsNotNull(okNegotiatedContentResult);
@@ -231,7 +231,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public void DeleteFile_FileFoundHFutureDateSupplied_Successfull()
         {
-            //Arrange
+            // Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
@@ -254,10 +254,10 @@ namespace FileStore.Controllers
                  routeTemplate: "files/{id}",
                  defaults: new { id = RouteParameter.Optional });
 
-            //Assert
+            // Assert
             var result = controller.DeleteFile(guid.ToString("N"), DateTime.Now.AddDays(10));
 
-            //Act
+            // Act
             var okNegotiatedContentResult = result.Result as OkNegotiatedContentResult<string>;
 
             Assert.IsNotNull(okNegotiatedContentResult);

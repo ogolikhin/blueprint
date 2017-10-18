@@ -58,7 +58,7 @@ namespace SearchService.Repositories
             }
             catch (SqlException sqlException)
             {
-                //Sql timeout error
+                // Sql timeout error
                 if (sqlException.Number == ErrorCodes.SqlTimeoutNumber)
                 {
                     throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);

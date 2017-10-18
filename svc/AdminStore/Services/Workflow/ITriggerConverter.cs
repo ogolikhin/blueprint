@@ -47,8 +47,8 @@ namespace AdminStore.Services.Workflow
         private IDictionary<int, string> _stateMap;
         public IDictionary<int, string> StateMap => _stateMap ?? (_stateMap = new Dictionary<int, string>());
 
-        //private IDictionary<int, IDictionary<int, string>> _validValueMap;
-        //public IDictionary<int, IDictionary<int, string>> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, IDictionary<int, string>>());
+        // private IDictionary<int, IDictionary<int, string>> _validValueMap;
+        // public IDictionary<int, IDictionary<int, string>> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, IDictionary<int, string>>());
         private IDictionary<int, string> _validValueMap;
         public IDictionary<int, string> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, string>());
 

@@ -15,7 +15,7 @@ namespace ServiceLibrary.Models
         /// <summary>
         /// The ID of this Session.
         /// </summary>
-        [JsonIgnore] //do not send session id
+        [JsonIgnore] // do not send session id
         public Guid SessionId { get; set; }
 
         /// <summary>

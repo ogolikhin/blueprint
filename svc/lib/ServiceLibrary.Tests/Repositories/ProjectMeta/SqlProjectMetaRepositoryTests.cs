@@ -507,11 +507,11 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetApprovalStatusesAsync_Should_Throw_If_ProjectId_Isnt_Valid()
         {   
-            //Arrange
+            // Arrange
             var projectId = 0;
             var userId = 2;
 
-            //Act
+            // Act
             await _repository.GetApprovalStatusesAsync(projectId, userId);
         }
 
@@ -519,7 +519,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetApprovalStatusesAsync_Should_Throw_If_Project_Doesnt_Exist()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -531,7 +531,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
 
             _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new List<SqlProjectMetaRepository.ProjectVersion>() { null });
 
-            //Act
+            // Act
             await _repository.GetApprovalStatusesAsync(projectId, userId);
         }
 
@@ -539,7 +539,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetApprovalStatusesAsync_Should_Throw_If_User_Has_No_Permissions_For_Project()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -551,14 +551,14 @@ namespace ServiceLibrary.Repositories.ProjectMeta
 
             _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", projectVersionParams, new[] { new SqlProjectMetaRepository.ProjectVersion() { IsAccesible = false } });
 
-            //Act
+            // Act
             await _repository.GetApprovalStatusesAsync(projectId, userId);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_Status_Text()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -590,17 +590,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual("Test Approval Status", approvalStatus.StatusText);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_Approved_Status()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -632,17 +632,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual(ApprovalType.Approved, approvalStatus.ApprovalType);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_Disapproved_Status()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -674,17 +674,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual(ApprovalType.Disapproved, approvalStatus.ApprovalType);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_Not_Specified_Status()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -716,17 +716,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual(ApprovalType.NotSpecified, approvalStatus.ApprovalType);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_IsPreset_Case_True()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -758,17 +758,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual(true, approvalStatus.IsPreset);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_IsPreset_Case_False()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -800,17 +800,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual(false, approvalStatus.IsPreset);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Pending_Status_Text_For_ReadOnly_Not_Specified_Approval_Setting()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -842,10 +842,10 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual("Pending", approvalStatus.StatusText);
         }
 
@@ -951,7 +951,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
 
         private void TestOrderProperties(SqlProjectMetaRepository.AdvancedSettings advancedSettings, List<int> expectedOrder)
         {
-            //Arrange
+            // Arrange
             var propertyTypes = new List<PropertyType>
             {
                 new PropertyType {Id = 1, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 101},

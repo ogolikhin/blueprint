@@ -18,17 +18,17 @@ namespace AdminStore.Services.Workflow
         {
             _workflow = WorkflowTestHelper.TestWorkflow;
 
-            //============= Temp ========================================
-            //var xml = SerializationHelper.ToXml(_workflow);
-            //var objModel = SerializationHelper.FromXml<IeWorkflow>(xml);
+            // ============= Temp ========================================
+            // var xml = SerializationHelper.ToXml(_workflow);
+            // var objModel = SerializationHelper.FromXml<IeWorkflow>(xml);
 
-            //var xmlTriggers = new XmlWorkflowEventTriggers();
-            //xmlTriggers.Triggers.Add(new XmlWorkflowEventTrigger());
-            //xmlTriggers.Triggers.Add(new XmlWorkflowEventTrigger());
+            // var xmlTriggers = new XmlWorkflowEventTriggers();
+            // xmlTriggers.Triggers.Add(new XmlWorkflowEventTrigger());
+            // xmlTriggers.Triggers.Add(new XmlWorkflowEventTrigger());
 
-            //var xml = SerializationHelper.ToXml(xmlTriggers);
-            //var objModel = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(xml);
-            //===========================================================
+            // var xml = SerializationHelper.ToXml(xmlTriggers);
+            // var objModel = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(xml);
+            // ===========================================================
         }
 
         [TestMethod]

@@ -36,7 +36,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         [TestMethod]
         public void ValidateAction_WhenValidValuesArePopulated_ChoiceIsPopulated()
         {
-            //Arrange
+            // Arrange
             InitializeChoicePropertyChangeAction();
             _propertyChangeAction.ValidValues.Add(1);
             _executionParameters = new ExecutionParameters(
@@ -50,11 +50,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 new List<IPropertyValidator>(),
                 _reuseValidatorMock.Object);
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
             var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
-            //Assert
+            // Assert
             Assert.IsNull(result);
             Assert.IsFalse(propertyLiteValue.ChoiceIds.IsEmpty());
         }
@@ -62,7 +62,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         [TestMethod]
         public void ValidateAction_WhenValidValuesAreEmpty_TextOrCustomChoiceIsPopulated()
         {
-            //Arrange
+            // Arrange
             var defaultText = "Default Text";
             InitializeChoicePropertyChangeAction();
             _propertyChangeAction.PropertyValue = defaultText;
@@ -77,11 +77,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 new List<IPropertyValidator>(),
                 _reuseValidatorMock.Object);
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
             var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
-            //Assert
+            // Assert
             Assert.IsNull(result);
             Assert.AreEqual(propertyLiteValue.TextOrChoiceValue, defaultText);
         }

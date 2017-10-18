@@ -16,39 +16,39 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public void ValidateActionData_EmailNotificationAction_CalledRespectiveValidationMethod()
         {
-            //Arrange
+            // Arrange
             var wdvMock = new Mock<WorkflowDataValidator>(null, null, null, null) { CallBase = true };
             var result = new WorkflowDataValidationResult();
             var action = new IeEmailNotificationAction();
             wdvMock.Setup(m => m.ValidateEmailNotificationActionData(result, action, true)).Verifiable();
 
-            //Act
+            // Act
             wdvMock.Object.ValidateActionData(result, action, true);
 
-            //Assert
+            // Assert
             wdvMock.Verify();
         }
 
         [TestMethod]
         public void ValidateActionData_PropertyChangeAction_CalledRespectiveValidationMethod()
         {
-            //Arrange
+            // Arrange
             var wdvMock = new Mock<WorkflowDataValidator>(null, null, null, null) { CallBase = true };
             var result = new WorkflowDataValidationResult();
             var action = new IePropertyChangeAction();
             wdvMock.Setup(m => m.ValidatePropertyChangeActionData(result, action, true)).Verifiable();
 
-            //Act
+            // Act
             wdvMock.Object.ValidateActionData(result, action, true);
 
-            //Assert
+            // Assert
             wdvMock.Verify();
         }
 
         [TestMethod]
         public void ValidatePropertyChangeActionData_PropertyTypeNotFound_Error()
         {
-            //Arrange
+            // Arrange
             const string propertyName = "some";
             var wdvMock = new Mock<WorkflowDataValidator>(null, null, null, null) { CallBase = true };
             var result = new WorkflowDataValidationResult();
@@ -57,10 +57,10 @@ namespace AdminStore.Services.Workflow
                 PropertyName = propertyName
             };
 
-            //Act
+            // Act
             wdvMock.Object.ValidatePropertyChangeActionData(result, action, true);
 
-            //Assert
+            // Assert
             Assert.AreEqual(true, result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundByName, result.Errors[0].ErrorCode);
@@ -70,7 +70,7 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public void ValidatePropertyChangeActionData_PropertyValueValidationSuccess_Success()
         {
-            //Arrange
+            // Arrange
             const string propertyName = "some";
             var pvValidatorMock = new Mock<IWorkflowActionPropertyValueValidator>();
             var wdvMock = new Mock<WorkflowDataValidator>(null, null, null, pvValidatorMock.Object) { CallBase = true };
@@ -86,17 +86,17 @@ namespace AdminStore.Services.Workflow
             pvValidatorMock.Setup(m => m.ValidatePropertyValue(action, pt, It.IsAny<IList<SqlUser>>(),
                 It.IsAny<IList<SqlGroup>>(), true, out errorCode)).Returns(true);
 
-            //Act
+            // Act
             wdvMock.Object.ValidatePropertyChangeActionData(result, action, true);
 
-            //Assert
+            // Assert
             Assert.AreEqual(false, result.HasErrors);
         }
 
         [TestMethod]
         public void ValidatePropertyChangeActionData_PropertyValueValidationFailure_Error()
         {
-            //Arrange
+            // Arrange
             const string propertyName = "some";
             var pvValidatorMock = new Mock<IWorkflowActionPropertyValueValidator>();
             var wdvMock = new Mock<WorkflowDataValidator>(null, null, null, pvValidatorMock.Object) { CallBase = true };
@@ -112,10 +112,10 @@ namespace AdminStore.Services.Workflow
             pvValidatorMock.Setup(m => m.ValidatePropertyValue(action, pt, It.IsAny<IList<SqlUser>>(),
                 It.IsAny<IList<SqlGroup>>(), true, out errorCode)).Returns(false);
 
-            //Act
+            // Act
             wdvMock.Object.ValidatePropertyChangeActionData(result, action, true);
 
-            //Assert
+            // Assert
             Assert.AreEqual(true, result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(errorCode, result.Errors[0].ErrorCode);
@@ -125,23 +125,23 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public void ValidateActionData_GenerateAction_CalledRespectiveValidationMethod()
         {
-            //Arrange
+            // Arrange
             var wdvMock = new Mock<WorkflowDataValidator>(null, null, null, null) { CallBase = true };
             var result = new WorkflowDataValidationResult();
             var action = new IeGenerateAction();
             wdvMock.Setup(m => m.ValidateGenerateActionData(result, action, true)).Verifiable();
 
-            //Act
+            // Act
             wdvMock.Object.ValidateActionData(result, action, true);
 
-            //Assert
+            // Assert
             wdvMock.Verify();
         }
 
         [TestMethod]
         public void ValidateGenerateActionData_ChildArtifacts_CalledRespectiveValidationMethod()
         {
-            //Arrange
+            // Arrange
             var wdvMock = new Mock<WorkflowDataValidator>(null, null, null, null) { CallBase = true };
             var result = new WorkflowDataValidationResult();
             var action = new IeGenerateAction
@@ -150,17 +150,17 @@ namespace AdminStore.Services.Workflow
             };
             wdvMock.Setup(m => m.ValidateGenerateChildArtifactsActionData(result, action, true)).Verifiable();
 
-            //Act
+            // Act
             wdvMock.Object.ValidateGenerateActionData(result, action, true);
 
-            //Assert
+            // Assert
             wdvMock.Verify();
         }
 
         [TestMethod]
         public void ValidateGenerateChildArtifactsActionData_ArtifcatTypeFound_Success()
         {
-            //Arrange
+            // Arrange
             const string artifactType = "some";
             var wdvMock = new Mock<WorkflowDataValidator>(null, null, null, null) { CallBase = true };
             var result = new WorkflowDataValidationResult();
@@ -171,17 +171,17 @@ namespace AdminStore.Services.Workflow
                 ArtifactType = artifactType
             };
 
-            //Act
+            // Act
             wdvMock.Object.ValidateGenerateChildArtifactsActionData(result, action, true);
 
-            //Assert
+            // Assert
             Assert.AreEqual(false, result.HasErrors);
         }
 
         [TestMethod]
         public void ValidateGenerateChildArtifactsActionData_ArtifcatTypeNotFound_Error()
         {
-            //Arrange
+            // Arrange
             const string artifactType = "some";
             var wdvMock = new Mock<WorkflowDataValidator>(null, null, null, null) { CallBase = true };
             var result = new WorkflowDataValidationResult();
@@ -191,10 +191,10 @@ namespace AdminStore.Services.Workflow
                 ArtifactType = artifactType
             };
 
-            //Act
+            // Act
             wdvMock.Object.ValidateGenerateChildArtifactsActionData(result, action, true);
 
-            //Assert
+            // Assert
             Assert.AreEqual(true, result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundByName, result.Errors[0].ErrorCode);

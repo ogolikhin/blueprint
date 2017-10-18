@@ -15,13 +15,13 @@ namespace ServiceLibrary.Helpers
         [TestMethod]
         public async Task GetStatus_NoStatusRepos_ReturnsCorrectContent()
         {
-            //Arrange
+            // Arrange
             var statusControllerHelper = GetStatusControllerHelper(new List<IStatusRepository>(), "MyService");
 
-            //Act
+            // Act
             var serviceStatus = await statusControllerHelper.GetStatus();
 
-            //Assert
+            // Assert
             Assert.AreEqual(0, serviceStatus.StatusResponses.Count);
             Assert.AreEqual("MyService", serviceStatus.ServiceName);
             Assert.IsTrue(serviceStatus.NoErrors);
@@ -31,7 +31,7 @@ namespace ServiceLibrary.Helpers
         [TestMethod]
         public async Task GetStatus_MultipleStatusRepos_ReturnsCorrectContent()
         {
-            //Arrange
+            // Arrange
             var statusRepoList = new List<IStatusRepository>();
             for (int i = 0; i < 3; i++)
             {
@@ -41,10 +41,10 @@ namespace ServiceLibrary.Helpers
 
             var statusControllerHelper = GetStatusControllerHelper(statusRepoList, "MyService");
 
-            //Act
+            // Act
             var serviceStatus = await statusControllerHelper.GetStatus();
 
-            //Assert
+            // Assert
             Assert.AreEqual(3, serviceStatus.StatusResponses.Count);
             Assert.AreEqual("MyService", serviceStatus.ServiceName);
             Assert.IsTrue(serviceStatus.NoErrors);
@@ -63,7 +63,7 @@ namespace ServiceLibrary.Helpers
         [TestMethod]
         public async Task GetStatus_MultipleStatusReposOneException_ReturnsCorrectContent()
         {
-            //Arrange
+            // Arrange
             var statusRepoList = new List<IStatusRepository>();
             List<StatusResponse> response = new List<StatusResponse>();
             Mock<IStatusRepository> statusRepoMock;
@@ -80,10 +80,10 @@ namespace ServiceLibrary.Helpers
 
             var statusControllerHelper = GetStatusControllerHelper(statusRepoList, "MyService");
 
-            //Act
+            // Act
             var serviceStatus = await statusControllerHelper.GetStatus();
 
-            //Assert
+            // Assert
             Assert.AreEqual(4, serviceStatus.StatusResponses.Count);
             Assert.AreEqual("MyService", serviceStatus.ServiceName);
             Assert.IsFalse(serviceStatus.NoErrors);
@@ -118,7 +118,7 @@ namespace ServiceLibrary.Helpers
         private IServiceLogRepository GetLogRepo()
         {
             var logRepo = new Mock<IServiceLogRepository>();
-            //logRepo.Setup(r => r.LogError(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(null);
+            // logRepo.Setup(r => r.LogError(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(null);
             return logRepo.Object;
         }
 

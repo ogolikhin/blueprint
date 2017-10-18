@@ -100,18 +100,18 @@ namespace ArtifactStore.Repositories.VersionControl
 
         private void RemoveCollectionAssignments(int userId, IEnumerable<int> deletedArtifactIds, PublishEnvironment env, IDbTransaction transaction)
         {
-            //Create stored procedure for removing collection assignments
-            //bool hasChanges = false;
-            //foreach (var artifactId in env.FilterByBaseType(deletedArtifactIds, ItemTypePredefined.ArtifactCollection))
-            //{
+            // Create stored procedure for removing collection assignments
+            // bool hasChanges = false;
+            // foreach (var artifactId in env.FilterByBaseType(deletedArtifactIds, ItemTypePredefined.ArtifactCollection))
+            // {
             //    ACollectionAssignment.RemoveAllAsPublishMarkedForDeletion(env.RevisionId, artifactId, ctx);
             //    hasChanges = true;
-            //}
+            // }
 
-            //if (hasChanges)
-            //{
+            // if (hasChanges)
+            // {
             //    ctx.SaveChanges();
-            //}
+            // }
         }
 
         private async Task<ICollection<SqlDiscardPublishState>> GetDiscardPublishStatesInternal(int userId,

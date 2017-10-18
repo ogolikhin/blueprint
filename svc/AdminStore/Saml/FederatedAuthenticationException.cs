@@ -49,7 +49,7 @@ namespace AdminStore.Saml
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            //TODO use reflection to get property name
+            // TODO use reflection to get property name
             info.AddValue(ServiceConstants.ErrorCodeName, ErrorCode);
         }
 

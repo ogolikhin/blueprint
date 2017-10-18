@@ -514,7 +514,7 @@ namespace AdminStore.Repositories
             await repository.CreateFolderAsync(folder);
 
             // Assert
-            //Exception
+            // Exception
         }
 
         [TestMethod]
@@ -533,7 +533,7 @@ namespace AdminStore.Repositories
             await repository.CreateFolderAsync(folder);
 
             // Assert
-            //Exception
+            // Exception
         }
 
         #endregion CreateFolderAsync
@@ -543,17 +543,17 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task GetFoldersByName_WeHaveFoldersWithSimilarName_ReturnFolders()
         {
-            //arrange
+            // arrange
             var name = "folderName";
             var result = new List<InstanceItem> { new InstanceItem { Id = 1 } };
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
             cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
 
-            //act
+            // act
             var response = await repository.GetFoldersByName(name);
 
-            //assert
+            // assert
             cxn.Verify();
             Assert.AreEqual(response.ToList().Count, result.Count);
             Assert.AreEqual(result.Last().Id, result.Last().Id);
@@ -563,17 +563,17 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task GetFoldersByName_ThereIsNoFoldersWithSuchAName_ReturnEmptyResult()
         {
-            //arrange
+            // arrange
             var name = "someName";
             var result = new List<InstanceItem>();
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
             cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
 
-            //act
+            // act
             var response = await repository.GetFoldersByName(name);
 
-            //assert
+            // assert
             cxn.Verify();
             Assert.AreEqual(response.ToList().Count, result.Count);
         }
@@ -615,7 +615,7 @@ namespace AdminStore.Repositories
             await repository.DeleteInstanceFolderAsync(instanceFolderId: 1);
 
             // Assert
-            //Exception
+            // Exception
         }
 
         [TestMethod]
@@ -633,7 +633,7 @@ namespace AdminStore.Repositories
             await repository.DeleteInstanceFolderAsync(instanceFolderId: 1);
 
             // Assert
-            //Exception
+            // Exception
         }
 
         #endregion
@@ -677,7 +677,7 @@ namespace AdminStore.Repositories
             await repository.UpdateFolderAsync(folderId, folder);
 
             // Assert
-            //Exception
+            // Exception
         }
 
         [TestMethod]
@@ -696,7 +696,7 @@ namespace AdminStore.Repositories
             await repository.UpdateFolderAsync(folderId, folder);
 
             // Assert
-            //Exception
+            // Exception
         }
 
         [TestMethod]
@@ -715,7 +715,7 @@ namespace AdminStore.Repositories
             await repository.UpdateFolderAsync(folderId, folder);
 
             // Assert
-            //Exception
+            // Exception
         }
 
         [TestMethod]
@@ -734,7 +734,7 @@ namespace AdminStore.Repositories
             await repository.UpdateFolderAsync(folderId, folder);
 
             // Assert
-            //Exception
+            // Exception
         }
 
         [TestMethod]
@@ -753,7 +753,7 @@ namespace AdminStore.Repositories
             await repository.UpdateFolderAsync(folderId, folder);
 
             // Assert
-            //Exception
+            // Exception
         }
 
         #endregion
@@ -1184,7 +1184,7 @@ namespace AdminStore.Repositories
                 RoleId = 1
             };
 
-            int projectId = 10000; //this id is not in the table yet
+            int projectId = 10000; // this id is not in the table yet
 
             _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
                             new Dictionary<string, object>
@@ -1239,15 +1239,15 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task GetProjectsAndFolders_AllParametersAreOk_ReturnNotEmptyQueryResult()
         {
-            //arrange
+            // arrange
             var total = 1;
             var spResult = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() { Id = 1, Location = "path"} };
             _connection.SetupQueryAsync("SearchProjectsAndFolders", It.IsAny<Dictionary<string, object>>(), spResult, new Dictionary<string, object> { { "Total", (int?)total } });
 
-            //act
+            // act
             var result =
                 await _instanceRepository.GetProjectsAndFolders(1, _tabularData, SortingHelper.SortProjectFolders);
-            //assert
+            // assert
             Assert.AreEqual(1, result.Total);
             Assert.AreEqual(spResult.First().Location, result.Items.ToList().First().Location);
         }
@@ -1255,15 +1255,15 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task GetProjectsAndFolders_AllParametersAreOk_ReturnEmptyResult()
         {
-            //arrange
+            // arrange
             var total = 0;
             var spResult = new List<ProjectFolderSearchDto>();
             _connection.SetupQueryAsync("SearchProjectsAndFolders", It.IsAny<Dictionary<string, object>>(), spResult, new Dictionary<string, object> { { "Total", (int?)total } });
 
-            //act
+            // act
             var result =
                 await _instanceRepository.GetProjectsAndFolders(1, _tabularData, SortingHelper.SortProjectFolders);
-            //assert
+            // assert
             Assert.AreEqual(0, result.Total);
         }
 
@@ -1443,7 +1443,7 @@ namespace AdminStore.Repositories
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task UpdateRoleAssignment_ProjectIdNotValid_ThrowsArgumentOutOfRangeException()
         {
-            //Arrange
+            // Arrange
             int projectId = 0;
 
             // Act

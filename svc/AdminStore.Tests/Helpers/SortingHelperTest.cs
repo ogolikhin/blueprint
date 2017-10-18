@@ -11,33 +11,33 @@ namespace AdminStore.Helpers
         [TestMethod]
         public void SortProjectRolesAssignments_RoleNameAsc_CorrectResult()
         {
-            //Arange
+            // Arange
             var sorting = new Sorting {Sort = "roleName", Order = SortOrder.Asc};
             var result = SortingHelper.SortProjectRolesAssignments(sorting);
 
-            //Act
+            // Act
             Assert.AreEqual(result, "roleName");
         }
 
         [TestMethod]
         public void SortProjectRolesAssignments_RoleNameDesc_CorrectResult()
         {
-            //Arange
+            // Arange
             var sorting = new Sorting { Sort = "roleName", Order = SortOrder.Desc };
             var result = SortingHelper.SortProjectRolesAssignments(sorting);
 
-            //Act
+            // Act
             Assert.AreEqual(result, "-roleName");
         }
 
         [TestMethod]
         public void SortProjectRolesAssignments_DefaultSort_CorrectResult()
         {
-            //Arange
+            // Arange
             var sorting = new Sorting ();
             var result = SortingHelper.SortProjectRolesAssignments(sorting);
 
-            //Act
+            // Act
             Assert.AreEqual(result, "groupName");
         }
     }

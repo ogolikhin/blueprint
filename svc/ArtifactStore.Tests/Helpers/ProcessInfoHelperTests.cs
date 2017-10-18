@@ -16,7 +16,7 @@ namespace ArtifactStore.Helpers
         [TestMethod]
         public void ProcessInfo_MapUserToSystemType_Successfull()
         {
-            //Arrange
+            // Arrange
             ProcessInfo pi = new ProcessInfo()
             {
                 ProcessType = ProcessType.UserToSystemProcess.ToString(),
@@ -31,7 +31,7 @@ namespace ArtifactStore.Helpers
         [TestMethod]
         public void ProcessInfo_MapArray_Successfull()
         {
-            //Arrange
+            // Arrange
             List<ProcessInfo> pi = new List<ProcessInfo>()
             {
                 new ProcessInfo()
@@ -63,7 +63,7 @@ namespace ArtifactStore.Helpers
         [TestMethod]
         public void ProcessInfo_IncorrectString_ParsedToNoneType_Successfull()
         {
-            //Arrange
+            // Arrange
             ProcessInfo pi = new ProcessInfo()
             {
                 ProcessType = "sefsdfsdfsdf~@!@$@#$",

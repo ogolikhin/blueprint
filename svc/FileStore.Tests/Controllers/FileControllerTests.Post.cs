@@ -20,7 +20,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public async Task PostFile_MultipartSingleFile_Success()
         {
-            //Arrange
+            // Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
@@ -69,7 +69,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public async Task PostFile_MultipartMultipleFiles_BadRequestFailure()
         {
-            //Arrange
+            // Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).ReturnsAsync(guid);
@@ -109,7 +109,7 @@ namespace FileStore.Controllers
             // 1. Upload file
             var response = await controller.PostFileHttpContext(context.Object, null);
 
-            //Assert
+            // Assert
             Assert.IsTrue(response.Status == HttpStatusCode.BadRequest);
         }
 
@@ -117,7 +117,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public async Task PostFile_NonMultipart_BadRequestFailure()
         {
-            //Arrange
+            // Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).ReturnsAsync(guid);
@@ -150,7 +150,7 @@ namespace FileStore.Controllers
             // 1. Upload file
             var actionResult = await controller.PostFile();
 
-            //Assert
+            // Assert
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
@@ -162,7 +162,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public async Task PostFile_NonMultipartDateTimeExpired_BadRequestFailure()
         {
-            //Arrange
+            // Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).ReturnsAsync(guid);
@@ -195,7 +195,7 @@ namespace FileStore.Controllers
             // 1. Upload file
             var actionResult = await controller.PostFile(DateTime.Now);
 
-            //Assert
+            // Assert
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
@@ -207,7 +207,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public async Task PostFile_HttpContextNull_InternalServerError()
         {
-            //Arrange
+            // Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).ReturnsAsync(guid);
@@ -235,7 +235,7 @@ namespace FileStore.Controllers
             // 1. Upload file
             var actionResult = await controller.PostFile(DateTime.Now);
 
-            //Assert
+            // Assert
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
@@ -248,7 +248,7 @@ namespace FileStore.Controllers
         [ExpectedException(typeof(Exception))]
         public async Task PostFile_MultipartRepoThrowsException()
         {
-            //Arrange
+            // Arrange
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).Throws(new Exception());
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();

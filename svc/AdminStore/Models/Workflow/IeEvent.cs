@@ -16,7 +16,7 @@ namespace AdminStore.Models.Workflow
     public abstract class IeEvent : IIeWorkflowEntityWithId
     {
         // Optional, not used for the import, will be used for the update
-        //========================================================
+        // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
         public int? Id { get; set; }
@@ -32,7 +32,7 @@ namespace AdminStore.Models.Workflow
         {
             return Id.HasValue;
         }
-        //========================================================
+        // ========================================================
 
         // Defines the type of Event
         [XmlIgnore]

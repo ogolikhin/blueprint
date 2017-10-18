@@ -386,7 +386,7 @@ namespace ServiceLibrary.Repositories
             if (isUseCase) {
                 var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, itemIds)).ToDictionary(a => a.ItemId);
                 foreach (var subArtifactEntry in subArtifactsDictionary) {
-                    //filter out flow subartifacts and append children of flow to children of flow's parent.
+                    // filter out flow subartifacts and append children of flow to children of flow's parent.
                     if (subArtifactEntry.Value.PredefinedType == ItemTypePredefined.Flow)
                     {
                         SubArtifact parent;
@@ -397,7 +397,7 @@ namespace ServiceLibrary.Repositories
                             ((List<SubArtifact>)parent.Children).AddRange(children);
                         }
                     }
-                    //populate label as display names.
+                    // populate label as display names.
                     ItemLabel itemLabel;
                     if (itemLabelsDictionary != null && itemLabelsDictionary.TryGetValue(subArtifactEntry.Value.Id, out itemLabel))
                     {

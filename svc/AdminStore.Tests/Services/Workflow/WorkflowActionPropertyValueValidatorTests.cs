@@ -16,7 +16,7 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public void ValidatePropertyValue_Text_Required_Success()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Text,
@@ -27,14 +27,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "value"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Text_HasValidValues_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Text
@@ -47,14 +47,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Text_HasUsersGroups_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Text
@@ -70,14 +70,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Text_Required_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Text,
@@ -88,7 +88,7 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "  "
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty);
         }
 
@@ -99,7 +99,7 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public void ValidatePropertyValue_Date_Required_Iso8601_Success()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Date,
@@ -110,14 +110,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "2017-07-21"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Date_HasValidValues_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Date
@@ -130,14 +130,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Date_HasUsersGroups_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Date
@@ -153,14 +153,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Date_Required_ShiftInDays_Success()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Date,
@@ -171,14 +171,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "-1"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Date_Required_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Date,
@@ -189,14 +189,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "  "
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Date_InvalidFormat_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Date,
@@ -208,14 +208,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "2017-07-21T15:00:00Z"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Date_NotRequiredEmpty_Success()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Date,
@@ -227,14 +227,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = " "
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Date_InRange_Success()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Date,
@@ -248,14 +248,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "2017-08-30"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Date_LessThanMin_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Date,
@@ -269,14 +269,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "2017-07-31"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Date_GreaterThanMax_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Date,
@@ -290,7 +290,7 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "2017-08-31"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange);
         }
 
@@ -301,7 +301,7 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public void ValidatePropertyValue_Number_Required_Success()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Number,
@@ -312,14 +312,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "11.22"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Number_HasValidValues_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Number
@@ -332,14 +332,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Number_HasUsersGroups_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Number
@@ -355,14 +355,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Number_Required_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Number,
@@ -373,14 +373,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "  "
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Number_InvalidFormat_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Number,
@@ -392,14 +392,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "aaa"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberFormat);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Number_NotRequiredEmpty_Success()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Number,
@@ -411,14 +411,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = " "
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Number_InvalidDecimalPlaces_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Number,
@@ -433,14 +433,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "11.222"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberDecimalPlaces);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Number_InRange_Success()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Number,
@@ -455,14 +455,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "20.20"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Number_LessThanMin_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Number,
@@ -477,14 +477,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "-10.11"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNumberOutOfRange);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Number_GreaterThanMax_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Number,
@@ -499,7 +499,7 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "20.21"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNumberOutOfRange);
         }
 
@@ -510,7 +510,7 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public void ValidatePropertyValue_Choice_Required_Success()
         {
-            //Arrange
+            // Arrange
             const string valueValue = "valid value";
             var propertyType = new PropertyType
             {
@@ -531,14 +531,14 @@ namespace AdminStore.Services.Workflow
 
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Choice_HasUsersGroups_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Choice
@@ -554,14 +554,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Choice_Required_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Choice,
@@ -573,14 +573,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "  "
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Choice_MultipleNotAllowed_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.Choice,
@@ -596,14 +596,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Choice_ValidatedSpecifiedAsNotValidated_Failure()
         {
-            //Arrange
+            // Arrange
             const string valueValue = "valid value";
             var propertyType = new PropertyType
             {
@@ -619,14 +619,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = "value"
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Choice_ValidValueNotFoundByValue_Failure()
         {
-            //Arrange
+            // Arrange
             const string valueValue = "valid value";
             var propertyType = new PropertyType
             {
@@ -646,14 +646,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundByValue);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_Choice_ValidValueNotFoundById_Failure()
         {
-            //Arrange
+            // Arrange
             const string valueValue = "valid value";
             var propertyType = new PropertyType
             {
@@ -673,7 +673,7 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, false, false, WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById);
         }
 
@@ -684,7 +684,7 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public void ValidatePropertyValue_User_UsersGroups_Required_Success()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.User,
@@ -704,14 +704,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, users, groups, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_User_Required_IncludeCurrentUser_Success()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.User,
@@ -728,14 +728,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, users, groups, true, true, null);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_User_HasValidValues_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.User
@@ -748,14 +748,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_User_RequiredHasPropertyValue_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.User,
@@ -766,14 +766,14 @@ namespace AdminStore.Services.Workflow
                 PropertyValue = ""
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, null, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_User_Required_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.User,
@@ -786,14 +786,14 @@ namespace AdminStore.Services.Workflow
                 UsersGroups = new IeUsersGroups()
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, users, null, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_User_UserNotFoundByName_Failure()
         {
-            //Arrange
+            // Arrange
 
             var propertyType = new PropertyType
             {
@@ -817,14 +817,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, users, groups, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundByName);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_User_UserNotFoundById_Failure()
         {
-            //Arrange
+            // Arrange
 
             var propertyType = new PropertyType
             {
@@ -849,14 +849,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, users, groups, false, false, WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_User_GroupNotFoundByName_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.User,
@@ -882,14 +882,14 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, users, groups, true, false, WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundByName);
         }
 
         [TestMethod]
         public void ValidatePropertyValue_User_GroupNotFoundById_Failure()
         {
-            //Arrange
+            // Arrange
             var propertyType = new PropertyType
             {
                 PrimitiveType = PropertyPrimitiveType.User,
@@ -915,7 +915,7 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            //Act and Assert
+            // Act and Assert
             ValidatePropertyValue(action, propertyType, users, groups, false, false, WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById);
         }
 
@@ -927,14 +927,14 @@ namespace AdminStore.Services.Workflow
             IList<SqlUser> users, IList<SqlGroup> groups, bool ignoreIds, bool expectedResult,
             WorkflowDataValidationErrorCodes? expectedErrorCode)
         {
-            //Arrange
+            // Arrange
             var pvValidator = new WorkflowActionPropertyValueValidator();
 
-            //Act
+            // Act
             WorkflowDataValidationErrorCodes? actualErrorCode;
             var actualResult = pvValidator.ValidatePropertyValue(action, propertyType, users, groups, ignoreIds, out actualErrorCode);
 
-            //Assert
+            // Assert
             Assert.AreEqual(expectedResult, actualResult);
             Assert.AreEqual(expectedErrorCode, actualErrorCode);
         }

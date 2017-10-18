@@ -151,7 +151,7 @@ namespace ServiceLibrary.Repositories
             }
 
             var multipleResult = await GetArtifactsProjects(itemIds, sessionUserId, revisionId, addDrafts);
-            var projectsArtifactsItems = multipleResult.Item1.ToList(); //???Do we need always do it
+            var projectsArtifactsItems = multipleResult.Item1.ToList(); // ???Do we need always do it
             var versionProjectInfos = multipleResult.Item2;
 
             var projectIds = new HashSet<int>(projectsArtifactsItems.Select(i => i.VersionProjectId));

@@ -10,11 +10,11 @@ namespace AdminStore.Helpers
         [TestMethod]
         public void Validate_SearchStringIsCorrect_SuccessfulValidation()
         {
-            //Arange
+            // Arange
             var search = "hello";
             Exception exception = null;
 
-            //Act
+            // Act
             try
             {
                 SearchFieldValidator.Validate(search);
@@ -24,7 +24,7 @@ namespace AdminStore.Helpers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNull(exception);
         }
 
@@ -32,16 +32,16 @@ namespace AdminStore.Helpers
         [ExpectedException(typeof(BadRequestException))]
         public void Validate_SearchStringExceedsLimit_BadRequestError()
         {
-            //Arange
+            // Arange
             var search = @"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis feugiat,
                             purus id elementum tincidunt, urna urna gravida sem, id interdum dui diam vel nulla. Vivamus ultrices
                            orci metus, eu luctus nisi ultricies ac. Nulla facilisi. Nam sed turpis duis.";
 
-            //Act
+            // Act
             SearchFieldValidator.Validate(search);
 
-            //Assert
-            //Exception
+            // Assert
+            // Exception
         }
     }
 }

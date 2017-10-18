@@ -255,7 +255,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                                       }).ToList()
                                       : null,
                 DefaultValidValueId = pv.PrimitiveType == PropertyPrimitiveType.Choice
-                                      ? FindDefaultValidValueId(propertyFromXml.ValidValues)//TODO
+                                      ? FindDefaultValidValueId(propertyFromXml.ValidValues)// TODO
                                       : null
             };
         }
@@ -370,7 +370,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 }
             }
 
-            //For the default not specified approval status, we want to display Pending to be consistent with SilverLight
+            // For the default not specified approval status, we want to display Pending to be consistent with SilverLight
             if (approvalType == ApprovalType.NotSpecified && projectSetting.ReadOnly
                && statusText.Equals("Not Specified", StringComparison.OrdinalIgnoreCase))
             {

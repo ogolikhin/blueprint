@@ -62,7 +62,7 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public async Task GetWorkflow_WorkflowExists_ReturnWorkflow()
         {
-            //arrange
+            // arrange
             var workflowId = 10;
             var workflow = new SqlWorkflow {Name = "Workflow1", Description = "Workflow1Description"};
             var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypes>
@@ -162,10 +162,10 @@ namespace AdminStore.Services.Workflow
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>()))
                 .ReturnsAsync(workflowArtifactTypesAndProjects);
 
-            //act
+            // act
             var workflowDetails = await _service.GetWorkflowDetailsAsync(workflowId);
 
-            //assert
+            // assert
             Assert.IsNotNull(workflowDetails);
             Assert.AreEqual(2, workflowDetails.Projects.Count());
             Assert.AreEqual(2, workflowDetails.ArtifactTypes.Count());
@@ -177,15 +177,15 @@ namespace AdminStore.Services.Workflow
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetWorkflow_ThereIsNoSuchWorkflow_NotFoundResult()
         {
-            //arrange
+            // arrange
             var workflowId = 10;
 
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
 
-            //act
+            // act
             await _service.GetWorkflowDetailsAsync(workflowId);
 
-            //Exception
+            // Exception
         }
 
         #endregion
@@ -239,7 +239,7 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public async Task GetWorkflowExportAsync_WorkflowExists_ReturnWorkflow()
         {
-            //arrange
+            // arrange
             var workflowId = 10;
             var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
             var workflowArtifactTypes = new List<SqlWorkflowArtifactTypes>
@@ -300,10 +300,10 @@ namespace AdminStore.Services.Workflow
 
             _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(projectTypes);
 
-            //act
+            // act
             var workflowExport = await _service.GetWorkflowExportAsync(workflowId);
 
-            //assert
+            // assert
             Assert.IsNotNull(workflowExport);
             Assert.AreEqual(2, workflowExport.Projects.Count);
             Assert.AreEqual(1, workflowExport.States.Count);
@@ -313,13 +313,13 @@ namespace AdminStore.Services.Workflow
         [ExpectedException(typeof(ResourceNotFoundException), "Workflow doesn't exist.")]
         public async Task GetWorkflowExportAsync_WorkflowDetailsError()
         {
-            //arrange
+            // arrange
             var workflowId = 10;
             SqlWorkflow workflow = null;
             
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             
-            //act
+            // act
             var workflowExport = await _service.GetWorkflowExportAsync(workflowId);
 
         }
@@ -327,7 +327,7 @@ namespace AdminStore.Services.Workflow
         [TestMethod]
         public async Task GetWorkflowExportAsync_EmptyWorkflow()
         {
-            //arrange
+            // arrange
             var workflowId = 10;
             var workflow = new SqlWorkflow();
             var artifactTypes = new List<SqlWorkflowArtifactTypes>();
@@ -343,10 +343,10 @@ namespace AdminStore.Services.Workflow
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(events);
             _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(projectTypes);
 
-            //act
+            // act
             var workflowExport = await _service.GetWorkflowExportAsync(workflowId);
 
-            //assert
+            // assert
             Assert.IsNotNull(workflowExport);
             Assert.IsFalse(workflowExport.IsActive);
             Assert.IsTrue(workflowExport.Projects.IsEmpty());

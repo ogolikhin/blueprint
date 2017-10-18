@@ -15,7 +15,7 @@ namespace ServiceLibrary.Helpers
 
     public class FeatureLicenseHelper : IFeatureLicenseHelper
     {
-        private const int CacheExpirationTime = 20; //minutes
+        private const int CacheExpirationTime = 20; // minutes
         private static readonly CacheHelper<FeatureTypes> ValidBlueprintLicenseFeaturesCache = new CacheHelper<FeatureTypes>(TimeSpan.FromMinutes(CacheExpirationTime), InternalGetValidBlueprintLicenseFeatures);
 
         private FeatureLicenseHelper()
@@ -74,7 +74,7 @@ namespace ServiceLibrary.Helpers
             }
             catch (Exception)
             {
-                //if decryption fails, return no licenses
+                // if decryption fails, return no licenses
             }
             return new FeatureInformation[0];
         }

@@ -54,20 +54,20 @@ namespace ArtifactStore.Executors
         [TestMethod]
         public async Task BuildTriggerExecutionParameters_WhenTriggersAreEmpty_ReturnsNull()
         {
-            //Arrange
+            // Arrange
             var result =
                 await
                     _stateChangeExecutorHelper.BuildTriggerExecutionParameters(1, null, new WorkflowEventTriggers(),
                         null);
 
-            //Assert
+            // Assert
             Assert.IsNull(result);
         }
 
         [TestMethod]
         public async Task BuildTriggerExecutionParameters_WhenValid_ReturnsExecutionParameters()
         {
-            //Arrange
+            // Arrange
             var artifactId = 1;
             var artifactStandardItemTypeId = 2;
             var artifactItemTypeId = 3;
@@ -93,7 +93,7 @@ namespace ArtifactStore.Executors
                     _stateChangeExecutorHelper.BuildTriggerExecutionParameters(1, artifactInfo, triggers,
                         null);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
     }

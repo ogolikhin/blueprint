@@ -84,7 +84,7 @@ namespace ArtifactStore.Executors
 
                 var artifactResultSet = await PublishArtifacts(publishRevision, transaction);
 
-                //Collecting all errors so that we can distinguish between errors at a later stage.
+                // Collecting all errors so that we can distinguish between errors at a later stage.
                 if (errors.Count > 0)
                 {
                     await
@@ -98,7 +98,7 @@ namespace ArtifactStore.Executors
                     Result = stateChangeResult
                 };
 
-            //Generate asynchronous messages for sending
+            // Generate asynchronous messages for sending
             result.ActionMessages.AddRange((await WorkflowEventsMessagesHelper.GenerateMessages(
                     _userId,
                     publishRevision,
@@ -136,7 +136,7 @@ namespace ArtifactStore.Executors
 
         private async Task ValidateArtifact(VersionControlArtifactInfo artifactInfo)
         {
-            //Confirm that the artifact is not deleted
+            // Confirm that the artifact is not deleted
             var isDeleted = await _stateChangeExecutorRepositories.ArtifactVersionsRepository.IsItemDeleted(_input.ArtifactId);
             if (isDeleted)
             {
@@ -153,8 +153,8 @@ namespace ArtifactStore.Executors
                 throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. The current version of the artifact {0} does not match the specified version {1}. Please refresh your view.", artifactInfo.VersionCount, _input.CurrentVersionId));
             }
 
-            //Lock is obtained by current user inside the stored procedure itself
-            //Check that it is not locked by some other user
+            // Lock is obtained by current user inside the stored procedure itself
+            // Check that it is not locked by some other user
             if (artifactInfo.LockedByUser != null && artifactInfo.LockedByUser.Id != _userId)
             {
                 throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. Artifact is locked by another user. Please refresh your view."));
@@ -163,7 +163,7 @@ namespace ArtifactStore.Executors
 
         private async Task<WorkflowState> ValidateCurrentState()
         {
-            //Get current state and validate current state
+            // Get current state and validate current state
             var currentState = await _stateChangeExecutorRepositories.WorkflowRepository.GetStateForArtifactAsync(_userId, _input.ArtifactId, int.MaxValue, true);
             if (currentState == null)
             {

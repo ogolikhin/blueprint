@@ -100,11 +100,11 @@ namespace Logging.Database.Utility
             return "";
         }
 
-        //internal static DateTimeOffset GetTimestamp(EventEntry entry, string payloadItem)
-        //{
+        // internal static DateTimeOffset GetTimestamp(EventEntry entry, string payloadItem)
+        // {
         //    var eventSchema = entry.Schema;
 
-        //    for (int i = 0; i < entry.Payload.Count; i++)
+        // for (int i = 0; i < entry.Payload.Count; i++)
         //    {
         //        if (eventSchema.Payload[i].EqualsOrdinalIgnoreCase(payloadItem))
         //        {
@@ -112,7 +112,7 @@ namespace Logging.Database.Utility
         //        }
         //    }
 
-        //    return entry.Timestamp;
-        //}
+        // return entry.Timestamp;
+        // }
     }
 }

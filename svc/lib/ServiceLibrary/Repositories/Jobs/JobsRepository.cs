@@ -177,7 +177,7 @@ namespace ServiceLibrary.Repositories.Jobs
             {
                 switch (sqlException.Number)
                 {
-                    //Sql timeout error
+                    // Sql timeout error
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
@@ -217,7 +217,7 @@ namespace ServiceLibrary.Repositories.Jobs
             {
                 switch (sqlException.Number)
                 {
-                    //Sql timeout error
+                    // Sql timeout error
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
@@ -270,7 +270,7 @@ namespace ServiceLibrary.Repositories.Jobs
                 .Where(sysMsg => sysMsg != null)
                 .Where(sysMsg => sysMsg.Command == SystemJobCommand.TerminateJob)
                 .Where(sysMsg => sysMsg.TargetJobId.HasValue && jobIds.Contains(sysMsg.TargetJobId.Value))
-                .GroupBy(sysMsg => sysMsg.TargetJobId ?? 0) //sysMsg.TargetJobId always has value
+                .GroupBy(sysMsg => sysMsg.TargetJobId ?? 0) // sysMsg.TargetJobId always has value
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
 
@@ -330,7 +330,7 @@ namespace ServiceLibrary.Repositories.Jobs
             {
                 switch (sqlException.Number)
                 {
-                    //Sql timeout error
+                    // Sql timeout error
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }

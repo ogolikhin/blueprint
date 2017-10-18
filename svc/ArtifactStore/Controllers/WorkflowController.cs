@@ -72,7 +72,7 @@ namespace ArtifactStore.Controllers
             {
                 throw new BadRequestException("Please provide valid workflow id and state id");
             }
-            //We assume that Session always exist as we have SessionRequired attribute
+            // We assume that Session always exist as we have SessionRequired attribute
             return Ok(await _workflowService.GetTransitionsAsync(Session.UserId, artifactId, workflowId, stateId));
         }
 
@@ -91,7 +91,7 @@ namespace ArtifactStore.Controllers
         [ResponseType(typeof(QuerySingleResult<WorkflowState>))]
         public async Task<IHttpActionResult> GetStateForArtifactAsync(int artifactId, int? versionId = null, bool addDrafts = true)
         {
-            //We assume that Session always exist as we have SessionRequired attribute
+            // We assume that Session always exist as we have SessionRequired attribute
             return Ok(await _workflowService.GetStateForArtifactAsync(Session.UserId, artifactId, versionId, addDrafts));
         }
 
@@ -109,7 +109,7 @@ namespace ArtifactStore.Controllers
         [ResponseType(typeof(QuerySingleResult<WorkflowState>))]
         public async Task<IHttpActionResult> ChangeStateForArtifactAsync([FromUri] int artifactId, [FromBody] WorkflowStateChangeParameter stateChangeParameter)
         {
-            //We assume that Session always exist as we have SessionRequired attribute
+            // We assume that Session always exist as we have SessionRequired attribute
             if (artifactId <= 0 || stateChangeParameter == null || !ModelState.IsValid || stateChangeParameter.FromStateId == stateChangeParameter.ToStateId)
             {
                 throw new BadRequestException("Please provide valid state change parameters");

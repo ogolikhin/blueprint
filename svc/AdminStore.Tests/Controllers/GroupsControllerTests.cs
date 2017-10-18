@@ -67,16 +67,16 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetGroups_AllRequirementsSatisfied_ReturnGroups()
         {
-            //arrange         
+            // arrange         
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(_groupsQueryDataResult);
 
-            //act
+            // act
             var result = await _controller.GetGroups(_groupsTabularPagination, _groupsSorting) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result.Content, typeof(QueryResult<GroupDto>));
         }
@@ -85,12 +85,12 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task GetGroups_PaginationParamsAreNotCorrect_BadRequestResult()
         {
-            //arrange
+            // arrange
 
-            //act
+            // act
             await _controller.GetGroups(new Pagination(), new Sorting(), string.Empty, UserId);
 
-            //assert
+            // assert
             // Exception
 
         }
@@ -99,16 +99,16 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetGroups_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupsAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(_groupsQueryDataResult);
 
-            //act
+            // act
             var result = await _controller.GetGroups(_groupsTabularPagination, _groupsSorting, string.Empty, UserId) as OkNegotiatedContentResult<QueryResult<GroupDto>>;
 
-            //assert
+            // assert
             // Exception
         }
         #endregion
@@ -119,28 +119,28 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task DeleteGroups_UserdDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             var scope = new OperationScope() { Ids = new List<int>() { 1, 2 } };
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
 
-            //act
+            // act
             var result = await _controller.DeleteGroups(scope);
 
-            //assert
-            //Exception
+            // assert
+            // Exception
         }
 
         [TestMethod]
         public async Task DeleteGroups_InvalidParameteres_BadRequest()
         {
-            //arrange
+            // arrange
 
-            //act
+            // act
             var result = await _controller.DeleteGroups(null) as BadRequestErrorMessageResult;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Message, ErrorMessages.InvalidDeleteGroupsParameters);
         }
@@ -148,7 +148,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task DeleteGroups_ValidRequest_ReturnDeletedGroupsCount()
         {
-            //arrange
+            // arrange
             _privilegesRepository
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
@@ -156,11 +156,11 @@ namespace AdminStore.Controllers
             var returnResult = 3;
             _sqlGroupRepositoryMock.Setup(repo => repo.DeleteGroupsAsync(It.Is<OperationScope>(a => a.Ids != null), It.IsAny<string>())).ReturnsAsync(returnResult);
 
-            //act
+            // act
             var result = await _controller.DeleteGroups(scope, string.Empty) as OkNegotiatedContentResult<DeleteResult>;
 
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(3, result.Content.TotalDeleted);
         }
@@ -173,23 +173,23 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetGroup_UserdDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             _privilegesRepository
               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
               .ReturnsAsync(InstanceAdminPrivileges.None);
 
-            //act
+            // act
             var result = await _controller.GetGroup(3);
 
-            //assert
-            //Exception
+            // assert
+            // Exception
         }
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetGroup_TheIsNoGroupForSuchAndId_ResourceNotFoundException()
         {
-            //arrange
+            // arrange
             _privilegesRepository
             .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
             .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
@@ -197,17 +197,17 @@ namespace AdminStore.Controllers
 
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupDetailsAsync(It.IsAny<int>())).ReturnsAsync(group);
 
-            //act
+            // act
             var result = await _controller.GetGroup(3);
 
-            //assert
-            //Exception
+            // assert
+            // Exception
         }
 
         [TestMethod]
         public async Task GetGroup_ValidRequest_ReturnGroup()
         {
-            //arrange
+            // arrange
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
@@ -215,10 +215,10 @@ namespace AdminStore.Controllers
 
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupDetailsAsync(It.IsAny<int>())).ReturnsAsync(group);
 
-            //act
+            // act
             var result = await _controller.GetGroup(3) as OkNegotiatedContentResult<GroupDto>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(3, result.Content.Id);
         }
@@ -629,12 +629,12 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task GetGroupsAndUsers_PaginationParamsAreNotCorrect_BadRequestResult()
         {
-            //arrange
+            // arrange
 
-            //act
+            // act
             await _controller.GetGroupsAndUsers(new Pagination(), new Sorting(), string.Empty, UserId);
 
-            //assert
+            // assert
             // Exception
 
         }
@@ -643,24 +643,24 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetGroupsAndUsers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             var resultQuery = new QueryResult<GroupUser>();
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupUsersAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(resultQuery);
 
-            //act
+            // act
             var result = await _controller.GetGroupsAndUsers(_groupsTabularPagination, _groupsSorting, string.Empty, 10) as OkNegotiatedContentResult<QueryResult<GroupUser>>;
 
-            //assert
+            // assert
             // Exception
         }
 
         [TestMethod]
         public async Task GetGroupsAndUsers_AllParametersAreFine_ReturnGroupsAndUsers()
         {
-            //arrange
+            // arrange
             var queryResult = new QueryResult<GroupUser>();
 
             _privilegesRepository
@@ -668,10 +668,10 @@ namespace AdminStore.Controllers
                .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupUsersAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(queryResult);
 
-            //act
+            // act
             var result = await _controller.GetGroupsAndUsers(_groupsTabularPagination, _groupsSorting, string.Empty, 10) as OkNegotiatedContentResult<QueryResult<GroupUser>>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result.Content, typeof(QueryResult<GroupUser>));
         }
@@ -684,12 +684,12 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task GetGroupMembers_PaginationParamsAreNotCorrect_BadRequestResult()
         {
-            //arrange
+            // arrange
 
-            //act
+            // act
             await _controller.GetGroupMembers(_groupId, new Pagination(), new Sorting());
 
-            //assert
+            // assert
             // Exception
 
         }
@@ -698,24 +698,24 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetGroupMembers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             var resultQuery = new QueryResult<GroupUser>();
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupMembersAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>()));
 
-            //act
+            // act
             var result = await _controller.GetGroupMembers(_groupId, _groupsTabularPagination, _groupsSorting) as OkNegotiatedContentResult<QueryResult<GroupUser>>;
 
-            //assert
+            // assert
             // Exception
         }
 
         [TestMethod]
         public async Task GetGroupMembers_AllParametersAreCorrect_ReturnMembersList()
         {
-            //arrange
+            // arrange
             var queryResult = new QueryResult<GroupUser>();
 
             _privilegesRepository
@@ -723,10 +723,10 @@ namespace AdminStore.Controllers
                .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
             _sqlGroupRepositoryMock.Setup(repo => repo.GetGroupMembersAsync(It.IsAny<int>(), It.IsAny<TabularData>(), It.IsAny<Func<Sorting, string>>())).ReturnsAsync(queryResult);
 
-            //act
+            // act
             var result = await _controller.GetGroupMembers(_groupId, _groupsTabularPagination, _groupsSorting) as OkNegotiatedContentResult<QueryResult<GroupUser>>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result.Content, typeof(QueryResult<GroupUser>));
         }
@@ -739,12 +739,12 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task RemoveMembersFromGroup_PaginationParamsAreNotCorrect_BadRequestResult()
         {
-            //arrange
+            // arrange
 
-            //act
+            // act
             await _controller.RemoveMembersFromGroup(_groupId, null);
 
-            //assert
+            // assert
             // Exception
         }
 
@@ -752,31 +752,31 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task RemoveMembersFromGroup_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             _privilegesRepository
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
-            //act
+            // act
             await _controller.RemoveMembersFromGroup(_groupId, _assignScope);
 
-            //assert
+            // assert
             // Exception
         }
 
         [TestMethod]
         public async Task RemoveMembersFromGroup_AllParametersAreCorrect_ReturnCountDeletedMembers()
         {
-            //arrange
+            // arrange
             _privilegesRepository
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             _sqlGroupRepositoryMock.Setup(repo => repo.DeleteMembersFromGroupAsync(It.IsAny<int>(), It.IsAny<AssignScope>())).ReturnsAsync(1);
 
-            //act
+            // act
             var result = await _controller.RemoveMembersFromGroup(_groupId, _assignScope) as OkNegotiatedContentResult<DeleteResult>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result.Content, typeof(DeleteResult));
         }
@@ -789,20 +789,20 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task AssignMembers_ParametersAreInvalid_BadRequestResult()
         {
-            //arrange
+            // arrange
 
-            //act
+            // act
             await _controller.AssignMembers(_groupId, null);
 
-            //assert   
-            //Exception
+            // assert   
+            // Exception
         }
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
         public async Task AssignMembers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             var collection = new List<KeyValuePair<int, UserType>>() {new KeyValuePair<int, UserType>(1, UserType.Group)};
             var scope = new AssignScope() {Members = collection.ToArray() };
             _privilegesRepository
@@ -810,10 +810,10 @@ namespace AdminStore.Controllers
                .ReturnsAsync(InstanceAdminPrivileges.None);
             _sqlGroupRepositoryMock.Setup(repo => repo.AssignMembers(It.IsAny<int>(), It.IsAny<AssignScope>(), It.IsAny<string>()));
 
-            //act
+            // act
             await _controller.AssignMembers(_groupId, scope);
 
-            //assert
+            // assert
         }
 
         #endregion

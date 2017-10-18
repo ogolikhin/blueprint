@@ -205,13 +205,13 @@ namespace Logging.Database.Sinks
 
                         int affectedRow = reader.RecordsAffected - 1;
                         SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(ex.Message);
-                        //retry after removing the offending record
+                        // retry after removing the offending record
                         collection.RemoveAt(affectedRow);
                     }
                 }
             }
 
-            //If still pending events after all retries, discard batch and log.
+            // If still pending events after all retries, discard batch and log.
             if (initialCount != collection.Count)
             {
                 SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(I18NHelper.FormatInvariant("{0} EventData entries are discarded due to too many failed retries", collection.Count));
@@ -237,10 +237,10 @@ namespace Logging.Database.Sinks
                 sqlBulkCopy.ColumnMappings.Add("Version", "Version");
                 sqlBulkCopy.ColumnMappings.Add("FormattedMessage", "FormattedMessage");
                 sqlBulkCopy.ColumnMappings.Add("Payload", "Payload");
-                //sqlBulkCopy.ColumnMappings.Add("ActivityId", "ActivityId");
-                //sqlBulkCopy.ColumnMappings.Add("RelatedActivityId", "RelatedActivityId");
-                //sqlBulkCopy.ColumnMappings.Add("ProcessId", "ProcessId");
-                //sqlBulkCopy.ColumnMappings.Add("ThreadId", "ThreadId");
+                // sqlBulkCopy.ColumnMappings.Add("ActivityId", "ActivityId");
+                // sqlBulkCopy.ColumnMappings.Add("RelatedActivityId", "RelatedActivityId");
+                // sqlBulkCopy.ColumnMappings.Add("ProcessId", "ProcessId");
+                // sqlBulkCopy.ColumnMappings.Add("ThreadId", "ThreadId");
                 sqlBulkCopy.ColumnMappings.Add("IpAddress", "IpAddress");
                 sqlBulkCopy.ColumnMappings.Add("Source", "Source");
                 sqlBulkCopy.ColumnMappings.Add("UserName", "UserName");

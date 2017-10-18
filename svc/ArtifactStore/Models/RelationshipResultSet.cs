@@ -16,12 +16,12 @@ namespace ArtifactStore.Models
         Manual = 2,
         Subartifact = 4,
         Association = 8, // other
-        ActorInheritsFrom = 16, //other
-        DocumentReference = 32, //other
-        GlossaryReference = 64, //other
-        ShapeConnector = 128,  //other
-        BaselineReference = 256, //other
-        ReviewPackageReference = 512, //other
+        ActorInheritsFrom = 16, // other
+        DocumentReference = 32, // other
+        GlossaryReference = 64, // other
+        ShapeConnector = 128,  // other
+        BaselineReference = 256, // other
+        ReviewPackageReference = 512, // other
         Reuse = 1024
     }
     public class LinkInfo

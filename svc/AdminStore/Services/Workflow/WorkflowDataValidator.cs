@@ -217,7 +217,7 @@ namespace AdminStore.Services.Workflow
 
                 if (!doNotLookupProjectPaths && projectPathsToLookup.Any())
                 {
-                    //look up ID of projects that have no ID provided
+                    // look up ID of projects that have no ID provided
                     foreach (
                         var sqlProjectPathPair in
                             await _workflowRepository.GetProjectIdsByProjectPathsAsync(projectPathsToLookup.Keys))

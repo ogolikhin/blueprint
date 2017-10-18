@@ -23,7 +23,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public async Task PutFile_FileNotFound()
         {
-            //Arrange
+            // Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
@@ -66,7 +66,7 @@ namespace FileStore.Controllers
         [TestMethod]
         public async Task PutFile_FileChunkCount_Correct()
         {
-            //Arrange
+            // Arrange
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://tempuri.org", ""),
                 new HttpResponse(new StringWriter())
@@ -154,7 +154,7 @@ namespace FileStore.Controllers
             // 1. Upload file
             var actionResult = await controller.PutFile(guid.ToString());
 
-            //Assert
+            // Assert
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
 
@@ -200,7 +200,7 @@ namespace FileStore.Controllers
             // 1. Upload file
             var actionResult = await controller.PutFile(guid.ToString());
 
-            //Assert
+            // Assert
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
 

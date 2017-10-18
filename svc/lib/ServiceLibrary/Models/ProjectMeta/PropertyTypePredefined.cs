@@ -57,13 +57,13 @@
     /// </remarks>
     public enum PropertyTypePredefined
     {
-        //Predefined properties
+        // Predefined properties
         GroupMask              = 0xF000,
 
-        //None
+        // None
         None = 0x0000,
 
-        //Predefined system properties
+        // Predefined system properties
         SystemGroup            = 0x1000,
         ID                     = SystemGroup | 1,
         Name                   = SystemGroup | 2,
@@ -97,7 +97,7 @@
         LastEditedBy           = SystemGroup | 30,
         LastEditedOn           = SystemGroup | 31,
 
-        //Predefined visualization properties
+        // Predefined visualization properties
         VisualizationGroup     = 0x2000,
         X                      = VisualizationGroup | 1,
         Y                      = VisualizationGroup | 2,
@@ -114,7 +114,7 @@
         Theme                  = VisualizationGroup | 13,
         Thumbnail              = VisualizationGroup | 14,
 
-        //Custom properties
+        // Custom properties
         CustomGroup            = 0x4000
     }
 }

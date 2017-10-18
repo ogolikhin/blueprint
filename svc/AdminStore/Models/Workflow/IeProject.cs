@@ -11,7 +11,7 @@ namespace AdminStore.Models.Workflow
     public class IeProject
     {
         // Id or Path can be specified, Id has precedence over Path.
-        //========================================================
+        // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
         public int? Id { get; set; }
@@ -27,7 +27,7 @@ namespace AdminStore.Models.Workflow
         {
             return Id.HasValue;
         }
-        //========================================================
+        // ========================================================
 
         [XmlElement(IsNullable = false)]
         public string Path { get; set; }

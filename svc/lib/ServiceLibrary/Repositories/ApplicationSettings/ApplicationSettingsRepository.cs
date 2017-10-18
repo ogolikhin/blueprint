@@ -41,7 +41,7 @@ namespace ServiceLibrary.Repositories.ApplicationSettings
             prm.Add("@returnNonRestrictedOnly", returnNonRestrictedOnly);
             var settings = (await _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", prm, commandType: CommandType.StoredProcedure)).ToList();
 
-            //decrypt the license information
+            // decrypt the license information
             bool workflowFeatureEnabled = false;
             var licenseInfo = settings.FirstOrDefault(s => s.Key == ServiceConstants.LicenseInfoApplicationSettingKey);
             if (licenseInfo != null)

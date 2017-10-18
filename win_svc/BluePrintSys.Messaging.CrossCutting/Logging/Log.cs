@@ -372,7 +372,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
 
         #region Context
 
-        //TODO: Need to find a better way to inject the context at runtime
+        // TODO: Need to find a better way to inject the context at runtime
 
         // Current user
         public static Func<string> GetCurrentUserName = () => null;

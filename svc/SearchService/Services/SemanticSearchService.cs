@@ -118,7 +118,7 @@ namespace SearchService.Services
                 }
             });
 
-            //Get list of some basic artifact details from the list of returned ids.
+            // Get list of some basic artifact details from the list of returned ids.
             suggestionsSearchResult.Items = suggestedArtifactResults;
 
             return suggestionsSearchResult;

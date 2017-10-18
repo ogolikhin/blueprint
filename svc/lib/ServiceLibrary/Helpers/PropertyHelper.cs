@@ -125,7 +125,7 @@ namespace ServiceLibrary.Helpers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         public static DateTime ParseDateValue(string dateValue, ITimeProvider timeProvider)
         {
-            //specific date
+            // specific date
             const string dateFormat = WorkflowConstants.Iso8601DateFormat;
             DateTime date;
             if (DateTime.TryParseExact(dateValue, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
@@ -133,7 +133,7 @@ namespace ServiceLibrary.Helpers
                 return date;
             }
 
-            //today + days
+            // today + days
             int days;
             if (int.TryParse(dateValue, out days))
             {
@@ -188,7 +188,7 @@ namespace ServiceLibrary.Helpers
             {
                 return html;
             }
-            //Convert all <Br> to new lines. We use regex to ensure that we do not miss any break tags
+            // Convert all <Br> to new lines. We use regex to ensure that we do not miss any break tags
             html = BrRegex.Replace(html, BrTag);
             html = TrRegex.Replace(html, BrTag);
             html = ParaRegex.Replace(html, BrTag);
@@ -197,7 +197,7 @@ namespace ServiceLibrary.Helpers
             plainText.Replace(BrTag, "\n");
             plainText.Replace(NbSpace, " ");
             plainText.Replace("&#x200b;", "");
-            //Bug 68488: Resolve conflict. Remove all html tags like <html>, <div>, <span>
+            // Bug 68488: Resolve conflict. Remove all html tags like <html>, <div>, <span>
             return HttpUtility.HtmlDecode(new Regex("<[^>]*>", RegexOptions.IgnoreCase).Replace(plainText.ToString(), string.Empty).TrimEnd('\n'));
         }
 

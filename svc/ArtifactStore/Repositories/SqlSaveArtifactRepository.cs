@@ -237,7 +237,7 @@ namespace ArtifactStore.Repositories
 
         private static string GetCustomPropertyChar(PropertyLite propertyValue, WorkflowPropertyType propertyType)
         {
-            //BluePrintSys.RC.CrossCutting.Logging.Log.Assert(
+            // BluePrintSys.RC.CrossCutting.Logging.Log.Assert(
             //    (propertyValue != null) && propertyValue.SaveState.HasFlag(NodeSaveState.MemoryNode));
             if ( /*propertyValue.NodeDeleted ||*/
                 (((int)PropertyTypePredefined.GroupMask & (int)propertyType.Predefined) !=
@@ -266,13 +266,13 @@ namespace ArtifactStore.Repositories
             {
                 primitiveType = PropertyPrimitiveType.Choice;
             }
-            //else if (propertyValue is DImagePropertyValue)
-            //{
+            // else if (propertyValue is DImagePropertyValue)
+            // {
             //    primitiveType = PropertyPrimitiveType.Image;
-            //}
+            // }
             else
             {
-                //BluePrintSys.RC.CrossCutting.Logging.Log.Assert(false);
+                // BluePrintSys.RC.CrossCutting.Logging.Log.Assert(false);
                 return null;
             }
             XmlCustomProperties customProperties = new XmlCustomProperties();

@@ -27,10 +27,10 @@ namespace AdminStore
 
         public static string StatusCheckPreauthorizedKey = ConfigurationManager.AppSettings["StatusCheckPreauthorizedKey"];
 
-        //TODO move the setting to database
+        // TODO move the setting to database
         public static int MaximumInvalidLogonAttempts = ConfigValue("MaximumInvalidLogonAttempts", 5);
 
-        //TODO move the setting to database
+        // TODO move the setting to database
         public static bool VerifyCertificateChain = ConfigValue("VerifyCertificateChain", false);
 
         public static string ServiceLogName = ServiceLogSource + " Log";

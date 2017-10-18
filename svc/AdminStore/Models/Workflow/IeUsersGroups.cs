@@ -14,7 +14,7 @@ namespace AdminStore.Models.Workflow
         [XmlElement("UserGroup", IsNullable = false)]
         public List<IeUserGroup> UsersGroups { get; set; }
 
-        //========================================================
+        // ========================================================
 
         // To make xml attribute nullable.
         [XmlIgnore]
@@ -31,7 +31,7 @@ namespace AdminStore.Models.Workflow
         {
             return IncludeCurrentUser.HasValue;
         }
-        //========================================================
+        // ========================================================
 
         #region Generated and modified Equals and GetHashCode methods
 

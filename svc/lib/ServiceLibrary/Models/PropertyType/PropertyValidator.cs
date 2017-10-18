@@ -45,10 +45,10 @@ namespace ServiceLibrary.Models.PropertyType
 
         private PropertySetResult ValidateValueCommon(PropertyLite property, T propertyType)
         {
-            //if (propertyType == VersionableState.Removed)
-            //{
+            // if (propertyType == VersionableState.Removed)
+            // {
             //    return new PropertySetResult(propertyType.Id, BusinessLayerErrorCodes.InvalidArtifactPropertyType, StringTokens.ArtifactDataProvider_ThePropertyTypeHasBeenRemoved);
-            //}
+            // }
             if (propertyType.IsRequired && IsPropertyValueEmpty(property, propertyType))
             {
                 return new PropertySetResult(propertyType.PropertyTypeId, ErrorCodes.InvalidArtifactProperty,

@@ -691,7 +691,7 @@ namespace AdminStore.Services.Workflow
                 };
                 workflowId = await _workflowRepository.CreateWorkflow(workflow, publishRevision, transaction);
 
-                //generate default states
+                // generate default states
                 var states = new List<IeState>()
                 {
                     new IeState()
@@ -909,7 +909,7 @@ namespace AdminStore.Services.Workflow
 
         private async Task UpdateUserAndGroupInfo(IeWorkflow workflow, ISet<int> userIds, ISet<int> groupIds)
         {
-            //CollectUserAndGroupIds(workflow, out userIds, out groupIds);
+            // CollectUserAndGroupIds(workflow, out userIds, out groupIds);
 
             var userMap = (await _usersRepository.GetExistingUsersByIdsAsync(userIds))
                 .ToDictionary(u => u.UserId, u => u.Login);

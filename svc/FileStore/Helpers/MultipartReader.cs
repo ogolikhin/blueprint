@@ -25,7 +25,7 @@ namespace FileStore.Helpers
             {
                 await ExecuteFunctionAsync(MultipartPartParser);
 
-                //move the stream foward until we get to the next part
+                // move the stream foward until we get to the next part
                 MultipartPartParser = MultipartPartParser.ReadUntilNextPart();
                 if (MultipartPartParser != null)
                 {

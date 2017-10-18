@@ -50,7 +50,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetArtifactHistory_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             var itemInfo = new ItemInfo { ProjectId = projectId, ArtifactId = artifactId, ItemId = artifactId };
@@ -65,10 +65,10 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetArtifactHistory(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(artifactId, result.ArtifactId);
         }
@@ -92,7 +92,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactVersionsController.GetVersionControlArtifactInfoAsync(itemId, null);
 
-            //Assert
+            // Assert
             Assert.AreSame(vcArtifactInfo, result);
         }
     }

@@ -39,100 +39,100 @@ namespace ServiceLibrary.Helpers.Validators
         [TestMethod]
         public void Validate_ValidUser_Success()
         {
-            //Arrange
+            // Arrange
             _propertyLite.UsersAndGroups.Add(DefaultUser);
 
-            //Act
+            // Act
             var actualResult = _validator.Validate(
                 _propertyLite, 
                 new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
-            //Assert.
+            // Assert.
             Assert.AreEqual(actualResult, null, "There should not be validation errors.");
         }
 
         [TestMethod]
         public void Validate_ValidGroup_Success()
         {
-            //Arrange
+            // Arrange
             _propertyLite.UsersAndGroups.Add(DefaultGroup);
 
-            //Act
+            // Act
             var actualResult = _validator.Validate(
                 _propertyLite,
                 new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
-            //Assert.
+            // Assert.
             Assert.AreEqual(actualResult, null, "There should not be validation errors.");
         }
 
         [TestMethod]
         public void Validate_ValidUserAndGroup_Success()
         {
-            //Arrange
+            // Arrange
             _propertyLite.UsersAndGroups.Add(DefaultUser);
             _propertyLite.UsersAndGroups.Add(DefaultGroup);
 
-            //Act
+            // Act
             var actualResult = _validator.Validate(
                 _propertyLite,
                 new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
-            //Assert.
+            // Assert.
             Assert.AreEqual(actualResult, null, "There should not be validation errors.");
         }
 
         [TestMethod]
         public void Validate_UserNotFound_ReturnsError()
         {
-            //Arrange.
+            // Arrange.
             _propertyLite.UsersAndGroups.Add(DefaultUser);
             _validationContext = new ValidationContext(new List<SqlUser>(), new List<SqlGroup>());
 
-            //Act.
+            // Act.
             var actualResult = _validator.Validate(
                 _propertyLite,
                 new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
-            //Assert.
+            // Assert.
             Assert.AreEqual(actualResult.ErrorCode, ErrorCodes.InvalidArtifactProperty, "Invalid artifact property type error code must be returned.");
         }
 
         [TestMethod]
         public void Validate_GroupNotFound_ReturnsError()
         {
-            //Arrange.
+            // Arrange.
             _propertyLite.UsersAndGroups.Add(DefaultGroup);
             _validationContext = new ValidationContext(new List<SqlUser>(), new List<SqlGroup>());
 
-            //Act.
+            // Act.
             var actualResult = _validator.Validate(
                 _propertyLite,
                 new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
-            //Assert.
+            // Assert.
             Assert.AreEqual(actualResult.ErrorCode, ErrorCodes.InvalidArtifactProperty, "Invalid artifact property type error code must be returned.");
         }
 
         [TestMethod]
         public void Validate_RequiredEmptyValue_ReturnsError()
         {
-            //Arrange.
+            // Arrange.
             _propertyType.IsRequired = true;
             _propertyLite.UsersAndGroups.Clear();
 
-            //Act.
+            // Act.
             var actualResult = _validator.Validate(
                 _propertyLite,
                 new List<WorkflowPropertyType>() { _propertyType },
                 _validationContext);
 
-            //Assert.
+            // Assert.
             Assert.AreEqual(actualResult.ErrorCode, ErrorCodes.InvalidArtifactProperty, "Invalid artifact property error code must be returned.");
         }
 

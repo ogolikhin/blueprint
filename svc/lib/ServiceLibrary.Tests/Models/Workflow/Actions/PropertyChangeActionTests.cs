@@ -38,7 +38,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         [TestMethod]
         public void ValidateAction_PropertyTypeIdNotFound_ReturnsTrue()
         {
-            //Arrange
+            // Arrange
             InitializeNumberPropertyChangeAction();
             _propertyChangeAction.InstancePropertyTypeId = 5;
             _executionParameters = new ExecutionParameters(
@@ -52,10 +52,10 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 new List<IPropertyValidator>(),
                 _reuseValidatorMock.Object);
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
-            //Assert
+            // Assert
             Assert.IsNull(result);
         }
         

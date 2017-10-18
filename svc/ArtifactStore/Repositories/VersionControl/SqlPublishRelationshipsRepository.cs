@@ -45,8 +45,8 @@ namespace ArtifactStore.Repositories.VersionControl
 
         public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
-            //await Task.Run(() =>
-            //{
+            // await Task.Run(() =>
+            // {
                 var artifactIds = parameters.ArtifactIds.ToHashSet();
                 var draftAndLatestLinks = await GetDraftAndLatestLinks(artifactIds, parameters.UserId, transaction);
 
@@ -104,7 +104,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 await DeleteLinkVersions(deleteLinkVersionsIds, transaction);
                 await CloseVersions(closeLinkVersionIds, environment.RevisionId, transaction);
                 await MarkAsLatest(markAsLatestLinkVersionIds, environment.RevisionId, transaction);
-            //});
+            // });
         }
         
         private async Task DeleteLinkVersions(HashSet<int> deleteLinkVersionsIds, IDbTransaction transaction)
@@ -262,7 +262,7 @@ WHERE Artifact1Id = @artifactId1
             }
             #endregion
 
-            var publishedItems = await GetLiveItemsOnly(itemsToVerify); //_itemsRepo.GetLiveItemsOnly(itemsToVerify);
+            var publishedItems = await GetLiveItemsOnly(itemsToVerify); // _itemsRepo.GetLiveItemsOnly(itemsToVerify);
 
             var filteredLinks = new List<DraftAndLatestLink>();
             foreach (var link in links)

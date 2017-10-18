@@ -56,14 +56,14 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
         }
 
         [TestMethod]
         public async Task GetAttachmentsAndDocumentReferences_ItemNotFound_ExceptionThrown()
         {
-            //arrange
+            // arrange
             int artifactId = 1;
             int? versionId = null;
             int? subArtifactId = null;
@@ -75,14 +75,14 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             try
             {
                 var result = await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
             }
             catch (ResourceNotFoundException e)
             {
-                //Assert
+                // Assert
                 Assert.AreEqual(ErrorCodes.ArtifactNotFound, e.ErrorCode);
             }
         }
@@ -90,7 +90,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetAttachmentsAndDocumentReferences_ItemNotValid_ExceptionThrown()
         {
-            //arrange
+            // arrange
             int artifactId = 1;
             int? versionId = null;
             int? subArtifactId = 2;
@@ -102,14 +102,14 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             try
             {
                 var result = await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
             }
             catch (BadRequestException e)
             {
-                //Assert
+                // Assert
                 Assert.AreEqual(ErrorCodes.BadRequest, e.ErrorCode);
             }
         }
@@ -118,7 +118,7 @@ namespace ArtifactStore.Controllers
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetAttachmentsAndDocumentReferences_NoItemPermission_ExceptionThrown()
         {
-            //arrange
+            // arrange
             int artifactId = 1;
             int? versionId = null;
             int? subArtifactId = null;
@@ -135,14 +135,14 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
         }
 
         [TestMethod]
         public async Task GetAttachmentsAndDocumentReferences_Success_ResultsReturned()
         {
-            //arrange
+            // arrange
             int artifactId = 1;
             int? versionId = null;
             int? subArtifactId = null;
@@ -163,7 +163,7 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
             Assert.AreEqual(123, result.Attachments[0].AttachmentId);
             Assert.AreEqual(123, result.DocumentReferences[0].ArtifactId);

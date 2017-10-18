@@ -38,7 +38,7 @@ namespace ServiceLibrary.Repositories.Workflow
 
         public async Task<IList<WorkflowTransition>> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId)
         {
-            //Do not return transitions if the user does not have edit permissions
+            // Do not return transitions if the user does not have edit permissions
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
             
             return await GetTransitionsForStateInternalAsync(userId, workflowId, stateId);
@@ -46,7 +46,7 @@ namespace ServiceLibrary.Repositories.Workflow
 
         public async Task<WorkflowTransition> GetTransitionForAssociatedStatesAsync(int userId, int artifactId, int workflowId, int fromStateId, int toStateId)
         {
-            //Do not return transitions if the user does not have edit permissions
+            // Do not return transitions if the user does not have edit permissions
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
 
             return await GetTransitionForAssociatedStatesInternalAsync(userId, workflowId, fromStateId, toStateId);
@@ -66,7 +66,7 @@ namespace ServiceLibrary.Repositories.Workflow
 
         public async Task<WorkflowState> GetStateForArtifactAsync(int userId, int artifactId, int revisionId, bool addDrafts)
         {
-            //Need to access code for artifact permissions for revision
+            // Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, revisionId);
             
             return await GetCurrentStateInternal(userId, artifactId, revisionId, addDrafts);
@@ -78,7 +78,7 @@ namespace ServiceLibrary.Repositories.Workflow
             WorkflowStateChangeParameterEx stateChangeParameter, 
             IDbTransaction transaction = null)
         {
-            //Need to access code for artifact permissions for revision
+            // Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
 
             return await ChangeStateForArtifactInternal(
@@ -95,7 +95,7 @@ namespace ServiceLibrary.Repositories.Workflow
             IEnumerable<int> instanceItemTypeIds,
             IEnumerable<int> instancePropertyIds)
         {
-            //Need to access code for artifact permissions for revision
+            // Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
 
             return await GetCustomPropertyTypesFromStandardIds(instanceItemTypeIds, instancePropertyIds, projectId);
@@ -104,7 +104,7 @@ namespace ServiceLibrary.Repositories.Workflow
         public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForNewArtifactEvent(int userId,
             int artifactId, int revisionId, bool addDrafts)
         {
-            //Need to access code for artifact permissions for revision
+            // Need to access code for artifact permissions for revision
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Read);
 
             return await GetWorkflowEventTriggersForNewArtifactEventInternal(userId, artifactId, revisionId, addDrafts);
@@ -304,7 +304,7 @@ namespace ServiceLibrary.Repositories.Workflow
                 return ToPropertyChangeAction(propertyChangeAction, currentUserId);
             }
             var generateAction = action as XmlGenerateAction;
-            //TODO: Should we throw an exception if the action is not a known action? Import ahead of handling situation
+            // TODO: Should we throw an exception if the action is not a known action? Import ahead of handling situation
             return generateAction != null ? ToGenerateAction(generateAction) : null;
         }
 
@@ -575,7 +575,7 @@ namespace ServiceLibrary.Repositories.Workflow
                         workflowProperty = new ChoicePropertyType
                         {
                             AllowMultiple = sqlPropertyType.AllowMultiple,
-                            //DefaultValue = PropertyHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),
+                            // DefaultValue = PropertyHelper.ToDecimal((byte[])sqlPropertyType.DecimalDefaultValue),
                             ValidValues = XmlModelSerializer.DeserializeCustomProperties(sqlPropertyType.CustomProperty).CustomProperties[0]?.ValidValues
                                     .OrderBy(v => I18NHelper.Int32ParseInvariant(v.OrderIndex))
                                     .Select(v =>
@@ -608,7 +608,7 @@ namespace ServiceLibrary.Repositories.Workflow
                         };
                         break;
                     }                    
-                    //TODO: add other DPropertyTypes
+                    // TODO: add other DPropertyTypes
                     default:
                         {
                             workflowProperty = new WorkflowPropertyType

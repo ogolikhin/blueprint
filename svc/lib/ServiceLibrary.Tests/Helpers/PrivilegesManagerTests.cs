@@ -191,7 +191,7 @@ namespace ServiceLibrary.Helpers
                 manager.DemandAny(userId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
                     ProjectAdminPrivileges.ManageGroupsAndRoles);
 
-            //Exception
+            // Exception
         }
     }
 }

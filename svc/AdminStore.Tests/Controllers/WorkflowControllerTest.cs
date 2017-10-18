@@ -283,24 +283,24 @@ namespace AdminStore.Controllers
 
             _workflowRepositoryMock.Setup(q => q.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, new WorkflowAssignScope())).ReturnsAsync(2);
 
-            //act            
+            // act            
             var result = await _controller.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, scope);
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public async Task AssignProjectsAndArtifactsToWorkflow_InvalidPermission_ReturnAuthorizationException()
         {
-            //arrange         
+            // arrange         
             Exception exception = null;
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
 
-            //act
+            // act
             try
             {
                 await _controller.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, new WorkflowAssignScope());
@@ -310,7 +310,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
@@ -318,14 +318,14 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task AssignProjectsAndArtifactsToWorkflow_InvalidWorkflowAssignScope_ReturnBadRequestException()
         {
-            //arrange         
+            // arrange         
             Exception exception = null;
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            //act
+            // act
             try
             {
                 await _controller.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, null);
@@ -335,7 +335,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
         }
@@ -353,10 +353,10 @@ namespace AdminStore.Controllers
 
             _workflowRepositoryMock.Setup(q => q.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 })).ReturnsAsync(new SyncResult { TotalAdded = 2, TotalDeleted = 1 });
 
-            //act            
+            // act            
             var result = await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 }) as OkNegotiatedContentResult<SyncResult>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(expectedResult.TotalAdded, result.Content.TotalAdded);
             Assert.AreEqual(expectedResult.TotalDeleted, result.Content.TotalDeleted);
@@ -365,14 +365,14 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task AssignArtifactTypesToProjectInWorkflow_InvalidPermission_ReturnAuthorizationException()
         {
-            //arrange         
+            // arrange         
             Exception exception = null;
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AssignAdminRoles);
 
-            //act
+            // act
             try
             {
                 await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 });
@@ -382,7 +382,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
@@ -390,14 +390,14 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task AssignArtifactTypesToProjectInWorkflow_ArtifactTypesIdsIsNull_ReturnBadRequestException()
         {
-            //arrange         
+            // arrange         
             Exception exception = null;
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            //act
+            // act
             try
             {
                 await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, null);
@@ -407,7 +407,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
         }
@@ -419,30 +419,30 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnWorkflow()
         {
-            //arrange
+            // arrange
             var workflow = new WorkflowDetailsDto { Name = "Workflow1", Description = "DescriptionWorkflow1", Active = true };
             _workflowServiceMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            //act
+            // act
             var result = await _controller.GetWorkflow(WorkflowId) as OkNegotiatedContentResult<WorkflowDetailsDto>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public async Task GetWorkflow_WorkflowWithInvalidPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             Exception exception = null;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
 
-            //act
+            // act
             try
             {
                 await _controller.GetWorkflow(WorkflowId);
@@ -452,7 +452,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
@@ -464,7 +464,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetWorkflows_AllParamsAreCorrectAndPermissionsOk_ReturnWorkflows()
         {
-            //arrange
+            // arrange
             var workflows = new QueryResult<WorkflowDto>() { Total = 10, Items = new List<WorkflowDto>() { new WorkflowDto(), new WorkflowDto() } };
             var pagination = new Pagination() { Limit = 10, Offset = 0 };
             var sorting = new Sorting() { Order = SortOrder.Asc, Sort = "name" };
@@ -476,11 +476,11 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            //act
+            // act
             var result =
                 await _controller.GetWorkflows(pagination, sorting) as OkNegotiatedContentResult<QueryResult<WorkflowDto>>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(workflows, result.Content);
         }
@@ -488,13 +488,13 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetWorkflows_WorkflowWithInvalidPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             Exception exception = null;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
 
-            //act
+            // act
             try
             {
                 await _controller.GetWorkflows(new Pagination() { Limit = 10, Offset = 0 }, new Sorting());
@@ -504,7 +504,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
@@ -532,11 +532,11 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task UpdateStatus_BodyIsNull_BadRequestResult()
         {
-            //arrange
+            // arrange
             _privilegesRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(AllProjectDataPermissions);
-            //act
+            // act
             await _controller.UpdateStatus(SessionUserId, null);
 
             // Assert
@@ -545,14 +545,14 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task UpdateStatus_WorkflowWithInvalidPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             var updateSatus = new StatusUpdate { VersionId = 1, Active = true };
             Exception exception = null;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
 
-            //act
+            // act
             try
             {
                 await _controller.UpdateStatus(SessionUserId, updateSatus);
@@ -562,7 +562,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
@@ -574,7 +574,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_AllParamsAreCorrectAndPermissionsOk_ReturnDeletedCount()
         {
-            //arrange
+            // arrange
             var response = 3;
             var scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
             var search = string.Empty;
@@ -585,10 +585,10 @@ namespace AdminStore.Controllers
             _workflowRepositoryMock.Setup(w => w.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search))
                 .ReturnsAsync(response);
 
-            //act
+            // act
             var result = await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(response, result.Content.TotalDeleted);
         }
@@ -596,7 +596,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_ScopeIsEmpty_ReturnDeletedCount()
         {
-            //arrange
+            // arrange
             var response = 0;
             var scope = new OperationScope() { Ids = new List<int>(), SelectAll = false };
             var search = string.Empty;
@@ -605,10 +605,10 @@ namespace AdminStore.Controllers
                                     .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                                     .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            //act
+            // act
             var result = await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(response, result.Content.TotalDeleted);
         }
@@ -617,7 +617,7 @@ namespace AdminStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_ScopeIsNull_ReturnDeletedCount()
         {
-            //Arrange
+            // Arrange
             OperationScope scope = null;
             var search = string.Empty;
 
@@ -625,24 +625,24 @@ namespace AdminStore.Controllers
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            //Act
+            // Act
             var result = await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
 
-            //Assert
+            // Assert
         }
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
         public async Task UnassignProjectsAndArtifactTypesFromWorkflowAsync_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             var search = string.Empty;
             var scope = new OperationScope() { SelectAll = false, Ids = new List<int>() { 2, 3 } };
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
 
-            //act
+            // act
             await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search);
 
         }
@@ -654,7 +654,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task DeleteWorkflows_AllParamsAreCorrectAndPermissionsOk_ReturnDeletedCount()
         {
-            //arrange
+            // arrange
             var response = 2;
             var scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
             var search = string.Empty;
@@ -665,10 +665,10 @@ namespace AdminStore.Controllers
             _workflowServiceMock.Setup(w => w.DeleteWorkflows(It.IsAny<OperationScope>(), It.IsAny<string>(), It.IsAny<int>()))
                 .ReturnsAsync(response);
 
-            //act
+            // act
             var result = await _controller.DeleteWorkflows(scope, search) as OkNegotiatedContentResult<DeleteResult>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(response, result.Content.TotalDeleted);
         }
@@ -676,16 +676,16 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task DeleteWorkflows_ScopeIsNull_ReturnBadRequest()
         {
-            //arrange
+            // arrange
             _privilegesRepositoryMock
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            //act
+            // act
             var result = await _controller.DeleteWorkflows(null) as BadRequestErrorMessageResult;
 
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
         }
@@ -693,16 +693,16 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task DeleteWorkflow_ScopeIsEmpty_OkResultDeletedZero()
         {
-            //arrange
+            // arrange
             var scope = new OperationScope();
             _privilegesRepositoryMock
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            //act
+            // act
             var result = await _controller.DeleteWorkflows(scope) as OkNegotiatedContentResult<DeleteResult>;
 
-            //assert
+            // assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<DeleteResult>));
         }
@@ -714,13 +714,13 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task ExportWorkflow_WorkflowWithInvalidPermissions_ForbiddenResult()
         {
-            //arrange
+            // arrange
             Exception exception = null;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
 
-            //act
+            // act
             try
             {
                 await _controller.ExportWorkflow(WorkflowId);
@@ -730,7 +730,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
@@ -987,13 +987,13 @@ namespace AdminStore.Controllers
         public async Task CreateWorkflow_InvalidPermissions_ForbiddenResult()
         {
 
-            //arrange
+            // arrange
             Exception exception = null;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
 
-            //act
+            // act
             try
             {
                 await _controller.CreateWorkflow(new CreateWorkflowDto());
@@ -1003,7 +1003,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
@@ -1011,13 +1011,13 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task CreateWorkflow_CreateModelIsEmpty_BadRequest()
         {
-            //arrange
+            // arrange
             Exception exception = null;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            //act
+            // act
             try
             {
                 await _controller.CreateWorkflow(null);
@@ -1027,7 +1027,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
             Assert.AreEqual(ErrorMessages.CreateWorkfloModelIsEmpty, exception.Message);
@@ -1036,7 +1036,7 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task CreateWorkflow_ModelIsValid_ReturnSuccessResult()
         {
-            //arrange
+            // arrange
 
             var model = new CreateWorkflowDto() { Name = "some unique name", Description = "some description" };
             var returnId = 1;
@@ -1045,10 +1045,10 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
             _workflowServiceMock.Setup(s => s.CreateWorkflow(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(returnId);
 
-            //act
+            // act
             var result = await _controller.CreateWorkflow(model);
 
-            //assert
+            // assert
             Assert.IsNotNull(result.Content);
             Assert.IsInstanceOfType(result, typeof(HttpResponseMessage));
         }
@@ -1059,24 +1059,24 @@ namespace AdminStore.Controllers
         [TestMethod]
          public async Task GetWorkflowAvailableProjects_AllParamsAreCorrectAndPermissionsOk_ReturnListInstanceItem()
          {
-             //arrange                       
+             // arrange                       
              _privilegesRepositoryMock
                  .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                  .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
  
              _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(WorkflowId, FolderId)).ReturnsAsync(new List<InstanceItem>());
  
-             //act
+             // act
              var actualResult = await _controller.GetWorkflowAvailableProjects(WorkflowId, FolderId);
  
-             //assert
+             // assert
              Assert.IsNotNull(actualResult);
          }
  
          [TestMethod]
          public async Task GetWorkflowAvailableProjects_InvalidPermission_ReturnAuthorizationException()
          {
-            //arrange         
+            // arrange         
             Exception exception = null;
 
              _privilegesRepositoryMock
@@ -1085,7 +1085,7 @@ namespace AdminStore.Controllers
  
              _workflowRepositoryMock.Setup(q => q.GetWorkflowAvailableProjectsAsync(WorkflowId, FolderId)).ReturnsAsync(new List<InstanceItem>());
  
-             //act
+             // act
              try
              {
                  await _controller.GetWorkflowAvailableProjects(WorkflowId, FolderId);
@@ -1095,7 +1095,7 @@ namespace AdminStore.Controllers
                 exception = ex;
              }
  
-             //assert
+             // assert
              Assert.IsNotNull(exception);
              Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
          }
@@ -1116,14 +1116,14 @@ namespace AdminStore.Controllers
             _workflowRepositoryMock.Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
                                    .ReturnsAsync(_expectedArtifacts);
 
-            //act
+            // act
             var actualResult =
                 await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
                                                                             _pagination,
                                                                             string.Empty)
                                                                             as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
 
-            //assert
+            // assert
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(_expectedArtifacts, actualResult.Content);
             Assert.AreEqual(_expectedArtifacts.Total, actualResult.Content.Total);
@@ -1145,7 +1145,7 @@ namespace AdminStore.Controllers
 
             BadRequestException exception = null;
 
-            //Act
+            // Act
             try
             {
                 var actualResult =
@@ -1159,7 +1159,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(exception.Message, ErrorMessages.InvalidPagination);
             Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
@@ -1181,7 +1181,7 @@ namespace AdminStore.Controllers
 
             BadRequestException exception = null;
 
-            //Act
+            // Act
             try
             {
                 var actualResult =
@@ -1195,7 +1195,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(exception.Message, ErrorMessages.IncorrectOffsetParameter);
             Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
@@ -1216,7 +1216,7 @@ namespace AdminStore.Controllers
 
             BadRequestException exception = null;
 
-            //Act
+            // Act
             try
             {
                 var actualResult =
@@ -1230,7 +1230,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(exception.Message, ErrorMessages.IncorrectLimitParameter);
             Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
@@ -1244,7 +1244,7 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
             
-            //should be <= 250
+            // should be <= 250
             string search =
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium q";
 
@@ -1254,7 +1254,7 @@ namespace AdminStore.Controllers
 
             BadRequestException exception = null;
 
-            //Act
+            // Act
             try
             {
                 var actualResult =
@@ -1268,7 +1268,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(exception.Message, ErrorMessages.SearchFieldLimitation);
             Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
@@ -1282,7 +1282,7 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
             
-            //250 characters - OK 
+            // 250 characters - OK 
             string search =
 
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium.";
@@ -1291,7 +1291,7 @@ namespace AdminStore.Controllers
                                    .ReturnsAsync(_expectedArtifacts);
 
 
-            //Act
+            // Act
             var actualResult =
                 await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
                                                                             _pagination,

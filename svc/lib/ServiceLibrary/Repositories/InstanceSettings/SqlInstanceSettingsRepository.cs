@@ -51,7 +51,7 @@ namespace ServiceLibrary.Repositories.InstanceSettings
                 settings.EmailSettingsDeserialized = new EmailConfigInstanceSettings(settings.EmailSettings);
             }
 
-            //TODO temporary solution, MaximumInvalidLogonAttempts property should be moved to database
+            // TODO temporary solution, MaximumInvalidLogonAttempts property should be moved to database
             settings.MaximumInvalidLogonAttempts = maxInvalidLogonAttempts;
 
             return settings;

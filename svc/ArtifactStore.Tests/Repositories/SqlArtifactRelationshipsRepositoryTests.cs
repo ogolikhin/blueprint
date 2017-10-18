@@ -178,7 +178,7 @@ namespace ArtifactStore.Repositories
             // Act
             var result = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);
 
-            //Assert
+            // Assert
             Assert.AreEqual(1, result.ManualTraces.Count);
             Assert.AreEqual(LinkType.Manual, result.ManualTraces[0].TraceType);
         }
@@ -206,7 +206,7 @@ namespace ArtifactStore.Repositories
                 throw;
             }
 
-            //Assert
+            // Assert
         }
 
         [TestMethod]
@@ -237,7 +237,7 @@ namespace ArtifactStore.Repositories
             // Act
             var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, null, isDeleted);
 
-            //Assert
+            // Assert
             Assert.AreEqual(artifactId, actual.ArtifactId);
             Assert.AreEqual(description, actual.Description);
             Assert.AreEqual(pathToRoot.Count, actual.PathToProject.Count());
@@ -308,7 +308,7 @@ namespace ArtifactStore.Repositories
         [TestMethod]
         public async Task GetRelationships_ActorInheritsFrom_LinkToDeletedActor_Empty()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int userId = 1;
             const int versionId = 3;
@@ -338,7 +338,7 @@ namespace ArtifactStore.Repositories
 
             _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 
-            //Act
+            // Act
             var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);
             Assert.AreEqual(0, relationships.OtherTraces.Count);
         }
@@ -346,7 +346,7 @@ namespace ArtifactStore.Repositories
         [TestMethod]
         public async Task GetRelationships_ActorInheritsFrom_LinkToAliveActor_OneResult()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int userId = 1;
             const int versionId = 3;
@@ -383,7 +383,7 @@ namespace ArtifactStore.Repositories
 
             _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 
-            //Act
+            // Act
             var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);
             Assert.AreEqual(1, relationships.OtherTraces.Count);
             Assert.AreEqual(actorInheritsFromLink.DestinationArtifactId, relationships.OtherTraces.ElementAt(0).ArtifactId);

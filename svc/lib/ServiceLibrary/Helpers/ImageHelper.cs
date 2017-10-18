@@ -8,9 +8,9 @@ namespace ServiceLibrary.Helpers
     // Copied with small modifications from Raptor solution
     public class ImageHelper
     {
-        //http://www.w3.org/TR/PNG/#5PNG-file-signature
-        //The first eight bytes of a PNG datastream always contain the following (decimal) values:
-        //137 80 78 71 13 10 26 10
+        // http://www.w3.org/TR/PNG/#5PNG-file-signature
+        // The first eight bytes of a PNG datastream always contain the following (decimal) values:
+        // 137 80 78 71 13 10 26 10
         private static readonly byte[] PNG_SIGNATURE = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
         private static readonly byte[] JPG_SIGNATURE = { 0xff, 0xd8 };
 

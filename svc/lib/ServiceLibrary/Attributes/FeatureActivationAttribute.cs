@@ -28,7 +28,7 @@ namespace ServiceLibrary.Attributes
             var licenses = _featureLicenseHelper.GetValidBlueprintLicenseFeatures();
             if ((licenses & _requiredFeatureTypes) != _requiredFeatureTypes)
             {
-                //required license not found
+                // required license not found
                 var errorMessage = "License is not available";
                 var errorCode = ErrorCodes.LicenseUnavailable;
                 if (_requiredFeatureTypes == FeatureTypes.Workflow)

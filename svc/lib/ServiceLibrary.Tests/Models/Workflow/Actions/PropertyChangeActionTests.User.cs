@@ -49,14 +49,14 @@ namespace ServiceLibrary.Models.Workflow.Actions
         [TestMethod]
         public void ValidateAction_DefaultUserPropertyChangeAction_UserIsPopulated()
         {
-            //Arrange
+            // Arrange
             InitializeUserPropertyChangeAction();
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
             var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
-            //Assert
+            // Assert
             Assert.IsNull(result);
             Assert.IsTrue(propertyLiteValue.UsersAndGroups.Any());
         }
@@ -64,38 +64,38 @@ namespace ServiceLibrary.Models.Workflow.Actions
         [TestMethod]
         public void ValidateAction_UserPropertyContainsPropertyValueFromXml_ReturnsFailureResult()
         {
-            //Arrange
+            // Arrange
             InitializeUserPropertyChangeAction();
             _propertyChangeAction.PropertyValue = "some Value";
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public void ValidateAction_UserPropertyAsBaseClassPropertyChangeAction_ReturnsFailureResult()
         {
-            //Arrange
+            // Arrange
             InitializeUserPropertyChangeAction();
             _propertyChangeAction = new PropertyChangeAction()
             {
                 InstancePropertyTypeId = DefaultUserInstancePropertyTypeId
             };
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public void ValidateAction_UserPropertyChangedToNumberProperty_ReturnsFailureResult()
         {
-            //Act
+            // Act
             var result = UserPropertyChangedToAnotherPropertyValidation(
                 new NumberPropertyType()
                 {
@@ -103,14 +103,14 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     PrimitiveType = PropertyPrimitiveType.Number
                 });
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public void ValidateAction_UserPropertyChangedToDateProperty_ReturnsFailureResult()
         {
-            //Act
+            // Act
             var result = UserPropertyChangedToAnotherPropertyValidation(
                 new DatePropertyType()
                 {
@@ -118,14 +118,14 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     PrimitiveType = PropertyPrimitiveType.Date
                 });
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public void ValidateAction_UserPropertyChangedToChoiceProperty_ReturnsFailureResult()
         {
-            //Act
+            // Act
             var result = UserPropertyChangedToAnotherPropertyValidation(
                 new ChoicePropertyType()
                 {
@@ -133,14 +133,14 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     PrimitiveType = PropertyPrimitiveType.Choice
                 });
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
         
         [TestMethod]
         public void ValidateAction_UserPropertyChangedToTextProperty_ReturnsFailureResult()
         {
-            //Act
+            // Act
             var result = UserPropertyChangedToAnotherPropertyValidation(
                 new TextPropertyType()
                 {
@@ -148,17 +148,17 @@ namespace ServiceLibrary.Models.Workflow.Actions
                     PrimitiveType = PropertyPrimitiveType.Text
                 });
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
         private PropertySetResult UserPropertyChangedToAnotherPropertyValidation(WorkflowPropertyType propertyType)
         {
-            //Arrange
+            // Arrange
             InitializeUserPropertyChangeAction();
             _executionParameters.CustomPropertyTypes.Clear();
             _executionParameters.CustomPropertyTypes.Add(propertyType);
 
-            //Act
+            // Act
             return _propertyChangeAction.ValidateAction(_executionParameters);
         }
     }

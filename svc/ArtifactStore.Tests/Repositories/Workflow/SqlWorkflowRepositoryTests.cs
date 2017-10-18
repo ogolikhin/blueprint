@@ -231,7 +231,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Act
             var result = (await repository.GetTransitionForAssociatedStatesAsync(userId, 1, workflowId, fromStateId, toStateId));
 
-            //Assert
+            // Assert
             Assert.AreEqual(workflowId, result.WorkflowId);
             Assert.AreEqual(fromStateId, result.FromState.Id);
             Assert.AreEqual(toStateId, result.ToState.Id);
@@ -294,7 +294,7 @@ namespace ArtifactStore.Repositories.Workflow
             // Act
             var result = (await repository.ChangeStateForArtifactAsync(userId, artifactId, stateChangeParam));
 
-            //Assert
+            // Assert
             Assert.AreEqual(workflowId, result.WorkflowId);
             Assert.AreEqual(desiredStateId, result.Id);
         }

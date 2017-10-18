@@ -24,7 +24,7 @@ namespace ServiceLibrary.Repositories
             var result = await repository.GetArtifactPermissions(itemIds, 0);
 
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == allPermissions);
         }
 
@@ -58,7 +58,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == RolePermissions.Edit);
         }
 
@@ -101,7 +101,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == RolePermissions.CanReport);
         }
 
@@ -145,7 +145,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0, false, revisionId);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == RolePermissions.Edit);
         }
 
@@ -195,7 +195,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0, false, revisionId);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == RolePermissions.Delete);
         }
 
@@ -249,7 +249,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0, false, revisionId);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == RolePermissions.Read);
         }
 

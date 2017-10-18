@@ -5,7 +5,7 @@ namespace ArtifactStore.Models
 {
     public class DiscussionResultSet
     {
-        //public int ArtifactId { get; set; }
+        // public int ArtifactId { get; set; }
 
         // Not used for artifacts
         // public int? SubArtifactId { get; set; }
@@ -88,7 +88,7 @@ namespace ArtifactStore.Models
 
     public class Discussion : CommentBase
     {
-        //public IList<Reply> Replies { get; set; }
+        // public IList<Reply> Replies { get; set; }
 
         public bool IsClosed { get; set; }
 

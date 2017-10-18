@@ -176,7 +176,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 commandType: CommandType.StoredProcedure
             );
 
-            //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some item versions are not closed");
+            // Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some item versions are not closed");
         }
 
         public async Task<double?> GetMaxChildOrderIndex(int parentId, IDbTransaction transaction = null)

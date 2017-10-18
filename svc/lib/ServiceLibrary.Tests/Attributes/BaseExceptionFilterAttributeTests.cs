@@ -28,7 +28,7 @@ namespace ServiceLibrary.Attributes
 
         private async Task TestOnExceptionAsync(Exception ex, HttpStatusCode expectedStatusCode)
         {
-            //Arrange
+            // Arrange
             var filter = new BaseExceptionFilterAttribute();
 
             var request = new HttpRequestMessage(new HttpMethod("GET"), "http://someurl");
@@ -38,10 +38,10 @@ namespace ServiceLibrary.Attributes
             contextAction.ActionContext.ControllerContext.Controller = _mockController.Object;
             contextAction.Exception = ex;
 
-            //Act
+            // Act
             await filter.OnExceptionAsync(contextAction, CancellationToken.None);
 
-            //Assert
+            // Assert
             Assert.IsTrue(contextAction.Response.StatusCode == expectedStatusCode);
         }
 
@@ -79,16 +79,16 @@ namespace ServiceLibrary.Attributes
         [TestMethod]
         public async Task OnExceptionAsync_UnknownException_LogError()
         {
-            //Arrange
+            // Arrange
             var exception = new Exception();
             var logSource = "source";
             _mockController.As<ILoggable>().SetupGet(c => c.LogSource).Returns(logSource);
             _mockController.As<ILoggable>().SetupGet(c => c.Log).Returns(_mockServiceLogRepository.Object);
 
-            //Act
+            // Act
             await TestOnExceptionAsync(exception, HttpStatusCode.InternalServerError);
 
-            //Assert
+            // Assert
             _mockServiceLogRepository.Verify(l => l.LogError(logSource, exception, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()), Times.Once);
         }
     }

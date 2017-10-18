@@ -9,7 +9,7 @@ namespace AdminStore.Helpers
 {
     public class PasswordValidationHelper
     {
-        private static readonly int PasswordMaximumLength = 128; //OWASP Recommended
+        private static readonly int PasswordMaximumLength = 128; // OWASP Recommended
         private static readonly int PasswordMinimumLength = 8;
 
         public static bool ValidatePassword(string password, bool isPasswordRequired, out string errorMessage)
@@ -17,7 +17,7 @@ namespace AdminStore.Helpers
             errorMessage = "";
             bool valid = true;
 
-            //Check if blank. Return
+            // Check if blank. Return
             if (string.IsNullOrEmpty(password))
             {
                 if (isPasswordRequired)
@@ -31,9 +31,9 @@ namespace AdminStore.Helpers
                 }
             }
 
-            //Further checks. Do not return until we perform all checks.
-            //Give the user a message explaining all policies that were not satisfied.
-            //Check length.
+            // Further checks. Do not return until we perform all checks.
+            // Give the user a message explaining all policies that were not satisfied.
+            // Check length.
             int length = password.Length;
             if (length > PasswordMaximumLength || length < PasswordMinimumLength)
             {
@@ -49,7 +49,7 @@ namespace AdminStore.Helpers
                 valid = false;
             }
 
-            //Check for presence of non-alphanumeric character.
+            // Check for presence of non-alphanumeric character.
             if (!Regex.IsMatch(password, @"[^A-Za-z0-9]"))
             {
                 errorMessage += isPasswordRequired
@@ -60,7 +60,7 @@ namespace AdminStore.Helpers
                 valid = false;
             }
 
-            //Check for presence of numeric character.
+            // Check for presence of numeric character.
             if (!Regex.IsMatch(password, @"[0-9]"))
             {
                 errorMessage += isPasswordRequired
@@ -71,7 +71,7 @@ namespace AdminStore.Helpers
                 valid = false;
             }
 
-            //Check for presence of a capital letter.
+            // Check for presence of a capital letter.
             if (!Regex.IsMatch(password, @"[A-Z]"))
             {
                 errorMessage += isPasswordRequired
@@ -82,7 +82,7 @@ namespace AdminStore.Helpers
                 valid = false;
             }
 
-            errorMessage = errorMessage.TrimEnd(); //Remove final newline.
+            errorMessage = errorMessage.TrimEnd(); // Remove final newline.
 
             return valid;
         }

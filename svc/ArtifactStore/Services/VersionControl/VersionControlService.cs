@@ -171,10 +171,10 @@ namespace ArtifactStore.Services.VersionControl
             parameters.AffectedArtifactIds.ExceptWith(artifactsCannotBePublished.Keys);
 
             // Notify about artifactsCannotBePublished - callback
-            //if (onError != null && onError(new ReadOnlyDictionary<int, PublishErrors>(artifactsCannotBePublished)))
-            //{
+            // if (onError != null && onError(new ReadOnlyDictionary<int, PublishErrors>(artifactsCannotBePublished)))
+            // {
             //    throw new DataAccessException("Publish interrupted", BusinessLayerErrorCodes.RequiredArtifactHasNotBeenPublished);
-            //}
+            // }
 
             if (parameters.AffectedArtifactIds.Count == 0)
             {
@@ -203,7 +203,7 @@ namespace ArtifactStore.Services.VersionControl
                     env, transaction));
             parameters.AffectedArtifactIds.ExceptWith(env.DeletedArtifactIds);
 
-            //Release lock
+            // Release lock
             if (!env.KeepLock)
             {
                 await _versionControlRepository.ReleaseLock(parameters.UserId, parameters.AffectedArtifactIds, transaction);
@@ -211,9 +211,9 @@ namespace ArtifactStore.Services.VersionControl
 
             await _publishRepositoryComposer.Execute(publishRevision, parameters, env, transaction);
 
-            //Add history
+            // Add history
             await _revisionRepository.AddHistory(publishRevision, parameters.AffectedArtifactIds, transaction);
-            //});
+            // });
 
             publishResults.AddRange(env.GetChangeSqlPublishResults());
 
@@ -232,7 +232,7 @@ namespace ArtifactStore.Services.VersionControl
                 var discardPublishDetails =
                     (await _versionControlRepository.GetDiscardPublishDetails(parameters.UserId, unitedArtifactsIds, true))
                         .Details;
-                //We are supposed to throw an exception here for providing appropriate information to client
+                // We are supposed to throw an exception here for providing appropriate information to client
                 throw new ConflictException("Specified artifacts have dependent artifacts to discard.",
                     ErrorCodes.CannotDiscardOverDependencies,
                     ToNovaArtifactResultSet(discardPublishDetails, null, projectsNames));

@@ -170,7 +170,7 @@ namespace AccessControl.Controllers
         {
             try
             {
-                //parameter constrain
+                // parameter constrain
                 if (month.HasValue )
                 {
                     if (month < minMonth || month > maxMonth) {
@@ -195,7 +195,7 @@ namespace AccessControl.Controllers
                     }
                 }
 
-                //NOTE: number of month is taken from zero-based array (i.e. 0- jan, 11- dec)
+                // NOTE: number of month is taken from zero-based array (i.e. 0- jan, 11- dec)
                 var usage = await _repo.GetLicenseUsage(month, year);
                 var response = Request.CreateResponse(HttpStatusCode.OK, usage);
 

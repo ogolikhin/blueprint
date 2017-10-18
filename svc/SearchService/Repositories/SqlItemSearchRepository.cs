@@ -103,7 +103,7 @@ namespace SearchService.Repositories
             {
                 switch (sqlException.Number)
                 {
-                    //Sql timeout error
+                    // Sql timeout error
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
@@ -156,7 +156,7 @@ namespace SearchService.Repositories
             {
                 switch (sqlException.Number)
                 {
-                    //Sql timeout error
+                    // Sql timeout error
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
@@ -204,7 +204,7 @@ namespace SearchService.Repositories
             {
                 switch (sqlException.Number)
                 {
-                    //Sql timeout error
+                    // Sql timeout error
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
@@ -229,7 +229,7 @@ namespace SearchService.Repositories
                 itemsNavigationPaths = new Dictionary<int, IEnumerable<Artifact>>();
             }
 
-            //items without permission should be removed
+            // items without permission should be removed
             items.RemoveAll(item => !itemIdsPermissions.ContainsKey(item.ItemId) || !itemIdsPermissions[item.ItemId].HasFlag(RolePermissions.Read));
 
             var joinedResult = from item in items
@@ -279,12 +279,12 @@ namespace SearchService.Repositories
 
         internal static string GetQuery(string input)
         {
-            //Unfortunately, double-quotes have special meaning inside FTI, so even if you parameterize it, the FTI engine treats it as a phrase delimiter. 
-            //doubling the quote to "" fixes it. 
+            // Unfortunately, double-quotes have special meaning inside FTI, so even if you parameterize it, the FTI engine treats it as a phrase delimiter. 
+            // doubling the quote to "" fixes it. 
 
             return string.IsNullOrWhiteSpace(input) ? string.Empty :
                 string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("\"", "\"\"").Replace(Environment.NewLine, string.Empty));
-            //string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("'", "''").Replace("\"", "\"\"").Replace(@"\", @"\\").Replace(Environment.NewLine, string.Empty));
+            // string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("'", "''").Replace("\"", "\"\"").Replace(@"\", @"\\").Replace(Environment.NewLine, string.Empty));
         }
     }
 }

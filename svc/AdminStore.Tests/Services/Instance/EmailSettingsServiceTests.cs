@@ -63,7 +63,7 @@ namespace AdminStore.Services.Instance
 
             _instanceSettingsRepositoryMock.Setup(repo => repo.GetEmailSettings()).ReturnsAsync(() => _emailSettings);
 
-            //Setup Default Values
+            // Setup Default Values
             _outgoingSettings = new EmailOutgoingSettings()
             {
                 AuthenticatedSmtp = true,
@@ -148,15 +148,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_AuthorizationException_When_User_Doesnt_Have_ManageInstanceSettings_Privilege()
         {
-            //Arrange
+            // Arrange
             _adminPrivilege = InstanceAdminPrivileges.ViewInstanceSettings;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
             }
-            //Assert
+            // Assert
             catch (AuthorizationException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.Forbidden);
@@ -169,15 +169,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_ServerName_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _outgoingSettings.ServerAddress = "";
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
             }
-                //Assert
+                // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingEmptyMailServer);
@@ -190,15 +190,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_Port_Is_Less_Than_1()
         {
-            //Arrange
+            // Arrange
             _outgoingSettings.Port = 0;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingPortOutOfRange);
@@ -211,15 +211,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_Port_Is_Greater_Than_65535()
         {
-            //Arrange
+            // Arrange
             _outgoingSettings.Port = 65536;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingPortOutOfRange);
@@ -232,15 +232,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_AuthenticatedSmtp_Is_Enabled_And_Username_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _outgoingSettings.AccountUsername = "";
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptySmtpAdministratorUsername);
@@ -253,15 +253,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_AuthenticatedSmtp_Is_Enabled_And_Password_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _outgoingSettings.AccountPassword = "";
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptySmtpAdministratorPassword);
@@ -274,15 +274,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_ConflictException_When_User_Has_No_Email_Address()
         {
-            //Arrange
+            // Arrange
             _user.Email = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
             }
-            //Assert
+            // Assert
             catch (ConflictException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.UserHasNoEmail);
@@ -295,15 +295,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_EmailAddress_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _outgoingSettings.AccountEmailAddress = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptyEmailAddress);
@@ -316,15 +316,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_BadRequestException_When_EmailAddress_Is_Not_An_Email()
         {
-            //Arrange
+            // Arrange
             _outgoingSettings.AccountEmailAddress = "notanemail";
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.InvalidEmailAddress);
@@ -337,23 +337,23 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Initialize_The_Email_Helper()
         {
-            //Act
+            // Act
             await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
 
-            //Assert
+            // Assert
             _emailHelperMock.Verify(helper => helper.Initialize(It.Is<IEmailConfigInstanceSettings>(config => CheckSettings(config))));
         }
 
         [TestMethod]
         public async Task SendTestEmailAsync_Config_UserName_And_Password_Should_Be_Empty_When_AuthenticatedSmtp_Is_False()
         {
-            //Assert
+            // Assert
             _outgoingSettings.AuthenticatedSmtp = false;
 
-            //Act
+            // Act
             await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
 
-            //Assert
+            // Assert
             _emailHelperMock.Verify(helper => helper.Initialize(It.Is<IEmailConfigInstanceSettings>(config => CheckSettings(config))));
         }
 
@@ -371,13 +371,13 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Config_Password_Should_Come_From_Database_If_Password_Is_Not_Dirty()
         {
-            //Assert
+            // Assert
             _outgoingSettings.IsPasswordDirty = false;
 
-            //Act
+            // Act
             await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
 
-            //Assert
+            // Assert
             _emailHelperMock.Verify(helper => helper.Initialize(It.Is<IEmailConfigInstanceSettings>(config => CheckSettingsPasswordNotDirty(config))));
         }
 
@@ -395,35 +395,35 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Send_An_Email_To_The_User()
         {
-            //Act
+            // Act
             await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
 
-            //Assert
+            // Assert
             _emailHelperMock.Verify(helper => helper.SendEmail(_user.Email, TestEmailSubject, It.IsAny<string>()));
         }
 
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Return_Current_Users_Email_Address()
         {
-            //Act
+            // Act
             string emailAddress = await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
 
-            //Assert
+            // Assert
             Assert.AreEqual(_user.Email, emailAddress);
         }
 
         [TestMethod]
         public async Task SendTestEmailAsync_Should_Throw_Bad_Request_Exception_When_EmailHelper_Throws_EmailException()
         {
-            //Arrange
+            // Arrange
             _emailHelperMock.Setup(helper => helper.SendEmail(_user.Email, TestEmailSubject, It.IsAny<string>())).Throws(new EmailException("Error Message", ErrorCodes.OutgoingMailError));
             
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.SendTestEmailAsync(UserId, _outgoingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual("Error Message", ex.Message);
@@ -442,15 +442,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task CheckIncomingEmailConnectionAsync_Should_Throw_AuthorizationException_When_User_Doesnt_Have_ManageInstanceSettings_Permission()
         {
-            //Arrange
+            // Arrange
             _adminPrivilege = InstanceAdminPrivileges.ViewInstanceSettings;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
             }
-            //Assert
+            // Assert
             catch (AuthorizationException ex)
             {
                 Assert.AreEqual(ErrorCodes.Forbidden, ex.ErrorCode);
@@ -464,15 +464,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task CheckIncomingEmailConnectionAsync_Should_Throw_BadRequestException_When_ServerAddress_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _incomingSettings.ServerAddress = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ErrorCodes.IncomingEmptyMailServer, ex.ErrorCode);
@@ -486,15 +486,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task CheckIncomingEmailConnectionAsync_Should_Throw_BadRequestException_When_Port_Is_Less_Than_1()
         {
-            //Arrange
+            // Arrange
             _incomingSettings.Port = 0;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ErrorCodes.IncomingPortOutOfRange, ex.ErrorCode);
@@ -508,15 +508,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task CheckIncomingEmailConnectionAsync_Should_Throw_BadRequestException_When_Port_Is_Greater_Than_65535()
         {
-            //Arrange
+            // Arrange
             _incomingSettings.Port = 65536;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ErrorCodes.IncomingPortOutOfRange, ex.ErrorCode);
@@ -530,15 +530,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task CheckIncomingEmailConnectionAsync_Should_Throw_BadRequestException_When_Username_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _incomingSettings.AccountUsername = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ErrorCodes.EmptyEmailUsername, ex.ErrorCode);
@@ -552,15 +552,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task CheckIncomingEmailConnectionAsync_Should_Throw_BadRequestException_When_Password_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _incomingSettings.AccountPassword = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ErrorCodes.EmptyEmailPassword, ex.ErrorCode);
@@ -574,10 +574,10 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task CheckIncomingEmailConnectionAsync_Should_TestEmailConnection()
         {
-            //Act
+            // Act
             await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
 
-            //Assert
+            // Assert
             _incomingEmailServiceMock.Verify(service => service.TryConnect(It.Is<EmailClientConfig>(config => CheckEmailClientConfig(config))));
         }
 
@@ -594,13 +594,13 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task CheckIncomingEmailConnectionAsync_Should_Use_Password_From_Repository_When_IsPasswordDirty_Is_False()
         {
-            //Arrange
+            // Arrange
             _incomingSettings.IsPasswordDirty = false;
 
-            //Act
+            // Act
             await _emailSettingsService.TestIncomingEmailConnectionAsync(UserId, _incomingSettings);
 
-            //Assert
+            // Assert
             _incomingEmailServiceMock.Verify(service => service.TryConnect(It.Is<EmailClientConfig>(config => CheckEmailClientConfigWithDirtyPassword(config))));
         }
 
@@ -621,15 +621,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task GetEmailSettingsAsync_Should_Throw_AuthorizationException_When_User_Doesnt_Have_ViewInstanceSettings()
         {
-            //Arrange
+            // Arrange
             _adminPrivilege = InstanceAdminPrivileges.ManageProjects;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.GetEmailSettingsAsync(UserId);
             }
-            //Assert
+            // Assert
             catch (AuthorizationException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.Forbidden);
@@ -643,13 +643,13 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task GetEmailSettingsAsync_Should_Get_EmailSettings_Information_From_Repository()
         {
-            //Arrange
+            // Arrange
             _adminPrivilege = InstanceAdminPrivileges.ViewInstanceSettings;
 
-            //Act
+            // Act
             var emailSettingsDto = await _emailSettingsService.GetEmailSettingsAsync(UserId);
 
-            //Assert
+            // Assert
             Assert.AreEqual(_emailSettings.HostName, emailSettingsDto.Outgoing.ServerAddress);
             Assert.AreEqual(_emailSettings.Port, emailSettingsDto.Outgoing.Port);
             Assert.AreEqual(_emailSettings.EnableSSL, emailSettingsDto.Outgoing.EnableSsl);
@@ -681,15 +681,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_Incoming_Is_Null()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.Incoming = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.InvalidParameter);
@@ -703,15 +703,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_Outgoing_Is_Null()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.Outgoing = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.InvalidParameter);
@@ -725,15 +725,15 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_AuthorizationException_When_User_Doesnt_Have_ManageInstanceSettings()
         {
-            //Arrange
+            // Arrange
             _adminPrivilege = InstanceAdminPrivileges.ViewInstanceSettings;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (AuthorizationException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.Forbidden);
@@ -747,16 +747,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_EnableDiscussions_Is_True_But_EnableReplies_Is_False()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableDiscussions = true;
             _emailSettingsDto.EnableEmailNotifications = false;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.CannotEnableDiscussions);
@@ -770,17 +770,17 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_EnableDiscussions_Is_True_And_Incoming_ServerAddress_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.EnableDiscussions = true;
             _emailSettingsDto.Incoming.ServerAddress = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.IncomingEmptyMailServer);
@@ -794,17 +794,17 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_EnableDiscussions_Is_True_And_Incoming_Ports_Is_Less_Than_1()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.EnableDiscussions = true;
             _emailSettingsDto.Incoming.Port = 0;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.IncomingPortOutOfRange);
@@ -818,17 +818,17 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_EnableDiscussions_Is_True_And_Incoming_Ports_Is_Greater_Than_65535()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.EnableDiscussions = true;
             _emailSettingsDto.Incoming.Port = 65536;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.IncomingPortOutOfRange);
@@ -842,17 +842,17 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_EnableDiscussions_Is_True_And_Incoming_AccountUsername_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.EnableDiscussions = true;
             _emailSettingsDto.Incoming.AccountUsername = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptyEmailUsername);
@@ -866,17 +866,17 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_BadRequestException_When_EnableDiscussions_Is_True_And_Incoming_AccountPassword_Is_Empty_And_Incoming_IsPasswordDirty_Is_True()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.EnableDiscussions = true;
             _emailSettingsDto.Incoming.AccountPassword = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptyEmailPassword);
@@ -890,18 +890,18 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Not_Throw_When_EnableDiscussions_Is_True_And_Incoming_AccountPassword_Is_Empty_And_Incoming_IsPasswordDirty_Is_False()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.EnableDiscussions = true;
             _emailSettingsDto.Incoming.AccountPassword = null;
             _emailSettingsDto.Incoming.IsPasswordDirty = false;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (Exception ex)
             {
                 Assert.Fail($"An exception of type {ex.GetType()} was thrown, but no exception was expected.");
@@ -911,17 +911,17 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Not_Throw_When_EnableDiscussions_Is_False_And_Incoming_Data_Is_Null()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableDiscussions = false;
             _emailSettingsDto.Incoming.ServerAddress = null;
             _emailSettingsDto.Incoming.Port = 0;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (Exception ex)
             {
                 Assert.Fail($"An exception of type {ex.GetType()} was thrown, but no exception was expected.");
@@ -931,16 +931,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableReviewNotifications_Is_True_And_Outgoing_ServerAddress_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableReviewNotifications = true;
             _emailSettingsDto.Outgoing.ServerAddress = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingEmptyMailServer);
@@ -954,16 +954,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableReviewNotifications_Is_True_And_Outgoing_Port_Is_Less_Than_1()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableReviewNotifications = true;
             _emailSettingsDto.Outgoing.Port = 0;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingPortOutOfRange);
@@ -977,16 +977,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableReviewNotifications_Is_True_And_Outgoing_Port_Is_Greater_Than_65535()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableReviewNotifications = true;
             _emailSettingsDto.Outgoing.Port = 65536;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingPortOutOfRange);
@@ -1000,16 +1000,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableReviewNotifications_Is_True_And_Outgoing_Authentication_Is_True_And_Outgoing_Username_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableReviewNotifications = true;
             _emailSettingsDto.Outgoing.AccountUsername = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptySmtpAdministratorUsername);
@@ -1023,16 +1023,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableReviewNotifications_Is_True_And_Outgoing_Authentication_Is_True_And_Outgoing_Password_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableReviewNotifications = true;
             _emailSettingsDto.Outgoing.AccountPassword = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptySmtpAdministratorPassword);
@@ -1046,16 +1046,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableReviewNotifications_Is_True_And_Outgoing_EmailAddress_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableReviewNotifications = true;
             _emailSettingsDto.Outgoing.AccountEmailAddress = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptyEmailAddress);
@@ -1069,16 +1069,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableReviewNotifications_Is_True_And_Outgoing_EmailAddress_Is_Not_A_Valid_Email()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableReviewNotifications = true;
             _emailSettingsDto.Outgoing.AccountEmailAddress = "notanemail";
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.InvalidEmailAddress);
@@ -1092,16 +1092,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableEmailNotifications_Is_True_And_Outgoing_ServerAddress_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.Outgoing.ServerAddress = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingEmptyMailServer);
@@ -1115,16 +1115,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableEmailNotifications_Is_True_And_Outgoing_Port_Is_Less_Than_1()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.Outgoing.Port = 0;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingPortOutOfRange);
@@ -1138,16 +1138,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableEmailNotifications_Is_True_And_Outgoing_Port_Is_Greater_Than_65535()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.Outgoing.Port = 65536;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.OutgoingPortOutOfRange);
@@ -1161,17 +1161,17 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableEmailNotifications_Is_True_And_Authentication_Is_True_And_Username_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.Outgoing.AuthenticatedSmtp = true;
             _emailSettingsDto.Outgoing.AccountUsername = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptySmtpAdministratorUsername);
@@ -1185,17 +1185,17 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableEmailNotifications_Is_True_And_Authentication_Is_True_And_Password_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.Outgoing.AuthenticatedSmtp = true;
             _emailSettingsDto.Outgoing.AccountPassword = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptySmtpAdministratorPassword);
@@ -1209,16 +1209,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableEmailNotifications_Is_True_And_EmailAdress_Is_Empty()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.Outgoing.AccountEmailAddress = null;
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.EmptyEmailAddress);
@@ -1232,16 +1232,16 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Throw_When_EnableEmailNotifications_Is_True_And_EmailAdress_Is_Not_An_Email()
         {
-            //Arrange
+            // Arrange
             _emailSettingsDto.EnableEmailNotifications = true;
             _emailSettingsDto.Outgoing.AccountEmailAddress = "notanemail";
 
-            //Act
+            // Act
             try
             {
                 await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.InvalidEmailAddress);
@@ -1255,20 +1255,20 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Update_Via_The_Repository()
         {
-            //Act
+            // Act
             await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
            
-            //Assert
+            // Assert
             _instanceSettingsRepositoryMock.Verify(repo => repo.UpdateEmailSettingsAsync(_emailSettings));
         }
 
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Update_Settings_From_The_Dto()
         {
-            //Act
+            // Act
             await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
 
-            //Assert
+            // Assert
             Assert.AreEqual(_emailSettings.EnableEmailDiscussion, _emailSettingsDto.EnableEmailNotifications);
             Assert.AreEqual(_emailSettings.EnableEmailReplies, _emailSettingsDto.EnableDiscussions);
             Assert.AreEqual(_emailSettings.EnableNotifications, _emailSettingsDto.EnableReviewNotifications);
@@ -1290,54 +1290,54 @@ namespace AdminStore.Services.Instance
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Encrypt_Outgoing_Password()
         {
-            //Arrange
+            // Arrange
             var encryptedOutgoingPassword = "ksZKZH6kl2wKJ4Nb/OlFmw==";
 
-            //Act
+            // Act
             await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
 
-            //Assert
+            // Assert
             Assert.AreEqual(encryptedOutgoingPassword, _emailSettings.Password);
         }
 
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Encrypt_Incoming_Password()
         {
-            //Arrange
+            // Arrange
             var encryptedIncomingPassword = "uNPPwhOB27mMxpqxMKjMqw==";
 
-            //Act
+            // Act
             await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
 
-            //Assert
+            // Assert
             Assert.AreEqual(encryptedIncomingPassword, _emailSettings.IncomingPassword);
         }
 
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Not_Update_Password_If_Outgoing_Password_Is_Not_Dirty()
         {
-            //Arrange
+            // Arrange
             string oldPassword = _emailSettings.Password;
             _emailSettingsDto.Outgoing.IsPasswordDirty = false;
 
-            //Act
+            // Act
             await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
 
-            //Assert
+            // Assert
             Assert.AreEqual(_emailSettings.Password, oldPassword);
         }
 
         [TestMethod]
         public async Task UpdateEmailSettingsAsync_Should_Not_Update_IncomingPassword_If_Incoming_Password_Is_Not_Dirty()
         {
-            //Arrange
+            // Arrange
             string oldPassword = _emailSettings.IncomingPassword;
             _emailSettingsDto.Incoming.IsPasswordDirty = false;
 
-            //Act
+            // Act
             await _emailSettingsService.UpdateEmailSettingsAsync(UserId, _emailSettingsDto);
 
-            //Assert
+            // Assert
             Assert.AreEqual(_emailSettings.IncomingPassword, oldPassword);
         }
 

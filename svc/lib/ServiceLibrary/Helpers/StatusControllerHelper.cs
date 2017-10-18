@@ -40,7 +40,7 @@ namespace ServiceLibrary.Helpers
             serviceStatus.ServiceName = ServiceName;
             serviceStatus.AssemblyFileVersion = GetAssemblyFileVersion();
 
-            //Get status responses from each repo, store the tasks.
+            // Get status responses from each repo, store the tasks.
             List<Task<List<StatusResponse>>> statusResponses = new List<Task<List<StatusResponse>>>();
             foreach (IStatusRepository statusRepo in StatusRepos)
             {
@@ -48,7 +48,7 @@ namespace ServiceLibrary.Helpers
                 statusResponses.Add(response);
             }
 
-            //Await the status check task results.
+            // Await the status check task results.
             serviceStatus.NoErrors = true;
             foreach (var result in statusResponses)
             {

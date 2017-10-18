@@ -27,7 +27,7 @@
 
         public NotificationEmail(int projectId, string projectName,  int artifactId, string artifactName, string artifactUrl, string message, string header, string logoImageSrc, string blueprintUrl)
         {
-            //don't pass null values to the template
+            // don't pass null values to the template
             ProjectId = projectId;
             ProjectName = projectName ?? string.Empty;
             ArtifactId = artifactId;

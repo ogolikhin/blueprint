@@ -30,7 +30,7 @@ namespace ArtifactStore.Repositories.VersionControl
 
         public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
-            //await Task.Run(() => { });
+            // await Task.Run(() => { });
             var artifactIds = parameters.ArtifactIds.ToHashSet();
             var items = await GetDraftAndLatestAttachments(artifactIds, parameters.UserId, transaction);
 
@@ -115,7 +115,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 );
             }
 
-            //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some attachment versions are not closed");
+            // Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some attachment versions are not closed");
         }
 
         private async Task<ICollection<DraftAndLatestAttachment>> GetDraftAndLatestAttachments(ISet<int> artifactIds, int userId, IDbTransaction transaction)
@@ -156,7 +156,7 @@ namespace ArtifactStore.Repositories.VersionControl
             var affectedTemplateSetting = IsSubArtifactChange(attachment)
                         ? ItemTypeReuseTemplateSetting.Subartifacts
                         : (env.GetArtifactBaseType(attachment.ArtifactId) == ItemTypePredefined.Document
-                            //for document artifact we have only document content as an attachment
+                            // for document artifact we have only document content as an attachment
                             ? ItemTypeReuseTemplateSetting.DocumentFile
                             : ItemTypeReuseTemplateSetting.Attachments);
 

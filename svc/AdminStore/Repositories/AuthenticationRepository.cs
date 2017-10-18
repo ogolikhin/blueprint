@@ -327,8 +327,8 @@ namespace AdminStore.Repositories
 
             if (user.InvalidLogonAttemptsNumber > 0 && user.LastInvalidLogonTimeStamp != null && DateTime.UtcNow > ((DateTime)user.LastInvalidLogonTimeStamp).AddHours(24))
             {
-                //We don't lock the user if she/he tries to login after 24 hours of the last failure attempt
-                //after 24 hours we reset the counter and let the user to try invalid logon till reaches the limit
+                // We don't lock the user if she/he tries to login after 24 hours of the last failure attempt
+                // after 24 hours we reset the counter and let the user to try invalid logon till reaches the limit
 
                 user.InvalidLogonAttemptsNumber = 1;
             }

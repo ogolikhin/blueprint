@@ -70,12 +70,12 @@ namespace AdminStore.Saml
                 var chainStatuses = chain.ChainStatus;
                 if (chainStatuses.Length > 0)
                 {
-                    //var statusesString = string.Join(", ",
+                    // var statusesString = string.Join(", ",
                     //                                 chainStatuses.Select(
                     //                                     st =>
                     //                                     string.Format("{0}: {1}", st.Status, st.StatusInformation)));
-                    //TODO logging
-                    //Log.InfoFormat("[SAMLHandler] Certificate Verification Failed:  {0}", statusesString);
+                    // TODO logging
+                    // Log.InfoFormat("[SAMLHandler] Certificate Verification Failed:  {0}", statusesString);
                 }
             }
         }

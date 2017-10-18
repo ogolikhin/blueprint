@@ -26,7 +26,7 @@ namespace ServiceLibrary.Helpers.Validators
             _propertyLite = new PropertyLite
             {
                 PropertyTypeId = DefaultInstancePropertyTypeId
-                //,TextOrChoiceValue = "99"
+                // ,TextOrChoiceValue = "99"
             };
             _propertyLite.ChoiceIds.AddRange(new List<int> { 26 });
 
@@ -54,112 +54,112 @@ namespace ServiceLibrary.Helpers.Validators
         [TestMethod]
         public void Validate_ReturnsNull_When_No_Errors_Exist()
         {
-            //arrange
+            // arrange
             
             // As initialized
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, null);
 
-            //assert
+            // assert
             Assert.IsNull(result);
         }
 
         [TestMethod]
         public void Validate_ReturnsError_When_Not_AllowMultiple_And_Has_Multiple_Coices()
         {
-            //arrange
+            // arrange
             _propertyLite.ChoiceIds.Add(27);
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, null);
 
-            //assert
+            // assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
         }
 
         [TestMethod]
         public void Validate_ReturnsError_When_AllowMultiple_And_Has_Invalid_Choice()
         {
-            //arrange
+            // arrange
             _propertyType.AllowMultiple = true;
             _propertyLite.ChoiceIds.Add(127);
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, null);
 
-            //assert
+            // assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
         }
 
         [TestMethod]
         public void Validate_ReturnsError_When_Not_AllowMultiple_And_Has_Invalid_Choice()
         {
-            //arrange
+            // arrange
             _propertyLite.ChoiceIds.Add(127);
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, null);
 
-            //assert
+            // assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
         }
 
         [TestMethod]
         public void Validate_ReturnsError_When_IsRequired_And_Choices_And_TextOrChoiceValue_Are_Empty()
         {
-            //arrange
+            // arrange
             _propertyType.IsRequired = true;
             _propertyLite.ChoiceIds.Clear();
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, null);
 
-            //assert
+            // assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
         }
 
         [TestMethod]
         public void Validate_ReturnsError_When_IsRequired_And_Not_IsValidate_And_TextOrChoiceValue_Is_Empty()
         {
-            //arrange
+            // arrange
             _propertyType.IsRequired = true;
             _propertyType.IsValidate = false;
             _propertyLite.ChoiceIds.Clear();
             _propertyLite.TextOrChoiceValue = "";
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, null);
 
-            //assert
+            // assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
         }
 
         [TestMethod]
         public void Validate_ReturnsError_When_ChoiceIds_And_TextOrChoiceValue_Are_Both_Populated()
         {
-            //arrange
+            // arrange
             _propertyLite.ChoiceIds.Add(1);
             _propertyLite.TextOrChoiceValue = "some value";
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, null);
 
-            //assert
+            // assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
         }
 
         [TestMethod]
         public void Validate_ReturnsError_When_CustomValue_Populated_And_Validate()
         {
-            //arrange
+            // arrange
             _propertyType.IsValidate = true;
             _propertyLite.TextOrChoiceValue = "text";
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, null);
 
-            //assert
+            // assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
         }
     }

@@ -62,7 +62,7 @@ namespace ServiceLibrary.Helpers.Security
 
             // Showing our encrypted content
             var encryptBytes = encryptStream.ToArray();
-            //string encryptedString = UTF8Encoding.UTF8.GetString(encryptBytes, 0, encryptBytes.Length);
+            // string encryptedString = UTF8Encoding.UTF8.GetString(encryptBytes, 0, encryptBytes.Length);
             var encryptedString = Convert.ToBase64String(encryptBytes);
 
             return encryptedString;
@@ -135,7 +135,7 @@ namespace ServiceLibrary.Helpers.Security
 
         public static Guid CreateCryptographicallySecureGuid()
         {
-            //http://stackoverflow.com/questions/37170388/create-a-cryptographically-secure-random-guid-in-net/37170593
+            // http://stackoverflow.com/questions/37170388/create-a-cryptographically-secure-random-guid-in-net/37170593
             using (var provider = new RNGCryptoServiceProvider())
             {
                 var bytes = new byte[16];

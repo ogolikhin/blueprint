@@ -352,7 +352,7 @@ namespace AdminStore.Controllers
                 var recoveryToken = SystemEncryptions.CreateCryptographicallySecureGuid();
                 var recoveryUrl = new Uri(Request.RequestUri, ServiceConstants.ForgotPasswordResetUrl + "/" + recoveryToken).AbsoluteUri;
 
-                //decrypt the password to be set in mailBee
+                // decrypt the password to be set in mailBee
                 instanceSettings.EmailSettingsDeserialized.DecryptPassword();
 
                 _emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
@@ -400,7 +400,7 @@ namespace AdminStore.Controllers
         [BaseExceptionFilter]
         public async Task<IHttpActionResult> PostPasswordResetAsync([FromBody]ResetPasswordContent content)
         {
-            //the deserializer creates a zero filled guid when none provided
+            // the deserializer creates a zero filled guid when none provided
             if (content.Token == Guid.Empty || content.Token.GetHashCode() == 0)
             {
                 throw new BadRequestException("Password reset failed, token not provided", ErrorCodes.PasswordResetEmptyToken);
@@ -409,20 +409,20 @@ namespace AdminStore.Controllers
             var tokens = (await _userRepository.GetPasswordRecoveryTokensAsync(content.Token)).ToList();
             if (!tokens.Any())
             {
-                //user did not request password reset
+                // user did not request password reset
                 throw new ConflictException("Password reset failed, recovery token not found.", ErrorCodes.PasswordResetTokenNotFound);
             }
 
             if (tokens.First().RecoveryToken != content.Token)
             {
-                //provided token doesn't match last requested
+                // provided token doesn't match last requested
                 throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
             }
 
             var tokenLifespan = await _applicationSettingsRepository.GetValue(PasswordResetTokenExpirationInHoursKey, DefaultPasswordResetTokenExpirationInHours);
             if (tokens.First().CreationTime.AddHours(tokenLifespan) < DateTime.Now)
             {
-                //token expired
+                // token expired
                 throw new ConflictException("Password reset failed, recovery token expired.", ErrorCodes.PasswordResetTokenExpired);
             }
 
@@ -430,13 +430,13 @@ namespace AdminStore.Controllers
             var user = await _userRepository.GetUserByLoginAsync(userLogin);
             if (user == null)
             {
-                //user does not exist
+                // user does not exist
                 throw new ConflictException("Password reset failed, the user does not exist.", ErrorCodes.PasswordResetUserNotFound);
             }
 
             if (!user.IsEnabled)
             {
-                //user is disabled
+                // user is disabled
                 throw new ConflictException("Password reset failed, the login for this user is disabled.", ErrorCodes.PasswordResetUserDisabled);
             }
 
@@ -455,10 +455,10 @@ namespace AdminStore.Controllers
                 throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
             }
 
-            //reset password
+            // reset password
             await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
 
-            //drop user session
+            // drop user session
             var uri = new Uri(WebApiConfig.AccessControl);
             var http = _httpClientProvider.Create(uri);
             var request = new HttpRequestMessage { RequestUri = new Uri(uri, $"sessions/{user.Id}"), Method = HttpMethod.Delete };

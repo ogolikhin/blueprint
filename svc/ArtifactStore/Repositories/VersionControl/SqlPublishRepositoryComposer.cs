@@ -29,10 +29,10 @@ namespace ArtifactStore.Repositories.VersionControl
 
             await _repositoriesContainer.PublishReuseProcessingRepo.Execute(revisionId, parameters, environment, transaction);
 
-            //TODO: DISCUSSIONS IS NOT IMPLEMENTED
-            //TODO: Collection Assignment IS NOT IMPLEMENTED
+            // TODO: DISCUSSIONS IS NOT IMPLEMENTED
+            // TODO: Collection Assignment IS NOT IMPLEMENTED
             
-            //await _repositoriesContainer.PublishCollectionAssignmentsRepo.Execute(revisionId, parameters, environment, transaction);
+            // await _repositoriesContainer.PublishCollectionAssignmentsRepo.Execute(revisionId, parameters, environment, transaction);
         }
     }
 }

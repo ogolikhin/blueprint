@@ -214,11 +214,11 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.StateNameExceedsLimit24:
                     template = TemplateXmlStateNameExceedsLimit24;
-                    errParams = new object[] {((IeState)error.Element).Name};
+                    errParams = new object[] { ((IeState)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.StateNameNotUnique:
                     template = TemplateXmlStateNameNotUnique;
-                    errParams = new object[] {((IeState)error.Element).Name};
+                    errParams = new object[] { ((IeState)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.NoInitialState:
                     template = TemplateXmlNoInitialState;
@@ -238,15 +238,15 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionEventNameExceedsLimit24:
                     template = TemplateXmlTransitionEventNameExceedsLimit24;
-                    errParams = new object[] {((IeTransitionEvent)error.Element).Name};
+                    errParams = new object[] { ((IeTransitionEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.PropertyChangeEventNameExceedsLimit24:
                     template = TemplateXmlPropertyChangeEventNameExceedsLimit24;
-                    errParams = new object[] {((IePropertyChangeEvent)error.Element).Name};
+                    errParams = new object[] { ((IePropertyChangeEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.NewArtifactEventNameExceedsLimit24:
                     template = TemplateXmlNewArtifactEventNameExceedsLimit24;
-                    errParams = new object[] {((IeNewArtifactEvent)error.Element).Name};
+                    errParams = new object[] { ((IeNewArtifactEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.StateWithDuplicateOutgoingTransitions:
                     template = TemplateXmlStateWithDuplicateOutgoingTransitions;
@@ -258,27 +258,27 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionStateNotFound:
                     template = TemplateXmlTransitionStateNotFound;
-                    errParams = new object[] {((IeTransitionEvent)error.Element).Name};
+                    errParams = new object[] { ((IeTransitionEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionStartStateNotSpecified:
                     template = TemplateXmlTransitionStartStateNotSpecified;
-                    errParams = new object[] {((IeTransitionEvent)error.Element).Name};
+                    errParams = new object[] { ((IeTransitionEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionEndStateNotSpecified:
                     template = TemplateXmlTransitionEndStateNotSpecified;
-                    errParams = new object[] {((IeTransitionEvent)error.Element).Name};
+                    errParams = new object[] { ((IeTransitionEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionFromAndToStatesSame:
                     template = TemplateXmlTransitionFromAndToStatesSame;
-                    errParams = new object[] {((IeTransitionEvent)error.Element).Name};
+                    errParams = new object[] { ((IeTransitionEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.TriggerCountOnEventExceedsLimit10:
                     template = TemplateXmlTriggerCountOnEventExceedsLimit10;
-                    errParams = new object[] {((IeEvent)error.Element).Name};
+                    errParams = new object[] { ((IeEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.PropertyChangeEventPropertyNotSpecified:
                     template = TemplateXmlPropertyChangEventPropertyNotSpecified;
-                    errParams = new object[] {((IePropertyChangeEvent)error.Element).Name};
+                    errParams = new object[] { ((IePropertyChangeEvent)error.Element).Name};
                     break;
                 case WorkflowXmlValidationErrorCodes.PropertyChangeEventDuplicateProperties:
                     template = TemplateXmlPropertyChangeEventDuplicateProperties;

@@ -25,7 +25,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException (typeof(ArgumentOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetArtifactVersions_ArtifactIdOutOfRange_ArgumentOutOfBoundsException()
         {
             // Arrange

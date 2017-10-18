@@ -66,7 +66,7 @@ namespace FileStore.Repositories
                     await outputStream.WriteAsync(buffer, 0, bytesRead);
                     position += bytesRead;
 
-                } while ( position < _file.FileSize);
+                } while (position < _file.FileSize);
 
             }
             catch 

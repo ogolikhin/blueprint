@@ -35,7 +35,7 @@ namespace ServiceLibrary.Helpers
             var statusRepoList = new List<IStatusRepository>();
             for (int i = 0; i < 3; i++)
             {
-                statusRepoList.Add( GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));
+                statusRepoList.Add(GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));
             }
 
 
@@ -138,7 +138,7 @@ namespace ServiceLibrary.Helpers
 
             responseDatas.Add(responseData);
             var statusRepoMock = new Mock<IStatusRepository>();
-            statusRepoMock.Setup( r => r.GetStatuses(It.IsAny<int>())).ReturnsAsync( responseDatas);
+            statusRepoMock.Setup(r => r.GetStatuses(It.IsAny<int>())).ReturnsAsync(responseDatas);
             statusRepoMock.Setup(r => r.Name).Returns(name);
             statusRepoMock.Setup(r => r.AccessInfo).Returns(accessInfo);
             return  statusRepoMock.Object;

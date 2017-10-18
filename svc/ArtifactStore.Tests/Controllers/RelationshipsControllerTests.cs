@@ -286,7 +286,7 @@ namespace ArtifactStore.Controllers
             Assert.IsFalse(result.OtherTraces[0].HasAccess);
         }
 
-        [ExpectedException (typeof(ResourceNotFoundException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         [TestMethod]
         public async Task GetRelationships_BadSubartifactId_ExceptionThrown()
         {

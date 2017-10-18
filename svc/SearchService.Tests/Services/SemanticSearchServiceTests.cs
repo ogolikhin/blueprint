@@ -106,7 +106,7 @@ namespace SearchService.Services
                 a =>
                     a.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(),
                         It.IsAny<int>(), It.IsAny<bool>()))
-                .ReturnsAsync( new Dictionary<int, RolePermissions>() { {1, RolePermissions.None} });
+                .ReturnsAsync(new Dictionary<int, RolePermissions>() { {1, RolePermissions.None} });
 
             // act
             await _semanticSearchService.GetSemanticSearchSuggestions(parameters);

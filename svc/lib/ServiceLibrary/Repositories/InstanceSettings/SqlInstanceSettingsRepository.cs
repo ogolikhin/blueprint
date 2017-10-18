@@ -9,7 +9,7 @@ namespace ServiceLibrary.Repositories.InstanceSettings
 {
     public class SqlInstanceSettingsRepository : SqlBaseArtifactRepository, IInstanceSettingsRepository
     {
-        public SqlInstanceSettingsRepository() : this (new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+        public SqlInstanceSettingsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
             
         }

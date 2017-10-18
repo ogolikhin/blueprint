@@ -7,7 +7,7 @@ namespace SearchService.Helpers.SemanticSearch
 {
     public class SqlSearchEngine: SearchEngine
     {
-        public SqlSearchEngine(ISemanticSearchRepository semanticSearchRepository) : base (semanticSearchRepository)
+        public SqlSearchEngine(ISemanticSearchRepository semanticSearchRepository) : base(semanticSearchRepository)
         {
         }
 

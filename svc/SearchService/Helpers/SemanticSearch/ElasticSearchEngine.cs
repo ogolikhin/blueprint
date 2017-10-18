@@ -45,7 +45,7 @@ namespace SearchService.Helpers.SemanticSearch
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308: Normalize strings to uppercase", Justification = "Index name for elastic search must be lower cased")]
         internal ElasticSearchEngine(string tenantId, IElasticClient elasticClient, ISemanticSearchRepository semanticSearchRepository)
-            : base (semanticSearchRepository)
+            : base(semanticSearchRepository)
         {
             IndexName = (IndexPrefix + tenantId).ToLowerInvariant();
 

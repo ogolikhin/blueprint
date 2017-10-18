@@ -34,7 +34,7 @@ namespace AdminStore.Helpers
         public void SortProjectRolesAssignments_DefaultSort_CorrectResult()
         {
             // Arange
-            var sorting = new Sorting ();
+            var sorting = new Sorting();
             var result = SortingHelper.SortProjectRolesAssignments(sorting);
 
             // Act

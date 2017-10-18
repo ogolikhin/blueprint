@@ -1293,7 +1293,7 @@ namespace ArtifactStore.Repositories
                {"IsBaselineAdded", false}
             };
 
-            var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>, IEnumerable <int>, IEnumerable<bool>> (ArtifactIds, Unpublished, Nonexistent, IsBaselineAdded);
+            var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>, IEnumerable <int>, IEnumerable<bool>>(ArtifactIds, Unpublished, Nonexistent, IsBaselineAdded);
             
 
             _cxn.SetupQueryMultipleAsync("GetEffectiveArtifactIds", effectiveArtifactIdsQueryParameters, mockResult, outParameters);

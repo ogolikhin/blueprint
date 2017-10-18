@@ -163,21 +163,8 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             {
                 if (EndpointInstance == null)
                 {
-                    //Wait for the Endpoint Instance to initialize. Start with a brief Sleep.
-                    Thread.Sleep(1000);
-                    const int retriesMax = 2;
-                    int retry = 1;
-                    while (EndpointInstance == null && retry <= retriesMax)
-                    {
-                        //Wait longer with each retry
-                        Thread.Sleep(5000 * retry);
-                        retry++;
-                    }
-                    if (EndpointInstance == null)
-                    {
-                        //If it's still null, throw an exception so the user gets an error message
-                        throw new Exception($"EndpointInstance is null. {message.ActionType} could not be sent for tenant ID {tenantId}");
-                    }
+                    //If the Endpoint Instance is null, throw an exception so the user gets an error message
+                    throw new Exception($"EndpointInstance is null. {message.ActionType} could not be sent for tenant ID {tenantId}");
                 }
 
                 var options = new SendOptions();

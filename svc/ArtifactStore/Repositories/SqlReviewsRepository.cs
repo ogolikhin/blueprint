@@ -9,9 +9,7 @@ using ServiceLibrary.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories.ApplicationSettings;
@@ -131,6 +129,8 @@ namespace ArtifactStore.Repositories
                 ReviewPackageStatus = reviewDetails.ReviewPackageStatus,
                 RequireAllArtifactsReviewed = reviewDetails.RequireAllArtifactsReviewed,
                 ShowOnlyDescription = reviewDetails.ShowOnlyDescription,
+                ExpirationDate = reviewDetails.ExpirationDate,
+                IsExpired = reviewDetails.ExpirationDate < DateTime.UtcNow,
                 ArtifactsStatus = new ReviewArtifactsStatus
                 {
                     Approved = reviewDetails.Approved,

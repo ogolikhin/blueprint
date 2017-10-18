@@ -1091,7 +1091,7 @@ namespace AdminStore.Repositories
             RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1 };
 
             _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
-                                        new Dictionary <string, object>
+                                        new Dictionary<string, object>
                                         {
                                             { "ProjectId", ProjectId },
                                             { "GroupId", roleAssignment.GroupId },

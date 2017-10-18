@@ -194,7 +194,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
     {
         protected override Dictionary<MessageActionType, Type> GetMessageActionToHandlerMapping()
         {
-            return new Dictionary <MessageActionType, Type>();
+            return new Dictionary<MessageActionType, Type>();
         }
 
         public GenericServiceBusServer()

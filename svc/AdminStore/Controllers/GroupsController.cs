@@ -338,7 +338,7 @@ namespace AdminStore.Controllers
             await _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
                      ProjectAdminPrivileges.ViewGroupsAndRoles);
 
-            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search};
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
             var result =
                 await _groupRepository.GetProjectGroupsAsync(projectId, tabularData, SortingHelper.SortProjectGroups);
 

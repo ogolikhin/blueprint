@@ -80,7 +80,7 @@ namespace ServiceLibrary.Repositories
                                 ImageId = 1,
                                 IsEnabled = false,
                                 IsGuest = true
-                           }});
+                           } });
 
             }
             return await Task.FromResult(new List<UserInfo> { new UserInfo
@@ -90,7 +90,7 @@ namespace ServiceLibrary.Repositories
                                 ImageId = 1,
                                 IsEnabled = true,
                                 IsGuest = false
-                           }});
+                           } });
         }
         public async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId)
         {

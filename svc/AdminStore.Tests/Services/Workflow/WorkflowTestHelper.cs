@@ -78,7 +78,7 @@ namespace AdminStore.Services.Workflow
                     SkipPermissionGroups = true,
                     PermissionGroups = new List<IeGroup>
                 {
-                    new IeGroup { Name = "Authors"},
+                    new IeGroup { Name = "Authors" },
                     new IeGroup { Name = "Group 1" }
                 },
                     Triggers = new List<IeTrigger>
@@ -128,7 +128,7 @@ namespace AdminStore.Services.Workflow
                     SkipPermissionGroups = true,
                     PermissionGroups = new List<IeGroup>
                 {
-                    new IeGroup { Name = "Authors"},
+                    new IeGroup { Name = "Authors" },
                     new IeGroup { Name = "Group 2" }
                 },
                     Triggers = new List<IeTrigger>
@@ -165,7 +165,7 @@ namespace AdminStore.Services.Workflow
                             ValidValues = new List<IeValidValue>
                             {
                                 new IeValidValue { Value = "Canada" },
-                                new IeValidValue { Value = "Russia"}
+                                new IeValidValue { Value = "Russia" }
                             }
                         }
                     },
@@ -178,8 +178,8 @@ namespace AdminStore.Services.Workflow
                             {
                                 UsersGroups = new List<IeUserGroup>
                                 {
-                                    new IeUserGroup { Name = "user1"},
-                                    new IeUserGroup { Name = "group2", IsGroup = true}
+                                    new IeUserGroup { Name = "user1" },
+                                    new IeUserGroup { Name = "group2", IsGroup = true }
                                 }
                             }
                         }

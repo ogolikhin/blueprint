@@ -39,7 +39,7 @@ namespace AdminStore.Repositories
 
             _projectRolesAssignments = new List<RoleAssignment>
             {
-                new RoleAssignment { Id = 1, RoleName = "Role1", GroupName = "Group1"}
+                new RoleAssignment { Id = 1, RoleName = "Role1", GroupName = "Group1" }
             };
 
             _tabularData = new TabularData
@@ -439,8 +439,8 @@ namespace AdminStore.Repositories
         {
             return new List<ArtifactsNavigationPath>
             {
-                new ArtifactsNavigationPath { Level = 0, ArtifactId = 1, Name = "ProjectName"},
-                new ArtifactsNavigationPath { Level = 1, ArtifactId = 2, Name = "Blueprint"}
+                new ArtifactsNavigationPath { Level = 0, ArtifactId = 1, Name = "ProjectName" },
+                new ArtifactsNavigationPath { Level = 1, ArtifactId = 2, Name = "Blueprint" }
             };
         }
 
@@ -964,7 +964,7 @@ namespace AdminStore.Repositories
                     }
                 },
                 projectRoles,
-                new Dictionary<string, object> { { "ErrorCode", errorCode}});
+                new Dictionary<string, object> { { "ErrorCode", errorCode } });
 
             // Act
             await repository.GetProjectRolesAsync(projectId);
@@ -1088,7 +1088,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var createdRoleAssignmentId = 1;
-            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1};
+            RoleAssignmentDTO roleAssignment = new RoleAssignmentDTO() { GroupId = 1, RoleId = 1 };
 
             _connection.SetupExecuteScalarAsync("CreateProjectRoleAssignment",
                                         new Dictionary <string, object>
@@ -1241,7 +1241,7 @@ namespace AdminStore.Repositories
         {
             // arrange
             var total = 1;
-            var spResult = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() { Id = 1, Location = "path"} };
+            var spResult = new List<ProjectFolderSearchDto>() { new ProjectFolderSearchDto() { Id = 1, Location = "path" } };
             _connection.SetupQueryAsync("SearchProjectsAndFolders", It.IsAny<Dictionary<string, object>>(), spResult, new Dictionary<string, object> { { "Total", (int?)total } });
 
             // act

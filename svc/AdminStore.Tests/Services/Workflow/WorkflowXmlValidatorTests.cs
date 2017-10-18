@@ -235,7 +235,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            _workflow.States.Add(new IeState { Name = "   "});
+            _workflow.States.Add(new IeState { Name = "   " });
             _workflow.TransitionEvents.Add(new IeTransitionEvent
             {
                 Name = "Transition 1",
@@ -1053,7 +1053,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.EmailNotification)
                 {
-                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> { "user@comapany.com"};
+                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> { "user@comapany.com" };
                     ((IeEmailNotificationAction)t.Action).PropertyName = "a";
                 }
             }));
@@ -1194,7 +1194,7 @@ namespace AdminStore.Services.Workflow
             var workflowValidator = new WorkflowXmlValidator();
             ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[0].Action).ValidValues = new List<IeValidValue>
             {
-                new IeValidValue { Value = "a"}
+                new IeValidValue { Value = "a" }
             };
             ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).UsersGroups = new IeUsersGroups
             {
@@ -1239,7 +1239,7 @@ namespace AdminStore.Services.Workflow
             {
                 UsersGroups = new List<IeUserGroup>
                 {
-                    new IeUserGroup { Name = "user1"}
+                    new IeUserGroup { Name = "user1" }
                 },
                 IncludeCurrentUser = true
             };

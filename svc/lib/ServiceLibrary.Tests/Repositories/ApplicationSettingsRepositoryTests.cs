@@ -52,7 +52,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var licenseInfoValue = string.Empty;
-            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false } };
             _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
 
             // Act
@@ -68,7 +68,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             string licenseInfoValue = null;
-            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false } };
             _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
 
             // Act
@@ -84,7 +84,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var licenseInfoValue = "invalid encrypted value";
-            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false } };
             _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
 
             // Act
@@ -104,7 +104,7 @@ namespace ServiceLibrary.Repositories
             var encryptedXml = SystemEncryptions.Encrypt(xml);
             var licenseInfoValue = encryptedXml;
 
-            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false } };
             _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
 
             // Act
@@ -119,12 +119,12 @@ namespace ServiceLibrary.Repositories
         public async Task ApplicationSettingsRepository_ReturnsWorkflowFalse_WhenLicensesAreNotAnArrayOfFeatureInformationObjects()
         {
             // Arrange
-            var license = new[] { "this is not an array of FeatureInformation objects"};
+            var license = new[] { "this is not an array of FeatureInformation objects" };
             var xml = SerializationHelper.ToXml(license);
             var encryptedXml = SystemEncryptions.Encrypt(xml);
             var licenseInfoValue = encryptedXml;
 
-            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false } };
             _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
 
             // Act
@@ -140,7 +140,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var licenseInfoValue = GetEncryptedLicense(FeatureTypes.Storyteller, DateTime.MaxValue);
-            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false } };
             _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
 
             // Act
@@ -163,7 +163,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var licenseInfoValue = GetEncryptedLicense(FeatureTypes.Workflow, DateTime.MinValue);
-            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false } };
             _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
 
             // Act
@@ -179,7 +179,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var licenseInfoValue = GetEncryptedLicense(FeatureTypes.Workflow, DateTime.MaxValue);
-            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false}};
+            var dbSettings = new List<ApplicationSetting> { new ApplicationSetting { Value = licenseInfoValue, Key = ServiceConstants.LicenseInfoApplicationSettingKey, Restricted = false } };
             _sqlConnectionWrapperMock.Setup(m => m.QueryAsync<ApplicationSetting>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>())).ReturnsAsync(dbSettings);
 
             // Act

@@ -366,7 +366,7 @@ namespace ServiceLibrary.Repositories
                         ServiceConstants.ContentDispositionHeader,
                         string.Format(CultureInfo.InvariantCulture, "attachment; filename=\"{0}\";fileNameStar=\"{0}\"", fileName)
                     },
-                    { ServiceConstants.ContentTypeHeader, type},
+                    { ServiceConstants.ContentTypeHeader, type },
                     { ServiceConstants.FileSizeHeader, size.ToString(CultureInfo.InvariantCulture) },
                     { ServiceConstants.FileChunkCountHeader, chunkCount.ToString(CultureInfo.InvariantCulture) },
                     { ServiceConstants.StoredDateHeader, storedDate.ToString("o", CultureInfo.InvariantCulture) }
@@ -392,7 +392,7 @@ namespace ServiceLibrary.Repositories
                         ServiceConstants.ContentDispositionHeader,
                         string.Format(CultureInfo.InvariantCulture, "filename=\"{0}\"", fileName)
                     },
-                    { ServiceConstants.ContentTypeHeader, type}
+                    { ServiceConstants.ContentTypeHeader, type }
                 });
             responseMock.Setup(m => m.GetResponseStream()).Returns(() =>
             {

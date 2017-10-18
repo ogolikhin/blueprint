@@ -358,7 +358,7 @@ namespace AdminStore.Repositories
 
             var total = prm.Get<int?>("Total");
 
-            var queryDataResult = new QueryResult<GroupDto> { Items = GroupMapper.Map(result), Total = total ?? 0};
+            var queryDataResult = new QueryResult<GroupDto> { Items = GroupMapper.Map(result), Total = total ?? 0 };
 
             return queryDataResult;
         }

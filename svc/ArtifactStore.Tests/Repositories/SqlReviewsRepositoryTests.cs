@@ -282,18 +282,18 @@ namespace ArtifactStore.Repositories
 
             var prm = new Dictionary<string, object>
             {
-                { "@reviewId", reviewId},
-                { "@revisionId", revisionId},
-                { "@userId", userId},
-                { "offset", pagination.Offset},
-                { "@limit", pagination.Limit},
-                { "@refreshInterval", refreshInterval}
+                { "@reviewId", reviewId },
+                { "@revisionId", revisionId },
+                { "@userId", userId },
+                { "offset", pagination.Offset },
+                { "@limit", pagination.Limit },
+                { "@refreshInterval", refreshInterval }
             };
 
             var outPrm = new Dictionary<string, object>
             {
-                { "@total", 0},
-                { "@retResult", retResult}
+                { "@total", 0 },
+                { "@retResult", retResult }
             };
 
             var testResult = new ReviewTableOfContentItem[] { };
@@ -334,11 +334,11 @@ namespace ArtifactStore.Repositories
 
             var inpParams = new Dictionary<string, object>
             {
-                { "@reviewId", reviewId},
-                { "@revisionId", revisionId},
-                { "@userId", userId},
-                { "@artifactId", artifactId},
-                { "@refreshInterval", refreshInterval}
+                { "@reviewId", reviewId },
+                { "@revisionId", revisionId },
+                { "@userId", userId },
+                { "@artifactId", artifactId },
+                { "@refreshInterval", refreshInterval }
             };
 
             var testResult = new ReviewArtifactIndex
@@ -349,7 +349,7 @@ namespace ArtifactStore.Repositories
 
             var outParams = new Dictionary<string, object>
             {
-                { "@result", 0},
+                { "@result", 0 },
             };
 
             _cxn.SetupQueryAsync("GetReviewArtifactIndex", inpParams, Enumerable.Repeat(testResult, 1), outParams);
@@ -411,16 +411,16 @@ namespace ArtifactStore.Repositories
 
             var inpParams = new Dictionary<string, object>
             {
-                { "@reviewId", reviewId},
-                { "@revisionId", revisionId},
-                { "@userId", userId},
-                { "@artifactId", artifactId},
-                { "@refreshInterval", refreshInterval}
+                { "@reviewId", reviewId },
+                { "@revisionId", revisionId },
+                { "@userId", userId },
+                { "@artifactId", artifactId },
+                { "@refreshInterval", refreshInterval }
             };
 
             var outParams = new Dictionary<string, object>
             {
-                { "@result", 1},
+                { "@result", 1 },
             };
             var testResult = new ReviewArtifactIndex[] { };
 
@@ -456,16 +456,16 @@ namespace ArtifactStore.Repositories
 
             var inpParams = new Dictionary<string, object>
             {
-                { "@reviewId", reviewId},
-                { "@revisionId", revisionId},
-                { "@userId", userId},
-                { "@artifactId", artifactId},
-                { "@refreshInterval", refreshInterval}
+                { "@reviewId", reviewId },
+                { "@revisionId", revisionId },
+                { "@userId", userId },
+                { "@artifactId", artifactId },
+                { "@refreshInterval", refreshInterval }
             };
 
             var outParams = new Dictionary<string, object>
             {
-                { "@result", 3},
+                { "@result", 3 },
             };
             var testResult = new ReviewArtifactIndex[] { };
 
@@ -500,11 +500,11 @@ namespace ArtifactStore.Repositories
 
             var inpParams = new Dictionary<string, object>
             {
-                { "@reviewId", reviewId},
-                { "@revisionId", revisionId},
-                { "@userId", userId},
-                { "@artifactId", artifactId},
-                { "@refreshInterval", refreshInterval}
+                { "@reviewId", reviewId },
+                { "@revisionId", revisionId },
+                { "@userId", userId },
+                { "@artifactId", artifactId },
+                { "@refreshInterval", refreshInterval }
             };
 
             var testResult = new ReviewArtifactIndex
@@ -515,7 +515,7 @@ namespace ArtifactStore.Repositories
 
             var outParams = new Dictionary<string, object>
             {
-                { "@result", 0}
+                { "@result", 0 }
             };
 
             _cxn.SetupQueryAsync("GetReviewTableOfContentArtifactIndex", inpParams, Enumerable.Repeat(testResult, 1), outParams);
@@ -577,18 +577,18 @@ namespace ArtifactStore.Repositories
 
             var inpParams = new Dictionary<string, object>
             {
-                { "@reviewId", reviewId},
-                { "@revisionId", revisionId},
-                { "@userId", userId},
-                { "@artifactId", artifactId},
-                { "@refreshInterval", refreshInterval}
+                { "@reviewId", reviewId },
+                { "@revisionId", revisionId },
+                { "@userId", userId },
+                { "@artifactId", artifactId },
+                { "@refreshInterval", refreshInterval }
             };
 
             var testResult = new ReviewArtifactIndex[] { };
 
             var outParams = new Dictionary<string, object>
             {
-                { "@result", 1},
+                { "@result", 1 },
             };
             _cxn.SetupQueryAsync("GetReviewTableOfContentArtifactIndex", inpParams, testResult, outParams);
 
@@ -624,15 +624,15 @@ namespace ArtifactStore.Repositories
 
             var inpParams = new Dictionary<string, object>
             {
-                { "@reviewId", reviewId},
-                { "@revisionId", revisionId},
-                { "@userId", userId},
-                { "@artifactId", artifactId},
-                { "@refreshInterval", refreshInterval},
+                { "@reviewId", reviewId },
+                { "@revisionId", revisionId },
+                { "@userId", userId },
+                { "@artifactId", artifactId },
+                { "@refreshInterval", refreshInterval },
             };
             var outParams = new Dictionary<string, object>
             {
-                { "@result", 3},
+                { "@result", 3 },
             };
             var testResult = new ReviewArtifactIndex[] { };
 
@@ -1260,7 +1260,7 @@ namespace ArtifactStore.Repositories
             {
                { "@artifactIds",  SqlConnectionWrapper.ToDataTable(ids) },
                 { "@userId", userId },
-            { "@projectId", projectId}
+            { "@projectId", projectId }
         };
 
 
@@ -1271,10 +1271,10 @@ namespace ArtifactStore.Repositories
 
             var outParameters = new Dictionary<string, object>()
             {
-               { "ArtifactIds",  ids},
-               { "Unpublished", 0},
-               { "Nonexistent", 0},
-               { "IsBaselineAdded", false}
+               { "ArtifactIds",  ids },
+               { "Unpublished", 0 },
+               { "Nonexistent", 0 },
+               { "IsBaselineAdded", false }
             };
 
             var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>, IEnumerable <int>, IEnumerable<bool>>(ArtifactIds, Unpublished, Nonexistent, IsBaselineAdded);
@@ -2109,10 +2109,10 @@ namespace ArtifactStore.Repositories
 
             Dictionary<string, object> outParameters = new Dictionary<string, object>()
             {
-               { "ArtifactIds",  artifactIds},
-               { "Unpublished", 0},
-               { "Nonexistent", 0},
-               { "IsBaselineAdded", false}
+               { "ArtifactIds",  artifactIds },
+               { "Unpublished", 0 },
+               { "Nonexistent", 0 },
+               { "IsBaselineAdded", false }
             };
 
             var getCheckParameters = new Dictionary<string, object>()
@@ -2578,10 +2578,10 @@ namespace ArtifactStore.Repositories
 
             Dictionary<string, object> outParameters = new Dictionary<string, object>()
             {
-               { "ArtifactIds",  artifactIds},
-               { "Unpublished", 0},
-               { "Nonexistent", 0},
-               { "IsBaselineAdded", false}
+               { "ArtifactIds",  artifactIds },
+               { "Unpublished", 0 },
+               { "Nonexistent", 0 },
+               { "IsBaselineAdded", false }
             };
 
             var getCheckParameters = new Dictionary<string, object>()
@@ -2669,10 +2669,10 @@ namespace ArtifactStore.Repositories
 
             Dictionary<string, object> outParameters = new Dictionary<string, object>()
             {
-               { "ArtifactIds",  artifactIds},
-               { "Unpublished", 0},
-               { "Nonexistent", 0},
-               { "IsBaselineAdded", false}
+               { "ArtifactIds",  artifactIds },
+               { "Unpublished", 0 },
+               { "Nonexistent", 0 },
+               { "IsBaselineAdded", false }
             };
 
             var getCheckParameters = new Dictionary<string, object>()
@@ -3299,10 +3299,10 @@ namespace ArtifactStore.Repositories
 
             var parameters = new Dictionary<string, object>()
             {
-                { "reviewId", reviewId},
-                { "userId", userId},
-                { "updateReviewerStatus", true},
-                { "value", "InProgress"}
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "updateReviewerStatus", true },
+                { "value", "InProgress" }
             };
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", parameters, 1);
@@ -3485,7 +3485,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             // Act
@@ -3504,7 +3504,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             SetupGetRequireAllArtifactsReviewedQuery(reviewId, userId, false, false);
@@ -3528,7 +3528,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3556,7 +3556,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3584,7 +3584,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3612,7 +3612,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3640,7 +3640,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3673,7 +3673,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3713,7 +3713,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3755,7 +3755,7 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read}
+                { reviewId, RolePermissions.Read }
             });
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -3787,8 +3787,8 @@ namespace ArtifactStore.Repositories
         {
             var requireAllArtifactReviewedParameters = new Dictionary<string, object>()
             {
-                { "reviewId", reviewId},
-                { "userId",  userId},
+                { "reviewId", reviewId },
+                { "userId",  userId },
                 { "addDrafts", addDrafts }
             };
 
@@ -3801,13 +3801,13 @@ namespace ArtifactStore.Repositories
 
             var reviewArtifactsParams = new Dictionary<string, object>()
             {
-                { "reviewId", reviewId},
-                { "offset", 0},
-                { "limit", int.MaxValue},
-                { "revisionId", int.MaxValue},
-                { "addDrafts", false},
-                { "userId", 2},
-                { "refreshInterval", 20}
+                { "reviewId", reviewId },
+                { "offset", 0 },
+                { "limit", int.MaxValue },
+                { "revisionId", int.MaxValue },
+                { "addDrafts", false },
+                { "userId", 2 },
+                { "refreshInterval", 20 }
             };
 
             var reviewArtifacts = new[]
@@ -3825,8 +3825,8 @@ namespace ArtifactStore.Repositories
 
             var reviewArtifactsReturnParams = new Dictionary<string, object>()
             {
-                { "numResult", 1},
-                { "isFormal", true}
+                { "numResult", 1 },
+                { "isFormal", true }
             };
 
             setArtifactPropertiesAction?.Invoke(reviewArtifacts[0]);
@@ -3835,8 +3835,8 @@ namespace ArtifactStore.Repositories
 
             var permissions = new Dictionary<int, RolePermissions>()
             {
-                { reviewId, RolePermissions.Read},
-                { artifactId, reviewArtifacts[0].HasAccess ? RolePermissions.Read : RolePermissions.None}
+                { reviewId, RolePermissions.Read },
+                { artifactId, reviewArtifacts[0].HasAccess ? RolePermissions.Read : RolePermissions.None }
             };
 
             SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, permissions);
@@ -4358,18 +4358,18 @@ namespace ArtifactStore.Repositories
         {
             var artifactParam = new Dictionary<string, object>()
             {
-                { "reviewId", reviewId},
-                { "userId", userId},
-                { "addDrafts", true},
-                { "revisionId", int.MaxValue},
-                { "offset", 0},
-                { "limit", 50},
-                { "refreshInterval", 20}
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "addDrafts", true },
+                { "revisionId", int.MaxValue },
+                { "offset", 0 },
+                { "limit", 50 },
+                { "refreshInterval", 20 }
             };
 
             var artifactOutputParam = new Dictionary<string, object>()
             {
-                { "numResult", 1},
+                { "numResult", 1 },
                 { "isFormal", isFormal }
             };
 
@@ -4385,10 +4385,10 @@ namespace ArtifactStore.Repositories
         {
             var participantParam = new Dictionary<string, object>()
             {
-                { "reviewId", reviewId},
-                { "revisionId", int.MaxValue},
-                { "userId", userId},
-                { "itemIds", SqlConnectionWrapper.ToDataTable(new[] { artifactId}) }
+                { "reviewId", reviewId },
+                { "revisionId", int.MaxValue },
+                { "userId", userId },
+                { "itemIds", SqlConnectionWrapper.ToDataTable(new[] { artifactId }) }
             };
 
             participantArtifact.Id = artifactId;

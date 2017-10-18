@@ -30,7 +30,7 @@ namespace AdminStore.Controllers
                 Source = "testClass",
                 StackTrace = ""
             };
-            var session = new Session { UserName = "admin"};
+            var session = new Session { UserName = "admin" };
 
             var logMock = new Mock<IServiceLogRepository>();
 

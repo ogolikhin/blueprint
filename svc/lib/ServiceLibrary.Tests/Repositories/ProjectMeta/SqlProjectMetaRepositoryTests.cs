@@ -100,7 +100,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 12, Predefined = ItemTypePredefined.Extension },
                 new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 13, Predefined = ItemTypePredefined.Flow },
                 // Not hidden
-                new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 13, Predefined = ItemTypePredefined.Step}
+                new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 13, Predefined = ItemTypePredefined.Step }
             };
             var itptMap = new List<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord>();
 
@@ -484,8 +484,8 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     IsRequired = ptVersions[0].Required,
                     UserGroupDefaultValue = new List<UserGroup>
                     {
-                        new UserGroup { Id = 3, IsGroup = false},
-                        new UserGroup { Id = 1, IsGroup = true}
+                        new UserGroup { Id = 3, IsGroup = false },
+                        new UserGroup { Id = 1, IsGroup = true }
                     }
                 }
             };
@@ -862,13 +862,13 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             IEnumerable<SqlProjectMetaRepository.ItemTypeVersion> itVersions,
             IEnumerable<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord> itptMap)
         {
-            SqlProjectMetaRepository.ProjectVersion[] project = { new SqlProjectMetaRepository.ProjectVersion { IsAccesible = true}};
+            SqlProjectMetaRepository.ProjectVersion[] project = { new SqlProjectMetaRepository.ProjectVersion { IsAccesible = true } };
             _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById",
-                new Dictionary<string, object> { { "projectId", _projectId}, { "userId", _userId}}, project);
+                new Dictionary<string, object> { { "projectId", _projectId }, { "userId", _userId } }, project);
 
             var mockResult = Tuple.Create(ptVersions, itVersions, itptMap);
             _cxn.SetupQueryMultipleAsync("GetProjectCustomTypes",
-                new Dictionary<string, object> { { "projectId", _projectId}, { "revisionId", ServiceConstants.VersionHead}},
+                new Dictionary<string, object> { { "projectId", _projectId }, { "revisionId", ServiceConstants.VersionHead } },
                 mockResult);
         }
 
@@ -923,12 +923,12 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                         Type = SqlProjectMetaRepository.GroupType.General,
                         Properties = new List<SqlProjectMetaRepository.PropertyLayout>
                         {
-                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 17, OrderIndex = 0},
-                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 16, OrderIndex = 1},
-                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 20, OrderIndex = 2},
-                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 14, OrderIndex = 3},
-                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 11, OrderIndex = 3},
-                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 3, OrderIndex = 4}
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 17, OrderIndex = 0 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 16, OrderIndex = 1 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 20, OrderIndex = 2 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 14, OrderIndex = 3 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 11, OrderIndex = 3 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 3, OrderIndex = 4 }
                         }
                     },
                     new SqlProjectMetaRepository.PropertyLayoutGroup
@@ -936,9 +936,9 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                         Type = SqlProjectMetaRepository.GroupType.Details,
                         Properties = new List<SqlProjectMetaRepository.PropertyLayout>
                         {
-                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 7, OrderIndex = 0},
-                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 6, OrderIndex = 1},
-                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 12, OrderIndex = 2}
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 7, OrderIndex = 0 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 6, OrderIndex = 1 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 12, OrderIndex = 2 }
                         }
                     }
                 }
@@ -954,26 +954,26 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             // Arrange
             var propertyTypes = new List<PropertyType>
             {
-                new PropertyType { Id = 1, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 101},
-                new PropertyType { Id = 2, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType { Id = 3, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 102},
-                new PropertyType { Id = 4, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType { Id = 5, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 103},
-                new PropertyType { Id = 6, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType { Id = 7, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 104},
-                new PropertyType { Id = 8, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType { Id = 9, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 105},
-                new PropertyType { Id = 10, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType { Id = 11, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 106},
-                new PropertyType { Id = 12, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType { Id = 13, InstancePropertyTypeId = null},
-                new PropertyType { Id = 14, InstancePropertyTypeId = 107},
-                new PropertyType { Id = 15, InstancePropertyTypeId = 108},
-                new PropertyType { Id = 16, InstancePropertyTypeId = 109},
-                new PropertyType { Id = 17, InstancePropertyTypeId = null},
-                new PropertyType { Id = 18, InstancePropertyTypeId = null},
-                new PropertyType { Id = 19, InstancePropertyTypeId = 110},
-                new PropertyType { Id = 20, InstancePropertyTypeId = null}
+                new PropertyType { Id = 1, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 101 },
+                new PropertyType { Id = 2, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 3, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 102 },
+                new PropertyType { Id = 4, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 5, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 103 },
+                new PropertyType { Id = 6, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 7, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 104 },
+                new PropertyType { Id = 8, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 9, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 105 },
+                new PropertyType { Id = 10, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 11, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 106 },
+                new PropertyType { Id = 12, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 13, InstancePropertyTypeId = null },
+                new PropertyType { Id = 14, InstancePropertyTypeId = 107 },
+                new PropertyType { Id = 15, InstancePropertyTypeId = 108 },
+                new PropertyType { Id = 16, InstancePropertyTypeId = 109 },
+                new PropertyType { Id = 17, InstancePropertyTypeId = null },
+                new PropertyType { Id = 18, InstancePropertyTypeId = null },
+                new PropertyType { Id = 19, InstancePropertyTypeId = 110 },
+                new PropertyType { Id = 20, InstancePropertyTypeId = null }
             };
 
             var propertyTypeIds = new List<int>

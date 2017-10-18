@@ -223,16 +223,16 @@ namespace ArtifactStore.Repositories
 
             var pathToRoot = new List<ItemIdItemNameParentId>
             {
-                new ItemIdItemNameParentId { ItemId = 1, ParentId = 10, Name = "artifact"},
-                new ItemIdItemNameParentId { ItemId = 10, ParentId = 100, Name = "folder"},
-                new ItemIdItemNameParentId { ItemId = 100, ParentId = null, Name = "project"}
+                new ItemIdItemNameParentId { ItemId = 1, ParentId = 10, Name = "artifact" },
+                new ItemIdItemNameParentId { ItemId = 10, ParentId = 100, Name = "folder" },
+                new ItemIdItemNameParentId { ItemId = 100, ParentId = null, Name = "project" }
             };
-            _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }}, pathToRoot);
+            _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } }, pathToRoot);
 
             _itemInfoRepositoryMock.Setup(m => m.GetItemDescription(artifactId, userId, true, int.MaxValue)).ReturnsAsync(description);
 
             var descriptionResult = new List<string> { description };
-            _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }}, descriptionResult);
+            _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, descriptionResult);
             
             // Act
             var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, null, isDeleted);

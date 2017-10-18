@@ -181,7 +181,7 @@ namespace AdminStore.Services.Workflow
 
         private async Task ValidateWorkflowNameForUniquenessAsync(WorkflowDataValidationResult result, IeWorkflow workflow, int? exceptWorkflowId = null)
         {
-            var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniquenessAsync(new[] { workflow.Name}, exceptWorkflowId);
+            var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniquenessAsync(new[] { workflow.Name }, exceptWorkflowId);
             if (duplicateNames.Any())
             {
                 result.Errors.Add(new WorkflowDataValidationError

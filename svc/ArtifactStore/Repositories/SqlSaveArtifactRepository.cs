@@ -224,7 +224,7 @@ namespace ArtifactStore.Repositories
 
         private DataTable PopulateImagePropertyValueVersionsTable()
         {
-            var propertyValueImagesTable = new DataTable { Locale = CultureInfo.InvariantCulture};
+            var propertyValueImagesTable = new DataTable { Locale = CultureInfo.InvariantCulture };
             propertyValueImagesTable.Columns.Add("NodeId", typeof(long));
             propertyValueImagesTable.Columns.Add("Content", typeof(byte[]));
             propertyValueImagesTable.SetTypeName("SavePropertyValueImagesCollection");

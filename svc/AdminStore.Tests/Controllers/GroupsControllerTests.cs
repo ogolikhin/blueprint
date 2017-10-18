@@ -54,7 +54,7 @@ namespace AdminStore.Controllers
             _groupsQueryDataResult = new QueryResult<GroupDto>() { Total = 1, Items = new List<GroupDto>() };
             _groupsTabularPagination = new Pagination() { Limit = 1, Offset = 0 };
             _groupsSorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };
-            _group = new GroupDto { Name = "Group1", Email = "TestEmail@test.com", Source = UserGroupSource.Database, LicenseType = LicenseType.Collaborator};
+            _group = new GroupDto { Name = "Group1", Email = "TestEmail@test.com", Source = UserGroupSource.Database, LicenseType = LicenseType.Collaborator };
             _assignScope = new AssignScope
             {
                 SelectAll = true,
@@ -609,7 +609,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
 
-            var existingGroup = new GroupDto { Id = 1};
+            var existingGroup = new GroupDto { Id = 1 };
             _sqlGroupRepositoryMock
                 .Setup(r => r.GetGroupDetailsAsync(It.IsAny<int>()))
                 .ReturnsAsync(existingGroup);
@@ -841,7 +841,7 @@ namespace AdminStore.Controllers
                 }
             };
 
-            QueryResult<GroupDto> groupsQueryResult = new QueryResult<GroupDto>() { Items = projectGroups, Total = 3};
+            QueryResult<GroupDto> groupsQueryResult = new QueryResult<GroupDto>() { Items = projectGroups, Total = 3 };
 
             var pagination = new Pagination() { Limit = 5, Offset = 0 };
             var sorting = new Sorting() { Order = SortOrder.Asc, Sort = "Name" };

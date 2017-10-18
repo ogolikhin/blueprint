@@ -61,7 +61,7 @@ namespace ArtifactStore.Helpers
                 });
 
             // Act
-            var result = (await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int>() { 1}, _sensitivityCollector, _reuseRepository.Object))
+            var result = (await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int>() { 1 }, _sensitivityCollector, _reuseRepository.Object))
                 .ToList();
 
             // Assert

@@ -346,7 +346,7 @@ namespace ArtifactStore.Repositories
                 {
                      ItemId = itemId,
                      ArtifactId = artifactId
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -374,7 +374,7 @@ namespace ArtifactStore.Repositories
                 {
                      ItemId = itemId,
                      ArtifactId = artifactId
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -402,7 +402,7 @@ namespace ArtifactStore.Repositories
                 {
                      ItemId = itemId,
                      ArtifactId = artifactId
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -429,7 +429,7 @@ namespace ArtifactStore.Repositories
                 {
                      ItemId = artifactId,
                      ArtifactId = artifactId
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -460,7 +460,7 @@ namespace ArtifactStore.Repositories
                 {
                      ItemId = itemId,
                      ArtifactId = artifactId
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -496,7 +496,7 @@ namespace ArtifactStore.Repositories
                      UserId = userId,
                      LockedByUserId = lockedByUserId,
                      LatestDeletedByUserId = latestDeletedByUserId
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -532,7 +532,7 @@ namespace ArtifactStore.Repositories
                      UserId = userId,
                      LockedByUserId = lockedByUserId,
                      LatestDeletedByUserId = latestDeletedByUserId
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -570,7 +570,7 @@ namespace ArtifactStore.Repositories
                      UserId = userId,
                      LockedByUserId = lockedByUserId,
                      LatestDeletedByUserId = latestDeletedByUserId
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -606,7 +606,7 @@ namespace ArtifactStore.Repositories
                      HasDraftRelationships = false,
                      UserId = userId,
                      LockedByUserId = lockedByUserId,
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -640,7 +640,7 @@ namespace ArtifactStore.Repositories
                      HasDraftRelationships = true,
                      UserId = userId,
                      LockedByUserId = lockedByUserId,
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -674,7 +674,7 @@ namespace ArtifactStore.Repositories
                      HasDraftRelationships = false,
                      UserId = userId,
                      LockedByUserId = userId,
-                }});
+                } });
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
@@ -697,7 +697,7 @@ namespace ArtifactStore.Repositories
         {
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             connectionWrapperMock.SetupQueryAsync("GetArtifactBasicDetails",
-                new Dictionary<string, object> { { "@userId", userId}, { "@itemId", artifactId } },
+                new Dictionary<string, object> { { "@userId", userId }, { "@itemId", artifactId } },
                 new List<ArtifactBasicDetails>
                 {
                     new ArtifactBasicDetails
@@ -710,7 +710,7 @@ namespace ArtifactStore.Repositories
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
                 It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
-                .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read}});
+                .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             _itemInfoRepositoryMock.Setup(iir => iir.GetRevisionId(
                 artifactId, userId, null, baselineId))

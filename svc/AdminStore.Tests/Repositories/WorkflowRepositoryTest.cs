@@ -24,7 +24,7 @@ namespace AdminStore.Repositories
             _sqlHelperMock = new Mock<ISqlHelper>();
             _workflowRepository = new WorkflowRepository(_sqlConnectionWrapperMock.Object, _sqlHelperMock.Object);
             _workflowAssignScope = new WorkflowAssignScope() { AllArtifacts = true, AllProjects = true, ArtifactIds = new List<int>() { 145, 148 }, ProjectIds = new List<int>() { 1, 4 } };
-            _projectsUnassignedScope = new OperationScope() { Ids = new List<int>() { 1, 2}, SelectAll = false};
+            _projectsUnassignedScope = new OperationScope() { Ids = new List<int>() { 1, 2 }, SelectAll = false };
 
             _listArtifactTypesIds = new List<int> { 1, 2, 3 };
             _workflowId = 1;
@@ -493,7 +493,7 @@ namespace AdminStore.Repositories
             int folderId = 99999;
             Exception exception = null;
 
-            _sqlConnectionWrapperMock.SetupQueryAsync("GetWorkflowAvailableProjects", It.IsAny<Dictionary<string, object>>(), new List<InstanceItem>(), new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.FolderWithCurrentIdNotExist} });
+            _sqlConnectionWrapperMock.SetupQueryAsync("GetWorkflowAvailableProjects", It.IsAny<Dictionary<string, object>>(), new List<InstanceItem>(), new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.FolderWithCurrentIdNotExist } });
  
              // act
              try

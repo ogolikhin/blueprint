@@ -630,7 +630,7 @@ namespace ServiceLibrary.Repositories.Workflow
                 }
                 else
                 {
-                    dictionary.Add(sqlPropertyType.ItemTypeId, new List<WorkflowPropertyType> { workflowProperty});
+                    dictionary.Add(sqlPropertyType.ItemTypeId, new List<WorkflowPropertyType> { workflowProperty });
                 }
             }
             return dictionary;

@@ -408,7 +408,7 @@ namespace AdminStore.Repositories
             var total = parameters.Get<int?>("Total");
             var projectName = parameters.Get<string>("ProjectName");
 
-            var queryDataResult = new RoleAssignmentQueryResult<RoleAssignment> { Items = rolesAssigments, Total = total ?? 0, ProjectName = projectName ?? string.Empty};
+            var queryDataResult = new RoleAssignmentQueryResult<RoleAssignment> { Items = rolesAssigments, Total = total ?? 0, ProjectName = projectName ?? string.Empty };
 
             return queryDataResult;
         }

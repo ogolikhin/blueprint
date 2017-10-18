@@ -77,7 +77,7 @@ namespace ServiceLibrary.Models.Licenses
         public void DecryptLicenses_ReturnsNoLicenses_WhenLicensesAreNotAnArrayOfFeatureInformationObjects()
         {
             // Arrange
-            var license = new[] { "this is not an array of FeatureInformation objects"};
+            var license = new[] { "this is not an array of FeatureInformation objects" };
             var xml = SerializationHelper.ToXml(license);
             var encryptedXml = SystemEncryptions.Encrypt(xml);
             var encryptedLicenses = encryptedXml;

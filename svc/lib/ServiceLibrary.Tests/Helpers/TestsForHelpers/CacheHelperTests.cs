@@ -27,7 +27,7 @@ namespace ServiceLibrary.Helpers.TestsForHelpers
         [TestMethod]
         public void InitializationWithObjectType()
         {
-            var value = new Dictionary<string, int> { { "test", 10}};
+            var value = new Dictionary<string, int> { { "test", 10 } };
 
             var helper = new CacheHelper<IDictionary<string, int>>(
                 TimeSpan.FromMilliseconds(10),

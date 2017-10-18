@@ -79,10 +79,10 @@ namespace SearchService.Services
             }
 
             var currentProject =
-                (await _sqlArtifactRepository.GetProjectNameByIdsAsync(new[] { artifactDetails.ProjectId}))
+                (await _sqlArtifactRepository.GetProjectNameByIdsAsync(new[] { artifactDetails.ProjectId }))
                     .FirstOrDefault();
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId}, userId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, userId);
 
             RolePermissions permission;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))

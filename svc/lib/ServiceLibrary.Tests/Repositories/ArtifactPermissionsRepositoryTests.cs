@@ -268,8 +268,8 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetOpenArtifactPermissions",
                 new Dictionary<string, object>
                 {
-                    { "userId", 0},
-                    { "artifactIds", artifactIds}
+                    { "userId", 0 },
+                    { "artifactIds", artifactIds }
                 }, mockOpenArtifactPermissionsResult);
         }
 
@@ -287,8 +287,8 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryMultipleAsync("GetArtifactsProjects",
                 new Dictionary<string, object>
                 {
-                    { "userId", 0},
-                    { "itemIds", tvp}
+                    { "userId", 0 },
+                    { "itemIds", tvp }
                 }, result);
         }
 

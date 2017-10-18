@@ -28,7 +28,7 @@ namespace FileStore.Repositories
             configRepoMock.Setup((m) => m.CommandTimeout).Returns(60);
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlFilesRepository(cxn.Object, configRepoMock.Object);
-            File file = new File { FileName = "name", FileType = "type"};
+            File file = new File { FileName = "name", FileType = "type" };
             Guid? result = new Guid("12345678901234567890123456789012");
             cxn.SetupExecuteAsync(
                 "[FileStore].InsertFileHead",
@@ -291,7 +291,7 @@ namespace FileStore.Repositories
 
             cxn.SetupExecuteScalarAsync(
                 "[FileStore].MakeFilePermanent",
-                new Dictionary<string, object> { { "FileId", guid }},
+                new Dictionary<string, object> { { "FileId", guid } },
                 numberEffectedRows);
 
             // Act

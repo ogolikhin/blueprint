@@ -371,7 +371,7 @@
     <Compile Include="Repositories\Files\IFileRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\IInstanceSettingsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\SqlInstanceSettingsRepository.cs" />
-    <Compile Include="Repositories\ISqlArtifactRepository.cs" />
+    <Compile Include="Repositories\IArtifactRepository.cs" />
     <Compile Include="Repositories\ISqlItemInfoRepository.cs" />
     <Compile Include="Repositories\IUsersRepository.cs" />
     <Compile Include="Repositories\IVersionControlService.cs" />

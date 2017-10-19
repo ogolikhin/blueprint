@@ -35,7 +35,7 @@ namespace SearchService.Repositories
         private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
-        private readonly ISqlArtifactRepository _artifactRepository;
+        private readonly IArtifactRepository _artifactRepository;
 
         public SqlItemSearchRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SearchConfiguration())
         {
@@ -50,7 +50,7 @@ namespace SearchService.Repositories
             ISqlConnectionWrapper connectionWrapper,
             ISearchConfiguration configuration,
             IArtifactPermissionsRepository artifactPermissionsRepository,
-            ISqlArtifactRepository artifactRepository)
+            IArtifactRepository artifactRepository)
         {
             _connectionWrapper = connectionWrapper;
             _artifactPermissionsRepository = artifactPermissionsRepository;

@@ -19,7 +19,7 @@ namespace SearchService.Services
         private Mock<ISemanticSearchRepository> _semanticSearchRepository ;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepository;
         private Mock<IUsersRepository> _usersRepository;
-        private Mock<ISqlArtifactRepository> _artifactRepository;
+        private Mock<IArtifactRepository> _artifactRepository;
 
 
         [TestInitialize]
@@ -28,7 +28,7 @@ namespace SearchService.Services
             _semanticSearchRepository = new Mock<ISemanticSearchRepository>();
             _artifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             _usersRepository = new Mock<IUsersRepository>();
-            _artifactRepository = new Mock<ISqlArtifactRepository>();
+            _artifactRepository = new Mock<IArtifactRepository>();
             _semanticSearchService =  new SemanticSearchService(_semanticSearchRepository.Object, _artifactPermissionsRepository.Object, _usersRepository.Object, _artifactRepository.Object);
         }
 

@@ -55,20 +55,7 @@ namespace ArtifactStore.Services.Reviews
                 throw new AuthorizationException(GetReviewInaccessibleErrorMessage(reviewId), ErrorCodes.Forbidden);
             }
 
-            var reviewXml = await _reviewsRepository.GetReviewXmlAsync(reviewId, userId);
-            if (!reviewXml.ReviewExists)
-            {
-                throw new ResourceNotFoundException(GetReviewNotFoundErrorMessage(reviewId, revisionId), ErrorCodes.ResourceNotFound);
-            }
-
-            return new ReviewSettings
-            {
-                EndDate = ReviewRawDataHelper.ExtractReviewEndDate(reviewXml.XmlString),
-                ShowOnlyDescription = ReviewRawDataHelper.ExtractBooleanProperty("ShowOnlyDescription", reviewXml.XmlString) ?? false,
-                CanMarkAsComplete = ReviewRawDataHelper.ExtractBooleanProperty("IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed", reviewXml.XmlString) ?? false,
-                RequireESignature = ReviewRawDataHelper.ExtractBooleanProperty("IsESignatureEnabled", reviewXml.XmlString) ?? false,
-                RequireMeaningOfSignature = ReviewRawDataHelper.ExtractBooleanProperty("IsMoSEnabled", reviewXml.XmlString) ?? false
-            };
+            return await _reviewsRepository.GetReviewSettingsAsync(reviewId, userId);
         }
 
         private static string GetInvalidReviewIdErrorMessage(int reviewId)

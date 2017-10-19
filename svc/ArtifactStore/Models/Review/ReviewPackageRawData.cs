@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace ArtifactStore.Models.Review
@@ -28,6 +27,9 @@ namespace ArtifactStore.Models.Review
 
         [DataMember(EmitDefaultValue = false)]
         public bool IsMoSEnabled;
+
+        [DataMember(EmitDefaultValue = false)]
+        public bool ShowOnlyDescription;
 
         [DataMember(EmitDefaultValue = false)]
         public ReviewPackageStatus Status;

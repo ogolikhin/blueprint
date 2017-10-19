@@ -987,7 +987,7 @@ set noexec off
 -- -----------------------------------------------------------------------------------------------
 -- Migration 8.2.1.0
 -- -----------------------------------------------------------------------------------------------
-IF NOT ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.1') <> 0) 
+IF NOT ([FileStore].[IsSchemaVersionLessOrEqual](N'8.2.1') <> 0) 
 	set noexec on
 Print 'Migrating 8.2.1.0 ...'
 -- -----------------------------------------------------------------------------------------------
@@ -996,8 +996,8 @@ Print 'Migrating 8.2.1.0 ...'
 -- -----------------------------------------------------------------------------------------------
 -- Always add your code just above this comment block
 -- -----------------------------------------------------------------------------------------------
-IF ([AdminStore].[IsSchemaVersionLessOrEqual](N'8.2.1') <> 0)
-	EXEC [AdminStore].[SetSchemaVersion] @value = N'8.2.1';
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'8.2.1') <> 0)
+	EXEC [FileStore].[SetSchemaVersion] @value = N'8.2.1';
 GO
 set noexec off
 -- -----------------------------------------------------------------------------------------------

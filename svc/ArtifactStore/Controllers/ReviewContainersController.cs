@@ -411,7 +411,7 @@ namespace ArtifactStore.Controllers
         /// </summary>
         /// <param name="reviewId">The review id.</param>
         /// <param name="revisionId">(optional) The revision id.</param>
-        /// <returns>ReviewSettings</returns>
+        /// <returns>A ReviewSettings object containing review settings.</returns>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="403">Forbidden. The user does not have permissions to access review settings.</response>

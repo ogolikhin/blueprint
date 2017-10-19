@@ -16,7 +16,7 @@ namespace ArtifactStore.Services.Reviews
         private readonly IArtifactRepository _artifactRepository;
         private readonly IArtifactPermissionsRepository _permissionsRepository;
 
-        public ReviewsService() : this(new SqlReviewsRepository(), new ArtifactRepository(), new SqlArtifactPermissionsRepository())
+        public ReviewsService() : this(new SqlReviewsRepository(), new SqlArtifactRepository(), new SqlArtifactPermissionsRepository())
         {
         }
 

@@ -26,7 +26,7 @@ namespace ArtifactStore.Controllers
         public ArtifactController() :
             this
             (
-                new ArtifactRepository(),
+                new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
                 new SqlPrivilegesRepository()
             )

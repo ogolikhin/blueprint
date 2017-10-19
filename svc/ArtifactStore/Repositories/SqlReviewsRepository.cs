@@ -41,7 +41,7 @@ namespace ArtifactStore.Repositories
                                             new SqlArtifactPermissionsRepository(),
                                             new ApplicationSettingsRepository(),
                                             new SqlUsersRepository(),
-                                            new ArtifactRepository(),
+                                            new SqlArtifactRepository(),
                                             new CurrentDateTimeService(),
                                             new SqlHelper())
         {

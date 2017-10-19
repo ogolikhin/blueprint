@@ -26,7 +26,7 @@ namespace ServiceLibrary.Repositories.Jobs
             this
             (
                 new SqlConnectionWrapper(ServiceConstants.RaptorMain),
-                new ArtifactRepository(),
+                new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
                 new SqlUsersRepository()
             )
@@ -34,7 +34,7 @@ namespace ServiceLibrary.Repositories.Jobs
         }
 
         public JobsRepository(ISqlConnectionWrapper connectionWrapper):
-            this(connectionWrapper, new ArtifactRepository(connectionWrapper, 
+            this(connectionWrapper, new SqlArtifactRepository(connectionWrapper, 
                 new SqlItemInfoRepository(connectionWrapper), 
                 new SqlArtifactPermissionsRepository(connectionWrapper)),
                 new SqlArtifactPermissionsRepository(connectionWrapper),

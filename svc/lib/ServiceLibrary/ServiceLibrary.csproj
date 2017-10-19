@@ -390,7 +390,7 @@
     <Compile Include="Repositories\Reuse\IReuseRepository.cs" />
     <Compile Include="Repositories\Reuse\SqlReuseRepository.cs" />
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
-    <Compile Include="Repositories\ArtifactRepository.cs" />
+    <Compile Include="Repositories\SqlArtifactRepository.cs" />
     <Compile Include="Helpers\ExceptionHelper.cs" />
     <Compile Include="Repositories\SqlBaseArtifactRepository.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />

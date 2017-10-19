@@ -12,7 +12,7 @@ namespace ServiceLibrary.Models
                 throw new BadRequestException(ErrorMessages.InvalidPagination, ErrorCodes.BadRequest);
             }
 
-            if (!pagination.Offset.HasValue || pagination.Offset < 0 || pagination.Offset >= int.MaxValue)
+            if (!pagination.Offset.HasValue || pagination.Offset < 0)
             {
                 throw new BadRequestException(ErrorMessages.IncorrectOffsetParameter, ErrorCodes.BadRequest);
             }

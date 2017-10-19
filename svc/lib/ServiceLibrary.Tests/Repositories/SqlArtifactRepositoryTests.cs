@@ -22,7 +22,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetProjectOrArtifactChildrenAsync(0, 1, 2);
@@ -36,7 +36,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetProjectOrArtifactChildrenAsync(1, 0, 2);
@@ -50,7 +50,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetProjectOrArtifactChildrenAsync(1, 2, 0);
@@ -64,7 +64,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetProjectOrArtifactChildrenAsync(1, 1, 2);
@@ -294,7 +294,7 @@ namespace ServiceLibrary.Repositories
             var artifactIds = new[] { 1 };
 
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
             cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories", new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) }, { "revisionId", int.MaxValue } }, Enumerable.Repeat(authorHistory, 1));
             // Act
             var actual = await repository.GetAuthorHistories(artifactIds);
@@ -817,7 +817,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
             cxn.SetupQueryAsync("GetArtifactChildren", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId ?? projectId }, { "userId", userId } }, input);
             if (artifactId == null || inputOrphans != null)
                 cxn.SetupQueryAsync("GetProjectOrphans", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, inputOrphans);
@@ -991,7 +991,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetExpandedTreeToArtifactAsync(0, 1, true, 2);
@@ -1005,7 +1005,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetExpandedTreeToArtifactAsync(1, 0, true, 2);
@@ -1019,7 +1019,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetExpandedTreeToArtifactAsync(1, 2, true, 0);
@@ -1033,7 +1033,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetExpandedTreeToArtifactAsync(1, 1, true, 2);
@@ -1051,7 +1051,7 @@ namespace ServiceLibrary.Repositories
             const int userId = 3;
 
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
             cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, new List<ArtifactVersion>());
 
             // Act
@@ -1078,7 +1078,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
-            var mockRepository = new Mock<ArtifactRepository>(cxn.Object) { CallBase = true };
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
             mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Throws(new AuthorizationException());
@@ -1113,7 +1113,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
-            var mockRepository = new Mock<ArtifactRepository>(cxn.Object) { CallBase = true };
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
             mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Returns(Task.FromResult(children1));
@@ -1154,7 +1154,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
-            var mockRepository = new Mock<ArtifactRepository>(cxn.Object) { CallBase = true };
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
             mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Returns(Task.FromResult(children1));
@@ -1209,7 +1209,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
-            var mockRepository = new Mock<ArtifactRepository>(cxn.Object) { CallBase = true };
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
             mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Returns(Task.FromResult(children1));
@@ -1268,7 +1268,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
-            var mockRepository = new Mock<ArtifactRepository>(cxn.Object) { CallBase = true };
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
             mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .ReturnsAsync(children1);
@@ -1331,7 +1331,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
-            var mockRepository = new Mock<ArtifactRepository>(cxn.Object) { CallBase = true };
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
             mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .ReturnsAsync(children1);
@@ -1375,7 +1375,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetSubArtifacts",
                 new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }, { "revisionId", int.MaxValue }, { "includeDrafts", true } }, subArtifacts);
-            var mockRepository = new Mock<ArtifactRepository>(cxn.Object) { CallBase = true };
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
             // Act
             var result = (await mockRepository.Object.GetSubArtifactTreeAsync(artifactId, userId, int.MaxValue, true)).ToList();
 
@@ -1397,7 +1397,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetSubArtifacts",
                 new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }, { "revisionId", int.MaxValue }, { "includeDrafts", true } }, subArtifacts);
-            var mockRepository = new Mock<ArtifactRepository>(cxn.Object) { CallBase = true };
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
             // Act
             var result = (await mockRepository.Object.GetSubArtifactTreeAsync(artifactId, userId, int.MaxValue, true)).ToList();
             // Assert
@@ -1430,7 +1430,7 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetItemsLabels",
                 new Dictionary<string, object> { { "itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value") }, { "userId", userId }, { "addDrafts", true }, { "revisionId", int.MaxValue } }, itemLabels);
 
-            var mockRepository = new Mock<ArtifactRepository>(cxn.Object) { CallBase = true };
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
             // Act
             var result = (await mockRepository.Object.GetSubArtifactTreeAsync(artifactId, userId, int.MaxValue, true)).ToList();
             // Assert
@@ -1452,7 +1452,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetArtifactNavigationPathAsync(0, 1);
@@ -1466,7 +1466,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetArtifactNavigationPathAsync(1, 0);
@@ -1485,7 +1485,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync<List<ArtifactBasicDetails>>("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, null);
 
-            var repository = new ArtifactRepository(cxn.Object, null, null);
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
 
             // Act
             try
@@ -1512,7 +1512,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
 
-            var repository = new ArtifactRepository(cxn.Object, null, null);
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
 
             // Act
             try
@@ -1541,7 +1541,7 @@ namespace ServiceLibrary.Repositories
 
             var mockArtifactPermissionsRepository = CreatePermissionsRepositoryMock(new int[0], userId, RolePermissions.Read);
 
-            var repository = new ArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
+            var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
 
             // Act
             try
@@ -1579,7 +1579,7 @@ namespace ServiceLibrary.Repositories
 
             var mockArtifactPermissionsRepository = CreatePermissionsRepositoryMock(new[] {artifactId}, userId, RolePermissions.Read);
 
-            var repository = new ArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
+            var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
 
             var expected = new List<Artifact>
             {
@@ -1614,7 +1614,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetArtifactsNavigationPathsAsync(1, null);
@@ -1644,7 +1644,7 @@ namespace ServiceLibrary.Repositories
                 },
                 queryResult);
 
-            var repository = new ArtifactRepository(cxn.Object, null, null);
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
 
             // Act
             var actual = await repository.GetArtifactsNavigationPathsAsync(userId, artifactIds);
@@ -1689,7 +1689,7 @@ namespace ServiceLibrary.Repositories
                 },
                 queryResult);
 
-            var repository = new ArtifactRepository(cxn.Object, null, null);
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
 
             // Act
             var actual = await repository.GetArtifactsNavigationPathsAsync(userId, artifactIds, false);
@@ -1751,7 +1751,7 @@ namespace ServiceLibrary.Repositories
                 },
                 queryResult);
 
-            var repository = new ArtifactRepository(cxn.Object, null, null);
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
 
             // Act
             var actual = await repository.GetArtifactsNavigationPathsAsync(userId, artifactIds);
@@ -1804,7 +1804,7 @@ namespace ServiceLibrary.Repositories
                 },
                 queryResult);
 
-            var repository = new ArtifactRepository(cxn.Object, null, null);
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
 
             // Act
             var actual = await repository.GetArtifactsNavigationPathsAsync(userId, artifactIds, false, null);
@@ -1824,7 +1824,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactRepository(cxn.Object);
+            var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
             await repository.GetAuthorHistoriesWithPermissionsCheck(null, 1);
@@ -1832,7 +1832,7 @@ namespace ServiceLibrary.Repositories
             // Assert
         }
 
-        private static ArtifactRepository CreateSqlRepositoryWithPermissions(int[] artifactIds, int userId,
+        private static SqlArtifactRepository CreateSqlRepositoryWithPermissions(int[] artifactIds, int userId,
             IEnumerable<SqlAuthorHistory> authorHistories, RolePermissions rolePermissions)
         {
             var cxn = new SqlConnectionWrapperMock();
@@ -1849,7 +1849,7 @@ namespace ServiceLibrary.Repositories
             permissions.Add(artifactIds[0], rolePermissions);
             var mockArtifactPermissionsRepository = CreatePermissionsRepositoryMock(artifactIds, userId, rolePermissions);
 
-            return new ArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
+            return new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
         }
 
         [TestMethod]

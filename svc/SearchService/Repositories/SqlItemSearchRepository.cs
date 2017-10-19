@@ -37,12 +37,12 @@ namespace SearchService.Repositories
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IArtifactRepository _artifactRepository;
 
-        public SqlItemSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString), new SearchConfiguration())
+        public SqlItemSearchRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SearchConfiguration())
         {
         }
 
         internal SqlItemSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration) :
-            this(connectionWrapper, configuration, new SqlArtifactPermissionsRepository(connectionWrapper), new ArtifactRepository(connectionWrapper))
+            this(connectionWrapper, configuration, new SqlArtifactPermissionsRepository(connectionWrapper), new SqlArtifactRepository(connectionWrapper))
         {
         }
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SearchService.Models;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 
 namespace SearchService.Repositories
@@ -22,7 +23,7 @@ namespace SearchService.Repositories
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
         public SemanticSearchRepository()
-             : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString))
+             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 

@@ -4752,6 +4752,151 @@ namespace ArtifactStore.Repositories
         }
         #endregion RemoveArtifactFromReview
 
+
+        #region RemoveParticipantFromReview
+
+        [TestMethod]
+        public async Task RemoveParticipantsFromReviewAsync_Should_Not_Throw_Exception_When_Parameters_valid()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
+
+
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            SetupGetReviewXmlQuery(reviewId, userId, xmlString);
+
+            SetupUpdateReviewXmlQuery(reviewId, userId, 3, xmlString);
+
+            var prms = new ReviewItemsRemovalParams
+            {
+                ItemIds = new List<int>() { 1, 2, 3 },
+
+                SelectionType = SelectionType.Selected
+            };
+
+            //Act
+            await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveParticipantsFromReviewAsync_ShouldThrow_BadRequestException()
+        {
+            // Arrange
+            var prms = new ReviewItemsRemovalParams
+            {
+                ItemIds = new List<int>(),
+                SelectionType = SelectionType.Selected
+            };
+            //Act
+            await _reviewsRepository.RemoveParticipantsFromReviewAsync(1, prms, 2);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveParticipantsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewClosed()
+        {
+            // Arrange
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Closed</Status></ReviewPackageRawData>";
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            SetupGetReviewXmlQuery(reviewId, userId, xmlString);
+
+            var prms = new ReviewItemsRemovalParams
+            {
+                ItemIds = new List<int>() { 1, 2, 3 },
+
+                SelectionType = SelectionType.Selected
+            };
+
+            //Act
+            await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveParticipantsFromReviewAsync_ShouldThrow_BadRequestException_WhenXMLNotExist()
+        {
+            // Arrange
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var xmlString = "";
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            SetupGetReviewXmlQuery(reviewId, userId, xmlString);
+
+            var prms = new ReviewItemsRemovalParams
+            {
+                ItemIds = new List<int>() { 1, 2, 3 },
+
+                SelectionType = SelectionType.Selected
+            };
+
+            //Act
+            await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveParticipantsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewNotLocked()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            SetupGetReviewXmlQuery(reviewId, userId, xmlString);
+  
+            var prms = new ReviewItemsRemovalParams
+            {
+                ItemIds = new List<int>() { 1, 2, 3 },
+                SelectionType = SelectionType.Selected
+            };
+            _artifactRepositoryMock.Setup(artifactRepository => artifactRepository.IsArtifactLockedByUserAsync(reviewId, userId)).ReturnsAsync(false);
+            //Act
+            await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
+
+            // Assert
+        }
+
+        #endregion
+
+
+
         private void SetupArtifactPermissionsCheck(IEnumerable<int> artifactIds, int userId, Dictionary<int, RolePermissions> result)
         {
             _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true)).ReturnsAsync(result);

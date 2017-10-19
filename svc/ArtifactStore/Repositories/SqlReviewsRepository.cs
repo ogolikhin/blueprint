@@ -1,18 +1,18 @@
-﻿using ArtifactStore.Helpers;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using ArtifactStore.Helpers;
 using ArtifactStore.Models.Review;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Services;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ApplicationSettings;
+using ServiceLibrary.Services;
 
 namespace ArtifactStore.Repositories
 {
@@ -27,7 +27,7 @@ namespace ArtifactStore.Repositories
         private readonly ISqlItemInfoRepository _itemInfoRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IUsersRepository _usersRepository;
-        private readonly ISqlArtifactRepository _artifactRepository;
+        private readonly IArtifactRepository _artifactRepository;
         private readonly ICurrentDateTimeService _currentDateTimeService;
         private readonly IApplicationSettingsRepository _applicationSettingsRepository;
         private readonly ISqlHelper _sqlHelper;
@@ -41,7 +41,7 @@ namespace ArtifactStore.Repositories
                                             new SqlArtifactPermissionsRepository(),
                                             new ApplicationSettingsRepository(),
                                             new SqlUsersRepository(),
-                                            new SqlArtifactRepository(),
+                                            new ArtifactRepository(),
                                             new CurrentDateTimeService(),
                                             new SqlHelper())
         {
@@ -53,7 +53,7 @@ namespace ArtifactStore.Repositories
                                     IArtifactPermissionsRepository artifactPermissionsRepository,
                                     IApplicationSettingsRepository applicationSettingsRepository,
                                     IUsersRepository usersRepository,
-                                    ISqlArtifactRepository artifactRepository,
+                                    IArtifactRepository artifactRepository,
                                     ICurrentDateTimeService currentDateTimeService,
                                     ISqlHelper sqlHelper)
         {
@@ -897,7 +897,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task<ReviewXmlResult> GetReviewXmlAsync(int reviewId, int userId)
+        public async Task<ReviewXmlResult> GetReviewXmlAsync(int reviewId, int userId)
         {
             var parameters = new DynamicParameters();
 
@@ -906,13 +906,12 @@ namespace ArtifactStore.Repositories
 
             var result = (await _connectionWrapper.QueryAsync<string>("GetReviewParticipantsPropertyString", parameters, commandType: CommandType.StoredProcedure)).ToList();
 
-            return new ReviewXmlResult()
+            return new ReviewXmlResult
             {
                 ReviewExists = result.Count > 0,
                 XmlString = result.SingleOrDefault()
             };
         }
-
 
         private async Task<int> UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)
         {

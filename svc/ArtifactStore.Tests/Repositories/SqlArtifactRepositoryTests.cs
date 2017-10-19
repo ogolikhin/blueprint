@@ -15,10 +15,10 @@ namespace ArtifactStore.Repositories
     [TestClass]
     public class SqlArtifactRepositoryTests
     {
-        private Mock<ISqlArtifactRepository> _artifactRepositoryMock;
+        private Mock<IArtifactRepository> _artifactRepositoryMock;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepository;
         private SqlConnectionWrapperMock cxn;
-        private SqlArtifactRepository repository;
+        private ArtifactRepository repository;
         private HashSet<int> artifactIds;
         private Session session;
         private const int userId = 1;
@@ -26,10 +26,10 @@ namespace ArtifactStore.Repositories
         [TestInitialize]
         public void Initialize()
         {
-            _artifactRepositoryMock = new Mock<ISqlArtifactRepository>();
+            _artifactRepositoryMock = new Mock<IArtifactRepository>();
             _artifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             cxn = new SqlConnectionWrapperMock();
-            repository = new SqlArtifactRepository(cxn.Object);
+            repository = new ArtifactRepository(cxn.Object);
             artifactIds = null;
             session = new Session { UserId = userId };
         }
@@ -53,7 +53,7 @@ namespace ArtifactStore.Repositories
 
             _artifactRepositoryMock.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId)).ReturnsAsync(processInfos);
 
-            repository = new SqlArtifactRepository(cxn.Object, new SqlItemInfoRepository(new SqlConnectionWrapper("")), _artifactPermissionsRepository.Object);
+            repository = new ArtifactRepository(cxn.Object, new SqlItemInfoRepository(new SqlConnectionWrapper("")), _artifactPermissionsRepository.Object);
 
             // Act
             await repository.GetProcessInformationAsync(artifactIds, session.UserId);

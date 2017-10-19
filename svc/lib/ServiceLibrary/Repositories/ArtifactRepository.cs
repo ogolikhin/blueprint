@@ -13,22 +13,22 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
-    public class SqlArtifactRepository : SqlBaseArtifactRepository, ISqlArtifactRepository
+    public class ArtifactRepository : SqlBaseArtifactRepository, IArtifactRepository
     {
         private readonly ISqlItemInfoRepository _itemInfoRepository;
 
-        public SqlArtifactRepository()
+        public ArtifactRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 
-        public SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper)
+        public ArtifactRepository(ISqlConnectionWrapper connectionWrapper)
             : this(connectionWrapper, new SqlItemInfoRepository(connectionWrapper),
                   new SqlArtifactPermissionsRepository(connectionWrapper))
         {
         }
 
-        public SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper,
+        public ArtifactRepository(ISqlConnectionWrapper connectionWrapper,
             ISqlItemInfoRepository itemInfoRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository)
             : base(connectionWrapper, artifactPermissionsRepository)

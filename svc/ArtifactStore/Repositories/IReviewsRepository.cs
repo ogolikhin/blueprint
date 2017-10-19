@@ -1,7 +1,6 @@
-﻿using ArtifactStore.Models.Review;
+﻿using System.Threading.Tasks;
+using ArtifactStore.Models.Review;
 using ServiceLibrary.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
@@ -26,5 +25,6 @@ namespace ArtifactStore.Repositories
         Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, int userId, Pagination pagination);
         Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId);
         Task RemoveParticipantsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId);
+        Task<ReviewXmlResult> GetReviewXmlAsync(int reviewId, int userId);
     }
 }

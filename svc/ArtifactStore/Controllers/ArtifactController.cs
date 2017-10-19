@@ -17,7 +17,7 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ArtifactController : LoggableApiController
     {
-        private readonly ISqlArtifactRepository _artifactRepository;
+        private readonly IArtifactRepository _artifactRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly PrivilegesManager _privilegesManager;
 
@@ -26,7 +26,7 @@ namespace ArtifactStore.Controllers
         public ArtifactController() :
             this
             (
-                new SqlArtifactRepository(),
+                new ArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
                 new SqlPrivilegesRepository()
             )
@@ -35,7 +35,7 @@ namespace ArtifactStore.Controllers
 
         public ArtifactController
         (
-            ISqlArtifactRepository instanceRepository,
+            IArtifactRepository instanceRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             IPrivilegesRepository privilegesRepository
         )
@@ -47,7 +47,7 @@ namespace ArtifactStore.Controllers
 
         public ArtifactController
         (
-            ISqlArtifactRepository instanceRepository,
+            IArtifactRepository instanceRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             IPrivilegesRepository privilegesRepository,
             IServiceLogRepository log

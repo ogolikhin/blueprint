@@ -26,7 +26,7 @@ namespace ArtifactStore.Repositories
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
-        private Mock<ISqlArtifactRepository> _artifactRepositoryMock;
+        private Mock<IArtifactRepository> _artifactRepositoryMock;
         private Mock<ICurrentDateTimeService> _currentDateTimeServiceMock;
 
         [TestInitialize]
@@ -38,7 +38,7 @@ namespace ArtifactStore.Repositories
             _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>(MockBehavior.Strict);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Strict);
             _usersRepositoryMock = new Mock<IUsersRepository>();
-            _artifactRepositoryMock = new Mock<ISqlArtifactRepository>();
+            _artifactRepositoryMock = new Mock<IArtifactRepository>();
             _currentDateTimeServiceMock = new Mock<ICurrentDateTimeService>();
 
             _artifactRepositoryMock.SetReturnsDefault(Task.FromResult(true));

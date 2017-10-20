@@ -746,10 +746,18 @@ namespace AdminStore.Controllers
             var result = await _controller.SearchProjectsByName(WorkflowId, _search) as
                     OkNegotiatedContentResult<IEnumerable<WorkflowProjectSearch>>;
 
+            
+
             //assert
             Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Content);
 
-            Assert.AreEqual(_projects, result.Content);
+            var project1 = result.Content.ToList().FirstOrDefault(x => x.ItemId == _projects[0].ItemId);
+            var project2 = result.Content.ToList().FirstOrDefault(x => x.ItemId == _projects[1].ItemId);
+
+            Assert.IsNotNull(project1);
+            Assert.IsNotNull(project2);
+
             Assert.AreEqual(_projects.Count, result.Content.Count());
         }
 
@@ -779,69 +787,6 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
-        }
-
-        [TestMethod]
-        public async Task SearchProjectsByName_SearchExceedsLimit_ReturnBadRequestResult()
-        {
-            // Arrange
-            _privilegesRepositoryMock
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
-            //should be <= 250
-            _search =
-                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium q";
-
-            _workflowRepositoryMock.Setup(w => w.SearchProjectsByName(WorkflowId, _search))
-                .ReturnsAsync(_projects);
-
-
-            BadRequestException exception = null;
-
-            //Act
-            try
-            {
-                await _controller.SearchProjectsByName(WorkflowId, _search);
-            }
-            catch (BadRequestException ex)
-            {
-                exception = ex;
-            }
-
-            //Assert
-            Assert.IsNotNull(exception);
-            Assert.AreEqual(exception.Message, ErrorMessages.SearchFieldLimitation);
-            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
-        }
-
-        [TestMethod]
-        public async Task SearchProjectsByName_SearchIsInLimit_SuccessfulGettingProjects_OkResult()
-        {
-            // Arrange
-            _privilegesRepositoryMock
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
-            //250 characters - OK 
-            _search =
-
-                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium.";
-
-            _workflowRepositoryMock.Setup(w => w.SearchProjectsByName(WorkflowId, _search))
-                .ReturnsAsync(_projects);
-
-
-            //Act
-            var result =
-                await _controller.SearchProjectsByName(WorkflowId, _search) as
-                    OkNegotiatedContentResult<IEnumerable<WorkflowProjectSearch>>;
-
-            //assert
-            Assert.IsNotNull(result);
-            
-            Assert.AreEqual(_projects, result.Content);
-            Assert.AreEqual(_projects.Count, result.Content.Count());
         }
 
         #endregion

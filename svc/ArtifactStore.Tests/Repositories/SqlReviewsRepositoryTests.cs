@@ -28,6 +28,7 @@ namespace ArtifactStore.Repositories
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<ISqlArtifactRepository> _artifactRepositoryMock;
         private Mock<ICurrentDateTimeService> _currentDateTimeServiceMock;
+        private Mock<ILockArtifactsRepository> _lockArtifactsRepositoryMock;
 
         [TestInitialize]
         public void Initialize()
@@ -40,6 +41,7 @@ namespace ArtifactStore.Repositories
             _usersRepositoryMock = new Mock<IUsersRepository>();
             _artifactRepositoryMock = new Mock<ISqlArtifactRepository>();
             _currentDateTimeServiceMock = new Mock<ICurrentDateTimeService>();
+            _lockArtifactsRepositoryMock = new Mock<ILockArtifactsRepository>();
 
             _artifactRepositoryMock.SetReturnsDefault(Task.FromResult(true));
             _currentDateTimeServiceMock.Setup(service => service.GetUtcNow()).Returns(new DateTime(2017, 07, 10, 13, 20, 0));
@@ -54,6 +56,7 @@ namespace ArtifactStore.Repositories
                 _usersRepositoryMock.Object,
                 _artifactRepositoryMock.Object,
                 _currentDateTimeServiceMock.Object,
+                _lockArtifactsRepositoryMock.Object,
                 new SqlHelperMock()
             );
         }
@@ -515,7 +518,7 @@ namespace ArtifactStore.Repositories
             var testResult = new ReviewTableOfContentItem[] { };
             cxn.SetupQueryAsync("GetReviewTableOfContent", prm, testResult, outPrm);
 
-            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object, null, null, null, null);
+            var repository = new SqlReviewsRepository(cxn.Object, null, null, null, appSettingsRepoMock.Object, null, null, null, null, null);
 
             try
             {
@@ -1481,7 +1484,7 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
                 RevewSubartifactId = 3,
                 ProjectId = projectId,
-                IsReviewLocked = true
+                LockedByUserId = userId
                 }
             };
 
@@ -1508,8 +1511,8 @@ namespace ArtifactStore.Repositories
                {"IsBaselineAdded", false}
             };
 
-            var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>,IEnumerable <int>, IEnumerable<bool>> (ArtifactIds, Unpublished, Nonexistent, IsBaselineAdded);
-            
+            var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>, IEnumerable<int>, IEnumerable<bool>>(ArtifactIds, Unpublished, Nonexistent, IsBaselineAdded);
+
 
             _cxn.SetupQueryMultipleAsync("GetEffectiveArtifactIds", effectiveArtifactIdsQueryParameters, mockResult, outParameters);
 
@@ -1593,7 +1596,7 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
                 RevewSubartifactId = 3,
                 ProjectId = projectId,
-                IsReviewLocked = true
+                LockedByUserId = userId
                 }
             };
 
@@ -1653,7 +1656,7 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
                 RevewSubartifactId = 3,
                 ProjectId = projectId,
-                IsReviewLocked = false
+                LockedByUserId = 999
                 }
             };
 
@@ -1691,7 +1694,9 @@ namespace ArtifactStore.Repositories
         public async Task AssignRolesToReviewers_ShouldThrowResourceNotFoundException()
         {
             //Arrange
-            //   PropertyValueString result = null;
+            var reviewId = 1;
+            var userId = 1;
+
             var isExceptionThrown = false;
             var propertyValueStringResult = new List<PropertyValueString>();
 
@@ -1701,15 +1706,14 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
                 RevewSubartifactId = 3,
                 ProjectId = 1,
-                IsReviewLocked = true,
+                LockedByUserId = userId,
                 IsReviewReadOnly = true,
                 BaselineId = 2,
                 IsReviewDeleted = true,
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            var reviewId = 1;
-            var userId = 1;
+
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1753,7 +1757,8 @@ namespace ArtifactStore.Repositories
         public async Task AssignRolesToReviewers_ShouldThrowBadRequestExceptionException()
         {
             //Arrange
-            //   PropertyValueString result = null;
+            var reviewId = 1;
+            var userId = 1;
             var isExceptionThrown = false;
             var propertyValueStringResult = new List<PropertyValueString>();
 
@@ -1763,15 +1768,13 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
                 RevewSubartifactId = 3,
                 ProjectId = 1,
-                IsReviewLocked = true,
+                LockedByUserId = userId,
                 IsReviewReadOnly = true,
                 BaselineId = 2,
                 IsReviewDeleted = false,
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            var reviewId = 1;
-            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1811,6 +1814,9 @@ namespace ArtifactStore.Repositories
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignRolesToReviewers_IsNotLocked_ShouldThrowBadRequestExceptionException()
         {
+            var reviewId = 1;
+            var userId = 1;
+
             var propertyValueStringResult = new List<PropertyValueString>();
 
             var propertyValue = new PropertyValueString()
@@ -1819,20 +1825,18 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
                 RevewSubartifactId = 3,
                 ProjectId = 1,
-                IsReviewLocked = false,
+                LockedByUserId = null,
                 IsReviewReadOnly = false,
                 BaselineId = 2,
                 IsReviewDeleted = false,
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            var reviewId = 1;
-            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
                 { "@userId", userId },
-                 { "@roleUserId", 1 }
+                { "@roleUserId", 1 }
             };
             _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
             var content = new AssignReviewerRolesParameter()
@@ -1849,6 +1853,8 @@ namespace ArtifactStore.Repositories
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignRolesToReviewers_IfUserDisabled_ShouldThrowConflictException()
         {
+            var reviewId = 1;
+            var userId = 1;
             var propertyValueStringResult = new List<PropertyValueString>();
 
             var propertyValue = new PropertyValueString()
@@ -1857,20 +1863,18 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
                 RevewSubartifactId = 3,
                 ProjectId = 1,
-                IsReviewLocked = true,
+                LockedByUserId = userId,
                 IsReviewReadOnly = false,
                 BaselineId = 2,
                 IsReviewDeleted = false,
                 IsUserDisabled = true
             };
             propertyValueStringResult.Add(propertyValue);
-            var reviewId = 1;
-            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
                 { "@userId", userId },
-                 { "@roleUserId", 1 }
+                { "@roleUserId", 1 }
             };
             _cxn.SetupQueryAsync("GetReviewApprovalRolesInfo", queryParameters, propertyValueStringResult);
             var content = new AssignReviewerRolesParameter()
@@ -1887,6 +1891,8 @@ namespace ArtifactStore.Repositories
         [ExpectedException(typeof(BadRequestException))]
         public async Task AssignRolesToReviewers_IfXMLEmpty_ShouldThrowConflictException()
         {
+            var reviewId = 1;
+            var userId = 1;
             var propertyValueStringResult = new List<PropertyValueString>();
 
             var propertyValue = new PropertyValueString()
@@ -1895,15 +1901,13 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "",
                 RevewSubartifactId = 3,
                 ProjectId = 1,
-                IsReviewLocked = true,
+                LockedByUserId = userId,
                 IsReviewReadOnly = false,
                 BaselineId = 2,
                 IsReviewDeleted = false,
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            var reviewId = 1;
-            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -1949,7 +1953,7 @@ namespace ArtifactStore.Repositories
                     ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
                     RevewSubartifactId = 3,
                     ProjectId = projectId,
-                    IsReviewLocked = true,
+                    LockedByUserId = userId,
                     ReviewStatus = ReviewPackageStatus.Closed
                 }
             };
@@ -1999,6 +2003,8 @@ namespace ArtifactStore.Repositories
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task AssignApprovalRequiredToArtifacts_Should_Throw_ResourceNotFoundException()
         {
+            var reviewId = 1;
+            var userId = 1;
 
             var propertyValueStringResult = new List<PropertyValueString>();
 
@@ -2008,15 +2014,13 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
                 RevewSubartifactId = 3,
                 ProjectId = 1,
-                IsReviewLocked = true,
+                LockedByUserId = userId,
                 IsReviewReadOnly = false,
                 BaselineId = 2,
                 IsReviewDeleted = true,
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            var reviewId = 1;
-            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -2037,6 +2041,8 @@ namespace ArtifactStore.Repositories
         [ExpectedException(typeof(BadRequestException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_ReadOnly_Should_Throw_BadRequestException()
         {
+            var reviewId = 1;
+            var userId = 1;
 
             var propertyValueStringResult = new List<PropertyValueString>();
 
@@ -2046,15 +2052,13 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
                 RevewSubartifactId = 3,
                 ProjectId = 1,
-                IsReviewLocked = true,
+                LockedByUserId = userId,
                 IsReviewReadOnly = true,
                 BaselineId = 2,
                 IsReviewDeleted = false,
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            var reviewId = 1;
-            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -2075,6 +2079,8 @@ namespace ArtifactStore.Repositories
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_BadRequestException()
         {
+            var reviewId = 1;
+            var userId = 1;
 
             var propertyValueStringResult = new List<PropertyValueString>();
 
@@ -2084,15 +2090,13 @@ namespace ArtifactStore.Repositories
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
                 RevewSubartifactId = 3,
                 ProjectId = 1,
-                IsReviewLocked = false,
+                LockedByUserId = null,
                 IsReviewReadOnly = false,
                 BaselineId = 2,
                 IsReviewDeleted = false,
                 IsUserDisabled = false
             };
             propertyValueStringResult.Add(propertyValue);
-            var reviewId = 1;
-            var userId = 1;
             var queryParameters = new Dictionary<string, object>()
             {
                 { "@reviewId", reviewId },
@@ -4612,7 +4616,7 @@ namespace ArtifactStore.Repositories
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
                    RevewSubartifactId = 3,
                    ProjectId = projectId,
-                   IsReviewLocked = true,
+                   LockedByUserId = userId,
                    ReviewStatus = ReviewPackageStatus.Closed
                }
             };
@@ -4652,7 +4656,7 @@ namespace ArtifactStore.Repositories
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
                    RevewSubartifactId = 3,
                    ProjectId = 0,
-                   IsReviewLocked = true
+                   LockedByUserId = userId
                }
             };
 
@@ -4692,7 +4696,7 @@ namespace ArtifactStore.Repositories
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
                    RevewSubartifactId = 3,
                    ProjectId = projectId,
-                   IsReviewLocked = false
+                   LockedByUserId = null
                }
             };
 
@@ -4733,7 +4737,7 @@ namespace ArtifactStore.Repositories
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
                    RevewSubartifactId = 3,
                    ProjectId = projectId,
-                   IsReviewLocked = true,
+                   LockedByUserId = userId,
                    BaselineId = baselineId
                }
             };

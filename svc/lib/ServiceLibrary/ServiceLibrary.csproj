@@ -426,11 +426,13 @@
     <EmbeddedResource Include="Swagger\swagger-config.js" />
   </ItemGroup>
   <ItemGroup>
+    <AdditionalFiles Include="..\..\..\stylecop.json">
+      <Link>stylecop.json</Link>
+    </AdditionalFiles>
     <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Notification\Templates\NotificationEmailContent.tt">

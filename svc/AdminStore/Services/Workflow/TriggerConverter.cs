@@ -240,7 +240,7 @@ namespace AdminStore.Services.Workflow
                 }
             }
 
-            return userGroups; 
+            return userGroups;
         }
 
         private static IeCondition FromXmlModel(XmlCondition xmlCondition, WorkflowDataNameMaps dataMaps)
@@ -383,7 +383,7 @@ namespace AdminStore.Services.Workflow
                 IncludeCurrentUser = ieUsersGroups.IncludeCurrentUser,
                 UsersGroups = !ieUsersGroups.UsersGroups.IsEmpty()
                     ? new List<XmlUserGroup>()
-                    : null 
+                    : null
             };
 
             ieUsersGroups.UsersGroups?.ForEach(ug =>
@@ -429,7 +429,7 @@ namespace AdminStore.Services.Workflow
                 Name = ieAction.Name,
                 GenerateActionType = ieAction.GenerateActionType
             };
-            switch(ieAction.GenerateActionType)
+            switch (ieAction.GenerateActionType)
             {
                 case GenerateActionTypes.Children:
                     xmlAction.ChildCount = ieAction.ChildCount;

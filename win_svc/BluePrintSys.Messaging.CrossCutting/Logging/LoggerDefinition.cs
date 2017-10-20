@@ -62,6 +62,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
             Log.Debug(message);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         public void Debug(string message, Exception exception)
         {
             Log.Debug($"{message}\n{exception}");
@@ -77,6 +78,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
             Log.Info(message);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         public void Info(string message, Exception exception)
         {
             Log.Info($"{message}\n{exception}");
@@ -92,6 +94,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
             Log.Warn(message);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         public void Warn(string message, Exception exception)
         {
             Log.Warn($"{message}\n{exception}");
@@ -107,6 +110,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
             Log.Error(message);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         public void Error(string message, Exception exception)
         {
             Log.Error($"{message}\n{exception}");
@@ -122,6 +126,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
             Log.Fatal(message);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         public void Fatal(string message, Exception exception)
         {
             Log.Fatal($"{message}\n{exception}");

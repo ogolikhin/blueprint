@@ -88,7 +88,7 @@ namespace ArtifactStore.Controllers
                 discussion.CanDelete = !projectPermissions.HasFlag(ProjectPermissions.CommentsDeletionDisabled)
                           && permissions.TryGetValue(artifactId, out permission) &&
                     (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == userId));
-                discussion.CanEdit = !projectPermissions.HasFlag(ProjectPermissions.CommentsModificationDisabled) 
+                discussion.CanEdit = !projectPermissions.HasFlag(ProjectPermissions.CommentsModificationDisabled)
                           && permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == userId);
             }
 
@@ -133,7 +133,7 @@ namespace ArtifactStore.Controllers
             var revisionId = int.MaxValue;
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
             var itemInfo = isDeleted ?
-                await _artifactVersionsRepository.GetDeletedItemInfo(itemId):
+                await _artifactVersionsRepository.GetDeletedItemInfo(itemId) :
                 await _artifactPermissionsRepository.GetItemInfo(itemId, userId, false);
 
             if (itemInfo == null || await _discussionsRepository.IsDiscussionDeleted(discussionId))

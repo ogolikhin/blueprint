@@ -64,7 +64,7 @@ namespace ArtifactStore.Controllers
                 await _artifactPermissionsRepository.GetItemInfo(itemId, userId, addDrafts);
             if (itemInfo == null)
             {
-                throw new ResourceNotFoundException("You have attempted to access an item that does not exist or you do not have permission to view.", 
+                throw new ResourceNotFoundException("You have attempted to access an item that does not exist or you do not have permission to view.",
                     subArtifactId.HasValue ? ErrorCodes.SubartifactNotFound : ErrorCodes.ArtifactNotFound);
             }
 
@@ -73,12 +73,12 @@ namespace ArtifactStore.Controllers
                 throw new BadRequestException("Please provide a proper subartifact Id");
             }
 
-            // We do not need drafts for historical artifacts 
+            // We do not need drafts for historical artifacts
             var effectiveAddDraft = !versionId.HasValue && addDrafts;
 
             var result = await _relationshipsRepository.GetRelationships(artifactId, userId, subArtifactId, effectiveAddDraft, allLinks.GetValueOrDefault(), versionId, baselineId);
             var artifactIds = new List<int> { artifactId };
-            artifactIds = artifactIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
+            artifactIds = artifactIds.Union(result.ManualTraces.Select(a => a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
             if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
@@ -128,7 +128,7 @@ namespace ArtifactStore.Controllers
             return await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, subArtifactId, isDeleted);
         }
 
-        
+
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/reviews"), SessionRequired]
         [ActionName("GetReviews")]
@@ -154,7 +154,7 @@ namespace ArtifactStore.Controllers
                 throw new ResourceNotFoundException();
             }
 
-            // We do not need drafts for historical artifacts 
+            // We do not need drafts for historical artifacts
             var effectiveAddDraft = !versionId.HasValue && addDrafts;
             var result = await _relationshipsRepository.GetReviewRelationships(artifactId, userId, effectiveAddDraft, versionId);
             var artifactIds = new List<int> { artifactId };

@@ -8,7 +8,7 @@ namespace AdminStore.Models.Workflow
     public class IeUserGroup
     {
         // Optional, not used for the import, will be used for the update
-        //========================================================
+        // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
         public int? Id { get; set; }
@@ -24,12 +24,12 @@ namespace AdminStore.Models.Workflow
         {
             return Id.HasValue;
         }
-        //========================================================
+        // ========================================================
 
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
 
-        //========================================================
+        // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
         public bool? IsGroup { get; set; }
@@ -45,9 +45,9 @@ namespace AdminStore.Models.Workflow
         {
             return IsGroup.HasValue;
         }
-        //========================================================
+        // ========================================================
 
-        //========================================================
+        // ========================================================
         // GroupProjectId or GroupProjectPath can be specified, GroupProjectId has precedence over GroupProjectPath.
         [XmlElement(IsNullable = false)]
         public string GroupProjectPath { get; set; }
@@ -55,7 +55,7 @@ namespace AdminStore.Models.Workflow
         [XmlElement("GroupProjectId")]
         public int? GroupProjectId { get; set; }
         public bool ShouldSerializeGroupProjectId() { return GroupProjectId.HasValue; }
-        //========================================================
+        // ========================================================
 
         #region Generated and modified Equals and GetHashCode methods
 
@@ -69,7 +69,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeUserGroup) obj);
+            return Equals((IeUserGroup)obj);
         }
 
         public override int GetHashCode()
@@ -77,10 +77,10 @@ namespace AdminStore.Models.Workflow
             unchecked
             {
                 var hashCode = Id.GetHashCode();
-                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ IsGroup.GetHashCode();
-                hashCode = (hashCode*397) ^ (GroupProjectPath != null ? GroupProjectPath.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ GroupProjectId.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsGroup.GetHashCode();
+                hashCode = (hashCode * 397) ^ (GroupProjectPath != null ? GroupProjectPath.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ GroupProjectId.GetHashCode();
                 return hashCode;
             }
         }

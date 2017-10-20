@@ -49,7 +49,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@AllProjects", scope.AllProjects, dbType: DbType.Boolean);
             parameters.Add("@ArtifactTypesIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds, "Int32Collection", "Int32Value"));
             parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.ProjectIds, "Int32Collection", "Int32Value"));
-            parameters.Add("@AllProjectsAssignedToWorkflow", dbType: DbType.Boolean, direction: ParameterDirection.Output); 
+            parameters.Add("@AllProjectsAssignedToWorkflow", dbType: DbType.Boolean, direction: ParameterDirection.Output);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactTypesToWorkflow", parameters, commandType: CommandType.StoredProcedure);
@@ -66,7 +66,7 @@ namespace AdminStore.Repositories.Workflow
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
-                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);                    
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
                 }
             }
 
@@ -102,20 +102,18 @@ namespace AdminStore.Repositories.Workflow
             {
                 result = await _connectionWrapper.QueryAsync<SqlWorkflow>
                 (
-                    "CreateWorkflows", 
+                    "CreateWorkflows",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 result = await transaction.Connection.QueryAsync<SqlWorkflow>
                 (
-                    "CreateWorkflows", 
+                    "CreateWorkflows",
                     parameters,
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -149,20 +147,18 @@ namespace AdminStore.Repositories.Workflow
             {
                 result = await _connectionWrapper.QueryAsync<SqlState>
                 (
-                    "CreateWorkflowStates", 
+                    "CreateWorkflowStates",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 result = await transaction.Connection.QueryAsync<SqlState>
                 (
-                    "CreateWorkflowStates", 
+                    "CreateWorkflowStates",
                     parameters,
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -196,20 +192,18 @@ namespace AdminStore.Repositories.Workflow
             {
                 result = await _connectionWrapper.QueryAsync<SqlState>
                 (
-                    "UpdateWorkflowStates", 
-                    parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    "UpdateWorkflowStates",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 result = await transaction.Connection.QueryAsync<SqlState>
                 (
-                    "UpdateWorkflowStates", 
-                    parameters, 
+                    "UpdateWorkflowStates",
+                    parameters,
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -243,20 +237,18 @@ namespace AdminStore.Repositories.Workflow
             {
                 result = await _connectionWrapper.QueryAsync<SqlState>
                 (
-                    "DeleteWorkflowStates", 
+                    "DeleteWorkflowStates",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 result = await transaction.Connection.QueryAsync<SqlState>
                 (
-                    "DeleteWorkflowStates", 
-                    parameters, 
+                    "DeleteWorkflowStates",
+                    parameters,
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result.Select(s => s.WorkflowStateId);
@@ -270,7 +262,7 @@ namespace AdminStore.Repositories.Workflow
 
             return result;
         }
-        
+
         public async Task<IEnumerable<SqlWorkflowEventData>> GetWorkflowEventsAsync(int workflowId)
         {
             var parameters = new DynamicParameters();
@@ -299,20 +291,18 @@ namespace AdminStore.Repositories.Workflow
             {
                 await _connectionWrapper.ExecuteAsync
                 (
-                    "UpdateWorkflowsChangedWithRevisions", 
+                    "UpdateWorkflowsChangedWithRevisions",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 await transaction.Connection.ExecuteAsync
                 (
-                    "UpdateWorkflowsChangedWithRevisions", 
+                    "UpdateWorkflowsChangedWithRevisions",
                     parameters,
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -330,20 +320,18 @@ namespace AdminStore.Repositories.Workflow
             {
                 result = await _connectionWrapper.ExecuteScalarAsync<int>
                 (
-                    "CreateWorkflow", 
-                    parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    "CreateWorkflow",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 result = await transaction.Connection.ExecuteScalarAsync<int>
                 (
-                    "CreateWorkflow", 
-                    parameters, 
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    "CreateWorkflow",
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
             }
 
             var errorCode = parameters.Get<int?>("ErrorCode");
@@ -389,20 +377,18 @@ namespace AdminStore.Repositories.Workflow
             {
                 result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
                 (
-                    "CreateWorkflowEvents", 
+                    "CreateWorkflowEvents",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
                 (
-                    "CreateWorkflowEvents", 
+                    "CreateWorkflowEvents",
                     parameters,
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -436,20 +422,18 @@ namespace AdminStore.Repositories.Workflow
             {
                 result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
                 (
-                    "UpdateWorkflowEvents", 
+                    "UpdateWorkflowEvents",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
                 (
-                    "UpdateWorkflowEvents", 
+                    "UpdateWorkflowEvents",
                     parameters,
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result;
@@ -483,20 +467,18 @@ namespace AdminStore.Repositories.Workflow
             {
                 result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
                 (
-                    "DeleteWorkflowEvents", 
+                    "DeleteWorkflowEvents",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
                 (
-                    "DeleteWorkflowEvents", 
+                    "DeleteWorkflowEvents",
                     parameters,
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
             }
 
             return result.Select(s => s.WorkflowEventId);
@@ -538,20 +520,18 @@ namespace AdminStore.Repositories.Workflow
             {
                 await _connectionWrapper.ExecuteAsync
                 (
-                    "UpdateItemTypeVersionsWithWorkflowId", 
+                    "UpdateItemTypeVersionsWithWorkflowId",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 await transaction.Connection.ExecuteAsync
                 (
-                    "UpdateItemTypeVersionsWithWorkflowId", 
+                    "UpdateItemTypeVersionsWithWorkflowId",
                     parameters,
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -649,8 +629,8 @@ namespace AdminStore.Repositories.Workflow
             }
 
             var prm = new DynamicParameters();
-            prm.Add("@workflowId", workflowId, dbType:DbType.Int32);
-            prm.Add("@folderId", folderId, dbType: DbType.Int32);          
+            prm.Add("@workflowId", workflowId, dbType: DbType.Int32);
+            prm.Add("@folderId", folderId, dbType: DbType.Int32);
             prm.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var items = await _connectionWrapper.QueryAsync<InstanceItem>("GetWorkflowAvailableProjects", prm, commandType: CommandType.StoredProcedure);
@@ -670,10 +650,10 @@ namespace AdminStore.Repositories.Workflow
 
             if (items != null && items.Count() > 0)
                 return items.OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
-            else return new List<InstanceItem>();           
+            else return new List<InstanceItem>();
         }
 
-        public async Task<QueryResult<WorkflowProjectArtifactTypesDto>> GetProjectArtifactTypesAssignedtoWorkflowAsync(int workflowId, Pagination pagination, 
+        public async Task<QueryResult<WorkflowProjectArtifactTypesDto>> GetProjectArtifactTypesAssignedtoWorkflowAsync(int workflowId, Pagination pagination,
                                             string search = null)
         {
             if (workflowId < 1)
@@ -703,19 +683,19 @@ namespace AdminStore.Repositories.Workflow
             foreach (var projectId in projectIds)
             {
                 var artifacts = workflowArtifactTypes.Where(x => x.ProjectId == projectId).ToList();
-                
+
                 var projectArtifacts = artifacts.Select(artifact => new WorkflowArtifactType()
                 {
                     Id = artifact.ArtifactId, Name = artifact.ArtifactName
                 }).ToList();
-              
+
                 string projectName = artifacts[0].ProjectName;
 
                 var groupedProjectArtifacts = new WorkflowProjectArtifactTypesDto()
                 {
                     ProjectId = projectId,
                     ProjectName = projectName,
-                    Artifacts = projectArtifacts.OrderBy(a=>a.Name)
+                    Artifacts = projectArtifacts.OrderBy(a => a.Name)
                 };
                 groupedList.Add(groupedProjectArtifacts);
             }
@@ -774,7 +754,7 @@ namespace AdminStore.Repositories.Workflow
 
             var result = (await _connectionWrapper.QueryAsync<SqlWorkflow>("GetWorkflowDetails", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 
-            return result;           
+            return result;
         }
 
         public async Task<IEnumerable<SqlWorkflowArtifactTypes>> GetWorkflowArtifactTypesAsync(int workflowId)
@@ -786,7 +766,7 @@ namespace AdminStore.Repositories.Workflow
 
             return result;
         }
-        
+
         public async Task<int> DeleteWorkflowsAsync(OperationScope body, string search, int revision, IDbTransaction transaction = null)
         {
             if (search != null)
@@ -816,7 +796,7 @@ namespace AdminStore.Repositories.Workflow
                         _connectionWrapper.ExecuteScalarAsync<int>("DeleteWorkflows", parameters,
                             commandType: CommandType.StoredProcedure);
             }
-            
+
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)
             {
@@ -836,17 +816,17 @@ namespace AdminStore.Repositories.Workflow
             {
                 search = UsersHelper.ReplaceWildcardCharacters(search);
             }
-            
+
             var parameters = new DynamicParameters();
             parameters.Add("@WorkflowId", workflowId);
             parameters.Add("@AllProjects", scope.SelectAll);
             parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.Ids));
             parameters.Add("@Search", search);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("UnassignProjectsAndArtifactTypesFromWorkflow", parameters, 
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("UnassignProjectsAndArtifactTypesFromWorkflow", parameters,
                 commandType: CommandType.StoredProcedure);
-            
+
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)
             {
@@ -890,7 +870,7 @@ namespace AdminStore.Repositories.Workflow
             {
                 updatedWorkflows =
                     await
-                        _connectionWrapper.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm, 
+                        _connectionWrapper.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm,
                             commandType: CommandType.StoredProcedure);
                 var sqlWorkflows = updatedWorkflows as IList<SqlWorkflow> ?? updatedWorkflows.ToList();
                 if (sqlWorkflows.Any())
@@ -1010,8 +990,8 @@ namespace AdminStore.Repositories.Workflow
             foreach (var workfloEvent in workflowEvents)
             {
                 table.Rows.Add(workfloEvent.WorkflowEventId, workfloEvent.Name,
-                    workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions, 
-                    workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id, 
+                    workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions,
+                    workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id,
                     workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId);
             }
 
@@ -1021,14 +1001,14 @@ namespace AdminStore.Repositories.Workflow
         public async Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workflowId, int projectId, IEnumerable<int> artifactTypeIds)
         {
             var parameters = new DynamicParameters();
-            
+
             parameters.Add("@WorkflowId", workflowId);
             parameters.Add("@ProjectId", projectId);
-            parameters.Add("@ArtifactTypeIds", SqlConnectionWrapper.ToDataTable(artifactTypeIds, "Int32Collection", "Int32Value"));           
+            parameters.Add("@ArtifactTypeIds", SqlConnectionWrapper.ToDataTable(artifactTypeIds, "Int32Collection", "Int32Value"));
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-        
+
             var result = await _connectionWrapper.QueryAsync<SyncResult>("AssignArtifactTypesToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");                      
+            var errorCode = parameters.Get<int?>("ErrorCode");
 
             if (errorCode.HasValue)
             {
@@ -1044,7 +1024,7 @@ namespace AdminStore.Repositories.Workflow
                         throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdIsActive:
-                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);                   
+                        throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
 
                     case (int)SqlErrorCodes.WorkflowProjectHasNoArtifactTypes:
                         throw new ConflictException(ErrorMessages.WorkflowProjectHasNoArtifactTypes, ErrorCodes.WorkflowProjectHasNoArtifactTypes);

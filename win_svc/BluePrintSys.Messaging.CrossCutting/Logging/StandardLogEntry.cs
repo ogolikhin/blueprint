@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using BluePrintSys.Messaging.CrossCutting.Collections;
 
 namespace BluePrintSys.Messaging.CrossCutting.Logging
@@ -23,6 +24,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
         /// <summary>
         /// The arguments to the formatted message of the log entry.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
         public object[] Arguments { get; set; }
 
         /// <summary>
@@ -40,12 +42,12 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
             }
             else
             {
-                text = string.Format(Format, Arguments);
+                text = string.Format(CultureInfo.InvariantCulture, Format, Arguments);
             }
 
             if (Exception != null)
             {
-                text = string.Format("{0}\n{1}", text, Exception);
+                text = string.Format(CultureInfo.InvariantCulture, "{0}\n{1}", text, Exception);
             }
 
             return text;

@@ -11,8 +11,8 @@ namespace SearchService.Helpers.SemanticSearch
         public int PageSize { get; }
 
         public SearchEngineParameters(
-            int artifactId, 
-            int userId, 
+            int artifactId,
+            int userId,
             bool isInstanceAdmin,
             HashSet<int> accessibleProjectIds,
             int pageSize = 10)

@@ -32,7 +32,7 @@ namespace ConfigControl.Controllers
             try
             {
                 var settings = await _configRepo.GetSettings(allowRestricted);
-                var map = settings.GroupBy(it => it.Group).ToDictionary(it=>it.Key, it=>it.ToDictionary(i=>i.Key, i=>i.Value));
+                var map = settings.GroupBy(it => it.Group).ToDictionary(it => it.Key, it => it.ToDictionary(i => i.Key, i => i.Value));
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, map);
                 return ResponseMessage(response);

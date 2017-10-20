@@ -24,7 +24,7 @@ namespace ServiceLibrary.Repositories
             var result = await repository.GetArtifactPermissions(itemIds, 0);
 
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == allPermissions);
         }
 
@@ -58,7 +58,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == RolePermissions.Edit);
         }
 
@@ -93,7 +93,7 @@ namespace ServiceLibrary.Repositories
                 new OpenArtifactPermission
                 {
                     HolderId = 1,
-                    Permissions = (long) RolePermissions.CanReport
+                    Permissions = (long)RolePermissions.CanReport
                 }
             }.AsEnumerable();
             MockGetOpenArtifactPermissions(mockOpenArtifactPermissionsResult, cxn, new List<int>() { 1 });
@@ -101,7 +101,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == RolePermissions.CanReport);
         }
 
@@ -137,7 +137,7 @@ namespace ServiceLibrary.Repositories
                 new OpenArtifactPermission
                 {
                     HolderId = 1,
-                    Permissions = (long) RolePermissions.Edit
+                    Permissions = (long)RolePermissions.Edit
                 }
             }.AsEnumerable();
             MockGetOpenArtifactPermissions(mockOpenArtifactPermissionsResult, cxn, new List<int>() { 1 }, revisionId);
@@ -145,7 +145,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0, false, revisionId);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == RolePermissions.Edit);
         }
 
@@ -187,7 +187,7 @@ namespace ServiceLibrary.Repositories
                 new OpenArtifactPermission
                 {
                     HolderId = 1,
-                    Permissions = (long) RolePermissions.Delete
+                    Permissions = (long)RolePermissions.Delete
                 }
             }.AsEnumerable();
             MockGetOpenArtifactPermissions(mockOpenArtifactPermissionsResult, cxn, new List<int>() { 1 }, revisionId);
@@ -195,7 +195,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0, false, revisionId);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == RolePermissions.Delete);
         }
 
@@ -241,7 +241,7 @@ namespace ServiceLibrary.Repositories
                 new OpenArtifactPermission
                 {
                     HolderId = 1,
-                    Permissions = (long) RolePermissions.Read
+                    Permissions = (long)RolePermissions.Read
                 }
             }.AsEnumerable();
             MockGetOpenArtifactPermissions(mockOpenArtifactPermissionsResult, cxn, new List<int>() { 1 }, revisionId);
@@ -249,7 +249,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0, false, revisionId);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result[1] == RolePermissions.Read);
         }
 
@@ -268,8 +268,8 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetOpenArtifactPermissions",
                 new Dictionary<string, object>
                 {
-                    {"userId", 0},
-                    {"artifactIds", artifactIds}
+                    { "userId", 0 },
+                    { "artifactIds", artifactIds }
                 }, mockOpenArtifactPermissionsResult);
         }
 
@@ -279,8 +279,7 @@ namespace ServiceLibrary.Repositories
             IEnumerable<ProjectsArtifactsItem> mockProjectsArtifactsItemsResult,
             IEnumerable<VersionProjectInfo> mockVersionProjectInfoResult,
             int revisionId = int.MaxValue,
-            bool addDrafts = true
-            )
+            bool addDrafts = true)
         {
             var tvp = SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value");
 
@@ -288,8 +287,8 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryMultipleAsync("GetArtifactsProjects",
                 new Dictionary<string, object>
                 {
-                    {"userId", 0},
-                    {"itemIds", tvp}
+                    { "userId", 0 },
+                    { "itemIds", tvp }
                 }, result);
         }
 

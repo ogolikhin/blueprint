@@ -183,7 +183,7 @@ namespace ArtifactStore.Repositories
             // Act
             var result = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, allLinks, versionId);
 
-            //Assert
+            // Assert
             Assert.AreEqual(1, result.ManualTraces.Count);
             Assert.AreEqual(LinkType.Manual, result.ManualTraces[0].TraceType);
         }
@@ -197,8 +197,8 @@ namespace ArtifactStore.Repositories
             const int userId = 2;
             const bool isDeleted = false;
 
-            _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } }
-                , new List<ItemIdItemNameParentId>());
+            _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } },
+                new List<ItemIdItemNameParentId>());
 
             try
             {
@@ -211,7 +211,7 @@ namespace ArtifactStore.Repositories
                 throw;
             }
 
-            //Assert
+            // Assert
         }
 
         [TestMethod]
@@ -228,21 +228,21 @@ namespace ArtifactStore.Repositories
 
             var pathToRoot = new List<ItemIdItemNameParentId>
             {
-                new ItemIdItemNameParentId { ItemId = 1, ParentId = 10, Name = "artifact"},
-                new ItemIdItemNameParentId { ItemId = 10, ParentId = 100, Name = "folder"},
-                new ItemIdItemNameParentId { ItemId = 100, ParentId = null, Name = "project"}
+                new ItemIdItemNameParentId { ItemId = 1, ParentId = 10, Name = "artifact" },
+                new ItemIdItemNameParentId { ItemId = 10, ParentId = 100, Name = "folder" },
+                new ItemIdItemNameParentId { ItemId = 100, ParentId = null, Name = "project" }
             };
-            _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }}, pathToRoot);
+            _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } }, pathToRoot);
 
             _itemInfoRepositoryMock.Setup(m => m.GetItemDescription(artifactId, userId, true, int.MaxValue)).ReturnsAsync(description);
 
             var descriptionResult = new List<string> { description };
-            _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }}, descriptionResult);
-            
+            _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, descriptionResult);
+
             // Act
             var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, null, isDeleted);
 
-            //Assert
+            // Assert
             Assert.AreEqual(artifactId, actual.ArtifactId);
             Assert.AreEqual(description, actual.Description);
             Assert.AreEqual(pathToRoot.Count, actual.PathToProject.Count());
@@ -276,7 +276,7 @@ namespace ArtifactStore.Repositories
                                                 SourceItemId = 2,
                                                 SourceProjectId = 0 });
 
-            _cxn.SetupQueryAsync("GetRelationshipLinkInfo", 
+            _cxn.SetupQueryAsync("GetRelationshipLinkInfo",
                                 new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
 
             _itemInfoRepositoryMock.Setup(a => a.GetItemsRawDataCreatedDate(userId, It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()))
@@ -313,7 +313,7 @@ namespace ArtifactStore.Repositories
         [TestMethod]
         public async Task GetRelationships_ActorInheritsFrom_LinkToDeletedActor_Empty()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int userId = 1;
             const int versionId = 3;
@@ -344,7 +344,7 @@ namespace ArtifactStore.Repositories
 
             _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 
-            //Act
+            // Act
             var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, allLinks, versionId);
             Assert.AreEqual(0, relationships.OtherTraces.Count);
         }
@@ -352,7 +352,7 @@ namespace ArtifactStore.Repositories
         [TestMethod]
         public async Task GetRelationships_ActorInheritsFrom_LinkToAliveActor_OneResult()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int userId = 1;
             const int versionId = 3;
@@ -390,7 +390,7 @@ namespace ArtifactStore.Repositories
 
             _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 
-            //Act
+            // Act
             var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, allLinks, versionId);
             Assert.AreEqual(1, relationships.OtherTraces.Count);
             Assert.AreEqual(actorInheritsFromLink.DestinationArtifactId, relationships.OtherTraces.ElementAt(0).ArtifactId);

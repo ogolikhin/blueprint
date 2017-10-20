@@ -26,7 +26,7 @@ namespace AdminStore.Helpers.Workflow
             {
                 return false;
             }
-            var list1 = col1.ToList() ;
+            var list1 = col1.ToList();
             var list2 = col2.ToList();
             if (list1.Count != list2.Count)
             {
@@ -53,8 +53,8 @@ namespace AdminStore.Helpers.Workflow
 
         private static readonly IDictionary<int, string> NameAndDescriptionMap = new Dictionary<int, string>
         {
-            {WorkflowConstants.PropertyTypeFakeIdName, WorkflowConstants.PropertyNameName},
-            {WorkflowConstants.PropertyTypeFakeIdDescription, WorkflowConstants.PropertyNameDescription} 
+            { WorkflowConstants.PropertyTypeFakeIdName, WorkflowConstants.PropertyNameName },
+            { WorkflowConstants.PropertyTypeFakeIdDescription, WorkflowConstants.PropertyNameDescription }
         };
 
         public static bool IsNameOrDescriptionProperty(string propertyTypeName)
@@ -81,7 +81,7 @@ namespace AdminStore.Helpers.Workflow
         public static bool TryGetNameOrDescriptionPropertyType(int propertyTypeId, out PropertyType propertyType)
         {
             string propertyTypeName;
-            if(!NameAndDescriptionMap.TryGetValue(propertyTypeId, out propertyTypeName))
+            if (!NameAndDescriptionMap.TryGetValue(propertyTypeId, out propertyTypeName))
             {
                 propertyType = null;
                 return false;
@@ -140,7 +140,7 @@ namespace AdminStore.Helpers.Workflow
 
         private static bool? NormalizeNullableBool(bool? flag)
         {
-            return flag.GetValueOrDefault() ? true : (bool?) null;
+            return flag.GetValueOrDefault() ? true : (bool?)null;
         }
 
         private static List<T> NormalizeList<T>(List<T> list)
@@ -181,10 +181,10 @@ namespace AdminStore.Helpers.Workflow
             switch (action.ActionType)
             {
                 case ActionTypes.EmailNotification:
-                    NormalizeEmailNotificationAction((IeEmailNotificationAction) action);
+                    NormalizeEmailNotificationAction((IeEmailNotificationAction)action);
                     break;
                 case ActionTypes.PropertyChange:
-                    NormalizePropertyChangeAction((IePropertyChangeAction) action);
+                    NormalizePropertyChangeAction((IePropertyChangeAction)action);
                     break;
                 case ActionTypes.Generate:
                     break;

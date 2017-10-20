@@ -68,7 +68,7 @@ namespace ArtifactStore.Controllers
                 revisionId = deletedInfo.VersionId;
             }
 
-            var artifactIds = new [] { artifactId };
+            var artifactIds = new[] { artifactId };
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, sessionUserId, false, revisionId);
 
             RolePermissions permission = RolePermissions.None;

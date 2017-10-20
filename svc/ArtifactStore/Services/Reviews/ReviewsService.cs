@@ -55,7 +55,7 @@ namespace ArtifactStore.Services.Reviews
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
 
-            if (artifactInfo.PrimitiveItemTypePredefined != (int) ItemTypePredefined.ArtifactReviewPackage)
+            if (artifactInfo.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactReviewPackage)
             {
                 var errorMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) is not a review.", reviewId);
                 throw new BadRequestException(errorMessage, ErrorCodes.InvalidParameter);

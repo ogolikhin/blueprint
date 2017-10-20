@@ -88,7 +88,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
                 return GetLogManagerInstance();
             }
         }
-        
+
         private static LogManager GetLogManagerInstance()
         {
             if (_instance == null)
@@ -143,7 +143,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
         /// <returns></returns>
         public IEnumerable<ILogListener> GetListeners()
         {
-            //return a copy of the internal list
+            // return a copy of the internal list
             List<ILogListener> listeners;
 
             lock (_logListeners)
@@ -196,14 +196,14 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
 
         #endregion Implementation of ILogWriter<StandardLogEntry>
 
-        //#region Implementation of ILogWriter<PerformanceLogEntry>
+        // #region Implementation of ILogWriter<PerformanceLogEntry>
 
-        //public void Write(PerformanceLogEntry entry)
-        //{
+        // public void Write(PerformanceLogEntry entry)
+        // {
         //    EnqueLogEntry(entry);
-        //}
+        // }
 
-        //#endregion Implementation of ILogWriter<PerformanceLogEntry>
+        // #endregion Implementation of ILogWriter<PerformanceLogEntry>
 
         #region Implementation of asyncronous Write
 
@@ -223,7 +223,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
                         return;
                     }
 
-                    //deliver one log entry to log listeners
+                    // deliver one log entry to log listeners
                     var logEntry = logManager.DequeueLogEntry();
 
                     // deliver it

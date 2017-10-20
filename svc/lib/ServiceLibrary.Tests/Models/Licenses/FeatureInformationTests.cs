@@ -26,48 +26,48 @@ namespace ServiceLibrary.Models.Licenses
         [TestMethod]
         public void GetStatus_WhenExpirationDateIsUpcoming_StatusIsActive()
         {
-            //Arrange
+            // Arrange
             var expirationDate = DateTime.MaxValue;
             var featureInformation = new FeatureInformation(_workflowFeatureName, expirationDate);
-            //Act
+            // Act
             var status = featureInformation.GetStatus();
-            //Assert
+            // Assert
             Assert.AreEqual(FeatureLicenseStatus.Active, status);
         }
 
         [TestMethod]
         public void GetStatus_WhenExpirationDateIsEqual_StatusIsActive()
         {
-            //Arrange
+            // Arrange
             var expirationDate = new DateTime(2000, 1, 1);
             _timeProviderMock.Setup(i => i.CurrentUniversalTime).Returns(expirationDate);
             var featureInformation = new FeatureInformation(_workflowFeatureName, expirationDate, _timeProviderMock.Object);
-            //Act
+            // Act
             var status = featureInformation.GetStatus();
-            //Assert
+            // Assert
             Assert.AreEqual(FeatureLicenseStatus.Active, status);
         }
 
         [TestMethod]
         public void GetStatus_WhenExpirationDateHasPassed_StatusIsExpired()
         {
-            //Arrange
+            // Arrange
             var expirationDate = DateTime.MinValue;
             var featureInformation = new FeatureInformation(_workflowFeatureName, expirationDate);
-            //Act
+            // Act
             var status = featureInformation.GetStatus();
-            //Assert
+            // Assert
             Assert.AreEqual(FeatureLicenseStatus.Expired, status);
         }
 
         [TestMethod]
         public void GetFeatureType_WhenFeatureNameIsWorkflow_FeatureTypeIsWorkflow()
         {
-            //Arrange
+            // Arrange
             var featureInformation = new FeatureInformation(_workflowFeatureName, DateTime.UtcNow);
-            //Act
+            // Act
             var featureType = featureInformation.GetFeatureType();
-            //Assert
+            // Assert
             Assert.AreEqual(FeatureTypes.Workflow, featureType);
         }
 
@@ -77,11 +77,11 @@ namespace ServiceLibrary.Models.Licenses
             var validFeatureNames = FeatureInformation.Features.Where(f => f.Value != FeatureTypes.None).Select(f => f.Key);
             foreach (var name in validFeatureNames)
             {
-                //Arrange
+                // Arrange
                 var featureInformation = new FeatureInformation(name, DateTime.MaxValue);
-                //Act
+                // Act
                 var featureType = featureInformation.GetFeatureType();
-                //Assert
+                // Assert
                 Assert.AreNotEqual(FeatureTypes.None, featureType);
             }
         }
@@ -89,14 +89,14 @@ namespace ServiceLibrary.Models.Licenses
         [TestMethod]
         public void GetFeatureType_ReturnsNone_WhenFeatureNameIsInvalid()
         {
-            var invalidFeatureNames = new[] {"invalid feature name", "Author", "Collaborate", "View", "None"};
+            var invalidFeatureNames = new[] { "invalid feature name", "Author", "Collaborate", "View", "None" };
             foreach (var name in invalidFeatureNames)
             {
-                //Arrange
+                // Arrange
                 var featureInformation = new FeatureInformation(name, DateTime.MaxValue);
-                //Act
+                // Act
                 var featureType = featureInformation.GetFeatureType();
-                //Assert
+                // Assert
                 Assert.AreEqual(FeatureTypes.None, featureType);
             }
         }

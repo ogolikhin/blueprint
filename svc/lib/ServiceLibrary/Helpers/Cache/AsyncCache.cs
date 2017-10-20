@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Helpers.Cache
 {
-    public class AsyncCache: IAsyncCache
+    public class AsyncCache : IAsyncCache
     {
         private class NoCacheImpl : IAsyncCache
         {
@@ -129,7 +129,7 @@ namespace ServiceLibrary.Helpers.Cache
                 var originallCallback = policy.RemovedCallback;
                 policy.RemovedCallback = args =>
                 {
-                    //unwrap the cache item in a callback given one is specified
+                    // unwrap the cache item in a callback given one is specified
                     var item = args?.CacheItem?.Value as AsyncLazy<T>;
                     if (item != null)
                     {

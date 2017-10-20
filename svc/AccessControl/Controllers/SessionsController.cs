@@ -212,8 +212,8 @@ namespace AccessControl.Controllers
             {
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
-                var session = SessionsCacheSettings.IsSessionCacheEnabled 
-                    ? _sessionsCache.Get(token) as Session 
+                var session = SessionsCacheSettings.IsSessionCacheEnabled
+                    ? _sessionsCache.Get(token) as Session
                     : null;
 
                 if (session == null)
@@ -228,7 +228,7 @@ namespace AccessControl.Controllers
                     _sessionsCache.Add(token, session, DateTimeOffset.UtcNow.Add(SessionsCacheSettings.SessionCacheExpiration));
                     InsertSession(session);
                 }
-                
+
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Session-Token", token);
 

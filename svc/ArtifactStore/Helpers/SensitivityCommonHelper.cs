@@ -30,7 +30,7 @@ namespace ArtifactStore.Helpers
             {
                 return result;
             }
-            //TODO: we can improve the artifact type Id retrieval as the inforamtion is already loaded into memory
+            // TODO: we can improve the artifact type Id retrieval as the inforamtion is already loaded into memory
             var artifactId2StandardTypeId =
                 await
                     reuseRepository.GetStandardTypeIdsForArtifactsIdsAsync(
@@ -63,7 +63,7 @@ namespace ArtifactStore.Helpers
                 }
                 else
                 {
-                    //If no template settings - everything sensitive by default
+                    // If no template settings - everything sensitive by default
                     result.Add(itemId);
                 }
             }
@@ -98,7 +98,7 @@ namespace ArtifactStore.Helpers
                     }
 
                     PropertyTypeReuseTemplate propertyTemplate;
-                    //Get corresponding property type template for standard property
+                    // Get corresponding property type template for standard property
                     if (
                         !itemTypeReuseTemplate.PropertyTypeReuseTemplates.TryGetValue(
                             propInfo.InstancePropertyTypeId.Value,

@@ -8,7 +8,7 @@ namespace AdminStore.Models.Workflow
     public class IeValidValue
     {
         // Optional, not used for the import, will be used for the update
-        //========================================================
+        // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
         public int? Id { get; set; }
@@ -24,7 +24,7 @@ namespace AdminStore.Models.Workflow
         {
             return Id.HasValue;
         }
-        //========================================================
+        // ========================================================
 
         [XmlElement(IsNullable = false)]
         public string Value { get; set; }
@@ -41,14 +41,14 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeValidValue) obj);
+            return Equals((IeValidValue)obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return (Id.GetHashCode()*397) ^ (Value != null ? Value.GetHashCode() : 0);
+                return (Id.GetHashCode() * 397) ^ (Value != null ? Value.GetHashCode() : 0);
             }
         }
 

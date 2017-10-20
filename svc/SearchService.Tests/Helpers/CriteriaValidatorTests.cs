@@ -14,7 +14,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_FTSModelStateIsInvalid_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.FullTextSearch;
             var searchCriteria = new FullTextSearchCriteria
@@ -24,7 +24,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, false, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
@@ -34,7 +34,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -42,7 +42,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_FTSQueryIsNull_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.FullTextSearch;
             var searchCriteria = new FullTextSearchCriteria
@@ -52,7 +52,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
@@ -62,7 +62,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -70,7 +70,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_FTSQueryIsEmpty_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.FullTextSearch;
             var searchCriteria = new FullTextSearchCriteria
@@ -80,7 +80,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
@@ -90,7 +90,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -98,7 +98,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_FTSQueryIsBlank_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.FullTextSearch;
             var searchCriteria = new FullTextSearchCriteria
@@ -108,7 +108,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
@@ -118,7 +118,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -126,7 +126,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_FTSQueryIsLessThan3Chars_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.FullTextSearch;
             var searchCriteria = new FullTextSearchCriteria
@@ -136,7 +136,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
@@ -146,7 +146,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -154,7 +154,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_FTSQueryIsMoreThan250Chars_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.FullTextSearch;
             var searchCriteria = new FullTextSearchCriteria
@@ -164,7 +164,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
@@ -174,7 +174,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -182,7 +182,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_FTSQueryNoProjectProvided_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.FullTextSearch;
             var searchCriteria = new FullTextSearchCriteria
@@ -192,7 +192,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
@@ -202,7 +202,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -210,7 +210,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_FTSQueryMin3CharIsValid_Passes()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.FullTextSearch;
             var searchCriteria = new FullTextSearchCriteria
@@ -220,7 +220,7 @@ namespace SearchService.Helpers
             };
             Exception exception = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
@@ -230,14 +230,14 @@ namespace SearchService.Helpers
                 exception = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNull(exception, "Exception should not have been thrown");
         }
 
         [TestMethod]
         public void Validate_FTSQueryMax250CharIsValid_Passes()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.FullTextSearch;
             var searchCriteria = new FullTextSearchCriteria
@@ -247,7 +247,7 @@ namespace SearchService.Helpers
             };
             Exception exception = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
@@ -257,14 +257,14 @@ namespace SearchService.Helpers
                 exception = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNull(exception, "Exception should not have been thrown");
         }
 
         [TestMethod]
         public void Validate_FTSQueryIsValid_Passes()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.FullTextSearch;
             var searchCriteria = new FullTextSearchCriteria
@@ -274,7 +274,7 @@ namespace SearchService.Helpers
             };
             Exception exception = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
@@ -284,7 +284,7 @@ namespace SearchService.Helpers
                 exception = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNull(exception, "Exception should not have been thrown");
         }
 
@@ -295,7 +295,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_ItemNameModelStateIsInvalid_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.ItemName;
             var searchCriteria = new ItemNameSearchCriteria
@@ -305,7 +305,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, false, searchCriteria, 1);
@@ -315,7 +315,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -323,7 +323,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_ItemNameQueryIsNull_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.ItemName;
             var searchCriteria = new ItemNameSearchCriteria
@@ -333,7 +333,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, 1);
@@ -343,7 +343,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -351,7 +351,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_ItemNameQueryIsEmpty_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.ItemName;
             var searchCriteria = new ItemNameSearchCriteria
@@ -361,7 +361,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, 1);
@@ -371,7 +371,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -379,7 +379,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_ItemNameQueryIsBlank_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.ItemName;
             var searchCriteria = new ItemNameSearchCriteria
@@ -389,7 +389,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, 1);
@@ -399,7 +399,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -407,7 +407,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_ItemNameQueryNoProjectProvided_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.ItemName;
             var searchCriteria = new ItemNameSearchCriteria
@@ -417,7 +417,7 @@ namespace SearchService.Helpers
             };
             BadRequestException badRequestException = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, 1);
@@ -427,7 +427,7 @@ namespace SearchService.Helpers
                 badRequestException = bre;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad request exception should have been thrown");
             Assert.IsTrue(badRequestException.ErrorCode == ErrorCodes.IncorrectSearchCriteria);
         }
@@ -435,7 +435,7 @@ namespace SearchService.Helpers
         [TestMethod]
         public void Validate_ItemNameQueryIsValid_Passes()
         {
-            //Arrange
+            // Arrange
             var criteriaValidator = new CriteriaValidator();
             var searchOption = SearchOption.ItemName;
             var searchCriteria = new ItemNameSearchCriteria
@@ -445,7 +445,7 @@ namespace SearchService.Helpers
             };
             Exception exception = null;
 
-            //Act
+            // Act
             try
             {
                 criteriaValidator.Validate(searchOption, true, searchCriteria, 1);
@@ -455,7 +455,7 @@ namespace SearchService.Helpers
                 exception = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNull(exception, "Exception should not have been thrown");
         }
 

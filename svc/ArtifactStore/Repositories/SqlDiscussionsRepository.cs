@@ -100,7 +100,7 @@ namespace ArtifactStore.Repositories
 
                 return result;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 string msg = e.Message;
             }

@@ -3,7 +3,7 @@ using BluePrintSys.Messaging.CrossCutting.Collections;
 
 namespace BluePrintSys.Messaging.CrossCutting.Logging
 {
-    public interface ILogEntry:IHavePriority
+    public interface ILogEntry : IHavePriority
     {
         /// <summary>
         /// The date and time of the log entry.

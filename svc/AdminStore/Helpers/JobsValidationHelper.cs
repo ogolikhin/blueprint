@@ -15,7 +15,7 @@ namespace AdminStore.Helpers
             if (!ValidatePageSize(pageSize))
             {
                 throw new BadRequestException(
-                    string.Format(CultureInfo.CurrentCulture, "Page Size value must be provided and value between 1 and {0}", ServiceConstants.JobsMaxPageSize), 
+                    string.Format(CultureInfo.CurrentCulture, "Page Size value must be provided and value between 1 and {0}", ServiceConstants.JobsMaxPageSize),
                     ErrorCodes.PageSizeNullOrOutOfRange);
             }
         }

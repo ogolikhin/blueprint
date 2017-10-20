@@ -41,8 +41,7 @@ namespace AdminStore.Controllers
                 new SqlUserRepository(),
                 new FeaturesService(),
                 new HttpClientProvider(),
-                new ServiceLogRepository()
-            )
+                new ServiceLogRepository())
         {
         }
 
@@ -53,8 +52,7 @@ namespace AdminStore.Controllers
             IUserRepository userRepository,
             IFeaturesService featuresService,
             IHttpClientProvider httpClientProvider,
-            IServiceLogRepository log
-        ) : base(log)
+            IServiceLogRepository log) : base(log)
         {
             _applicationSettingsRepository = applicationSettingsRepository;
             _settingsRepository = settingsRepository;

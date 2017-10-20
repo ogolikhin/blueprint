@@ -40,9 +40,9 @@ namespace ArtifactStore.Repositories.VersionControl
                 }
                 return true;
             }).ToList();
-            
-            var affectedStandardArtifacts = await _sensitivityCommonHelper.FilterInsensitiveItems(affectedArtifacts, 
-                environment.SensitivityCollector, 
+
+            var affectedStandardArtifacts = await _sensitivityCommonHelper.FilterInsensitiveItems(affectedArtifacts,
+                environment.SensitivityCollector,
                 _reuseRepository);
             await MarkReuseLinksOutOfSync(affectedStandardArtifacts, environment, transaction);
         }

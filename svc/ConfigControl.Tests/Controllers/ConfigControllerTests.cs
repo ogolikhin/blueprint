@@ -37,7 +37,7 @@ namespace ConfigControl.Controllers
             Assert.IsNotNull(result);
             var actual = await result.Response.Content.ReadAsAsync<Dictionary<string, Dictionary<string, string>>>();
             Assert.AreEqual(expected["Group"]["Key"], actual["Group"]["Key"]);
-            
+
         }
 
         [TestMethod]

@@ -30,7 +30,7 @@ namespace ArtifactStore.Repositories.VersionControl
 
         public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
-            //await Task.Run(() => { });
+            // await Task.Run(() => { });
             var artifactIds = parameters.ArtifactIds.ToHashSet();
             var items = await GetDraftAndLatestAttachments(artifactIds, parameters.UserId, transaction);
 
@@ -78,7 +78,7 @@ namespace ArtifactStore.Repositories.VersionControl
                 }
             }
 
-            await CloseAttachmentVersions(closeButKeepLatestVersionIds, environment.RevisionId, keepLatest: true, transaction:transaction);
+            await CloseAttachmentVersions(closeButKeepLatestVersionIds, environment.RevisionId, keepLatest: true, transaction: transaction);
             await CloseAttachmentVersions(closeVersionIds, environment.RevisionId, keepLatest: false, transaction: transaction);
             await MarkAsLatest(markAsLatestVersionIds, environment.RevisionId, transaction);
             await DeleteVersions(deleteVersionsIds, transaction);
@@ -99,23 +99,21 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    "CloseAttachmentVersions", 
-                    parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    "CloseAttachmentVersions",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 await transaction.Connection.ExecuteAsync
                 (
-                    "CloseAttachmentVersions", 
-                    parameters, 
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    "CloseAttachmentVersions",
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
             }
 
-            //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some attachment versions are not closed");
+            // Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some attachment versions are not closed");
         }
 
         private async Task<ICollection<DraftAndLatestAttachment>> GetDraftAndLatestAttachments(ISet<int> artifactIds, int userId, IDbTransaction transaction)
@@ -126,27 +124,23 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (transaction == null)
             {
-                return 
+                return
                 (
                     await ConnectionWrapper.QueryAsync<DraftAndLatestAttachment>
                     (
-                        "GetDraftAndLatestAttachmentVersions", 
-                        parameters, 
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        "GetDraftAndLatestAttachmentVersions",
+                        parameters,
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
-            return 
+            return
             (
                 await transaction.Connection.QueryAsync<DraftAndLatestAttachment>
                 (
-                    "GetDraftAndLatestAttachmentVersions", 
-                    parameters, 
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToList();
+                    "GetDraftAndLatestAttachmentVersions",
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure)).ToList();
         }
 
         private void RegisterAttachmentModification(PublishEnvironment env, DraftAndLatestAttachment attachment)
@@ -156,7 +150,7 @@ namespace ArtifactStore.Repositories.VersionControl
             var affectedTemplateSetting = IsSubArtifactChange(attachment)
                         ? ItemTypeReuseTemplateSetting.Subartifacts
                         : (env.GetArtifactBaseType(attachment.ArtifactId) == ItemTypePredefined.Document
-                            //for document artifact we have only document content as an attachment
+                            // for document artifact we have only document content as an attachment
                             ? ItemTypeReuseTemplateSetting.DocumentFile
                             : ItemTypeReuseTemplateSetting.Attachments);
 

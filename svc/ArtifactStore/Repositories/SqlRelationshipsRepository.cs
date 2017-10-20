@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
-    public class SqlRelationshipsRepository: IRelationshipsRepository
+    public class SqlRelationshipsRepository : IRelationshipsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly ISqlItemInfoRepository _itemInfoRepository;
@@ -154,13 +154,13 @@ namespace ArtifactStore.Repositories
                 }
             }
             return result;
-        }   
+        }
 
         public async Task<RelationshipResultSet> GetRelationships(
-            int artifactId, 
-            int userId, 
-            int? subArtifactId = null, 
-            bool addDrafts = true, 
+            int artifactId,
+            int userId,
+            int? subArtifactId = null,
+            bool addDrafts = true,
             bool allLinks = false,
             int? versionId = null,
             int? baselineId = null)
@@ -182,11 +182,11 @@ namespace ArtifactStore.Repositories
 
             var results = (await GetLinkInfo(itemId, userId, addDrafts, revisionId, types)).ToList();
             var manualLinks = results.Where(a => a.LinkType == LinkType.Manual).ToList();
-            //filter out Parent/Child links between artifact and its subartifact if exist
+            // filter out Parent/Child links between artifact and its subartifact if exist
             var internalParentChildLinks = results.Where(link => link.LinkType == LinkType.ParentChild && (link.SourceArtifactId != link.SourceItemId || link.DestinationArtifactId != link.DestinationItemId)).ToList();
-            //get reuse links to to modify them separaratly. 
+            // get reuse links to to modify them separaratly.
             var reuseLinks = results.Where(a => a.LinkType == LinkType.Reuse).ToList();
-            //get collection of other links exept exclude parent/child links and reuse links
+            // get collection of other links exept exclude parent/child links and reuse links
             var otherLinks = results.Except(internalParentChildLinks).Except(reuseLinks).Where(link => link.LinkType != LinkType.Manual).ToList();
 
             var manualTraceRelationships = GetManualTraceRelationships(manualLinks, itemId);
@@ -213,7 +213,7 @@ namespace ArtifactStore.Repositories
                     otherTraceRelationships.Add(relationship);
                 }
             }
-            //modify reuse links by combining matching pais (source match destination on other)
+            // modify reuse links by combining matching pais (source match destination on other)
             otherTraceRelationships.AddRange(GetReuseTraceRelationships(reuseLinks));
 
             var distinctItemIds = new HashSet<int>();

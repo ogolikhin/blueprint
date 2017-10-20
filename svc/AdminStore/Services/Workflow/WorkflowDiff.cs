@@ -53,7 +53,7 @@ namespace AdminStore.Services.Workflow
                    || !string.Equals(workflow.Description, currentWorkflow.Description);
         }
 
-        private static void DiffWorkflowEntities <T>(ICollection<T> entities, ICollection<T> currentEntities,
+        private static void DiffWorkflowEntities<T>(ICollection<T> entities, ICollection<T> currentEntities,
             ICollection<T> added, ICollection<T> deleted, ICollection<T> changed, ICollection<T> notFound, ICollection<T> unchanged)
             where T : IIeWorkflowEntityWithId
         {

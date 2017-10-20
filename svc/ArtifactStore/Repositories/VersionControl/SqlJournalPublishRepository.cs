@@ -52,19 +52,18 @@ namespace ArtifactStore.Repositories.VersionControl
                             ItemID = item.Value.ItemId,
                             ElementType = (int)ElementType.Artifact,
                             ActionType = (int)action
-                        }
-                    );
+                        });
                 }
                 catch (Exception)
                 {
-                    //swallow
+                    // swallow
                 }
             }
         }
 
         private async Task AddEntry(SqlJournalEntry sqlJournalEntry)
         {
-            //no need to check the session expiration. this call should not affect any service that uses it
+            // no need to check the session expiration. this call should not affect any service that uses it
             try
             {
                 var param = new DynamicParameters();
@@ -86,7 +85,7 @@ namespace ArtifactStore.Repositories.VersionControl
             }
             catch (Exception)
             {
-                //swallow
+                // swallow
 
             }
         }

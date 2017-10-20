@@ -8,7 +8,7 @@ namespace ServiceLibrary.Models.Workflow
         [XmlElement("ID")]
         public int Id { get; set; }
 
-        //========================================================
+        // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
         public bool? IsGroup { get; set; }
@@ -24,6 +24,6 @@ namespace ServiceLibrary.Models.Workflow
         {
             return IsGroup.HasValue;
         }
-        //========================================================
+        // ========================================================
     }
 }

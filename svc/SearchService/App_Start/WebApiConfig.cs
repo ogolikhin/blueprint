@@ -13,7 +13,7 @@ namespace SearchService
             config.MapHttpAttributeRoutes();
 
         }
-        
+
         public static string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
 
         public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];

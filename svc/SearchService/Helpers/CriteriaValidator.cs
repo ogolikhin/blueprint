@@ -32,7 +32,7 @@ namespace SearchService.Helpers
 
         private void ValidateFullTextCriteria(bool modelStateIsValid, FullTextSearchCriteria searchCriteria, int minSearchQueryLimit = 1)
         {
-            if (IsCriteriaQueryInvalid(modelStateIsValid, searchCriteria, minSearchQueryLimit, ServiceConstants.MaxSearchQueryCharLimit) || 
+            if (IsCriteriaQueryInvalid(modelStateIsValid, searchCriteria, minSearchQueryLimit, ServiceConstants.MaxSearchQueryCharLimit) ||
                 !searchCriteria.ProjectIds.Any())
             {
                 throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);

@@ -52,7 +52,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeTransitionEvent) obj);
+            return Equals((IeTransitionEvent)obj);
         }
 
         public override int GetHashCode()
@@ -60,12 +60,12 @@ namespace AdminStore.Models.Workflow
             unchecked
             {
                 int hashCode = base.GetHashCode();
-                hashCode = (hashCode*397) ^ (FromState != null ? FromState.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ FromStateId.GetHashCode();
-                hashCode = (hashCode*397) ^ (ToState != null ? ToState.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ ToStateId.GetHashCode();
-                hashCode = (hashCode*397) ^ (PermissionGroups != null ? PermissionGroups.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ SkipPermissionGroups.GetHashCode();
+                hashCode = (hashCode * 397) ^ (FromState != null ? FromState.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ FromStateId.GetHashCode();
+                hashCode = (hashCode * 397) ^ (ToState != null ? ToState.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ ToStateId.GetHashCode();
+                hashCode = (hashCode * 397) ^ (PermissionGroups != null ? PermissionGroups.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ SkipPermissionGroups.GetHashCode();
                 return hashCode;
             }
         }

@@ -52,7 +52,7 @@ namespace ConfigControl
             {
                 localLog.LogInformation(StartingLoggingListener);
 
-                // Log all events to DB 
+                // Log all events to DB
                 _dbListener = BlueprintSqlDatabaseLog.CreateListener(
                     "BlueprintSys-Blueprint-Blueprint",
                     WebApiConfig.AdminStorage,

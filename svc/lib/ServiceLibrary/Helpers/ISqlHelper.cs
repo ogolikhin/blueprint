@@ -11,5 +11,7 @@ namespace ServiceLibrary.Helpers
         Task<T> RunInTransactionAsync<T>(string connectionString, Func<IDbTransaction, Task<T>> action);
 
         Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string comment);
+
+        Task<T> RetryOnSqlDealLockAsync<T>(Func<Task<T>> action, int retryCount, int delayAfterAttempt = 3, int millisecondsDelay = 2000);
     }
 }

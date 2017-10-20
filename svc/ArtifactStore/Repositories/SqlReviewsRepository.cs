@@ -30,39 +30,35 @@ namespace ArtifactStore.Repositories
         private readonly IArtifactRepository _artifactRepository;
         private readonly ICurrentDateTimeService _currentDateTimeService;
         private readonly IApplicationSettingsRepository _applicationSettingsRepository;
+        private readonly ILockArtifactsRepository _lockArtifactsRepository;
         private readonly ISqlHelper _sqlHelper;
 
         internal const string ReviewArtifactHierarchyRebuildIntervalInMinutesKey = "ReviewArtifactHierarchyRebuildIntervalInMinutes";
         internal const int DefaultReviewArtifactHierarchyRebuildIntervalInMinutes = 20;
 
-        public SqlReviewsRepository() :
-            this
-            (
-                new SqlConnectionWrapper(ServiceConstants.RaptorMain),
-                new SqlArtifactVersionsRepository(),
-                new SqlItemInfoRepository(),
-                new SqlArtifactPermissionsRepository(),
-                new ApplicationSettingsRepository(),
-                new SqlUsersRepository(),
-                new SqlArtifactRepository(),
-                new CurrentDateTimeService(),
-                new SqlHelper()
-            )
+        public SqlReviewsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
+                                            new SqlArtifactVersionsRepository(),
+                                            new SqlItemInfoRepository(),
+                                            new SqlArtifactPermissionsRepository(),
+                                            new ApplicationSettingsRepository(),
+                                            new SqlUsersRepository(),
+                                            new SqlArtifactRepository(),
+                                            new CurrentDateTimeService(),
+                                            new SqlLockArtifactsRepository(),
+                                            new SqlHelper())
         {
         }
 
-        public SqlReviewsRepository
-        (
-            ISqlConnectionWrapper connectionWrapper,
-            IArtifactVersionsRepository artifactVersionsRepository,
-            ISqlItemInfoRepository itemInfoRepository,
-            IArtifactPermissionsRepository artifactPermissionsRepository,
-            IApplicationSettingsRepository applicationSettingsRepository,
-            IUsersRepository usersRepository,
-            IArtifactRepository artifactRepository,
-            ICurrentDateTimeService currentDateTimeService,
-            ISqlHelper sqlHelper
-        )
+        public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper,
+                                    IArtifactVersionsRepository artifactVersionsRepository,
+                                    ISqlItemInfoRepository itemInfoRepository,
+                                    IArtifactPermissionsRepository artifactPermissionsRepository,
+                                    IApplicationSettingsRepository applicationSettingsRepository,
+                                    IUsersRepository usersRepository,
+                                    IArtifactRepository artifactRepository,
+                                    ICurrentDateTimeService currentDateTimeService,
+                                    ILockArtifactsRepository lockArtifactsRepository,
+                                    ISqlHelper sqlHelper)
         {
             _connectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
@@ -72,6 +68,7 @@ namespace ArtifactStore.Repositories
             _usersRepository = usersRepository;
             _artifactRepository = artifactRepository;
             _currentDateTimeService = currentDateTimeService;
+            _lockArtifactsRepository = lockArtifactsRepository;
             _sqlHelper = sqlHelper;
         }
 
@@ -306,6 +303,13 @@ namespace ArtifactStore.Repositories
             reviewArtifact.IsApprovalRequired = false;
         }
 
+        /// <summary>
+        /// Adds artifacts to the given review, locks the review if it is not locked
+        /// </summary>
+        /// <param name="reviewId"></param>
+        /// <param name="userId"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
         public async Task<AddArtifactsResult> AddArtifactsToReviewAsync(int reviewId, int userId, AddArtifactsParameter content)
         {
             if (content.ArtifactIds == null || !content.ArtifactIds.Any())
@@ -326,9 +330,16 @@ namespace ArtifactStore.Repositories
                 ThrowReviewNotFoundException(reviewId);
             }
 
-            if (propertyResult.IsReviewLocked == false)
+            if (propertyResult.LockedByUserId.HasValue)
             {
-                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+                if (propertyResult.LockedByUserId.Value != userId)
+                {
+                    ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
+                }
+            }
+            else
+            {
+                await _lockArtifactsRepository.LockArtifactAsync(reviewId, userId);
             }
 
             var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId.Value);
@@ -1109,7 +1120,7 @@ namespace ArtifactStore.Repositories
                 ThrowReviewNotFoundException(reviewId);
             }
 
-            if (propertyResult.IsReviewLocked == false)
+            if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
             }
@@ -1166,7 +1177,7 @@ namespace ArtifactStore.Repositories
                 ThrowApprovalRequiredIsReadonlyForReview();
             }
 
-            if (propertyResult.IsReviewLocked == false)
+            if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
             }
@@ -1270,7 +1281,7 @@ namespace ArtifactStore.Repositories
                 ThrowApprovalStatusIsReadonlyForReview();
             }
 
-            if (!propertyResult.IsReviewLocked)
+            if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
             {
                 ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
             }

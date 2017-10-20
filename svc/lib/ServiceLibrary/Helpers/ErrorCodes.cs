@@ -91,6 +91,7 @@
         public const int NotAllArtifactsReviewed = 10006;
         public const int BaselineIsNotSealed = 10007;
         public const int ReviewActiveNotPublic = 10008;
+        public const int ReviewExpired = 10009;
 
         //User Review Errors
         public const int UserDisabled = 11001;

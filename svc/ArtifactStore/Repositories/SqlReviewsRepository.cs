@@ -1708,6 +1708,11 @@ namespace ArtifactStore.Repositories
                 ThrowReviewClosedException();
             }
 
+            if (approvalCheck.ExpirationDate < DateTime.UtcNow)
+            {
+                ThrowReviewClosedException();
+            }
+
             //Check user is an approver for the review
             if ((requireUserInReview && !approvalCheck.UserInReview)
                 || (!requireUserInReview && approvalCheck.ReviewType != ReviewType.Public && !approvalCheck.UserInReview))
@@ -1932,6 +1937,12 @@ namespace ArtifactStore.Repositories
         {
             var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
             throw new ConflictException(errorMessage, ErrorCodes.ReviewClosed);
+        }
+
+        private static void ThrowReviewExpiredException()
+        {
+            var errorMessage = "This Review has expired. No modifications can be made to its artifacts or participants.";
+            throw new ConflictException(errorMessage, ErrorCodes.ReviewExpired);
         }
 
         private static void ThrowReviewActiveNotPublicException()

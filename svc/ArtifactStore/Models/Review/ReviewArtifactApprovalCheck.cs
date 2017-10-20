@@ -17,5 +17,6 @@ namespace ArtifactStore.Models.Review
         public ReviewParticipantRole ReviewerRole { get; set; }
         public ReviewType ReviewType { get; set; }
         public ReviewStatus ReviewerStatus { get; set; }
+        public DateTime? ExpirationDate { get; set; }
     }
 }

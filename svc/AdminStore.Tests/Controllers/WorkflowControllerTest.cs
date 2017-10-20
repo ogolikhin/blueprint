@@ -222,6 +222,8 @@ namespace AdminStore.Controllers
 
         private QueryResult<WorkflowProjectArtifactTypesDto> _expectedArtifacts;
         private Pagination _pagination;
+        private List<WorkflowProjectSearch> _projects;
+        private string _search = "Project";
 
         [TestInitialize]
         public void Initialize()
@@ -263,6 +265,22 @@ namespace AdminStore.Controllers
             };
 
             _pagination = new Pagination() { Limit = int.MaxValue, Offset = 0 };
+
+            _projects = new List<WorkflowProjectSearch>()
+            {
+                new WorkflowProjectSearch()
+                {
+                    ItemId = 1,
+                    Name = "Project1",
+                    Path = "Path1"
+                },
+                new WorkflowProjectSearch()
+                {
+                    ItemId = 2,
+                    Name = "Project2",
+                    Path = "Path2"
+                }
+            };
         }
 
         #region AssignProjectsAndArtifactTypesToWorkflow
@@ -706,6 +724,124 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<DeleteResult>));
+        }
+
+        #endregion
+
+        #region SearchProjectsByName
+
+        [TestMethod]
+        public async Task SearchProjectsByName_AllParamsAreCorrectAndPermissionsOk_ReturnProjects()
+        {
+            //arrange
+            
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowRepositoryMock.Setup(w => w.SearchProjectsByName(WorkflowId, _search))
+                .ReturnsAsync(_projects);
+
+            //act
+            var result = await _controller.SearchProjectsByName(WorkflowId, _search) as
+                    OkNegotiatedContentResult<IEnumerable<WorkflowProjectSearch>>;
+
+            //assert
+            Assert.IsNotNull(result);
+
+            Assert.AreEqual(_projects, result.Content);
+            Assert.AreEqual(_projects.Count, result.Content.Count());
+        }
+
+        [TestMethod]
+        public async Task SearchProjectsByName_IsufficientPermissions_ReturnAuthorizationException()
+        {
+            //arrange         
+            Exception exception = null;
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
+
+            _workflowRepositoryMock.Setup(w => w.SearchProjectsByName(WorkflowId, _search))
+                .ReturnsAsync(_projects);
+
+            //act
+            try
+            {
+                await _controller.SearchProjectsByName(WorkflowId, _search);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        [TestMethod]
+        public async Task SearchProjectsByName_SearchExceedsLimit_ReturnBadRequestResult()
+        {
+            // Arrange
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //should be <= 250
+            _search =
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium q";
+
+            _workflowRepositoryMock.Setup(w => w.SearchProjectsByName(WorkflowId, _search))
+                .ReturnsAsync(_projects);
+
+
+            BadRequestException exception = null;
+
+            //Act
+            try
+            {
+                await _controller.SearchProjectsByName(WorkflowId, _search);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            //Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(exception.Message, ErrorMessages.SearchFieldLimitation);
+            Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task SearchProjectsByName_SearchIsInLimit_SuccessfulGettingProjects_OkResult()
+        {
+            // Arrange
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            //250 characters - OK 
+            _search =
+
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium.";
+
+            _workflowRepositoryMock.Setup(w => w.SearchProjectsByName(WorkflowId, _search))
+                .ReturnsAsync(_projects);
+
+
+            //Act
+            var result =
+                await _controller.SearchProjectsByName(WorkflowId, _search) as
+                    OkNegotiatedContentResult<IEnumerable<WorkflowProjectSearch>>;
+
+            //assert
+            Assert.IsNotNull(result);
+            
+            Assert.AreEqual(_projects, result.Content);
+            Assert.AreEqual(_projects.Count, result.Content.Count());
         }
 
         #endregion

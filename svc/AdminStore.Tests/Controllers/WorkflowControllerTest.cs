@@ -222,6 +222,8 @@ namespace AdminStore.Controllers
 
         private QueryResult<WorkflowProjectArtifactTypesDto> _expectedArtifacts;
         private Pagination _pagination;
+        private List<WorkflowProjectSearch> _projects;
+        private string _search = "Project";
 
         [TestInitialize]
         public void Initialize()
@@ -263,6 +265,22 @@ namespace AdminStore.Controllers
             };
 
             _pagination = new Pagination() { Limit = int.MaxValue, Offset = 0 };
+
+            _projects = new List<WorkflowProjectSearch>()
+            {
+                new WorkflowProjectSearch()
+                {
+                    ItemId = 1,
+                    Name = "Project1",
+                    Path = "Path1"
+                },
+                new WorkflowProjectSearch()
+                {
+                    ItemId = 2,
+                    Name = "Project2",
+                    Path = "Path2"
+                }
+            };
         }
 
         #region AssignProjectsAndArtifactTypesToWorkflow
@@ -706,6 +724,69 @@ namespace AdminStore.Controllers
             //assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<DeleteResult>));
+        }
+
+        #endregion
+
+        #region SearchProjectsByName
+
+        [TestMethod]
+        public async Task SearchProjectsByName_AllParamsAreCorrectAndPermissionsOk_ReturnProjects()
+        {
+            //arrange
+            
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowRepositoryMock.Setup(w => w.SearchProjectsByName(WorkflowId, _search))
+                .ReturnsAsync(_projects);
+
+            //act
+            var result = await _controller.SearchProjectsByName(WorkflowId, _search) as
+                    OkNegotiatedContentResult<IEnumerable<WorkflowProjectSearch>>;
+
+            
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Content);
+
+            var project1 = result.Content.ToList().FirstOrDefault(x => x.ItemId == _projects[0].ItemId);
+            var project2 = result.Content.ToList().FirstOrDefault(x => x.ItemId == _projects[1].ItemId);
+
+            Assert.IsNotNull(project1);
+            Assert.IsNotNull(project2);
+
+            Assert.AreEqual(_projects.Count, result.Content.Count());
+        }
+
+        [TestMethod]
+        public async Task SearchProjectsByName_IsufficientPermissions_ReturnAuthorizationException()
+        {
+            //arrange         
+            Exception exception = null;
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
+
+            _workflowRepositoryMock.Setup(w => w.SearchProjectsByName(WorkflowId, _search))
+                .ReturnsAsync(_projects);
+
+            //act
+            try
+            {
+                await _controller.SearchProjectsByName(WorkflowId, _search);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
 
         #endregion

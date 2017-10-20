@@ -20,13 +20,13 @@ namespace SearchService.Services
         private IArtifactPermissionsRepository _artifactPermissionsRepository;
         private ISemanticSearchRepository _semanticSearchRepository;
         private IUsersRepository _usersRepository;
-        private ISqlArtifactRepository _sqlArtifactRepository;
+        private IArtifactRepository _artifactRepository;
 
         public SemanticSearchService() : this(
                 new SemanticSearchRepository(),
-                new SqlArtifactPermissionsRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)),
-                new SqlUsersRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)), 
-                new SqlArtifactRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)))
+                new SqlArtifactPermissionsRepository(),
+                new SqlUsersRepository(), 
+                new SqlArtifactRepository())
         {
             
         }
@@ -34,12 +34,12 @@ namespace SearchService.Services
             ISemanticSearchRepository semanticSearchRepository, 
             IArtifactPermissionsRepository artifactPermissionRepository,
             IUsersRepository usersRepository,
-            ISqlArtifactRepository sqlArtifactRepository)
+            IArtifactRepository artifactRepository)
         {
             _artifactPermissionsRepository = artifactPermissionRepository;
             _semanticSearchRepository = semanticSearchRepository;
             _usersRepository = usersRepository;
-            _sqlArtifactRepository = sqlArtifactRepository;
+            _artifactRepository = artifactRepository;
         }
 
         public async Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(
@@ -53,7 +53,7 @@ namespace SearchService.Services
                 throw new BadRequestException("Please specify a valid artifact id");
             }
 
-            var artifactDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(artifactId, userId);
+            var artifactDetails = await _artifactRepository.GetArtifactBasicDetails(artifactId, userId);
             if (artifactDetails == null)
             {
                 throw new ResourceNotFoundException(
@@ -80,7 +80,7 @@ namespace SearchService.Services
             }
 
             var currentProject =
-                (await _sqlArtifactRepository.GetProjectNameByIdsAsync(new[] {artifactDetails.ProjectId}))
+                (await _artifactRepository.GetProjectNameByIdsAsync(new[] {artifactDetails.ProjectId}))
                     .FirstOrDefault();
 
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] {artifactId}, userId);

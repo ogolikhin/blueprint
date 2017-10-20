@@ -288,6 +288,30 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
+        /// Search projects by name
+        /// </summary>
+        /// <param name="workflowId">workflow's id</param>
+        /// <param name="search">name of the project (or wildcard selection pattern).</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">BadRequest. Search parameter is not valid</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions to search projects</response>
+        /// <response code="404">Not Found. Workflow with workflowId was not found.</response>
+        [HttpGet, NoCache]
+        [Route("{workflowId:int:min(1)}/projectsearch"), SessionRequired]
+        [ResponseType(typeof(IEnumerable<WorkflowProjectSearch>))]
+        public async Task<IHttpActionResult> SearchProjectsByName(int workflowId, string search = null)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            SearchFieldValidator.Validate(search);
+
+            var result = await _workflowRepository.SearchProjectsByName(workflowId, search);
+
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Create workflow with the name that is passed in the parameters and optional description
         /// </summary>
         /// <param name="createWorkflowDto">Workflow name (required parameter) and workflow description (optional)</param>

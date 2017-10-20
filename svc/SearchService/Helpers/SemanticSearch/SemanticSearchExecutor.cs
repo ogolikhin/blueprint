@@ -23,7 +23,7 @@ namespace SearchService.Helpers.SemanticSearch
         private static readonly Lazy<SemanticSearchExecutor> _instance = 
             new Lazy<SemanticSearchExecutor>(
                 () => new SemanticSearchExecutor(
-                    new SemanticSearchRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString))), 
+                    new SemanticSearchRepository()), 
                 LazyThreadSafetyMode.PublicationOnly);
 
         public static ISemanticSearchExecutor Instance => _instance.Value;

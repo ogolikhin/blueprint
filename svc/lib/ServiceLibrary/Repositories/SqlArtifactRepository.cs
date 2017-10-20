@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
-    public class SqlArtifactRepository : SqlBaseArtifactRepository, ISqlArtifactRepository
+    public class SqlArtifactRepository : SqlBaseArtifactRepository, IArtifactRepository
     {
         private readonly ISqlItemInfoRepository _itemInfoRepository;
 

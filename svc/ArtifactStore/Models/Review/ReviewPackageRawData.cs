@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace ArtifactStore.Models.Review
 {
     [DataContract(Namespace = "http://www.blueprintsys.com/raptor/reviews")]
-    internal class ReviewPackageRawData : IExtensibleDataObject
+    public class ReviewPackageRawData : IExtensibleDataObject
     {
         [DataMember(EmitDefaultValue = false)]
         public DateTime? EndDate;
@@ -30,6 +29,9 @@ namespace ArtifactStore.Models.Review
         public bool IsMoSEnabled;
 
         [DataMember(EmitDefaultValue = false)]
+        public bool ShowOnlyDescription;
+
+        [DataMember(EmitDefaultValue = false)]
         public ReviewPackageStatus Status;
 
         //Intentionally spelt wrong to be compatible with existing system
@@ -40,7 +42,7 @@ namespace ArtifactStore.Models.Review
     }
 
     [DataContract(Namespace = "http://www.blueprintsys.com/raptor/reviews")]
-    internal class ReviewerRawData : IExtensibleDataObject
+    public class ReviewerRawData : IExtensibleDataObject
     {
         [DataMember]
         public ReviewParticipantRole Permission;
@@ -60,11 +62,7 @@ namespace ArtifactStore.Models.Review
         [DataMember(EmitDefaultValue = false)]
         public List<RDArtifact> Artifacts;
 
-        public ExtensionDataObject ExtensionData
-        {
-            get;
-            set;
-        }
+        public ExtensionDataObject ExtensionData { get; set; }
     }
 
     [DataContract(Name = "CA", Namespace = "http://www.blueprintsys.com/raptor/reviews")]
@@ -79,11 +77,7 @@ namespace ArtifactStore.Models.Review
         [DataMember(EmitDefaultValue = false)]
         public SimulationSettingsRawData Settings;
 
-        public ExtensionDataObject ExtensionData
-        {
-            get;
-            set;
-        }
+        public ExtensionDataObject ExtensionData { get; set; }
     }
 
     [DataContract(Namespace = "http://www.blueprintsys.com/raptor/reviews")]
@@ -110,10 +104,6 @@ namespace ArtifactStore.Models.Review
         [DataMember(EmitDefaultValue = false)]
         public string MainContentTab;
 
-        public ExtensionDataObject ExtensionData
-        {
-            get;
-            set;
-        }
+        public ExtensionDataObject ExtensionData { get; set; }
     }
 }

@@ -4897,10 +4897,10 @@ namespace ArtifactStore.Repositories
 
         #endregion
 
-        #region GetReviewSettingsAsync
+        #region GetReviewPackageRawDataAsync
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_ReviewXmlNotFound_ThrowsResourceNotFoundException()
+        public async Task GetReviewPackageRawDataAsync_ReviewXmlNotFound_ThrowsResourceNotFoundException()
         {
             // Arrange
             var queryParameters = new Dictionary<string, object>
@@ -4914,7 +4914,7 @@ namespace ArtifactStore.Repositories
             // Act
             try
             {
-                await _reviewsRepository.GetReviewSettingsAsync(ReviewId, UserId);
+                await _reviewsRepository.GetReviewPackageRawDataAsync(ReviewId, UserId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -4927,7 +4927,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_EmptyReviewPackageRawData_AllDefaultSettings()
+        public async Task GetReviewPackageRawDataAsync_ReviewXmlFound_ReturnsReviewPackageRawData()
         {
             // Arrange
             var queryParameters = new Dictionary<string, object>
@@ -4939,222 +4939,27 @@ namespace ArtifactStore.Repositories
             {
                 "<?xml version=\"1.0\" encoding=\"utf - 16\"?>" +
                 "<ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\">" +
-                "</ReviewPackageRawData>"
-            };
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            // Act
-            var reviewSettings = await _reviewsRepository.GetReviewSettingsAsync(ReviewId, UserId);
-
-            // Assert
-            Assert.AreEqual(null, reviewSettings.EndDate);
-            Assert.AreEqual(false, reviewSettings.ShowOnlyDescription);
-            Assert.AreEqual(false, reviewSettings.CanMarkAsComplete);
-            Assert.AreEqual(false, reviewSettings.RequireESignature);
-            Assert.AreEqual(false, reviewSettings.RequireMeaningOfSignature);
-        }
-
-        [TestMethod]
-        public async Task GetReviewSettingsAsync_ShowOnlyDescriptionIsTrue_ReturnsReviewSettingWithTrue()
-        {
-            // Arrange
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewId", ReviewId },
-                { "@userId", UserId }
-            };
-            var queryResult = new[]
-            {
-                "<?xml version=\"1.0\" encoding=\"utf - 16\"?>" +
-                "<ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\">" +
+                    "<EndDate>2016-04-18T16:25:00</EndDate>" +
+                    "<IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed>true</IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed>" +
+                    "<IsESignatureEnabled>true</IsESignatureEnabled>" +
+                    "<IsMoSEnabled>true</IsMoSEnabled>" +
                     "<ShowOnlyDescription>true</ShowOnlyDescription>" +
                 "</ReviewPackageRawData>"
             };
             _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
 
             // Act
-            var reviewSettings = await _reviewsRepository.GetReviewSettingsAsync(ReviewId, UserId);
+            var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(true, reviewSettings.ShowOnlyDescription);
+            Assert.AreEqual(new DateTime(2016, 4, 18, 16, 25, 0), reviewPackageRawData.EndDate);
+            Assert.AreEqual(true, reviewPackageRawData.ShowOnlyDescription);
+            Assert.AreEqual(true, reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed);
+            Assert.AreEqual(true, reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, reviewPackageRawData.IsMoSEnabled);
         }
 
-        [TestMethod]
-        public async Task GetReviewSettingsAsync_ShowOnlyDescriptionIsFalse_ReturnsReviewSettingWithFalse()
-        {
-            // Arrange
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewId", ReviewId },
-                { "@userId", UserId }
-            };
-            var queryResult = new[]
-            {
-                "<?xml version=\"1.0\" encoding=\"utf - 16\"?>" +
-                "<ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\">" +
-                    "<ShowOnlyDescription>false</ShowOnlyDescription>" +
-                "</ReviewPackageRawData>"
-            };
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            // Act
-            var reviewSettings = await _reviewsRepository.GetReviewSettingsAsync(ReviewId, UserId);
-
-            // Assert
-            Assert.AreEqual(false, reviewSettings.ShowOnlyDescription);
-        }
-
-        [TestMethod]
-        public async Task GetReviewSettingsAsync_CanMarkAsCompleteIsTrue_ReturnsReviewSettingWithTrue()
-        {
-            // Arrange
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewId", ReviewId },
-                { "@userId", UserId }
-            };
-            var queryResult = new[]
-            {
-                "<?xml version=\"1.0\" encoding=\"utf - 16\"?>" +
-                    "<ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\">" +
-                        "<IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed>true</IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed>" +
-                    "</ReviewPackageRawData>"
-            };
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            // Act
-            var reviewSettings = await _reviewsRepository.GetReviewSettingsAsync(ReviewId, UserId);
-
-            // Assert
-            Assert.AreEqual(true, reviewSettings.CanMarkAsComplete);
-        }
-
-        [TestMethod]
-        public async Task GetReviewSettingsAsync_CanMarkAsCompleteIsFalse_ReturnsReviewSettingWithFalse()
-        {
-            // Arrange
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewId", ReviewId },
-                { "@userId", UserId }
-            };
-            var queryResult = new[]
-            {
-                "<?xml version=\"1.0\" encoding=\"utf - 16\"?>" +
-                    "<ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\">" +
-                        "<IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed>false</IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed>" +
-                    "</ReviewPackageRawData>"
-            };
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            // Act
-            var reviewSettings = await _reviewsRepository.GetReviewSettingsAsync(ReviewId, UserId);
-
-            // Assert
-            Assert.AreEqual(false, reviewSettings.CanMarkAsComplete);
-        }
-
-        [TestMethod]
-        public async Task GetReviewSettingsAsync_RequireESignatureIsTrue_ReturnsReviewSettingWithTrue()
-        {
-            // Arrange
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewId", ReviewId },
-                { "@userId", UserId }
-            };
-            var queryResult = new[]
-            {
-                "<?xml version=\"1.0\" encoding=\"utf - 16\"?>" +
-                    "<ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\">" +
-                        "<IsESignatureEnabled>true</IsESignatureEnabled>" +
-                    "</ReviewPackageRawData>"
-            };
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            // Act
-            var reviewSettings = await _reviewsRepository.GetReviewSettingsAsync(ReviewId, UserId);
-
-            // Assert
-            Assert.AreEqual(true, reviewSettings.RequireESignature);
-        }
-
-        [TestMethod]
-        public async Task GetReviewSettingsAsync_RequireESignatureIsFalse_ReturnsReviewSettingWithFalse()
-        {
-            // Arrange
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewId", ReviewId },
-                { "@userId", UserId }
-            };
-            var queryResult = new[]
-            {
-                "<?xml version=\"1.0\" encoding=\"utf - 16\"?>" +
-                    "<ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\">" +
-                        "<IsESignatureEnabled>false</IsESignatureEnabled>" +
-                    "</ReviewPackageRawData>"
-            };
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            // Act
-            var reviewSettings = await _reviewsRepository.GetReviewSettingsAsync(ReviewId, UserId);
-
-            // Assert
-            Assert.AreEqual(false, reviewSettings.RequireESignature);
-        }
-
-        [TestMethod]
-        public async Task GetReviewSettingsAsync_RequireMeaningOfSignatureIsTrue_ReturnsReviewSettingWithTrue()
-        {
-            // Arrange
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewId", ReviewId },
-                { "@userId", UserId }
-            };
-            var queryResult = new[]
-            {
-                "<?xml version=\"1.0\" encoding=\"utf - 16\"?>" +
-                    "<ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\">" +
-                        "<IsMoSEnabled>true</IsMoSEnabled>" +
-                    "</ReviewPackageRawData>"
-            };
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            // Act
-            var reviewSettings = await _reviewsRepository.GetReviewSettingsAsync(ReviewId, UserId);
-
-            // Assert
-            Assert.AreEqual(true, reviewSettings.RequireMeaningOfSignature);
-        }
-
-        [TestMethod]
-        public async Task GetReviewSettingsAsync_RequireMeaningOfSignatureIsFalse_ReturnsReviewSettingWithFalse()
-        {
-            // Arrange
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewId", ReviewId },
-                { "@userId", UserId }
-            };
-            var queryResult = new[]
-            {
-                "<?xml version=\"1.0\" encoding=\"utf - 16\"?>" +
-                    "<ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\">" +
-                        "<IsMoSEnabled>false</IsMoSEnabled>" +
-                    "</ReviewPackageRawData>"
-            };
-            _cxn.SetupQueryAsync("GetReviewParticipantsPropertyString", queryParameters, queryResult);
-
-            // Act
-            var reviewSettings = await _reviewsRepository.GetReviewSettingsAsync(ReviewId, UserId);
-
-            // Assert
-            Assert.AreEqual(false, reviewSettings.RequireMeaningOfSignature);
-        }
-
-        #endregion GetReviewSettingsAsync
+        #endregion GetReviewPackageRawDataAsync
 
         private void SetupArtifactPermissionsCheck(IEnumerable<int> artifactIds, int userId, Dictionary<int, RolePermissions> result)
         {

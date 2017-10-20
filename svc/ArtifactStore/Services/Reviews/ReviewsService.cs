@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ArtifactStore.Helpers;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Exceptions;
@@ -29,6 +28,14 @@ namespace ArtifactStore.Services.Reviews
 
         public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int revisionId = int.MaxValue)
         {
+            await ValidateReviewAccess(reviewId, userId, revisionId);
+
+            var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+            return new ReviewSettings(reviewPackageRawData);
+        }
+
+        private async Task ValidateReviewAccess(int reviewId, int userId, int revisionId)
+        {
             if (reviewId <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(reviewId));
@@ -42,37 +49,23 @@ namespace ArtifactStore.Services.Reviews
             var artifactInfo = await _artifactRepository.GetArtifactBasicDetails(reviewId, userId);
             if (artifactInfo == null)
             {
-                throw new ResourceNotFoundException(GetReviewNotFoundErrorMessage(reviewId, revisionId), ErrorCodes.ResourceNotFound);
+                var errorMessage = revisionId != int.MaxValue ?
+                    I18NHelper.FormatInvariant("Review (Id:{0}) or its revision (#{1}) is not found.", reviewId, revisionId) :
+                    I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
+                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
 
-            if (artifactInfo.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactReviewPackage)
+            if (artifactInfo.PrimitiveItemTypePredefined != (int) ItemTypePredefined.ArtifactReviewPackage)
             {
-                throw new BadRequestException(GetInvalidReviewIdErrorMessage(reviewId), ErrorCodes.InvalidParameter);
+                var errorMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) is not a review.", reviewId);
+                throw new BadRequestException(errorMessage, ErrorCodes.InvalidParameter);
             }
 
             if (!await _permissionsRepository.HasReadPermissions(reviewId, userId))
             {
-                throw new AuthorizationException(GetReviewInaccessibleErrorMessage(reviewId), ErrorCodes.Forbidden);
+                var errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
+                throw new AuthorizationException(errorMessage, ErrorCodes.Forbidden);
             }
-
-            return await _reviewsRepository.GetReviewSettingsAsync(reviewId, userId);
-        }
-
-        private static string GetInvalidReviewIdErrorMessage(int reviewId)
-        {
-            return I18NHelper.FormatInvariant("Artifact (Id:{0}) is not a review.", reviewId);
-        }
-
-        private static string GetReviewInaccessibleErrorMessage(int reviewId)
-        {
-            return I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
-        }
-
-        private static string GetReviewNotFoundErrorMessage(int reviewId, int revisionId)
-        {
-            return revisionId != int.MaxValue ?
-                I18NHelper.FormatInvariant("Review (Id:{0}) or its revision (#{1}) is not found.", reviewId, revisionId) :
-                I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
         }
     }
 }

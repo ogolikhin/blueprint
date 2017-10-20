@@ -23,13 +23,13 @@ namespace ArtifactStore.Services
         private Mock<IArtifactRepository> _mockArtifactRepository;
         private Mock<IArtifactPermissionsRepository> _mockArtifactPermissionsRepository;
 
-        private ReviewSettings _reviewSettings;
+        private ReviewPackageRawData _reviewPackageRawData;
         private ArtifactBasicDetails _artifactDetails;
 
         [TestInitialize]
         public void Initialize()
         {
-            _reviewSettings = new ReviewSettings();
+            _reviewPackageRawData = new ReviewPackageRawData();
 
             _artifactDetails = new ArtifactBasicDetails
             {
@@ -39,8 +39,8 @@ namespace ArtifactStore.Services
 
             _mockReviewRepository = new Mock<IReviewsRepository>();
             _mockReviewRepository
-                .Setup(m => m.GetReviewSettingsAsync(ReviewId, UserId, It.IsAny<int>()))
-                .ReturnsAsync(_reviewSettings);
+                .Setup(m => m.GetReviewPackageRawDataAsync(ReviewId, UserId, It.IsAny<int>()))
+                .ReturnsAsync(_reviewPackageRawData);
             _mockArtifactRepository = new Mock<IArtifactRepository>();
             _mockArtifactRepository
                 .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
@@ -156,6 +156,110 @@ namespace ArtifactStore.Services
             }
 
             Assert.Fail("Expected AuthorizationException to have been thrown.");
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ReviewPackageRawDataShowOnlyDescriptionIsFalse_ReviewSettingsShowOnlyDescriptionIsFalse()
+        {
+            // Arrange
+            _reviewPackageRawData.ShowOnlyDescription = false;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(_reviewPackageRawData.ShowOnlyDescription, reviewSettings.ShowOnlyDescription);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ReviewPackageRawDataShowOnlyDescriptionIsTrue_ReviewSettingsShowOnlyDescriptionIsTrue()
+        {
+            // Arrange
+            _reviewPackageRawData.ShowOnlyDescription = true;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(_reviewPackageRawData.ShowOnlyDescription, reviewSettings.ShowOnlyDescription);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewedIsFalse_ReviewSettingsCanMarkAsCompleteIsFalse()
+        {
+            // Arrange
+            _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = false;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(_reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, reviewSettings.CanMarkAsComplete);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewedIsTrue_ReviewSettingsCanMarkAsCompleteIsTrue()
+        {
+            // Arrange
+            _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = true;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(_reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, reviewSettings.CanMarkAsComplete);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsESignatureEnabledIsFalse_ReviewSettingsRequireESignatureIsFalse()
+        {
+            // Arrange
+            _reviewPackageRawData.IsESignatureEnabled = false;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(_reviewPackageRawData.IsESignatureEnabled, reviewSettings.RequireESignature);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsESignatureEnabledIsTrue_ReviewSettingsRequireESignatureIsTrue()
+        {
+            // Arrange
+            _reviewPackageRawData.IsESignatureEnabled = true;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(_reviewPackageRawData.IsESignatureEnabled, reviewSettings.RequireESignature);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsMoSEnabledIsFalse_ReviewSettingsRequireMeaningOfSignatureIsFalse()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = false;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(_reviewPackageRawData.IsMoSEnabled, reviewSettings.RequireMeaningOfSignature);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsMoSEnabledIsTrue_ReviewSettingsRequireMeaningOfSignatureIsTrue()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(_reviewPackageRawData.IsMoSEnabled, reviewSettings.RequireMeaningOfSignature);
         }
 
         #endregion GetReviewSettingsAsync

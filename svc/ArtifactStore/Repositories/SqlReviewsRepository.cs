@@ -1112,7 +1112,7 @@ IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
         }
 
-        public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int revisionId = int.MaxValue)
+        public async Task<ReviewPackageRawData> GetReviewPackageRawDataAsync(int reviewId, int userId, int revisionId = int.MaxValue)
         {
             var reviewXml = await GetReviewXmlAsync(reviewId, userId);
             if (!reviewXml.ReviewExists)
@@ -1120,16 +1120,7 @@ IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
                 ThrowReviewNotFoundException(reviewId, revisionId == int.MaxValue ? (int?)null : revisionId);
             }
 
-            var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString);
-
-            return new ReviewSettings
-            {
-                EndDate = reviewPackageRawData?.EndDate,
-                ShowOnlyDescription = reviewPackageRawData?.ShowOnlyDescription ?? false,
-                CanMarkAsComplete = reviewPackageRawData?.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed ?? false,
-                RequireESignature = reviewPackageRawData?.IsESignatureEnabled ?? false,
-                RequireMeaningOfSignature = reviewPackageRawData?.IsMoSEnabled ?? false
-            };
+            return ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString);
         }
 
         public async Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId)

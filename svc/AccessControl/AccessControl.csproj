@@ -126,7 +126,9 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
-    <AdditionalFiles Include="..\..\stylecop.json" />
+    <AdditionalFiles Include="..\..\stylecop.json">
+      <Link>stylecop.json</Link>
+    </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

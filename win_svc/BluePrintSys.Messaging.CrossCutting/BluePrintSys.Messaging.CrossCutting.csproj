@@ -146,7 +146,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <AdditionalFiles Include="..\..\stylecop.json" />
+    <AdditionalFiles Include="..\..\..\stylecop.json">
+      <Link>stylecop.json</Link>
+    </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\svc\lib\ServiceLibrary\ServiceLibrary.csproj">

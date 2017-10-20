@@ -36,6 +36,7 @@ namespace ArtifactStore.Repositories
             int itemId = 1;
             int userId = 1;
             bool addDrafts = true;
+            bool allLinks = false;
 
             var mockLinkInfoList = new List<LinkInfo>();
             mockLinkInfoList.Add(new LinkInfo { DestinationArtifactId = 2, DestinationItemId = 2, DestinationProjectId = 0, IsSuspect = false, LinkType = LinkType.Manual, SourceArtifactId = 1, SourceItemId = 1, SourceProjectId = 0 });
@@ -44,7 +45,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
 
             // Act
-            var result = await _relationshipsRepository.GetRelationships(itemId, userId, It.IsAny<int?>(), addDrafts, It.IsAny<int?>());
+            var result = await _relationshipsRepository.GetRelationships(itemId, userId, It.IsAny<int?>(), addDrafts, allLinks, It.IsAny<int?>());
 
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.ManualTraces.Count);
@@ -68,7 +69,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
 
             // Act
-            var result = await _relationshipsRepository.GetRelationships(itemId, userId, It.IsAny<int?>(), addDrafts, It.IsAny<int?>());
+            var result = await _relationshipsRepository.GetRelationships(itemId, userId, It.IsAny<int?>(), addDrafts, false, It.IsAny<int?>());
 
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.ManualTraces.Count);
@@ -85,6 +86,7 @@ namespace ArtifactStore.Repositories
             int userId = 1;
             int sourceProjectId = 4;
             bool addDrafts = true;
+            bool allLinks = false;
 
             var mockLinkInfoList = new List<LinkInfo>();
             mockLinkInfoList.Add(new LinkInfo { DestinationArtifactId = 1, DestinationItemId = 1, DestinationProjectId = 0, IsSuspect = false, LinkType = LinkType.Manual, SourceArtifactId = 2, SourceItemId = 2, SourceProjectId = sourceProjectId });
@@ -92,7 +94,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
 
             // Act
-            var result = await _relationshipsRepository.GetRelationships(itemId, userId, It.IsAny<int?>(), addDrafts, It.IsAny<int?>());
+            var result = await _relationshipsRepository.GetRelationships(itemId, userId, It.IsAny<int?>(), addDrafts, allLinks, It.IsAny<int?>());
 
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.ManualTraces.Count);
@@ -108,6 +110,7 @@ namespace ArtifactStore.Repositories
             int itemId = 1;
             int userId = 1;
             bool addDrafts = true;
+            bool allLinks = false;
 
             var mockLinkInfoList = new List<LinkInfo>();
             mockLinkInfoList.Add(new LinkInfo { DestinationArtifactId = 2, DestinationItemId = 2, DestinationProjectId = 0, IsSuspect = false, LinkType = LinkType.Manual, SourceArtifactId = 1, SourceItemId = 1, SourceProjectId = 0 });
@@ -116,7 +119,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
 
             // Act
-            var result = await _relationshipsRepository.GetRelationships(itemId, userId, It.IsAny<int?>(), addDrafts, It.IsAny<int?>());
+            var result = await _relationshipsRepository.GetRelationships(itemId, userId, It.IsAny<int?>(), addDrafts, allLinks, It.IsAny<int?>());
 
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.ManualTraces.Count);
@@ -130,6 +133,7 @@ namespace ArtifactStore.Repositories
             int itemId = 1;
             int userId = 1;
             bool addDrafts = true;
+            bool allLinks = false;
 
             var mockLinkInfoList = new List<LinkInfo>();
             mockLinkInfoList.Add(new LinkInfo { DestinationArtifactId = 2, DestinationItemId = 3, DestinationProjectId = 0, IsSuspect = false, LinkType = LinkType.Manual, SourceArtifactId = 1, SourceItemId = 1, SourceProjectId = 0 });
@@ -137,7 +141,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
 
             // Act
-            var result = await _relationshipsRepository.GetRelationships(itemId, userId, It.IsAny<int?>(), addDrafts, It.IsAny<int?>());
+            var result = await _relationshipsRepository.GetRelationships(itemId, userId, It.IsAny<int?>(), addDrafts, allLinks, It.IsAny<int?>());
 
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.ManualTraces.Count);
@@ -155,6 +159,7 @@ namespace ArtifactStore.Repositories
             const int versionId = 3;
             const int revisionId = 999;
             const bool addDrafts = false;
+            bool allLinks = false;
 
             _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 
@@ -176,7 +181,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts }, { "revisionId", revisionId } }, mockLinkInfoList);
 
             // Act
-            var result = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);
+            var result = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, allLinks, versionId);
 
             // Assert
             Assert.AreEqual(1, result.ManualTraces.Count);
@@ -314,6 +319,7 @@ namespace ArtifactStore.Repositories
             const int versionId = 3;
             const int revisionId = 99999;
             const bool addDrafts = false;
+            bool allLinks = false;
 
             var actorInheritsFromLink = new LinkInfo
             {
@@ -339,7 +345,7 @@ namespace ArtifactStore.Repositories
             _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 
             // Act
-            var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);
+            var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, allLinks, versionId);
             Assert.AreEqual(0, relationships.OtherTraces.Count);
         }
 
@@ -352,6 +358,7 @@ namespace ArtifactStore.Repositories
             const int versionId = 3;
             const int revisionId = 99999;
             const bool addDrafts = true;
+            bool allLinks = false;
 
             var actorInheritsFromLink = new LinkInfo
             {
@@ -384,7 +391,7 @@ namespace ArtifactStore.Repositories
             _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 
             // Act
-            var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);
+            var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, allLinks, versionId);
             Assert.AreEqual(1, relationships.OtherTraces.Count);
             Assert.AreEqual(actorInheritsFromLink.DestinationArtifactId, relationships.OtherTraces.ElementAt(0).ArtifactId);
         }

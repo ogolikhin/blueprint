@@ -60,6 +60,7 @@
       <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.Extensions" />
@@ -102,6 +103,7 @@
     <Compile Include="Repositories\SqlAttachmentsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlReviewsRepositoryTests.cs" />
     <Compile Include="Repositories\Workflow\SqlWorkflowRepositoryTests.cs" />
+    <Compile Include="Services\ReviewServiceTests.cs" />
     <Compile Include="Services\VersionControlServiceTests.cs" />
     <Compile Include="Services\WorkflowServiceUnitTests.cs" />
   </ItemGroup>

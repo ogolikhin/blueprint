@@ -24,6 +24,12 @@ namespace ArtifactStore.Models.Review
 
         public ReviewParticipantRole? ReviewParticipantRole { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? ExpirationDate { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool IsExpired { get; set; }
+
         public ReviewSource Source { get; set; }
 
         public ReviewPackageStatus ReviewPackageStatus { get; set; }
@@ -74,6 +80,26 @@ namespace ArtifactStore.Models.Review
         public int Pending { get; set; }
 
         public int Viewed { get; set; }
+
+        private DateTime? _expirationDate;
+        public DateTime? ExpirationDate
+        {
+            get
+            {
+                return _expirationDate;
+            }
+            set
+            {
+                if (value.HasValue)
+                {
+                    _expirationDate = value.Value.Kind != DateTimeKind.Utc ? value.Value.ToUniversalTime() : value;
+                }
+                else
+                {
+                    _expirationDate = value;
+                }
+            }
+        }
 
     }
 

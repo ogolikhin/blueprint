@@ -28,7 +28,7 @@ namespace SearchService.Controllers
                 (
                     new List<IStatusRepository>
                     {
-                        new SqlStatusRepository(ConfigRepository.Instance.BlueprintDatabase, "Blueprint"),
+                        new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB"),
                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
                     },

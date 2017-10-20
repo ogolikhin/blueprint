@@ -181,7 +181,7 @@ namespace AdminStore.Repositories.Jobs
         {
             var connection = new SqlConnectionWrapperMock();
             connection.SetupQueryAsync("GetJobMessage", new Dictionary<string, object>(), jobMessages);
-            var artifactsMock = new Mock<ISqlArtifactRepository>();
+            var artifactsMock = new Mock<IArtifactRepository>();
             var permissionsMock = new Mock<IArtifactPermissionsRepository>();
             var usersMock = new Mock<IUsersRepository>();
 

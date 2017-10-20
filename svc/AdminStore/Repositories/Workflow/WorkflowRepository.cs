@@ -41,7 +41,7 @@ namespace AdminStore.Repositories.Workflow
         #endregion
 
         #region Interface implementation
-        public async Task<int> AssignProjectsAndArtifactTypesToWorkflow(int workflowId, WorkflowAssignScope scope)
+        public async Task<AssignProjectsResult> AssignProjectsAndArtifactTypesToWorkflow(int workflowId, WorkflowAssignScope scope)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@WorkflowId", workflowId);
@@ -49,6 +49,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@AllProjects", scope.AllProjects, dbType: DbType.Boolean);
             parameters.Add("@ArtifactTypesIds", SqlConnectionWrapper.ToDataTable(scope.ArtifactIds, "Int32Collection", "Int32Value"));
             parameters.Add("@ProjectIds", SqlConnectionWrapper.ToDataTable(scope.ProjectIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@AllProjectsAssignedToWorkflow", dbType: DbType.Boolean, direction: ParameterDirection.Output);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("AssignProjectsAndArtifactTypesToWorkflow", parameters, commandType: CommandType.StoredProcedure);
@@ -69,7 +70,7 @@ namespace AdminStore.Repositories.Workflow
                 }
             }
 
-            return result;
+            return new AssignProjectsResult() { TotalAssigned = result, AllProjectsAssignedToWorkflow = parameters.Get<bool>("AllProjectsAssignedToWorkflow") };
         }
 
 
@@ -913,6 +914,8 @@ namespace AdminStore.Repositories.Workflow
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingWorkflow);
+                    case (int)SqlErrorCodes.WorkflowWithSuchANameAlreadyExists:
+                        throw new ConflictException(ErrorMessages.WorkflowAlreadyExists, ErrorCodes.Conflict);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
@@ -1030,6 +1033,40 @@ namespace AdminStore.Repositories.Workflow
 
             return result.FirstOrDefault();
         }
+
+        public async Task<IEnumerable<WorkflowProjectSearch>> SearchProjectsByName(int workflowId, string search = null)
+        {
+            if (workflowId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(workflowId));
+            }
+            if (search != null)
+            {
+                search = UsersHelper.ReplaceWildcardCharacters(search);
+            }
+
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@WorkflowId", workflowId);
+            parameters.Add("@ProjectName", search);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.QueryAsync<WorkflowProjectSearch>("SearchProjectsByName", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+
+            return result;
+
+        }
+
         #endregion
     }
 }

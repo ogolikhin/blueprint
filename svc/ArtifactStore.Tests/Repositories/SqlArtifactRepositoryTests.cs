@@ -15,7 +15,7 @@ namespace ArtifactStore.Repositories
     [TestClass]
     public class SqlArtifactRepositoryTests
     {
-        private Mock<ISqlArtifactRepository> _artifactRepositoryMock;
+        private Mock<IArtifactRepository> _artifactRepositoryMock;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepository;
         private SqlConnectionWrapperMock cxn;
         private SqlArtifactRepository repository;
@@ -26,7 +26,7 @@ namespace ArtifactStore.Repositories
         [TestInitialize]
         public void Initialize()
         {
-            _artifactRepositoryMock = new Mock<ISqlArtifactRepository>();
+            _artifactRepositoryMock = new Mock<IArtifactRepository>();
             _artifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             cxn = new SqlConnectionWrapperMock();
             repository = new SqlArtifactRepository(cxn.Object);

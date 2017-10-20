@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.Workflow;
 
 namespace ServiceLibrary.Repositories
 {
-    public interface ISqlArtifactRepository
+    public interface IArtifactRepository
     {
         Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId);
 

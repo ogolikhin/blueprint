@@ -18,12 +18,11 @@ namespace ServiceLibrary.Repositories.Jobs
     public class JobsRepository : IJobsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
-        private readonly ISqlArtifactRepository _sqlArtifactRepository;
+        private readonly IArtifactRepository _artifactRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IUsersRepository _usersRepository;
 
-        public JobsRepository() : this
-            (
+        public JobsRepository() : this(
                 new SqlConnectionWrapper(ServiceConstants.RaptorMain),
                 new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
@@ -31,7 +30,8 @@ namespace ServiceLibrary.Repositories.Jobs
         {
         }
 
-        public JobsRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper, new SqlArtifactRepository(connectionWrapper,
+        public JobsRepository(ISqlConnectionWrapper connectionWrapper) : this(
+            connectionWrapper, new SqlArtifactRepository(connectionWrapper,
                 new SqlItemInfoRepository(connectionWrapper),
                 new SqlArtifactPermissionsRepository(connectionWrapper)),
                 new SqlArtifactPermissionsRepository(connectionWrapper),
@@ -43,12 +43,12 @@ namespace ServiceLibrary.Repositories.Jobs
         public JobsRepository
         (
             ISqlConnectionWrapper connectionWrapper,
-            ISqlArtifactRepository sqlArtifactRepository,
+            IArtifactRepository artifactRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             IUsersRepository userRepository)
         {
             _connectionWrapper = connectionWrapper;
-            _sqlArtifactRepository = sqlArtifactRepository;
+            _artifactRepository = artifactRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _usersRepository = userRepository;
         }
@@ -269,7 +269,7 @@ namespace ServiceLibrary.Repositories.Jobs
 
         private async Task<Dictionary<int, string>> GetProjectNamesForUserMapping(HashSet<int> projectIds, int? userId)
         {
-            var projectNameIdDictionary = (await _sqlArtifactRepository.GetProjectNameByIdsAsync(projectIds)).ToDictionary(x => x.ItemId, x => x.Name);
+            var projectNameIdDictionary = (await _artifactRepository.GetProjectNameByIdsAsync(projectIds)).ToDictionary(x => x.ItemId, x => x.Name);
             if (!userId.HasValue)
             {
                 return projectNameIdDictionary;

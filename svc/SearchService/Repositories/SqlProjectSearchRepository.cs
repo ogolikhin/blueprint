@@ -15,7 +15,7 @@ namespace SearchService.Repositories
         private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
 
-        public SqlProjectSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString), new SearchConfiguration())
+        public SqlProjectSearchRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SearchConfiguration())
         {
         }
 

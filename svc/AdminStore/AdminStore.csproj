@@ -125,6 +125,7 @@
     <Compile Include="Helpers\Workflow\CreateWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\WorkflowHelper.cs" />
     <Compile Include="Models\AdminRole.cs" />
+    <Compile Include="Models\AssignProjectsResult.cs" />
     <Compile Include="Models\AssignResult.cs" />
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="Models\WorkflowArtifactType.cs" />
     <Compile Include="Models\WorkflowProjectArtifactType.cs" />
     <Compile Include="Models\WorkflowProjectArtifactTypesDto.cs" />
+    <Compile Include="Models\WorkflowProjectSearch.cs" />
     <Compile Include="Models\Workflow\IeUsersGroups.cs" />
     <Compile Include="Models\Workflow\WorkflowDetailsDto.cs" />
     <Compile Include="Models\Workflow\UpdateWorkflowDto.cs" />

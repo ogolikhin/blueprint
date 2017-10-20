@@ -8,17 +8,22 @@ using ServiceLibrary.Repositories;
 
 namespace SearchService.Helpers.SemanticSearch
 {
+    public delegate Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestionsAsyncDelegate(SearchEngineParameters searchEngineParameters);
     public interface ISemanticSearchExecutor
     {
-        Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngingParameters);
+        Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters);
     }
 
     public class SemanticSearchExecutor : ISemanticSearchExecutor
     {
+
+        public static GetSemanticSearchSuggestionsAsyncDelegate GetSemanticSearchSuggestionsAsyncDelegate =
+            async (searchEngineParameters) => await Instance.GetSemanticSearchSuggestions(searchEngineParameters);
+
         private static readonly Lazy<SemanticSearchExecutor> _instance =
             new Lazy<SemanticSearchExecutor>(
                 () => new SemanticSearchExecutor(
-                    new SemanticSearchRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString))),
+                    new SemanticSearchRepository()),
                 LazyThreadSafetyMode.PublicationOnly);
 
         public static ISemanticSearchExecutor Instance => _instance.Value;

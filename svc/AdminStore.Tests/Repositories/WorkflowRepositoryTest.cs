@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Models;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories;
-using System;
-using System.Linq;
 using ServiceLibrary.Exceptions;
-using AdminStore.Models;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories
 {
@@ -41,13 +41,14 @@ namespace AdminStore.Repositories
         private Pagination _pagination;
         private List<int> _listArtifactTypesIds;
         private IEnumerable<SyncResult> _outputSyncResult = new List<SyncResult>() { new SyncResult { TotalAdded = 2, TotalDeleted = 1 } };
+        private string _projectSearch = "test";
 
         #region AssignProjectsAndArtifactTypesToWorkflow
         [TestMethod]
         public async Task AssignProjectsAndArtifactTypesToWorkflow_ExistsAssignedProjects_QueryReturnCountAssignedProjects()
         {
             // arrange
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactTypesToWorkflow", It.IsAny<Dictionary<string, object>>(), 2);
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("AssignProjectsAndArtifactTypesToWorkflow", It.IsAny<Dictionary<string, object>>(), 2, new Dictionary<string, object> { { "AllProjectsAssignedToWorkflow", true } });
 
             // act
             var result = await _workflowRepository.AssignProjectsAndArtifactTypesToWorkflow(_workflowId, _workflowAssignScope);
@@ -698,6 +699,83 @@ namespace AdminStore.Repositories
 
             // Assert
             _sqlConnectionWrapperMock.Verify();
+        }
+
+        #endregion
+
+        #region SearchProjectsByName
+
+        [TestMethod]
+        public async Task SearchProjectsByName_AllParamsAreCorrect_ReturnProjects()
+        {
+            // Arrange
+            int errorCode = 0;
+
+            var expectedProjects = new List<WorkflowProjectSearch>()
+            {
+                new WorkflowProjectSearch()
+                {
+                    ItemId = 1,
+                    Name = "Project1",
+                    Path = "Path1"
+                },
+                new WorkflowProjectSearch()
+                {
+                    ItemId = 2,
+                    Name = "Project2",
+                    Path = "Path2"
+                }
+            };
+
+            _sqlConnectionWrapperMock.SetupQueryAsync("SearchProjectsByName",
+                                                        It.IsAny<Dictionary<string, object>>(),
+                                                        expectedProjects,
+                                                        new Dictionary<string, object>
+                                                        {
+                                                            { "ErrorCode", errorCode }
+                                                        });
+            // Act
+            var actualProjects = await
+                _workflowRepository.SearchProjectsByName(_workflowId, _projectSearch);
+
+            // Assert
+            Assert.IsNotNull(actualProjects);
+            Assert.AreEqual(expectedProjects.Count, actualProjects.Count());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task SearchProjectsByName_InvalidWorkflowId_ThrowsArgumentOutOfRangeException()
+        {
+            // Arrange
+            _workflowId = 0;
+
+            // Act
+            await
+                _workflowRepository.SearchProjectsByName(_workflowId, _projectSearch);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task SearchProjectsByName_InvalidWorkflowId_ReturnResourceNotFoundException()
+        {
+            // Arrange
+            int errorCode = 50024;
+            _workflowId = 1000;
+
+            _sqlConnectionWrapperMock.SetupQueryAsync("SearchProjectsByName",
+                                                        It.IsAny<Dictionary<string, object>>(),
+                                                        new List<WorkflowProjectSearch>(),
+                                                        new Dictionary<string, object>
+                                                        {
+                                                            { "ErrorCode", errorCode }
+                                                        });
+            // Act
+            await _workflowRepository.SearchProjectsByName(_workflowId, _projectSearch);
+
+            // Assert
         }
 
         #endregion

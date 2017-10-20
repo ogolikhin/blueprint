@@ -1,6 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Web.Http;
+using SearchService.Helpers.SemanticSearch;
 using SearchService.Models;
 using SearchService.Services;
 using ServiceLibrary.Attributes;
@@ -31,7 +31,7 @@ namespace SearchService.Controllers
         public async Task<SuggestionsSearchResult> GetSuggestions([FromUri] SuggestionsSearchCriteria searchCriteria)
         {
             var suggestionParameters = new SemanticSearchSuggestionParameters(searchCriteria.ArtifactId, Session.UserId);
-            return await _semanticSearchService.GetSemanticSearchSuggestions(suggestionParameters);
+            return await _semanticSearchService.GetSemanticSearchSuggestions(suggestionParameters, SemanticSearchExecutor.GetSemanticSearchSuggestionsAsyncDelegate);
         }
     }
 }

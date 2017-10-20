@@ -30,7 +30,7 @@ namespace ArtifactStore.Helpers
         [TestMethod]
         public async Task FilterInsensitiveItems_SingleSensitiveProcessed_SuccessfullyRetrieveSingleSensitiveItem()
         {
-            //Arrange
+            // Arrange
             _sensitivityCollector.ArtifactModifications.Add(1, new ReuseSensitivityCollector.ArtifactModification
             {
                 ArtifactAspects = ItemTypeReuseTemplateSetting.Name
@@ -60,11 +60,11 @@ namespace ArtifactStore.Helpers
                     }
                 });
 
-            //Act
-            var result = (await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int>() {1}, _sensitivityCollector, _reuseRepository.Object))
+            // Act
+            var result = (await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int>() { 1 }, _sensitivityCollector, _reuseRepository.Object))
                 .ToList();
 
-            //Assert
+            // Assert
             Assert.IsTrue(result.Count() == 1, "One item should have been retrieved as sensitive.");
             Assert.IsTrue(result[0] == 1, "One item should have been retrieved as sensitive.");
         }
@@ -72,7 +72,7 @@ namespace ArtifactStore.Helpers
         [TestMethod]
         public async Task FilterInsensitiveItems_MultipleItemProcessed_RetrieveSingleSensitiveItem()
         {
-            //Arrange
+            // Arrange
             _sensitivityCollector.ArtifactModifications.Add(1, new ReuseSensitivityCollector.ArtifactModification
             {
                 ArtifactAspects = ItemTypeReuseTemplateSetting.Name
@@ -102,10 +102,10 @@ namespace ArtifactStore.Helpers
                     }
                 });
 
-            //Act
+            // Act
             var result = (await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int> { 1, 5, 8 }, _sensitivityCollector, _reuseRepository.Object)).ToList();
 
-            //Assert
+            // Assert
             Assert.IsTrue(result.Count() == 1, "One item should have been retrieved as sensitive.");
             Assert.IsTrue(result[0] == 1, "One item should have been retrieved as sensitive.");
         }
@@ -113,7 +113,7 @@ namespace ArtifactStore.Helpers
         [TestMethod]
         public async Task FilterInsensitiveItems_MultipleItemsProcessed_NoSensitiveItem()
         {
-            //Arrange
+            // Arrange
             _sensitivityCollector.ArtifactModifications.Add(1, new ReuseSensitivityCollector.ArtifactModification
             {
                 ArtifactAspects = ItemTypeReuseTemplateSetting.Name
@@ -143,10 +143,10 @@ namespace ArtifactStore.Helpers
                     }
                 });
 
-            //Act
+            // Act
             var result = await _sensitivityCommonHelper.FilterInsensitiveItems(new List<int> { 4, 5, 8 }, _sensitivityCollector, _reuseRepository.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(!result.Any(), "No item should have been retrieved as sensitive.");
         }
     }

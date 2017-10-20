@@ -42,14 +42,14 @@ namespace ServiceLibrary.Models.Workflow.Actions
         [TestMethod]
         public void ValidateAction_NumberPropertyChangeAction_NumberIsPopulated()
         {
-            //Arrange
+            // Arrange
             InitializeNumberPropertyChangeAction();
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
             var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
-            //Assert
+            // Assert
             Assert.IsNull(result);
             Assert.IsTrue(propertyLiteValue.NumberValue.HasValue);
         }
@@ -57,15 +57,15 @@ namespace ServiceLibrary.Models.Workflow.Actions
         [TestMethod]
         public void ValidateAction_WhenNumberIsNull_NumberIsPopulatedWithNull()
         {
-            //Arrange
+            // Arrange
             InitializeNumberPropertyChangeAction();
             _propertyChangeAction.PropertyValue = null;
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
             var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
-            //Assert
+            // Assert
             Assert.IsNull(result);
             Assert.IsTrue(!propertyLiteValue.NumberValue.HasValue);
         }
@@ -73,7 +73,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
         [TestMethod]
         public void ValidateAction_WhenNumberIsNegative_NumberIsPopulated()
         {
-            //Arrange
+            // Arrange
             InitializeNumberPropertyChangeAction();
             _executionParameters = new ExecutionParameters(
                 1,
@@ -87,11 +87,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
                 _reuseValidatorMock.Object);
             _propertyChangeAction.PropertyValue = "-10";
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
             var propertyLiteValue = _propertyChangeAction.PropertyLiteValue;
 
-            //Assert
+            // Assert
             Assert.IsNull(result);
             Assert.IsTrue(propertyLiteValue.NumberValue.HasValue);
         }
@@ -99,29 +99,29 @@ namespace ServiceLibrary.Models.Workflow.Actions
         [TestMethod]
         public void ValidateAction_WhenValidValuesPopulatedForNumber_ReturnsFailureResult()
         {
-            //Arrange
+            // Arrange
             InitializeNumberPropertyChangeAction();
             _propertyChangeAction.PropertyValue = "10";
             _propertyChangeAction.ValidValues.Add(1);
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public void ValidateAction_WhenValueIsNotNumberFormat_ReturnsFailureResult()
         {
-            //Arrange
+            // Arrange
             InitializeNumberPropertyChangeAction();
             _propertyChangeAction.PropertyValue = "abc";
 
-            //Act
+            // Act
             var result = _propertyChangeAction.ValidateAction(_executionParameters);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
     }

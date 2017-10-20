@@ -56,13 +56,13 @@ namespace AdminStore.Utilities
             return new Saml2SecurityToken(assertion);
         }
 
-        //public static SamlSecurityToken CreateSamlSecurityToken(byte[] certificate, string password, params Claim[] claims)
-        //{
+        // public static SamlSecurityToken CreateSamlSecurityToken(byte[] certificate, string password, params Claim[] claims)
+        // {
         //    const string acsUrl = "http://blueprintsys.com";
 
-        //    var assertion = new SamlAssertion(new SamlNameIdentifier(DefaultIssuer));
+        // var assertion = new SamlAssertion(new SamlNameIdentifier(DefaultIssuer));
 
-        //    var conditions = new Saml2Conditions
+        // var conditions = new Saml2Conditions
         //    {
         //        NotBefore = DateTime.UtcNow,
         //        NotOnOrAfter = DateTime.MaxValue
@@ -70,24 +70,24 @@ namespace AdminStore.Utilities
         //    conditions.AudienceRestrictions.Add(new Saml2AudienceRestriction(new Uri(acsUrl, UriKind.RelativeOrAbsolute)));
         //    assertion.Conditions = conditions;
 
-        //    var subject = new Saml2Subject();
+        // var subject = new Saml2Subject();
         //    subject.SubjectConfirmations.Add(new Saml2SubjectConfirmation(Bearer));
         //    assertion.Subject = subject;
 
-        //    var statement = new Saml2AttributeStatement();
+        // var statement = new Saml2AttributeStatement();
         //    foreach (var claim in claims)
         //    {
         //        statement.Attributes.Add(new Saml2Attribute(claim.Type, claim.Value));
         //        assertion.Statements.Add(statement);
         //    }
 
-        //    var clientSigningCredentials = new X509SigningCredentials(
+        // var clientSigningCredentials = new X509SigningCredentials(
         //            new X509Certificate2(certificate, password, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable));
 
-        //    assertion.SigningCredentials = clientSigningCredentials;
+        // assertion.SigningCredentials = clientSigningCredentials;
 
-        //    return new Saml2SecurityToken(assertion);
-        //}
+        // return new Saml2SecurityToken(assertion);
+        // }
 
         public static string Serialize(Saml2SecurityToken token)
         {
@@ -108,7 +108,7 @@ namespace AdminStore.Utilities
             var signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
 
             var signingCert = new X509Certificate2(certificate, password);
-            
+
             var rsa = signingCert.PrivateKey as RSACryptoServiceProvider;
             var rsaKey = new RsaSecurityKey(rsa);
             var rsaClause = new RsaKeyIdentifierClause(rsa);

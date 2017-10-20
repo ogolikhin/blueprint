@@ -23,7 +23,7 @@ namespace ServiceLibrary.Repositories
         [TestMethod]
         public async Task SqlFeaturesRepository_ReturnsFeaturesFromDb()
         {
-            //Arrange
+            // Arrange
             var features = new[] { new Feature { Name = "Feature", Enabled = true } };
             _sqlConnectionWrapperMock
                 .Setup(cw =>
@@ -35,10 +35,10 @@ namespace ServiceLibrary.Repositories
                         It.IsAny<CommandType?>()))
                 .ReturnsAsync(features);
 
-            //Act
+            // Act
             var actualFeatures = await _sqlFeaturesRepository.GetFeaturesAsync();
 
-            //Assert
+            // Assert
             Assert.AreSame(features, actualFeatures);
         }
     }

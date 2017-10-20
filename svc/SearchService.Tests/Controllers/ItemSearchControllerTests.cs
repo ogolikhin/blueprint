@@ -198,7 +198,7 @@ namespace SearchService.Controllers
             {
                 actualException = ex;
             }
-            
+
 
             // Assert
             Assert.IsNotNull(actualException);
@@ -363,7 +363,7 @@ namespace SearchService.Controllers
             var searchCriteria = new ItemNameSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
             var startOffset = 0;
             var pageSize = 200;
-            
+
             var logMock = new Mock<IServiceLogRepository>(MockBehavior.Strict);
             logMock.Setup(t => t.LogError(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.Delay(1));
             var exceptionToBeThrown = new Exception("MyException");

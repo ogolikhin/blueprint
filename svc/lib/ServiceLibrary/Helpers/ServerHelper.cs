@@ -19,7 +19,7 @@ namespace ServiceLibrary.Helpers
             string errorMessage)
         {
             response.Clear();
-            response.StatusCode = (int) HttpStatusCode.BadRequest;
+            response.StatusCode = (int)HttpStatusCode.BadRequest;
             var error = new HttpError(errorMessage);
             var acceptTypes = request.AcceptTypes?.Select(at => at.ToLowerInvariant()) ?? new string[] { };
 

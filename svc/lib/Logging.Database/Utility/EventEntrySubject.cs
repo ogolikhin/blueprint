@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Logging.Database.Utility
 {
     /// <summary>
     /// A subject that can be observed and publish events.
-    /// </summary>    
+    /// </summary>
     /// <remarks>
     /// This is a very basic implementation of a subject to avoid references to Rx when the
     /// end user might not want to do advanced filtering and projection of event streams.

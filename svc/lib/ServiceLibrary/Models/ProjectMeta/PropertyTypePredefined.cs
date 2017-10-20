@@ -1,4 +1,6 @@
-﻿namespace ServiceLibrary.Models.ProjectMeta
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ServiceLibrary.Models.ProjectMeta
 {
     // The content is copied from the Raptor solution, and Display attributes are removed.
     // KEEP IN SYNC!
@@ -7,63 +9,64 @@
     /// For any property, this maps to the id in the database that defines the type of property it is in PropertyValueVersions
     /// </summary>
     /// <remarks>
-    /// ID					    = 4097
-    /// Name					= 4098
-    /// Description				= 4099
-    /// UseCaseLevel			= 4100
-    /// ReadOnly				= 4101
-    /// ItemLabel				= 4102
-    /// RowLabel				= 4103
-    /// ColumnLabel				= 4104
-    /// DataObjectType			= 4105
-    /// ExtensionType			= 4106
-    /// Condition				= 4107
-    /// BPObjectType			= 4108
-    /// WidgetType				= 4109
-    /// ReturnToStepName		= 4110
-    /// RawData					= 4111
-    /// ThreadStatus			= 4112
-    /// ApprovalStatus			= 4113
-    /// ClientType				= 4114
-    /// Label					= 4115
-    /// SharedViewPreferences	= 4116
-    /// ValueType				= 4117
-    /// IsSealedPublished		= 4118
-    /// ALMIntegrationSettings	= 4119
-    /// ALMExportInfo			= 4120
-    /// ALMSecurity				= 4121
-    /// StepOf					= 4122
-    /// DataOperationSet		= 4123
-    /// CreatedBy				= 4124
-    /// CreatedOn				= 4125
-    /// LastEditedBy			= 4126
-    /// LastEditedOn			= 4127
-    /// X					    = 8193
-    /// Y					    = 8194
-    /// Width					= 8195
-    /// Height					= 8196
-    /// ConnectorType			= 8197
-    /// TruncateText			= 8198
-    /// BackgroundColor			= 8199
-    /// BorderColor				= 8200
-    /// BorderWidth				= 8201
-    /// Image					= 8202
-    /// Orientation				= 8203
-    /// ClientRawData			= 8204
-    /// Theme					= 8205
-    /// Thumbnail				= 8206
+    /// ID                      = 4097
+    /// Name                    = 4098
+    /// Description             = 4099
+    /// UseCaseLevel            = 4100
+    /// ReadOnly                = 4101
+    /// ItemLabel               = 4102
+    /// RowLabel                = 4103
+    /// ColumnLabel             = 4104
+    /// DataObjectType          = 4105
+    /// ExtensionType           = 4106
+    /// Condition               = 4107
+    /// BPObjectType            = 4108
+    /// WidgetType              = 4109
+    /// ReturnToStepName        = 4110
+    /// RawData                 = 4111
+    /// ThreadStatus            = 4112
+    /// ApprovalStatus          = 4113
+    /// ClientType              = 4114
+    /// Label                   = 4115
+    /// SharedViewPreferences   = 4116
+    /// ValueType               = 4117
+    /// IsSealedPublished       = 4118
+    /// ALMIntegrationSettings  = 4119
+    /// ALMExportInfo           = 4120
+    /// ALMSecurity             = 4121
+    /// StepOf                  = 4122
+    /// DataOperationSet        = 4123
+    /// CreatedBy               = 4124
+    /// CreatedOn               = 4125
+    /// LastEditedBy            = 4126
+    /// LastEditedOn            = 4127
+    /// X                       = 8193
+    /// Y                       = 8194
+    /// Width                   = 8195
+    /// Height                  = 8196
+    /// ConnectorType           = 8197
+    /// TruncateText            = 8198
+    /// BackgroundColor         = 8199
+    /// BorderColor             = 8200
+    /// BorderWidth             = 8201
+    /// Image                   = 8202
+    /// Orientation             = 8203
+    /// ClientRawData           = 8204
+    /// Theme                   = 8205
+    /// Thumbnail               = 8206
     ///
     /// CustomGroup            = 16384
     /// </remarks>
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1025:CodeMustNotContainMultipleWhitespaceInARow", Justification = "Reviewed.")]
     public enum PropertyTypePredefined
     {
-        //Predefined properties
+        // Predefined properties
         GroupMask              = 0xF000,
 
-        //None
+        // None
         None = 0x0000,
 
-        //Predefined system properties
+        // Predefined system properties
         SystemGroup            = 0x1000,
         ID                     = SystemGroup | 1,
         Name                   = SystemGroup | 2,
@@ -97,7 +100,7 @@
         LastEditedBy           = SystemGroup | 30,
         LastEditedOn           = SystemGroup | 31,
 
-        //Predefined visualization properties
+        // Predefined visualization properties
         VisualizationGroup     = 0x2000,
         X                      = VisualizationGroup | 1,
         Y                      = VisualizationGroup | 2,
@@ -114,7 +117,7 @@
         Theme                  = VisualizationGroup | 13,
         Thumbnail              = VisualizationGroup | 14,
 
-        //Custom properties
+        // Custom properties
         CustomGroup            = 0x4000
     }
 }

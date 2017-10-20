@@ -21,7 +21,7 @@ namespace ArtifactStore.Models.Review
         public ViewStateType ViewState { get; set; }
 
         /// <summary>
-        /// Display name of the user published the artifact  
+        /// Display name of the user published the artifact
         /// </summary>
         public string UserDisplayName { get; set; }
 
@@ -52,7 +52,7 @@ namespace ArtifactStore.Models.Review
             }
             set
             {
-                _signedOnTimestamp = value.HasValue? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc): (DateTime?)null;
+                _signedOnTimestamp = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : (DateTime?)null;
             }
         }
     }

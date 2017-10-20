@@ -24,7 +24,7 @@ namespace AdminStore.Helpers
                 "displayName",
                 "login"
             };
-            
+
             var column = sorting.Sort;
             var sortColumn = !string.IsNullOrWhiteSpace(column) && sortableColumns.Contains(column)
                 ? column
@@ -35,7 +35,7 @@ namespace AdminStore.Helpers
 
         public static IEnumerable<int> ParsingTypesToUserTypeArray(IEnumerable<KeyValuePair<int, UserType>> types, UserType userType)
         {
-            var members = types.Where(e=>e.Value == userType).Select(e=>e.Key).ToList();
+            var members = types.Where(e => e.Value == userType).Select(e => e.Key).ToList();
             return members;
         }
     }

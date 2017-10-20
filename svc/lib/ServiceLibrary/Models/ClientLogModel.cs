@@ -1,6 +1,6 @@
 ﻿namespace ServiceLibrary.Models
 {
-    //should map to ServiceLibrary.Models.ServiceLogModel
+    // should map to ServiceLibrary.Models.ServiceLogModel
     public class ClientLogModel
     {
         public string Source { get; set; }

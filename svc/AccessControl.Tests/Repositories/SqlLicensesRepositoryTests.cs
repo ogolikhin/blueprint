@@ -25,7 +25,7 @@ namespace AccessControl.Repositories
                 new LicenseInfo { LicenseLevel = 1, Count = 1 },
                 new LicenseInfo { LicenseLevel = 3, Count = 2 }
             };
-            cxn.SetupQueryAsync("[AdminStore].GetActiveLicenses", new Dictionary<string, object> { {"Now", now}, {"LicenseLockTimeMinutes", licenseLockTimeMinutes} }, licenses);
+            cxn.SetupQueryAsync("[AdminStore].GetActiveLicenses", new Dictionary<string, object> { { "Now", now }, { "LicenseLockTimeMinutes", licenseLockTimeMinutes } }, licenses);
 
             // Act
             IEnumerable<LicenseInfo> result = await repository.GetActiveLicenses(now, 1440);
@@ -49,7 +49,7 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlLicensesRepository(cxn.Object);
             int result = 2;
-            cxn.SetupExecuteScalarAsync(v => true, new Dictionary<string, object> { {"UserId", userId}, {"LicenseLevel", licenseLevel}, {"TimeDiff", -lockTime} }, result);
+            cxn.SetupExecuteScalarAsync(v => true, new Dictionary<string, object> { { "UserId", userId }, { "LicenseLevel", licenseLevel }, { "TimeDiff", -lockTime } }, result);
 
             // Act
             var count = await repository.GetLockedLicenses(userId, 3, 1440);

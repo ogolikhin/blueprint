@@ -41,9 +41,9 @@ namespace ArtifactStore.Repositories
             artifactIds = new HashSet<int>() { 1, 2, 3 };
             List<ProcessInfoDto> processInfos = new List<ProcessInfoDto>()
             {
-                new ProcessInfoDto() {ItemId = 1, ProcessType = ProcessType.BusinessProcess},
-                new ProcessInfoDto() {ItemId = 2, ProcessType = ProcessType.UserToSystemProcess},
-                new ProcessInfoDto() {ItemId = 3, ProcessType = ProcessType.SystemToSystemProcess}
+                new ProcessInfoDto() { ItemId = 1, ProcessType = ProcessType.BusinessProcess },
+                new ProcessInfoDto() { ItemId = 2, ProcessType = ProcessType.UserToSystemProcess },
+                new ProcessInfoDto() { ItemId = 3, ProcessType = ProcessType.SystemToSystemProcess }
             };
 
             var permissionDict = new Dictionary<int, RolePermissions>() { };

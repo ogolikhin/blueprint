@@ -51,61 +51,61 @@ namespace ServiceLibrary.Helpers.Validators
         [TestMethod]
         public void Validate_ReturnsNull_WhenNoErrorsExist()
         {
-            //arrange
+            // arrange
             var date = new DateTime(2017, 1, 1);
             _propertyLite.DateValue = date;
             _propertyType.Range.Start = date.AddYears(-1);
             _propertyType.Range.End = date.AddYears(1);
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, _validationContextMock.Object);
 
-            //assert
+            // assert
             Assert.IsNull(result);
         }
 
         [TestMethod]
         public void Validate_ReturnsError_WhenDateIsLessThanMinimum()
         {
-            //arrange
+            // arrange
             var date = new DateTime(2017, 2, 2);
             _propertyLite.DateValue = date;
             _propertyType.Range.Start = date.AddYears(1);
             _propertyType.Range.End = date.AddYears(2);
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, _validationContextMock.Object);
 
-            //assert
+            // assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
         }
 
         [TestMethod]
         public void Validate_ReturnsError_WhenDateIsGreaterThanMaximum()
         {
-            //arrange
+            // arrange
             var date = new DateTime(2017, 3, 3);
             _propertyLite.DateValue = date;
             _propertyType.Range.Start = date.AddYears(-2);
             _propertyType.Range.End = date.AddYears(-1);
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, _validationContextMock.Object);
 
-            //assert
+            // assert
             Assert.AreEqual(ErrorCodes.InvalidArtifactProperty, result.ErrorCode);
         }
 
         [TestMethod]
         public void Validate_ReturnsNull_WhenDateIsNull()
         {
-            //arrange
+            // arrange
             _propertyLite.DateValue = null;
 
-            //act
+            // act
             var result = _validator.Validate(_propertyLite, _propertyTypes, _validationContextMock.Object);
 
-            //assert
+            // assert
             Assert.IsNull(result);
         }
     }

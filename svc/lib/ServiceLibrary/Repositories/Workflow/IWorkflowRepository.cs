@@ -22,7 +22,7 @@ namespace ServiceLibrary.Repositories.Workflow
         Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId, int workflowId, int fromStateId, int toStateId);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="artifactIds"></param>

@@ -9,6 +9,11 @@ namespace ServiceLibrary.Helpers
 {
     public class SqlHelper : ISqlHelper
     {
+        /// <summary>
+        /// See http://msdn.microsoft.com/en-us/library/aa337376.aspx
+        /// </summary>
+        private const int deadlockSqlExceptionErrorCode = 1205;
+
         public async Task RunInTransactionAsync(string connectionString, Func<IDbTransaction, Task> action)
         {
             using (var connection = new SqlConnection(connectionString))
@@ -46,6 +51,35 @@ namespace ServiceLibrary.Helpers
 
             var revision = (await transaction.Connection.QueryAsync<int>("CreateRevision", prm, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             return revision;
+        }
+
+        public async Task<T> RetryOnSqlDealLockAsync<T>(Func<Task<T>> action, int retryCount, int delayAfterAttempt = 3, int millisecondsDelay = 2000)
+        {
+            for (int attempt = 0; ; attempt++)
+            {
+                try
+                {
+                    return await action();
+                }
+                catch (SqlException ex)
+                {
+                    if (!IsDeadlockException(ex))
+                        throw;
+
+                    if (attempt >= retryCount)
+                        throw;
+
+                    if (attempt >= delayAfterAttempt)
+                    {
+                        await Task.Delay(millisecondsDelay);
+                    }
+                }
+            }
+        }
+
+        private static bool IsDeadlockException(SqlException sqlException)
+        {
+            return sqlException != null && sqlException.Number == deadlockSqlExceptionErrorCode;
         }
     }
 }

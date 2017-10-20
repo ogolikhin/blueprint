@@ -6,7 +6,7 @@ namespace ServiceLibrary.Models.Enums
     public enum MessageActionType
     {
         None = 0,
-        PropertyChange =1,
+        PropertyChange = 1,
         Notification = 2,
         GenerateChildren = 4,
         GenerateTests = 8,

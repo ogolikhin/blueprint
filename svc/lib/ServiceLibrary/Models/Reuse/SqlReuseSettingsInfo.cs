@@ -12,7 +12,7 @@
 
         public int? SensitivitySettings { get; set; }
 
-        public int PropertyTypeId {get;set;}
+        public int PropertyTypeId { get; set; }
 
         public int PropertyTypePredefined { get; set; }
 

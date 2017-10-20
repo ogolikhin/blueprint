@@ -38,9 +38,8 @@ namespace ServiceLibrary.Repositories
             var permissions = await _connectionWrapper.ExecuteScalarAsync<ProjectAdminPrivileges>
             (
                 "GetProjectAdminPermissions",
-                parameters, 
-                commandType: CommandType.StoredProcedure
-            );
+                parameters,
+                commandType: CommandType.StoredProcedure);
 
             var errorCode = parameters.Get<int?>("ErrorCode");
 

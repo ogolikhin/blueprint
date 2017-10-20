@@ -22,7 +22,7 @@ namespace ArtifactStore.Helpers
         public void init()
         {
 
-            _fakeEmailSettings =  new EmailSettings
+            _fakeEmailSettings = new EmailSettings
             {
                 Id = "Fake",
                 Authenticated = false,
@@ -178,7 +178,7 @@ namespace ArtifactStore.Helpers
             var projectId = 1;
             _fakeEmailSettings.EnableEmailReplies = true;
             _instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock(_fakeEmailSettings, _instanceSettings);
-            _cxn.SetupExecuteScalarAsync("GetProjectPermissions", new Dictionary<string, object> { { "ProjectId", projectId} },  ProjectPermissions.AreEmailRepliesEnabled);
+            _cxn.SetupExecuteScalarAsync("GetProjectPermissions", new Dictionary<string, object> { { "ProjectId", projectId } },  ProjectPermissions.AreEmailRepliesEnabled);
             // Act
             var result = await _mentionHelper.AreEmailDiscussionsEnabled(projectId);
             // Assert

@@ -23,7 +23,7 @@ namespace ServiceLibrary.Models.Workflow
     {
         public WorkflowStateChangeParameterEx()
         {
-                
+
         }
 
         public WorkflowStateChangeParameterEx(WorkflowStateChangeParameter workflowStateChangeParameter)

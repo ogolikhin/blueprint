@@ -32,7 +32,7 @@ namespace ServiceLibrary.Models.PropertyType
             if (hasInvalidChoice)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Specified choice value does not exist.");
 
-            //Success.
+            // Success.
             return null;
         }
 

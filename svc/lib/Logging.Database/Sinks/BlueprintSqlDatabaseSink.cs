@@ -34,9 +34,9 @@ namespace Logging.Database.Sinks
         /// <param name="storedProcedureName">The name of the stored procedure that writes to the table.</param>
         /// <param name="bufferingInterval">The buffering interval between each batch publishing.</param>
         /// <param name="bufferingCount">The number of entries that will trigger a batch publishing.</param>
-        /// <param name="maxBufferSize">The maximum number of entries that can be buffered while it's sending to the store before the sink starts dropping entries.</param>      
+        /// <param name="maxBufferSize">The maximum number of entries that can be buffered while it's sending to the store before the sink starts dropping entries.</param>
         /// <param name="onCompletedTimeout">Defines a timeout interval for when flushing the entries after an <see cref="OnCompleted"/> call is received and before disposing the sink.
-        /// This means that if the timeout period elapses, some event entries will be dropped and not sent to the store. Normally, calling <see cref="IDisposable.Dispose"/> on 
+        /// This means that if the timeout period elapses, some event entries will be dropped and not sent to the store. Normally, calling <see cref="IDisposable.Dispose"/> on
         /// the <see cref="System.Diagnostics.Tracing.EventListener"/> will block until all the entries are flushed or the interval elapses.
         /// If <see langword="null"/> is specified, then the call will block indefinitely until the flush operation finishes.</param>
         public BlueprintSqlDatabaseSink(string instanceName, string connectionString, string tableName, string storedProcedureName, TimeSpan bufferingInterval, int bufferingCount, int maxBufferSize, TimeSpan onCompletedTimeout)
@@ -197,7 +197,7 @@ namespace Logging.Database.Sinks
                     }
                     catch (InvalidOperationException ex)
                     {
-                        // if all events were published throw                       
+                        // if all events were published throw
                         if (reader.RecordsAffected == collection.Count)
                         {
                             throw;
@@ -205,13 +205,13 @@ namespace Logging.Database.Sinks
 
                         int affectedRow = reader.RecordsAffected - 1;
                         SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(ex.Message);
-                        //retry after removing the offending record
+                        // retry after removing the offending record
                         collection.RemoveAt(affectedRow);
                     }
                 }
             }
 
-            //If still pending events after all retries, discard batch and log.
+            // If still pending events after all retries, discard batch and log.
             if (initialCount != collection.Count)
             {
                 SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(I18NHelper.FormatInvariant("{0} EventData entries are discarded due to too many failed retries", collection.Count));
@@ -237,10 +237,10 @@ namespace Logging.Database.Sinks
                 sqlBulkCopy.ColumnMappings.Add("Version", "Version");
                 sqlBulkCopy.ColumnMappings.Add("FormattedMessage", "FormattedMessage");
                 sqlBulkCopy.ColumnMappings.Add("Payload", "Payload");
-                //sqlBulkCopy.ColumnMappings.Add("ActivityId", "ActivityId");
-                //sqlBulkCopy.ColumnMappings.Add("RelatedActivityId", "RelatedActivityId");
-                //sqlBulkCopy.ColumnMappings.Add("ProcessId", "ProcessId");
-                //sqlBulkCopy.ColumnMappings.Add("ThreadId", "ThreadId");
+                // sqlBulkCopy.ColumnMappings.Add("ActivityId", "ActivityId");
+                // sqlBulkCopy.ColumnMappings.Add("RelatedActivityId", "RelatedActivityId");
+                // sqlBulkCopy.ColumnMappings.Add("ProcessId", "ProcessId");
+                // sqlBulkCopy.ColumnMappings.Add("ThreadId", "ThreadId");
                 sqlBulkCopy.ColumnMappings.Add("IpAddress", "IpAddress");
                 sqlBulkCopy.ColumnMappings.Add("Source", "Source");
                 sqlBulkCopy.ColumnMappings.Add("UserName", "UserName");

@@ -63,7 +63,7 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task GetTransitionsAsync_GetsTransitions_SuccessfullyCallsRepo()
         {
-            //Arrange
+            // Arrange
             var expected = new List<WorkflowTransition>()
             {
                  new WorkflowTransition()
@@ -71,10 +71,10 @@ namespace ArtifactStore.Services
             _workflowRepositoryMock.Setup(t => t.GetTransitionsAsync(1, 1, 1, 1))
                 .ReturnsAsync(expected);
 
-            //Act
+            // Act
             var result = await _workflowServiceMock.GetTransitionsAsync(1, 1, 1, 1);
 
-            //Assert
+            // Assert
             _workflowRepositoryMock.Verify(t => t.GetTransitionsAsync(1, 1, 1, 1), Times.Exactly(1));
             Assert.AreEqual(QueryResultCode.Success, result.ResultCode);
             Assert.AreEqual(1, result.Count);
@@ -84,7 +84,7 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task GetStateForArtifactAsync_GetState_SuccessfullyCallsGetStateForArtifactAsync()
         {
-            //Arrange
+            // Arrange
             var expected = new WorkflowState()
             {
                 Id = 10,
@@ -96,11 +96,11 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(revisionId);
             _workflowRepositoryMock.Setup(t => t.GetStateForArtifactAsync(1, 1, revisionId, true))
                 .ReturnsAsync(expected);
-            
-            //Act
+
+            // Act
             var result = await _workflowServiceMock.GetStateForArtifactAsync(1, 1);
 
-            //Assert
+            // Assert
             _workflowRepositoryMock.Verify(t => t.GetStateForArtifactAsync(1, 1, revisionId, true), Times.Exactly(1));
             Assert.AreEqual(expected, result.Item);
             Assert.AreEqual(QueryResultCode.Success, result.ResultCode);
@@ -109,7 +109,7 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task GetStateForArtifactAsync_GetStateNullState_ReturnsFailedCode()
         {
-            //Arrange
+            // Arrange
             var expected = (WorkflowState)null;
             var revisionId = int.MaxValue;
             _itemInfoRepositoryMock.Setup(t => t.GetRevisionId(1, 1, null, null))
@@ -117,10 +117,10 @@ namespace ArtifactStore.Services
             _workflowRepositoryMock.Setup(t => t.GetStateForArtifactAsync(1, 1, revisionId, true))
                 .ReturnsAsync(expected);
 
-            //Act
+            // Act
             var result = await _workflowServiceMock.GetStateForArtifactAsync(1, 1);
 
-            //Assert
+            // Assert
             _workflowRepositoryMock.Verify(t => t.GetStateForArtifactAsync(1, 1, revisionId, true), Times.Exactly(1));
             Assert.AreEqual(expected, result.Item);
             Assert.AreEqual(QueryResultCode.Failure, result.ResultCode);
@@ -129,7 +129,7 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task GetStateForArtifactAsync_GetStateStateWithUnsupportedWorkflowId_ReturnsFailedCode()
         {
-            //Arrange
+            // Arrange
             var expected = new WorkflowState()
             {
                 Id = 10,
@@ -142,10 +142,10 @@ namespace ArtifactStore.Services
             _workflowRepositoryMock.Setup(t => t.GetStateForArtifactAsync(1, 1, revisionId, true))
                 .ReturnsAsync(expected);
 
-            //Act
+            // Act
             var result = await _workflowServiceMock.GetStateForArtifactAsync(1, 1);
 
-            //Assert
+            // Assert
             _workflowRepositoryMock.Verify(t => t.GetStateForArtifactAsync(1, 1, revisionId, true), Times.Exactly(1));
             Assert.AreEqual(null, result.Item);
             Assert.AreEqual(QueryResultCode.Failure, result.ResultCode);
@@ -154,7 +154,7 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task GetStateForArtifactAsync_GetStateStateWithUnsupportedStateId_ReturnsFailedCode()
         {
-            //Arrange
+            // Arrange
             var expected = new WorkflowState()
             {
                 Id = -10,
@@ -167,10 +167,10 @@ namespace ArtifactStore.Services
             _workflowRepositoryMock.Setup(t => t.GetStateForArtifactAsync(1, 1, revisionId, true))
                 .ReturnsAsync(expected);
 
-            //Act
+            // Act
             var result = await _workflowServiceMock.GetStateForArtifactAsync(1, 1);
 
-            //Assert
+            // Assert
             _workflowRepositoryMock.Verify(t => t.GetStateForArtifactAsync(1, 1, revisionId, true), Times.Exactly(1));
             Assert.AreEqual(null, result.Item);
             Assert.AreEqual(QueryResultCode.Failure, result.ResultCode);
@@ -179,7 +179,7 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task GetTransitionsAsync_ChangeStateForArtifactAsync_SuccessfullyCallsRepo()
         {
-            //Arrange
+            // Arrange
             int itemId = 1;
             int userId = 1;
             int workflowId = 4;
@@ -210,7 +210,7 @@ namespace ArtifactStore.Services
                 ToStateId = toStateId,
                 FromStateId = fromStateId
             };
-            
+
             var fromState = new WorkflowState
             {
                 Id = fromStateId,
@@ -245,10 +245,10 @@ namespace ArtifactStore.Services
             _workflowRepositoryMock.Setup(t => t.ChangeStateForArtifactAsync(1, itemId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(toState);
 
-            //Act
+            // Act
             var result = await _workflowServiceMock.ChangeStateForArtifactAsync(1, "admin", itemId, wfStateChangeParam);
 
-            //Assert
+            // Assert
             Assert.AreEqual(toState, result.Item);
             Assert.AreEqual(QueryResultCode.Success, result.ResultCode);
         }

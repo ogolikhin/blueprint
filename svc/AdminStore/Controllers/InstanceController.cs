@@ -36,8 +36,7 @@ namespace AdminStore.Controllers
 
         public InstanceController() : this(
             new SqlInstanceRepository(), new ServiceLogRepository(),
-            new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository(), new InstanceService()
-        )
+            new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository(), new InstanceService())
         {
         }
 
@@ -47,8 +46,7 @@ namespace AdminStore.Controllers
             IServiceLogRepository log,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             IPrivilegesRepository privilegesRepository,
-            IInstanceService instanceService
-        ) : base(log)
+            IInstanceService instanceService) : base(log)
         {
             _instanceRepository = instanceRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
@@ -112,7 +110,7 @@ namespace AdminStore.Controllers
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpGet,NoCache]
+        [HttpGet, NoCache]
         [Route("foldersearch"), SessionRequired]
         [ResponseType(typeof(IEnumerable<InstanceItem>))]
         public async Task<IHttpActionResult> SearchFolderByName(string name)
@@ -193,7 +191,7 @@ namespace AdminStore.Controllers
             var result =
                 await
                     _instanceRepository.GetProjectsAndFolders(Session.UserId,
-                        new TabularData() {Pagination = pagination, Sorting = sorting, Search = search},
+                        new TabularData() { Pagination = pagination, Sorting = sorting, Search = search },
                         SortingHelper.SortProjectFolders);
             return Ok(result);
         }
@@ -336,7 +334,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetProjectAdminPermissions(int projectId)
         {
-            var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(Session.UserId , projectId );
+            var permissions = await _privilegesRepository.GetProjectAdminPermissionsAsync(Session.UserId, projectId);
             return Ok(permissions);
         }
 
@@ -366,7 +364,7 @@ namespace AdminStore.Controllers
         #region roles
 
         /// <summary>
-        /// Get the list of instance administrators roles in the instance  
+        /// Get the list of instance administrators roles in the instance
         /// </summary>
         /// <remarks>
         /// Returns the list of instance administrators roles.
@@ -475,7 +473,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.DemandAny(Session.UserId, projectId,
                 InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
-            
+
             var result = await _instanceRepository.DeleteRoleAssignmentsAsync(projectId, scope, search);
 
             return Ok(new DeleteResult { TotalDeleted = result });
@@ -526,7 +524,7 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="projectId">Project's identity</param>
         /// <param name="roleAssignment">Role assignment model</param>
-        /// <param name="roleAssignmentId">Role assignment id</param> 
+        /// <param name="roleAssignmentId">Role assignment id</param>
         /// <remarks>
         /// Returns id of updated role assignment (newly created).
         /// </remarks>
@@ -554,7 +552,7 @@ namespace AdminStore.Controllers
                 InstanceAdminPrivileges.AccessAllProjectsAdmin, ProjectAdminPrivileges.ManageGroupsAndRoles);
 
             RoleAssignmentValidator.ValidateModel(roleAssignment, OperationMode.Edit, roleAssignmentId);
-            
+
             await _instanceRepository.UpdateRoleAssignmentAsync(projectId, roleAssignmentId, roleAssignment);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);

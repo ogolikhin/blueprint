@@ -2,7 +2,7 @@
 
 namespace ServiceLibrary.Models.Workflow
 {
-    //marker interface
+    // marker interface
     public interface IWorkflowMessage
     {
         MessageActionType ActionType { get; }

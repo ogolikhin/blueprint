@@ -43,7 +43,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             if (userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
 
-            if(projectId > 0)
+            if (projectId > 0)
             {
                 await CheckProjectIsAccessible(projectId, userId);
             }
@@ -134,7 +134,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             if (!project.IsAccesible.GetValueOrDefault())
             {
                 throw new AuthorizationException(string.Format("The user does not have permissions for Project (Id:{0}).", projectId), ErrorCodes.UnauthorizedAccess);
-            }  
+            }
         }
 
 
@@ -225,13 +225,13 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                                     || pv.PrimitiveType == PropertyPrimitiveType.Choice
                                     ? pv.Validate : null,
                 IsMultipleAllowed = pv.PrimitiveType == PropertyPrimitiveType.Text
-                                    || pv.PrimitiveType == PropertyPrimitiveType.Choice 
+                                    || pv.PrimitiveType == PropertyPrimitiveType.Choice
                                     ? pv.AllowMultiple : null,
                 StringDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.Text ? pv.StringDefaultValue : null,
                 DateDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.Date ? pv.DateDefaultValue : null,
                 DecimalDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.Number
                                       ? PropertyHelper.ToDecimal(pv.DecimalDefaultValue) : null,
-                UserGroupDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.User 
+                UserGroupDefaultValue = pv.PrimitiveType == PropertyPrimitiveType.User
                                       ? PropertyHelper.ParseUserGroups(pv.UserDefaultValue) : null,
                 MinDate = pv.PrimitiveType == PropertyPrimitiveType.Date && pv.Validate.GetValueOrDefault() ? pv.MinDate : null,
                 MaxDate = pv.PrimitiveType == PropertyPrimitiveType.Date && pv.Validate.GetValueOrDefault() ? pv.MaxDate : null,
@@ -251,11 +251,11 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                                               if (int.TryParse(v.LookupListItemId, out intValue))
                                                   vvId = intValue;
                                           }
-                                          return new ValidValue {Id = vvId, Value = v.Value};
+                                          return new ValidValue { Id = vvId, Value = v.Value };
                                       }).ToList()
                                       : null,
                 DefaultValidValueId = pv.PrimitiveType == PropertyPrimitiveType.Choice
-                                      ? FindDefaultValidValueId(propertyFromXml.ValidValues)//TODO
+                                      ? FindDefaultValidValueId(propertyFromXml.ValidValues) // TODO
                                       : null
             };
         }
@@ -275,7 +275,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 UsedInThisProject = itv.UsedInThisProject
             };
 
-            if(ptIds != null)
+            if (ptIds != null)
                 it.CustomPropertyTypeIds.AddRange(ptIds);
 
             return it;
@@ -352,15 +352,15 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             else
             {
                 bool isApproved;
-                
+
                 bool parsed = Boolean.TryParse(approvalTypeString, out isApproved);
 
-                if(!parsed)
+                if (!parsed)
                 {
                     throw new ArgumentException("Unexpected Approval Status setting format: " + projectSetting.Setting);
                 }
 
-                if(isApproved)
+                if (isApproved)
                 {
                     approvalType = ApprovalType.Approved;
                 }
@@ -370,7 +370,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 }
             }
 
-            //For the default not specified approval status, we want to display Pending to be consistent with SilverLight
+            // For the default not specified approval status, we want to display Pending to be consistent with SilverLight
             if (approvalType == ApprovalType.NotSpecified && projectSetting.ReadOnly
                && statusText.Equals("Not Specified", StringComparison.OrdinalIgnoreCase))
             {

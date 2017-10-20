@@ -38,7 +38,7 @@ namespace ServiceLibrary.Models.Reuse
             }
         }
 
-        //Reuse Sensitivity
+        // Reuse Sensitivity
 
         public void RegisterArtifactPropertyModification(int artifactItemId, int propertyTypeId, PropertyTypePredefined predefined)
         {

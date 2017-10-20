@@ -69,7 +69,7 @@ namespace ArtifactStore.Services.Workflow
 
         public async Task<QuerySingleResult<WorkflowState>> ChangeStateForArtifactAsync(int userId, string userName, int artifactId, WorkflowStateChangeParameter stateChangeParameter)
         {
-            //We will be getting state information and then will construct the property constraints and post operation actions over here
+            // We will be getting state information and then will construct the property constraints and post operation actions over here
             var stateChangeExecutor = new StateChangeExecutor(userId,
                 new WorkflowStateChangeParameterEx(stateChangeParameter)
                 {

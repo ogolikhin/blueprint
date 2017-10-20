@@ -13,7 +13,7 @@ namespace AdminStore.Models.Workflow
         public bool Active { get; set; }
         public int VersionId { get; set; }
         public string Description { get; set; }
-        public IEnumerable<WorkflowProjectDto> Projects{ get; set; }
+        public IEnumerable<WorkflowProjectDto> Projects { get; set; }
         public IEnumerable<WorkflowArtifactTypeDto> ArtifactTypes { get; set; }
         public int NumberOfAssignedProjects { get; set; }
     }

@@ -22,7 +22,7 @@ namespace AdminStore.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IServiceLogRepository _log;
 
-        public LicensesController(): this(new HttpClientProvider(), new SqlUserRepository(), new ServiceLogRepository())
+        public LicensesController() : this(new HttpClientProvider(), new SqlUserRepository(), new ServiceLogRepository())
         {
         }
 

@@ -26,7 +26,7 @@ namespace SearchService.Helpers.SemanticSearch
             _elasticClient = new Mock<IElasticClient>();
             _semanticSearchRepository = new Mock<ISemanticSearchRepository>();
 
-            //_elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
+            // _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace SearchService.Helpers.SemanticSearch
 
             _elasticClient.Setup(e => e.Ping(It.IsAny<Func<PingDescriptor, IPingRequest>>()))
                 .Returns(mockResponse.Object);
-            _elasticClient.Setup(e => e.IndexExists(It.IsAny<Indices>(),It.IsAny<Func<IndexExistsDescriptor, IIndexExistsRequest>>()))
+            _elasticClient.Setup(e => e.IndexExists(It.IsAny<Indices>(), It.IsAny<Func<IndexExistsDescriptor, IIndexExistsRequest>>()))
                 .Returns(mockIndexResponse.Object);
 
             _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
@@ -93,7 +93,7 @@ namespace SearchService.Helpers.SemanticSearch
         [TestMethod]
         public async Task GetSemanticSearchSuggestions_WhenQuerying_ReturnsArtifactDetails()
         {
-            
+
             var searchParameters = new SearchEngineParameters(1, 1, true, new HashSet<int>());
             _semanticSearchRepository.Setup(s => s.GetSemanticSearchText(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(new SemanticSearchText()
@@ -102,16 +102,16 @@ namespace SearchService.Helpers.SemanticSearch
                     SearchText = "searchTest"
                 });
 
-            var searchItem = new SemanticSearchItem() {ItemId = 2};
+            var searchItem = new SemanticSearchItem() { ItemId = 2 };
             var searchResponse = new Mock<ISearchResponse<SemanticSearchItem>>();
-            searchResponse.SetupGet(s => s.Documents).Returns(new List<SemanticSearchItem>() {searchItem});
+            searchResponse.SetupGet(s => s.Documents).Returns(new List<SemanticSearchItem>() { searchItem });
 
             _elasticClient.Setup(
                 e => e.SearchAsync<SemanticSearchItem>(It.IsAny<ISearchRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(searchResponse.Object);
-            
+
             _semanticSearchRepository.Setup(s => s.GetSuggestedArtifactDetails(It.IsAny<List<int>>(), It.IsAny<int>()))
-                .ReturnsAsync(new List<ArtifactSearchResult>() { new ArtifactSearchResult() {ItemId = 2}});
+                .ReturnsAsync(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 2 } });
 
             _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
 

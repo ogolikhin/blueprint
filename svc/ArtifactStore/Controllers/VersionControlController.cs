@@ -47,7 +47,7 @@ namespace ArtifactStore.Controllers
         [ResponseType(typeof(ArtifactResultSet))]
         public async Task<IHttpActionResult> PublishArtifacts([FromBody] IEnumerable<int> artifactIds, [FromUri] bool? all = null)
         {
-            return Ok(await _versionControlService.PublishArtifacts( new PublishParameters
+            return Ok(await _versionControlService.PublishArtifacts(new PublishParameters
             {
                 All = all,
                 ArtifactIds = artifactIds,

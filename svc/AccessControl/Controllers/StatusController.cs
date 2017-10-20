@@ -28,9 +28,7 @@ namespace AccessControl.Controllers
                     },
                     "AccessControl",
                     new ServiceLogRepository(),
-                    WebApiConfig.LogSourceStatus
-                )
-            )
+                    WebApiConfig.LogSourceStatus))
         {
         }
 

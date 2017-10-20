@@ -33,7 +33,7 @@ namespace AdminStore.Repositories
 
         Task<RoleAssignmentQueryResult<RoleAssignment>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData,
             Func<Sorting, string> sort = null);
-        
+
         Task<int> DeleteRoleAssignmentsAsync(int projectId, OperationScope scope, string search);
 
         Task<int> HasProjectExternalLocksAsync(int userId, int projectId);

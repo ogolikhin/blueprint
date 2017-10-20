@@ -70,7 +70,7 @@ namespace ServiceLibrary.Models.ProjectMeta
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2238:ImplementSerializationMethodsCorrectly"), OnSerializing]
         internal void OnSerializing(StreamingContext context)
         {
-            //Serializing Date Values
+            // Serializing Date Values
             if (DateDefaultValue.HasValue)
                 _dateDefaultValue = I18NHelper.DateTimeParseToIso8601Invariant(DateDefaultValue.Value);
 
@@ -84,7 +84,7 @@ namespace ServiceLibrary.Models.ProjectMeta
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2238:ImplementSerializationMethodsCorrectly"), OnDeserialized]
         internal void OnDeserialized(StreamingContext context)
         {
-            //Deserializing  Date Values
+            // Deserializing  Date Values
             DateTime dateValue;
 
             if (DateTime.TryParse(_dateDefaultValue, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))

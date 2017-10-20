@@ -122,7 +122,7 @@ namespace ArtifactStore.Services.Reviews
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
 
-            if (artifactInfo.PrimitiveItemTypePredefined != (int) ItemTypePredefined.ArtifactReviewPackage)
+            if (artifactInfo.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactReviewPackage)
             {
                 throw new BadRequestException(I18NHelper.FormatInvariant(ArtifactIsNotReviewMessage, reviewId), ErrorCodes.InvalidParameter);
             }

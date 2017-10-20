@@ -28,7 +28,7 @@ namespace AdminStore.Services.Workflow
         public IDictionary<string, int> UserMap => _userMap ?? (_userMap = new Dictionary<string, int>());
 
         // Key - Tuple where Item1 - Group Name, Item2 - Project Id, Value - Group Id
-        private IDictionary<Tuple<string,int?>, int> _groupMap;
+        private IDictionary<Tuple<string, int?>, int> _groupMap;
         public IDictionary<Tuple<string, int?>, int> GroupMap => _groupMap ?? (_groupMap = new Dictionary<Tuple<string, int?>, int>());
 
         // Key - Choice Property Type Id, Value - (Key - Valid Value, Valid Value Id)
@@ -47,8 +47,8 @@ namespace AdminStore.Services.Workflow
         private IDictionary<int, string> _stateMap;
         public IDictionary<int, string> StateMap => _stateMap ?? (_stateMap = new Dictionary<int, string>());
 
-        //private IDictionary<int, IDictionary<int, string>> _validValueMap;
-        //public IDictionary<int, IDictionary<int, string>> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, IDictionary<int, string>>());
+        // private IDictionary<int, IDictionary<int, string>> _validValueMap;
+        // public IDictionary<int, IDictionary<int, string>> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, IDictionary<int, string>>());
         private IDictionary<int, string> _validValueMap;
         public IDictionary<int, string> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, string>());
 

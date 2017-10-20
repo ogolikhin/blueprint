@@ -85,7 +85,7 @@ namespace ServiceLibrary.Models.Workflow
             _executionParametersMock.Setup(p => p.SaveRepository).Returns(_saveRepositoryMock.Object);
             _executionParametersMock.Setup(p => p.UserId).Returns(UserId);
             _executionParametersMock.Setup(p => p.ArtifactInfo).Returns(new VersionControlArtifactInfo { Id = ArtifactVersion });
-            
+
             // CustomPropertyTypes - are the current Artifact properties
             _executionParametersMock.Setup(p => p.CustomPropertyTypes).Returns(new List<WorkflowPropertyType>
             {
@@ -149,7 +149,7 @@ namespace ServiceLibrary.Models.Workflow
                 It.IsAny<int>(),
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                null), 
+                null),
                 Times.Once());
 
             _saveRepositoryMock.Verify(r => r.SavePropertyChangeActions(

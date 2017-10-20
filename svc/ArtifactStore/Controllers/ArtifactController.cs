@@ -23,13 +23,11 @@ namespace ArtifactStore.Controllers
 
         public override string LogSource { get; } = "ArtifactStore.Artifact";
 
-        public ArtifactController() :
-            this
+        public ArtifactController() : this
             (
                 new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
-                new SqlPrivilegesRepository()
-            )
+                new SqlPrivilegesRepository())
         {
         }
 
@@ -37,8 +35,7 @@ namespace ArtifactStore.Controllers
         (
             IArtifactRepository instanceRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
-            IPrivilegesRepository privilegesRepository
-        )
+            IPrivilegesRepository privilegesRepository)
         {
             _artifactRepository = instanceRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
@@ -50,8 +47,7 @@ namespace ArtifactStore.Controllers
             IArtifactRepository instanceRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             IPrivilegesRepository privilegesRepository,
-            IServiceLogRepository log
-        ) : base(log)
+            IServiceLogRepository log) : base(log)
         {
             _artifactRepository = instanceRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
@@ -227,11 +223,11 @@ namespace ArtifactStore.Controllers
         /// Get a list of all standard artifact types in the system.
         /// </summary>
         /// <remarks>
-        /// Returns the list of standard artifact types. Every item of the list contains id and name of artifact. 
+        /// Returns the list of standard artifact types. Every item of the list contains id and name of artifact.
         /// </remarks>
         /// <response code="200">OK. The list of standard artifact types.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>   
-        /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard artifact types.</response>           
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard artifact types.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("artifacts/standardartifacttypes"), SessionRequired]

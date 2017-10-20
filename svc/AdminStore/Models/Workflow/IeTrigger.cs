@@ -31,7 +31,7 @@ namespace AdminStore.Models.Workflow {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeTrigger) obj);
+            return Equals((IeTrigger)obj);
         }
 
         public override int GetHashCode()
@@ -39,8 +39,8 @@ namespace AdminStore.Models.Workflow {
             unchecked
             {
                 var hashCode = (Name != null ? Name.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (Action != null ? Action.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (Condition != null ? Condition.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Action != null ? Action.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Condition != null ? Condition.GetHashCode() : 0);
                 return hashCode;
             }
         }

@@ -100,7 +100,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 12, Predefined = ItemTypePredefined.Extension },
                 new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 13, Predefined = ItemTypePredefined.Flow },
                 // Not hidden
-                new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 13, Predefined = ItemTypePredefined.Step}
+                new SqlProjectMetaRepository.ItemTypeVersion { ItemTypeId = 13, Predefined = ItemTypePredefined.Step }
             };
             var itptMap = new List<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord>();
 
@@ -302,10 +302,10 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     VersionId = 88,
                     PrimitiveType = PropertyPrimitiveType.Number,
                     Required = true,
-                    DecimalDefaultValue = new byte[] { 11,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0 },
+                    DecimalDefaultValue = new byte[] { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
                     DecimalPlaces = 1,
-                    MaxNumber = new byte[] { 19,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0 },
-                    MinNumber = new byte[] { 11,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0 },
+                    MaxNumber = new byte[] { 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+                    MinNumber = new byte[] { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
                     Validate = true,
                     XmlInfo = "<CPS><CP Id=\"2269\" T=\"0\" N=\"ST-Non-Functional Requirements\" R=\"0\" AM=\"1\" AC=\"1\" SId=\"337\"><VVS/></CP></CPS>"
                 }
@@ -484,8 +484,8 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     IsRequired = ptVersions[0].Required,
                     UserGroupDefaultValue = new List<UserGroup>
                     {
-                        new UserGroup {Id = 3, IsGroup = false},
-                        new UserGroup {Id = 1, IsGroup = true}
+                        new UserGroup { Id = 3, IsGroup = false },
+                        new UserGroup { Id = 1, IsGroup = true }
                     }
                 }
             };
@@ -506,12 +506,12 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task GetApprovalStatusesAsync_Should_Throw_If_ProjectId_Isnt_Valid()
-        {   
-            //Arrange
+        {
+            // Arrange
             var projectId = 0;
             var userId = 2;
 
-            //Act
+            // Act
             await _repository.GetApprovalStatusesAsync(projectId, userId);
         }
 
@@ -519,7 +519,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetApprovalStatusesAsync_Should_Throw_If_Project_Doesnt_Exist()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -531,7 +531,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
 
             _cxn.SetupQueryAsync("GetInstanceProjectById", projectVersionParams, new List<SqlProjectMetaRepository.ProjectVersion>() { null });
 
-            //Act
+            // Act
             await _repository.GetApprovalStatusesAsync(projectId, userId);
         }
 
@@ -539,7 +539,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetApprovalStatusesAsync_Should_Throw_If_User_Has_No_Permissions_For_Project()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -551,14 +551,14 @@ namespace ServiceLibrary.Repositories.ProjectMeta
 
             _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById", projectVersionParams, new[] { new SqlProjectMetaRepository.ProjectVersion() { IsAccesible = false } });
 
-            //Act
+            // Act
             await _repository.GetApprovalStatusesAsync(projectId, userId);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_Status_Text()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -590,17 +590,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual("Test Approval Status", approvalStatus.StatusText);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_Approved_Status()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -632,17 +632,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual(ApprovalType.Approved, approvalStatus.ApprovalType);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_Disapproved_Status()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -674,17 +674,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual(ApprovalType.Disapproved, approvalStatus.ApprovalType);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_Not_Specified_Status()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -716,17 +716,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual(ApprovalType.NotSpecified, approvalStatus.ApprovalType);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_IsPreset_Case_True()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -758,17 +758,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual(true, approvalStatus.IsPreset);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Correct_IsPreset_Case_False()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -800,17 +800,17 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual(false, approvalStatus.IsPreset);
         }
 
         [TestMethod]
         public async Task GetApprovalStatusesAsync_Should_Return_Pending_Status_Text_For_ReadOnly_Not_Specified_Approval_Setting()
         {
-            //Arrange
+            // Arrange
             var projectId = 1;
             var userId = 2;
 
@@ -842,10 +842,10 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     }
                 });
 
-            //Act
+            // Act
             var approvalStatus = (await _repository.GetApprovalStatusesAsync(projectId, userId)).FirstOrDefault();
 
-            //Assert
+            // Assert
             Assert.AreEqual("Pending", approvalStatus.StatusText);
         }
 
@@ -862,13 +862,13 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             IEnumerable<SqlProjectMetaRepository.ItemTypeVersion> itVersions,
             IEnumerable<SqlProjectMetaRepository.ItemTypePropertyTypeMapRecord> itptMap)
         {
-            SqlProjectMetaRepository.ProjectVersion[] project = {new SqlProjectMetaRepository.ProjectVersion {IsAccesible = true}};
+            SqlProjectMetaRepository.ProjectVersion[] project = { new SqlProjectMetaRepository.ProjectVersion { IsAccesible = true } };
             _cxn.SetupQueryAsync<SqlProjectMetaRepository.ProjectVersion>("GetInstanceProjectById",
-                new Dictionary<string, object> {{"projectId", _projectId}, {"userId", _userId}}, project);
+                new Dictionary<string, object> { { "projectId", _projectId }, { "userId", _userId } }, project);
 
             var mockResult = Tuple.Create(ptVersions, itVersions, itptMap);
             _cxn.SetupQueryMultipleAsync("GetProjectCustomTypes",
-                new Dictionary<string, object> {{"projectId", _projectId}, {"revisionId", ServiceConstants.VersionHead}},
+                new Dictionary<string, object> { { "projectId", _projectId }, { "revisionId", ServiceConstants.VersionHead } },
                 mockResult);
         }
 
@@ -923,12 +923,12 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                         Type = SqlProjectMetaRepository.GroupType.General,
                         Properties = new List<SqlProjectMetaRepository.PropertyLayout>
                         {
-                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 17, OrderIndex = 0},
-                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 16, OrderIndex = 1},
-                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 20, OrderIndex = 2},
-                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 14, OrderIndex = 3},
-                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 11, OrderIndex = 3},
-                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 3, OrderIndex = 4}
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 17, OrderIndex = 0 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 16, OrderIndex = 1 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 20, OrderIndex = 2 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 14, OrderIndex = 3 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 11, OrderIndex = 3 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 3, OrderIndex = 4 }
                         }
                     },
                     new SqlProjectMetaRepository.PropertyLayoutGroup
@@ -936,9 +936,9 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                         Type = SqlProjectMetaRepository.GroupType.Details,
                         Properties = new List<SqlProjectMetaRepository.PropertyLayout>
                         {
-                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 7, OrderIndex = 0},
-                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 6, OrderIndex = 1},
-                            new SqlProjectMetaRepository.PropertyLayout {PropertyTypeId = 12, OrderIndex = 2}
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 7, OrderIndex = 0 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 6, OrderIndex = 1 },
+                            new SqlProjectMetaRepository.PropertyLayout { PropertyTypeId = 12, OrderIndex = 2 }
                         }
                     }
                 }
@@ -951,29 +951,29 @@ namespace ServiceLibrary.Repositories.ProjectMeta
 
         private void TestOrderProperties(SqlProjectMetaRepository.AdvancedSettings advancedSettings, List<int> expectedOrder)
         {
-            //Arrange
+            // Arrange
             var propertyTypes = new List<PropertyType>
             {
-                new PropertyType {Id = 1, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 101},
-                new PropertyType {Id = 2, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType {Id = 3, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 102},
-                new PropertyType {Id = 4, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType {Id = 5, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 103},
-                new PropertyType {Id = 6, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType {Id = 7, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 104},
-                new PropertyType {Id = 8, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType {Id = 9, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 105},
-                new PropertyType {Id = 10, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType {Id = 11, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 106},
-                new PropertyType {Id = 12, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType {Id = 13, InstancePropertyTypeId = null},
-                new PropertyType {Id = 14, InstancePropertyTypeId = 107},
-                new PropertyType {Id = 15, InstancePropertyTypeId = 108},
-                new PropertyType {Id = 16, InstancePropertyTypeId = 109},
-                new PropertyType {Id = 17, InstancePropertyTypeId = null},
-                new PropertyType {Id = 18, InstancePropertyTypeId = null},
-                new PropertyType {Id = 19, InstancePropertyTypeId = 110},
-                new PropertyType {Id = 20, InstancePropertyTypeId = null}
+                new PropertyType { Id = 1, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 101 },
+                new PropertyType { Id = 2, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 3, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 102 },
+                new PropertyType { Id = 4, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 5, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 103 },
+                new PropertyType { Id = 6, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 7, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 104 },
+                new PropertyType { Id = 8, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 9, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 105 },
+                new PropertyType { Id = 10, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 11, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 106 },
+                new PropertyType { Id = 12, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null },
+                new PropertyType { Id = 13, InstancePropertyTypeId = null },
+                new PropertyType { Id = 14, InstancePropertyTypeId = 107 },
+                new PropertyType { Id = 15, InstancePropertyTypeId = 108 },
+                new PropertyType { Id = 16, InstancePropertyTypeId = 109 },
+                new PropertyType { Id = 17, InstancePropertyTypeId = null },
+                new PropertyType { Id = 18, InstancePropertyTypeId = null },
+                new PropertyType { Id = 19, InstancePropertyTypeId = 110 },
+                new PropertyType { Id = 20, InstancePropertyTypeId = null }
             };
 
             var propertyTypeIds = new List<int>

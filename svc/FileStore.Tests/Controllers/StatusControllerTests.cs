@@ -26,7 +26,7 @@ namespace FileStore.Controllers
             // Act
             ResponseMessageResult result = await controller.GetStatus("NOTmypreauthorizedkey") as ResponseMessageResult;
 
-            // Assert 
+            // Assert
             Assert.AreEqual(HttpStatusCode.Unauthorized, result.Response.StatusCode);
         }
 
@@ -37,7 +37,7 @@ namespace FileStore.Controllers
         {
             // Arrange
             var statusControllerHelper = new Mock<IStatusControllerHelper>();
-            statusControllerHelper.Setup( r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName", AccessInfo = "MyAccessInfo" });
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName", AccessInfo = "MyAccessInfo" });
             statusControllerHelper.Setup(e => e.GetShorterStatus(It.IsAny<ServiceStatus>())).Returns(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName", AccessInfo = null });
             var controller = CreateController(statusControllerHelper.Object);
 

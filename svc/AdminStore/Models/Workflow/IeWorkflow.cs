@@ -19,7 +19,7 @@ namespace AdminStore.Models.Workflow
     public class IeWorkflow : IIeWorkflowEntityWithId
     {
         // Optional, not used for the import, will be used for the update
-        //========================================================
+        // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
         public int? Id { get; set; }
@@ -35,7 +35,7 @@ namespace AdminStore.Models.Workflow
         {
             return Id.HasValue;
         }
-        //========================================================
+        // ========================================================
 
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
@@ -78,7 +78,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeWorkflow) obj);
+            return Equals((IeWorkflow)obj);
         }
 
         public override int GetHashCode()
@@ -86,14 +86,14 @@ namespace AdminStore.Models.Workflow
             unchecked
             {
                 var hashCode = Id.GetHashCode();
-                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (Description != null ? Description.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ IsActive.GetHashCode();
-                hashCode = (hashCode*397) ^ (States != null ? States.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (TransitionEvents != null ? TransitionEvents.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (PropertyChangeEvents != null ? PropertyChangeEvents.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (NewArtifactEvents != null ? NewArtifactEvents.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (Projects != null ? Projects.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Description != null ? Description.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsActive.GetHashCode();
+                hashCode = (hashCode * 397) ^ (States != null ? States.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (TransitionEvents != null ? TransitionEvents.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (PropertyChangeEvents != null ? PropertyChangeEvents.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (NewArtifactEvents != null ? NewArtifactEvents.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Projects != null ? Projects.GetHashCode() : 0);
                 return hashCode;
             }
         }

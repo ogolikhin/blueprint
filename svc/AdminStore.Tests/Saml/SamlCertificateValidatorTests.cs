@@ -27,7 +27,7 @@ namespace AdminStore.Saml
         {
             var samlCertificateValidator = new SamlCertificateValidator(_signingCert, false);
             X509Certificate2 certificate = null;
-            //Act&Assert
+            // Act&Assert
             samlCertificateValidator.Validate(certificate);
         }
 
@@ -38,17 +38,17 @@ namespace AdminStore.Saml
             var samlCertificateValidator = new SamlCertificateValidator(_signingCert, false);
             var dummyCertificate = File.ReadAllBytes("Certificates\\dummyCertificate.pfx");
             var certificate = new X509Certificate2(dummyCertificate, Password);
-            //Act&Assert
+            // Act&Assert
             samlCertificateValidator.Validate(certificate);
         }
 
-        //[TestMethod]
-        //[ExpectedException(typeof(FederatedAuthenticationException))]
-        //public void Validate_InvalidCertificateChainValidation_FederatedAuthenticationException()
-        //{
+        // [TestMethod]
+        // [ExpectedException(typeof(FederatedAuthenticationException))]
+        // public void Validate_InvalidCertificateChainValidation_FederatedAuthenticationException()
+        // {
         //    var samlCertificateValidator = new SamlCertificateValidator(_signingCert, true);
         //    //Act&Assert
         //    samlCertificateValidator.Validate(_signingCert);
-        //}
+        // }
     }
 }

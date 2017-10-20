@@ -179,7 +179,7 @@ namespace ServiceLibrary.Repositories.Files
             }
             else
             {
-                //Replace unsupported character " with empty string
+                // Replace unsupported character " with empty string
                 fileName = fileName.Replace("\"", "");
 
                 var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);

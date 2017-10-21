@@ -169,7 +169,7 @@ function Build-ImageService{
 
     Write-Section "Building Image Service"
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\BlueprintSys.RC.ImageService\BlueprintSys.RC.ImageService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\BlueprintSys.RC.ImageService`""
+    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\BlueprintSys.RC.ImageService\BlueprintSys.RC.ImageService.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\BlueprintSys.RC.ImageService`" /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset`""
 
     $processHtmlFolder = "$workspace\win_svc\DeployArtifacts\BlueprintSys.RC.ImageService\ProcessHtml"
     $novaImageGenFolder = "$workspace\app\NovaWeb\dist\imagegen"
@@ -208,7 +208,7 @@ function Build-BlueprintServices{
 
     Write-Section "Building Blueprint Services"
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\BlueprintSys.RC.Services\BlueprintSys.RC.Services.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\BlueprintSys.RC.Services`""
+    Invoke-MsBuild @msBuildArgs -project $workspace\win_svc\BlueprintSys.RC.Services\BlueprintSys.RC.Services.csproj -trailingArguments "/p:Platform='x64' /p:OutDir=`"$workspace\win_svc\DeployArtifacts\BlueprintSys.RC.Services`" /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset`""
 }
 
 function Run-Nova-Unit-Tests{

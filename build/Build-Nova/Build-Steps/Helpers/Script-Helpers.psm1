@@ -20,7 +20,7 @@ function Invoke-MsBuild {
         
         [Parameter(Mandatory=$true)][string]$msBuildPath,
         
-        [Parameter(Mandatory=$false)][string]$runCodeAnalysis = "False",
+        [Parameter(Mandatory=$false)][string]$runCodeAnalysis = "false",
         [Parameter(Mandatory=$false)][string]$visualStudioVersion = "12.0",
         [Parameter(Mandatory=$false)][string]$trailingArguments = "",
         [Parameter(Mandatory=$false)][bool]$ignoreErrorCode = $false,

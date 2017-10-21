@@ -24,28 +24,28 @@ namespace SearchService.Helpers.SemanticSearch
 
         public string SearchText;
     }
-    public sealed class ElasticSearchEngine: SearchEngine
+    public sealed class ElasticSearchEngine : SearchEngine
     {
         private const string IndexPrefix = "semanticsdb_";
         private string IndexName { get; }
         private IElasticClient _elasticClient;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308: Normalize strings to uppercase", Justification = "Index name for elastic search must be lower cased")]
-        public ElasticSearchEngine(string connectionString, string tenantId, ISemanticSearchRepository semanticSearchRepository) 
+        public ElasticSearchEngine(string connectionString, string tenantId, ISemanticSearchRepository semanticSearchRepository)
             : base(semanticSearchRepository)
         {
             IndexName = (IndexPrefix + tenantId).ToLowerInvariant();
 
             // create ElasticClient using conneciton string
             var connectionSettings = new ConnectionSettings(new Uri(connectionString)).DefaultIndex(IndexName);
-            connectionSettings.MapDefaultTypeNames(d => d.Add(typeof (SemanticSearchItem), "semanticsearchitems"));
+            connectionSettings.MapDefaultTypeNames(d => d.Add(typeof(SemanticSearchItem), "semanticsearchitems"));
 
             _elasticClient = new ElasticClient(connectionSettings);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308: Normalize strings to uppercase", Justification = "Index name for elastic search must be lower cased")]
         internal ElasticSearchEngine(string tenantId, IElasticClient elasticClient, ISemanticSearchRepository semanticSearchRepository)
-            : base (semanticSearchRepository)
+            : base(semanticSearchRepository)
         {
             IndexName = (IndexPrefix + tenantId).ToLowerInvariant();
 
@@ -93,7 +93,7 @@ namespace SearchService.Helpers.SemanticSearch
                     boolQueryDescriptor.Filter(GetContainsProjectIdsQuery(searchEngineParameters.AccessibleProjectIds));
                 }
 
-                // Creates the search descriptor 
+                // Creates the search descriptor
                 var searchDescriptor = new SearchDescriptor<SemanticSearchItem>();
                 searchDescriptor.Index(IndexName).Size(searchEngineParameters.PageSize).Query(q => q.Bool(b => boolQueryDescriptor));
 
@@ -116,12 +116,10 @@ namespace SearchService.Helpers.SemanticSearch
             var container = new QueryContainerDescriptor<SemanticSearchItem>();
             container.MoreLikeThis(fs => fs
                 .Fields(
-                    f => f.Field(a => a.SearchText).Field(b=>b.Name)
-                )
+                    f => f.Field(a => a.SearchText).Field(b => b.Name))
                 .Like(
                     l => l.Document(
-                        d =>d.Document(new SemanticSearchItem() {Name = searchText.Name, SearchText = searchText.SearchText}))
-                )
+                        d => d.Document(new SemanticSearchItem() { Name = searchText.Name, SearchText = searchText.SearchText })))
                 .MinDocumentFrequency(1)
                 .MinTermFrequency(1));
 

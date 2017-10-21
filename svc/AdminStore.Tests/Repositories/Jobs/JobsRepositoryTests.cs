@@ -130,7 +130,7 @@ namespace AdminStore.Repositories.Jobs
             var fileRepositoryMock = new Mock<IFileRepository>();
             fileRepositoryMock
                 .Setup(m => m.GetFileAsync(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(new File {Info = new FileInfo(), ContentStream = new MemoryStream()}));
+                .Returns(Task.FromResult(new File { Info = new FileInfo(), ContentStream = new MemoryStream() }));
             var jobsRepository = CreateJobsRepository(job);
 
             // Act
@@ -184,7 +184,7 @@ namespace AdminStore.Repositories.Jobs
             var artifactsMock = new Mock<IArtifactRepository>();
             var permissionsMock = new Mock<IArtifactPermissionsRepository>();
             var usersMock = new Mock<IUsersRepository>();
-            
+
             var jobsRepository = new JobsRepository(connection.Object, artifactsMock.Object, permissionsMock.Object, usersMock.Object);
             return jobsRepository;
         }

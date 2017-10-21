@@ -59,7 +59,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
-                //create the log entry
+                // create the log entry
                 var logEntry = new ServiceLogModel
                 {
                     LogLevel = LogLevelEnum.Informational,
@@ -111,7 +111,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
-                //create the log entry
+                // create the log entry
                 var logEntry = new ServiceLogModel
                 {
                     LogLevel = LogLevelEnum.Verbose,
@@ -163,7 +163,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
-                //create the log entry
+                // create the log entry
                 var logEntry = new ServiceLogModel
                 {
                     LogLevel = LogLevelEnum.Warning,
@@ -205,7 +205,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             string sessionId,
             string userName)
         {
-            //create the log entry
+            // create the log entry
             StandardLogModel serviceLog = new StandardLogModel
             {
                 Source = logEntry.Source,
@@ -220,7 +220,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 StackTrace = logEntry.StackTrace
             };
             await LogStandardLog(serviceLog);
-            //don't care about errors
+            // don't care about errors
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
 
@@ -249,7 +249,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
-                //create the log entry
+                // create the log entry
                 var logEntry = new ServiceLogModel
                 {
                     LogLevel = LogLevelEnum.Error,
@@ -301,7 +301,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 var http = _httpClientProvider.Create(new Uri(uri));
 
-                //create the log entry
+                // create the log entry
                 var logEntry = new ServiceLogModel
                 {
                     LogLevel = LogLevelEnum.Error,

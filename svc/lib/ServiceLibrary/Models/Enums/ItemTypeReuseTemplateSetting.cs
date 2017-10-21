@@ -20,7 +20,7 @@ namespace ServiceLibrary.Models.Enums
         DocumentReferences = 0x800,
         Relationships = 0x1000,
         Subartifacts = 0x2000,
-        All = Name | Description | ActorImage | BaseActor | DocumentFile | DiagramHeight | DiagramWidth | UseCaseLevel | UIMockupTheme 
+        All = Name | Description | ActorImage | BaseActor | DocumentFile | DiagramHeight | DiagramWidth | UseCaseLevel | UIMockupTheme
             | UseCaseDiagramShowConditions | Attachments | DocumentReferences | Relationships | Subartifacts
     }
 }

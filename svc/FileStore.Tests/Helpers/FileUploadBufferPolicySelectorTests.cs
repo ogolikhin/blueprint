@@ -10,41 +10,41 @@ namespace FileStore.Helpers
         [TestMethod]
         public void UseBufferedInputStream_ReturnsFalse()
         {
-            //Arange
+            // Arange
             var fileUploadBufferPolicySelector = new FileUploadBufferPolicySelector();
 
-            //Act
+            // Act
             var result = fileUploadBufferPolicySelector.UseBufferedInputStream(null);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "FileUploadBufferPolicySelector should return false for UseBufferedInputStream");
         }
 
         [TestMethod]
         public void UseBufferedOutputStream_ReturnsFalse()
         {
-            //Arange
+            // Arange
             var fileUploadBufferPolicySelector = new FileUploadBufferPolicySelector();
             var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-            
-            //Act
+
+            // Act
             var result = fileUploadBufferPolicySelector.UseBufferedOutputStream(response);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "UseBufferedOutputStream should return false for UseBufferedInputStream");
         }
 
         [TestMethod]
         public void UseBufferedOutputStream_ReturnsTrue()
         {
-            //Arange
+            // Arange
             var fileUploadBufferPolicySelector = new FileUploadBufferPolicySelector();
             var response = new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest);
 
-            //Act
+            // Act
             var result = fileUploadBufferPolicySelector.UseBufferedOutputStream(response);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "UseBufferedOutputStream should return true for UseBufferedInputStream");
         }
     }

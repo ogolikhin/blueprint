@@ -45,8 +45,8 @@ namespace ArtifactStore.Repositories.VersionControl
 
         public async Task Execute(int revisionId, PublishParameters parameters, PublishEnvironment environment, IDbTransaction transaction = null)
         {
-            //await Task.Run(() =>
-            //{
+            // await Task.Run(() =>
+            // {
                 var artifactIds = parameters.ArtifactIds.ToHashSet();
                 var draftAndLatestLinks = await GetDraftAndLatestLinks(artifactIds, parameters.UserId, transaction);
 
@@ -104,9 +104,9 @@ namespace ArtifactStore.Repositories.VersionControl
                 await DeleteLinkVersions(deleteLinkVersionsIds, transaction);
                 await CloseVersions(closeLinkVersionIds, environment.RevisionId, transaction);
                 await MarkAsLatest(markAsLatestLinkVersionIds, environment.RevisionId, transaction);
-            //});
+            // });
         }
-        
+
         private async Task DeleteLinkVersions(HashSet<int> deleteLinkVersionsIds, IDbTransaction transaction)
         {
             if (deleteLinkVersionsIds.Count == 0)
@@ -120,20 +120,18 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    "RemoveLinkVersions", 
-                    parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    "RemoveLinkVersions",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
             }
             else
             {
                 await transaction.Connection.ExecuteAsync
                 (
-                    "RemoveLinkVersions", 
-                    parameters, 
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                );
+                    "RemoveLinkVersions",
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -157,20 +155,18 @@ WHERE Artifact1Id = @artifactId1
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    sqlString, 
-                    parameters, 
-                    commandType: CommandType.Text
-                );
+                    sqlString,
+                    parameters,
+                    commandType: CommandType.Text);
             }
             else
             {
                 await transaction.Connection.ExecuteAsync
                 (
-                    sqlString, 
-                    parameters, 
-                    transaction, 
-                    commandType: CommandType.Text
-                );
+                    sqlString,
+                    parameters,
+                    transaction,
+                    commandType: CommandType.Text);
             }
         }
 
@@ -182,27 +178,23 @@ WHERE Artifact1Id = @artifactId1
 
             if (transaction == null)
             {
-                return 
+                return
                 (
                     await ConnectionWrapper.QueryAsync<DraftAndLatestLink>
                     (
-                        "GetDraftAndLatestLinks", 
-                        parameters, 
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        "GetDraftAndLatestLinks",
+                        parameters,
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
-            return 
+            return
             (
                 await transaction.Connection.QueryAsync<DraftAndLatestLink>
                 (
-                    "GetDraftAndLatestLinks", 
-                    parameters, 
-                    transaction, 
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToList();
+                    "GetDraftAndLatestLinks",
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure)).ToList();
         }
 
         private void MarkArtifactsAsAffectedIfRequired(DraftAndLatestLink link, HashSet<int> artifactIds, PublishEnvironment env)
@@ -262,7 +254,7 @@ WHERE Artifact1Id = @artifactId1
             }
             #endregion
 
-            var publishedItems = await GetLiveItemsOnly(itemsToVerify);//_itemsRepo.GetLiveItemsOnly(itemsToVerify);
+            var publishedItems = await GetLiveItemsOnly(itemsToVerify); // _itemsRepo.GetLiveItemsOnly(itemsToVerify);
 
             var filteredLinks = new List<DraftAndLatestLink>();
             foreach (var link in links)

@@ -10,14 +10,14 @@ namespace AdminStore.Helpers
         [TestMethod]
         public void EmailHelperTests_SendEmail_CorrectResult()
         {
-            //Arange
+            // Arange
             var toEmail = "email@test.com";
             var fromEmail = "from@test.com";
 
-            //Act
+            // Act
             MailMessage message = EmailHelper.PrepareMessage(toEmail, fromEmail, string.Empty, string.Empty);
 
-            //Assert
+            // Assert
             Assert.AreEqual(toEmail, message.To[0].Email);
             Assert.AreEqual(fromEmail, message.From.Email);
         }

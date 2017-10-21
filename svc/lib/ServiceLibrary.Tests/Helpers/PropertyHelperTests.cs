@@ -13,29 +13,29 @@ namespace ServiceLibrary.Helpers
         [TestMethod]
         public void ParseDateValue_ReturnsCurrentDate_WhenDateValueIsZero()
         {
-            //arrange
+            // arrange
             const string dateValue = "0";
             var today = new DateTime(2017, 1, 1);
             var mockTimeProvider = new Mock<ITimeProvider>();
             mockTimeProvider.Setup(m => m.Today).Returns(today);
-            //act
+            // act
             var date = PropertyHelper.ParseDateValue(dateValue, mockTimeProvider.Object);
-            //assert
+            // assert
             Assert.AreEqual(today, date);
         }
 
         [TestMethod]
         public void ParseDateValue_ReturnsFutureDate_WhenDateValueIsPositiveInteger()
         {
-            //arrange
+            // arrange
             const int daysToAdd = 1;
             var dateValue = daysToAdd.ToString(CultureInfo.InvariantCulture);
             var today = new DateTime(2018, 2, 2);
             var mockTimeProvider = new Mock<ITimeProvider>();
             mockTimeProvider.Setup(m => m.Today).Returns(today);
-            //act
+            // act
             var date = PropertyHelper.ParseDateValue(dateValue, mockTimeProvider.Object);
-            //assert
+            // assert
             var expected = today.AddDays(daysToAdd);
             Assert.AreEqual(expected, date);
         }
@@ -43,15 +43,15 @@ namespace ServiceLibrary.Helpers
         [TestMethod]
         public void ParseDateValue_ReturnsPastDate_WhenDateValueIsNegativeInteger()
         {
-            //arrange
+            // arrange
             const int daysToAdd = -1;
             var dateValue = daysToAdd.ToString(CultureInfo.InvariantCulture);
             var today = new DateTime(2019, 3, 3);
             var mockTimeProvider = new Mock<ITimeProvider>();
             mockTimeProvider.Setup(m => m.Today).Returns(today);
-            //act
+            // act
             var date = PropertyHelper.ParseDateValue(dateValue, mockTimeProvider.Object);
-            //assert
+            // assert
             var expected = today.AddDays(daysToAdd);
             Assert.AreEqual(expected, date);
         }
@@ -59,12 +59,12 @@ namespace ServiceLibrary.Helpers
         [TestMethod]
         public void ParseDateValue_ReturnsSpecifiedDate_WhenDateValueIsASpecificDateInTheCorrectFormat()
         {
-            //arrange
+            // arrange
             var expectedDate = new DateTime(2020, 4, 4);
             var dateValue = expectedDate.ToString(WorkflowConstants.Iso8601DateFormat, CultureInfo.InvariantCulture);
-            //act
+            // act
             var date = PropertyHelper.ParseDateValue(dateValue, new TimeProvider());
-            //assert
+            // assert
             Assert.AreEqual(expectedDate, date);
         }
 
@@ -72,10 +72,10 @@ namespace ServiceLibrary.Helpers
         [ExpectedException(typeof(FormatException))]
         public void ParseDateValue_ReturnsSpecifiedDate_WhenDateValueIsASpecificDateInAnUnsupportedFormat()
         {
-            //arrange
+            // arrange
             var date = new DateTime(2021, 5, 5);
             var unsupportedDateFormat = date.ToLongDateString();
-            //act
+            // act
             PropertyHelper.ParseDateValue(unsupportedDateFormat, new TimeProvider());
         }
 
@@ -83,9 +83,9 @@ namespace ServiceLibrary.Helpers
         [ExpectedException(typeof(FormatException))]
         public void ParseDateValue_ThrowsFormatException_WhenDateValueIsInvalid()
         {
-            //arrange
+            // arrange
             const string dateValue = "invalid date";
-            //act
+            // act
             PropertyHelper.ParseDateValue(dateValue, new TimeProvider());
         }
     }

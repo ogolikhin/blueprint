@@ -119,7 +119,7 @@ namespace ServiceLibrary.Helpers
             repositoryMock
                 .Setup(m => m.GetProjectAdminPermissionsAsync(userId, projectId))
                 .ReturnsAsync(ProjectAdminPrivileges.ViewGroupsAndRoles);
-                       
+
             var manager = new PrivilegesManager(repositoryMock.Object);
 
             // act
@@ -169,7 +169,7 @@ namespace ServiceLibrary.Helpers
         }
 
         [TestMethod]
-        [ExpectedException(typeof (AuthorizationException))]
+        [ExpectedException(typeof(AuthorizationException))]
         public async Task DemandAny_UserWithoutAnyPrivilege_ThrowsAuthorizationException()
         {
             // arrange
@@ -191,7 +191,7 @@ namespace ServiceLibrary.Helpers
                 manager.DemandAny(userId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
                     ProjectAdminPrivileges.ManageGroupsAndRoles);
 
-            //Exception
+            // Exception
         }
     }
 }

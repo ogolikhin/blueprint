@@ -109,7 +109,7 @@ namespace AdminStore.Helpers
                 : defaultSortColumn;
 
             return sorting.Order == SortOrder.Desc ? "-" + sortColumn : sortColumn;
-		}
+        }
 
         public static string SortProjectFolders(Sorting sorting)
         {

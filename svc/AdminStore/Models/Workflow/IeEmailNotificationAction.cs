@@ -49,7 +49,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeEmailNotificationAction) obj);
+            return Equals((IeEmailNotificationAction)obj);
         }
 
         public override int GetHashCode()
@@ -57,10 +57,10 @@ namespace AdminStore.Models.Workflow
             unchecked
             {
                 int hashCode = base.GetHashCode();
-                hashCode = (hashCode*397) ^ (Emails != null ? Emails.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (PropertyName != null ? PropertyName.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ PropertyId.GetHashCode();
-                hashCode = (hashCode*397) ^ (Message != null ? Message.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Emails != null ? Emails.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (PropertyName != null ? PropertyName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ PropertyId.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Message != null ? Message.GetHashCode() : 0);
                 return hashCode;
             }
         }

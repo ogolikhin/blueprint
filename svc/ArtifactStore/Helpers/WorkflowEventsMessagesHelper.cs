@@ -36,7 +36,7 @@ namespace ArtifactStore.Helpers
             IDbTransaction transaction = null)
         {
             var resultMessages = new List<IWorkflowMessage>();
-            //var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
+            // var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
             var baseHostUri = baseUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
 
             foreach (var workflowEventTrigger in postOpTriggers)
@@ -129,7 +129,7 @@ namespace ArtifactStore.Helpers
                 }
             }
 
-            //Add published artifact message
+            // Add published artifact message
             if (sendArtifactPublishedMessage)
             {
                 var publishedMessage =
@@ -208,12 +208,12 @@ namespace ArtifactStore.Helpers
                             notificationAction.PropertyTypeId.Value,
                             revisionId,
                             transaction);
-                //Make sure that email is provided
+                // Make sure that email is provided
                 emails.AddRange(from userInfo in userInfos where !string.IsNullOrWhiteSpace(userInfo?.Email) select userInfo.Email);
             }
             else
             {
-                //Take email from list of provided emails
+                // Take email from list of provided emails
                 emails.AddRange(notificationAction.Emails ?? new List<string>());
             }
 
@@ -254,7 +254,7 @@ namespace ArtifactStore.Helpers
                 Id = artifactInfo.Id,
                 Name = artifactInfo.Name,
                 Predefined = (int)artifactInfo.PredefinedType,
-                IsFirstTimePublished = false, //State change always occurs on published artifacts
+                IsFirstTimePublished = false, // State change always occurs on published artifacts
                 ProjectId = artifactInfo.ProjectId,
                 Url = ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true),
                 ModifiedProperties = new List<PublishedPropertyInformation>()
@@ -268,7 +268,7 @@ namespace ArtifactStore.Helpers
                     TypeId = p.PropertyTypeId,
                     PredefinedType = (int)p.Predefined
                 }));
-                //Only add artifact to list if there is a list of modified properties
+                // Only add artifact to list if there is a list of modified properties
                 artifacts.Add(artifact);
             }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -7,11 +8,11 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.Workflow;
 
 namespace ServiceLibrary.Repositories
 {
     [TestClass]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1004:DocumentationLinesMustBeginWithSingleSpace", Justification = "Reviewed.")]
     public class SqlArtifactRepositoryTests
     {
         #region GetProjectOrArtifactChildrenAsync
@@ -437,9 +438,9 @@ namespace ServiceLibrary.Repositories
             input[0].ItemTypePredefined = ItemTypePredefined.Project;
             input[1].ParentId = projectId;
 
-            //NOTE:: Temporary filter Review and BaseLines ou from the list
+            // NOTE:: Temporary filter Review and BaseLines ou from the list
             // See US#809: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=809
-            //var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
+            // var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
             //    name: "BaselinesAndReviews",
             //    orderIndex: -1,
             //    itemTypePredefined: ItemTypePredefined.BaselineFolder,
@@ -448,7 +449,7 @@ namespace ServiceLibrary.Repositories
             //    lockedByUserId: null,
             //    lockedByUserTime: null,
             //    versionsCount: 1);
-            //input.Add(baselinesAndReviews);
+            // input.Add(baselinesAndReviews);
 
             var collections = CreateArtifactVersion(3, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
                 name: "Collections",
@@ -496,10 +497,10 @@ namespace ServiceLibrary.Repositories
                     ProjectId = collections.VersionProjectId,
                     Prefix = collections.Prefix
                 },
-                //NOTE:: Temporary filter Review and BaseLines ou from the list
+                // NOTE:: Temporary filter Review and BaseLines ou from the list
                 // See US#809: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=809
-                //new Artifact
-                //{
+                // new Artifact
+                // {
                 //    PredefinedType = baselinesAndReviews.ItemTypePredefined.GetValueOrDefault(),
                 //    OrderIndex = baselinesAndReviews.OrderIndex,
                 //    ParentId = baselinesAndReviews.ParentId,
@@ -513,7 +514,7 @@ namespace ServiceLibrary.Repositories
                 //    Version = baselinesAndReviews.VersionsCount,
                 //    ProjectId = baselinesAndReviews.VersionProjectId,
                 //    Prefix = baselinesAndReviews.Prefix
-                //}
+                // }
             };
 
             // Act and Assert
@@ -1254,7 +1255,7 @@ namespace ServiceLibrary.Repositories
             };
             var children2 = new List<Artifact>
             {
-                new Artifact { Id = 4, ParentId = -1} // Orphaned Collection artifact
+                new Artifact { Id = 4, ParentId = -1 } // Orphaned Collection artifact
             };
             var children3 = new List<Artifact>
             {
@@ -1321,7 +1322,7 @@ namespace ServiceLibrary.Repositories
             };
             var children3 = new List<Artifact>
             {
-                new Artifact { Id = 4, ParentId = -1} // Orphaned Collection artifact
+                new Artifact { Id = 4, ParentId = -1 } // Orphaned Collection artifact
             };
             var children4 = new List<Artifact>
             {
@@ -1535,7 +1536,7 @@ namespace ServiceLibrary.Repositories
             const int artifactId = 3;
             const int userId = 99;
             var arifactBasicDetails = new List<ArtifactBasicDetails> { new ArtifactBasicDetails { LatestDeleted = false } };
-            
+
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
 
@@ -1572,12 +1573,12 @@ namespace ServiceLibrary.Repositories
                 new ArtifactVersion { ItemId = 1, ParentId = null, VersionProjectId = projectId, Name = "project", ItemTypeId = 66 },
                 new ArtifactVersion { ItemId = 2, ParentId = 1, VersionProjectId = projectId, Name = "folder", ItemTypeId = 77 }
             };
-            
+
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
             cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
-            var mockArtifactPermissionsRepository = CreatePermissionsRepositoryMock(new[] {artifactId}, userId, RolePermissions.Read);
+            var mockArtifactPermissionsRepository = CreatePermissionsRepositoryMock(new[] { artifactId }, userId, RolePermissions.Read);
 
             var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
 
@@ -1629,7 +1630,7 @@ namespace ServiceLibrary.Repositories
             int[] artifactIds = { 1 };
             const int userId = 1;
 
-            ArtifactsNavigationPath[] queryResult ={
+            ArtifactsNavigationPath[] queryResult = {
                 new ArtifactsNavigationPath()
             };
 
@@ -1637,7 +1638,7 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
                 new Dictionary<string, object>
                 {
-                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value")},
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value") },
                     { "userId", userId },
                     { "revisionId", int.MaxValue },
                     { "addDrafts", true }
@@ -1656,9 +1657,9 @@ namespace ServiceLibrary.Repositories
         /**
          * P (99)
          *       \
-         *        A (100) 
+         *        A (100)
          *               \
-         *                B (101)         
+         *                B (101)
          */
         [TestMethod]
         public async Task GetArtifactsNavigationPathsAsync_TwoArtifactsNotIncludeItself_Success()
@@ -1667,22 +1668,22 @@ namespace ServiceLibrary.Repositories
             var artifact2Id = 101;
             int projectId = 99;
             // Arrange
-            int[] artifactIds = { artifact1Id, artifact2Id };            
+            int[] artifactIds = { artifact1Id, artifact2Id };
             const int userId = 1;
 
             ArtifactsNavigationPath[] queryResult = {
-                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 0, Name = "A", ParentId = projectId},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 0, Name = "B", ParentId = artifact1Id},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 1, Name = "A", ParentId = projectId},
-                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 1, Name = "P", ParentId = null},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 2, Name = "P", ParentId = null},
+                new ArtifactsNavigationPath { ArtifactId = artifact1Id, Level = 0, Name = "A", ParentId = projectId },
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 0, Name = "B", ParentId = artifact1Id },
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 1, Name = "A", ParentId = projectId },
+                new ArtifactsNavigationPath { ArtifactId = artifact1Id, Level = 1, Name = "P", ParentId = null },
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 2, Name = "P", ParentId = null },
             };
 
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
                 new Dictionary<string, object>
                 {
-                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds)},
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
                     { "userId", userId },
                     { "revisionId", int.MaxValue },
                     { "addDrafts", true }
@@ -1718,9 +1719,9 @@ namespace ServiceLibrary.Repositories
         /**
          * P (99)
          *       \
-         *        A (100) 
+         *        A (100)
          *               \
-         *                B (101)         
+         *                B (101)
          */
         [TestMethod]
         public async Task GetArtifactsNavigationPathsAsync_TwoArtifactsIncludeItself_Success()
@@ -1733,18 +1734,18 @@ namespace ServiceLibrary.Repositories
             const int userId = 1;
 
             ArtifactsNavigationPath[] queryResult = {
-                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 0, Name = "A", ParentId = projectId},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 0, Name = "B", ParentId = artifact1Id},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 1, Name = "A", ParentId = projectId},
-                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 1, Name = "P", ParentId = null},
-                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 2, Name = "P", ParentId = null},
+                new ArtifactsNavigationPath { ArtifactId = artifact1Id, Level = 0, Name = "A", ParentId = projectId },
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 0, Name = "B", ParentId = artifact1Id },
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 1, Name = "A", ParentId = projectId },
+                new ArtifactsNavigationPath { ArtifactId = artifact1Id, Level = 1, Name = "P", ParentId = null },
+                new ArtifactsNavigationPath { ArtifactId = artifact2Id, Level = 2, Name = "P", ParentId = null },
             };
 
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
                 new Dictionary<string, object>
                 {
-                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds)},
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
                     { "userId", userId },
                     { "revisionId", int.MaxValue },
                     { "addDrafts", true }
@@ -1788,16 +1789,16 @@ namespace ServiceLibrary.Repositories
 
             var queryResult = new List<ArtifactsNavigationPath>
             {
-                new ArtifactsNavigationPath {ArtifactId = 1, Level = 0, Name = "ArtifactName"},
-                new ArtifactsNavigationPath {ArtifactId = 1, Level = 1, Name = "ArtifactParent"},
-                new ArtifactsNavigationPath {ArtifactId = 1, Level = 2, Name = "ArtifactGrandParent"}
+                new ArtifactsNavigationPath { ArtifactId = 1, Level = 0, Name = "ArtifactName" },
+                new ArtifactsNavigationPath { ArtifactId = 1, Level = 1, Name = "ArtifactParent" },
+                new ArtifactsNavigationPath { ArtifactId = 1, Level = 2, Name = "ArtifactGrandParent" }
             };
 
             var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
                 new Dictionary<string, object>
                 {
-                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value")},
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value") },
                     { "userId", userId },
                     { "revisionId", int.MaxValue },
                     { "addDrafts", true }
@@ -1840,8 +1841,8 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories",
                 new Dictionary<string, object>
                 {
-                    {"artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds)},
-                    {"revisionId", int.MaxValue}
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
+                    { "revisionId", int.MaxValue }
                 },
                 authorHistories);
 
@@ -1867,21 +1868,21 @@ namespace ServiceLibrary.Repositories
                 ModificationTimestamp = DateTime.Today.AddHours(-1),
                 ModificationUserId = 2
             };
-            
+
             var repository = CreateSqlRepositoryWithPermissions(artifactIds, userId,
                 Enumerable.Repeat(authorHistory, 1), RolePermissions.Read);
 
             // Act
             var actual = await repository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, userId);
 
-            // Assert            
+            // Assert
             Assert.IsTrue(actual.Count() == 1);
             var firstActualResult = actual.First();
             Assert.AreEqual(firstActualResult.CreatedBy, authorHistory.CreationUserId);
             Assert.AreEqual(firstActualResult.CreatedOn, authorHistory.CreationTimestamp);
             Assert.AreEqual(firstActualResult.LastEditedBy, authorHistory.ModificationUserId);
             Assert.AreEqual(firstActualResult.LastEditedOn, authorHistory.ModificationTimestamp);
-        }        
+        }
 
 
         [TestMethod]
@@ -1889,7 +1890,7 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             int[] artifactIds = { 1 };
-            const int userId = 1;                      
+            const int userId = 1;
 
             var authorHistory = new SqlAuthorHistory
             {
@@ -1906,7 +1907,7 @@ namespace ServiceLibrary.Repositories
             // Act
             var actual = await repository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, userId);
 
-            // Assert            
+            // Assert
             Assert.IsFalse(actual.Any());
         }
 
@@ -1918,20 +1919,20 @@ namespace ServiceLibrary.Repositories
             const int userId = 1;
 
             var repository = CreateSqlRepositoryWithPermissions(artifactIds, userId,
-                Enumerable.Empty<SqlAuthorHistory>(), RolePermissions.Read);            
+                Enumerable.Empty<SqlAuthorHistory>(), RolePermissions.Read);
 
             // Act
             var actual = await repository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, userId);
 
-            // Assert            
-            Assert.IsTrue(actual.Count() == 0);            
+            // Assert
+            Assert.IsTrue(actual.Count() == 0);
         }
 
         #endregion GetAuthorHistoriesWithPermissionsCheck
 
-        
 
-        private static Mock<IArtifactPermissionsRepository> CreatePermissionsRepositoryMock(int[] artifactIds, int userId, RolePermissions rolePermissions )
+
+        private static Mock<IArtifactPermissionsRepository> CreatePermissionsRepositoryMock(int[] artifactIds, int userId, RolePermissions rolePermissions)
         {
             var permissions = artifactIds.ToDictionary(id => id, id => rolePermissions);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();

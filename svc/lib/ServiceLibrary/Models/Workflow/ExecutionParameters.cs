@@ -57,11 +57,11 @@ namespace ServiceLibrary.Models.Workflow
             ISaveArtifactRepository saveArtifactRepository,
             IDbTransaction transaction,
             IValidationContext validationContext) : this(
-                userId, 
-                artifactInfo, 
-                reuseTemplate, 
-                customPropertyTypes, 
-                saveArtifactRepository, 
+                userId,
+                artifactInfo,
+                reuseTemplate,
+                customPropertyTypes,
+                saveArtifactRepository,
                 transaction,
                 validationContext,
                 new List<IPropertyValidator>()
@@ -71,7 +71,7 @@ namespace ServiceLibrary.Models.Workflow
                     new DatePropertyValidator(),
                     new UserPropertyValidator(),
                     new ChoicePropertyValidator()
-                }, 
+                },
                 new ReusePropertyValidator())
         {
         }

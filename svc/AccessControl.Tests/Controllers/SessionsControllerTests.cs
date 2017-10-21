@@ -198,7 +198,7 @@ namespace AccessControl.Controllers
             _sessionsRepoMock
                 .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
                 .Throws(new KeyNotFoundException());
-                //.ReturnsAsync((IEnumerable<Session>)new KeyNotFoundException());
+                // .ReturnsAsync((IEnumerable<Session>)new KeyNotFoundException());
 
             // Act
             var result = await _controller.SelectSessions();
@@ -226,7 +226,7 @@ namespace AccessControl.Controllers
             _sessionsRepoMock
                 .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
                 .Throws(new ArgumentNullException());
-                //.ReturnsAsync((IEnumerable<Session>)null);
+                // .ReturnsAsync((IEnumerable<Session>)null);
 
             // Act
             var result = await _controller.SelectSessions();
@@ -372,7 +372,7 @@ namespace AccessControl.Controllers
             // Arrange
             int uid = 3;
             var guid = Guid.NewGuid();
-            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(new Session {SessionId = guid, EndTime = DateTime.UtcNow.AddDays(1) });
+            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(new Session { SessionId = guid, EndTime = DateTime.UtcNow.AddDays(1) });
             _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).ReturnsAsync((Session)null);
 
             // Act

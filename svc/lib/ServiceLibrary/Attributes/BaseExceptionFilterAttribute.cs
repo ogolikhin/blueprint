@@ -46,8 +46,8 @@ namespace ServiceLibrary.Attributes
                 errorCode = exceptionWithErrorCode.ErrorCode;
                 errorContent = exceptionWithErrorCode.Content;
             }
-            
-            
+
+
             var loggableController = context.ActionContext?.ControllerContext?.Controller;
             var log = GetLog(loggableController);
 

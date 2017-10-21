@@ -18,6 +18,7 @@ namespace BluePrintSys.Messaging.Models.Actions
 
         public bool IsFirstTimePublished { get; set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<PublishedPropertyInformation> ModifiedProperties { get; set; }
 
         public IEnumerable<int> AncestorArtifactTypeIds { get; set; }

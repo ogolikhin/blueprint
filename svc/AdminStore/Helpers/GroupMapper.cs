@@ -15,7 +15,7 @@ namespace AdminStore.Helpers
                     Id = group.Id,
                     Name = group.Name,
                     Scope = group.Scope,
-                    LicenseType = (LicenseType) group.LicenseId,
+                    LicenseType = (LicenseType)group.LicenseId,
                     Source = ((UserGroupSource)group.Source),
                     Email = group.Email,
                     CurrentVersion = group.CurrentVersion,

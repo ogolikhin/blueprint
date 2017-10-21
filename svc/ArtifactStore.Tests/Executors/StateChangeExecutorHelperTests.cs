@@ -54,20 +54,20 @@ namespace ArtifactStore.Executors
         [TestMethod]
         public async Task BuildTriggerExecutionParameters_WhenTriggersAreEmpty_ReturnsNull()
         {
-            //Arrange
+            // Arrange
             var result =
                 await
                     _stateChangeExecutorHelper.BuildTriggerExecutionParameters(1, null, new WorkflowEventTriggers(),
                         null);
 
-            //Assert
+            // Assert
             Assert.IsNull(result);
         }
 
         [TestMethod]
         public async Task BuildTriggerExecutionParameters_WhenValid_ReturnsExecutionParameters()
         {
-            //Arrange
+            // Arrange
             var artifactId = 1;
             var artifactStandardItemTypeId = 2;
             var artifactItemTypeId = 3;
@@ -78,8 +78,8 @@ namespace ArtifactStore.Executors
             };
             var triggers = new WorkflowEventTriggers();
             triggers.Add(new WorkflowEventTrigger());
-            var sqlItemTypeInfo = new SqlItemTypeInfo() {InstanceTypeId = artifactStandardItemTypeId};
-            var isArtifactReadonlyReuseDictionary = new Dictionary<int, bool>() { { artifactId, false}};
+            var sqlItemTypeInfo = new SqlItemTypeInfo() { InstanceTypeId = artifactStandardItemTypeId };
+            var isArtifactReadonlyReuseDictionary = new Dictionary<int, bool>() { { artifactId, false } };
             var artifactStandardItemTypeDictionary = new Dictionary<int, SqlItemTypeInfo>() { { artifactId, sqlItemTypeInfo } };
             _reuseRepository.Setup(
                 r => r.DoItemsContainReadonlyReuse(It.IsAny<IEnumerable<int>>(), It.IsAny<IDbTransaction>()))
@@ -93,7 +93,7 @@ namespace ArtifactStore.Executors
                     _stateChangeExecutorHelper.BuildTriggerExecutionParameters(1, artifactInfo, triggers,
                         null);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
     }

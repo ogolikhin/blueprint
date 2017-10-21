@@ -14,16 +14,16 @@ namespace SearchService.Helpers.SemanticSearch
         Task<IEnumerable<ArtifactSearchResult>> GetSemanticSearchSuggestions(SearchEngineParameters searchEngineParameters);
     }
 
-    public class SemanticSearchExecutor: ISemanticSearchExecutor
+    public class SemanticSearchExecutor : ISemanticSearchExecutor
     {
 
         public static GetSemanticSearchSuggestionsAsyncDelegate GetSemanticSearchSuggestionsAsyncDelegate =
             async (searchEngineParameters) => await Instance.GetSemanticSearchSuggestions(searchEngineParameters);
 
-        private static readonly Lazy<SemanticSearchExecutor> _instance = 
+        private static readonly Lazy<SemanticSearchExecutor> _instance =
             new Lazy<SemanticSearchExecutor>(
                 () => new SemanticSearchExecutor(
-                    new SemanticSearchRepository()), 
+                    new SemanticSearchRepository()),
                 LazyThreadSafetyMode.PublicationOnly);
 
         public static ISemanticSearchExecutor Instance => _instance.Value;

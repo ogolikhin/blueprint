@@ -95,7 +95,7 @@ namespace FileStore.Helpers
             NewLine = Encoding.GetBytes("\r\n");
             var DoubleNewLine = Encoding.GetBytes("\r\n\r\n");
 
-            //set boundary to empty for now, we dont know what it is until we process our header
+            // set boundary to empty for now, we dont know what it is until we process our header
             BoundaryWithNewLinePrepend = new byte[0];
 
             byte[] headerBytes = new byte[1024];
@@ -106,15 +106,15 @@ namespace FileStore.Helpers
                 throw new Exception("No multipart boundary found. Data must begin with a content boundary");
 
 
-            //copy our boundary so we can use it
+            // copy our boundary so we can use it
             BoundaryWithNewLinePrepend = new byte[boundaryEnd + NewLine.Length];
             Buffer.BlockCopy(NewLine, 0, BoundaryWithNewLinePrepend, 0, NewLine.Length);
             Buffer.BlockCopy(headerBytes, 0, BoundaryWithNewLinePrepend, NewLine.Length, boundaryEnd);
 
-            //if we have reached the end of our stream at the end of our header then
-            //this is the end of multipart part, we label this as the end part and return
-            //we know we have reached the end when the number bytes we read was our header
-            //plus our search pattern (newline)
+            // if we have reached the end of our stream at the end of our header then
+            // this is the end of multipart part, we label this as the end part and return
+            // we know we have reached the end when the number bytes we read was our header
+            // plus our search pattern (newline)
             if (headerBytesRead == boundaryEnd + NewLine.Length)
             {
                 IsEndPart = true;
@@ -124,13 +124,13 @@ namespace FileStore.Helpers
             int headerEnd;
             if (!SearchBytePattern(DoubleNewLine, headerBytes, boundaryEnd, out headerEnd))
             {
-                //if we cant find the end of the header it could mean our header is massive
-                //and it wasnt in the initial block of bytes we read. 
+                // if we cant find the end of the header it could mean our header is massive
+                // and it wasnt in the initial block of bytes we read.
                 throw new Exception("Content header is too large to process");
             }
             headerEnd += DoubleNewLine.Length;
 
-            //get the header and header derived fields
+            // get the header and header derived fields
             Header = encoding.GetString(headerBytes, boundaryEnd, headerEnd - boundaryEnd).Trim();
             ContentDisposition = RegexFirstGroup(Header, "^Content-Disposition:(.*)$");
             ContentType = RegexFirstGroup(Header, "^Content-Type:(.*)$");
@@ -141,7 +141,7 @@ namespace FileStore.Helpers
 
             int CountOfNonHeaderBytes = headerBytesRead - headerEnd;
 
-            //put back the extra non header content so it can be streamed out again
+            // put back the extra non header content so it can be streamed out again
             ReinsertIntoLocalBuffer(headerBytes, headerEnd, CountOfNonHeaderBytes);
         }
 
@@ -153,12 +153,12 @@ namespace FileStore.Helpers
         /// <param name="count"></param>
         protected void ReinsertIntoLocalBuffer(byte[] source, int offset, int count)
         {
-            //we have our header, but we potentially have read more than we need to
-            //we have two cases
-            //1. we have exhausted our LocalBuffer and some of the data came from the MultipartStream
+            // we have our header, but we potentially have read more than we need to
+            // we have two cases
+            // 1. we have exhausted our LocalBuffer and some of the data came from the MultipartStream
             //   in this case we will reset our local buffer and write our remaining bytes back into
             //   our local buffer
-            //2. We did not exhaust our local buffer, in which case the remaining bytes are still in
+            // 2. We did not exhaust our local buffer, in which case the remaining bytes are still in
             //   the local buffer so we will just rewind it so they are picked up next read
             if (LocalBuffer.Position == LocalBuffer.Length)
             {
@@ -216,28 +216,28 @@ namespace FileStore.Helpers
         /// <returns></returns>
         public int ReadForNextPart(byte[] buffer, int offset, int count, out MultipartPartParser nextpart)
         {
-            //If we have found our next part we have already finsihed this part and should stop here
+            // If we have found our next part we have already finsihed this part and should stop here
             if (NextPart != null || IsEndPart)
             {
                 nextpart = NextPart;
                 return 0;
             }
 
-            //the search buffer is the place where we will scan for part bounderies. We need it to be just
-            //a bit bigger than than the size requested, to ensure we dont accidnetly send part of a boundary
-            //without realising it
+            // the search buffer is the place where we will scan for part bounderies. We need it to be just
+            // a bit bigger than than the size requested, to ensure we dont accidnetly send part of a boundary
+            // without realising it
             byte[] searchBuffer = new byte[count + BoundaryWithNewLinePrepend.Length];
 
             int bytesReadThisCall = 0;
 
-            //first read from our local buffer
+            // first read from our local buffer
             int bytesToReadFromLocalBuffer = Math.Min((int)LocalBuffer.Length, searchBuffer.Length);
             if (bytesToReadFromLocalBuffer > 0)
             {
                 bytesReadThisCall += LocalBuffer.Read(searchBuffer, bytesReadThisCall, bytesToReadFromLocalBuffer);
             }
 
-            //if we could not fill our search buffer with our local buffer then read from the multipart stream
+            // if we could not fill our search buffer with our local buffer then read from the multipart stream
             int bytesToReadFromStream = searchBuffer.Length - bytesReadThisCall;
             bytesToReadFromStream = Math.Min(bytesToReadFromStream, (int)MultipartStream.Length - (int)MultipartStream.Position);
 
@@ -246,18 +246,18 @@ namespace FileStore.Helpers
                 bytesReadThisCall += MultipartStream.Read(searchBuffer, bytesReadThisCall, bytesToReadFromStream);
             }
 
-            //the number of bytes returned will be one of three cases
-            //1. There is still plenty to return so we will return the 'count' they asked for
-            //2. We have emptied the stream, we will return the bytes read
-            //3. We have run into a new boundary, we will return the bytes up to the boundary end
+            // the number of bytes returned will be one of three cases
+            // 1. There is still plenty to return so we will return the 'count' they asked for
+            // 2. We have emptied the stream, we will return the bytes read
+            // 3. We have run into a new boundary, we will return the bytes up to the boundary end
             int bytesReturned;
             bool isEndOfPart = SearchBytePattern(BoundaryWithNewLinePrepend, searchBuffer, out bytesReturned);
 
-            //we can only return the parts we know for sure are not part of the next boundary
-            //which is the bytes we read minus the boundary length. This will also ensure we
-            //get back to the count we were originally asked for. We also need to make sure we
-            //return 0 bytes if we can not gaurentee there are no boundaries parts in what we 
-            //did manage to read
+            // we can only return the parts we know for sure are not part of the next boundary
+            // which is the bytes we read minus the boundary length. This will also ensure we
+            // get back to the count we were originally asked for. We also need to make sure we
+            // return 0 bytes if we can not gaurentee there are no boundaries parts in what we
+            // did manage to read
             if (!isEndOfPart)
                 bytesReturned = Math.Max(0, bytesReadThisCall - BoundaryWithNewLinePrepend.Length);
 
@@ -265,21 +265,21 @@ namespace FileStore.Helpers
 
             Buffer.BlockCopy(searchBuffer, 0, buffer, offset, bytesReturned);
 
-            //We need to handle the bytes that did not get returned by putting them back into
-            //the local buffer
+            // We need to handle the bytes that did not get returned by putting them back into
+            // the local buffer
             int bytesNotReturned = bytesReadThisCall - bytesReturned;
             ReinsertIntoLocalBuffer(searchBuffer, bytesReturned, bytesNotReturned);
 
             nextpart = null;
             if (isEndOfPart)
             {
-                //the boundary we were looking for had a newline appended to it
-                //we dont want to send the newline to the next part so we will skip
+                // the boundary we were looking for had a newline appended to it
+                // we dont want to send the newline to the next part so we will skip
                 LocalBuffer.Position += NewLine.Length;
                 NextPart = new MultipartPartParser(MultipartStream, Encoding, _log, LocalBuffer);
 
-                //The next part may actually just the be end indicator, if thats the case
-                //we will null it and not return it
+                // The next part may actually just the be end indicator, if thats the case
+                // we will null it and not return it
                 if (NextPart.IsEndPart)
                     NextPart = null;
                 nextpart = NextPart;

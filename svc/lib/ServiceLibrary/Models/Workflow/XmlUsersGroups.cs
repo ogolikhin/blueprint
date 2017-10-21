@@ -11,7 +11,7 @@ namespace ServiceLibrary.Models.Workflow
         [XmlElement("UG", IsNullable = false)]
         public List<XmlUserGroup> UsersGroups { get; set; }
 
-        //========================================================
+        // ========================================================
 
         // To make xml attribute nullable.
         [XmlIgnore]
@@ -28,6 +28,6 @@ namespace ServiceLibrary.Models.Workflow
         {
             return IncludeCurrentUser.HasValue;
         }
-        //========================================================
+        // ========================================================
     }
 }

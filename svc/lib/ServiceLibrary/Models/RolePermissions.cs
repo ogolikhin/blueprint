@@ -29,7 +29,7 @@ namespace ServiceLibrary.Models
         StealLock = 0x10,
 
         // Do not use old ProjectAdmin flag
-        //ProjectAdmin = 0x20,
+        // ProjectAdmin = 0x20,
 
         // Allows a user to report on the project.
         CanReport = 0x80,

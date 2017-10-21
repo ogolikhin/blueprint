@@ -474,7 +474,7 @@ namespace AdminStore.Services.Workflow
                         hasDuplicateProjectPathError = true;
                     }
 
-                    if(ValidatePropertyNotEmpty(project.Path))
+                    if (ValidatePropertyNotEmpty(project.Path))
                     {
                         projectPaths.Add(project.Path);
                     }
@@ -513,7 +513,7 @@ namespace AdminStore.Services.Workflow
                     }
                     else
                     {
-                        if(!hasDuplicateArtifactTypesInProjectError
+                        if (!hasDuplicateArtifactTypesInProjectError
                             && projectArtifactTypes.Contains(artifactType.Name))
                         {
                             result.Errors.Add(new WorkflowXmlValidationError
@@ -625,7 +625,7 @@ namespace AdminStore.Services.Workflow
         private void ValidatePropertyChangeActionDuplicatePropertiesOnEvent(IeEvent wEvent, WorkflowXmlValidationResult result)
         {
             var propertyNames = wEvent.Triggers?.Where(t => t?.Action?.ActionType == ActionTypes.PropertyChange)
-                .Select(t => ((IePropertyChangeAction) t.Action).PropertyName).ToList() ?? new List<string>();
+                .Select(t => ((IePropertyChangeAction)t.Action).PropertyName).ToList() ?? new List<string>();
             if (!_hasPropertyChangeActionDuplicatePropertiesOnEventError
                 && propertyNames.Count != propertyNames.Distinct().Count())
             {
@@ -665,13 +665,13 @@ namespace AdminStore.Services.Workflow
             switch (action.ActionType)
             {
                 case ActionTypes.EmailNotification:
-                    ValidateEmailNotificationAction((IeEmailNotificationAction) action, result);
+                    ValidateEmailNotificationAction((IeEmailNotificationAction)action, result);
                     break;
                 case ActionTypes.PropertyChange:
-                    ValidatePropertyChangeAction((IePropertyChangeAction) action, result);
+                    ValidatePropertyChangeAction((IePropertyChangeAction)action, result);
                     break;
                 case ActionTypes.Generate:
-                    ValidateGenerateAction((IeGenerateAction) action, result);
+                    ValidateGenerateAction((IeGenerateAction)action, result);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.ActionType));
@@ -752,7 +752,7 @@ namespace AdminStore.Services.Workflow
                 pvCount++;
             }
 
-            if(action.UsersGroups != null)
+            if (action.UsersGroups != null)
             {
                 pvCount++;
 
@@ -801,7 +801,7 @@ namespace AdminStore.Services.Workflow
                 });
                 _hasPropertyValuePropertyChangeActionNotSpecitiedError = true;
             }
-            else if(!_hasAmbiguousPropertyValuePropertyChangeActionError
+            else if (!_hasAmbiguousPropertyValuePropertyChangeActionError
                 && pvCount > 1)
             {
                 result.Errors.Add(new WorkflowXmlValidationError
@@ -917,7 +917,7 @@ namespace AdminStore.Services.Workflow
 
                 foreach (var trigger in wEvent.Triggers.Where(t => t?.Condition?.ConditionType == ConditionTypes.State))
                 {
-                    var stateCondition = (IeStateCondition) trigger.Condition;
+                    var stateCondition = (IeStateCondition)trigger.Condition;
                     if (ValidatePropertyNotEmpty(stateCondition.State) && !states.Contains(stateCondition.State))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
@@ -962,7 +962,7 @@ namespace AdminStore.Services.Workflow
             workflow?.PropertyChangeEvents?.ForEach(e => e.Triggers?
                 .Where(t => t?.Condition?.ConditionType == ConditionTypes.State).ForEach(t =>
                 {
-                    var stateCondition = (IeStateCondition) t.Condition;
+                    var stateCondition = (IeStateCondition)t.Condition;
                     string name;
                     if (stateCondition.StateId.HasValue && stateMap.TryGetValue(stateCondition.StateId.Value, out name))
                     {
@@ -1043,7 +1043,7 @@ namespace AdminStore.Services.Workflow
             switch (condition?.ConditionType)
             {
                 case ConditionTypes.State:
-                    var stateCondition = (IeStateCondition) condition;
+                    var stateCondition = (IeStateCondition)condition;
                     ValidateUpdateId(stateCondition.StateId);
                     break;
                 case null:
@@ -1058,13 +1058,13 @@ namespace AdminStore.Services.Workflow
             switch (action?.ActionType)
             {
                 case ActionTypes.EmailNotification:
-                    ValidateUpdateId((IeEmailNotificationAction) action);
+                    ValidateUpdateId((IeEmailNotificationAction)action);
                     break;
                 case ActionTypes.PropertyChange:
-                    ValidateUpdateId((IePropertyChangeAction) action);
+                    ValidateUpdateId((IePropertyChangeAction)action);
                     break;
                 case ActionTypes.Generate:
-                    ValidateUpdateId((IeGenerateAction) action);
+                    ValidateUpdateId((IeGenerateAction)action);
                     break;
                 case null:
                     break;

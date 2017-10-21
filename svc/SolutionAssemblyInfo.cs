@@ -10,7 +10,7 @@
 [assembly: AssemblyInformationalVersion("A0")]
 
 #if DEBUG
-[assembly: AssemblyConfiguration ( "DEBUG" )]
+[assembly: AssemblyConfiguration("DEBUG")]
 #else
 [assembly: AssemblyConfiguration("RELEASE")]
 #endif

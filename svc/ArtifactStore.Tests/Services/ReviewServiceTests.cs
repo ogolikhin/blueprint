@@ -97,7 +97,7 @@ namespace ArtifactStore.Services
             // Arrange
             _mockArtifactRepository
                 .Setup(m => m.GetArtifactBasicDetails(It.IsIn(ReviewId), It.IsIn(UserId)))
-                .ReturnsAsync((ArtifactBasicDetails) null);
+                .ReturnsAsync((ArtifactBasicDetails)null);
 
             // Act
             try
@@ -118,7 +118,7 @@ namespace ArtifactStore.Services
         public async Task GetReviewSettingsAsync_IdIsNotForReview_ThrowsBadRequestException()
         {
             // Arrange
-            _artifactDetails.PrimitiveItemTypePredefined = (int) ItemTypePredefined.TextualRequirement;
+            _artifactDetails.PrimitiveItemTypePredefined = (int)ItemTypePredefined.TextualRequirement;
 
             // Act
             try

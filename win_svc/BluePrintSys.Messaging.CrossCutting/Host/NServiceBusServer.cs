@@ -27,7 +27,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                     {
                         if (_instance == null)
                         {
-                            _instance = (TDerivedType) Activator.CreateInstance(typeof (TDerivedType), true);
+                            _instance = (TDerivedType)Activator.CreateInstance(typeof(TDerivedType), true);
                         }
                     }
                 }
@@ -159,8 +159,10 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             {
                 if (EndpointInstance == null)
                 {
-                    return;
+                    // If the Endpoint Instance is null, throw an exception so the user gets an error message
+                    throw new Exception($"EndpointInstance is null. {message.ActionType} could not be sent for tenant ID {tenantId}");
                 }
+
                 var options = new SendOptions();
                 options.SetDestination(MessageQueue);
                 options.SetHeader(ActionMessageHeaders.TenantId, tenantId);
@@ -175,6 +177,8 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         protected virtual void LogInfo(string tenantId, IWorkflowMessage message, Exception exception)
         {
             if (exception == null)
@@ -192,7 +196,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
     {
         protected override Dictionary<MessageActionType, Type> GetMessageActionToHandlerMapping()
         {
-            return new Dictionary <MessageActionType, Type>();
+            return new Dictionary<MessageActionType, Type>();
         }
 
         public GenericServiceBusServer()

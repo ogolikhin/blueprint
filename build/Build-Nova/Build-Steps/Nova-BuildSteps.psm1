@@ -59,13 +59,13 @@ function Build-Nova-Services{
 
     $sharedTrailingArgs = "/maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:AutoParameterizationWebConfigConnectionStrings=False"
     
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AccessControl\AccessControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AccessControl`"" + $sharedTrailingArgs
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ConfigControl\ConfigControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ConfigControl`"" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AccessControl\AccessControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AccessControl`" /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ConfigControl\ConfigControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ConfigControl`" /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`" + $sharedTrailingArgs
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore\FileStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\FileStore`"" + $sharedTrailingArgs
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore\AdminStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AdminStore`"" + $sharedTrailingArgs
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore\ArtifactStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ArtifactStore`"" + $sharedTrailingArgs
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\SearchService\SearchService.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\SearchService`"" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore\FileStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\FileStore`" /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore\AdminStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AdminStore`" /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore\ArtifactStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ArtifactStore`" /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\SearchService\SearchService.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\SearchService`" /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`" + $sharedTrailingArgs
 }
 
 function Build-Nova-Html{
@@ -232,15 +232,15 @@ function Run-Nova-Unit-Tests{
         trailingArguments = "/maxcpucount /T:Build"
     }
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\lib\ServiceLibrary.Tests\ServiceLibrary.Tests.csproj
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\lib\ServiceLibrary.Tests\ServiceLibrary.Tests.csproj -trailingArguments " /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`"
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AccessControl.Tests\AccessControl.Tests.csproj
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ConfigControl.Tests\ConfigControl.Tests.csproj
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AccessControl.Tests\AccessControl.Tests.csproj -trailingArguments " /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`"
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ConfigControl.Tests\ConfigControl.Tests.csproj -trailingArguments " /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`"
     
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore.Tests\FileStore.Tests.csproj
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore.Tests\AdminStore.Tests.csproj
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore.Tests\ArtifactStore.Tests.csproj
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\SearchService.Tests\SearchService.Tests.csproj
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore.Tests\FileStore.Tests.csproj -trailingArguments " /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`"
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore.Tests\AdminStore.Tests.csproj -trailingArguments " /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`"
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore.Tests\ArtifactStore.Tests.csproj -trailingArguments " /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`"
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\SearchService.Tests\SearchService.Tests.csproj -trailingArguments " /p:CodeAnalysisRuleSet=`"$workspace\svc\RecommendedSecurityGlobalizationAndBasicCorrectness.ruleset"`"
 
     Write-Section "Running tests"
     $vstestArgs =   "`"$workspace\svc\lib\ServiceLibrary.Tests\bin\Release\ServiceLibrary.Tests.dll`" " + 

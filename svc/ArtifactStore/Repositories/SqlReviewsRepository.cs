@@ -890,7 +890,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task<int> UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml)
+        private async Task<int> UpdateReviewXmlAsync(int reviewId, int userId, string reviewXml, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
 
@@ -899,7 +899,14 @@ namespace ArtifactStore.Repositories
             parameters.Add("@xmlString", reviewXml);
             parameters.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
 
-            await _connectionWrapper.ExecuteAsync("UpdateReviewParticipants", parameters, commandType: CommandType.StoredProcedure);
+            if (transaction == null)
+            {
+                await _connectionWrapper.ExecuteAsync("UpdateReviewParticipants", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await _connectionWrapper.ExecuteAsync("UpdateReviewParticipants", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
 
             return parameters.Get<int>("@returnValue");
         }
@@ -1087,6 +1094,34 @@ namespace ArtifactStore.Repositories
             }
 
             return ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString);
+        }
+
+        public async Task UpdateReviewPackageRawDataAsync(int reviewId, ReviewPackageRawData reviewPackageRawData, int userId)
+        {
+            var reviewXml = ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
+
+            Func<IDbTransaction, Task> transactionAction = async transaction =>
+            {
+                await UpdateReviewXmlAsync(reviewId, userId, reviewXml, transaction);
+                await UpdateReviewLastSaveInvalidAsync(reviewId, userId, transaction);
+            };
+
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
+        }
+
+        public async Task<int> UpdateReviewLastSaveInvalidAsync(int reviewId, int userId, IDbTransaction transaction = null)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@userId", userId);
+
+            if (transaction == null)
+            {
+                return await _connectionWrapper.ExecuteAsync("UpdateReviewLastSaveInvalid", parameters);
+            }
+
+            return await _connectionWrapper.ExecuteAsync("UpdateReviewLastSaveInvalid", parameters, transaction);
         }
 
         public async Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId)

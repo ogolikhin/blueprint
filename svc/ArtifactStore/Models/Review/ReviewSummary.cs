@@ -216,12 +216,30 @@ namespace ArtifactStore.Models.Review
             }
         }
 
-        public bool Viewed
+        public bool ViewedAll
         {
             get
             {
                 var viewed = Participants.Count(p => p.ViewState == ViewStateType.Viewed);
                 return viewed == Participants.Count;
+            }
+        }
+
+        public bool UnviewedAll
+        {
+            get
+            {
+                var unviewed = Participants.Count(p => p.ViewState == ViewStateType.NotViewed);
+                return unviewed == Participants.Count;
+            }
+        }
+
+        public bool ViewedSome
+        {
+            get
+            {
+                var viewed = Participants.Count(p => p.ViewState == ViewStateType.Viewed);
+                return viewed > 0 && viewed < Participants.Count;
             }
         }
 
@@ -277,17 +295,24 @@ namespace ArtifactStore.Models.Review
         {
             get
             {
-                return ReviewArtifactStates.Count(a => a.Viewed == true);
+                return ReviewArtifactStates.Count(a => a.ViewedAll == true);
             }
         }
         public int TotalUnviewed
         {
             get
             {
-                return ReviewArtifactStates.Count - TotalViewed;
+                return ReviewArtifactStates.Count(a => a.UnviewedAll == true);
             }
         }
 
+        public int TotalViewedSome
+        {
+            get
+            {
+                return ReviewArtifactStates.Count(a => a.ViewedSome == true);
+            }
+        }
         public List<ArtifactReviewState> ReviewArtifactStates { get; }
 
         public ReviewArtifactContent()
@@ -296,3 +321,4 @@ namespace ArtifactStore.Models.Review
         }
     }
 }
+

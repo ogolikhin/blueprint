@@ -140,7 +140,7 @@ namespace ArtifactStore.Repositories
                     Approved = reviewDetails.Approved,
                     Disapproved = reviewDetails.Disapproved,
                     Pending = reviewDetails.Pending,
-                    Viewed = reviewDetails.Viewed
+                    ViewedAll = reviewDetails.Viewed
                 },
                 ReviewType = reviewType,
                 RevisionId = reviewDetails.RevisionId,
@@ -182,8 +182,8 @@ namespace ArtifactStore.Repositories
 
             var artifacts = await GetReviewArtifactsAsync<BaseReviewArtifact>(containerId, userId, page, revisionId, addDrafts);
             var artifactIds = artifacts.Items.Select(a => a.Id).ToList();
-            var artifactsReview = new ReviewArtifactContent();
 
+            var artifactsReview = new ReviewArtifactContent();
             foreach (var art in artifacts.Items)
             {
                 var state = new ArtifactReviewState
@@ -229,8 +229,9 @@ namespace ArtifactStore.Repositories
                     {
                         Approved = artifactsReview.TotalApproved,
                         Disapproved = artifactsReview.TotalDisapproved,
-                        Viewed = artifactsReview.TotalViewed,
-                        Unviewed = artifactsReview.TotalUnviewed,
+                        ViewedAll = artifactsReview.TotalViewed,
+                        UnviewedAll = artifactsReview.TotalUnviewed,
+                        ViewedSome = artifactsReview.TotalViewedSome,
                         Pending = artifactsReview.TotalPending
                     },
                     RequestStatus = new ReviewRequestStatus

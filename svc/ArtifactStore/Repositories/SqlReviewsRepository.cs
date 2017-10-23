@@ -134,7 +134,7 @@ namespace ArtifactStore.Repositories
                 RequireAllArtifactsReviewed = reviewDetails.RequireAllArtifactsReviewed,
                 ShowOnlyDescription = reviewDetails.ShowOnlyDescription,
                 ExpirationDate = reviewDetails.ExpirationDate,
-                IsExpired = reviewDetails.ExpirationDate < DateTime.UtcNow,
+                IsExpired = reviewDetails.ExpirationDate < _currentDateTimeService.GetUtcNow(),
                 ArtifactsStatus = new ReviewArtifactsStatus
                 {
                     Approved = reviewDetails.Approved,
@@ -901,7 +901,7 @@ namespace ArtifactStore.Repositories
 
             if (transaction == null)
             {
-                await _connectionWrapper.ExecuteAsync("UpdateReviewParticipants", parameters, commandType: CommandType.StoredProcedure);
+            await _connectionWrapper.ExecuteAsync("UpdateReviewParticipants", parameters, commandType: CommandType.StoredProcedure);
             }
             else
             {
@@ -1719,7 +1719,7 @@ namespace ArtifactStore.Repositories
             return _connectionWrapper.ExecuteScalarAsync<bool>("GetReviewRequireAllArtifactsReviewed", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private static void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview, bool byPassArtifacts = false)
+        private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview, bool byPassArtifacts = false)
         {
             // Check the review exists and is active
             if (!approvalCheck.ReviewExists
@@ -1732,6 +1732,11 @@ namespace ArtifactStore.Repositories
             if (approvalCheck.ReviewStatus == ReviewPackageStatus.Closed)
             {
                 ThrowReviewClosedException();
+            }
+
+            if (approvalCheck.ExpirationDate < _currentDateTimeService.GetUtcNow())
+            {
+                ThrowReviewExpiredException();
             }
 
             // Check user is an approver for the review
@@ -1951,6 +1956,12 @@ namespace ArtifactStore.Repositories
         {
             var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
             throw new ConflictException(errorMessage, ErrorCodes.ReviewClosed);
+        }
+
+        private static void ThrowReviewExpiredException()
+        {
+            var errorMessage = "This Review has expired. No modifications can be made to its artifacts or participants.";
+            throw new ConflictException(errorMessage, ErrorCodes.ReviewExpired);
         }
 
         private static void ThrowReviewActiveFormalException()

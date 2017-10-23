@@ -148,7 +148,7 @@ namespace ArtifactStore.Repositories
             var result = new List<Relationship>();
             foreach (var link in links)
             {
-                if (result.All(i => i.ItemId == link.SourceItemId))
+                if (result.All(i => i.ItemId != link.SourceItemId))
                 {
                     result.Add(ComposeRelationship(link, TraceDirection.TwoWay));
                 }

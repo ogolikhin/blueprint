@@ -128,7 +128,7 @@ namespace ArtifactStore.Services
             catch (BadRequestException ex)
             {
                 // Assert
-                Assert.AreEqual(ErrorCodes.InvalidParameter, ex.ErrorCode);
+                Assert.AreEqual(ErrorCodes.BadRequest, ex.ErrorCode);
                 return;
             }
 

@@ -93,8 +93,6 @@
         public static readonly string GeneralErrorOfUpdatingWorkflow = "General error of updating workflow.";
         public static readonly string WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated = "Workflow without project/artifact type assignments cannot be activated.";
         public static readonly string WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow = "There is at least one project-artifact type assigned to the current workflow which is also assigned to another active workflow.";
-
-
         // Folder
         public static readonly string FolderWithSuchNameExistsInParentFolder = "A folder with the same name already exists in the parent folder. Please use a different name.";
         public static readonly string ModelIsEmpty = "The body of the call is malformed or has invalid parameter.";
@@ -108,7 +106,6 @@
         public static readonly string FolderReferenceToItself = "The folder cannot be placed into itself. Please select a different location.";
         public static readonly string ParentFolderIdReferenceToDescendantItem = "The parent folder cannot be placed into its descendant. Please select a different location.";
         public static readonly string EditRootFolderIsForbidden = "Root folder cannot be edited.";
-
         // Project
         public static readonly string ProjectNameLimitation = "Please enter a name between 1 and 128 characters.";
         public static readonly string LocationIsRequired = "Please select a location.";
@@ -131,9 +128,16 @@
         public static readonly string RoleIsNotFound = "The role with the current id is not found in the project's roles.";
         public static readonly string RoleAssignmentAlreadyExists = "Project Role Assignment already exists. You cannot add duplicate assignments.";
         public static readonly string RoleAssignmentNotFound = "Project Role Assignment with the current id is not found.";
-
         // Artifacts
-        public static readonly string ArtifactTypeIdsNotValid = "Please provide valid artifact ids";
-
+        public static readonly string ArtifactTypeIdsNotValid = "Please provide valid artifact type ids";
+        // Reviews
+        public static readonly string ReviewSettingsAreRequired = "Review settings must be provided.";
+        public static readonly string ReviewNotFound = "Review (Id:{0}) is not found.";
+        public static readonly string ReviewOrRevisionNotFound = "Review (Id:{0}) or its revision (#{1}) is not found.";
+        public static readonly string ArtifactIsNotReview = "Artifact (Id:{0}) is not a review.";
+        public static readonly string CannotAccessReview = "Review (Id:{0}) cannot be accessed.";
+        public static readonly string ReviewIsClosed = "Review (Id:{0}) is now closed. No modifications can be made to its artifacts or participants.";
+        public static readonly string ReviewIsNotDraft = "Review (Id:{0}) is not a draft. This action cannot be completed.";
+        public static readonly string RequireESignatureDisabled = "Meaning of Signature setting cannot be updated. Electornic signatures are not enabled for Review (Id:{0}).";
     }
 }

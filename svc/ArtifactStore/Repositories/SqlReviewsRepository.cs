@@ -1100,28 +1100,30 @@ namespace ArtifactStore.Repositories
         {
             var reviewXml = ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
 
-            Func<IDbTransaction, Task> transactionAction = async transaction =>
-            {
-                await UpdateReviewXmlAsync(reviewId, userId, reviewXml, transaction);
-                await UpdateReviewLastSaveInvalidAsync(reviewId, userId, transaction);
-            };
-
-            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
+            await UpdateReviewXmlAsync(reviewId, userId, reviewXml);
+            await UpdateReviewLastSaveInvalidAsync(reviewId, userId);
         }
 
         public async Task<int> UpdateReviewLastSaveInvalidAsync(int reviewId, int userId, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
 
-            parameters.Add("@reviewId", reviewId);
-            parameters.Add("@userId", userId);
+            parameters.Add("@reviewId", reviewId, DbType.Int32);
+            parameters.Add("@userId", userId, DbType.Int32);
 
             if (transaction == null)
             {
-                return await _connectionWrapper.ExecuteAsync("UpdateReviewLastSaveInvalid", parameters);
+                return await _connectionWrapper.ExecuteAsync(
+                    "UpdateReviewLastSaveInvalid",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
             }
 
-            return await _connectionWrapper.ExecuteAsync("UpdateReviewLastSaveInvalid", parameters, transaction);
+            return await _connectionWrapper.ExecuteAsync(
+                "UpdateReviewLastSaveInvalid",
+                parameters,
+                transaction,
+                commandType: CommandType.StoredProcedure);
         }
 
         public async Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId)

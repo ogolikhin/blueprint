@@ -193,26 +193,47 @@ namespace ArtifactStore.Models.Review
 
     public class ArtifactReviewState
     {
+        private int _disapproved = 0;
+        private int _approved = 0;
+        private int _viewed = 0;
+        private int _unviewed = 0;
+
         public int ArtifactId { get; set; }
         public bool ApprovalRequired { get; set; }
+
+        public void InitReviewStates()
+        {
+            foreach (var p in Participants)
+            {
+                if (p.ApprovalState == ApprovalType.Disapproved)
+                    ++_disapproved;
+                else if (p.ApprovalState == ApprovalType.Approved)
+                    ++_approved;
+
+                if (p.ViewState == ViewStateType.Viewed)
+                    ++_viewed;
+                else if (p.ViewState == ViewStateType.NotViewed)
+                    ++_unviewed;
+
+                if (p.Role == ReviewParticipantRole.Approver)
+                    ++Approvers;
+                else if (p.Role == ReviewParticipantRole.Reviewer)
+                    ++Viewers;
+            }
+        }
         public ApprovalType ReviewState
         {
             get
             {
-                var disapproved = Participants.Count(p => p.ApprovalState == ApprovalType.Disapproved);
-                if (disapproved > 0)
+                if (_disapproved > 0)
                 {
                     return ApprovalType.Disapproved;
                 }
-                else
+                else if (_approved == Approvers)
                 {
-                    var approved = Participants.Count(p => p.ApprovalState == ApprovalType.Approved);
-                    if (approved == Approvers)
-                    {
-                        return ApprovalType.Approved;
-                    }
+                    return ApprovalType.Approved;
                 }
-                return ApprovalType.Pending;
+                return ApprovalType.NotSpecified;
             }
         }
 
@@ -220,8 +241,7 @@ namespace ArtifactStore.Models.Review
         {
             get
             {
-                var viewed = Participants.Count(p => p.ViewState == ViewStateType.Viewed);
-                return viewed == Participants.Count;
+                return _viewed == Participants.Count;
             }
         }
 
@@ -229,8 +249,7 @@ namespace ArtifactStore.Models.Review
         {
             get
             {
-                var unviewed = Participants.Count(p => p.ViewState == ViewStateType.NotViewed);
-                return unviewed == Participants.Count;
+                return _unviewed == Participants.Count;
             }
         }
 
@@ -238,26 +257,13 @@ namespace ArtifactStore.Models.Review
         {
             get
             {
-                var viewed = Participants.Count(p => p.ViewState == ViewStateType.Viewed);
-                return viewed > 0 && viewed < Participants.Count;
+                return _viewed > 0 && _viewed < Participants.Count;
             }
         }
 
-        public int Approvers
-        {
-            get
-            {
-                return Participants.Count(p => p.Role == ReviewParticipantRole.Approver);
-            }
-        }
+        public int Approvers { get; set; }
 
-        public int Viewers
-        {
-            get
-            {
-                return Participants.Count(p => p.Role == ReviewParticipantRole.Reviewer);
-            }
-        }
+        public int Viewers { get; set; }
 
         public List<ParticipantReviewState> Participants { get; }
 
@@ -269,55 +275,41 @@ namespace ArtifactStore.Models.Review
 
     public class ReviewArtifactContent
     {
-        public int TotalApproved
-        {
-            get
-            {
-                return ReviewArtifactStates.Count(a => a.ReviewState == ApprovalType.Approved);
-            }
-        }
-        public int TotalDisapproved
-        {
-            get
-            {
-                return ReviewArtifactStates.Count(a => a.ReviewState == ApprovalType.Disapproved);
-            }
-        }
-        public int TotalPending
-        {
-            get
-            {
-                return ReviewArtifactStates.Count(a => a.ReviewState == ApprovalType.Pending);
-            }
-        }
-
-        public int TotalViewed
-        {
-            get
-            {
-                return ReviewArtifactStates.Count(a => a.ViewedAll == true);
-            }
-        }
-        public int TotalUnviewed
-        {
-            get
-            {
-                return ReviewArtifactStates.Count(a => a.UnviewedAll == true);
-            }
-        }
-
-        public int TotalViewedSome
-        {
-            get
-            {
-                return ReviewArtifactStates.Count(a => a.ViewedSome == true);
-            }
-        }
+        public int TotalApproved { get; set; }
+        public int TotalDisapproved { get; set; }
+        public int TotalPending { get; set; }
+        public int TotalViewed { get; set; }
+        public int TotalUnviewed { get; set; }
+        public int TotalViewedSome { get; set; }
         public List<ArtifactReviewState> ReviewArtifactStates { get; }
 
         public ReviewArtifactContent()
         {
             ReviewArtifactStates = new List<ArtifactReviewState>();
+        }
+
+        public void InitReviewStates()
+        {
+            foreach (var a in ReviewArtifactStates)
+            {
+                a.InitReviewStates();
+
+                if (a.ReviewState == ApprovalType.Approved)
+                    ++TotalApproved;
+                else if (a.ReviewState == ApprovalType.Disapproved)
+                    ++TotalDisapproved;
+                else if (a.ReviewState == ApprovalType.NotSpecified)
+                    ++TotalPending;
+
+                if (a.ViewedAll == true)
+                    ++TotalViewed;
+
+                if (a.UnviewedAll == true)
+                    ++TotalUnviewed;
+
+                if (a.ViewedSome == true)
+                    ++TotalViewedSome;
+            }
         }
     }
 }

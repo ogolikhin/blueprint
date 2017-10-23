@@ -4,7 +4,6 @@
     {
         NotSpecified = 0,
         Approved = 1,
-        Disapproved = 2,
-        Pending = 3
+        Disapproved = 2
     }
 }

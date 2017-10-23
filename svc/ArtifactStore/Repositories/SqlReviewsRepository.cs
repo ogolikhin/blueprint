@@ -200,22 +200,24 @@ namespace ArtifactStore.Repositories
                 var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, p.UserId);
                 foreach (var r in reviewArtifacts)
                 {
-                    var participant = new ParticipantReviewState
+                    var permission = permissions.Where(ap => ap.Key == r.Id).FirstOrDefault().Value;
+                    if ((permission & RolePermissions.CreateRapidReview) != 0) // Define which permission should be!
                     {
-                        UserId = p.UserId,
-                        Role = p.Role,
-                        Permission = permissions.Where(ap => ap.Key == r.Id).FirstOrDefault().Value,
-                        Status = p.Status,
-                        ApprovalState = r.ApprovalFlag,
-                        ViewState = r.ViewState
-                    };
-                    var artifactReview = artifactsReview.ReviewArtifactStates.Where(a => a.ArtifactId == r.Id).FirstOrDefault();
-                    if ((participant.Permission & RolePermissions.CreateRapidReview) != 0) // which permission should be?
-                    {
+                        var participant = new ParticipantReviewState
+                        {
+                            UserId = p.UserId,
+                            Role = p.Role,
+                            Permission = permission,
+                            Status = p.Status,
+                            ApprovalState = r.ApprovalFlag,
+                            ViewState = r.ViewState
+                        };
+                        var artifactReview = artifactsReview.ReviewArtifactStates.Where(a => a.ArtifactId == r.Id).FirstOrDefault();
                         artifactReview?.Participants.Add(participant);
                     }
                 }
             }
+            artifactsReview.InitReviewStates();
 
             return new ReviewSummaryMetrics
             {

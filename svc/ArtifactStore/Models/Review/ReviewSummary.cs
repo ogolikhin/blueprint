@@ -201,7 +201,7 @@ namespace ArtifactStore.Models.Review
         public int ArtifactId { get; set; }
         public bool ApprovalRequired { get; set; }
 
-        public void InitReviewStates()
+        public void CalculateReviewStates()
         {
             foreach (var p in Participants)
             {
@@ -288,11 +288,11 @@ namespace ArtifactStore.Models.Review
             ReviewArtifactStates = new List<ArtifactReviewState>();
         }
 
-        public void InitReviewStates()
+        public void CalculateReviewStates()
         {
             foreach (var a in ReviewArtifactStates)
             {
-                a.InitReviewStates();
+                a.CalculateReviewStates();
 
                 if (a.ReviewState == ApprovalType.Approved)
                     ++TotalApproved;

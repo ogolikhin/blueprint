@@ -217,7 +217,7 @@ namespace ArtifactStore.Repositories
                     }
                 }
             }
-            artifactsReview.InitReviewStates();
+            artifactsReview.CalculateReviewStates();
 
             return new ReviewSummaryMetrics
             {

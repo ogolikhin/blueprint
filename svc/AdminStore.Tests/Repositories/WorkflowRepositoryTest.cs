@@ -29,6 +29,8 @@ namespace AdminStore.Repositories
             _listArtifactTypesIds = new List<int> { 1, 2, 3 };
             _workflowId = 1;
             _pagination = new Pagination() { Limit = int.MaxValue, Offset = 0 };
+
+            _scope = new OperationScope() { Ids = _listArtifactTypesIds, SelectAll = false };
         }
 
         private SqlConnectionWrapperMock _sqlConnectionWrapperMock;
@@ -42,6 +44,7 @@ namespace AdminStore.Repositories
         private List<int> _listArtifactTypesIds;
         private IEnumerable<SyncResult> _outputSyncResult = new List<SyncResult>() { new SyncResult { TotalAdded = 2, TotalDeleted = 1 } };
         private string _projectSearch = "test";
+        private OperationScope _scope;
 
         #region AssignProjectsAndArtifactTypesToWorkflow
         [TestMethod]
@@ -129,7 +132,7 @@ namespace AdminStore.Repositories
             _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactTypesToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult);
 
             // act
-            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _listArtifactTypesIds);
+            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _scope);
 
             // assert
             Assert.IsNotNull(result);
@@ -145,7 +148,7 @@ namespace AdminStore.Repositories
             // act
             try
             {
-                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _listArtifactTypesIds);
+                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _scope);
             }
             catch (ConflictException ex)
             {
@@ -166,7 +169,7 @@ namespace AdminStore.Repositories
             // act
             try
             {
-                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _listArtifactTypesIds);
+                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _scope);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -187,7 +190,7 @@ namespace AdminStore.Repositories
             // act
             try
             {
-                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _listArtifactTypesIds);
+                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _scope);
             }
             catch (Exception ex)
             {
@@ -208,7 +211,7 @@ namespace AdminStore.Repositories
             // act
             try
             {
-                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _listArtifactTypesIds);
+                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _scope);
             }
             catch (Exception ex)
             {
@@ -229,7 +232,7 @@ namespace AdminStore.Repositories
             // act
             try
             {
-                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _listArtifactTypesIds);
+                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _scope);
             }
             catch (ResourceNotFoundException ex)
             {

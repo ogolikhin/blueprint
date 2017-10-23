@@ -50,12 +50,18 @@ namespace ArtifactStore.Services.Reviews
                 throw new ConflictException(I18NHelper.FormatInvariant(ErrorMessages.ReviewIsClosed, reviewId), ErrorCodes.ReviewClosed);
             }
 
+            UpdateEndDate(updatedReviewSettings, reviewPackageRawData);
             UpdateShowOnlyDescription(updatedReviewSettings, reviewPackageRawData);
             UpdateCanMarkAsComplete(reviewId, updatedReviewSettings, reviewPackageRawData);
             UpdateRequireESignature(updatedReviewSettings, reviewPackageRawData);
             await UpdateRequireMeaningOfSignatureAsync(reviewInfo, updatedReviewSettings, reviewPackageRawData);
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackageRawData, userId);
+        }
+
+        private static void UpdateEndDate(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
+        {
+            reviewPackageRawData.EndDate = updatedReviewSettings.EndDate;
         }
 
         private static void UpdateShowOnlyDescription(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
@@ -68,7 +74,12 @@ namespace ArtifactStore.Services.Reviews
             var settingChanged =
                 reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed != updatedReviewSettings.CanMarkAsComplete;
 
-            if (settingChanged && reviewPackageRawData.Status != ReviewPackageStatus.Draft)
+            if (!settingChanged)
+            {
+                return;
+            }
+
+            if (reviewPackageRawData.Status != ReviewPackageStatus.Draft)
             {
                 var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, reviewId);
                 throw new ConflictException(errorMessage, ErrorCodes.Conflict);
@@ -84,16 +95,22 @@ namespace ArtifactStore.Services.Reviews
 
         private async Task UpdateRequireMeaningOfSignatureAsync(ArtifactBasicDetails reviewInfo, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
         {
-            if (!reviewPackageRawData.IsESignatureEnabled)
+            var settingChanged = reviewPackageRawData.IsMoSEnabled != updatedReviewSettings.RequireMeaningOfSignature;
+
+            if (!settingChanged)
             {
-                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.RequireESignatureDisabled, reviewInfo.ItemId);
+                return;
+            }
+
+            if (reviewPackageRawData.Status != ReviewPackageStatus.Draft)
+            {
+                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, reviewInfo.ItemId);
                 throw new ConflictException(errorMessage, ErrorCodes.Conflict);
             }
 
-            var settingChanged = reviewPackageRawData.IsMoSEnabled != updatedReviewSettings.RequireMeaningOfSignature;
-            if (settingChanged && reviewPackageRawData.Status != ReviewPackageStatus.Draft)
+            if (!reviewPackageRawData.IsESignatureEnabled)
             {
-                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, reviewInfo.ItemId);
+                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.RequireESignatureDisabled, reviewInfo.ItemId);
                 throw new ConflictException(errorMessage, ErrorCodes.Conflict);
             }
 

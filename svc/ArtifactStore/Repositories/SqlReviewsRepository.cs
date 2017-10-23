@@ -1108,15 +1108,22 @@ namespace ArtifactStore.Repositories
         {
             var parameters = new DynamicParameters();
 
-            parameters.Add("@reviewId", reviewId);
-            parameters.Add("@userId", userId);
+            parameters.Add("@reviewId", reviewId, DbType.Int32);
+            parameters.Add("@userId", userId, DbType.Int32);
 
             if (transaction == null)
             {
-                return await _connectionWrapper.ExecuteAsync("UpdateReviewLastSaveInvalid", parameters);
+                return await _connectionWrapper.ExecuteAsync(
+                    "UpdateReviewLastSaveInvalid",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
             }
 
-            return await _connectionWrapper.ExecuteAsync("UpdateReviewLastSaveInvalid", parameters, transaction);
+            return await _connectionWrapper.ExecuteAsync(
+                "UpdateReviewLastSaveInvalid",
+                parameters,
+                transaction,
+                commandType: CommandType.StoredProcedure);
         }
 
         public async Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId)

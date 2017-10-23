@@ -998,13 +998,14 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
-        public async Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workflowId, int projectId, IEnumerable<int> artifactTypeIds)
+        public async Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workflowId, int projectId, OperationScope scope)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("@WorkflowId", workflowId);
             parameters.Add("@ProjectId", projectId);
-            parameters.Add("@ArtifactTypeIds", SqlConnectionWrapper.ToDataTable(artifactTypeIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@ArtifactTypeIds", SqlConnectionWrapper.ToDataTable(scope.Ids, "Int32Collection", "Int32Value"));
+            parameters.Add("@SelectAll", scope.SelectAll);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.QueryAsync<SyncResult>("AssignArtifactTypesToProjectInWorkflow", parameters, commandType: CommandType.StoredProcedure);

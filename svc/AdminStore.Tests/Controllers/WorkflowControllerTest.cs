@@ -224,6 +224,7 @@ namespace AdminStore.Controllers
         private Pagination _pagination;
         private List<WorkflowProjectSearch> _projects;
         private string _search = "Project";
+        private OperationScope _scope;
 
         [TestInitialize]
         public void Initialize()
@@ -281,6 +282,8 @@ namespace AdminStore.Controllers
                     Path = "Path2"
                 }
             };
+
+            _scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
         }
 
         #region AssignProjectsAndArtifactTypesToWorkflow
@@ -370,10 +373,10 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
             var expectedResult = new SyncResult { TotalAdded = 2, TotalDeleted = 1 };
 
-            _workflowRepositoryMock.Setup(q => q.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 })).ReturnsAsync(new SyncResult { TotalAdded = 2, TotalDeleted = 1 });
+            _workflowRepositoryMock.Setup(q => q.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, _scope)).ReturnsAsync(new SyncResult { TotalAdded = 2, TotalDeleted = 1 });
 
             // act
-            var result = await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 }) as OkNegotiatedContentResult<SyncResult>;
+            var result = await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, _scope) as OkNegotiatedContentResult<SyncResult>;
 
             // assert
             Assert.IsNotNull(result);
@@ -394,7 +397,7 @@ namespace AdminStore.Controllers
             // act
             try
             {
-                await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, new List<int> { 1, 2, 3 });
+                await _controller.AssignArtifactTypesToProjectInWorkflow(WorkflowId, ProjectId, _scope);
             }
             catch (Exception ex)
             {

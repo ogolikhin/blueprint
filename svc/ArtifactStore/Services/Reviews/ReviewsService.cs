@@ -14,21 +14,31 @@ namespace ArtifactStore.Services.Reviews
         private readonly IReviewsRepository _reviewsRepository;
         private readonly IArtifactRepository _artifactRepository;
         private readonly IArtifactPermissionsRepository _permissionsRepository;
+        private readonly ILockArtifactsRepository _lockArtifactsRepository;
 
-        public ReviewsService() : this(new SqlReviewsRepository(), new SqlArtifactRepository(), new SqlArtifactPermissionsRepository())
+        public ReviewsService() : this(
+                new SqlReviewsRepository(),
+                new SqlArtifactRepository(),
+                new SqlArtifactPermissionsRepository(),
+                new SqlLockArtifactsRepository())
         {
         }
 
-        public ReviewsService(IReviewsRepository reviewsRepository, IArtifactRepository artifactRepository, IArtifactPermissionsRepository permissionsRepository)
+        public ReviewsService(
+            IReviewsRepository reviewsRepository,
+            IArtifactRepository artifactRepository,
+            IArtifactPermissionsRepository permissionsRepository,
+            ILockArtifactsRepository lockArtifactsRepository)
         {
             _reviewsRepository = reviewsRepository;
             _artifactRepository = artifactRepository;
             _permissionsRepository = permissionsRepository;
+            _lockArtifactsRepository = lockArtifactsRepository;
         }
 
         public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int revisionId = int.MaxValue)
         {
-            await AccessReviewAsync(reviewId, userId, revisionId);
+            await GetReviewInfoAsync(reviewId, userId, revisionId);
 
             var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
             return new ReviewSettings(reviewPackageRawData);
@@ -41,7 +51,7 @@ namespace ArtifactStore.Services.Reviews
                 throw new BadRequestException(ErrorMessages.ReviewSettingsAreRequired, ErrorCodes.InvalidParameter);
             }
 
-            var reviewInfo = await AccessReviewAsync(reviewId, userId, int.MaxValue);
+            var reviewInfo = await GetReviewInfoAsync(reviewId, userId, int.MaxValue);
 
             var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
 
@@ -50,13 +60,31 @@ namespace ArtifactStore.Services.Reviews
                 throw new ConflictException(I18NHelper.FormatInvariant(ErrorMessages.ReviewIsClosed, reviewId), ErrorCodes.ReviewClosed);
             }
 
+            await LockReviewAsync(reviewId, userId, reviewInfo);
+
             UpdateEndDate(updatedReviewSettings, reviewPackageRawData);
             UpdateShowOnlyDescription(updatedReviewSettings, reviewPackageRawData);
             UpdateCanMarkAsComplete(reviewId, updatedReviewSettings, reviewPackageRawData);
             UpdateRequireESignature(updatedReviewSettings, reviewPackageRawData);
-            await UpdateRequireMeaningOfSignatureAsync(reviewInfo, updatedReviewSettings, reviewPackageRawData);
+            await UpdateRequireMeaningOfSignatureAsync(reviewInfo.ItemId, reviewInfo.ProjectId, updatedReviewSettings, reviewPackageRawData);
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackageRawData, userId);
+        }
+
+        private async Task LockReviewAsync(int reviewId, int userId, ArtifactBasicDetails reviewInfo)
+        {
+            if (reviewInfo.LockedByUserId.HasValue)
+            {
+                if (reviewInfo.LockedByUserId.Value != userId)
+                {
+                    var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotLockedByUser, reviewId, userId);
+                    throw new ConflictException(errorMessage, ErrorCodes.LockedByOtherUser);
+                }
+            }
+            else
+            {
+                await _lockArtifactsRepository.LockArtifactAsync(reviewId, userId);
+            }
         }
 
         private static void UpdateEndDate(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
@@ -93,7 +121,7 @@ namespace ArtifactStore.Services.Reviews
             reviewPackageRawData.IsESignatureEnabled = updatedReviewSettings.RequireESignature;
         }
 
-        private async Task UpdateRequireMeaningOfSignatureAsync(ArtifactBasicDetails reviewInfo, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
+        private async Task UpdateRequireMeaningOfSignatureAsync(int reviewId, int projectId, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
         {
             var settingChanged = reviewPackageRawData.IsMoSEnabled != updatedReviewSettings.RequireMeaningOfSignature;
 
@@ -104,17 +132,17 @@ namespace ArtifactStore.Services.Reviews
 
             if (reviewPackageRawData.Status != ReviewPackageStatus.Draft)
             {
-                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, reviewInfo.ItemId);
+                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, reviewId);
                 throw new ConflictException(errorMessage, ErrorCodes.Conflict);
             }
 
             if (!reviewPackageRawData.IsESignatureEnabled)
             {
-                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.RequireESignatureDisabled, reviewInfo.ItemId);
+                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.RequireESignatureDisabled, reviewId);
                 throw new ConflictException(errorMessage, ErrorCodes.Conflict);
             }
 
-            var projectPermissions = await _permissionsRepository.GetProjectPermissions(reviewInfo.ProjectId);
+            var projectPermissions = await _permissionsRepository.GetProjectPermissions(projectId);
             if (!projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled))
             {
                 throw new ConflictException(ErrorMessages.MeaningOfSignatureDisabledInProject, ErrorCodes.Conflict);
@@ -123,7 +151,7 @@ namespace ArtifactStore.Services.Reviews
             reviewPackageRawData.IsMoSEnabled = updatedReviewSettings.RequireMeaningOfSignature;
         }
 
-        private async Task<ArtifactBasicDetails> AccessReviewAsync(int reviewId, int userId, int revisionId)
+        private async Task<ArtifactBasicDetails> GetReviewInfoAsync(int reviewId, int userId, int revisionId)
         {
             if (reviewId <= 0)
             {

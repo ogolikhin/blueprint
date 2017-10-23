@@ -130,6 +130,7 @@
         public static readonly string RoleAssignmentNotFound = "Project Role Assignment with the current id is not found.";
         // Artifacts
         public static readonly string ArtifactTypeIdsNotValid = "Please provide valid artifact type ids";
+        public static readonly string ArtifactNotLockedByUser = "Artifact (Id:{0}) is not locked by user (Id:{1}).";
         // Reviews
         public static readonly string ReviewSettingsAreRequired = "Review settings must be provided.";
         public static readonly string ReviewNotFound = "Review (Id:{0}) is not found.";

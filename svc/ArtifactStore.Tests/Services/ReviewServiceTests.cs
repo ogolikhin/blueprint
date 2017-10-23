@@ -22,6 +22,7 @@ namespace ArtifactStore.Services
         private Mock<IReviewsRepository> _mockReviewRepository;
         private Mock<IArtifactRepository> _mockArtifactRepository;
         private Mock<IArtifactPermissionsRepository> _mockArtifactPermissionsRepository;
+        private Mock<ILockArtifactsRepository> _mockLockArtifactsRepository;
 
         private ReviewPackageRawData _reviewPackageRawData;
         private ArtifactBasicDetails _artifactDetails;
@@ -49,8 +50,16 @@ namespace ArtifactStore.Services
             _mockArtifactPermissionsRepository
                 .Setup(m => m.HasReadPermissions(ReviewId, UserId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(true);
+            _mockLockArtifactsRepository = new Mock<ILockArtifactsRepository>();
+            _mockLockArtifactsRepository
+                .Setup(m => m.LockArtifactAsync(ReviewId, UserId))
+                .ReturnsAsync(true);
 
-            _reviewService = new ReviewsService(_mockReviewRepository.Object, _mockArtifactRepository.Object, _mockArtifactPermissionsRepository.Object);
+            _reviewService = new ReviewsService(
+                _mockReviewRepository.Object,
+                _mockArtifactRepository.Object,
+                _mockArtifactPermissionsRepository.Object,
+                _mockLockArtifactsRepository.Object);
         }
 
         #region GetReviewSettingsAsync

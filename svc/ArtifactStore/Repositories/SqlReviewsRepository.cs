@@ -134,7 +134,7 @@ namespace ArtifactStore.Repositories
                 RequireAllArtifactsReviewed = reviewDetails.RequireAllArtifactsReviewed,
                 ShowOnlyDescription = reviewDetails.ShowOnlyDescription,
                 ExpirationDate = reviewDetails.ExpirationDate,
-                IsExpired = reviewDetails.ExpirationDate < DateTime.UtcNow,
+                IsExpired = reviewDetails.ExpirationDate < _currentDateTimeService.GetUtcNow(),
                 ArtifactsStatus = new ReviewArtifactsStatus
                 {
                     Approved = reviewDetails.Approved,
@@ -1717,7 +1717,7 @@ namespace ArtifactStore.Repositories
             return _connectionWrapper.ExecuteScalarAsync<bool>("GetReviewRequireAllArtifactsReviewed", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private static void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview, bool byPassArtifacts = false)
+        private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview, bool byPassArtifacts = false)
         {
             // Check the review exists and is active
             if (!approvalCheck.ReviewExists
@@ -1732,7 +1732,7 @@ namespace ArtifactStore.Repositories
                 ThrowReviewClosedException();
             }
 
-            if (approvalCheck.ExpirationDate < DateTime.UtcNow)
+            if (approvalCheck.ExpirationDate < _currentDateTimeService.GetUtcNow())
             {
                 ThrowReviewExpiredException();
             }

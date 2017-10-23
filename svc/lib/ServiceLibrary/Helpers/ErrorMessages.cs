@@ -139,5 +139,6 @@
         public static readonly string ReviewIsClosed = "Review (Id:{0}) is now closed. No modifications can be made to its artifacts or participants.";
         public static readonly string ReviewIsNotDraft = "Review (Id:{0}) is not a draft. This action cannot be completed.";
         public static readonly string RequireESignatureDisabled = "Meaning of Signature setting cannot be updated. Electornic signatures are not enabled for Review (Id:{0}).";
+        public static readonly string MeaningOfSignatureDisabledInProject = "Meaning of Signature is disabled for the current project.";
     }
 }

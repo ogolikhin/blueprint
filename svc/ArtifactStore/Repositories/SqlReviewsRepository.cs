@@ -1232,9 +1232,6 @@ namespace ArtifactStore.Repositories
                                                                           !content.ItemIds.Contains(a.Id));
             }
 
-            //var updatingArtifactIds = updatingArtifacts.Select(a => a.Id);
-
-
             foreach (var updatingArtifact in updatingArtifacts)
             {
                    updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
@@ -1250,38 +1247,6 @@ namespace ArtifactStore.Repositories
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
 
             return new ReviewChangeItemsStatusResult();
-
-            //var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(content.ItemIds, userId);
-            //var artifactsWithReadPermissions = artifactPermissionsDictionary.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
-            //if (artifactsWithReadPermissions.Intersect(content.ItemIds).Count() != content.ItemIds.Count())
-            //{
-            //    ThrowUserCannotAccessArtifactInTheReviewException(propertyResult.ProjectId.Value);
-            //}
-
-            //// For Informal review
-            //if (propertyResult.BaselineId == null || propertyResult.BaselineId < 1)
-            //{
-            //    foreach (var artifactId in content.ItemIds)
-            //    {
-            //        var isArtifactDeleted = await _artifactVersionsRepository.IsItemDeleted(artifactId);
-            //        if (isArtifactDeleted)
-            //        {
-            //            ThrowUserCannotAccessArtifactInTheReviewException(propertyResult.ProjectId.Value);
-            //        }
-            //    }
-            //}
-
-            //bool hasChanges;
-            //var artifactXmlResult = UpdateApprovalRequiredForArtifactsXML(propertyResult.ArtifactXml, content, out hasChanges);
-            //if (hasChanges)
-            //{
-            //    Func<IDbTransaction, Task> transactionAction = async transaction =>
-            //    {
-            //        await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, transaction, false);
-            //    };
-
-            //    await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
-            //}
         }
 
         private static string UpdatePermissionRolesXML(string xmlArtifacts, AssignReviewerRolesParameter content, int reviewId)

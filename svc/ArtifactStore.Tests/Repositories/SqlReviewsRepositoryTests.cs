@@ -1977,7 +1977,7 @@ namespace ArtifactStore.Repositories
             // Arrange
             var content = new AssignArtifactsApprovalParameter()
             {
-                ArtifactIds = null,
+                ItemIds = null,
                 ApprovalRequired = true
             };
 
@@ -2016,7 +2016,7 @@ namespace ArtifactStore.Repositories
             };
             var content = new AssignArtifactsApprovalParameter()
             {
-                ArtifactIds = new List<int>(new[] { 1, 2, 3 }),
+                ItemIds = new List<int>(new[] { 1, 2, 3 }),
                 ApprovalRequired = true
             };
             _cxn.SetupQueryAsync("GetReviewArtifactApprovalRequestedInfo", queryParameters, propertyValueStringResult);
@@ -2054,7 +2054,7 @@ namespace ArtifactStore.Repositories
             };
             var content = new AssignArtifactsApprovalParameter()
             {
-                ArtifactIds = new List<int>(new[] { 1, 2, 3 }),
+                ItemIds = new List<int>(new[] { 1, 2, 3 }),
                 ApprovalRequired = true
             };
             _cxn.SetupQueryAsync("GetReviewArtifactApprovalRequestedInfo", queryParameters, propertyValueStringResult);
@@ -2092,7 +2092,7 @@ namespace ArtifactStore.Repositories
             };
             var content = new AssignArtifactsApprovalParameter()
             {
-                ArtifactIds = new List<int>(new[] { 1, 2, 3 }),
+                ItemIds = new List<int>(new[] { 1, 2, 3 }),
                 ApprovalRequired = true
             };
             _cxn.SetupQueryAsync("GetReviewArtifactApprovalRequestedInfo", queryParameters, propertyValueStringResult);

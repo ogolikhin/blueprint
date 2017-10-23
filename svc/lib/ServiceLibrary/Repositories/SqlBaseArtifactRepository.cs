@@ -30,7 +30,7 @@ namespace ServiceLibrary.Repositories
         }
 
         /// <summary>
-        /// Checks whether the user has permission for this artifact. 
+        /// Checks whether the user has permission for this artifact.
         /// if a revision Id is provided, the artifact's revision has to be less than the current revision.
         /// If the artifact is not a regular artifact type then we throw a non-supported exception.
         /// </summary>

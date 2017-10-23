@@ -42,11 +42,11 @@ namespace ArtifactStore.Models
         }
     }
 
-    //public abstract class AbstractAttachment
-    //{
+    // public abstract class AbstractAttachment
+    // {
     //    public int Id { get; set; }
     //    public string FileName { get; set; }
-    //}
+    // }
 
     [JsonObject]
     public class Attachment

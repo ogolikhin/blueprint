@@ -35,7 +35,7 @@ namespace AdminStore.Controllers
             {
                 await controller.QueueGenerateProcessTestsJob(null);
             }
-            catch(BadRequestException ex)
+            catch (BadRequestException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, ErrorCodes.QueueJobEmptyRequest);
                 throw;
@@ -103,7 +103,7 @@ namespace AdminStore.Controllers
         public async Task QueueGenerateProcessTestsJob_ProcessesEmpty_ThrowsBadRequest()
         {
             var jobsRepositoryMock = new Mock<IJobsRepository>();
-            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();            
+            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
             var controller = new JobsController(jobsRepositoryMock.Object, serviceLogRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
@@ -145,8 +145,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://localhost:9801/svc/adminstore/jobs/test/process", ""),
-                new HttpResponse(new StringWriter())
-                );
+                new HttpResponse(new StringWriter()));
 
             var param = new GenerateProcessTestsJobParameters();
             param.ProjectId = 1;
@@ -155,7 +154,7 @@ namespace AdminStore.Controllers
 
             // Act
             var actionResult = (await controller.QueueGenerateProcessTestsJob(param)) as CreatedNegotiatedContentResult<AddJobResult>;
-            
+
 
             Assert.IsNotNull(actionResult);
             Assert.AreEqual(actionResult.Content.JobId, 2);
@@ -181,8 +180,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://localhost:9801/svc/adminstore/jobs/test/process", ""),
-                new HttpResponse(new StringWriter())
-                );
+                new HttpResponse(new StringWriter()));
 
             var param = new GenerateProcessTestsJobParameters();
             param.ProjectId = 1;
@@ -191,7 +189,7 @@ namespace AdminStore.Controllers
 
             // Act
             var actionResult = (await controller.QueueGenerateProcessTestsJob(param)) as CreatedNegotiatedContentResult<AddJobResult>;
-            
+
             Assert.IsNotNull(actionResult);
             Assert.AreEqual(actionResult.Location.OriginalString, "/svc/adminstore/jobs/2");
         }

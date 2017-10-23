@@ -2,9 +2,9 @@
 {
     public class ErrorMessages
     {
-        //Search
+        // Search
         public const string SearchFieldLimitation = "The limit of the search field is 250 characters.";
-        //Users
+        // Users
         public const string InvalidPagination = "The \"offset\" and/or \"limit\" parameters are required.";
         public static readonly string LoginRequired = "The user name field is required.";
         public static readonly string DisplayNameRequired = "The display name field is required.";
@@ -50,7 +50,7 @@
         public static readonly string IncorrectBase64FormatPasswordField = "The password is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters";
         public static readonly string TheUserIdCanNotBeNegative = "The userId can not be negative.";
         public static readonly string MaxUsersPerInstanceLimitReached = "Maximum users limit per instance was reached.";
-        //Groups
+        // Groups
         public static readonly string GroupModelIsEmpty = "The group model is empty.";
         public static readonly string GroupNameRequired = "Please enter a Group Name.";
         public static readonly string GroupNameFieldLimitation = "The length of the \"Group Name\" field must be between 1 and 255 characters.";
@@ -75,7 +75,7 @@
         public static readonly string GroupEmailFormatIncorrect = "Please ensure the email address is in the following format: group@company.com.";
         public static readonly string TheProjectDoesNotExist = "The project does not exist.";
         public static readonly string ProjectIdIsInvalid = "The project Id is invalid";
-        //Workflow
+        // Workflow
         public static readonly string WorkflowNotExist = "The workflow with the current workflowId doesn’t exist or removed from the system.";
         public static readonly string WorkflowIsActive = "The workflow with the current id is active.";
         public static readonly string WorkflowModelIsEmpty = "The model is empty.";
@@ -95,7 +95,7 @@
         public static readonly string WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow = "There is at least one project-artifact type assigned to the current workflow which is also assigned to another active workflow.";
 
 
-        //Folder
+        // Folder
         public static readonly string FolderWithSuchNameExistsInParentFolder = "A folder with the same name already exists in the parent folder. Please use a different name.";
         public static readonly string ModelIsEmpty = "The body of the call is malformed or has invalid parameter.";
         public static readonly string FolderNameLimitation = "Please enter a name between 1 and 128 characters.";
@@ -108,8 +108,8 @@
         public static readonly string FolderReferenceToItself = "The folder cannot be placed into itself. Please select a different location.";
         public static readonly string ParentFolderIdReferenceToDescendantItem = "The parent folder cannot be placed into its descendant. Please select a different location.";
         public static readonly string EditRootFolderIsForbidden = "Root folder cannot be edited.";
-       
-        //Project
+
+        // Project
         public static readonly string ProjectNameLimitation = "Please enter a name between 1 and 128 characters.";
         public static readonly string LocationIsRequired = "Please select a location.";
         public static readonly string GeneralErrorOfUpdatingProject = "An error has occurred when the operation was being performed at SQL level.";
@@ -120,7 +120,7 @@
         public static readonly string ArtifactWasMovedToAnotherProject = "Could not purge project because an artifact was moved to another project and we cannot reliably purge it without corrupting the other project.  PurgeProject aborted for projectId  {0}.";
         public static readonly string UnhandledStatusOfProject = "Unhandled case for ProjectStatus: {0}";
         public static readonly string PrivilegesForProjectNotExist = "User privileges for project (Id:{0}) is not found.";
-        //Roles
+        // Roles
         public static readonly string RolesForProjectNotExist = "Roles for the requested project are missing";
         public static readonly string InvalidDeleteRoleAssignmentsParameters = "Invalid parameters to delete role assignments.";
         public static readonly string GeneralErrorOfDeletingRoleAssignments = "An error has occurred when the operation was being performed at SQL level.";
@@ -132,7 +132,7 @@
         public static readonly string RoleAssignmentAlreadyExists = "Project Role Assignment already exists. You cannot add duplicate assignments.";
         public static readonly string RoleAssignmentNotFound = "Project Role Assignment with the current id is not found.";
 
-        //Artifacts
+        // Artifacts
         public static readonly string ArtifactTypeIdsNotValid = "Please provide valid artifact ids";
 
     }

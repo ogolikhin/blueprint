@@ -12,7 +12,7 @@ namespace ServiceLibrary.Repositories
 
         private ISqlHelper _sqlHelper;
 
-        public SqlLockArtifactsRepository(): this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlHelper())
+        public SqlLockArtifactsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlHelper())
         {
         }
 

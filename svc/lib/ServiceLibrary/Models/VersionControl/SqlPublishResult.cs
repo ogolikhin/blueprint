@@ -6,41 +6,41 @@ namespace ServiceLibrary.Models.VersionControl
     {
         #region Public Classes
 
-        //public class SqlPublishResultReply
-        //{
+        // public class SqlPublishResultReply
+        // {
         //    public int CommentId
         //    {
         //        get;
         //        internal set;
         //    }
 
-        //    public int ReplyId
+        // public int ReplyId
         //    {
         //        get;
         //        internal set;
         //    }
 
-        //    public MentionChangeDetails MentionChangeDetails
+        // public MentionChangeDetails MentionChangeDetails
         //    {
         //        get;
         //        internal set;
         //    }
-        //}
+        // }
 
-        //public class SqlPublishResultComment
-        //{
+        // public class SqlPublishResultComment
+        // {
         //    public int CommentId
         //    {
         //        get;
         //        internal set;
         //    }
 
-        //    public MentionChangeDetails MentionChangeDetails
+        // public MentionChangeDetails MentionChangeDetails
         //    {
         //        get;
         //        internal set;
         //    }
-        //}
+        // }
 
         /// <summary>
         ///
@@ -100,9 +100,9 @@ namespace ServiceLibrary.Models.VersionControl
             set;
         }
 
-        //private ICollection<SqlPublishResultComment> comments;
-        //public ICollection<SqlPublishResultComment> Comments
-        //{
+        // private ICollection<SqlPublishResultComment> comments;
+        // public ICollection<SqlPublishResultComment> Comments
+        // {
         //    get
         //    {
         //        if (comments == null)
@@ -112,11 +112,11 @@ namespace ServiceLibrary.Models.VersionControl
         //        }
         //        return comments;
         //    }
-        //}
+        // }
 
-        //private ICollection<SqlPublishResultReply> replies;
-        //public ICollection<SqlPublishResultReply> Replies
-        //{
+        // private ICollection<SqlPublishResultReply> replies;
+        // public ICollection<SqlPublishResultReply> Replies
+        // {
         //    get
         //    {
         //        if (replies == null)
@@ -126,7 +126,7 @@ namespace ServiceLibrary.Models.VersionControl
         //        }
         //        return replies;
         //    }
-        //}
+        // }
 
         /// <summary>
         ///
@@ -145,9 +145,9 @@ namespace ServiceLibrary.Models.VersionControl
             }
         }
 
-        //private ICollection<ReviewChangeDetails> _reviewChangeDetailsList;
-        //public ICollection<ReviewChangeDetails> ReviewChangeDetailsList
-        //{
+        // private ICollection<ReviewChangeDetails> _reviewChangeDetailsList;
+        // public ICollection<ReviewChangeDetails> ReviewChangeDetailsList
+        // {
         //    get
         //    {
         //        if (_reviewChangeDetailsList == null)
@@ -157,7 +157,7 @@ namespace ServiceLibrary.Models.VersionControl
         //        }
         //        return _reviewChangeDetailsList;
         //    }
-        //}
+        // }
         #endregion Public Properties
     }
 }

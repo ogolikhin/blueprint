@@ -166,7 +166,7 @@ namespace ServiceLibrary.Helpers.Cache
             {
                 var asyncCache = new AsyncCache(memoryCache);
                 var key = "this-is-key";
-                
+
                 for (int i = 0; i < parallelRequestsCount; i++)
                 {
                     string value = "Value " + i;
@@ -180,8 +180,7 @@ namespace ServiceLibrary.Helpers.Cache
                                 Interlocked.Increment(ref factoryCalls);
                                 return Task.FromResult(value);
                             },
-                            DateTime.UtcNow.AddSeconds(30)
-                        );
+                            DateTime.UtcNow.AddSeconds(30));
 
                         Assert.IsTrue(resultValue.StartsWith("Value", StringComparison.InvariantCulture));
 

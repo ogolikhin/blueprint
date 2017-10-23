@@ -22,9 +22,9 @@ namespace ServiceLibrary.Models.Workflow
         public async Task ProcessTriggers_WhenValidationErrors_ReturnsErrorMessage()
         {
             var triggers = new WorkflowEventTriggers();
-            _workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(new PropertySetResult(fakePropertyTypeId, -1,""));
+            _workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(new PropertySetResult(fakePropertyTypeId, -1, ""));
 
-            triggers.Add(new WorkflowEventTrigger() {Action = _workflowEventAction.Object, Name = defaultTriggerName });
+            triggers.Add(new WorkflowEventTrigger() { Action = _workflowEventAction.Object, Name = defaultTriggerName });
 
             var result = await triggers.ProcessTriggers(null);
 
@@ -39,11 +39,9 @@ namespace ServiceLibrary.Models.Workflow
             _workflowEventAction.Setup(a => a.ValidateAction(It.IsAny<IExecutionParameters>())).Returns(new PropertySetResult(-1, -1, ""));
 
             triggers.Add(
-                new WorkflowEventTrigger() { Action = _workflowEventAction.Object, Name = defaultTriggerName }
-                );
+                new WorkflowEventTrigger() { Action = _workflowEventAction.Object, Name = defaultTriggerName });
             triggers.Add(
-                new WorkflowEventTrigger() { Action = _workflowEventAction.Object, Name = defaultTriggerName }
-                );
+                new WorkflowEventTrigger() { Action = _workflowEventAction.Object, Name = defaultTriggerName });
 
             var result = await triggers.ProcessTriggers(null);
 

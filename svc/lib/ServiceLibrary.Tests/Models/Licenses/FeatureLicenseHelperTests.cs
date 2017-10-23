@@ -16,16 +16,16 @@ namespace ServiceLibrary.Models.Licenses
         [TestMethod]
         public void DecryptLicenses_DecryptsAllLicensesSuccessfully()
         {
-            //Arrange
+            // Arrange
             var expirationDate = DateTime.MaxValue;
             var allFeatures = FeatureInformation.Features.Select(p => new FeatureInformation(p.Key, expirationDate)).ToArray();
             var xml = SerializationHelper.ToXml(allFeatures);
             var encryptedXml = SystemEncryptions.Encrypt(xml);
 
-            //Act
+            // Act
             var decryptedLicenses = FeatureLicenseHelper.DecryptLicenses(encryptedXml);
 
-            //Assert
+            // Assert
             Assert.AreEqual(allFeatures.Length, decryptedLicenses.Length);
             foreach (var feature in allFeatures)
             {
@@ -37,71 +37,71 @@ namespace ServiceLibrary.Models.Licenses
         [TestMethod]
         public void DecryptLicenses_ReturnsNoLicenses_WhenTheEncryptedLicensesStringIsEmpty()
         {
-            //Arrange
+            // Arrange
             var encryptedLicenses = string.Empty;
 
-            //Act
+            // Act
             var decryptedLicenses = FeatureLicenseHelper.DecryptLicenses(encryptedLicenses);
 
-            //Assert
+            // Assert
             Assert.AreEqual(0, decryptedLicenses.Length);
         }
 
         [TestMethod]
         public void DecryptLicenses_ReturnsNoLicenses_WhenTheEncryptedLicensesStringIsNull()
         {
-            //Arrange
+            // Arrange
             string encryptedLicenses = null;
 
-            //Act
+            // Act
             var decryptedLicenses = FeatureLicenseHelper.DecryptLicenses(encryptedLicenses);
 
-            //Assert
+            // Assert
             Assert.AreEqual(0, decryptedLicenses.Length);
         }
 
         [TestMethod]
         public void DecryptLicenses_ReturnsNoLicenses_WhenTheEncryptedLicensesStringIsAnInvalidValue()
         {
-            //Arrange
+            // Arrange
             const string encryptedLicenses = "invalid encrypted value";
 
-            //Act
+            // Act
             var decryptedLicenses = FeatureLicenseHelper.DecryptLicenses(encryptedLicenses);
 
-            //Assert
+            // Assert
             Assert.AreEqual(0, decryptedLicenses.Length);
         }
 
         [TestMethod]
         public void DecryptLicenses_ReturnsNoLicenses_WhenLicensesAreNotAnArrayOfFeatureInformationObjects()
         {
-            //Arrange
-            var license = new[] {"this is not an array of FeatureInformation objects"};
+            // Arrange
+            var license = new[] { "this is not an array of FeatureInformation objects" };
             var xml = SerializationHelper.ToXml(license);
             var encryptedXml = SystemEncryptions.Encrypt(xml);
             var encryptedLicenses = encryptedXml;
 
-            //Act
+            // Act
             var decryptedLicenses = FeatureLicenseHelper.DecryptLicenses(encryptedLicenses);
 
-            //Assert
+            // Assert
             Assert.AreEqual(0, decryptedLicenses.Length);
         }
 
         [TestMethod]
         public void DecryptLicenses_ReturnsLicenseTypeNone_WhenTheEncryptedLicenseHasAnInvalidFeatureName()
         {
-            //Arrange
-            var license = new[] {new FeatureInformation("invalid feature name", DateTime.MaxValue)};
+            // Arrange
+            var license = new[] { new FeatureInformation("invalid feature name", DateTime.MaxValue) };
             var xml = SerializationHelper.ToXml(license);
             var encryptedXml = SystemEncryptions.Encrypt(xml);
             var encryptedLicenses = encryptedXml;
 
-            //Act
+            // Act
             var decryptedLicenses = FeatureLicenseHelper.DecryptLicenses(encryptedLicenses);
 
-            //Assert
+            // Assert
             Assert.AreEqual(1, decryptedLicenses.Length);
             var featureType = decryptedLicenses.Single().GetFeatureType();
             Assert.AreEqual(FeatureTypes.None, featureType);

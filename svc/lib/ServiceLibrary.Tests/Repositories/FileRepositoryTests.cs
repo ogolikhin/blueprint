@@ -226,7 +226,7 @@ namespace ServiceLibrary.Repositories
 
             var uri = new Uri("http://localhost");
             var httpWebClient = new HttpWebClient(uri, null);
-            
+
             // Act
             var fileRepository = new FileRepository(httpWebClient);
             await fileRepository.UploadFileAsync(fileName, fileType, null, null);
@@ -243,11 +243,11 @@ namespace ServiceLibrary.Repositories
 
             var uri = new Uri("http://localhost");
             var httpWebClient = new HttpWebClient(uri, null);
-            
+
             // Act
             var fileRepository = new FileRepository(httpWebClient);
             await fileRepository.UploadFileAsync(fileName, fileType, null, null);
-           
+
         }
 
         [TestMethod]
@@ -342,9 +342,9 @@ namespace ServiceLibrary.Repositories
             // Act
             var fileRepository = new FileRepository(httpWebClient);
             string responseGuid = await fileRepository.UploadFileAsync(fileName, fileType, content);
-           
+
             Assert.AreEqual(responseGuid, guid);
-            
+
         }
         private static HttpWebResponse CreateHttpWebResponse(HttpStatusCode status)
         {
@@ -366,12 +366,11 @@ namespace ServiceLibrary.Repositories
                         ServiceConstants.ContentDispositionHeader,
                         string.Format(CultureInfo.InvariantCulture, "attachment; filename=\"{0}\";fileNameStar=\"{0}\"", fileName)
                     },
-                    {ServiceConstants.ContentTypeHeader, type},
-                    {ServiceConstants.FileSizeHeader, size.ToString(CultureInfo.InvariantCulture)},
-                    {ServiceConstants.FileChunkCountHeader, chunkCount.ToString(CultureInfo.InvariantCulture)},
-                    {ServiceConstants.StoredDateHeader, storedDate.ToString("o", CultureInfo.InvariantCulture)}
-                }
-            );
+                    { ServiceConstants.ContentTypeHeader, type },
+                    { ServiceConstants.FileSizeHeader, size.ToString(CultureInfo.InvariantCulture) },
+                    { ServiceConstants.FileChunkCountHeader, chunkCount.ToString(CultureInfo.InvariantCulture) },
+                    { ServiceConstants.StoredDateHeader, storedDate.ToString("o", CultureInfo.InvariantCulture) }
+                });
             responseMock.Setup(m => m.GetResponseStream()).Returns(() =>
             {
                 var streamMock = new Mock<Stream>();
@@ -393,9 +392,8 @@ namespace ServiceLibrary.Repositories
                         ServiceConstants.ContentDispositionHeader,
                         string.Format(CultureInfo.InvariantCulture, "filename=\"{0}\"", fileName)
                     },
-                    {ServiceConstants.ContentTypeHeader, type}
-                }
-            );
+                    { ServiceConstants.ContentTypeHeader, type }
+                });
             responseMock.Setup(m => m.GetResponseStream()).Returns(() =>
             {
                 var expected = content == null ? "response content" : content;
@@ -416,7 +414,7 @@ namespace ServiceLibrary.Repositories
             clientMock
                 .Setup(m => m.GetHttpWebResponseAsync(It.IsAny<HttpWebRequest>()))
                 .Returns(Task.FromResult(response));
-          
+
             return clientMock.Object;
         }
 
@@ -434,7 +432,7 @@ namespace ServiceLibrary.Repositories
                 {
                     var request = WebRequest.CreateHttp("http://localhost");
                     request.Method = "POST";
- 
+
                     return request;
                 });
 

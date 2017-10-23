@@ -9,10 +9,10 @@ namespace ServiceLibrary.Exceptions
         [TestMethod]
         public void AuthorizationException_DefaultConstructorCalled_VerifyDefaultMessage()
         {
-            //Act
+            // Act
             AuthorizationException exception = new AuthorizationException();
 
-            //Assert
+            // Assert
             Assert.AreEqual(string.Empty, exception.Message);
             Assert.AreEqual(ErrorCodes.Forbidden, exception.ErrorCode);
             Assert.AreEqual(null, exception.Content);
@@ -21,13 +21,13 @@ namespace ServiceLibrary.Exceptions
         [TestMethod]
         public void AuthorizationException_ConstructorCalledWithMessage_MessageSetSuccessfully()
         {
-            //Arrange
+            // Arrange
             var message = "This is a test";
 
-            //Act
+            // Act
             AuthorizationException exception = new AuthorizationException(message);
 
-            //Assert
+            // Assert
             Assert.AreEqual(message, exception.Message);
             Assert.AreEqual(ErrorCodes.Forbidden, exception.ErrorCode);
             Assert.AreEqual(null, exception.Content);
@@ -36,14 +36,14 @@ namespace ServiceLibrary.Exceptions
         [TestMethod]
         public void AuthorizationException_ConstructorCalledWithMessageAndErrorCode_MessageAndErrorCodeSetSuccesfully()
         {
-            //Arrange
+            // Arrange
             var message = "This is a test";
             var errorCode = ErrorCodes.BadRequest;
 
-            //Act
+            // Act
             AuthorizationException exception = new AuthorizationException(message, errorCode);
 
-            //Assert
+            // Assert
             Assert.AreEqual(message, exception.Message);
             Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
             Assert.AreEqual(null, exception.Content);

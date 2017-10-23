@@ -33,8 +33,7 @@ namespace ArtifactStore.Repositories.VersionControl
             // need to verify parent
             if (item.DraftParentId != item.DraftProjectId
                 && !artifactIds.Contains(item.DraftParentId)
-                && (IsNew(item) || IsParentChanged(item))
-               )
+                && (IsNew(item) || IsParentChanged(item)))
             {
                 ICollection<SqlDraftAndLatestItem> dependencies;
                 if (!_checkParents.TryGetValue(item.DraftParentId, out dependencies))
@@ -46,8 +45,7 @@ namespace ArtifactStore.Repositories.VersionControl
             }
 
             if (item.DraftOrderIndex != -1.0
-                 && (IsNew(item) || IsOrderIndexChanged(item))
-                )
+                 && (IsNew(item) || IsOrderIndexChanged(item)))
             {
                 _checkOrderIndex.Add(item, item.DraftParentId);
             }

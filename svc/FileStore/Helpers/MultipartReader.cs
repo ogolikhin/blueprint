@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FileStore.Helpers
 {
-    public abstract class MultipartReader: IDisposable
+    public abstract class MultipartReader : IDisposable
     {
         protected MultipartPartParser MultipartPartParser;
         protected IServiceLogRepository _log;
@@ -25,7 +25,7 @@ namespace FileStore.Helpers
             {
                 await ExecuteFunctionAsync(MultipartPartParser);
 
-                //move the stream foward until we get to the next part
+                // move the stream foward until we get to the next part
                 MultipartPartParser = MultipartPartParser.ReadUntilNextPart();
                 if (MultipartPartParser != null)
                 {

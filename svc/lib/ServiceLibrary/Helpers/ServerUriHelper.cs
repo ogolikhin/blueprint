@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Web;
 using ServiceLibrary.Models;
 
@@ -82,7 +83,7 @@ namespace ServiceLibrary.Helpers
                                       ? string.Empty
                                       : uriBuilder.Path;
 
-            uriBuilder.Path = string.Format(applicationPath.EndsWith(@"/") ? "{0}{1}" : "{0}/{1}", applicationPath, appendPath);
+            uriBuilder.Path = string.Format(CultureInfo.InvariantCulture, applicationPath.EndsWith(@"/", StringComparison.OrdinalIgnoreCase) ? "{0}{1}" : "{0}/{1}", applicationPath, appendPath);
             if (query != null)
                 uriBuilder.Query = query;
 
@@ -98,9 +99,10 @@ namespace ServiceLibrary.Helpers
                 // Storyteller does not support URLs to sub-artifacts
                 + (IsStoryTeller(baseUrl, baseItemType)
                     ? string.Empty
-                : (subArtifactId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeySubArtifactId, subArtifactId.Value) : string.Empty));
+                : (subArtifactId.HasValue ? string.Format(CultureInfo.InvariantCulture, KeyValuePairSubsequentFormat, KeySubArtifactId, subArtifactId.Value) : string.Empty));
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         private static string GetArtifactUrl(string baseUrl, int artifactId, int? versionId, int? baselineId, int? sharedViewId, ItemTypePredefined? baseItemType = null)
         {
             if (IsStoryTeller(baseUrl, baseItemType))
@@ -110,16 +112,17 @@ namespace ServiceLibrary.Helpers
 
             return string.Format
             (
+                CultureInfo.InvariantCulture,
                 "{0}?{1}={2}{3}{4}{5}",
                 baseUrl,
                 KeyArtifactId,
                 artifactId,
                 (versionId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeyVersionId, versionId.Value) : string.Empty),
                 (baselineId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeyBaselineId, baselineId.Value) : string.Empty),
-                (sharedViewId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeySharedViewId, sharedViewId.Value) : string.Empty)
-            );
+                (sharedViewId.HasValue ? string.Format(KeyValuePairSubsequentFormat, KeySharedViewId, sharedViewId.Value) : string.Empty));
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         private static string GetStorytellerArtifactUrl(string baseUrl, int artifactId, int? versionId)
         {
             var nBaseUrl = baseUrl ?? String.Empty;
@@ -132,18 +135,18 @@ namespace ServiceLibrary.Helpers
 
             return string.Format
                 (
+                    CultureInfo.InvariantCulture,
                     "{0}{1}{2}/{3}{4}",
                     nBaseUrl,
                     KeyStorytellerDefaultDoc,
                     KeyStorytellerRouter,
                     artifactId,
-                    (versionId.HasValue ? string.Format(versionFormat, versionId.Value) : string.Empty)
-                );
+                    (versionId.HasValue ? string.Format(versionFormat, versionId.Value) : string.Empty));
         }
 
-        private static Boolean IsStoryTeller(string baseUrl, ItemTypePredefined? baseItemType = null)
+        private static bool IsStoryTeller(string baseUrl, ItemTypePredefined? baseItemType = null)
         {
-            return (!string.IsNullOrWhiteSpace(baseUrl) && baseUrl.EndsWith(KeyStorytellerDefaultDoc)) ||
+            return (!string.IsNullOrWhiteSpace(baseUrl) && baseUrl.EndsWith(KeyStorytellerDefaultDoc, StringComparison.OrdinalIgnoreCase)) ||
                 (baseItemType.HasValue && baseItemType.Value == ItemTypePredefined.Process) ||
                 (baseItemType.HasValue && baseItemType.Value == ItemTypePredefined.PROShape);
         }
@@ -180,7 +183,7 @@ namespace ServiceLibrary.Helpers
             return uriBuilder.Uri;
         }
 
-        //http://stackoverflow.com/questions/7795910/how-do-i-get-url-action-to-use-the-right-port-number
+        // http://stackoverflow.com/questions/7795910/how-do-i-get-url-action-to-use-the-right-port-number
         /// <summary>
         /// Gets the public facing URL for the given incoming HTTP request.
         /// </summary>

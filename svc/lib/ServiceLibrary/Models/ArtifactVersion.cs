@@ -20,7 +20,7 @@ namespace ServiceLibrary.Models
         public RolePermissions? DirectPermissions { get; set; }
         // Not returned in SQL server but calculated in the server application
         public RolePermissions? EffectivePermissions { get; set; }
-        // Returned doubled if returned Head and Draft 
+        // Returned doubled if returned Head and Draft
         public int? VersionsCount { get; set; }
         public bool HasDraft { get; set; }
         // Not returned in SQL server but calculated in the server application

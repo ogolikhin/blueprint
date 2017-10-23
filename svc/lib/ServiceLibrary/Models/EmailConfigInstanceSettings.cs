@@ -64,8 +64,8 @@ namespace ServiceLibrary.Models
         {
             public ESSettings()
             {
-                //When empty this value is initialized to default 'Username' in FederatedAuthenticationSettings
-                //NameClaimType = "Username";
+                // When empty this value is initialized to default 'Username' in FederatedAuthenticationSettings
+                // NameClaimType = "Username";
             }
 
             [DataMember]

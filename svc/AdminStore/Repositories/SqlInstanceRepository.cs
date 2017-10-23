@@ -119,8 +119,7 @@ namespace AdminStore.Repositories
             (
                 "GetFoldersByName",
                 parameters,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         public async Task<int> DeleteInstanceFolderAsync(int instanceFolderId)
@@ -254,8 +253,8 @@ namespace AdminStore.Repositories
 
         public async Task DeleteProject(int userId, int projectId)
         {
-            //We need to check if project is still exist in database and not makred as deleted
-            //Also we need to get the latest projectstatus to apply the right delete method
+            // We need to check if project is still exist in database and not makred as deleted
+            // Also we need to get the latest projectstatus to apply the right delete method
             ProjectStatus? projectStatus;
 
             InstanceItem project = await GetInstanceProjectAsync(projectId, userId, fromAdminPortal: true);
@@ -365,7 +364,7 @@ namespace AdminStore.Repositories
             {
                 switch (errorCode.Value)
                 {
-                    case (int) SqlErrorCodes.ProjectWithCurrentIdNotExist:
+                    case (int)SqlErrorCodes.ProjectWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.ProjectNotExist, ErrorCodes.ResourceNotFound);
 
                 }
@@ -409,7 +408,7 @@ namespace AdminStore.Repositories
             var total = parameters.Get<int?>("Total");
             var projectName = parameters.Get<string>("ProjectName");
 
-            var queryDataResult = new RoleAssignmentQueryResult<RoleAssignment> { Items = rolesAssigments, Total = total ?? 0, ProjectName = projectName ?? string.Empty};
+            var queryDataResult = new RoleAssignmentQueryResult<RoleAssignment> { Items = rolesAssigments, Total = total ?? 0, ProjectName = projectName ?? string.Empty };
 
             return queryDataResult;
         }
@@ -452,7 +451,7 @@ namespace AdminStore.Repositories
             parameters.Add("@projectId", projectId);
 
             var hasProjectExternalLocksAsync = await _connectionWrapper.ExecuteScalarAsync<int>("IsProjectHasForeignLocks", parameters, commandType: CommandType.StoredProcedure);
-            
+
             return hasProjectExternalLocksAsync;
         }
 
@@ -511,7 +510,7 @@ namespace AdminStore.Repositories
             {
                 throw new ArgumentOutOfRangeException(nameof(roleAssignment));
             }
-            
+
             var parameters = new DynamicParameters();
             parameters.Add("@ProjectId", projectId);
             parameters.Add("@GroupId", roleAssignment.GroupId);

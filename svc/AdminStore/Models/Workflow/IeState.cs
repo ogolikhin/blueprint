@@ -8,7 +8,7 @@ namespace AdminStore.Models.Workflow
     public class IeState : IIeWorkflowEntityWithId
     {
         // Optional, not used for the import, will be used for the update
-        //========================================================
+        // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
         public int? Id { get; set; }
@@ -24,12 +24,12 @@ namespace AdminStore.Models.Workflow
         {
             return Id.HasValue;
         }
-        //========================================================
+        // ========================================================
 
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
 
-        //========================================================
+        // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
         public bool? IsInitial { get; set; }
@@ -45,7 +45,7 @@ namespace AdminStore.Models.Workflow
         {
             return IsInitial.HasValue;
         }
-        //========================================================
+        // ========================================================
 
         [XmlIgnore]
         public float OrderIndex { get; set; }
@@ -64,7 +64,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeState) obj);
+            return Equals((IeState)obj);
         }
 
         public override int GetHashCode()
@@ -72,8 +72,8 @@ namespace AdminStore.Models.Workflow
             unchecked
             {
                 var hashCode = Id.GetHashCode();
-                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ IsInitial.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsInitial.GetHashCode();
                 return hashCode;
             }
         }

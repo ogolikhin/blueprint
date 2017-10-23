@@ -8,7 +8,7 @@
 
         public string UserName { get; set; }
 
-        public string Login  { get; internal set; }
+        public string Login { get; internal set; }
 
         public static LoginInfo Parse(string login)
         {

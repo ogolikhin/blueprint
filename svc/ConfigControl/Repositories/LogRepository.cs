@@ -26,7 +26,7 @@ namespace ConfigControl.Repositories
 
         private LogRecord GetSingleEntry(IDataReader reader, bool nameOnly = false)
         {
-            var result = new LogRecord(); 
+            var result = new LogRecord();
             var line = new StringBuilder();
             // column loop
             for (var fieldCounter = 0; fieldCounter < reader.FieldCount; fieldCounter++)
@@ -40,7 +40,7 @@ namespace ConfigControl.Repositories
                         result.Id = (long)reader.GetValue(fieldCounter);
                     }
                     var value = reader.GetValue(fieldCounter);
-                    csvValue = value is string ? string.Concat("\"", value.ToString().Replace("\"","'"),"\"") : value;
+                    csvValue = value is string ? string.Concat("\"", value.ToString().Replace("\"", "'"), "\"") : value;
                 }
                 line.AppendFormat("{0}{1}", csvValue, csvDelemiter);
             }
@@ -51,7 +51,7 @@ namespace ConfigControl.Repositories
 
         }
 
-        
+
         public IEnumerable<LogRecord> GetRecords(int numberOfRecords, long? recordId, bool showHeader = false)
         {
             if (dbConnection == null)

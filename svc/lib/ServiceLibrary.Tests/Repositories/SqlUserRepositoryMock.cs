@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
-    public class SqlUserRepositoryMock: IUsersRepository
+    public class SqlUserRepositoryMock : IUsersRepository
     {
         public async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds)
         {
@@ -15,7 +15,7 @@ namespace ServiceLibrary.Repositories
                 result.Add(new UserInfo
                            {
                                 UserId = userId,
-                                DisplayName = "User"+userId,
+                                DisplayName = "User" + userId,
                                 ImageId = userId,
                                 IsEnabled = true,
                                 IsGuest = false
@@ -80,7 +80,7 @@ namespace ServiceLibrary.Repositories
                                 ImageId = 1,
                                 IsEnabled = false,
                                 IsGuest = true
-                           }});
+                           } });
 
             }
             return await Task.FromResult(new List<UserInfo> { new UserInfo
@@ -90,7 +90,7 @@ namespace ServiceLibrary.Repositories
                                 ImageId = 1,
                                 IsEnabled = true,
                                 IsGuest = false
-                           }});
+                           } });
         }
         public async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId)
         {

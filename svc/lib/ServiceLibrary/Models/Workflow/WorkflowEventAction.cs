@@ -8,7 +8,7 @@ namespace ServiceLibrary.Models.Workflow
         PropertySetResult ValidateAction(IExecutionParameters executionParameters);
         MessageActionType ActionType { get; }
     }
-    public abstract class WorkflowEventAction: IWorkflowEventAction
+    public abstract class WorkflowEventAction : IWorkflowEventAction
     {
         public abstract MessageActionType ActionType { get; }
 

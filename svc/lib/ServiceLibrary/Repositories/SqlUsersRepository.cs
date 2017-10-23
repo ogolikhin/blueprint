@@ -74,7 +74,7 @@ namespace ServiceLibrary.Repositories
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
 
-            return (await _connectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();            
+            return (await _connectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
 
@@ -131,7 +131,7 @@ namespace ServiceLibrary.Repositories
             if (transaction != null)
             {
                 var propertyInfos = (await transaction.Connection.QueryAsync<SqlPropertyInfo>("GetPropertyInfoForWorkflowArtifact",
-                prm, 
+                prm,
                 transaction,
                 commandType: CommandType.StoredProcedure)).ToList();
                 userInfos.AddRange(await GetUserInfos(propertyInfos, transaction));
@@ -147,14 +147,14 @@ namespace ServiceLibrary.Repositories
             }
         }
 
-        private async Task<IEnumerable<UserInfo>>  GetUserInfos(List<SqlPropertyInfo> propertyInfos, IDbTransaction transaction = null)
+        private async Task<IEnumerable<UserInfo>> GetUserInfos(List<SqlPropertyInfo> propertyInfos, IDbTransaction transaction = null)
         {
             var userInfos = new List<UserInfo>();
             if (propertyInfos.Count > 0)
             {
                 foreach (var sqlPropertyInfo in propertyInfos)
                 {
-                    if (sqlPropertyInfo.PrimitiveType == (int) PropertyPrimitiveType.User)
+                    if (sqlPropertyInfo.PrimitiveType == (int)PropertyPrimitiveType.User)
                     {
                         var userGroups = PropertyHelper.ParseUserGroups(sqlPropertyInfo.PropertyValue);
                         if (userGroups != null)
@@ -182,7 +182,7 @@ namespace ServiceLibrary.Repositories
                             }
                         }
                     }
-                    else if (sqlPropertyInfo.PrimitiveType == (int) PropertyPrimitiveType.Text)
+                    else if (sqlPropertyInfo.PrimitiveType == (int)PropertyPrimitiveType.Text)
                     {
                         var emails = PropertyHelper.ParseEmails(sqlPropertyInfo.PropertyValue);
                         userInfos.AddRange(emails.Select(email => new UserInfo

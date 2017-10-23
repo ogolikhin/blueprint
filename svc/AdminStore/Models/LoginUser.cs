@@ -2,8 +2,8 @@
 
 namespace AdminStore.Models
 {
-	[JsonObject]
-	public class LoginUser // : BluePrintSys.RC.Client.SL.Core.ILoginUser
+    [JsonObject]
+    public class LoginUser // : BluePrintSys.RC.Client.SL.Core.ILoginUser
     {
         /// <summary>
         /// The users's ID.

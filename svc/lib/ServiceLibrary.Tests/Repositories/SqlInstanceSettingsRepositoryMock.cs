@@ -4,7 +4,7 @@ using ServiceLibrary.Repositories.InstanceSettings;
 
 namespace ServiceLibrary.Repositories
 {
-    public class SqlInstanceSettingsRepositoryMock: IInstanceSettingsRepository
+    public class SqlInstanceSettingsRepositoryMock : IInstanceSettingsRepository
     {
         private readonly EmailSettings _mockEmailSettings;
         private readonly Models.InstanceSettings _instanceSettings;

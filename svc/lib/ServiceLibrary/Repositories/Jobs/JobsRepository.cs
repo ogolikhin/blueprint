@@ -22,34 +22,30 @@ namespace ServiceLibrary.Repositories.Jobs
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IUsersRepository _usersRepository;
 
-        public JobsRepository() : 
-            this
-            (
+        public JobsRepository() : this(
                 new SqlConnectionWrapper(ServiceConstants.RaptorMain),
                 new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
-                new SqlUsersRepository()
-            )
+                new SqlUsersRepository())
         {
         }
 
-        public JobsRepository(ISqlConnectionWrapper connectionWrapper):
-            this(connectionWrapper, new SqlArtifactRepository(connectionWrapper, 
-                new SqlItemInfoRepository(connectionWrapper), 
+        public JobsRepository(ISqlConnectionWrapper connectionWrapper) : this(
+            connectionWrapper, new SqlArtifactRepository(connectionWrapper,
+                new SqlItemInfoRepository(connectionWrapper),
                 new SqlArtifactPermissionsRepository(connectionWrapper)),
                 new SqlArtifactPermissionsRepository(connectionWrapper),
                 new SqlUsersRepository(connectionWrapper))
         {
-            
+
         }
 
         public JobsRepository
         (
-            ISqlConnectionWrapper connectionWrapper, 
+            ISqlConnectionWrapper connectionWrapper,
             IArtifactRepository artifactRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
-            IUsersRepository userRepository
-        )
+            IUsersRepository userRepository)
         {
             _connectionWrapper = connectionWrapper;
             _artifactRepository = artifactRepository;
@@ -64,8 +60,7 @@ namespace ServiceLibrary.Repositories.Jobs
             int userId,
             int? offset,
             int? limit,
-            JobType? jobType = JobType.None
-        )
+            JobType? jobType = JobType.None)
         {
             var actualUserId = await GetActualUserId(userId);
             var jobResult = new JobResult();
@@ -76,8 +71,7 @@ namespace ServiceLibrary.Repositories.Jobs
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(dJobMessages.Select(job => job.JobMessageId), true);
             var projectIds = new HashSet<int>
              (
-                 dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value)
-             );
+                 dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value));
             var projectNameIdMap = await GetProjectNamesForUserMapping(projectIds, actualUserId);
 
 
@@ -97,8 +91,8 @@ namespace ServiceLibrary.Repositories.Jobs
             }
 
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(new[] { jobId });
-            var projectNameMappings = job.ProjectId.HasValue ? 
-                await GetProjectNamesForUserMapping(new HashSet<int> { job.ProjectId.Value }, actualUserId) : 
+            var projectNameMappings = job.ProjectId.HasValue ?
+                await GetProjectNamesForUserMapping(new HashSet<int> { job.ProjectId.Value }, actualUserId) :
                 new Dictionary<int, string>();
 
             return GetJobInfo(job, systemMessageMap, projectNameMappings);
@@ -145,7 +139,7 @@ namespace ServiceLibrary.Repositories.Jobs
         public async Task<int?> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
             int? projectId, string projectLabel, int userId, string userName, string hostUri)
         {
-            var jobMessage = await AddJobMessageQuery(type, hidden, parameters, 
+            var jobMessage = await AddJobMessageQuery(type, hidden, parameters,
                 receiverJobServiceId, projectId, projectLabel, userId, userName, hostUri);
 
             if (jobMessage == null)
@@ -179,7 +173,7 @@ namespace ServiceLibrary.Repositories.Jobs
             {
                 switch (sqlException.Number)
                 {
-                    //Sql timeout error
+                    // Sql timeout error
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
@@ -196,8 +190,7 @@ namespace ServiceLibrary.Repositories.Jobs
             JobType? jobType = JobType.None,
             bool? hidden = null,
             bool? addFinished = true,
-            bool? doNotFetchResult = false
-        )
+            bool? doNotFetchResult = false)
         {
             var param = new DynamicParameters();
 
@@ -219,7 +212,7 @@ namespace ServiceLibrary.Repositories.Jobs
             {
                 switch (sqlException.Number)
                 {
-                    //Sql timeout error
+                    // Sql timeout error
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
@@ -230,10 +223,9 @@ namespace ServiceLibrary.Repositories.Jobs
 
         private JobInfo GetJobInfo
         (
-            DJobMessage jobMessage, 
-            IDictionary<int, List<SystemMessage>> systemMessageMap, 
-            IDictionary<int, string> projectNameMap
-        )
+            DJobMessage jobMessage,
+            IDictionary<int, List<SystemMessage>> systemMessageMap,
+            IDictionary<int, string> projectNameMap)
         {
             return new JobInfo
             {
@@ -259,9 +251,8 @@ namespace ServiceLibrary.Repositories.Jobs
         // Copied from raptor JobMessageDataProvider
         private async Task<IDictionary<int, List<SystemMessage>>> GetRelevantUnfinishCancelSystemJobSystemMessageMap
         (
-            IEnumerable<int> jobIds, 
-            bool? doNotFetchResult = false
-        )
+            IEnumerable<int> jobIds,
+            bool? doNotFetchResult = false)
         {
             var allUnfinishSystemJobs = await GetJobMessages(null, 0, int.MaxValue, JobType.System, true, false, doNotFetchResult);
 
@@ -272,7 +263,7 @@ namespace ServiceLibrary.Repositories.Jobs
                 .Where(sysMsg => sysMsg != null)
                 .Where(sysMsg => sysMsg.Command == SystemJobCommand.TerminateJob)
                 .Where(sysMsg => sysMsg.TargetJobId.HasValue && jobIds.Contains(sysMsg.TargetJobId.Value))
-                .GroupBy(sysMsg => sysMsg.TargetJobId ?? 0) //sysMsg.TargetJobId always has value
+                .GroupBy(sysMsg => sysMsg.TargetJobId ?? 0) // sysMsg.TargetJobId always has value
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
 
@@ -332,7 +323,7 @@ namespace ServiceLibrary.Repositories.Jobs
             {
                 switch (sqlException.Number)
                 {
-                    //Sql timeout error
+                    // Sql timeout error
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }

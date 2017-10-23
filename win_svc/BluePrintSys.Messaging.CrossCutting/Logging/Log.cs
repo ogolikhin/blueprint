@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using BluePrintSys.Messaging.CrossCutting.Annotations;
 
 namespace BluePrintSys.Messaging.CrossCutting.Logging
@@ -38,7 +39,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
             var logEntry = new StandardLogEntry
             {
                 Level = Level.Debug,
-                Entry = string.Format(format, args),
+                Entry = string.Format(CultureInfo.InvariantCulture, format, args),
                 Format = format,
                 Arguments = args,
                 DateTime = DateTime.Now,
@@ -343,7 +344,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
 #endif
         public static void Assert(bool condition, string message, string detailMessageFormat, params object[] args)
         {
-            Assert(condition, message, string.Format(detailMessageFormat, args));
+            Assert(condition, message, string.Format(CultureInfo.InvariantCulture, detailMessageFormat, args));
         }
 
 #if !DEBUG
@@ -371,7 +372,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
 
         #region Context
 
-        //TODO: Need to find a better way to inject the context at runtime
+        // TODO: Need to find a better way to inject the context at runtime
 
         // Current user
         public static Func<string> GetCurrentUserName = () => null;

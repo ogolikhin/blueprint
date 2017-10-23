@@ -3,7 +3,7 @@
     public class SMTPClientConfiguration : BaseEmailServerConfiguration
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public SMTPClientConfiguration()
         {
@@ -16,12 +16,12 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public bool Authenticated { get; set; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public string SenderEmailAddress { get; set; }
     }

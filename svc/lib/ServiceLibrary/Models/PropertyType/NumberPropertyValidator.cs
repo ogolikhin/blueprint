@@ -18,22 +18,22 @@ namespace ServiceLibrary.Models.PropertyType
                 return null;
             }
 
-            //Maximum.
+            // Maximum.
             if (value.CompareTo(propertyType.Range.End) > 0)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Must be less than max value");
 
-            //Minimum.
+            // Minimum.
             if (value.CompareTo(propertyType.Range.Start) < 0)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Must be greater than min value");
 
-            //Decimal places.
+            // Decimal places.
             var stringValue = value.ToString("G29", CultureInfo.CurrentCulture);
             var i = stringValue.IndexOf(CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, StringComparison.OrdinalIgnoreCase);
             var decimalPlaces = (i == -1) ? 0 : stringValue.Length - i - 1;
             if (decimalPlaces > propertyType.DecimalPlaces)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Decimal places greater than maximum configured");
 
-            //Success.
+            // Success.
             return null;
         }
 

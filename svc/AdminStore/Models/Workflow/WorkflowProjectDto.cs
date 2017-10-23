@@ -8,7 +8,7 @@ namespace AdminStore.Models.Workflow
     public class WorkflowProjectDto : IEquatable<WorkflowProjectDto>
     {
         public int Id { get; set; }
-        public string Name{ get; set; }
+        public string Name { get; set; }
         public bool Equals(WorkflowProjectDto other)
         {
             if (ReferenceEquals(other, null)) return false;

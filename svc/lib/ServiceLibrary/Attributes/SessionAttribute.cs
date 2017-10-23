@@ -44,8 +44,7 @@ namespace ServiceLibrary.Attributes
         private readonly IHttpClientProvider _httpClientProvider;
         private readonly IAsyncCache _cache;
 
-        protected internal SessionAttribute(bool allowCookie = false, bool ignoreBadToken = false) :
-            this(allowCookie, ignoreBadToken, new HttpClientProvider(), SessionsCacheSettings.IsSessionCacheEnabled ? AsyncCache.Default : AsyncCache.NoCache)
+        protected internal SessionAttribute(bool allowCookie = false, bool ignoreBadToken = false) : this(allowCookie, ignoreBadToken, new HttpClientProvider(), SessionsCacheSettings.IsSessionCacheEnabled ? AsyncCache.Default : AsyncCache.NoCache)
         {
         }
 

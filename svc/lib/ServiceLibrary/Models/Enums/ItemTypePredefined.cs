@@ -56,7 +56,7 @@
         /// </summary>
         GroupMask = 0xF000,
 
-        //None 
+        // None
         None = 0x0000,
 
         /// <summary>
@@ -66,7 +66,7 @@
         Project = PrimitiveArtifactGroup | 1,
         Baseline = PrimitiveArtifactGroup | 2,
         Glossary = PrimitiveArtifactGroup | 3,
-        //Term                       = PrimitiveArtifactGroup | 4,
+        // Term                       = PrimitiveArtifactGroup | 4,
         TextualRequirement = PrimitiveArtifactGroup | 5,
 
         /// <summary>
@@ -120,22 +120,22 @@
         Flow = SubArtifactGroup | 6,
         Step = SubArtifactGroup | 7,
         Extension = SubArtifactGroup | 8,
-        //Canvas                     = SubArtifactGroup | 9,
-        //Widget                     = SubArtifactGroup | 10,
-        //BP elements (BPObject replacement)
-        //BPPool                     = SubArtifactGroup | 11,
-        //BPLane                     = SubArtifactGroup | 12,
-        //BPEvent                    = SubArtifactGroup | 13,
-        //BPTask                     = SubArtifactGroup | 14,
-        //BPGateway                  = SubArtifactGroup | 15,
-        //BPDataObject               = SubArtifactGroup | 16,
-        //BPGroup                    = SubArtifactGroup | 17,
-        //BPAnnotation               = SubArtifactGroup | 18,
-        //BPExpandedSubProcess       = SubArtifactGroup | 19,
-        //BPLinkLabel                = SubArtifactGroup | 20,
+        // Canvas                     = SubArtifactGroup | 9,
+        // Widget                     = SubArtifactGroup | 10,
+        // BP elements (BPObject replacement)
+        // BPPool                     = SubArtifactGroup | 11,
+        // BPLane                     = SubArtifactGroup | 12,
+        // BPEvent                    = SubArtifactGroup | 13,
+        // BPTask                     = SubArtifactGroup | 14,
+        // BPGateway                  = SubArtifactGroup | 15,
+        // BPDataObject               = SubArtifactGroup | 16,
+        // BPGroup                    = SubArtifactGroup | 17,
+        // BPAnnotation               = SubArtifactGroup | 18,
+        // BPExpandedSubProcess       = SubArtifactGroup | 19,
+        // BPLinkLabel                = SubArtifactGroup | 20,
         Bookmark = SubArtifactGroup | 21,
-        //Callout                    = SubArtifactGroup | 22,
-        //Frame                      = SubArtifactGroup | 23,
+        // Callout                    = SubArtifactGroup | 22,
+        // Frame                      = SubArtifactGroup | 23,
         BaselinedArtifactSubscribe = SubArtifactGroup | 24,
         Term = SubArtifactGroup | 25,
         Content = SubArtifactGroup | 26,

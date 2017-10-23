@@ -26,7 +26,7 @@ namespace ArtifactStore.Executors
         private readonly IStateChangeExecutorRepositories _stateChangeExecutorRepositories;
         private readonly IStateChangeExecutorHelper _stateChangeExecutorHelper;
         public StateChangeExecutor(
-            int userId, WorkflowStateChangeParameterEx input, 
+            int userId, WorkflowStateChangeParameterEx input,
             ISqlHelper sqlHelper,
             IStateChangeExecutorRepositories stateChangeExecutorRepositories,
             IStateChangeExecutorHelper stateChangeExecutorHelper)
@@ -62,12 +62,12 @@ namespace ArtifactStore.Executors
                 var currentState = await ValidateCurrentState();
 
                 var triggers = await _stateChangeExecutorRepositories.WorkflowRepository.GetWorkflowEventTriggersForTransition(
-                    _userId, 
-                    _input.ArtifactId, 
-                    currentState.WorkflowId, 
-                    _input.FromStateId, 
+                    _userId,
+                    _input.ArtifactId,
+                    currentState.WorkflowId,
+                    _input.FromStateId,
                     _input.ToStateId);
-                
+
                 var constraints = new List<IConstraint>();
 
 
@@ -84,7 +84,7 @@ namespace ArtifactStore.Executors
 
                 var artifactResultSet = await PublishArtifacts(publishRevision, transaction);
 
-                //Collecting all errors so that we can distinguish between errors at a later stage.
+                // Collecting all errors so that we can distinguish between errors at a later stage.
                 if (errors.Count > 0)
                 {
                     await
@@ -98,12 +98,12 @@ namespace ArtifactStore.Executors
                     Result = stateChangeResult
                 };
 
-            //Generate asynchronous messages for sending
+            // Generate asynchronous messages for sending
             result.ActionMessages.AddRange((await WorkflowEventsMessagesHelper.GenerateMessages(
                     _userId,
                     publishRevision,
                     _input.UserName,
-                    triggers.AsynchronousTriggers, 
+                    triggers.AsynchronousTriggers,
                     artifactInfo,
                     artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId)?.Name,
                     artifactResultSet?.ModifiedProperties,
@@ -112,22 +112,20 @@ namespace ArtifactStore.Executors
                     null,
                     _stateChangeExecutorRepositories.UsersRepository,
                     _stateChangeExecutorRepositories.ServiceLogRepository,
-                    transaction
-                    )));
+                    transaction)));
 
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
                     _stateChangeExecutorRepositories.ApplicationSettingsRepository,
-                    _stateChangeExecutorRepositories.ServiceLogRepository, 
+                    _stateChangeExecutorRepositories.ServiceLogRepository,
                     result.ActionMessages,
                     $"Error on successful transition of artifact: {_input.ArtifactId} from {_input.FromStateId} to {_input.ToStateId}",
-                    transaction
-                    );
+                    transaction);
 
                 return result;
             };
             return action;
         }
-        
+
         private async Task<int> CreateRevision(IDbTransaction transaction)
         {
             var publishRevision = await _sqlHelper.CreateRevisionInTransactionAsync(transaction, _userId, I18NHelper.FormatInvariant("State Change Publish: publishing changes and changing artifact {0} state to {1}", _input.ArtifactId, _input.ToStateId));
@@ -136,7 +134,7 @@ namespace ArtifactStore.Executors
 
         private async Task ValidateArtifact(VersionControlArtifactInfo artifactInfo)
         {
-            //Confirm that the artifact is not deleted
+            // Confirm that the artifact is not deleted
             var isDeleted = await _stateChangeExecutorRepositories.ArtifactVersionsRepository.IsItemDeleted(_input.ArtifactId);
             if (isDeleted)
             {
@@ -153,8 +151,8 @@ namespace ArtifactStore.Executors
                 throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. The current version of the artifact {0} does not match the specified version {1}. Please refresh your view.", artifactInfo.VersionCount, _input.CurrentVersionId));
             }
 
-            //Lock is obtained by current user inside the stored procedure itself
-            //Check that it is not locked by some other user
+            // Lock is obtained by current user inside the stored procedure itself
+            // Check that it is not locked by some other user
             if (artifactInfo.LockedByUser != null && artifactInfo.LockedByUser.Id != _userId)
             {
                 throw new ConflictException(I18NHelper.FormatInvariant("Artifact has been updated. Artifact is locked by another user. Please refresh your view."));
@@ -163,7 +161,7 @@ namespace ArtifactStore.Executors
 
         private async Task<WorkflowState> ValidateCurrentState()
         {
-            //Get current state and validate current state
+            // Get current state and validate current state
             var currentState = await _stateChangeExecutorRepositories.WorkflowRepository.GetStateForArtifactAsync(_userId, _input.ArtifactId, int.MaxValue, true);
             if (currentState == null)
             {

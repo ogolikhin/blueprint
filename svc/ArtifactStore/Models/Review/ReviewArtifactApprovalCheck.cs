@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArtifactStore.Models.Review
 {
@@ -17,6 +13,25 @@ namespace ArtifactStore.Models.Review
         public ReviewParticipantRole ReviewerRole { get; set; }
         public ReviewType ReviewType { get; set; }
         public ReviewStatus ReviewerStatus { get; set; }
-        public DateTime? ExpirationDate { get; set; }
+
+        private DateTime? _expirationDate;
+        public DateTime? ExpirationDate
+        {
+            get
+            {
+                return _expirationDate;
+            }
+            set
+            {
+                if (value.HasValue)
+                {
+                    _expirationDate = value.Value.Kind != DateTimeKind.Utc ? value.Value.ToUniversalTime() : value;
+                }
+                else
+                {
+                    _expirationDate = value;
+                }
+            }
+        }
     }
 }

@@ -171,7 +171,7 @@ namespace AdminStore.Controllers
             }
             catch (FederatedAuthenticationException ex)
             {
-                await _log.LogInformation(WebApiConfig.LogSourceSessions, $"{ex.Message}.{ex.InnerException?.Message ?? ""}" );
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, $"{ex.Message}.{ex.InnerException?.Message ?? ""}");
                 if (ex.ErrorCode == FederatedAuthenticationErrorCode.WrongFormat)
                 {
                     throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.CreateHttpError(ErrorCodes.FederatedAuthenticationException)));

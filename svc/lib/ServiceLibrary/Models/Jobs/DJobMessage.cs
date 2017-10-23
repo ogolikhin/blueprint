@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace ServiceLibrary.Models.Jobs
-{    
+{
     public class DJobMessage
     {
         public int JobMessageId

@@ -23,7 +23,7 @@ namespace ArtifactStore.Controllers
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IRelationshipsRepository> _relationshipsRepositoryMock;
         private Mock<IArtifactVersionsRepository> _artifactVersionsRepositoryMock;
-        
+
         private Session _session;
 
         [TestInitialize]
@@ -56,7 +56,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationships_ArtifactHasPermission_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             const int destId = 123;
@@ -87,10 +87,10 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetRelationships(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.IsTrue(result.ManualTraces[0].HasAccess);
             Assert.IsTrue(result.OtherTraces[0].HasAccess);
@@ -99,7 +99,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationships_ArtifactCanEdit_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             const int destId = 123;
@@ -119,7 +119,7 @@ namespace ArtifactStore.Controllers
                     }
                 }
             };
-            permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Trace | RolePermissions.Edit);       
+            permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Trace | RolePermissions.Edit);
             permisionDictionary.Add(destId, RolePermissions.Read);
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
@@ -131,25 +131,25 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetRelationships(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.CanEdit);            
+            Assert.IsTrue(result.CanEdit);
         }
 
         [TestMethod]
         public async Task GetRelationships_ArtifactCannotEdit_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             const int destId = 123;
             var itemInfo = new ItemInfo { ProjectId = projectId, ArtifactId = artifactId, ItemId = artifactId };
             var permisionDictionary = new Dictionary<int, RolePermissions>();
             var resultSet = new RelationshipResultSet { ManualTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } }, OtherTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } } };
-            permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Edit);                
+            permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Edit);
             permisionDictionary.Add(destId, RolePermissions.Read);
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
@@ -161,10 +161,10 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetRelationships(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.IsFalse(result.CanEdit);
         }
@@ -172,7 +172,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationships_RelationshipIsReadOnly_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             const int destId = 123;
@@ -191,10 +191,10 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetRelationships(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.IsTrue(result.ManualTraces[0].ReadOnly);
             Assert.IsTrue(result.OtherTraces[0].ReadOnly);
@@ -203,7 +203,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationships_RelationshipIsNotReadOnly_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             const int destId = 123;
@@ -222,10 +222,10 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetRelationships(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.IsFalse(result.ManualTraces[0].ReadOnly);
             Assert.IsFalse(result.OtherTraces[0].ReadOnly);
@@ -235,7 +235,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationships_ArtifactHasNoPermission_ExcetionThrown()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             const int destId = 123;
@@ -252,14 +252,14 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetRelationships(artifactId);
         }
 
         [TestMethod]
         public async Task GetRelationships_ArtifactNoPermission_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             const int destId = 123;
@@ -277,20 +277,20 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetRelationships(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.IsFalse(result.ManualTraces[0].HasAccess);
             Assert.IsFalse(result.OtherTraces[0].HasAccess);
         }
 
-        [ExpectedException (typeof(ResourceNotFoundException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         [TestMethod]
         public async Task GetRelationships_BadSubartifactId_ExceptionThrown()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int subartifactId = 999;
 
@@ -300,14 +300,14 @@ namespace ArtifactStore.Controllers
             };
 
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             await controller.GetRelationships(artifactId, subartifactId);
         }
 
         [TestMethod]
         public async Task GetRelationships_GoodSubartifactId_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int subartifactId = 999;
             const int projectId = 10;
@@ -328,10 +328,10 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetRelationships(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.IsTrue(result.ManualTraces[0].HasAccess);
             Assert.IsTrue(result.OtherTraces[0].HasAccess);
@@ -341,14 +341,14 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationshipsDetails_BadartifactId_ExceptionThrown()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 0;
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             await controller.GetRelationshipDetails(artifactId);
         }
 
@@ -356,14 +356,14 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationshipsDetails_IncorrectRevisionId_ExceptionThrown()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 10;
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             await controller.GetRelationshipDetails(artifactId);
         }
 
@@ -371,7 +371,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationshipDetails_ArtifactNoPermission_ExceptionThrown()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             var itemInfo = new ItemInfo { ProjectId = projectId, ArtifactId = artifactId, ItemId = artifactId };
@@ -384,14 +384,14 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetRelationshipDetails(artifactId);
         }
 
         [TestMethod]
         public async Task GetRelationshipDetails_ArtifactHasPermission_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             var permisionDictionary = new Dictionary<int, RolePermissions>();
             permisionDictionary.Add(artifactId, RolePermissions.Read);
@@ -405,10 +405,10 @@ namespace ArtifactStore.Controllers
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.GetRelationshipDetails(artifactId);
 
-            //Assert
+            // Assert
             Assert.AreEqual(1, result.ArtifactId);
         }
 
@@ -416,7 +416,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationships_ItemNotFoundForLatest_ExceptionThrownNotFound()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             _artifactVersionsRepositoryMock.Setup(m => m.IsItemDeleted(artifactId)).ReturnsAsync(true);
 
@@ -429,13 +429,13 @@ namespace ArtifactStore.Controllers
 
             try
             {
-                //Act
+                // Act
                 await controller.GetRelationships(artifactId);
             }
             catch (HttpResponseException e)
             {
-                //Assert
-                Assert.AreEqual(e.Response.StatusCode,HttpStatusCode.NotFound);
+                // Assert
+                Assert.AreEqual(e.Response.StatusCode, HttpStatusCode.NotFound);
                 throw;
             }
         }
@@ -443,7 +443,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationships_ForVersion_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int versionId = 9;
             const int projectId = 10;
@@ -463,7 +463,7 @@ namespace ArtifactStore.Controllers
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
 
             _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, It.IsAny<int?>(), false, false, versionId, null)).ReturnsAsync(expected);
-       
+
 
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -472,10 +472,10 @@ namespace ArtifactStore.Controllers
 
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
-            //Act
+            // Act
             var actual = await controller.GetRelationships(artifactId, versionId: versionId);
 
-            //Assert
+            // Assert
             Assert.AreSame(expected, actual);
         }
 
@@ -483,7 +483,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationshipDetails_ItemNotFoundForLatest_ExceptionThrownNotFound()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             _artifactVersionsRepositoryMock.Setup(m => m.IsItemDeleted(artifactId)).ReturnsAsync(true);
 
@@ -496,13 +496,13 @@ namespace ArtifactStore.Controllers
 
             try
             {
-                //Act
+                // Act
                 await controller.GetRelationshipDetails(artifactId);
             }
             catch (HttpResponseException e)
             {
-                //Assert
-                Assert.AreEqual(e.Response.StatusCode,HttpStatusCode.NotFound);
+                // Assert
+                Assert.AreEqual(e.Response.StatusCode, HttpStatusCode.NotFound);
                 throw;
             }
         }
@@ -510,7 +510,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetRelationshipDetails_ForRevision_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const bool isDeleted = true;
             const int projectId = 10;
@@ -531,17 +531,17 @@ namespace ArtifactStore.Controllers
 
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
-            //Act
+            // Act
             var actual = await controller.GetRelationshipDetails(artifactId);
 
-            //Assert
+            // Assert
             Assert.AreSame(expected, actual);
         }
 
         [TestMethod]
         public async Task GetReviews_BadRequest_ThrowsException()
         {
-            //Arrange
+            // Arrange
             const int artifactId = -1;
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -549,7 +549,7 @@ namespace ArtifactStore.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
-            //Act
+            // Act
             try {
                 var result = await controller.GetReviewRelationships(artifactId);
             } catch (BadRequestException e)
@@ -562,7 +562,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetReviews_NotFound_ThrowsException()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -571,14 +571,14 @@ namespace ArtifactStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync((ItemInfo)null);
 
-            //Act
+            // Act
             var result = await controller.GetReviewRelationships(artifactId);
         }
 
         [TestMethod]
         public async Task GetReviews_RelationshipIsReadOnly_Success()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             const int destId = 123;
@@ -608,10 +608,10 @@ namespace ArtifactStore.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
-            //Act
+            // Act
             var result = await controller.GetReviewRelationships(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(destId, result.ReviewArtifacts[0].ItemId);
             Assert.AreEqual("Test Review", result.ReviewArtifacts[0].ItemName);
@@ -622,7 +622,7 @@ namespace ArtifactStore.Controllers
         [TestMethod]
         public async Task GetReviews_NoPermissionToArtifact_ThrowsException()
         {
-            //Arrange
+            // Arrange
             const int artifactId = 1;
             const int projectId = 10;
             const int destId = 123;
@@ -653,9 +653,9 @@ namespace ArtifactStore.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
-            //Act
-            
-            var result = await controller.GetReviewRelationships(artifactId);            
+            // Act
+
+            var result = await controller.GetReviewRelationships(artifactId);
         }
     }
 }

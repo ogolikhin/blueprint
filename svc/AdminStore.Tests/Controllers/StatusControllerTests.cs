@@ -71,7 +71,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var statusControllerHelper = new Mock<IStatusControllerHelper>();
-            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = false, ServiceName="MyServiceName" });
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = false, ServiceName = "MyServiceName" });
             var controller = CreateController(statusControllerHelper.Object, "mypreauthorizedkey");
 
             // Act

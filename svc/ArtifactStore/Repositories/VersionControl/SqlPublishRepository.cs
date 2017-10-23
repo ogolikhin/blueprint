@@ -25,7 +25,7 @@ namespace ArtifactStore.Repositories.VersionControl
 
             public bool DraftDeleted { get; set; }
         }
-        
+
         protected SqlPublishRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
@@ -55,27 +55,23 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (transaction == null)
             {
-                return 
+                return
                 (
                     await ConnectionWrapper.QueryAsync<int>
                     (
-                        "GetLiveItems", 
+                        "GetLiveItems",
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToHashSet();
+                        commandType: CommandType.StoredProcedure)).ToHashSet();
             }
 
-            return 
+            return
             (
                 await transaction.Connection.QueryAsync<int>
                 (
-                    "GetLiveItems", 
-                    parameters, 
+                    "GetLiveItems",
+                    parameters,
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToHashSet();
+                    commandType: CommandType.StoredProcedure)).ToHashSet();
         }
 
         protected abstract string MarkAsLatestStoredProcedureName { get; }
@@ -94,21 +90,19 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    MarkAsLatestStoredProcedureName, 
+                    MarkAsLatestStoredProcedureName,
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
 
             await transaction.Connection.ExecuteAsync
             (
-                MarkAsLatestStoredProcedureName, 
-                parameters, 
+                MarkAsLatestStoredProcedureName,
+                parameters,
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         protected abstract string DeleteVersionsStoredProcedureName { get; }
@@ -127,21 +121,19 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    DeleteVersionsStoredProcedureName, 
+                    DeleteVersionsStoredProcedureName,
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
 
             await transaction.Connection.ExecuteAsync
             (
-                DeleteVersionsStoredProcedureName, 
-                parameters, 
+                DeleteVersionsStoredProcedureName,
+                parameters,
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         protected abstract string CloseVersionsStoredProcedureName { get; }
@@ -160,23 +152,21 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    CloseVersionsStoredProcedureName, 
+                    CloseVersionsStoredProcedureName,
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
 
             await transaction.Connection.ExecuteAsync
             (
-                CloseVersionsStoredProcedureName, 
-                parameters, 
+                CloseVersionsStoredProcedureName,
+                parameters,
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
 
-            //Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some item versions are not closed");
+            // Log.Assert(updatedRowsCount == closeVersionIds.Count, "Publish: Some item versions are not closed");
         }
 
         public async Task<double?> GetMaxChildOrderIndex(int parentId, IDbTransaction transaction = null)
@@ -186,27 +176,23 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (transaction == null)
             {
-                return 
+                return
                 (
                     await ConnectionWrapper.QueryAsync<double?>
                     (
-                        "GetMaxChildOrderIndex", 
+                        "GetMaxChildOrderIndex",
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).FirstOrDefault();
+                        commandType: CommandType.StoredProcedure)).FirstOrDefault();
             }
 
-            return 
+            return
             (
                 await transaction.Connection.QueryAsync<double?>
                 (
-                    "GetMaxChildOrderIndex", 
-                    parameters, 
+                    "GetMaxChildOrderIndex",
+                    parameters,
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                )
-            ).FirstOrDefault();
+                    commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
         public async Task SetParentAndOrderIndex(int itemVersionId, int newParentId, double newOrderIndex, IDbTransaction transaction = null)
@@ -220,21 +206,19 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    "SetParentAndOrderIndex", 
+                    "SetParentAndOrderIndex",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
 
             await transaction.Connection.ExecuteAsync
             (
-                "SetParentAndOrderIndex", 
-                parameters, 
+                "SetParentAndOrderIndex",
+                parameters,
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
 
         protected abstract string GetDraftAndLatestStoredProcedureName { get; }
@@ -248,27 +232,23 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (transaction == null)
             {
-                return 
+                return
                 (
                     await ConnectionWrapper.QueryAsync<T>
                     (
-                        GetDraftAndLatestStoredProcedureName, 
+                        GetDraftAndLatestStoredProcedureName,
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
-            return 
+            return
             (
                 await transaction.Connection.QueryAsync<T>
                 (
-                    GetDraftAndLatestStoredProcedureName, 
-                    parameters, 
+                    GetDraftAndLatestStoredProcedureName,
+                    parameters,
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToList();
+                    commandType: CommandType.StoredProcedure)).ToList();
         }
 
         protected async Task<IList<int>> GetDeletedArtifacts(int userId, ISet<int> artifactIds, IDbTransaction transaction = null)
@@ -280,27 +260,23 @@ namespace ArtifactStore.Repositories.VersionControl
 
             if (transaction == null)
             {
-                return 
+                return
                 (
                     await ConnectionWrapper.QueryAsync<int>
                     (
-                        "GetArtifactsDeletedInDraft", 
+                        "GetArtifactsDeletedInDraft",
                         parameters,
-                        commandType: CommandType.StoredProcedure
-                    )
-                ).ToList();
+                        commandType: CommandType.StoredProcedure)).ToList();
             }
 
-            return 
+            return
             (
                 await transaction.Connection.QueryAsync<int>
                 (
-                    "GetArtifactsDeletedInDraft", 
-                    parameters, 
+                    "GetArtifactsDeletedInDraft",
+                    parameters,
                     transaction,
-                    commandType: CommandType.StoredProcedure
-                )
-            ).ToList();
+                    commandType: CommandType.StoredProcedure)).ToList();
         }
 
         protected async Task MarkReuseLinksOutOfSync(IEnumerable<int> artifactIds, PublishEnvironment environment, IDbTransaction transaction = null)
@@ -319,21 +295,19 @@ namespace ArtifactStore.Repositories.VersionControl
             {
                 await ConnectionWrapper.ExecuteAsync
                 (
-                    "MarkReuseLinksOutOfSync", 
+                    "MarkReuseLinksOutOfSync",
                     parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
                 return;
             }
 
             await transaction.Connection.ExecuteAsync
             (
-                "MarkReuseLinksOutOfSync", 
-                parameters, 
+                "MarkReuseLinksOutOfSync",
+                parameters,
                 transaction,
-                commandType: CommandType.StoredProcedure
-            );
+                commandType: CommandType.StoredProcedure);
         }
     }
 }

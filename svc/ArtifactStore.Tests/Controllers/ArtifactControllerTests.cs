@@ -30,7 +30,7 @@ namespace ArtifactStore.Controllers
         [TestInitialize]
         public void Initialize()
         {
-            session = new Session {UserId = userId};
+            session = new Session { UserId = userId };
             artifactIds = new HashSet<int>() { 1, 2, 3 };
             processInfo = new List<ProcessInfoDto>()
             {
@@ -85,7 +85,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetProjectChildrenAsync(projectId);
 
-            //Assert
+            // Assert
             Assert.AreSame(children, result);
         }
 
@@ -111,7 +111,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetArtifactChildrenAsync(projectId, artifactId);
 
-            //Assert
+            // Assert
             Assert.AreSame(children, result);
         }
 
@@ -137,7 +137,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetExpandedTreeToArtifactAsync(projectId, artifactId, true);
 
-            //Assert
+            // Assert
             Assert.AreSame(rootChildren, result);
         }
 
@@ -162,7 +162,7 @@ namespace ArtifactStore.Controllers
             // Act
             await artifactController.GetExpandedTreeToArtifactAsync(projectId, artifactId);
 
-            //Assert
+            // Assert
         }
 
         [TestMethod]
@@ -219,7 +219,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetSubArtifactTreeAsync(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result[0].Id);
         }
@@ -245,21 +245,21 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetArtifactNavigationPathAsync(artifactId);
 
-            //Assert
+            // Assert
             Assert.AreSame(navPath, result);
         }
 
         [TestMethod]
         public async Task Artifact_GetProcessInfo_Success()
         {
-            //Arrange
+            // Arrange
             mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId))
                                   .ReturnsAsync(processInfo);
 
-            //Act
+            // Act
             var result = await artifactController.GetProcessInformationAsync(artifactIds);
-            
-            //Assert
+
+            // Assert
             Assert.AreSame(processInfo, result);
         }
 
@@ -267,14 +267,14 @@ namespace ArtifactStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task Artifact_GetProcessInfo_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             artifactIds = null;
-            processInfo = new List<ProcessInfoDto>() {};
+            processInfo = new List<ProcessInfoDto>() { };
 
             mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId))
                                   .ReturnsAsync(processInfo);
 
-            //Act
+            // Act
             var result = await artifactController.GetProcessInformationAsync(artifactIds);
 
         }
@@ -283,7 +283,7 @@ namespace ArtifactStore.Controllers
         public async Task GetStandardArtifactTypes_SuccessResult()
         {
             // Arrange
-            var artifacts = new List<StandardArtifactType> {new StandardArtifactType {Id = 1, Name = "CustomActor"} };
+            var artifacts = new List<StandardArtifactType> { new StandardArtifactType { Id = 1, Name = "CustomActor" } };
             mockArtifactRepository.Setup(r => r.GetStandardArtifactTypes())
                                   .ReturnsAsync(artifacts);
 
@@ -294,7 +294,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetStandardArtifactTypes();
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(result, artifacts);
         }
@@ -311,7 +311,7 @@ namespace ArtifactStore.Controllers
             // Act
             await artifactController.GetStandardArtifactTypes();
 
-            //Assert
+            // Assert
         }
     }
 }

@@ -41,7 +41,7 @@ namespace ServiceLibrary.Repositories.ApplicationSettings
             prm.Add("@returnNonRestrictedOnly", returnNonRestrictedOnly);
             var settings = (await _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", prm, commandType: CommandType.StoredProcedure)).ToList();
 
-            //decrypt the license information
+            // decrypt the license information
             bool workflowFeatureEnabled = false;
             var licenseInfo = settings.FirstOrDefault(s => s.Key == ServiceConstants.LicenseInfoApplicationSettingKey);
             if (licenseInfo != null)
@@ -96,7 +96,7 @@ namespace ServiceLibrary.Repositories.ApplicationSettings
 
             string rawValue = matchingSetting.Value;
             T resultValue;
-            
+
             if (typeof(T) == typeof(int))
             {
                 int value;
@@ -107,7 +107,7 @@ namespace ServiceLibrary.Repositories.ApplicationSettings
 
                 resultValue = (T)Convert.ChangeType(value, typeof(T));
             }
-            else if (typeof (T) == typeof (bool))
+            else if (typeof(T) == typeof(bool))
             {
                 bool value;
                 if (!bool.TryParse(rawValue, out value))

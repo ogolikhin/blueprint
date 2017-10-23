@@ -25,7 +25,7 @@ namespace SearchService.Controllers
         {
             _semanticSearchService = semanticSearchService;
         }
-        
+
         [HttpGet, NoCache, SessionRequired]
         [Route("{artifactId}")]
         public async Task<SuggestionsSearchResult> GetSuggestions([FromUri] SuggestionsSearchCriteria searchCriteria)

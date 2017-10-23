@@ -3,7 +3,7 @@
     public enum SqlErrorCodes
     {
         None = 0,
-		GeneralSqlError = 50000,
+        GeneralSqlError = 50000,
         UserLoginExist = 50001,
         UserLoginNotExist = 50002,
         UserVersionsNotEqual = 50003,

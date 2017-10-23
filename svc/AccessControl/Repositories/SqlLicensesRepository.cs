@@ -57,7 +57,7 @@ namespace AccessControl.Repositories
 
         public async Task<LicenseUsage> GetLicenseUsage(int? month, int? year)
         {
-            
+
             var prm = new DynamicParameters();
             prm.Add("@month", month);
             prm.Add("@year", year);

@@ -26,16 +26,14 @@ namespace AdminStore.Services.Instance
 
         private const string TestEmailSubject = "Blueprint Test Email";
 
-        public EmailSettingsService() : 
-            this
+        public EmailSettingsService() : this
             (
                 new PrivilegesManager(new SqlPrivilegesRepository()),
                 new SqlUserRepository(),
                 new EmailHelper(),
                 new WebsiteAddressService(),
                 new SqlInstanceSettingsRepository(),
-                new IncomingEmailService()
-            )
+                new IncomingEmailService())
         {
         }
 
@@ -55,7 +53,7 @@ namespace AdminStore.Services.Instance
 
             EmailSettings settings = await _instanceSettingsRepository.GetEmailSettings();
 
-            return (EmailSettingsDto) settings;
+            return (EmailSettingsDto)settings;
         }
 
         public async Task UpdateEmailSettingsAsync(int userId, EmailSettingsDto emailSettingsDto)
@@ -90,12 +88,12 @@ namespace AdminStore.Services.Instance
 
         private void UpdateEmailSettings(EmailSettings emailSettings, EmailSettingsDto emailSettingsDto)
         {
-            //Notification settings
+            // Notification settings
             emailSettings.EnableNotifications = emailSettingsDto.EnableReviewNotifications;
             emailSettings.EnableEmailReplies = emailSettingsDto.EnableDiscussions;
             emailSettings.EnableEmailDiscussion = emailSettingsDto.EnableEmailNotifications;
 
-            //Incoming settings
+            // Incoming settings
             emailSettings.IncomingServerType = (int)emailSettingsDto.Incoming.ServerType;
             emailSettings.IncomingHostName = emailSettingsDto.Incoming.ServerAddress;
             emailSettings.IncomingPort = emailSettingsDto.Incoming.Port;
@@ -107,7 +105,7 @@ namespace AdminStore.Services.Instance
                 emailSettings.IncomingPassword = SystemEncryptions.EncryptForSilverLight(emailSettingsDto.Incoming.AccountPassword);
             }
 
-            //Outgoing settings
+            // Outgoing settings
             emailSettings.HostName = emailSettingsDto.Outgoing.ServerAddress;
             emailSettings.Port = emailSettingsDto.Outgoing.Port;
             emailSettings.EnableSSL = emailSettingsDto.Outgoing.EnableSsl;
@@ -188,7 +186,7 @@ namespace AdminStore.Services.Instance
                 throw new BadRequestException("Please enter the system email account address.", ErrorCodes.EmptyEmailAddress);
             }
 
-            //Input is trimmed to be consistent with SilverLight implementation
+            // Input is trimmed to be consistent with SilverLight implementation
             if (!EmailValidator.IsEmailAddress(outgoingSettings.AccountEmailAddress.Trim()))
             {
                 throw new BadRequestException("The system email account address is not in a valid format.", ErrorCodes.InvalidEmailAddress);

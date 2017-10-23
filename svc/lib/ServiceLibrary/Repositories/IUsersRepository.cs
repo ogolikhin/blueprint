@@ -34,8 +34,8 @@ namespace ServiceLibrary.Repositories
         Task<IEnumerable<SqlUser>> GetExistingUsersByIdsAsync(IEnumerable<int> userIds);
 
         Task<IEnumerable<UserInfo>> GetUserInfoForWorkflowArtifactForAssociatedUserProperty(int artifactId,
-            int instancePropertyTypeId, 
-            int revisionId, 
+            int instancePropertyTypeId,
+            int revisionId,
             IDbTransaction transaction = null);
     }
 }

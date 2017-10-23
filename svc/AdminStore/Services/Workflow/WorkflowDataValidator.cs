@@ -22,9 +22,9 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowActionPropertyValueValidator _propertyValueValidator;
 
         public WorkflowDataValidator(
-            IWorkflowRepository workflowRepository, 
+            IWorkflowRepository workflowRepository,
             IUsersRepository userRepository,
-            ISqlProjectMetaRepository projectMetaRepository, 
+            ISqlProjectMetaRepository projectMetaRepository,
             IWorkflowActionPropertyValueValidator propertyValueValidator)
         {
             _workflowRepository = workflowRepository;
@@ -149,7 +149,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.PropertyChange)
                 {
-                    var action = (IePropertyChangeAction) t.Action;
+                    var action = (IePropertyChangeAction)t.Action;
                     action.UsersGroups?.UsersGroups?.ForEach(ug =>
                     {
                         if (ug.IsGroup.GetValueOrDefault())
@@ -181,7 +181,7 @@ namespace AdminStore.Services.Workflow
 
         private async Task ValidateWorkflowNameForUniquenessAsync(WorkflowDataValidationResult result, IeWorkflow workflow, int? exceptWorkflowId = null)
         {
-            var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniquenessAsync(new[] {workflow.Name}, exceptWorkflowId);
+            var duplicateNames = await _workflowRepository.CheckLiveWorkflowsForNameUniquenessAsync(new[] { workflow.Name }, exceptWorkflowId);
             if (duplicateNames.Any())
             {
                 result.Errors.Add(new WorkflowDataValidationError
@@ -206,7 +206,7 @@ namespace AdminStore.Services.Workflow
                     {
                         projectPaths[project.Id.Value] = project.Path;
                     }
-                    else if(!doNotLookupProjectPaths)
+                    else if (!doNotLookupProjectPaths)
                     {
                         if (!string.IsNullOrEmpty(project.Path))
                         {
@@ -217,7 +217,7 @@ namespace AdminStore.Services.Workflow
 
                 if (!doNotLookupProjectPaths && projectPathsToLookup.Any())
                 {
-                    //look up ID of projects that have no ID provided
+                    // look up ID of projects that have no ID provided
                     foreach (
                         var sqlProjectPathPair in
                             await _workflowRepository.GetProjectIdsByProjectPathsAsync(projectPathsToLookup.Keys))
@@ -297,7 +297,7 @@ namespace AdminStore.Services.Workflow
                     else
                     {
                         // Assing Id to artifact types for the workflow diffing.
-                        // A negative artifact type Id means Id is not specified in xml. 
+                        // A negative artifact type Id means Id is not specified in xml.
                         if (result.StandardArtifactTypeMapByName.TryGetValue(at.Name, out itemType)
                             && itemType != null)
                         {
@@ -347,7 +347,7 @@ namespace AdminStore.Services.Workflow
             bool ignoreIds)
         {
             // For the workflow update Ids are already filled in.
-            if(ignoreIds)
+            if (ignoreIds)
             {
                 await FillInGroupProjectIdsAsync(result, workflow);
             }
@@ -397,7 +397,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action.ActionType == ActionTypes.PropertyChange)
                 {
-                    var pca = (IePropertyChangeAction) t.Action;
+                    var pca = (IePropertyChangeAction)t.Action;
                     pca?.UsersGroups?.UsersGroups?.Where(IsGroupProjectIdUnassigned).ForEach(collection.Add);
                 }
             });
@@ -544,13 +544,13 @@ namespace AdminStore.Services.Workflow
             switch (action.ActionType)
             {
                 case ActionTypes.EmailNotification:
-                    ValidateEmailNotificationActionData(result, (IeEmailNotificationAction) action, ignoreIds);
+                    ValidateEmailNotificationActionData(result, (IeEmailNotificationAction)action, ignoreIds);
                     break;
                 case ActionTypes.PropertyChange:
-                    ValidatePropertyChangeActionData(result, (IePropertyChangeAction) action, ignoreIds);
+                    ValidatePropertyChangeActionData(result, (IePropertyChangeAction)action, ignoreIds);
                     break;
                 case ActionTypes.Generate:
-                    ValidateGenerateActionData(result, (IeGenerateAction) action, ignoreIds);
+                    ValidateGenerateActionData(result, (IeGenerateAction)action, ignoreIds);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.ActionType));

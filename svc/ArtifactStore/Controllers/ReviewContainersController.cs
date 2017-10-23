@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Web.Http;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
@@ -7,6 +6,7 @@ using ArtifactStore.Services.Reviews;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
 namespace ArtifactStore.Controllers
@@ -429,17 +429,23 @@ namespace ArtifactStore.Controllers
         /// Updates review settings for a given review.
         /// </summary>
         /// <param name="reviewId">The review id.</param>
-        /// <param name="updatedReviewSettings">The updated review settings.</param>
+        /// <param name="reviewSettings">The updated review settings.</param>
         /// <response code="200">OK. The review settings were successfully updated.</response>
+        /// <response code="400">Bad Request. The request parameters are invalid.</response>
         /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="403">Forbidden. The user does not have permissions to access review.</response>
         /// <response code="404">Not found. The review for the specified id is not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/settings")]
-        public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings)
+        public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings reviewSettings)
         {
-            await _reviewsService.UpdateReviewSettingsAsync(reviewId, updatedReviewSettings, Session.UserId);
+            if (reviewSettings == null)
+            {
+                throw new BadRequestException(ErrorMessages.ReviewSettingsAreRequired, ErrorCodes.BadRequest);
+            }
+
+            await _reviewsService.UpdateReviewSettingsAsync(reviewId, reviewSettings, Session.UserId);
         }
     }
 }

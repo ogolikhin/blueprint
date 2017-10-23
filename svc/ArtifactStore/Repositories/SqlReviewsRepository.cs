@@ -1100,13 +1100,8 @@ namespace ArtifactStore.Repositories
         {
             var reviewXml = ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
 
-            Func<IDbTransaction, Task> transactionAction = async transaction =>
-            {
-                await UpdateReviewXmlAsync(reviewId, userId, reviewXml, transaction);
-                await UpdateReviewLastSaveInvalidAsync(reviewId, userId, transaction);
-            };
-
-            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
+            await UpdateReviewXmlAsync(reviewId, userId, reviewXml);
+            await UpdateReviewLastSaveInvalidAsync(reviewId, userId);
         }
 
         public async Task<int> UpdateReviewLastSaveInvalidAsync(int reviewId, int userId, IDbTransaction transaction = null)

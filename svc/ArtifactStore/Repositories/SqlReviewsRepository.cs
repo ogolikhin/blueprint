@@ -173,9 +173,49 @@ namespace ArtifactStore.Repositories
                 ThrowUserCannotAccessReviewException(containerId);
             }
 
+            int revisionId = int.MaxValue;
+            bool addDrafts = false;
+
             var page = new Pagination();
             page.SetDefaultValues(0, int.MaxValue);
-            var participants = await GetReviewParticipantsAsync(containerId, page, userId);
+            var participants = await GetReviewParticipantsAsync(containerId, page, userId, null, addDrafts);
+
+            var artifacts = await GetReviewArtifactsAsync<BaseReviewArtifact>(containerId, userId, page, revisionId, addDrafts);
+            var artifactIds = artifacts.Items.Select(a => a.Id).ToList();
+            var artifactsReview = new ReviewArtifactContent();
+
+            foreach (var art in artifacts.Items)
+            {
+                var state = new ArtifactReviewState
+                {
+                    ArtifactId = art.Id,
+                    ApprovalRequired = art.IsApprovalRequired
+                };
+                artifactsReview.ReviewArtifactStates.Add(state);
+            }
+
+            foreach (var p in participants.Items)
+            {
+                var reviewArtifacts = await GetReviewArtifactsByParticipantAsync(artifactIds, p.UserId, containerId, revisionId);
+                var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, p.UserId);
+                foreach (var r in reviewArtifacts)
+                {
+                    var participant = new ParticipantReviewState
+                    {
+                        UserId = p.UserId,
+                        Role = p.Role,
+                        Permission = permissions.Where(ap => ap.Key == r.Id).FirstOrDefault().Value,
+                        Status = p.Status,
+                        ApprovalState = r.ApprovalFlag,
+                        ViewState = r.ViewState
+                    };
+                    var artifactReview = artifactsReview.ReviewArtifactStates.Where(a => a.ArtifactId == r.Id).FirstOrDefault();
+                    if ((participant.Permission & RolePermissions.CreateRapidReview) != 0) // which permission should be?
+                    {
+                        artifactReview?.Participants.Add(participant);
+                    }
+                }
+            }
 
             return new ReviewSummaryMetrics
             {
@@ -187,11 +227,11 @@ namespace ArtifactStore.Repositories
                     Total = reviewDetails.TotalArtifacts,
                     ArtifactStatus = new ReviewArtifactsStatus
                     {
-                        Pending = reviewDetails.Pending,
-                        Approved = reviewDetails.Approved,
-                        Disapproved = reviewDetails.Disapproved,
-                        Viewed = reviewDetails.Viewed,
-                        Unviewed = reviewDetails.TotalArtifacts - reviewDetails.Viewed
+                        Approved = artifactsReview.TotalApproved,
+                        Disapproved = artifactsReview.TotalDisapproved,
+                        Viewed = artifactsReview.TotalViewed,
+                        Unviewed = artifactsReview.TotalUnviewed,
+                        Pending = artifactsReview.TotalPending
                     },
                     RequestStatus = new ReviewRequestStatus
                     {
@@ -204,20 +244,20 @@ namespace ArtifactStore.Repositories
                     Total = participants.Total,
                     RoleStatus = new ParticipantRoles
                     {
-                        Approvers = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver).ToList().Count,
-                        Reviewers = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer).ToList().Count
+                        Approvers = participants.Items.Count(p => p.Role == ReviewParticipantRole.Approver),
+                        Reviewers = participants.Items.Count(p => p.Role == ReviewParticipantRole.Reviewer)
                     },
                     ApproverStatus = new ParticipantStatus
                     {
-                        Completed = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.Completed).ToList().Count,
-                        InProgress = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.InProgress).ToList().Count,
-                        NotStarted = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.NotStarted).ToList().Count
+                        Completed = participants.Items.Count(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.Completed),
+                        InProgress = participants.Items.Count(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.InProgress),
+                        NotStarted = participants.Items.Count(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.NotStarted)
                     },
                     ReviewerStatus = new ParticipantStatus
                     {
-                        Completed = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.Completed).ToList().Count,
-                        InProgress = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.InProgress).ToList().Count,
-                        NotStarted = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.NotStarted).ToList().Count
+                        Completed = participants.Items.Count(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.Completed),
+                        InProgress = participants.Items.Count(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.InProgress),
+                        NotStarted = participants.Items.Count(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.NotStarted)
                     }
                 }
             };
@@ -582,6 +622,17 @@ namespace ArtifactStore.Repositories
             }
 
             return reviewedArtifact.Approval;
+        }
+
+        private async Task<IEnumerable<ReviewedArtifact>> GetReviewArtifactsByParticipantAsync(IEnumerable<int> artifactIds, int userId, int reviewId, int revisionId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            param.Add("@userId", userId);
+            param.Add("@reviewId", reviewId);
+            param.Add("@revisionId", revisionId);
+
+            return await _connectionWrapper.QueryAsync<ReviewedArtifact>("GetReviewArtifactsByParticipant", param, commandType: CommandType.StoredProcedure);
         }
 
         private Task<IEnumerable<ReviewedArtifact>> GetReviewArtifactsByParticipant(IEnumerable<int> artifactIds, int userId, int reviewId, int revisionId)

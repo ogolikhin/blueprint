@@ -1,5 +1,10 @@
 ﻿using Newtonsoft.Json;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.ProjectMeta;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace ArtifactStore.Models.Review
 {
@@ -110,15 +115,12 @@ namespace ArtifactStore.Models.Review
     public class ReviewSummaryMetrics
     {
         public int Id { get; set; }
-
         public int RevisionId { get; set; }
-
         public ReviewStatus Status { get; set; }
 
         public ArtifactsMetrics Artifacts { get; set; }
 
         public ParticipantsMetrics Participants { get; set; }
-
     }
 
     public class ArtifactsMetrics
@@ -179,5 +181,118 @@ namespace ArtifactStore.Models.Review
         public int NotStarted { get; set; }
     }
 
+    public class ParticipantReviewState
+    {
+        public int UserId { get; set; }
+        public ReviewParticipantRole Role { get; set; }
+        public RolePermissions Permission { get; set; }
+        public ReviewStatus Status { get; set; }
+        public ApprovalType ApprovalState { get; set; }
+        public ViewStateType ViewState { get; set; }
+    }
 
+    public class ArtifactReviewState
+    {
+        public int ArtifactId { get; set; }
+        public bool ApprovalRequired { get; set; }
+        public ApprovalType ReviewState
+        {
+            get
+            {
+                var disapproved = Participants.Count(p => p.ApprovalState == ApprovalType.Disapproved);
+                if (disapproved > 0)
+                {
+                    return ApprovalType.Disapproved;
+                }
+                else
+                {
+                    var approved = Participants.Count(p => p.ApprovalState == ApprovalType.Approved);
+                    if (approved == Approvers)
+                    {
+                        return ApprovalType.Approved;
+                    }
+                }
+                return ApprovalType.Pending;
+            }
+        }
+
+        public bool Viewed
+        {
+            get
+            {
+                var viewed = Participants.Count(p => p.ViewState == ViewStateType.Viewed);
+                return viewed == Participants.Count;
+            }
+        }
+
+        public int Approvers
+        {
+            get
+            {
+                return Participants.Count(p => p.Role == ReviewParticipantRole.Approver);
+            }
+        }
+
+        public int Viewers
+        {
+            get
+            {
+                return Participants.Count(p => p.Role == ReviewParticipantRole.Reviewer);
+            }
+        }
+
+        public List<ParticipantReviewState> Participants { get; }
+
+        public ArtifactReviewState()
+        {
+            Participants = new List<ParticipantReviewState>();
+        }
+    }
+
+    public class ReviewArtifactContent
+    {
+        public int TotalApproved
+        {
+            get
+            {
+                return ReviewArtifactStates.Count(a => a.ReviewState == ApprovalType.Approved);
+            }
+        }
+        public int TotalDisapproved
+        {
+            get
+            {
+                return ReviewArtifactStates.Count(a => a.ReviewState == ApprovalType.Disapproved);
+            }
+        }
+        public int TotalPending
+        {
+            get
+            {
+                return ReviewArtifactStates.Count(a => a.ReviewState == ApprovalType.Pending);
+            }
+        }
+
+        public int TotalViewed
+        {
+            get
+            {
+                return ReviewArtifactStates.Count(a => a.Viewed == true);
+            }
+        }
+        public int TotalUnviewed
+        {
+            get
+            {
+                return ReviewArtifactStates.Count - TotalViewed;
+            }
+        }
+
+        public List<ArtifactReviewState> ReviewArtifactStates { get; }
+
+        public ReviewArtifactContent()
+        {
+            ReviewArtifactStates = new List<ArtifactReviewState>();
+        }
+    }
 }

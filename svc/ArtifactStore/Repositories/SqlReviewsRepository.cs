@@ -352,14 +352,11 @@ namespace ArtifactStore.Repositories
                 }
             }
 
-            // If we adding the baseline, but review is active and not public we throw conflict exception
-            if (effectiveIds.IsBaselineAdded)
+            // If review is active and formal we throw conflict exception. No changes allowed
+            if (propertyResult.ReviewStatus == ReviewPackageStatus.Active &&
+                propertyResult.ReviewType == ReviewType.Formal)
             {
-                if (propertyResult.ReviewStatus == ReviewPackageStatus.Active &&
-                    propertyResult.ReviewType == ReviewType.Formal)
-                {
-                    ThrowReviewActiveNotPublicException();
-                }
+                ThrowReviewActiveFormalException();
             }
 
             // We replace all artifacts if baseline was added or baseline was replaced
@@ -1710,7 +1707,7 @@ namespace ArtifactStore.Repositories
 
             if (approvalCheck.ExpirationDate < DateTime.UtcNow)
             {
-                ThrowReviewClosedException();
+                ThrowReviewExpiredException();
             }
 
             //Check user is an approver for the review
@@ -1945,10 +1942,10 @@ namespace ArtifactStore.Repositories
             throw new ConflictException(errorMessage, ErrorCodes.ReviewExpired);
         }
 
-        private static void ThrowReviewActiveNotPublicException()
+        private static void ThrowReviewActiveFormalException()
         {
-            var errorMessage = "The baseline could not be added to the review because review is active and not public.";
-            throw new ConflictException(errorMessage, ErrorCodes.ReviewActiveNotPublic);
+            var errorMessage = "The content of the review cannot be changed because review is active and formal.";
+            throw new ConflictException(errorMessage, ErrorCodes.ReviewActive);
         }
 
         public static void ThrowBaselineNotSealedException()

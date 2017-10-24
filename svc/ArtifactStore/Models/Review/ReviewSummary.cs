@@ -134,6 +134,25 @@ namespace ArtifactStore.Models.Review
         // Number of Approval/Review Requests for included Artifacts
         public ReviewRequestStatus RequestStatus { get; set; }
 
+        public ArtifactsMetrics(ReviewArtifactContent artifactsReview, ReviewParticipantsContent participants)
+        {
+            Total = participants.TotalArtifacts;
+            ArtifactStatus = new ReviewArtifactsStatus
+            {
+                Approved = artifactsReview.TotalApproved,
+                Disapproved = artifactsReview.TotalDisapproved,
+                ViewedAll = artifactsReview.TotalViewed,
+                UnviewedAll = artifactsReview.TotalUnviewed,
+                ViewedSome = artifactsReview.TotalViewedSome,
+                Pending = artifactsReview.TotalPending
+            };
+            RequestStatus = new ReviewRequestStatus
+            {
+                ApprovalRequested = participants.TotalArtifactsRequestedApproval,
+                ReviewRequested = participants.TotalArtifacts - participants.TotalArtifactsRequestedApproval
+            };
+        }
+
     }
 
     public class ReviewRequestStatus
@@ -158,6 +177,53 @@ namespace ArtifactStore.Models.Review
 
         // Number of reviewers in each status
         public ParticipantStatus ReviewerStatus { get; set; }
+
+        public ParticipantsMetrics(ReviewParticipantsContent participants)
+        {
+            Total = participants.Total;
+
+            int approvers = 0, reviewers = 0;
+            int aprCompleted = 0, aprInprogress = 0, aprNotstarted = 0;
+            int rwrCompleted = 0, rwrInprogress = 0, rwrNotstarted = 0;
+            foreach (var p in participants.Items)
+            {
+                if (p.Role == ReviewParticipantRole.Approver)
+                    ++approvers;
+                if (p.Role == ReviewParticipantRole.Reviewer)
+                    ++reviewers;
+                if (p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.Completed)
+                    ++aprCompleted;
+                if (p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.InProgress)
+                    ++aprInprogress;
+                if (p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.NotStarted)
+                    ++aprNotstarted;
+                if (p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.Completed)
+                    ++rwrCompleted;
+                if (p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.InProgress)
+                    ++rwrInprogress;
+                if (p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.NotStarted)
+                    ++rwrNotstarted;
+            }
+            RoleStatus = new ParticipantRoles
+            {
+                Approvers = approvers,
+                Reviewers = reviewers
+            };
+
+            ApproverStatus = new ParticipantStatus
+            {
+                Completed = aprCompleted,
+                InProgress = aprInprogress,
+                NotStarted = aprNotstarted
+            };
+
+            ReviewerStatus = new ParticipantStatus
+            {
+                Completed = rwrCompleted,
+                InProgress = rwrInprogress,
+                NotStarted = rwrNotstarted
+            };
+        }
     }
 
     public class ParticipantRoles

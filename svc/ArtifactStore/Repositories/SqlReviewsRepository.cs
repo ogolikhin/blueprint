@@ -13,6 +13,7 @@ using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Services;
+using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Repositories
 {
@@ -140,7 +141,7 @@ namespace ArtifactStore.Repositories
                     Approved = reviewDetails.Approved,
                     Disapproved = reviewDetails.Disapproved,
                     Pending = reviewDetails.Pending,
-                    Viewed = reviewDetails.Viewed
+                    ViewedAll = reviewDetails.Viewed
                 },
                 ReviewType = reviewType,
                 RevisionId = reviewDetails.RevisionId,
@@ -156,71 +157,91 @@ namespace ArtifactStore.Repositories
                 ThrowReviewNotFoundException(containerId);
             }
 
-            var reviewDetails = await GetReviewSummaryDetails(containerId, userId);
+            var reviewDetails = await GetReviewDetailsAsync(containerId, userId);
 
-            if (reviewDetails == null)
-            {
-                ThrowReviewNotFoundException(containerId);
-            }
-
-            if (reviewDetails.ReviewPackageStatus == ReviewPackageStatus.Draft)
-            {
-                ThrowReviewNotFoundException(containerId);
-            }
-
-            if (!reviewDetails.ReviewParticipantRole.HasValue && reviewDetails.TotalReviewers > 0)
-            {
-                ThrowUserCannotAccessReviewException(containerId);
-            }
-
+            int revisionId = int.MaxValue;
+            bool addDrafts = false;
             var page = new Pagination();
             page.SetDefaultValues(0, int.MaxValue);
-            var participants = await GetReviewParticipantsAsync(containerId, page, userId);
+            var participants = await GetReviewParticipantsAsync(containerId, page, userId, null, addDrafts);
+
+            var artifacts = await GetReviewArtifactsAsync<BaseReviewArtifact>(containerId, userId, page, revisionId, addDrafts);
+            var artifactsMetrics = await GetReviewMetricsAsync(containerId, artifacts, participants);
 
             return new ReviewSummaryMetrics
             {
                 Id = containerId,
                 RevisionId = reviewDetails.RevisionId,
                 Status = reviewDetails.ReviewStatus,
-                Artifacts = new ArtifactsMetrics
+                Artifacts = new ArtifactsMetrics(artifactsMetrics, participants),
+                Participants = new ParticipantsMetrics(participants)
+            };
+        }
+
+        private async Task<ReviewSummaryDetails> GetReviewDetailsAsync(int reviewId, int userId)
+        {
+            var reviewDetails = await GetReviewSummaryDetails(reviewId, userId);
+
+            if (reviewDetails == null)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            if (reviewDetails.ReviewPackageStatus == ReviewPackageStatus.Draft)
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
+            if (!reviewDetails.ReviewParticipantRole.HasValue && reviewDetails.TotalReviewers > 0)
+            {
+                ThrowUserCannotAccessReviewException(reviewId);
+            }
+
+            return reviewDetails;
+        }
+
+        private async Task<ReviewArtifactContent> GetReviewMetricsAsync(int reviewId, ReviewArtifactsQueryResult<BaseReviewArtifact> artifacts, ReviewParticipantsContent participants)
+        {
+            int revisionId = int.MaxValue;
+            var artifactIds = artifacts.Items.Select(a => a.Id).ToList();
+
+            var artifactsReview = new ReviewArtifactContent();
+            foreach (var art in artifacts.Items)
+            {
+                var state = new ArtifactReviewState
                 {
-                    Total = reviewDetails.TotalArtifacts,
-                    ArtifactStatus = new ReviewArtifactsStatus
-                    {
-                        Pending = reviewDetails.Pending,
-                        Approved = reviewDetails.Approved,
-                        Disapproved = reviewDetails.Disapproved,
-                        Viewed = reviewDetails.Viewed,
-                        Unviewed = reviewDetails.TotalArtifacts - reviewDetails.Viewed
-                    },
-                    RequestStatus = new ReviewRequestStatus
-                    {
-                        ApprovalRequested = participants.TotalArtifactsRequestedApproval,
-                        ReviewRequested = participants.TotalArtifacts - participants.TotalArtifactsRequestedApproval
-                    }
-                },
-                Participants = new ParticipantsMetrics
+                    ArtifactId = art.Id,
+                    ApprovalRequired = art.IsApprovalRequired
+                };
+                artifactsReview.ReviewArtifactStates.Add(state);
+            }
+
+            foreach (var p in participants.Items)
+            {
+                var reviewArtifacts = await GetReviewArtifactsByParticipantAsync(artifactIds, p.UserId, reviewId, revisionId);
+                var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, p.UserId);
+                foreach (var r in reviewArtifacts)
                 {
-                    Total = participants.Total,
-                    RoleStatus = new ParticipantRoles
+                    var permission = permissions.Where(ap => ap.Key == r.Id).FirstOrDefault().Value;
+                    if ((permission & RolePermissions.CreateRapidReview) != 0) // TODO: Define which permission should be!
                     {
-                        Approvers = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver).ToList().Count,
-                        Reviewers = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer).ToList().Count
-                    },
-                    ApproverStatus = new ParticipantStatus
-                    {
-                        Completed = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.Completed).ToList().Count,
-                        InProgress = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.InProgress).ToList().Count,
-                        NotStarted = participants.Items.Where(p => p.Role == ReviewParticipantRole.Approver && p.Status == ReviewStatus.NotStarted).ToList().Count
-                    },
-                    ReviewerStatus = new ParticipantStatus
-                    {
-                        Completed = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.Completed).ToList().Count,
-                        InProgress = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.InProgress).ToList().Count,
-                        NotStarted = participants.Items.Where(p => p.Role == ReviewParticipantRole.Reviewer && p.Status == ReviewStatus.NotStarted).ToList().Count
+                        var participant = new ParticipantReviewState
+                        {
+                            UserId = p.UserId,
+                            Role = p.Role,
+                            Permission = permission,
+                            Status = p.Status,
+                            ApprovalState = r.ApprovalFlag,
+                            ViewState = r.ViewState
+                        };
+                        var artifactReview = artifactsReview.ReviewArtifactStates.Where(a => a.ArtifactId == r.Id).FirstOrDefault();
+                        artifactReview?.Participants.Add(participant);
                     }
                 }
-            };
+            }
+            artifactsReview.CalculateReviewStates();
+
+            return artifactsReview;
         }
 
         private Task<ReviewType> GetReviewType(int reviewId, int userId)
@@ -514,7 +535,7 @@ namespace ArtifactStore.Repositories
                 ThrowUserCannotAccessReviewException(reviewId);
             }
 
-            var reviewedArtifacts = (await GetReviewArtifactsByParticipant(reviewArtifactIds, participantId, reviewId, revisionId)).ToDictionary(k => k.Id);
+            var reviewedArtifacts = (await GetReviewArtifactsByParticipantAsync(reviewArtifactIds, participantId, reviewId, revisionId)).ToDictionary(k => k.Id);
 
             foreach (var artifact in reviewArtifacts.Items)
             {
@@ -575,15 +596,15 @@ namespace ArtifactStore.Repositories
             return reviewedArtifact.Approval;
         }
 
-        private Task<IEnumerable<ReviewedArtifact>> GetReviewArtifactsByParticipant(IEnumerable<int> artifactIds, int userId, int reviewId, int revisionId)
+        private async Task<IEnumerable<ReviewedArtifact>> GetReviewArtifactsByParticipantAsync(IEnumerable<int> artifactIds, int userId, int reviewId, int revisionId)
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(artifactIds));
-            parameters.Add("@userId", userId);
-            parameters.Add("@reviewId", reviewId);
-            parameters.Add("@revisionId", revisionId);
+            var param = new DynamicParameters();
+            param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            param.Add("@userId", userId);
+            param.Add("@reviewId", reviewId);
+            param.Add("@revisionId", revisionId);
 
-            return _connectionWrapper.QueryAsync<ReviewedArtifact>("GetReviewArtifactsByParticipant", parameters, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<ReviewedArtifact>("GetReviewArtifactsByParticipant", param, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<IEnumerable<int>> GetReviewArtifactsForApproveAsync(int reviewId, int userId, int? revisionId = null, bool? addDrafts = true)
@@ -991,7 +1012,7 @@ namespace ArtifactStore.Repositories
                 ThrowUserCannotAccessReviewException(reviewId);
             }
 
-            var reviewedArtifacts = (await GetReviewArtifactsByParticipant(toc.Items.Select(a => a.Id), userId, reviewId, revisionId)).ToList();
+            var reviewedArtifacts = (await GetReviewArtifactsByParticipantAsync(toc.Items.Select(a => a.Id), userId, reviewId, revisionId)).ToList();
 
             // TODO: Update artifact statuses and permissions
             foreach (var tocItem in toc.Items)

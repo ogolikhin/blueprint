@@ -18,6 +18,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Services.Email;
 using ServiceLibrary.Repositories.ApplicationSettings;
 
 namespace AdminStore.Controllers
@@ -373,6 +374,12 @@ namespace AdminStore.Controllers
                 await _userRepository.UpdatePasswordRecoveryTokensAsync(login, recoveryToken);
 
                 return Ok();
+            }
+            catch (EmailException ex)
+            {
+                await _log.LogError(WebApiConfig.LogSourceUsersPasswordReset, ex);
+
+                return Conflict();
             }
             catch (Exception ex)
             {

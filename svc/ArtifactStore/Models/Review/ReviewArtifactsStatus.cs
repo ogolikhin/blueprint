@@ -8,8 +8,10 @@
 
         public int Pending { get; set; }
 
-        public int Viewed { get; set; }
+        public int ViewedAll { get; set; }
 
-        public int Unviewed { get; set; }
+        public int UnviewedAll { get; set; }
+
+        public int ViewedSome { get; set; }
     }
 }

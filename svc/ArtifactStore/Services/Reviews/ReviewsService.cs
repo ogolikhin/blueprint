@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Exceptions;
@@ -46,11 +45,6 @@ namespace ArtifactStore.Services.Reviews
 
         public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId)
         {
-            if (updatedReviewSettings == null)
-            {
-                throw new BadRequestException(ErrorMessages.ReviewSettingsAreRequired, ErrorCodes.InvalidParameter);
-            }
-
             var reviewInfo = await GetReviewInfoAsync(reviewId, userId, int.MaxValue);
 
             var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
@@ -153,16 +147,6 @@ namespace ArtifactStore.Services.Reviews
 
         private async Task<ArtifactBasicDetails> GetReviewInfoAsync(int reviewId, int userId, int revisionId)
         {
-            if (reviewId <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(reviewId));
-            }
-
-            if (userId <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(userId));
-            }
-
             var artifactInfo = await _artifactRepository.GetArtifactBasicDetails(reviewId, userId);
             if (artifactInfo == null)
             {

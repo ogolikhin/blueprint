@@ -10,45 +10,41 @@ using ServiceLibrary.Helpers;
 
 namespace SearchService.Helpers.SemanticSearch
 {
+    [ElasticsearchType(Name = "semantic_search_items")]
     public class SemanticSearchItem
     {
-        public int ItemId;
+        [Text(Name = "project_id")]
+        public int ProjectId { get; set; }
 
-        public int ProjectId;
+        [Text(Name = "end_revision")]
+        public int EndRevision { get; set; }
 
-        public int EndRevision;
+        [Text(Name = "latest_changing_revision")]
+        public int LatestChangingRevision { get; set; }
 
-        public int LatestChangingRevision;
+        [Text(Name = "name")]
+        public string Name { get; set; }
 
-        public string Name;
-
-        public string SearchText;
+        [Text(Name = "search_text")]
+        public string SearchText { get; set; }
     }
     public sealed class ElasticSearchEngine : SearchEngine
     {
-        private const string IndexPrefix = "semanticsdb_";
-        private string IndexName { get; }
         private IElasticClient _elasticClient;
+        private const string IdFieldKey = "_id";
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308: Normalize strings to uppercase", Justification = "Index name for elastic search must be lower cased")]
-        public ElasticSearchEngine(string connectionString, string tenantId, ISemanticSearchRepository semanticSearchRepository)
+        public ElasticSearchEngine(string connectionString, ISemanticSearchRepository semanticSearchRepository)
             : base(semanticSearchRepository)
         {
-            IndexName = (IndexPrefix + tenantId).ToLowerInvariant();
-
             // create ElasticClient using conneciton string
-            var connectionSettings = new ConnectionSettings(new Uri(connectionString)).DefaultIndex(IndexName);
-            connectionSettings.MapDefaultTypeNames(d => d.Add(typeof(SemanticSearchItem), "semanticsearchitems"));
+            var connectionSettings = new ConnectionSettings(new Uri(connectionString));
 
             _elasticClient = new ElasticClient(connectionSettings);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308: Normalize strings to uppercase", Justification = "Index name for elastic search must be lower cased")]
         internal ElasticSearchEngine(string tenantId, IElasticClient elasticClient, ISemanticSearchRepository semanticSearchRepository)
             : base(semanticSearchRepository)
         {
-            IndexName = (IndexPrefix + tenantId).ToLowerInvariant();
-
             _elasticClient = elasticClient;
         }
 
@@ -59,14 +55,17 @@ namespace SearchService.Helpers.SemanticSearch
             {
                 throw new ElasticsearchConfigurationException("Could not connect to elasticsearch connection string. Please check your elasticsearch connection.");
             }
+        }
 
-            var doesIndexExists = _elasticClient.IndexExists(IndexName);
+        private void PerformIndexHealthCheck(string indexName)
+        {
+            var doesIndexExists = _elasticClient.IndexExists(indexName);
             if (!doesIndexExists.Exists)
             {
                 throw new ElasticsearchConfigurationException("Elasticsearch Index does not exist");
             }
 
-            var doesTypeExists = _elasticClient.TypeExists(IndexName, typeof(SemanticSearchItem));
+            var doesTypeExists = _elasticClient.TypeExists(indexName, typeof(SemanticSearchItem));
             if (!doesTypeExists.Exists)
             {
                 throw new ElasticsearchConfigurationException("Elasticsearch Type does not exist");
@@ -77,6 +76,18 @@ namespace SearchService.Helpers.SemanticSearch
         {
             try
             {
+                var index = await SemanticSearchRepository.GetSemanticSearchIndex();
+                if (String.IsNullOrEmpty(index))
+                {
+                    // Returning empty results when index has not been created yet.
+                    return new List<ArtifactSearchResult>();
+                }
+                PerformIndexHealthCheck(index);
+
+                // Setting default index name on the connection, otherwise the search request will fail
+                _elasticClient.ConnectionSettings.DefaultIndices.Clear();
+                _elasticClient.ConnectionSettings.DefaultIndices.Add(typeof(SemanticSearchItem), index);
+
                 var searchText = await SemanticSearchRepository.GetSemanticSearchText(searchEngineParameters.ArtifactId,
                     searchEngineParameters.UserId);
 
@@ -95,18 +106,29 @@ namespace SearchService.Helpers.SemanticSearch
 
                 // Creates the search descriptor
                 var searchDescriptor = new SearchDescriptor<SemanticSearchItem>();
-                searchDescriptor.Index(IndexName).Size(searchEngineParameters.PageSize).Query(q => q.Bool(b => boolQueryDescriptor));
-
+                searchDescriptor.Index(index).Size(searchEngineParameters.PageSize).Query(q => q.Bool(b => boolQueryDescriptor));
                 var results = await _elasticClient.SearchAsync<SemanticSearchItem>(searchDescriptor);
 
-                var items = results.Documents;
-                var itemIds = items.Select(i => i.ItemId);
+                var hits = results.Hits;
+                var itemIds = new List<int>();
+                hits.ForEach(a =>
+                {
+                    int output;
+                    if (Int32.TryParse(a.Id, out output))
+                    {
+                       itemIds.Add(output);
+                    }
+                });
 
                 // parse the artifact ids into a artifactsearchresult to return to the caller
-                return await GetArtifactSearchResultsFromItemIds(itemIds.ToList(), searchEngineParameters.UserId);
+                return await GetArtifactSearchResultsFromItemIds(itemIds, searchEngineParameters.UserId);
             }
             catch (Exception ex)
             {
+                if (ex is ElasticsearchConfigurationException)
+                {
+                    throw;
+                }
                 throw new ElasticsearchException(I18NHelper.FormatInvariant("Elastic search failed to process search. Exception:{0}", ex));
             }
         }
@@ -131,13 +153,12 @@ namespace SearchService.Helpers.SemanticSearch
         private QueryContainerDescriptor<SemanticSearchItem> GetArtifactIdMatchQuery(int artifactId)
         {
             var container = new QueryContainerDescriptor<SemanticSearchItem>();
-            container.Terms(t => t.Field(p => p.ItemId).Terms(artifactId));
+            container.Terms(t => t.Field(IdFieldKey).Terms(artifactId));
             return container;
         }
 
         private QueryContainerDescriptor<SemanticSearchItem> GetContainsProjectIdsQuery(IEnumerable<int> projectIds)
         {
-
             var container = new QueryContainerDescriptor<SemanticSearchItem>();
             container.Terms(
                 t => t.Field(

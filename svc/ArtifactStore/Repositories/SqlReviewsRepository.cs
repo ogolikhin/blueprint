@@ -1217,19 +1217,82 @@ namespace ArtifactStore.Repositories
 
             var resultErrors = new List<ReviewChangeItemsError>();
 
-
             var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
 
-            IEnumerable<RDArtifact> updatingArtifacts;
+            List<RDArtifact> updatingArtifacts;
             if (content.SelectionType == SelectionType.Selected)
             {
-                updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.ApprovalNotRequested == content.ApprovalRequired &&
-                                                                          content.ItemIds.Contains(a.Id));
+
+                updatingArtifacts = rdReviewContents.Artifacts.Where(a => content.ItemIds.Contains(a.Id)).ToList();
+
+                var foundArtifactsCount = updatingArtifacts.Count();
+                var requestedArtifactsCount = updatingArtifacts.Count();
+
+                if (foundArtifactsCount != requestedArtifactsCount)
+                {
+                    resultErrors.Add(new ReviewChangeItemsError()
+                    {
+                        ItemsCount = requestedArtifactsCount - foundArtifactsCount,
+                        ErrorCode = ErrorCodes.ApprovalRequiredArtifactNotInReview,
+                        ErrorMessage = "Some of the artifacts are not in the review."
+                    });
+                }
+
+                updatingArtifacts = updatingArtifacts.Where(a => a.ApprovalNotRequested == content.ApprovalRequired).ToList();
             }
             else
             {
                 updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.ApprovalNotRequested == content.ApprovalRequired &&
-                                                                          !content.ItemIds.Contains(a.Id));
+                                                                          !content.ItemIds.Contains(a.Id)).ToList();
+            }
+
+            // For Informal review
+            if (propertyResult.BaselineId == null || propertyResult.BaselineId < 1)
+            {
+                var updatingArtifactIdsOnly = updatingArtifacts.Select(ua => ua.Id);
+                var deletedItemIds = await _artifactVersionsRepository.GetDeletedItems(updatingArtifactIdsOnly);
+
+                if (deletedItemIds != null && deletedItemIds.Any())
+                {
+                    resultErrors.Add(new ReviewChangeItemsError()
+                    {
+                        ItemsCount = deletedItemIds.Count(),
+                        ErrorCode = ErrorCodes.ArtifactNotFound,
+                        ErrorMessage = "Some artifacts are deleted from the project."
+                    });
+                }
+                // Remove deleted items from the result
+                updatingArtifacts.RemoveAll(ua => deletedItemIds.Contains(ua.Id));
+            }
+
+            var updatingArtifactIds = updatingArtifacts.Select(ua => ua.Id);
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(updatingArtifactIds, userId);
+            var artifactsWithReadPermissions = artifactPermissionsDictionary.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
+
+            var updatingArtifactIdsWithReadPermissions = artifactsWithReadPermissions.Intersect(updatingArtifactIds);
+            var artifactsWithReadPermissionsCount = updatingArtifactIdsWithReadPermissions.Count();
+            var updatingArtifactsCount = updatingArtifactIds.Count();
+
+            if (artifactsWithReadPermissionsCount != updatingArtifactsCount)
+            {
+                // Update ArtifactNotFound error with additional items count
+                var artifactNotFoundError = resultErrors.Where(re => re.ErrorCode == ErrorCodes.ArtifactNotFound).SingleOrDefault();
+                if (artifactNotFoundError != null)
+                {
+                    artifactNotFoundError.ItemsCount = artifactNotFoundError.ItemsCount + (updatingArtifactsCount - artifactsWithReadPermissionsCount);
+                }
+                else
+                {
+                    resultErrors.Add(new ReviewChangeItemsError()
+                    {
+                        ItemsCount = updatingArtifactsCount - artifactsWithReadPermissionsCount,
+                        ErrorCode = ErrorCodes.ArtifactNotFound,
+                        ErrorMessage = "There is no read permissions for some artifacts."
+                    });
+                }
+
+                // Remove deleted items from the result
+                updatingArtifacts.RemoveAll(ua => updatingArtifactIdsWithReadPermissions.Contains(ua.Id));
             }
 
             foreach (var updatingArtifact in updatingArtifacts)

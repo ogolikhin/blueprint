@@ -2,6 +2,7 @@
 using ServiceLibrary.Models;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.VersionControl;
+using System.Collections.Generic;
 
 namespace ArtifactStore.Repositories
 {
@@ -16,5 +17,7 @@ namespace ArtifactStore.Repositories
         Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int? baselineId, int userId);
 
         Task<bool> LockArtifactAsync(int artifactId, int userId);
+
+        Task<IEnumerable<int>> GetDeletedItems(IEnumerable<int> itemIds);
     }
 }

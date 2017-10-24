@@ -79,7 +79,7 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("GetStandardArtifactTypes", It.IsAny<Dictionary<string, object>>(), artifacts);
 
             // Act
-            var standardArtifacts = await repository.GetStandardArtifactTypes();
+            var standardArtifacts = await repository.GetStandardArtifactTypes(StandardArtifactTypes.All);
 
             // Assert
             Assert.IsNotNull(standardArtifacts);

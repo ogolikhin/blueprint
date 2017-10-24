@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Repositories
 {
@@ -33,7 +34,7 @@ namespace ServiceLibrary.Repositories
 
         Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync(IEnumerable<int> artifactIds, int userId);
 
-        Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes(bool isRegularArtifactTypes = false);
+        Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes(StandardArtifactTypes standardArtifactTypes);
 
         Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId);
     }

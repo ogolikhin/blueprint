@@ -284,7 +284,7 @@ namespace ArtifactStore.Controllers
         {
             // Arrange
             var artifacts = new List<StandardArtifactType> { new StandardArtifactType { Id = 1, Name = "CustomActor" } };
-            mockArtifactRepository.Setup(r => r.GetStandardArtifactTypes())
+            mockArtifactRepository.Setup(r => r.GetStandardArtifactTypes(false))
                                   .ReturnsAsync(artifacts);
 
             _mockSqlPrivilegesRepository

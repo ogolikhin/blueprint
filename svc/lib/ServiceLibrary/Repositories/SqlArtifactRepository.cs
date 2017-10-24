@@ -734,9 +734,12 @@ namespace ServiceLibrary.Repositories
             }).ToList();
         }
 
-        public async Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes()
+        public async Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes(bool isRegularArtifactTypes = false)
         {
-            var artifacts = await ConnectionWrapper.QueryAsync<StandardArtifactType>("GetStandardArtifactTypes", null, commandType: CommandType.StoredProcedure);
+            var parameters = new DynamicParameters();
+            parameters.Add("@isRegularArtifactTypes", isRegularArtifactTypes);
+
+            var artifacts = await ConnectionWrapper.QueryAsync<StandardArtifactType>("GetStandardArtifactTypes", parameters, commandType: CommandType.StoredProcedure);
             return artifacts;
         }
 

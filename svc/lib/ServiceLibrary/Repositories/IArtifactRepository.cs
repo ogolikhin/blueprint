@@ -33,7 +33,7 @@ namespace ServiceLibrary.Repositories
 
         Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync(IEnumerable<int> artifactIds, int userId);
 
-        Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes();
+        Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes(bool isRegularArtifactTypes = false);
 
         Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId);
     }

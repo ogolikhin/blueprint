@@ -83,7 +83,7 @@ namespace ArtifactStore.Repositories
 
             // Assert
             Assert.IsNotNull(standardArtifacts);
-            Assert.AreEqual(artifacts, standardArtifacts);
+            Assert.AreEqual(standardArtifacts.Count(), 1);
         }
     }
 }

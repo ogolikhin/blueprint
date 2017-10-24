@@ -63,7 +63,7 @@ namespace ArtifactStore
             config.AssertAction<ReviewContainersController>("RemoveArtifactsFromReviewAsync", HttpMethod.Post, "containers/1/artifacts/remove");
             config.AssertAction<ReviewContainersController>("UpdateReviewerStatusAsync", HttpMethod.Put, "containers/1/reviewer/status");
             config.AssertAction<ArtifactController>("GetProcessInformationAsync", HttpMethod.Post, "artifacts/processInfo");
-            config.AssertAction<ArtifactController>("GetStandardArtifactTypes", HttpMethod.Get, "artifacts/standardartifacttypes");
+            config.AssertAction<ArtifactController>("GetStandardArtifactTypes", HttpMethod.Get, "artifacts/standardartifacttypes?isRegularArtifactTypes=false");
             config.AssertAction<ReviewContainersController>("RemoveParticipantsFromReviewAsync", HttpMethod.Post, "containers/1/participants/remove");
             config.AssertAction<ReviewContainersController>("GetReviewSettingsAsync", HttpMethod.Get, "containers/1/settings");
             config.AssertAction<ReviewContainersController>("UpdateReviewSettingsAsync", HttpMethod.Put, "containers/1/settings");

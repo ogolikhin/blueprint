@@ -226,18 +226,18 @@ namespace ArtifactStore.Controllers
         /// <remarks>
         /// Returns the list of standard artifact types. Every item of the list contains id and name of artifact.
         /// </remarks>
-        /// <param name="standardArtifactTypes">It is filter to receive only regular artifact types or all standard artifact types.</param>
+        /// <param name="filter">It is filter to receive only regular artifact types or all standard artifact types.</param>
         /// <response code="200">OK. The list of standard artifact types.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard artifact types.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("artifacts/standardartifacttypes"), SessionRequired]
-        public async Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes(StandardArtifactTypes standardArtifactTypes)
+        public async Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes(StandardArtifactTypes filter = StandardArtifactTypes.All)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            return await _artifactRepository.GetStandardArtifactTypes(standardArtifactTypes);
+            return await _artifactRepository.GetStandardArtifactTypes(filter);
         }
     }
 }

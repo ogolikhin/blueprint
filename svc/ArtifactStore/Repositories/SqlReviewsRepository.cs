@@ -1246,21 +1246,29 @@ namespace ArtifactStore.Repositories
 
             await ExcludeArtifactsWithoutReadPermissions(userId, resultErrors, updatingArtifacts);
 
-            foreach (var updatingArtifact in updatingArtifacts)
+            if (updatingArtifacts.Any())
             {
-                updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
+                foreach (var updatingArtifact in updatingArtifacts)
+                {
+                    updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
+                }
+
+                var resultArtifactsXml = ReviewRawDataHelper.GetStoreData(rdReviewContents);
+
+                Func<IDbTransaction, Task> transactionAction = async transaction =>
+                {
+                    await UpdateReviewArtifacts(reviewId, userId, resultArtifactsXml, transaction, false);
+                };
+
+                await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
             }
 
-            var resultArtifactsXml = ReviewRawDataHelper.GetStoreData(rdReviewContents);
-
-            Func<IDbTransaction, Task> transactionAction = async transaction =>
+            var result = new ReviewChangeItemsStatusResult();
+            if (resultErrors.Any())
             {
-                await UpdateReviewArtifacts(reviewId, userId, resultArtifactsXml, transaction, false);
-            };
-
-            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
-
-            return new ReviewChangeItemsStatusResult();
+                result.ReviewChangeItemErrors = resultErrors;
+            }
+            return result;
         }
 
         private async Task ExcludeArtifactsWithoutReadPermissions(int userId, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)

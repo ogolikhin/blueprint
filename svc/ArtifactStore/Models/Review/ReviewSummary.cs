@@ -364,7 +364,7 @@ namespace ArtifactStore.Models.Review
                     ++TotalApproved;
                 else if (a.ReviewState == ApprovalType.Disapproved)
                     ++TotalDisapproved;
-                else if (a.ReviewState == ApprovalType.NotSpecified)
+                else if ((a.ReviewState == ApprovalType.NotSpecified) && (a.ApprovalRequired == true))
                     ++TotalPending;
 
                 if (a.ViewedAll == true)

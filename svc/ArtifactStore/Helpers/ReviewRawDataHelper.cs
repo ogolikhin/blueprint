@@ -91,6 +91,31 @@ namespace ArtifactStore.Helpers
 
         /// <summary>
         /// Extracts data from serialized raw data
+        /// Does not throw exceptions
+        /// </summary>
+        /// <param name="rawDataValue"></param>
+        /// <param name="rawDataObject"></param>
+        /// <typeparam name="RawDataType"></typeparam>
+        public static bool TryRestoreData<RawDataType>(string rawDataValue, out RawDataType rawDataObject) where RawDataType : class
+        {
+            rawDataObject = null;
+            if (string.IsNullOrEmpty(rawDataValue))
+            {
+                return false;
+            }
+            try
+            {
+                rawDataObject = RestoreData<RawDataType>(rawDataValue);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Extracts data from serialized raw data
         /// </summary>
         /// <param name="rawDataValue"></param>
         /// <typeparam name="RawDataType"></typeparam>

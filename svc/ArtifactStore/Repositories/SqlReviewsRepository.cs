@@ -1141,17 +1141,18 @@ namespace ArtifactStore.Repositories
             foreach (var rawDataEntry in itemsRawData)
             {
                 var rawDataString = rawDataEntry.RawData;
-                if (string.IsNullOrEmpty(rawDataString))
+                ReviewPackageRawData rawData;
+                var reviewInfo = new ReviewInfo
                 {
-                    continue;
+                    ItemId = rawDataEntry.ItemId
+                };
+
+                if (ReviewRawDataHelper.TryRestoreData(rawDataString, out rawData))
+                {
+                    reviewInfo.ReviewStatus = rawData.Status;
+                    reviewInfo.ExpiryTimestamp = rawData.EndDate;
                 }
-                var rawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(rawDataString);
-                result.Add(new ReviewInfo
-                {
-                    ItemId = rawDataEntry.ItemId,
-                    ReviewStatus = rawData.Status,
-                    ExpiryTimestamp = rawData.EndDate
-                });
+                result.Add(reviewInfo);
             }
 
             return result;

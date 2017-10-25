@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace ArtifactStore.Models.Review
 {
@@ -8,6 +9,7 @@ namespace ArtifactStore.Models.Review
 
         public ReviewPackageStatus ReviewStatus { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? ExpiryTimestamp { get; set; }
     }
 }

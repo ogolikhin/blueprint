@@ -204,14 +204,14 @@ namespace ArtifactStore.Controllers
         /// Get the reviews information.
         /// </summary>
         /// <remarks>
-        /// Returns for the each review expiry timestamp
+        /// Returns for the each review expiry timestamp, review status and type
         /// If user doesn't have read permissions for all requested artifacts method returns empty IEnumerable.
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
-        [Route("artifacts/baselineInfo"), SessionRequired]
+        [Route("artifacts/reviewInfo"), SessionRequired]
         public async Task<IEnumerable<ReviewInfo>> GetReviewInfo([FromBody] ISet<int> artifactIds)
         {
             return await _reviewsRepository.GetReviewInfo(artifactIds, Session.UserId);

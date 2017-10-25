@@ -13,7 +13,6 @@ using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Services;
-using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Repositories
 {
@@ -1198,6 +1197,33 @@ namespace ArtifactStore.Repositories
             };
 
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
+        }
+
+        public async Task<IEnumerable<ReviewInfo>> GetReviewInfo(ISet<int> artifactIds, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
+            var artifactsWithReadPermissions = artifactsPermissions.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
+            var itemsRawData = await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, artifactsWithReadPermissions, addDrafts, revisionId);
+
+            var result = new List<ReviewInfo>();
+            foreach (var rawDataEntry in itemsRawData)
+            {
+                var rawDataString = rawDataEntry.RawData;
+                ReviewPackageRawData rawData;
+                var reviewInfo = new ReviewInfo
+                {
+                    ItemId = rawDataEntry.ItemId
+                };
+
+                if (ReviewRawDataHelper.TryRestoreData(rawDataString, out rawData))
+                {
+                    reviewInfo.ReviewStatus = rawData.Status;
+                    reviewInfo.ExpiryTimestamp = rawData.EndDate;
+                }
+                result.Add(reviewInfo);
+            }
+
+            return result;
         }
 
         public async Task<ReviewChangeItemsStatusResult> AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)

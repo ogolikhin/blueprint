@@ -10,6 +10,8 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ArtifactStore.Models.Review;
+using ArtifactStore.Repositories;
 
 namespace ArtifactStore.Controllers
 {
@@ -17,27 +19,39 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ArtifactController : LoggableApiController
     {
-        private readonly ISqlArtifactRepository ArtifactRepository;
-        private readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
+        private readonly ISqlArtifactRepository _artifactRepository;
+
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+
+        private readonly IReviewsRepository _reviewsRepository;
+
         private readonly PrivilegesManager _privilegesManager;
 
         public override string LogSource { get; } = "ArtifactStore.Artifact";
 
-        public ArtifactController() : this(new SqlArtifactRepository(), new SqlArtifactPermissionsRepository(), new SqlPrivilegesRepository())
+        public ArtifactController() : this(new SqlArtifactRepository(),
+            new SqlArtifactPermissionsRepository(),
+            new SqlReviewsRepository(), 
+            new SqlPrivilegesRepository())
         {
         }
 
-        public ArtifactController(ISqlArtifactRepository instanceRepository, IArtifactPermissionsRepository artifactPermissionsRepository, IPrivilegesRepository privilegesRepository) : base()
+        public ArtifactController(ISqlArtifactRepository instanceRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IReviewsRepository reviewsRepository,
+            IPrivilegesRepository privilegesRepository) : base()
         {
-            ArtifactRepository = instanceRepository;
-            ArtifactPermissionsRepository = artifactPermissionsRepository;
+            _artifactRepository = instanceRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
+            _reviewsRepository = reviewsRepository;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
-        public ArtifactController(ISqlArtifactRepository instanceRepository, IArtifactPermissionsRepository artifactPermissionsRepository, IPrivilegesRepository privilegesRepository, IServiceLogRepository log) : base(log)
+        public ArtifactController(ISqlArtifactRepository instanceRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository, IPrivilegesRepository privilegesRepository, IServiceLogRepository log) : base(log)
         {
-            ArtifactRepository = instanceRepository;
-            ArtifactPermissionsRepository = artifactPermissionsRepository;
+            _artifactRepository = instanceRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
@@ -58,7 +72,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetProjectChildren")]
         public async Task<List<Artifact>> GetProjectChildrenAsync(int projectId)
         {
-            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, Session.UserId);
+            return await _artifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, Session.UserId);
         }
 
         /// <summary>
@@ -79,7 +93,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetArtifactChildren")]
         public async Task<List<Artifact>> GetArtifactChildrenAsync(int projectId, int artifactId)
         {
-            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, Session.UserId);
+            return await _artifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, Session.UserId);
         }
 
         /// <summary>
@@ -97,16 +111,16 @@ namespace ArtifactStore.Controllers
         [ActionName("GetSubArtifactTreeAsync")]
         public async Task<List<SubArtifact>> GetSubArtifactTreeAsync(int artifactId)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var userId = Session.UserId;
             var artifactIds = new[] { artifactId };
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId, false);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId, false);
 
             RolePermissions permission = RolePermissions.None;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            return (await ArtifactRepository.GetSubArtifactTreeAsync(artifactId, session.UserId)).ToList();
+            return (await _artifactRepository.GetSubArtifactTreeAsync(artifactId, userId)).ToList();
         }
 
         /// <summary>
@@ -130,7 +144,7 @@ namespace ArtifactStore.Controllers
                 throw new BadRequestException(string.Format("Parameter {0} must be greater than 0.", nameof(expandedToArtifactId)), ErrorCodes.OutOfRangeParameter);
             }
 
-            return await ArtifactRepository.GetExpandedTreeToArtifactAsync(projectId, expandedToArtifactId, includeChildren, Session.UserId);
+            return await _artifactRepository.GetExpandedTreeToArtifactAsync(projectId, expandedToArtifactId, includeChildren, Session.UserId);
         }
 
         /// <summary>
@@ -149,7 +163,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetArtifactNavigationPath")]
         public async Task<List<Artifact>> GetArtifactNavigationPathAsync(int artifactId)
         {
-            return await ArtifactRepository.GetArtifactNavigationPathAsync(artifactId, Session.UserId);
+            return await _artifactRepository.GetArtifactNavigationPathAsync(artifactId, Session.UserId);
         }
 
         /// <summary>
@@ -166,7 +180,7 @@ namespace ArtifactStore.Controllers
         [Route("artifacts/authorHistories"), SessionRequired]        
         public async Task<IEnumerable<AuthorHistory>> GetArtifactsAuthorHistories([FromBody] ISet<int> artifactIds)
         {
-            return await ArtifactRepository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, Session.UserId);
+            return await _artifactRepository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, Session.UserId);
         }
 
         /// <summary>
@@ -183,7 +197,24 @@ namespace ArtifactStore.Controllers
         [Route("artifacts/baselineInfo"), SessionRequired]
         public async Task<IEnumerable<BaselineInfo>> GetBaselineInfo([FromBody] ISet<int> artifactIds)
         {
-            return await ArtifactRepository.GetBaselineInfo(artifactIds, Session.UserId, true, int.MaxValue);
+            return await _artifactRepository.GetBaselineInfo(artifactIds, Session.UserId, true, int.MaxValue);
+        }
+
+        /// <summary>
+        /// Get the reviews information.
+        /// </summary>
+        /// <remarks>
+        /// Returns for the each review expiry timestamp
+        /// If user doesn't have read permissions for all requested artifacts method returns empty IEnumerable.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("artifacts/baselineInfo"), SessionRequired]
+        public async Task<IEnumerable<ReviewInfo>> GetReviewInfo([FromBody] ISet<int> artifactIds)
+        {
+            return await _reviewsRepository.GetReviewInfo(artifactIds, Session.UserId);
         }
 
         /// <summary>
@@ -204,7 +235,7 @@ namespace ArtifactStore.Controllers
                 throw new BadRequestException(ErrorMessages.ArtifactTypeIdsNotValid);
             }
 
-            return await ArtifactRepository.GetProcessInformationAsync(artifactIds, Session.UserId);
+            return await _artifactRepository.GetProcessInformationAsync(artifactIds, Session.UserId);
         }
 
         /// <summary>
@@ -223,7 +254,7 @@ namespace ArtifactStore.Controllers
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            var artifacts = await ArtifactRepository.GetStandardArtifactTypes();
+            var artifacts = await _artifactRepository.GetStandardArtifactTypes();
             return artifacts;
         }
     }

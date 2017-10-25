@@ -77,7 +77,11 @@ namespace ArtifactStore.Services.Reviews
             }
             else
             {
-                await _lockArtifactsRepository.LockArtifactAsync(reviewId, userId);
+                if (!await _lockArtifactsRepository.LockArtifactAsync(reviewId, userId))
+                {
+                    var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotLockedByUser, reviewId, userId);
+                    throw new ConflictException(errorMessage, ErrorCodes.LockedByOtherUser);
+                }
             }
         }
 

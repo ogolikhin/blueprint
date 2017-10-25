@@ -355,6 +355,30 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
+        public async Task UpdateReviewSettingsAsync_ReviewLockedByAnotherUserWhenLocking_ThrowsConflictException()
+        {
+            // Arrange
+            _mockLockArtifactsRepository
+                .Setup(m => m.LockArtifactAsync(ReviewId, UserId))
+                .ReturnsAsync(false);
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateReviewSettingsAsync(ReviewId, new ReviewSettings(), UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.LockedByOtherUser, ex.ErrorCode);
+                Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotLockedByUser, ReviewId, UserId), ex.Message);
+                return;
+            }
+
+            Assert.Fail("Expected ConflictException to have been thrown.");
+        }
+
+        [TestMethod]
         public async Task UpdateReviewSettingsAsync_ReviewIsNotLocked_LocksReview()
         {
             // Arrange

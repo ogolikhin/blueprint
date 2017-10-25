@@ -91,6 +91,7 @@
         public static readonly string GeneralErrorOfAssignProjectsAndArtifactTypesToWorkflow = "General error of assign projects and artifacts to workflows";
         public static readonly string WorkflowProjectHasNoArtifactTypes = "Workflow project has no assigned artifact types.";
         public static readonly string GeneralErrorOfUpdatingWorkflow = "General error of updating workflow.";
+        public static readonly string GeneralErrorOfCopyingWorkflow = "General error of copying workflow.";
         public static readonly string WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated = "Workflow without project/artifact type assignments cannot be activated.";
         public static readonly string WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow = "There is at least one project-artifact type assigned to the current workflow which is also assigned to another active workflow.";
         // Folder

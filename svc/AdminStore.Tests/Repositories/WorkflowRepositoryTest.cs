@@ -45,6 +45,7 @@ namespace AdminStore.Repositories
         private IEnumerable<SyncResult> _outputSyncResult = new List<SyncResult>() { new SyncResult { TotalAdded = 2, TotalDeleted = 1 } };
         private string _projectSearch = "test";
         private OperationScope _scope;
+        private int _userId = 1;
 
         #region AssignProjectsAndArtifactTypesToWorkflow
         [TestMethod]
@@ -777,6 +778,127 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             await _workflowRepository.SearchProjectsByName(_workflowId, _projectSearch);
+
+            // Assert
+        }
+
+        #endregion
+
+        #region CopyWorkflowAsync
+
+        [TestMethod]
+        public async Task CopyWorkflowAsync_AllParamsAreCorrect_UpdateWorkflowSuccessfuly()
+        {
+            // Arrange
+            int errorCode = 0;
+            var updatedWorkflowId = 2;
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("CopyWorkflow",
+                                                        It.IsAny<Dictionary<string, object>>(),
+                                                        updatedWorkflowId,
+                                                        new Dictionary<string, object>
+                                                        {
+                                                            { "ErrorCode", errorCode }
+                                                        });
+            // Act
+            var copyWorkflowResult = await
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId);
+
+            // Assert
+            Assert.IsNotNull(copyWorkflowResult);
+            Assert.AreEqual(updatedWorkflowId, copyWorkflowResult);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task CopyWorkflowAsync_WorkflowIdNotValid_ArgumentOutOfRangeException()
+        {
+            // Arrange
+            _workflowId = 0;
+
+            // Act
+            await
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId);
+
+            // Assert
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task CopyWorkflowAsync_UserIdNotValid_ArgumentOutOfRangeException()
+        {
+            // Arrange
+            _userId = 0;
+
+            // Act
+            await
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId);
+
+            // Assert
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task CopyWorkflowAsync_UserIdNotExists_ResourceNotFoundException()
+        {
+            // Arrange
+            int errorCode = 50002;
+            var updatedWorkflowId = 0;
+            _userId = 10000;
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("CopyWorkflow",
+                                                        It.IsAny<Dictionary<string, object>>(),
+                                                        updatedWorkflowId,
+                                                        new Dictionary<string, object>
+                                                        {
+                                                            { "ErrorCode", errorCode }
+                                                        });
+            // Act
+            await
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task CopyWorkflowAsync_WorkflowIdNotExists_ResourceNotFoundException()
+        {
+            // Arrange
+            int errorCode = 50024;
+            var updatedWorkflowId = 0;
+            _workflowId = 10000;
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("CopyWorkflow",
+                                                        It.IsAny<Dictionary<string, object>>(),
+                                                        updatedWorkflowId,
+                                                        new Dictionary<string, object>
+                                                        {
+                                                            { "ErrorCode", errorCode }
+                                                        });
+            // Act
+            await
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task CopyWorkflowAsync_GeneralError_Exception()
+        {
+            // Arrange
+            int errorCode = 50000;
+            var updatedWorkflowId = 0;
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("CopyWorkflow",
+                                                        It.IsAny<Dictionary<string, object>>(),
+                                                        updatedWorkflowId,
+                                                        new Dictionary<string, object>
+                                                        {
+                                                            { "ErrorCode", errorCode }
+                                                        });
+            // Act
+            await
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId);
 
             // Assert
         }

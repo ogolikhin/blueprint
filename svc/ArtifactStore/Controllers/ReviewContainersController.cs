@@ -1,13 +1,13 @@
-﻿using ArtifactStore.Models.Review;
+﻿using System.Threading.Tasks;
+using System.Web.Http;
+using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
+using ArtifactStore.Services.Reviews;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Web.Http;
-using ServiceLibrary.Exceptions;
 
 namespace ArtifactStore.Controllers
 {
@@ -15,24 +15,26 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ReviewContainersController : LoggableApiController
     {
-        private IReviewsRepository _sqlReviewsRepository;
+        private readonly IReviewsService _reviewsService;
+        private readonly IReviewsRepository _sqlReviewsRepository;
 
-        public override string LogSource { get; } = "ArtifactStore.Reviews";
+        public override string LogSource => "ArtifactStore.Reviews";
 
-        public ReviewContainersController(): this(new SqlReviewsRepository())
+        public ReviewContainersController() : this(new ReviewsService(), new SqlReviewsRepository())
         {
         }
 
-        public ReviewContainersController(IReviewsRepository sqlReviewsRepository)
+        public ReviewContainersController(IReviewsService reviewsService, IReviewsRepository sqlReviewsRepository)
         {
+            _reviewsService = reviewsService;
             _sqlReviewsRepository = sqlReviewsRepository;
         }
 
         /// <summary>
-        /// Gets summary metrics about review container
+        /// Gets summary information about review container
         /// </summary>
         /// <remarks>
-        /// Returns structured metrics for specific review.
+        /// Returns summary info for specific review.
         /// </remarks>
         /// <param name="containerId">Id of the review container</param>
         /// <response code="200">OK.</response>
@@ -47,7 +49,18 @@ namespace ArtifactStore.Controllers
             return _sqlReviewsRepository.GetReviewSummary(containerId, Session.UserId);
         }
 
-
+        /// <summary>
+        /// Gets summary metrics about review container
+        /// </summary>
+        /// <remarks>
+        /// Returns structured metrics for specific review.
+        /// </remarks>
+        /// <param name="containerId">Id of the review container</param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
+        /// <response code="404">Not found. An artifact for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/metrics"), SessionRequired]
         public Task<ReviewSummaryMetrics> GetReviewSummaryMetrics(int containerId)
@@ -71,11 +84,11 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/artifacts"), SessionRequired]
-        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, int? revisionId = int.MaxValue)
+        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, int revisionId = int.MaxValue)
         {
             pagination.Validate();
             pagination.SetDefaultValues(0, 10);
-            return _sqlReviewsRepository.GetReviewedArtifacts(containerId, Session.UserId, pagination, revisionId.Value);
+            return _sqlReviewsRepository.GetReviewedArtifacts(containerId, Session.UserId, pagination, revisionId);
         }
 
         /// <summary>
@@ -132,11 +145,11 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/toc"), SessionRequired]
-        public Task<QueryResult<ReviewTableOfContentItem>> GetTableOfContentAsync(int containerId, [FromUri] Pagination pagination, int? revisionId = int.MaxValue)
+        public Task<QueryResult<ReviewTableOfContentItem>> GetTableOfContentAsync(int containerId, [FromUri] Pagination pagination, int revisionId = int.MaxValue)
         {
             pagination.Validate();
             pagination.SetDefaultValues(0, 50);
-            return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId.Value, Session.UserId, pagination);
+            return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId, Session.UserId, pagination);
         }
 
         /// <summary>
@@ -215,7 +228,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut]
         [Route("containers/{reviewId:int:min(1)}/artifacts/approval"), SessionRequired]
-        public Task AssignApprovalRequiredToArtifacts(int reviewId, [FromBody] AssignArtifactsApprovalParameter content)
+        public Task<ReviewChangeItemsStatusResult> AssignApprovalRequiredToArtifacts(int reviewId, [FromBody] AssignArtifactsApprovalParameter content)
         {
             return _sqlReviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, Session.UserId, content);
         }
@@ -256,9 +269,9 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{reviewId:int:min(1)}/index/{artifactId:int:min(1)}"), SessionRequired]
-        public Task<ReviewArtifactIndex> GetReviewArtifactIndex(int reviewId, int artifactId, int? revisionId = int.MaxValue)
+        public Task<ReviewArtifactIndex> GetReviewArtifactIndex(int reviewId, int artifactId, int revisionId = int.MaxValue)
         {
-            return _sqlReviewsRepository.GetReviewArtifactIndexAsync(reviewId, revisionId.Value, artifactId, Session.UserId);
+            return _sqlReviewsRepository.GetReviewArtifactIndexAsync(reviewId, revisionId, artifactId, Session.UserId);
         }
 
         /// <summary>
@@ -276,9 +289,9 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{reviewId:int:min(1)}/toc/index/{artifactId:int:min(1)}"), SessionRequired]
-        public Task<ReviewArtifactIndex> GetReviewTableOfContentArtifactIndex(int reviewId, int artifactId, int? revisionId = int.MaxValue)
+        public Task<ReviewArtifactIndex> GetReviewTableOfContentArtifactIndex(int reviewId, int artifactId, int revisionId = int.MaxValue)
         {
-            return _sqlReviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId.Value, artifactId, Session.UserId);
+            return _sqlReviewsRepository.GetReviewTableOfContentArtifactIndexAsync(reviewId, revisionId, artifactId, Session.UserId);
         }
 
 
@@ -296,7 +309,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/experience/approval")]
-        public Task<IEnumerable<ReviewArtifactApprovalResult>> UpdateReviewArtifactApprovalAsync(int reviewId, [FromBody] ReviewArtifactApprovalParameter reviewArtifactApprovalParameters)
+        public Task<ReviewArtifactApprovalResult> UpdateReviewArtifactApprovalAsync(int reviewId, [FromBody] ReviewArtifactApprovalParameter reviewArtifactApprovalParameters)
         {
             return _sqlReviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, reviewArtifactApprovalParameters, Session.UserId);
         }
@@ -317,7 +330,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/artifacts/viewed")]
         public Task UpdateReviewArtifactsViewedAsync(int reviewId, [FromBody] ReviewArtifactViewedInput viewedInput)
         {
-            if (viewedInput == null || !viewedInput.Viewed.HasValue)
+            if (viewedInput?.Viewed == null)
             {
                 throw new BadRequestException("Viewed must be provided.");
             }
@@ -363,10 +376,28 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/artifacts/remove")]
-        public Task RemoveArtifactsFromReviewAsync(int reviewId, [FromBody] ReviewArtifactsRemovalParams removeParams)
+        public Task RemoveArtifactsFromReviewAsync(int reviewId, [FromBody] ReviewItemsRemovalParams removeParams)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return _sqlReviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, removeParams, session.UserId);
+            return _sqlReviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, removeParams, Session.UserId);
+        }
+
+        /// <summary>
+        /// Removes participants from a review for the session user.
+        /// </summary>
+        /// <param name="reviewId"></param>
+        /// <param name="removeParams"></param>
+        /// <returns></returns>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the review or it is locked by another user.</response>
+        /// <response code="404">Not found. An artifact for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost, SessionRequired]
+        [Route("containers/{reviewId:int:min(1)}/participants/remove")]
+        public Task RemoveParticipantsFromReviewAsync(int reviewId, [FromBody] ReviewItemsRemovalParams removeParams)
+        {
+            return _sqlReviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, removeParams, Session.UserId);
         }
 
         [HttpPut, SessionRequired]
@@ -374,6 +405,47 @@ namespace ArtifactStore.Controllers
         public Task UpdateReviewerStatusAsync(int reviewId, [FromBody] ReviewerStatusParameter reviewStatusParameter, int revisionId = int.MaxValue)
         {
             return _sqlReviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, reviewStatusParameter.Status, Session.UserId);
+        }
+
+        /// <summary>
+        /// Get review settings for a given review (optionally: for a given revision).
+        /// </summary>
+        /// <param name="reviewId">The review id.</param>
+        /// <param name="revisionId">(optional) The revision id.</param>
+        /// <returns>A ReviewSettings object containing review settings.</returns>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions to access review settings.</response>
+        /// <response code="404">Not found. The review for the specified id (at the specified revision) is not found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache, SessionRequired]
+        [Route("containers/{reviewId:int:min(1)}/settings")]
+        public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int revisionId = int.MaxValue)
+        {
+            return await _reviewsService.GetReviewSettingsAsync(reviewId, Session.UserId, revisionId);
+        }
+
+        /// <summary>
+        /// Updates review settings for a given review.
+        /// </summary>
+        /// <param name="reviewId">The review id.</param>
+        /// <param name="reviewSettings">The updated review settings.</param>
+        /// <response code="200">OK. The review settings were successfully updated.</response>
+        /// <response code="400">Bad Request. The request parameters are invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions to access review.</response>
+        /// <response code="404">Not found. The review for the specified id is not found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPut, SessionRequired]
+        [Route("containers/{reviewId:int:min(1)}/settings")]
+        public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings reviewSettings)
+        {
+            if (reviewSettings == null)
+            {
+                throw new BadRequestException(ErrorMessages.ReviewSettingsAreRequired, ErrorCodes.BadRequest);
+            }
+
+            await _reviewsService.UpdateReviewSettingsAsync(reviewId, reviewSettings, Session.UserId);
         }
     }
 }

@@ -564,7 +564,7 @@ namespace AdminStore.Repositories
             {
                 DomainList = new List<FederatedAuthenticationSettings.FAAllowedDomian>
                 {
-                    new FederatedAuthenticationSettings.FAAllowedDomian { Name = customDomainName, OrderIndex = 0}
+                    new FederatedAuthenticationSettings.FAAllowedDomian { Name = customDomainName, OrderIndex = 0 }
                 },
                 IsAllowingNoDomain = true
             });
@@ -775,7 +775,7 @@ namespace AdminStore.Repositories
             {
                 await _authenticationRepository.ResetPassword(_loginUser, Password, NewPassword);
             }
-            catch(ConflictException ex)
+            catch (ConflictException ex)
             {
                 exception = ex;
             }
@@ -821,7 +821,7 @@ namespace AdminStore.Repositories
 
             _applicationSettingsRepositoryMock
                 .Setup(m => m.GetSettingsAsync(false))
-                .Returns(() => Task.Run(() => new ApplicationSetting[] 
+                .Returns(() => Task.Run(() => new ApplicationSetting[]
                 {
                     new ApplicationSetting
                     {

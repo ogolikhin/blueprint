@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using MailBee.Mime;
 using MailBee.Security;
 using MailBee.SmtpMail;
@@ -101,7 +102,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                 }
                 if (message.DiscussionEmail.ArtifactImageAttachmentArray != null)
                 {
-                    mailMessage.Attachments.Add(message.DiscussionEmail.ArtifactImageAttachmentArray,
+                    mailMessage.Attachments.Add(message.DiscussionEmail.ArtifactImageAttachmentArray.ToArray(),
                         DiscussionEmail.ArtifactImageAttachmentContentId, DiscussionEmail.ArtifactImageAttachmentContentId,
                         null, null, NewAttachmentOptions.Inline | NewAttachmentOptions.ReplaceIfExists, MailTransferEncoding.Base64);
                 }

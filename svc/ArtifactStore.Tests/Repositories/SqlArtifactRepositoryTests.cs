@@ -15,7 +15,7 @@ namespace ArtifactStore.Repositories
     [TestClass]
     public class SqlArtifactRepositoryTests
     {
-        private Mock<ISqlArtifactRepository> _artifactRepositoryMock;
+        private Mock<IArtifactRepository> _artifactRepositoryMock;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepository;
         private SqlConnectionWrapperMock cxn;
         private SqlArtifactRepository repository;
@@ -26,7 +26,7 @@ namespace ArtifactStore.Repositories
         [TestInitialize]
         public void Initialize()
         {
-            _artifactRepositoryMock = new Mock<ISqlArtifactRepository>();
+            _artifactRepositoryMock = new Mock<IArtifactRepository>();
             _artifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             cxn = new SqlConnectionWrapperMock();
             repository = new SqlArtifactRepository(cxn.Object);
@@ -41,9 +41,9 @@ namespace ArtifactStore.Repositories
             artifactIds = new HashSet<int>() { 1, 2, 3 };
             List<ProcessInfoDto> processInfos = new List<ProcessInfoDto>()
             {
-                new ProcessInfoDto() {ItemId = 1, ProcessType = ProcessType.BusinessProcess},
-                new ProcessInfoDto() {ItemId = 2, ProcessType = ProcessType.UserToSystemProcess},
-                new ProcessInfoDto() {ItemId = 3, ProcessType = ProcessType.SystemToSystemProcess}
+                new ProcessInfoDto() { ItemId = 1, ProcessType = ProcessType.BusinessProcess },
+                new ProcessInfoDto() { ItemId = 2, ProcessType = ProcessType.UserToSystemProcess },
+                new ProcessInfoDto() { ItemId = 3, ProcessType = ProcessType.SystemToSystemProcess }
             };
 
             var permissionDict = new Dictionary<int, RolePermissions>() { };

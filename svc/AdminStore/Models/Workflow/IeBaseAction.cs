@@ -30,7 +30,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeBaseAction) obj);
+            return Equals((IeBaseAction)obj);
         }
 
         public override int GetHashCode()

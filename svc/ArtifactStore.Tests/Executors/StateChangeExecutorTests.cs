@@ -71,22 +71,21 @@ namespace ArtifactStore.Executors
                 _applicationSettingsRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _usersRepositoryMock.Object),
-                _stateChangeHelperMock.Object
-                );
+                _stateChangeHelperMock.Object);
         }
 
         [TestMethod]
         public async Task ExecuteInternal_ArtifactIsDeleted_ThrowsConflictException()
         {
-            //Arrange
+            // Arrange
             ConflictException conflictException = null;
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(true);
 
             _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(It.IsAny<int>(), It.IsAny<int?>(), It.IsAny<int>()))
-                .ReturnsAsync(new VersionControlArtifactInfo() {Id = ArtifactId});
+                .ReturnsAsync(new VersionControlArtifactInfo() { Id = ArtifactId });
 
-            //Act
+            // Act
             try
             {
                 await _stateChangeExecutor.Execute();
@@ -96,7 +95,7 @@ namespace ArtifactStore.Executors
                 conflictException = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(conflictException);
             Assert.AreEqual(ErrorCodes.Conflict, conflictException.ErrorCode);
         }
@@ -104,7 +103,7 @@ namespace ArtifactStore.Executors
         [TestMethod]
         public async Task ExecuteInternal_ProvidedVersionIdIsIncorrect_ThrowsConflictException()
         {
-            //Arrange
+            // Arrange
             ConflictException conflictException = null;
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(false);
@@ -121,7 +120,7 @@ namespace ArtifactStore.Executors
             _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
                 .ReturnsAsync(vcArtifactInfo);
 
-            //Act
+            // Act
             try
             {
                 await _stateChangeExecutor.Execute();
@@ -131,7 +130,7 @@ namespace ArtifactStore.Executors
                 conflictException = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(conflictException);
             Assert.AreEqual(ErrorCodes.Conflict, conflictException.ErrorCode);
         }
@@ -139,7 +138,7 @@ namespace ArtifactStore.Executors
         [TestMethod]
         public async Task ExecuteInternal_LockedByAnotherUser_ThrowsConflictException()
         {
-            //Arrange
+            // Arrange
             ConflictException conflictException = null;
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(false);
@@ -150,13 +149,13 @@ namespace ArtifactStore.Executors
                 VersionCount = CurrentVersionId,
                 LockedByUser = new UserGroup
                 {
-                    Id = UserId+10
+                    Id = UserId + 10
                 }
             };
             _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
                 .ReturnsAsync(vcArtifactInfo);
 
-            //Act
+            // Act
             try
             {
                 await _stateChangeExecutor.Execute();
@@ -166,7 +165,7 @@ namespace ArtifactStore.Executors
                 conflictException = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(conflictException);
             Assert.AreEqual(ErrorCodes.Conflict, conflictException.ErrorCode);
         }
@@ -174,7 +173,7 @@ namespace ArtifactStore.Executors
         [TestMethod]
         public async Task ExecuteInternal_NoAssociatedWorkflow_ThrowsConflictException()
         {
-            //Arrange
+            // Arrange
             ConflictException conflictException = null;
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(false);
@@ -194,7 +193,7 @@ namespace ArtifactStore.Executors
             _workflowRepository.Setup(t => t.GetStateForArtifactAsync(UserId, ArtifactId, int.MaxValue, true))
                 .ReturnsAsync((WorkflowState)null);
 
-            //Act
+            // Act
             try
             {
                 await _stateChangeExecutor.Execute();
@@ -204,7 +203,7 @@ namespace ArtifactStore.Executors
                 conflictException = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(conflictException);
             Assert.AreEqual(ErrorCodes.Conflict, conflictException.ErrorCode);
         }
@@ -212,7 +211,7 @@ namespace ArtifactStore.Executors
         [TestMethod]
         public async Task ExecuteInternal_AssociatedStateDoesNotMatchProvideCurrentState_ThrowsConflictException()
         {
-            //Arrange
+            // Arrange
             ConflictException conflictException = null;
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(false);
@@ -238,7 +237,7 @@ namespace ArtifactStore.Executors
             _workflowRepository.Setup(t => t.GetStateForArtifactAsync(UserId, ArtifactId, int.MaxValue, true))
                 .ReturnsAsync(fromState);
 
-            //Act
+            // Act
             try
             {
                 await _stateChangeExecutor.Execute();
@@ -248,7 +247,7 @@ namespace ArtifactStore.Executors
                 conflictException = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(conflictException);
             Assert.AreEqual(ErrorCodes.Conflict, conflictException.ErrorCode);
         }
@@ -256,7 +255,7 @@ namespace ArtifactStore.Executors
         [TestMethod]
         public async Task ExecuteInternal_NoTransitionAvailableForStates_ThrowsConflictException()
         {
-            //Arrange
+            // Arrange
             ConflictException conflictException = null;
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(false);
@@ -289,7 +288,7 @@ namespace ArtifactStore.Executors
                 t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
                 .ThrowsAsync(new ConflictException("", ErrorCodes.Conflict));
 
-            //Act
+            // Act
             try
             {
                 await _stateChangeExecutor.Execute();
@@ -299,7 +298,7 @@ namespace ArtifactStore.Executors
                 conflictException = ex;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(conflictException);
             Assert.AreEqual(ErrorCodes.Conflict, conflictException.ErrorCode);
         }
@@ -307,7 +306,7 @@ namespace ArtifactStore.Executors
         [TestMethod]
         public async Task ExecuteInternal_CouldNotChangeState_ReturnsFailedResult()
         {
-            //Arrange
+            // Arrange
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(false);
             _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo(It.IsAny<IDbTransaction>())).ReturnsAsync(new TenantInfo()
@@ -360,10 +359,10 @@ namespace ArtifactStore.Executors
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync((WorkflowState)null);
 
-            //Act
+            // Act
             var result = await _stateChangeExecutor.Execute();
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(QueryResultCode.Failure, result.ResultCode);
         }
@@ -371,7 +370,7 @@ namespace ArtifactStore.Executors
         [TestMethod]
         public async Task ExecuteInternal_StateChangeAndPublish_CallsBoth()
         {
-            //Arrange
+            // Arrange
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(false);
             _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo(It.IsAny<IDbTransaction>())).ReturnsAsync(new TenantInfo()
@@ -424,10 +423,10 @@ namespace ArtifactStore.Executors
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync((WorkflowState)null);
 
-            //Act
+            // Act
             await _stateChangeExecutor.Execute();
 
-            //Assert
+            // Assert
             _workflowRepository.Verify(t => t.GetStateForArtifactAsync(UserId, ArtifactId, int.MaxValue, true));
             _versionControlService.Verify(t => t.PublishArtifacts(It.IsAny<PublishParameters>(), It.IsAny<IDbTransaction>()));
         }
@@ -437,7 +436,7 @@ namespace ArtifactStore.Executors
         [ExpectedException(typeof(ConflictException))]
         public async Task ExecuteInternal_WhenSynchronouTriggersErrors_ThrowsConflictException()
         {
-            //Arrange
+            // Arrange
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(false);
             _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo(It.IsAny<IDbTransaction>())).ReturnsAsync(new TenantInfo()
@@ -492,7 +491,7 @@ namespace ArtifactStore.Executors
                 Action = workflowEventAction.Object,
                 Name = "Test'"
             });
-        
+
             _workflowRepository.Setup(
                 t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
                 .ReturnsAsync(triggerContainer);
@@ -500,7 +499,7 @@ namespace ArtifactStore.Executors
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync((WorkflowState)null);
 
-            //Act
+            // Act
             await _stateChangeExecutor.Execute();
         }
     }

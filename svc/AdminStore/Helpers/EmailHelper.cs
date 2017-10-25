@@ -13,7 +13,7 @@ namespace AdminStore.Helpers
     {
         void Initialize(IEmailConfigInstanceSettings configuration);
         void SendEmail(string toEmail, string subject, string body);
-        
+
     }
 
     public class EmailHelper : IEmailHelper
@@ -56,7 +56,7 @@ namespace AdminStore.Helpers
             var mailMessage = new MailMessage();
             mailMessage.To.Add(toEmail);
             mailMessage.From.Email = fromEmail;
-            mailMessage.Subject = subject; //"password reset";
+            mailMessage.Subject = subject; // "password reset";
             mailMessage.BodyHtmlText = body;
             return mailMessage;
         }
@@ -68,12 +68,12 @@ namespace AdminStore.Helpers
                 SmtpServer smtpServer = new SmtpServer();
                 smtpServer.Name = _configuration.HostName;
                 smtpServer.Port = _configuration.Port;
-                smtpServer.Timeout = 100000; //default 100 secs
+                smtpServer.Timeout = 100000; // default 100 secs
                 if (_configuration.Authenticated)
                 {
                     smtpServer.AccountName = _configuration.UserName;
                     smtpServer.Password = _configuration.Password;
-                    //MailBee.AuthenticationMethods.None by default
+                    // MailBee.AuthenticationMethods.None by default
                     smtpServer.AuthMethods = MailBee.AuthenticationMethods.Auto;
                 }
                 smtpServer.SslMode = SslStartupMode;

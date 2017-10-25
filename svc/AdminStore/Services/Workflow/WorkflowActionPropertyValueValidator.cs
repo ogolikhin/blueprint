@@ -52,7 +52,7 @@ namespace AdminStore.Services.Workflow
 
             return result;
         }
-        
+
         #endregion
 
         #region Private Methods
@@ -109,7 +109,7 @@ namespace AdminStore.Services.Workflow
             decimal numberValue;
             if (!decimal.TryParse(action.PropertyValue, out numberValue))
             {
-                if(!string.IsNullOrWhiteSpace(action.PropertyValue))
+                if (!string.IsNullOrWhiteSpace(action.PropertyValue))
                 {
                     errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberFormat;
                     return false;

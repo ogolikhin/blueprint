@@ -16,10 +16,10 @@ namespace BluePrintSys.Messaging.CrossCutting.Collections
         HIGH
     }
 
-    public class PriorityQueue<T>:IQueue<T> where T:IHavePriority
+    public class PriorityQueue<T> : IQueue<T> where T : IHavePriority
     {
         private readonly Dictionary<Priority, Queue<T>> _priQueue;
-        private readonly Priority[] orderedPriorities = {Priority.HIGH, Priority.NORMAL, Priority.LOW};
+        private readonly Priority[] orderedPriorities = { Priority.HIGH, Priority.NORMAL, Priority.LOW };
         private int _count;
 
         public PriorityQueue()

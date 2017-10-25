@@ -5,8 +5,8 @@ using System.IO;
 
 namespace FileStore.Repositories
 {
-	public interface IFileStreamRepository
-	{
+    public interface IFileStreamRepository
+    {
         DbConnection CreateConnection();
 
         bool IsDatabaseAvailable();
@@ -17,6 +17,6 @@ namespace FileStore.Repositories
 
         byte[] ReadChunkContent(DbConnection sqlConnection, Guid fileId, long count, long position);
 
-      
-	}
+
+    }
 }

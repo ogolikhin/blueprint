@@ -21,7 +21,7 @@ namespace ArtifactStore.Controllers
         private Session session;
         private HashSet<int> artifactIds;
         private List<ProcessInfoDto> processInfo;
-        private Mock<ISqlArtifactRepository> mockArtifactRepository;
+        private Mock<IArtifactRepository> mockArtifactRepository;
         private Mock<IServiceLogRepository> mockServiceLogRepository;
         private Mock<IArtifactPermissionsRepository> mockArtifactPermissionsRepository;
         private Mock<IPrivilegesRepository> _mockSqlPrivilegesRepository;
@@ -30,7 +30,7 @@ namespace ArtifactStore.Controllers
         [TestInitialize]
         public void Initialize()
         {
-            session = new Session {UserId = userId};
+            session = new Session { UserId = userId };
             artifactIds = new HashSet<int>() { 1, 2, 3 };
             processInfo = new List<ProcessInfoDto>()
             {
@@ -51,7 +51,7 @@ namespace ArtifactStore.Controllers
                 }
             };
 
-            mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            mockArtifactRepository = new Mock<IArtifactRepository>();
             mockServiceLogRepository = new Mock<IServiceLogRepository>();
             mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             _mockSqlPrivilegesRepository = new Mock<IPrivilegesRepository>();
@@ -72,7 +72,7 @@ namespace ArtifactStore.Controllers
             var session = new Session { UserId = userId };
             var projectId = 10;
             var children = new List<Artifact>();
-            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            var mockArtifactRepository = new Mock<IArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId)).ReturnsAsync(children);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
@@ -85,7 +85,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetProjectChildrenAsync(projectId);
 
-            //Assert
+            // Assert
             Assert.AreSame(children, result);
         }
 
@@ -98,7 +98,7 @@ namespace ArtifactStore.Controllers
             var projectId = 10;
             var artifactId = 20;
             var children = new List<Artifact>();
-            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            var mockArtifactRepository = new Mock<IArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, artifactId, userId)).ReturnsAsync(children);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
@@ -111,7 +111,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetArtifactChildrenAsync(projectId, artifactId);
 
-            //Assert
+            // Assert
             Assert.AreSame(children, result);
         }
 
@@ -124,7 +124,7 @@ namespace ArtifactStore.Controllers
             const int projectId = 10;
             const int artifactId = 20;
             var rootChildren = new List<Artifact>();
-            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            var mockArtifactRepository = new Mock<IArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetExpandedTreeToArtifactAsync(projectId, artifactId, true, userId)).ReturnsAsync(rootChildren);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
@@ -137,7 +137,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetExpandedTreeToArtifactAsync(projectId, artifactId, true);
 
-            //Assert
+            // Assert
             Assert.AreSame(rootChildren, result);
         }
 
@@ -150,7 +150,7 @@ namespace ArtifactStore.Controllers
             var session = new Session { UserId = userId };
             const int projectId = 10;
             const int artifactId = 0;
-            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            var mockArtifactRepository = new Mock<IArtifactRepository>();
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
             var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object)
@@ -162,7 +162,7 @@ namespace ArtifactStore.Controllers
             // Act
             await artifactController.GetExpandedTreeToArtifactAsync(projectId, artifactId);
 
-            //Assert
+            // Assert
         }
 
         [TestMethod]
@@ -175,7 +175,7 @@ namespace ArtifactStore.Controllers
             var artifactIds = new[] { artifactId };
             var permissionsDictionary = new Dictionary<int, RolePermissions>();
             permissionsDictionary.Add(artifactId, RolePermissions.None);
-            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            var mockArtifactRepository = new Mock<IArtifactRepository>();
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
@@ -207,7 +207,7 @@ namespace ArtifactStore.Controllers
             var permissionsDictionary = new Dictionary<int, RolePermissions>();
             permissionsDictionary.Add(artifactId, RolePermissions.Read);
             var subArtifacts = new List<SubArtifact> { new SubArtifact { Id = 1 } };
-            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            var mockArtifactRepository = new Mock<IArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetSubArtifactTreeAsync(artifactId, userId, int.MaxValue, true)).ReturnsAsync(subArtifacts);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
@@ -219,7 +219,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetSubArtifactTreeAsync(artifactId);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result[0].Id);
         }
@@ -232,7 +232,7 @@ namespace ArtifactStore.Controllers
             var session = new Session { UserId = userId };
             const int artifactId = 10;
             var navPath = new List<Artifact>();
-            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            var mockArtifactRepository = new Mock<IArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetArtifactNavigationPathAsync(artifactId, userId)).ReturnsAsync(navPath);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
@@ -245,21 +245,21 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetArtifactNavigationPathAsync(artifactId);
 
-            //Assert
+            // Assert
             Assert.AreSame(navPath, result);
         }
 
         [TestMethod]
         public async Task Artifact_GetProcessInfo_Success()
         {
-            //Arrange
+            // Arrange
             mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId))
                                   .ReturnsAsync(processInfo);
 
-            //Act
+            // Act
             var result = await artifactController.GetProcessInformationAsync(artifactIds);
-            
-            //Assert
+
+            // Assert
             Assert.AreSame(processInfo, result);
         }
 
@@ -267,14 +267,14 @@ namespace ArtifactStore.Controllers
         [ExpectedException(typeof(BadRequestException))]
         public async Task Artifact_GetProcessInfo_ThrowsBadRequestException()
         {
-            //Arrange
+            // Arrange
             artifactIds = null;
-            processInfo = new List<ProcessInfoDto>() {};
+            processInfo = new List<ProcessInfoDto>() { };
 
             mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId))
                                   .ReturnsAsync(processInfo);
 
-            //Act
+            // Act
             var result = await artifactController.GetProcessInformationAsync(artifactIds);
 
         }
@@ -283,7 +283,7 @@ namespace ArtifactStore.Controllers
         public async Task GetStandardArtifactTypes_SuccessResult()
         {
             // Arrange
-            var artifacts = new List<StandardArtifactType> {new StandardArtifactType {Id = 1, Name = "CustomActor"} };
+            var artifacts = new List<StandardArtifactType> { new StandardArtifactType { Id = 1, Name = "CustomActor" } };
             mockArtifactRepository.Setup(r => r.GetStandardArtifactTypes())
                                   .ReturnsAsync(artifacts);
 
@@ -294,7 +294,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await artifactController.GetStandardArtifactTypes();
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(result, artifacts);
         }
@@ -311,7 +311,7 @@ namespace ArtifactStore.Controllers
             // Act
             await artifactController.GetStandardArtifactTypes();
 
-            //Assert
+            // Assert
         }
     }
 }

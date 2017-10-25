@@ -54,7 +54,7 @@ namespace ServiceLibrary.Models
         /// Number of unique authors who have accessed BP in a given month
         /// </summary>
         public int UniqueAuthors { get; set; }
-        
+
         /// <summary>
         /// Number of unique collaborators who have accessed BP in a given month
         /// </summary>

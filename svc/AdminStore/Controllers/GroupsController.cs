@@ -223,7 +223,7 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get group's members 
+        /// Get group's members
         /// </summary>
         /// <param name="groupId">Group's identity</param>
         /// <param name="pagination">Pagination parameters</param>
@@ -316,7 +316,7 @@ namespace AdminStore.Controllers
 
 
         /// <summary>
-        /// Get the list of groups for the project  
+        /// Get the list of groups for the project
         /// </summary>
         /// <remarks>
         /// Get the list of groups for the project's id and also instance level groups that have no assignments
@@ -338,7 +338,7 @@ namespace AdminStore.Controllers
             await _privilegesManager.DemandAny(Session.UserId, projectId, InstanceAdminPrivileges.AccessAllProjectsAdmin,
                      ProjectAdminPrivileges.ViewGroupsAndRoles);
 
-            var tabularData = new TabularData {Pagination = pagination, Sorting = sorting, Search = search};
+            var tabularData = new TabularData { Pagination = pagination, Sorting = sorting, Search = search };
             var result =
                 await _groupRepository.GetProjectGroupsAsync(projectId, tabularData, SortingHelper.SortProjectGroups);
 

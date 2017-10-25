@@ -13,7 +13,7 @@ namespace FileStore.Helpers
         private Func<string, string, Stream, DateTime?, Task<FileChunk>> _function;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="expired"></param>

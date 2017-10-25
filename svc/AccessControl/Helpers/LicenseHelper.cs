@@ -31,9 +31,9 @@ namespace AccessControl.Helpers
                 }
                 catch (Exception)
                 {
-//					Log.Error(exception);
+// Log.Error(exception);
                     licenceHoldTime = licenseHoldTimeDefault;
-//					Log.Info(String.Format("Invalid value for web.config key {0}. Using default.", licenseHoldTimeDefault));
+// Log.Info(String.Format("Invalid value for web.config key {0}. Using default.", licenseHoldTimeDefault));
                     return licenceHoldTime;
                 }
 
@@ -45,14 +45,14 @@ namespace AccessControl.Helpers
                 else
                 {
                     licenceHoldTime = licenseHoldTimeDefault;
-                    //Log.Info(String.Format("Invalid resolved value for web.config key {0}. Using default.", licenseHoldTimeDefault));
+                    // Log.Info(String.Format("Invalid resolved value for web.config key {0}. Using default.", licenseHoldTimeDefault));
                 }
             }
 
             return licenceHoldTime;
         }
 
-        //encrypt and decrypt methods stolen from BluePrintSys.RC.Data.AccessAPI.BackendEncryptions
+        // encrypt and decrypt methods stolen from BluePrintSys.RC.Data.AccessAPI.BackendEncryptions
         private static string Decrypt(string base64Input)
         {
             if (string.IsNullOrEmpty(base64Input))
@@ -60,7 +60,7 @@ namespace AccessControl.Helpers
                 return base64Input;
             }
 
-            //byte[] encryptBytes = UTF8Encoding.UTF8.GetBytes(input);
+            // byte[] encryptBytes = UTF8Encoding.UTF8.GetBytes(input);
             byte[] encryptBytes = Convert.FromBase64String(base64Input);
             byte[] saltBytes = Encoding.UTF8.GetBytes(_uTF8EncodingSaltString);
 

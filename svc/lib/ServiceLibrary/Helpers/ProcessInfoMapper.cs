@@ -10,28 +10,19 @@ namespace ServiceLibrary.Helpers
 {
     public static class ProcessInfoMapper
     {
-        public static ProcessInfoDto Map(ProcessInfo pi)
+        public static ProcessInfoDto Map(ProcessInfo processInfo)
         {
-            
-            ProcessInfoDto result = new ProcessInfoDto{ItemId = pi.ItemId};
+            var result = new ProcessInfoDto { ItemId = processInfo.ItemId };
 
             ProcessType enumVal;
-            ProcessType defaultValue = ProcessType.None;
-            if (Enum.TryParse(pi.ProcessType, out enumVal))
-            {
-                result.ProcessType = enumVal;
-            }
-            else
-            {
-                result.ProcessType = defaultValue;
-            }
-            
+            result.ProcessType = Enum.TryParse(processInfo.ProcessType, out enumVal) ? enumVal : ProcessType.None;
+
             return result;
         }
 
-        public static List<ProcessInfoDto> Map(IEnumerable<ProcessInfo> pis)
+        public static List<ProcessInfoDto> Map(IEnumerable<ProcessInfo> processInfos)
         {
-            return pis.Select(Map).ToList();
+            return processInfos.Select(Map).ToList();
         }
     }
 }

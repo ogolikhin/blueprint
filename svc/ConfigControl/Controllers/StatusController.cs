@@ -29,9 +29,7 @@ namespace ConfigControl.Controllers
                     },
                     "ConfigControl",
                     new ServiceLogRepository(),
-                    WebApiConfig.LogSourceStatus
-                )
-            )
+                    WebApiConfig.LogSourceStatus))
         {
         }
 

@@ -79,9 +79,11 @@ namespace AdminStore.Repositories.Workflow
         Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId);
         Task<QueryResult<WorkflowProjectArtifactTypesDto>> GetProjectArtifactTypesAssignedtoWorkflowAsync(int workflowId, Pagination pagination, string search = null);
 
-        Task<int> AssignProjectsAndArtifactTypesToWorkflow(int workFlowId, WorkflowAssignScope scope);
+        Task<AssignProjectsResult> AssignProjectsAndArtifactTypesToWorkflow(int workFlowId, WorkflowAssignScope scope);
 
-        Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workFlowId, int projectId, IEnumerable<int> artifactsIds);
+        Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workFlowId, int projectId, OperationScope scope);
         Task<int> UnassignProjectsAndArtifactTypesFromWorkflowAsync(int workflowId, OperationScope scope, string search = null);
+
+        Task<IEnumerable<WorkflowProjectSearch>> SearchProjectsByName(int workflowId, string search = null);
     }
 }

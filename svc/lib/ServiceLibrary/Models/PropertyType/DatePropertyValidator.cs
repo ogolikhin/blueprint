@@ -6,8 +6,8 @@ namespace ServiceLibrary.Models.PropertyType
     public class DatePropertyValidator : PropertyValidator<DatePropertyType>
     {
         protected override PropertySetResult Validate(
-            PropertyLite property, 
-            DatePropertyType propertyType, 
+            PropertyLite property,
+            DatePropertyType propertyType,
             IValidationContext validationContext)
         {
             if (IsPropertyValueEmpty(property, propertyType) || !propertyType.IsValidate)
@@ -15,15 +15,15 @@ namespace ServiceLibrary.Models.PropertyType
 
             var value = property.DateValue.Value;
 
-            //Maximum.
+            // Maximum.
             if (propertyType.IsValidate && value.CompareTo(propertyType.Range.End) > 0)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Must be less than max value");
 
-            //Minimum.
+            // Minimum.
             if (propertyType.IsValidate && value.CompareTo(propertyType.Range.Start) < 0)
                 return new PropertySetResult(property.PropertyTypeId, ErrorCodes.InvalidArtifactProperty, "Must be greater than min value");
 
-            //Success.
+            // Success.
             return null;
         }
 

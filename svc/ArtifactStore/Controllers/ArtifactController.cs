@@ -1,17 +1,17 @@
-﻿using ServiceLibrary.Attributes;
-using ServiceLibrary.Controllers;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
+using ServiceLibrary.Attributes;
+using ServiceLibrary.Controllers;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Controllers
 {
@@ -19,7 +19,7 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ArtifactController : LoggableApiController
     {
-        private readonly ISqlArtifactRepository _artifactRepository;
+        private readonly IArtifactRepository _artifactRepository;
 
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
@@ -29,17 +29,21 @@ namespace ArtifactStore.Controllers
 
         public override string LogSource { get; } = "ArtifactStore.Artifact";
 
-        public ArtifactController() : this(new SqlArtifactRepository(),
-            new SqlArtifactPermissionsRepository(),
-            new SqlReviewsRepository(), 
-            new SqlPrivilegesRepository())
+        public ArtifactController() : this
+            (
+                new SqlArtifactRepository(),
+                new SqlArtifactPermissionsRepository(),
+                new SqlReviewsRepository(),
+                new SqlPrivilegesRepository())
         {
         }
 
-        public ArtifactController(ISqlArtifactRepository instanceRepository,
+        public ArtifactController
+        (
+            IArtifactRepository instanceRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
             IReviewsRepository reviewsRepository,
-            IPrivilegesRepository privilegesRepository) : base()
+            IPrivilegesRepository privilegesRepository)
         {
             _artifactRepository = instanceRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
@@ -47,8 +51,12 @@ namespace ArtifactStore.Controllers
             _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
-        public ArtifactController(ISqlArtifactRepository instanceRepository,
-            IArtifactPermissionsRepository artifactPermissionsRepository, IPrivilegesRepository privilegesRepository, IServiceLogRepository log) : base(log)
+        public ArtifactController
+        (
+            IArtifactRepository instanceRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IPrivilegesRepository privilegesRepository,
+            IServiceLogRepository log) : base(log)
         {
             _artifactRepository = instanceRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
@@ -115,7 +123,7 @@ namespace ArtifactStore.Controllers
             var artifactIds = new[] { artifactId };
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId, false);
 
-            RolePermissions permission = RolePermissions.None;
+            RolePermissions permission;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
@@ -139,9 +147,9 @@ namespace ArtifactStore.Controllers
         [ActionName("GetExpandedTreeToArtifact")]
         public async Task<List<Artifact>> GetExpandedTreeToArtifactAsync(int projectId, int expandedToArtifactId, bool includeChildren = false)
         {
-            if(expandedToArtifactId < 1)
+            if (expandedToArtifactId < 1)
             {
-                throw new BadRequestException(string.Format("Parameter {0} must be greater than 0.", nameof(expandedToArtifactId)), ErrorCodes.OutOfRangeParameter);
+                throw new BadRequestException($"Parameter {nameof(expandedToArtifactId)} must be greater than 0.", ErrorCodes.OutOfRangeParameter);
             }
 
             return await _artifactRepository.GetExpandedTreeToArtifactAsync(projectId, expandedToArtifactId, includeChildren, Session.UserId);
@@ -174,10 +182,10 @@ namespace ArtifactStore.Controllers
         /// If user doesn't have read permissions for all requested artifacts method returns empty IEnumerable.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
-        [Route("artifacts/authorHistories"), SessionRequired]        
+        [Route("artifacts/authorHistories"), SessionRequired]
         public async Task<IEnumerable<AuthorHistory>> GetArtifactsAuthorHistories([FromBody] ISet<int> artifactIds)
         {
             return await _artifactRepository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, Session.UserId);
@@ -191,11 +199,11 @@ namespace ArtifactStore.Controllers
         /// If user doesn't have read permissions for all requested artifacts method returns empty IEnumerable.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("artifacts/baselineInfo"), SessionRequired]
-        public async Task<IEnumerable<BaselineInfo>> GetBaselineInfo([FromBody] ISet<int> artifactIds)
+        public async Task<IEnumerable<BaselineInfo>> GetBaselineInfo([FromBody] ISet<int> artifactIds, bool addDrafts = true)
         {
             return await _artifactRepository.GetBaselineInfo(artifactIds, Session.UserId, true, int.MaxValue);
         }
@@ -208,7 +216,7 @@ namespace ArtifactStore.Controllers
         /// If user doesn't have read permissions for all requested artifacts method returns empty IEnumerable.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("artifacts/reviewInfo"), SessionRequired]
@@ -224,7 +232,7 @@ namespace ArtifactStore.Controllers
         /// Returns list of objects with information about Process type for artifacts passed as parameters
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("artifacts/processInfo"), SessionRequired]
@@ -242,11 +250,11 @@ namespace ArtifactStore.Controllers
         /// Get a list of all standard artifact types in the system.
         /// </summary>
         /// <remarks>
-        /// Returns the list of standard artifact types. Every item of the list contains id and name of artifact. 
+        /// Returns the list of standard artifact types. Every item of the list contains id and name of artifact.
         /// </remarks>
         /// <response code="200">OK. The list of standard artifact types.</response>
-        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>   
-        /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard artifact types.</response>           
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard artifact types.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("artifacts/standardartifacttypes"), SessionRequired]
@@ -254,8 +262,7 @@ namespace ArtifactStore.Controllers
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            var artifacts = await _artifactRepository.GetStandardArtifactTypes();
-            return artifacts;
+            return await _artifactRepository.GetStandardArtifactTypes();
         }
     }
 }

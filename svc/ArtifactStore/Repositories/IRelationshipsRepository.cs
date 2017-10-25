@@ -6,10 +6,11 @@ namespace ArtifactStore.Repositories
     public interface IRelationshipsRepository
     {
         Task<RelationshipResultSet> GetRelationships(
-            int artifactId, 
-            int userId, 
-            int? subArtifactId = null, 
-            bool addDrafts = true, 
+            int artifactId,
+            int userId,
+            int? subArtifactId = null,
+            bool addDrafts = true,
+            bool allLinks = false,
             int? versionId = null,
             int? baselineId = null);
         Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, int? subArtifactId = null, bool isDeleted = false);

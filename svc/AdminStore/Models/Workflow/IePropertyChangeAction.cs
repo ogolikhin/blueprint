@@ -36,7 +36,7 @@ namespace AdminStore.Models.Workflow
         [XmlElement(IsNullable = false)]
         public IeUsersGroups UsersGroups { get; set; }
 
-        #endregion 
+        #endregion
 
         #region Generated and modified Equals and GetHashCode methods
 
@@ -50,7 +50,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IePropertyChangeAction) obj);
+            return Equals((IePropertyChangeAction)obj);
         }
 
         public override int GetHashCode()
@@ -58,11 +58,11 @@ namespace AdminStore.Models.Workflow
             unchecked
             {
                 int hashCode = base.GetHashCode();
-                hashCode = (hashCode*397) ^ (PropertyName != null ? PropertyName.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ PropertyId.GetHashCode();
-                hashCode = (hashCode*397) ^ (PropertyValue != null ? PropertyValue.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (ValidValues != null ? ValidValues.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (UsersGroups != null ? UsersGroups.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (PropertyName != null ? PropertyName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ PropertyId.GetHashCode();
+                hashCode = (hashCode * 397) ^ (PropertyValue != null ? PropertyValue.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ValidValues != null ? ValidValues.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (UsersGroups != null ? UsersGroups.GetHashCode() : 0);
                 return hashCode;
             }
         }

@@ -10,7 +10,7 @@ namespace ServiceLibrary.Helpers
     {
         public static bool IsPrimitiveArtifactType(this ItemTypePredefined artifactType)
         {
-            //not artifact
+            // not artifact
             if (((int)ItemTypePredefined.GroupMask & (int)artifactType) != (int)ItemTypePredefined.PrimitiveArtifactGroup)
             {
                 return false;

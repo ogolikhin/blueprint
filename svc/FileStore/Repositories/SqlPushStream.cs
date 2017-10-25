@@ -22,7 +22,7 @@ namespace FileStore.Repositories
         {
             ThrowIf.ArgumentNull(fr, nameof(fr));
 
-            _filesRepository = fr; 
+            _filesRepository = fr;
 
             _file = _filesRepository.GetFileInfo(fileId);
 
@@ -38,7 +38,7 @@ namespace FileStore.Repositories
             int bytesRead = 0;
             byte[] buffer = null;
             DbConnection dbConnection = null;
-    
+
             // In the WriteToStream method, we proceed to read the file chunks progressively from the db
             // and flush these bits to the output stream.
 
@@ -51,14 +51,14 @@ namespace FileStore.Repositories
                 for (int chunkNum = 1; chunkNum <= _file.ChunkCount; chunkNum++)
                 {
                     buffer = _filesRepository.ReadChunkContent(dbConnection, _file.FileId, chunkNum);
-                    bytesRead = buffer.Length; 
+                    bytesRead = buffer.Length;
                     await outputStream.WriteAsync(buffer, 0, bytesRead);
                 }
             }
             catch
             {
                 // log error here
-                throw ;
+                throw;
             }
             finally
             {
@@ -70,7 +70,7 @@ namespace FileStore.Repositories
                 buffer = null;
             }
         }
-       
+
         private void CheckInitialized()
         {
             if (_file == null)

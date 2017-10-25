@@ -12,7 +12,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
 
         public MessageBroker GetMessageBroker()
         {
-            //Message Broker is determined by parsing the Connection String
+            // Message Broker is determined by parsing the Connection String
             var connectionString = NServiceBusConnectionString;
             var connectionStringLower = connectionString.Replace(" ", "").Replace("\t", "").ToUpperInvariant();
             const string host = "HOST=";

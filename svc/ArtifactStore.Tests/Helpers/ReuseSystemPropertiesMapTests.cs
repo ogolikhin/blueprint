@@ -12,28 +12,28 @@ namespace ArtifactStore.Helpers
         [TestMethod]
         public void GetPropertyTypePredefined_MapDoesNotContainProperty_EmptyListShouldBeReturned()
         {
-            //Arrange
+            // Arrange
 
 
-            //Act
+            // Act
             var ptf = ReuseSystemPropertiesMap.Instance.GetPropertyTypePredefined(ReconcileProperty.Name,
                 ItemTypePredefined.Actor);
 
-            //Assert
+            // Assert
             Assert.IsFalse(!ptf.Any(), "No property type info should have been returned");
         }
 
         [TestMethod]
         public void GetPropertyTypePredefined_MapContainsProperty_PropertyListShouldBeReturned()
         {
-            //Arrange
+            // Arrange
 
 
-            //Act
+            // Act
             var ptf = ReuseSystemPropertiesMap.Instance.GetPropertyTypePredefined(ReconcileProperty.ActorImageName,
                 ItemTypePredefined.Actor).ToList();
 
-            //Assert
+            // Assert
             Assert.IsNotNull(ptf, "property type info should have been returned");
             Assert.IsTrue(ptf.Count == 2, "2 property type infos should have been returned");
             Assert.IsTrue(ptf[0] == PropertyTypePredefined.RawData, "first property type info should have been RawData");

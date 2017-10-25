@@ -35,10 +35,8 @@ namespace AdminStore.Controllers
                     },
                     "AdminStore",
                     new ServiceLogRepository(),
-                    WebApiConfig.LogSourceStatus
-                ),
-                WebApiConfig.StatusCheckPreauthorizedKey
-            )
+                    WebApiConfig.LogSourceStatus),
+                WebApiConfig.StatusCheckPreauthorizedKey)
         {
         }
 
@@ -61,7 +59,7 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(ServiceStatus))]
         public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
-            //Check pre-authorized key
+            // Check pre-authorized key
             // Refactoring for shorter status as per US955
 
             if (preAuthorizedKey != null && preAuthorizedKey != _expectedPreAuthorizedKey)

@@ -8,9 +8,9 @@ namespace ServiceLibrary.Models.Workflow
         [XmlElement("N", IsNullable = false)]
         public string Name { get; set; }
 
-        [XmlElement(typeof (XmlEmailNotificationAction), ElementName = "AEN")]
-        [XmlElement(typeof (XmlGenerateAction), ElementName = "AG")]
-        [XmlElement(typeof (XmlPropertyChangeAction), ElementName = "APC")]
+        [XmlElement(typeof(XmlEmailNotificationAction), ElementName = "AEN")]
+        [XmlElement(typeof(XmlGenerateAction), ElementName = "AG")]
+        [XmlElement(typeof(XmlPropertyChangeAction), ElementName = "APC")]
         public XmlAction Action { get; set; }
 
         [XmlElement(typeof(XmlStateCondition), ElementName = "SC")]

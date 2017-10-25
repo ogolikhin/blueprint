@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Globalization;
 
 namespace BluePrintSys.Messaging.CrossCutting.Logging
-{   
+{
     // http://msdn.microsoft.com/en-us/library/ff648968.aspx
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1053:StaticHolderTypesShouldNotHaveConstructors")]
     // By Design: there are classes that implement this base class, relying on an accessible constructor to be present.
@@ -17,7 +18,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Logging
         public static void Init(TService controller)
         {
             Log.Assert(controller != null, "IService controller cannot be null");
-            Log.Assert(Current == null, string.Format("{0} can be initialized only once during the current user session", typeof(TService).FullName));
+            Log.Assert(Current == null, string.Format(CultureInfo.InvariantCulture, "{0} can be initialized only once during the current user session", typeof(TService).FullName));
 
             Current = controller;
         }

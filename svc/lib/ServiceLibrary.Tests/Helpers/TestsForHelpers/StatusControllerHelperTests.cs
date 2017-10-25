@@ -15,13 +15,13 @@ namespace ServiceLibrary.Helpers
         [TestMethod]
         public async Task GetStatus_NoStatusRepos_ReturnsCorrectContent()
         {
-            //Arrange
+            // Arrange
             var statusControllerHelper = GetStatusControllerHelper(new List<IStatusRepository>(), "MyService");
 
-            //Act
+            // Act
             var serviceStatus = await statusControllerHelper.GetStatus();
 
-            //Assert
+            // Assert
             Assert.AreEqual(0, serviceStatus.StatusResponses.Count);
             Assert.AreEqual("MyService", serviceStatus.ServiceName);
             Assert.IsTrue(serviceStatus.NoErrors);
@@ -31,20 +31,20 @@ namespace ServiceLibrary.Helpers
         [TestMethod]
         public async Task GetStatus_MultipleStatusRepos_ReturnsCorrectContent()
         {
-            //Arrange
+            // Arrange
             var statusRepoList = new List<IStatusRepository>();
             for (int i = 0; i < 3; i++)
             {
-                statusRepoList.Add( GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));
+                statusRepoList.Add(GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));
             }
 
 
             var statusControllerHelper = GetStatusControllerHelper(statusRepoList, "MyService");
 
-            //Act
+            // Act
             var serviceStatus = await statusControllerHelper.GetStatus();
 
-            //Assert
+            // Assert
             Assert.AreEqual(3, serviceStatus.StatusResponses.Count);
             Assert.AreEqual("MyService", serviceStatus.ServiceName);
             Assert.IsTrue(serviceStatus.NoErrors);
@@ -63,7 +63,7 @@ namespace ServiceLibrary.Helpers
         [TestMethod]
         public async Task GetStatus_MultipleStatusReposOneException_ReturnsCorrectContent()
         {
-            //Arrange
+            // Arrange
             var statusRepoList = new List<IStatusRepository>();
             List<StatusResponse> response = new List<StatusResponse>();
             Mock<IStatusRepository> statusRepoMock;
@@ -80,10 +80,10 @@ namespace ServiceLibrary.Helpers
 
             var statusControllerHelper = GetStatusControllerHelper(statusRepoList, "MyService");
 
-            //Act
+            // Act
             var serviceStatus = await statusControllerHelper.GetStatus();
 
-            //Assert
+            // Assert
             Assert.AreEqual(4, serviceStatus.StatusResponses.Count);
             Assert.AreEqual("MyService", serviceStatus.ServiceName);
             Assert.IsFalse(serviceStatus.NoErrors);
@@ -106,7 +106,7 @@ namespace ServiceLibrary.Helpers
 
                 Assert.IsTrue(statusResponse.Result.Contains("ERROR: System.Exception: MyException"));
                 Assert.IsFalse(statusResponse.NoErrors);
-            } 
+            }
         }
 
         private StatusControllerHelper GetStatusControllerHelper(List<IStatusRepository> statusRepos, string serviceName)
@@ -118,14 +118,14 @@ namespace ServiceLibrary.Helpers
         private IServiceLogRepository GetLogRepo()
         {
             var logRepo = new Mock<IServiceLogRepository>();
-            //logRepo.Setup(r => r.LogError(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(null);
+            // logRepo.Setup(r => r.LogError(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(null);
             return logRepo.Object;
         }
 
 
-       
 
-        private  IStatusRepository GetStatusRepo(string name, string accessInfo,string result)
+
+        private IStatusRepository GetStatusRepo(string name, string accessInfo, string result)
         {
             List<StatusResponse> responseDatas = new List<StatusResponse>();
             var responseData = new StatusResponse()
@@ -138,10 +138,10 @@ namespace ServiceLibrary.Helpers
 
             responseDatas.Add(responseData);
             var statusRepoMock = new Mock<IStatusRepository>();
-            statusRepoMock.Setup( r => r.GetStatuses(It.IsAny<int>())).ReturnsAsync( responseDatas);
+            statusRepoMock.Setup(r => r.GetStatuses(It.IsAny<int>())).ReturnsAsync(responseDatas);
             statusRepoMock.Setup(r => r.Name).Returns(name);
             statusRepoMock.Setup(r => r.AccessInfo).Returns(accessInfo);
-            return  statusRepoMock.Object;
+            return statusRepoMock.Object;
         }
 
     }

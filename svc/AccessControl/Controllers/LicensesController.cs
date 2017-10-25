@@ -151,14 +151,14 @@ namespace AccessControl.Controllers
         }
 
         /// <summary>
-        /// Provides license usage information 
+        /// Provides license usage information
         /// </summary>
         /// <remarks>
         /// Returns license usage for the given <paramref name="month" /> and <paramref name="year" />.
         /// </remarks>
         /// <param name="month">Optional. The number specifies the month to get license usage from.
         /// Valid value: __1-12__</param>
-        /// <param name="year">Optional. The number specifies the year to get license usage from. 
+        /// <param name="year">Optional. The number specifies the year to get license usage from.
         /// Valid value: __1900-2999__</param>
         /// <response code="200">OK.</response>
         /// <response code="400">Bad request.</response>
@@ -170,8 +170,8 @@ namespace AccessControl.Controllers
         {
             try
             {
-                //parameter constrain
-                if (month.HasValue )
+                // parameter constrain
+                if (month.HasValue)
                 {
                     if (month < minMonth || month > maxMonth) {
                         return BadRequest("Specified month is invalid");
@@ -195,7 +195,7 @@ namespace AccessControl.Controllers
                     }
                 }
 
-                //NOTE: number of month is taken from zero-based array (i.e. 0- jan, 11- dec)
+                // NOTE: number of month is taken from zero-based array (i.e. 0- jan, 11- dec)
                 var usage = await _repo.GetLicenseUsage(month, year);
                 var response = Request.CreateResponse(HttpStatusCode.OK, usage);
 

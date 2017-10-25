@@ -14,8 +14,6 @@ namespace SearchService
 
         }
 
-        public static string BlueprintConnectionString = ConfigurationManager.ConnectionStrings["Blueprint"].ConnectionString;
-
         public static string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
 
         public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];

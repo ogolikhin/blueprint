@@ -41,7 +41,7 @@ namespace FileStore.Repositories
             int bytesRead = 0;
             byte[] buffer = null;
             DbConnection dbConnection = null;
-    
+
             // In the WriteToStream method, we proceed to read the file chunks progressively from the db
             // and flush these bits to the output stream.
 
@@ -62,14 +62,14 @@ namespace FileStore.Repositories
                         count = (int)(_file.FileSize - position);
                     }
                     buffer = _filesRepository.ReadChunkContent(dbConnection, _file.FileId, count, position);
-                    bytesRead = buffer.Length; 
+                    bytesRead = buffer.Length;
                     await outputStream.WriteAsync(buffer, 0, bytesRead);
                     position += bytesRead;
 
-                } while( position < _file.FileSize);
+                } while (position < _file.FileSize);
 
             }
-            catch 
+            catch
             {
                 // log error here
                 throw;
@@ -85,7 +85,7 @@ namespace FileStore.Repositories
                 buffer = null;
             }
         }
-       
+
         private void CheckInitialized()
         {
             if (_file == null)

@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
-	public interface IStatusRepository
-	{
+    public interface IStatusRepository
+    {
         string Name { get; set; }
         string AccessInfo { get; set; }
         Task<List<StatusResponse>> GetStatuses(int timeout);

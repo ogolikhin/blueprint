@@ -2,10 +2,8 @@
 
 namespace ArtifactStore.Models.Review
 {
-    public class AssignArtifactsApprovalParameter
+    public class AssignArtifactsApprovalParameter : ReviewItemsRemovalParams
     {
-        public IEnumerable<int> ArtifactIds { get; set; }
-
         public bool ApprovalRequired { get; set; }
     }
 

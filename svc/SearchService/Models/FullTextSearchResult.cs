@@ -42,7 +42,7 @@ namespace SearchService.Models
 
         public int? LastModifiedUser { get; set; }
 
-        public string LastModifiedBy { get; set; }  
+        public string LastModifiedBy { get; set; }
 
         private DateTime? _lastModifiedDateTime;
         public DateTime? LastModifiedDateTime
@@ -51,7 +51,7 @@ namespace SearchService.Models
             set
             {
                 _lastModifiedDateTime = value != null
-                    ? DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc) 
+                    ? DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc)
                     : default(DateTime?);
             }
         }

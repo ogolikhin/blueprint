@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 
 using System;
 using System.Text;
@@ -18,7 +18,7 @@ namespace Logging.Database.Utility
             {
                 var settings = new XmlWriterSettings()
                 {
-                    OmitXmlDeclaration = true   // Do not add xml declaration
+                    OmitXmlDeclaration = true // Do not add xml declaration
                 };
 
                 var writer = new StringBuilder();
@@ -100,11 +100,11 @@ namespace Logging.Database.Utility
             return "";
         }
 
-        //internal static DateTimeOffset GetTimestamp(EventEntry entry, string payloadItem)
-        //{
+        // internal static DateTimeOffset GetTimestamp(EventEntry entry, string payloadItem)
+        // {
         //    var eventSchema = entry.Schema;
 
-        //    for (int i = 0; i < entry.Payload.Count; i++)
+        // for (int i = 0; i < entry.Payload.Count; i++)
         //    {
         //        if (eventSchema.Payload[i].EqualsOrdinalIgnoreCase(payloadItem))
         //        {
@@ -112,7 +112,7 @@ namespace Logging.Database.Utility
         //        }
         //    }
 
-        //    return entry.Timestamp;
-        //}
+        // return entry.Timestamp;
+        // }
     }
 }

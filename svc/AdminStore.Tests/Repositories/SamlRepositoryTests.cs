@@ -20,10 +20,10 @@ namespace AdminStore.Repositories
         [ExpectedException(typeof(ArgumentNullException))]
         public void ProcessResponse_SamlResponse_Null_ArgumentNullException()
         {
-            //Arrange
+            // Arrange
             var samlRepository = new SamlRepository();
             var fedAuthSettingsMock = new Mock<IFederatedAuthenticationSettings>();
-            //Act&assert
+            // Act&assert
             samlRepository.ProcessResponse(null, fedAuthSettingsMock.Object);
         }
 
@@ -31,16 +31,16 @@ namespace AdminStore.Repositories
         [ExpectedException(typeof(ArgumentNullException))]
         public void ProcessResponse_FederatedAuthenticationSettings_Null_ArgumentNullException()
         {
-            //Arrange
+            // Arrange
             var samlRepository = new SamlRepository();
-            //Act&assert
+            // Act&assert
             samlRepository.ProcessResponse("<saml:Assertion/>", null);
         }
 
         [TestMethod]
         public void ProcessResponse_WrongFormat_FederatedAuthenticationException()
         {
-            //Arrange
+            // Arrange
             const string password = "blueprint";
             const string claimType = "Username";
             const string userName = "admin";
@@ -55,12 +55,12 @@ namespace AdminStore.Repositories
             var fedAuthSettingsMock = new Mock<IFederatedAuthenticationSettings>();
             fedAuthSettingsMock.SetupGet(p => p.NameClaimType).Returns(claimType);
             fedAuthSettingsMock.SetupGet(p => p.Certificate).Returns(signingCert);
-            //Act
+            // Act
             try
             {
                 samlRepository.ProcessResponse(samltoken, fedAuthSettingsMock.Object);
             }
-            //Assert
+            // Assert
             catch (FederatedAuthenticationException e)
             {
                 Assert.AreEqual(FederatedAuthenticationErrorCode.WrongFormat, e.ErrorCode);
@@ -74,7 +74,7 @@ namespace AdminStore.Repositories
         [TestMethod]
         public void ProcessResponse_WrongFormat_FixDev1727_FederatedAuthenticationException()
         {
-            //Arrange
+            // Arrange
             const string password = "blueprint";
             const string claimType = "Username";
 
@@ -87,12 +87,12 @@ namespace AdminStore.Repositories
             fedAuthSettingsMock.SetupGet(p => p.NameClaimType).Returns(claimType);
             fedAuthSettingsMock.SetupGet(p => p.Certificate).Returns(signingCert);
 
-            //Act
+            // Act
             try
             {
                 samlRepository.ProcessResponse(samltoken, fedAuthSettingsMock.Object);
             }
-            //Assert
+            // Assert
             catch (FederatedAuthenticationException e)
             {
                 Assert.AreEqual(FederatedAuthenticationErrorCode.WrongFormat, e.ErrorCode);
@@ -106,7 +106,7 @@ namespace AdminStore.Repositories
         [TestMethod]
         public void ProcessEncodedResponse_Success()
         {
-            //Arrange
+            // Arrange
             const string password = "blueprint";
             const string claimType = "Username";
             const string userName = "admin";
@@ -121,10 +121,10 @@ namespace AdminStore.Repositories
             var fedAuthSettingsMock = new Mock<IFederatedAuthenticationSettings>();
             fedAuthSettingsMock.SetupGet(p => p.NameClaimType).Returns(claimType);
             fedAuthSettingsMock.SetupGet(p => p.Certificate).Returns(signingCert);
-            //Act
+            // Act
             var result = samlRepository.ProcessEncodedResponse(encodedSamltoken, fedAuthSettingsMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result.Identity.IsAuthenticated);
             Assert.AreEqual(userName, result.Identity.Name);
         }
@@ -132,7 +132,7 @@ namespace AdminStore.Repositories
         [TestMethod]
         public void ProcessResponse_Success()
         {
-            //Arrange
+            // Arrange
             const string password = "blueprint";
             const string claimType = "Username";
             const string userName = "admin";
@@ -146,10 +146,10 @@ namespace AdminStore.Repositories
             var fedAuthSettingsMock = new Mock<IFederatedAuthenticationSettings>();
             fedAuthSettingsMock.SetupGet(p => p.NameClaimType).Returns(claimType);
             fedAuthSettingsMock.SetupGet(p => p.Certificate).Returns(signingCert);
-            //Act
+            // Act
             var result = samlRepository.ProcessResponse(samltoken, fedAuthSettingsMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result.Identity.IsAuthenticated);
             Assert.AreEqual(userName, result.Identity.Name);
         }
@@ -157,7 +157,7 @@ namespace AdminStore.Repositories
         [TestMethod]
         public void ProcessResponse_Failure_SecurityTokenValidationException()
         {
-            //Arrange
+            // Arrange
             const string password = "blueprint";
             const string claimType = "Username";
             const string userName = "admin";
@@ -171,12 +171,12 @@ namespace AdminStore.Repositories
             var fedAuthSettingsMock = new Mock<IFederatedAuthenticationSettings>();
             fedAuthSettingsMock.SetupGet(p => p.NameClaimType).Returns("Username");
             fedAuthSettingsMock.SetupGet(p => p.Certificate).Returns(signingCert);
-            //Act
+            // Act
             try
             {
                 samlRepository.ProcessResponse(samltoken, fedAuthSettingsMock.Object);
             }
-            //Assert
+            // Assert
             catch (FederatedAuthenticationException e)
             {
                 Assert.AreEqual(FederatedAuthenticationErrorCode.NotTrustedIssuer, e.ErrorCode);

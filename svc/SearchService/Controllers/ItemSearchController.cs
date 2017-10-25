@@ -55,7 +55,7 @@ namespace SearchService.Controllers
         [Route("fulltext")]
         public async Task<FullTextSearchResultSet> SearchFullText([FromBody] FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null)
         {
-            
+
                 // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
@@ -97,7 +97,7 @@ namespace SearchService.Controllers
             // get the UserId from the session
             int userId = ValidateAndExtractUserId();
 
-            _criteriaValidator.Validate(SearchOption.FullTextSearch, ModelState.IsValid, searchCriteria, ServiceConstants.MinSearchQueryCharLimit); 
+            _criteriaValidator.Validate(SearchOption.FullTextSearch, ModelState.IsValid, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
@@ -107,7 +107,7 @@ namespace SearchService.Controllers
 
                 results.PageSize = searchPageSize;
                 results.TotalPages = results.TotalCount >= 0
-                    ? (int) Math.Ceiling((double) results.TotalCount/searchPageSize)
+                    ? (int)Math.Ceiling((double)results.TotalCount / searchPageSize)
                     : -1;
 
                 return results;
@@ -128,7 +128,7 @@ namespace SearchService.Controllers
         /// </summary>
         /// <param name="searchCriteria">SearchCriteria object</param>
         /// <param name="startOffset">Search start offset</param>
-        /// <param name="pageSize">Page Size</param>        
+        /// <param name="pageSize">Page Size</param>
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="404">Not Found.</response>
@@ -136,8 +136,8 @@ namespace SearchService.Controllers
         [HttpPost, NoCache, SessionRequired]
         [Route("name")]
         public async Task<ItemNameSearchResultSet> SearchName(
-            [FromBody] ItemNameSearchCriteria searchCriteria, 
-            int? startOffset = null, 
+            [FromBody] ItemNameSearchCriteria searchCriteria,
+            int? startOffset = null,
             int? pageSize = null)
         {
             // get the UserId from the session
@@ -157,7 +157,7 @@ namespace SearchService.Controllers
                 foreach (var searchItem in results.Items)
                 {
                     searchItem.LockedByUser = searchItem.LockedByUserId.HasValue
-                        ? new UserGroup {Id = searchItem.LockedByUserId}
+                        ? new UserGroup { Id = searchItem.LockedByUserId }
                         : null;
                 }
 

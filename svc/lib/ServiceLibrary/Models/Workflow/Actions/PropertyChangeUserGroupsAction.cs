@@ -13,11 +13,11 @@ namespace ServiceLibrary.Models.Workflow.Actions
 
         protected override PropertySetResult PopulatePropertyLite(WorkflowPropertyType propertyType)
         {
-            if (!propertyType.PrimitiveType.HasValue || 
+            if (!propertyType.PrimitiveType.HasValue ||
                 propertyType.PrimitiveType.Value != PropertyPrimitiveType.User ||
                 !String.IsNullOrEmpty(PropertyValue))
             {
-                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty, 
+                return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty,
                     "Property type is not a user property anymore. Property change action is currently invalid");
             }
 

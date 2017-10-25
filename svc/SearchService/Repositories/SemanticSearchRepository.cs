@@ -107,14 +107,13 @@ namespace SearchService.Repositories
         {
             var prm = new DynamicParameters();
             prm.Add("@returnNonRestrictedOnly", false);
-            var settings = (await _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", prm, commandType: CommandType.StoredProcedure)).ToDictionary(f => f.Key, f => f.Value);
+            var elasticsearchSemanticSearchIndex =
+                (await
+                    _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", prm,
+                        commandType: CommandType.StoredProcedure)).FirstOrDefault(
+                            s => s.Key == ElasticsearchSemanticSearchIndexKey);
 
-            if (settings.ContainsKey(ElasticsearchSemanticSearchIndexKey))
-            {
-                return settings[ElasticsearchSemanticSearchIndexKey];
-            }
-
-            return string.Empty;
+            return elasticsearchSemanticSearchIndex == null ? string.Empty : elasticsearchSemanticSearchIndex.Value;
         }
     }
 }

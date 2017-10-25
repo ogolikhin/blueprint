@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Nest;
 using SearchService.Models;
@@ -13,24 +12,20 @@ namespace SearchService.Helpers.SemanticSearch
     [ElasticsearchType(Name = "semantic_search_items")]
     public class SemanticSearchItem
     {
-        [Text(Name = "project_id")]
+        [Number(Name = "project_id")]
         public int ProjectId { get; set; }
-
-        [Text(Name = "end_revision")]
+        [Number(Name = "end_revision")]
         public int EndRevision { get; set; }
-
-        [Text(Name = "latest_changing_revision")]
+        [Number(Name = "latest_changing_revision")]
         public int LatestChangingRevision { get; set; }
-
-        [Text(Name = "name")]
+        [Text(Name = "name", Analyzer = "blueprint_analyzer")]
         public string Name { get; set; }
-
-        [Text(Name = "search_text")]
+        [Text(Name = "search_text", Analyzer = "blueprint_analyzer")]
         public string SearchText { get; set; }
     }
     public sealed class ElasticSearchEngine : SearchEngine
     {
-        private IElasticClient _elasticClient;
+        private readonly IElasticClient _elasticClient;
         private const string IdFieldKey = "_id";
 
         public ElasticSearchEngine(string connectionString, ISemanticSearchRepository semanticSearchRepository)
@@ -42,7 +37,7 @@ namespace SearchService.Helpers.SemanticSearch
             _elasticClient = new ElasticClient(connectionSettings);
         }
 
-        internal ElasticSearchEngine(string tenantId, IElasticClient elasticClient, ISemanticSearchRepository semanticSearchRepository)
+        internal ElasticSearchEngine(IElasticClient elasticClient, ISemanticSearchRepository semanticSearchRepository)
             : base(semanticSearchRepository)
         {
             _elasticClient = elasticClient;

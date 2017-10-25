@@ -17,7 +17,6 @@ namespace SearchService.Helpers.SemanticSearch
     public class ElasticSearchEngineTests
     {
         private ISearchEngine _elasticSearchEngine;
-        private string _fakeTenantId = "FAKETENANT_1234567890";
         private Mock<ISemanticSearchRepository> _semanticSearchRepository;
         private Mock<IElasticClient> _elasticClient;
 
@@ -38,7 +37,7 @@ namespace SearchService.Helpers.SemanticSearch
             _elasticClient.Setup(e => e.Ping(It.IsAny<Func<PingDescriptor, IPingRequest>>()))
                 .Returns(mockResponse.Object);
 
-            _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
+            _elasticSearchEngine = new ElasticSearchEngine(_elasticClient.Object, _semanticSearchRepository.Object);
 
             _elasticSearchEngine.PerformHealthCheck();
         }
@@ -51,7 +50,7 @@ namespace SearchService.Helpers.SemanticSearch
 
             _semanticSearchRepository.Setup(s => s.GetSemanticSearchIndex()).ReturnsAsync("test");
 
-            _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
+            _elasticSearchEngine = new ElasticSearchEngine(_elasticClient.Object, _semanticSearchRepository.Object);
 
             await _elasticSearchEngine.GetSemanticSearchSuggestions(new SearchEngineParameters(1, 1, true, null));
         }
@@ -65,7 +64,7 @@ namespace SearchService.Helpers.SemanticSearch
 
             _semanticSearchRepository.Setup(s => s.GetSemanticSearchIndex()).ReturnsAsync("test");
 
-            _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
+            _elasticSearchEngine = new ElasticSearchEngine(_elasticClient.Object, _semanticSearchRepository.Object);
 
             await _elasticSearchEngine.GetSemanticSearchSuggestions(new SearchEngineParameters(1, 1, true, null));
         }
@@ -76,7 +75,7 @@ namespace SearchService.Helpers.SemanticSearch
             var searchParameters = new SearchEngineParameters(1, 1, true, new HashSet<int>());
              _semanticSearchRepository.Setup(s => s.GetSemanticSearchIndex()).ReturnsAsync((string)null);
 
-            _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
+            _elasticSearchEngine = new ElasticSearchEngine(_elasticClient.Object, _semanticSearchRepository.Object);
 
             var result = await _elasticSearchEngine.GetSemanticSearchSuggestions(searchParameters);
 
@@ -113,7 +112,7 @@ namespace SearchService.Helpers.SemanticSearch
             _semanticSearchRepository.Setup(s => s.GetSuggestedArtifactDetails(It.IsAny<List<int>>(), It.IsAny<int>()))
                 .ReturnsAsync(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 2 } });
 
-            _elasticSearchEngine = new ElasticSearchEngine(_fakeTenantId, _elasticClient.Object, _semanticSearchRepository.Object);
+            _elasticSearchEngine = new ElasticSearchEngine(_elasticClient.Object, _semanticSearchRepository.Object);
 
             var result = await _elasticSearchEngine.GetSemanticSearchSuggestions(searchParameters);
 

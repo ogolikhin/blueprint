@@ -1242,9 +1242,9 @@ namespace ArtifactStore.Repositories
             var updatingArtifacts = GetReviewArtifacts(content, resultErrors, rdReviewContents);
 
             // For Informal review
-            await ExcludeDeletedArtifacts(propertyResult, resultErrors, updatingArtifacts);
+            await ExcludeDeletedArtifacts(content, propertyResult, resultErrors, updatingArtifacts);
 
-            await ExcludeArtifactsWithoutReadPermissions(userId, resultErrors, updatingArtifacts);
+            await ExcludeArtifactsWithoutReadPermissions(content, userId, resultErrors, updatingArtifacts);
 
             if (updatingArtifacts.Any())
             {
@@ -1271,7 +1271,8 @@ namespace ArtifactStore.Repositories
             return result;
         }
 
-        private async Task ExcludeArtifactsWithoutReadPermissions(int userId, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
+        private async Task ExcludeArtifactsWithoutReadPermissions(AssignArtifactsApprovalParameter content,
+            int userId, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
         {
             var updatingArtifactIds = updatingArtifacts.Select(ua => ua.Id);
             var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(updatingArtifactIds, userId);
@@ -1281,7 +1282,8 @@ namespace ArtifactStore.Repositories
             var artifactsWithReadPermissionsCount = updatingArtifactIdsWithReadPermissions.Count();
             var updatingArtifactsCount = updatingArtifactIds.Count();
 
-            if (artifactsWithReadPermissionsCount != updatingArtifactsCount)
+            // Only show error message if on client side user have an outdated data about deleted artifacts from review
+            if (content.SelectionType == SelectionType.Selected && artifactsWithReadPermissionsCount != updatingArtifactsCount)
             {
                 // Update ArtifactNotFound error with additional items count
                 var artifactNotFoundError = resultErrors.Where(re => re.ErrorCode == ErrorCodes.ArtifactNotFound).SingleOrDefault();
@@ -1298,20 +1300,25 @@ namespace ArtifactStore.Repositories
                         ErrorMessage = "There is no read permissions for some artifacts."
                     });
                 }
+            }
 
-                // Remove deleted items from the result
+            // Remove deleted items from the result
+            if (updatingArtifactIdsWithReadPermissions.Any())
+            {
                 updatingArtifacts.RemoveAll(ua => updatingArtifactIdsWithReadPermissions.Contains(ua.Id));
             }
         }
 
-        private async Task ExcludeDeletedArtifacts(PropertyValueString propertyResult, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
+        private async Task ExcludeDeletedArtifacts(AssignArtifactsApprovalParameter content,
+            PropertyValueString propertyResult, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
         {
             if (propertyResult.BaselineId == null || propertyResult.BaselineId < 1)
             {
                 var updatingArtifactIdsOnly = updatingArtifacts.Select(ua => ua.Id);
                 var deletedItemIds = await _artifactVersionsRepository.GetDeletedItems(updatingArtifactIdsOnly);
 
-                if (deletedItemIds != null && deletedItemIds.Any())
+                // Only show error message if on client side user have an outdated data about deleted artifacts from review
+                if (content.SelectionType == SelectionType.Selected && deletedItemIds != null && deletedItemIds.Any())
                 {
                     resultErrors.Add(new ReviewChangeItemsError()
                     {

@@ -26,7 +26,7 @@ namespace ArtifactStore.Controllers
         private Mock<IArtifactPermissionsRepository> mockArtifactPermissionsRepository;
         private Mock<IPrivilegesRepository> _mockSqlPrivilegesRepository;
         private ArtifactController artifactController;
-        private StandardArtifactTypes standardArtifactTypes;
+        private StandardArtifactTypes filter;
 
         [TestInitialize]
         public void Initialize()
@@ -52,7 +52,7 @@ namespace ArtifactStore.Controllers
                 }
             };
 
-            standardArtifactTypes = StandardArtifactTypes.All;
+            filter = StandardArtifactTypes.All;
 
             mockArtifactRepository = new Mock<IArtifactRepository>();
             mockServiceLogRepository = new Mock<IServiceLogRepository>();
@@ -287,7 +287,7 @@ namespace ArtifactStore.Controllers
         {
             // Arrange
             var artifacts = new List<StandardArtifactType> { new StandardArtifactType { Id = 1, Name = "CustomActor" } };
-            mockArtifactRepository.Setup(r => r.GetStandardArtifactTypes(standardArtifactTypes))
+            mockArtifactRepository.Setup(r => r.GetStandardArtifactTypes(filter))
                                   .ReturnsAsync(artifacts);
 
             _mockSqlPrivilegesRepository
@@ -295,7 +295,7 @@ namespace ArtifactStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             // Act
-            var result = await artifactController.GetStandardArtifactTypes(standardArtifactTypes);
+            var result = await artifactController.GetStandardArtifactTypes(filter);
 
             // Assert
             Assert.IsNotNull(result);
@@ -312,7 +312,7 @@ namespace ArtifactStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             // Act
-            await artifactController.GetStandardArtifactTypes(standardArtifactTypes);
+            await artifactController.GetStandardArtifactTypes(filter);
 
             // Assert
         }

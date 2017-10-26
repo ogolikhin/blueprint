@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using SearchService.Models;
 using SearchService.Repositories;
-using ServiceLibrary.Repositories;
 
 namespace SearchService.Helpers.SemanticSearch
 {

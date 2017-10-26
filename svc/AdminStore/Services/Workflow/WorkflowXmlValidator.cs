@@ -158,13 +158,24 @@ namespace AdminStore.Services.Workflow
             var statesWithIncomingTransitions = new HashSet<string>();
             var stateOutgoingTransitionSet = new HashSet<Tuple<string, string>>();
             var statesWithDuplicateOutgoingTransitions = new HashSet<string>();
+            var hasTransitionNameEmptyError = false;
             var hasActionTriggerNotSpecifiedError = false;
             foreach (var transition in workflow.TransitionEvents.FindAll(s => s != null))
             {
                 statesWithIncomingTransitions.Add(transition.ToState);
 
-                if (ValidatePropertyNotEmpty(transition.Name)
-                    && ValidatePropertyNotEmpty(transition.FromState)
+                if (!ValidatePropertyNotEmpty(transition.Name))
+                {
+                    if (!hasTransitionNameEmptyError)
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            ErrorCode = WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty
+                        });
+                        hasTransitionNameEmptyError = true;
+                    }
+                }
+                else if (ValidatePropertyNotEmpty(transition.FromState)
                     && !stateOutgoingTransitionSet.Add(Tuple.Create(transition.FromState, transition.Name)))
                 {
                     if (!statesWithDuplicateOutgoingTransitions.Contains(transition.FromState))
@@ -536,10 +547,9 @@ namespace AdminStore.Services.Workflow
         {
             ResetUpdateErrorFlags();
             UpdateReferenceStateNames(workflow);
-            var clone = WorkflowHelper.CloneViaXmlSerialization(workflow);
-            ValidateUpdateId(clone);
-            var result = ValidateXml(clone);
-            ValidateDuplicateIds(clone, result);
+            ValidateUpdateId(workflow);
+            var result = ValidateXml(workflow);
+            ValidateDuplicateIds(workflow, result);
 
             if (_hasUpdateInvalidIdError && result.Errors.All(e => e.ErrorCode != WorkflowXmlValidationErrorCodes.InvalidId))
             {
@@ -971,7 +981,7 @@ namespace AdminStore.Services.Workflow
                 }));
         }
 
-        #region Update To Convention Names
+        #region Validate Update Id
 
         private void ValidateUpdateId(IeWorkflow workflow)
         {

@@ -13,7 +13,6 @@ using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Services;
-using ServiceLibrary.Models.VersionControl;
 
 namespace ArtifactStore.Repositories
 {
@@ -1200,6 +1199,33 @@ namespace ArtifactStore.Repositories
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
         }
 
+        public async Task<IEnumerable<ReviewInfo>> GetReviewInfo(ISet<int> artifactIds, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
+            var artifactsWithReadPermissions = artifactsPermissions.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
+            var itemsRawData = await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, artifactsWithReadPermissions, addDrafts, revisionId);
+
+            var result = new List<ReviewInfo>();
+            foreach (var rawDataEntry in itemsRawData)
+            {
+                var rawDataString = rawDataEntry.RawData;
+                ReviewPackageRawData rawData;
+                var reviewInfo = new ReviewInfo
+                {
+                    ItemId = rawDataEntry.ItemId
+                };
+
+                if (ReviewRawDataHelper.TryRestoreData(rawDataString, out rawData))
+                {
+                    reviewInfo.ReviewStatus = rawData.Status;
+                    reviewInfo.ExpiryTimestamp = rawData.EndDate;
+                }
+                result.Add(reviewInfo);
+            }
+
+            return result;
+        }
+
         public async Task<ReviewChangeItemsStatusResult> AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
         {
             if ((content.ItemIds == null || !content.ItemIds.Any()) && content.SelectionType == SelectionType.Selected)
@@ -1242,28 +1268,37 @@ namespace ArtifactStore.Repositories
             var updatingArtifacts = GetReviewArtifacts(content, resultErrors, rdReviewContents);
 
             // For Informal review
-            await ExcludeDeletedArtifacts(propertyResult, resultErrors, updatingArtifacts);
+            await ExcludeDeletedArtifacts(content, propertyResult, resultErrors, updatingArtifacts);
 
-            await ExcludeArtifactsWithoutReadPermissions(userId, resultErrors, updatingArtifacts);
+            await ExcludeArtifactsWithoutReadPermissions(content, userId, resultErrors, updatingArtifacts);
 
-            foreach (var updatingArtifact in updatingArtifacts)
+            if (updatingArtifacts.Any())
             {
-                updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
+                foreach (var updatingArtifact in updatingArtifacts)
+                {
+                    updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
+                }
+
+                var resultArtifactsXml = ReviewRawDataHelper.GetStoreData(rdReviewContents);
+
+                Func<IDbTransaction, Task> transactionAction = async transaction =>
+                {
+                    await UpdateReviewArtifacts(reviewId, userId, resultArtifactsXml, transaction, false);
+                };
+
+                await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
             }
 
-            var resultArtifactsXml = ReviewRawDataHelper.GetStoreData(rdReviewContents);
-
-            Func<IDbTransaction, Task> transactionAction = async transaction =>
+            var result = new ReviewChangeItemsStatusResult();
+            if (resultErrors.Any())
             {
-                await UpdateReviewArtifacts(reviewId, userId, resultArtifactsXml, transaction, false);
-            };
-
-            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
-
-            return new ReviewChangeItemsStatusResult();
+                result.ReviewChangeItemErrors = resultErrors;
+            }
+            return result;
         }
 
-        private async Task ExcludeArtifactsWithoutReadPermissions(int userId, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
+        private async Task ExcludeArtifactsWithoutReadPermissions(AssignArtifactsApprovalParameter content,
+            int userId, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
         {
             var updatingArtifactIds = updatingArtifacts.Select(ua => ua.Id);
             var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(updatingArtifactIds, userId);
@@ -1273,7 +1308,8 @@ namespace ArtifactStore.Repositories
             var artifactsWithReadPermissionsCount = updatingArtifactIdsWithReadPermissions.Count();
             var updatingArtifactsCount = updatingArtifactIds.Count();
 
-            if (artifactsWithReadPermissionsCount != updatingArtifactsCount)
+            // Only show error message if on client side user have an outdated data about deleted artifacts from review
+            if (content.SelectionType == SelectionType.Selected && artifactsWithReadPermissionsCount != updatingArtifactsCount)
             {
                 // Update ArtifactNotFound error with additional items count
                 var artifactNotFoundError = resultErrors.Where(re => re.ErrorCode == ErrorCodes.ArtifactNotFound).SingleOrDefault();
@@ -1290,20 +1326,25 @@ namespace ArtifactStore.Repositories
                         ErrorMessage = "There is no read permissions for some artifacts."
                     });
                 }
+            }
 
-                // Remove deleted items from the result
+            // Remove deleted items from the result
+            if (updatingArtifactIdsWithReadPermissions.Any())
+            {
                 updatingArtifacts.RemoveAll(ua => updatingArtifactIdsWithReadPermissions.Contains(ua.Id));
             }
         }
 
-        private async Task ExcludeDeletedArtifacts(PropertyValueString propertyResult, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
+        private async Task ExcludeDeletedArtifacts(AssignArtifactsApprovalParameter content,
+            PropertyValueString propertyResult, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
         {
             if (propertyResult.BaselineId == null || propertyResult.BaselineId < 1)
             {
                 var updatingArtifactIdsOnly = updatingArtifacts.Select(ua => ua.Id);
                 var deletedItemIds = await _artifactVersionsRepository.GetDeletedItems(updatingArtifactIdsOnly);
 
-                if (deletedItemIds != null && deletedItemIds.Any())
+                // Only show error message if on client side user have an outdated data about deleted artifacts from review
+                if (content.SelectionType == SelectionType.Selected && deletedItemIds != null && deletedItemIds.Any())
                 {
                     resultErrors.Add(new ReviewChangeItemsError()
                     {

@@ -34,6 +34,7 @@ namespace AdminStore.Services.Workflow
         InitialStateDoesNotHaveOutgoingTransition,
         MultipleInitialStates,
         StateDoesNotHaveAnyTransitions,
+        TransitionEventNameEmpty,
         TransitionEventNameExceedsLimit24,
         PropertyChangeEventNameExceedsLimit24,
         NewArtifactEventNameExceedsLimit24,

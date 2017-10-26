@@ -65,12 +65,13 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<bool>("IsArtifactDeleted", isDeletedPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        public async Task<IEnumerable<int>> GetDeletedItems(IEnumerable<int> itemIds)
+        public async Task<IEnumerable<int>> GetDeletedAndNotInProjectItems(IEnumerable<int> itemIds, int projectId)
         {
             var parameters = new DynamicParameters();
-            var itemIdsTable = SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value");
+            var itemIdsTable = SqlConnectionWrapper.ToDataTable(itemIds);
             parameters.Add("@itemIds", itemIdsTable);
-            return await _connectionWrapper.QueryAsync<int>("GetDeletedItems", parameters, commandType: CommandType.StoredProcedure);
+            parameters.Add("@projectId", projectId);
+            return await _connectionWrapper.QueryAsync<int>("GetDeletedAndNotInProjectItems", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<DeletedItemInfo> GetDeletedItemInfo(int itemId)

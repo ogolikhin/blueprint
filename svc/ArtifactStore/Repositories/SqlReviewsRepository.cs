@@ -164,7 +164,7 @@ namespace ArtifactStore.Repositories
             page.SetDefaultValues(0, int.MaxValue);
             var participants = await GetReviewParticipantsAsync(containerId, page, userId, null, addDrafts);
 
-            var artifacts = await GetReviewArtifactsAsync<BaseReviewArtifact>(containerId, userId, page, revisionId, addDrafts);
+            var artifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(containerId, userId, page, revisionId, addDrafts);
             var artifactsMetrics = await GetReviewMetricsAsync(containerId, artifacts, participants);
 
             return new ReviewSummaryMetrics
@@ -199,7 +199,7 @@ namespace ArtifactStore.Repositories
             return reviewDetails;
         }
 
-        private async Task<ReviewArtifactContent> GetReviewMetricsAsync(int reviewId, ReviewArtifactsQueryResult<BaseReviewArtifact> artifacts, ReviewParticipantsContent participants)
+        private async Task<ReviewArtifactContent> GetReviewMetricsAsync(int reviewId, ReviewArtifactsQueryResult<ReviewedArtifact> artifacts, ReviewParticipantsContent participants)
         {
             int revisionId = int.MaxValue;
             var artifactIds = artifacts.Items.Select(a => a.Id).ToList();

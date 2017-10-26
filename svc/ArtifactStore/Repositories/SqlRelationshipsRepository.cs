@@ -143,18 +143,25 @@ namespace ArtifactStore.Repositories
             return result;
         }
 
-        private List<Relationship> GetReuseTraceRelationships(List<LinkInfo> links)
+        private List<Relationship> GetReuseTraceRelationships(List<LinkInfo> links, int itemId)
         {
             var result = new List<Relationship>();
             foreach (var link in links)
             {
-                if (result.All(i => i.ItemId == link.SourceItemId))
+                if (result.All(i => i.ItemId != link.SourceItemId))
                 {
                     result.Add(ComposeRelationship(link, TraceDirection.TwoWay));
                 }
             }
             return result;
         }
+
+        private IEnumerable<LinkInfo> UpdateReuseLinks(IEnumerable<LinkInfo> links, int itemId)
+        {
+            var result = links.Where(link => link.SourceArtifactId == itemId);
+            return result;
+        }
+
 
         public async Task<RelationshipResultSet> GetRelationships(
             int artifactId,
@@ -188,6 +195,8 @@ namespace ArtifactStore.Repositories
             var reuseLinks = results.Where(a => a.LinkType == LinkType.Reuse).ToList();
             // get collection of other links exept exclude parent/child links and reuse links
             var otherLinks = results.Except(internalParentChildLinks).Except(reuseLinks).Where(link => link.LinkType != LinkType.Manual).ToList();
+            // modify reuse links by combining matching pais (source match destination on other) and add them back to coolection of otherlinks
+            otherLinks.AddRange(UpdateReuseLinks(reuseLinks, itemId));
 
             var manualTraceRelationships = GetManualTraceRelationships(manualLinks, itemId);
             var otherTraceRelationships = new List<Relationship>();
@@ -204,6 +213,15 @@ namespace ArtifactStore.Repositories
                         relationship = ComposeRelationship(otherLink, traceDirection);
                     }
                 }
+                else if (otherLink.LinkType == LinkType.Reuse)
+                {
+                    traceDirection = TraceDirection.TwoWay;
+                    var itemInfo = await _artifactPermissionsRepository.GetItemInfo(otherLink.DestinationArtifactId, userId, addDrafts, revisionId);
+                    if (itemInfo != null)
+                    {
+                        relationship = ComposeRelationship(otherLink, traceDirection);
+                    }
+                }
                 else
                 {
                     relationship = ComposeRelationship(otherLink, traceDirection);
@@ -213,8 +231,6 @@ namespace ArtifactStore.Repositories
                     otherTraceRelationships.Add(relationship);
                 }
             }
-            // modify reuse links by combining matching pais (source match destination on other)
-            otherTraceRelationships.AddRange(GetReuseTraceRelationships(reuseLinks));
 
             var distinctItemIds = new HashSet<int>();
             foreach (var result in results)

@@ -98,6 +98,12 @@ namespace ArtifactStore.Repositories
                 ThrowUserCannotAccessReviewException(containerId);
             }
 
+            DateTime? closedDate = null;
+            if (reviewDetails.ReviewPackageStatus == ReviewPackageStatus.Closed)
+            {
+                closedDate = await GetReviewCloseDateAsync(containerId);
+            }
+
             var reviewSource = new ReviewSource();
             if (reviewDetails.BaselineId.HasValue)
             {
@@ -135,13 +141,14 @@ namespace ArtifactStore.Repositories
                 RequireAllArtifactsReviewed = reviewDetails.RequireAllArtifactsReviewed,
                 ShowOnlyDescription = reviewDetails.ShowOnlyDescription,
                 ExpirationDate = reviewDetails.ExpirationDate,
+                ClosedDate = closedDate,
                 IsExpired = reviewDetails.ExpirationDate < _currentDateTimeService.GetUtcNow(),
-                ArtifactsStatus = new ReviewArtifactsStatus
+                ArtifactsStatus = new ReviewParticipantArtifactsStats
                 {
                     Approved = reviewDetails.Approved,
                     Disapproved = reviewDetails.Disapproved,
                     Pending = reviewDetails.Pending,
-                    ViewedAll = reviewDetails.Viewed
+                    Viewed = reviewDetails.Viewed
                 },
                 ReviewType = reviewType,
                 RevisionId = reviewDetails.RevisionId,
@@ -2060,6 +2067,15 @@ namespace ArtifactStore.Repositories
             }
 
             return resultTask;
+        }
+
+        private async Task<DateTime> GetReviewCloseDateAsync(int reviewId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@reviewId", reviewId);
+
+            var closedDate = await _connectionWrapper.ExecuteScalarAsync<DateTime>("GetReviewCloseDateTime", param, commandType: CommandType.StoredProcedure);
+            return DateTime.SpecifyKind(closedDate, DateTimeKind.Utc); ;
         }
 
         public async Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, int userId, Pagination pagination)

@@ -18,6 +18,6 @@ namespace ArtifactStore.Repositories
 
         Task<bool> LockArtifactAsync(int artifactId, int userId);
 
-        Task<IEnumerable<int>> GetDeletedItems(IEnumerable<int> itemIds);
+        Task<IEnumerable<int>> GetDeletedAndNotInProjectItems(IEnumerable<int> itemIds, int projectId);
     }
 }

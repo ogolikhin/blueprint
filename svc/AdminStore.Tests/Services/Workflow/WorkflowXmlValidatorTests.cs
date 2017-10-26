@@ -580,6 +580,32 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void Validate_TransitionEventNameEmpty_ReturnsOnlyOneTransitionEventNameEmptyError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents.Add(new IeTransitionEvent
+            {
+                FromState = _workflow.States[0].Name,
+                ToState = _workflow.States[2].Name
+            });
+
+            _workflow.TransitionEvents.Add(new IeTransitionEvent
+            {
+                FromState = _workflow.States[2].Name,
+                ToState = _workflow.States[0].Name
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
         public void Validate_TransitionCountOnStateMax_Success()
         {
             // Arrange

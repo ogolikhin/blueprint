@@ -1,6 +1,6 @@
 ﻿namespace ArtifactStore.Models.Review
 {
-    public class ReviewArtifactsStatusByParticipant
+    public class ReviewParticipantArtifactsStats
     {
         public int Approved { get; set; }
 

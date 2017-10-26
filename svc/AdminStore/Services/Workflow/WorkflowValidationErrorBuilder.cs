@@ -28,6 +28,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlInitialStateDoesNotHaveOutgoingTransition = "There is no Transition that originates from the initial State. Please ensure the <State> element that is set as the initial State is an outgoing component of at least one Transition--that is, the State name is a value for the Transition <FromState>. (The State ID and Transition <FromStateId> element could also be used.)";
         private const string TemplateXmlMultipleInitialStates = "More than one initial state has been defined; Workflows can have only one initial state. Please ensure only one of your <State> elements has the value 'true' for the IsInitial attribute.";
         private const string TemplateXmlStateDoesNotHaveAnyTransitions = "The State '{0}' is not connected to any other States by a Transition. Please ensure the State is an incoming or outgoing component of at least one Transition--that is, the State name is a value for the Transition <FromState>. (The State ID and Transition <FromStateId> could also be used.)";
+        private const string TemplateXmlTransitionEventNameEmpty = "<Transition> element: One or more <Name> child elements are missing, or do not have a value.";
         private const string TemplateXmlTransitionEventNameExceedsLimit24 = "Transition element '{0}': The value of the <Name> child element exceeds 24 characters.";
         private const string TemplateXmlPropertyChangeEventNameExceedsLimit24 = "Property Change element '{0}': The value of the <Name> child element exceeds 24 characters.";
         private const string TemplateXmlNewArtifactEventNameExceedsLimit24 = "New Artifact element '{0}': The value of the <Name> child element exceeds 24 characters.";
@@ -235,6 +236,10 @@ namespace AdminStore.Services.Workflow
                 case WorkflowXmlValidationErrorCodes.StateDoesNotHaveAnyTransitions:
                     template = TemplateXmlStateDoesNotHaveAnyTransitions;
                     errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty:
+                    template = TemplateXmlTransitionEventNameEmpty;
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionEventNameExceedsLimit24:
                     template = TemplateXmlTransitionEventNameExceedsLimit24;

@@ -32,6 +32,9 @@ namespace ArtifactStore.Models.Review
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? ExpirationDate { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? ClosedDate { get; set; }
+
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool IsExpired { get; set; }
 
@@ -41,7 +44,7 @@ namespace ArtifactStore.Models.Review
 
         public ReviewStatus Status { get; set; }
 
-        public ReviewArtifactsStatus ArtifactsStatus { get; set; }
+        public ReviewArtifactsStatusByParticipant ArtifactsStatus { get; set; }
 
         public int RevisionId { get; set; }
 

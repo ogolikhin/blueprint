@@ -85,6 +85,6 @@ namespace AdminStore.Repositories.Workflow
         Task<int> UnassignProjectsAndArtifactTypesFromWorkflowAsync(int workflowId, OperationScope scope, string search = null);
 
         Task<IEnumerable<WorkflowProjectSearch>> SearchProjectsByName(int workflowId, string search = null);
-        Task<int> CopyWorkflowAsync(int workflowId, int userId);
+        Task<int> CopyWorkflowAsync(int workflowId, int userId, string name);
     }
 }

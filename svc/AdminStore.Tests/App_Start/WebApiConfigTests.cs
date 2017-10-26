@@ -81,7 +81,7 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("GetWorkflowAvailableProjects", HttpMethod.Get, "workflow/1/folders/1/availablechildren");
             config.AssertAction<WorkflowController>("GetProjectArtifactTypesAssignedToWorkflowAsync", HttpMethod.Get, "workflow/1/projects/?offset=0&limit=20");
             config.AssertAction<WorkflowController>("AssignProjectsAndArtifactTypesToWorkflow", HttpMethod.Post, "workflow/1/assign");
-            config.AssertAction<WorkflowController>("CopyWorkflowAsync", HttpMethod.Post, "workflow/copy/1");
+            config.AssertAction<WorkflowController>("CopyWorkflowAsync", HttpMethod.Post, "workflow/copy/1?name=test");
             config.AssertAction<InstanceController>("SearchFolderByName", HttpMethod.Get, "instance/foldersearch?name=test");
             config.AssertAction<InstanceController>("DeleteInstanceFolder", HttpMethod.Delete, "instance/folders/1");
             config.AssertAction<InstanceController>("UpdateInstanceFolder", HttpMethod.Put, "instance/folders/1");

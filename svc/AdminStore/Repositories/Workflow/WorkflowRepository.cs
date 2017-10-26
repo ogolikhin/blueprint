@@ -1068,7 +1068,7 @@ namespace AdminStore.Repositories.Workflow
 
         }
 
-        public async Task<int> CopyWorkflowAsync(int workflowId, int userId)
+        public async Task<int> CopyWorkflowAsync(int workflowId, int userId, string name)
         {
             if (workflowId < 1)
             {
@@ -1084,6 +1084,7 @@ namespace AdminStore.Repositories.Workflow
 
             parameters.Add("@WorkflowId", workflowId);
             parameters.Add("@UserId", userId);
+            parameters.Add("@Name", name);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("CopyWorkflow", parameters, commandType: CommandType.StoredProcedure);

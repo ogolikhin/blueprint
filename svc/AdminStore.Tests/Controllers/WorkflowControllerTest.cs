@@ -216,6 +216,7 @@ namespace AdminStore.Controllers
         private WorkflowController _controller;
         private const int SessionUserId = 1;
         private const int WorkflowId = 1;
+        private string _workflowName = "TestWorkflow";
         private const InstanceAdminPrivileges AllProjectDataPermissions = InstanceAdminPrivileges.AccessAllProjectData;
         private const int FolderId = 1;
         private const int ProjectId = 1;
@@ -1571,11 +1572,11 @@ namespace AdminStore.Controllers
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            _workflowRepositoryMock.Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId))
+            _workflowRepositoryMock.Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId, _workflowName))
                 .ReturnsAsync(updatedWorkflowId);
 
             // act
-            var result = await _controller.CopyWorkflowAsync(WorkflowId) as OkNegotiatedContentResult<int>;
+            var result = await _controller.CopyWorkflowAsync(WorkflowId, _workflowName) as OkNegotiatedContentResult<int>;
             // assert
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Content);
@@ -1593,13 +1594,13 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
 
-            _workflowRepositoryMock.Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId))
+            _workflowRepositoryMock.Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId, _workflowName))
                 .ReturnsAsync(updatedWorkflowId);
 
             // act
             try
             {
-                await _controller.CopyWorkflowAsync(WorkflowId);
+                await _controller.CopyWorkflowAsync(WorkflowId, _workflowName);
             }
             catch (Exception ex)
             {
@@ -1609,6 +1610,37 @@ namespace AdminStore.Controllers
             // assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        [TestMethod]
+        public async Task CopyWorkflowAsync_WorkflowNameIsInvalid_ReturnBadRequestException()
+        {
+            // arrange
+            var updatedWorkflowId = 1;
+            Exception exception = null;
+
+            _workflowName = "Lorem ipsum dolor sit ame"; // 25 symbols - only max 24 is Ok
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowRepositoryMock.Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId, _workflowName))
+                .ReturnsAsync(updatedWorkflowId);
+
+            // act
+            try
+            {
+                await _controller.CopyWorkflowAsync(WorkflowId, _workflowName);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
         }
 
         #endregion

@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using ServiceLibrary.Repositories.ConfigControl;
+﻿using ServiceLibrary.Repositories.ConfigControl;
 
 namespace SearchService.Repositories
 {
@@ -27,20 +26,5 @@ namespace SearchService.Repositories
                 return _instance;
             }
         }
-
-        string _blueprintDatabase;
-        public string BlueprintDatabase
-        {
-            get
-            {
-                if (_blueprintDatabase == null)
-                {
-                    _blueprintDatabase =
-                        ConfigurationManager.ConnectionStrings["Blueprint"].ConnectionString;
-                }
-                return _blueprintDatabase;
-            }
-        }
-
     }
 }

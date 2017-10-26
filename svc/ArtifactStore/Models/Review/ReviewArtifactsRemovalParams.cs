@@ -10,9 +10,9 @@ namespace ArtifactStore.Models.Review
         Selected,
         Excluded
     }
-    public class ReviewArtifactsRemovalParams
+    public class ReviewItemsRemovalParams
     {
-        public IEnumerable<int> artifactIds { get; set; }
+        public IEnumerable<int> ItemIds { get; set; }
         public SelectionType SelectionType { get; set; }
     }
 }

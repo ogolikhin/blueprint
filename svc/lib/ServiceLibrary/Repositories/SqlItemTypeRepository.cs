@@ -36,6 +36,6 @@ namespace ServiceLibrary.Repositories
             parameters.Add("@standardItemTypeId", standardItemTypeId);
 
             return (await _connectionWrapper.QueryAsync<SqlItemType>("GetCustomItemTypeForProvidedStandardItemType", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
-        }  
+        }
     }
 }

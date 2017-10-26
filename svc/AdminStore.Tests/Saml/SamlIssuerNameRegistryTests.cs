@@ -25,30 +25,30 @@ namespace AdminStore.Saml
         [TestMethod]
         public void GetIssuerName_Success()
         {
-            //Arrange
+            // Arrange
             var issuerNameRegistry = new SamlIssuerNameRegistry(_signingCert);
             var securityToken = new X509SecurityToken(_signingCert);
 
-            //Act
+            // Act
             var result = issuerNameRegistry.GetIssuerName(securityToken);
 
-            //Assert
+            // Assert
             Assert.AreEqual("samlTestCertificate", result);
         }
 
         [TestMethod]
         public void GetIssuerName_InvalidToken_Failure()
         {
-            //Arrange
+            // Arrange
             var issuerNameRegistry = new SamlIssuerNameRegistry(_signingCert);
             var securityToken = SamlUtilities.CreateSaml2SecurityToken(_certificate, Password);
 
-            //Act
+            // Act
             try
             {
                 issuerNameRegistry.GetIssuerName(securityToken);
             }
-                //Assert
+                // Assert
             catch (SecurityTokenValidationException e)
             {
                 Assert.AreEqual("Invalid token.", e.Message);
@@ -62,19 +62,19 @@ namespace AdminStore.Saml
         [TestMethod]
         public void GetIssuerName_WrongThumbprint_Failure()
         {
-            //Arrange
+            // Arrange
             var issuerNameRegistry = new SamlIssuerNameRegistry(_signingCert);
 
             var dummyCertificate = File.ReadAllBytes("Certificates\\dummyCertificate.pfx");
             var certificate = new X509Certificate2(dummyCertificate, Password);
             var securityToken = new X509SecurityToken(certificate);
 
-            //Act
+            // Act
             try
             {
                 issuerNameRegistry.GetIssuerName(securityToken);
             }
-            //Assert
+            // Assert
             catch (SecurityTokenValidationException e)
             {
                 Assert.AreEqual("Untrusted issuer token.", e.Message);
@@ -88,13 +88,13 @@ namespace AdminStore.Saml
         [TestMethod]
         public void GetWindowsIssuerName_Success()
         {
-            //Arrange
+            // Arrange
             var issuerNameRegistry = new SamlIssuerNameRegistry(_signingCert);
 
-            //Act
+            // Act
             var windowsIssuerName = issuerNameRegistry.GetWindowsIssuerName();
 
-            //Assert
+            // Assert
             Assert.AreEqual("WINDOWS AUTHORITY", windowsIssuerName);
         }
     }

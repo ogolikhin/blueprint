@@ -60,8 +60,8 @@ namespace ArtifactStore.Repositories
             // Arrange
             int itemId = 1;
             int projectId = 1;
-            _cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId }}, new List<Discussion>());
-            _cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId }}, new List<DiscussionState>());
+            _cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId } }, new List<Discussion>());
+            _cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId } }, new List<DiscussionState>());
             // Act
             var result = (await _discussionsRepository.GetDiscussions(itemId, projectId)).ToList();
             Assert.AreEqual(0, result.Count);
@@ -72,8 +72,8 @@ namespace ArtifactStore.Repositories
             // Arrange
             int itemId = 1;
             int projectId = 1;
-            _cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId} }, new List<Discussion> { new Discussion { ItemId = itemId, DiscussionId = 1, UserId = 1, Comment = "<html></html>"} });
-            _cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId }}, new List<DiscussionState> { new DiscussionState { DiscussionId = 1, IsClosed = false, Status = "Test Status" } });
+            _cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId } }, new List<Discussion> { new Discussion { ItemId = itemId, DiscussionId = 1, UserId = 1, Comment = "<html></html>" } });
+            _cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId } }, new List<DiscussionState> { new DiscussionState { DiscussionId = 1, IsClosed = false, Status = "Test Status" } });
             // Act
             var result = (await _discussionsRepository.GetDiscussions(itemId, projectId)).ToList();
 
@@ -100,7 +100,7 @@ namespace ArtifactStore.Repositories
             // Arrange
             int discussionId = 1;
             int projectId = 1;
-            _cxn.SetupQueryAsync("GetItemReplies", new Dictionary<string, object> { { "DiscussionId", discussionId }}, new List<Reply> { new Reply { ItemId = 1, DiscussionId = 1, ReplyId = 2, UserId = 1, Comment = "<html></html>" } });
+            _cxn.SetupQueryAsync("GetItemReplies", new Dictionary<string, object> { { "DiscussionId", discussionId } }, new List<Reply> { new Reply { ItemId = 1, DiscussionId = 1, ReplyId = 2, UserId = 1, Comment = "<html></html>" } });
             // Act
             var result = (await _discussionsRepository.GetReplies(discussionId, projectId)).ToList();
 

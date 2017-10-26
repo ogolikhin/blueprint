@@ -20,7 +20,7 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
-            Session[] result = { new Session {SessionId = guid } };
+            Session[] result = { new Session { SessionId = guid } };
             cxn.SetupQueryAsync("[AdminStore].GetSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
 
             // Act
@@ -38,7 +38,7 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
-            Session[] result = {};
+            Session[] result = { };
             cxn.SetupQueryAsync("[AdminStore].GetSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
 
             // Act
@@ -103,8 +103,8 @@ namespace AccessControl.Repositories
             int pn = 1;
             Session[] result =
             {
-                new Session {SessionId = new Guid("12345678901234567890123456789012")},
-                new Session {SessionId = new Guid("11111111111111111111111111111111")}
+                new Session { SessionId = new Guid("12345678901234567890123456789012") },
+                new Session { SessionId = new Guid("11111111111111111111111111111111") }
             };
             cxn.SetupQueryAsync("[AdminStore].SelectSessions", new Dictionary<string, object> { { "ps", ps }, { "pn", pn } }, result);
 
@@ -124,7 +124,7 @@ namespace AccessControl.Repositories
             var repository = new SqlSessionsRepository(cxn.Object);
             int ps = 100;
             int pn = 1;
-            Session[] result = {};
+            Session[] result = { };
             cxn.SetupQueryAsync("[AdminStore].SelectSessions", new Dictionary<string, object> { { "ps", ps }, { "pn", pn } }, result);
 
             // Act
@@ -264,7 +264,7 @@ namespace AccessControl.Repositories
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("00000000000000000000000000000000");
             DateTime? timeoutTime = DateTime.UtcNow;
-            var sessions = new Session[] {};
+            var sessions = new Session[] { };
             cxn.SetupQueryAsync("[AdminStore].EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "TimeoutTime", timeoutTime } }, sessions);
 
             // Act

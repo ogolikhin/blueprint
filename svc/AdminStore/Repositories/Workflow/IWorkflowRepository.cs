@@ -67,6 +67,9 @@ namespace AdminStore.Repositories.Workflow
         Task<int> UpdateWorkflowsAsync(IEnumerable<SqlWorkflow> workflows, int revision,
             IDbTransaction transaction = null);
 
+        Task UpdateWorkflowAsync(SqlWorkflow workflow, int revision,
+            IDbTransaction transaction = null);
+
         Task<IEnumerable<SqlState>> GetWorkflowStatesAsync(int workflowId);
 
         Task<IEnumerable<SqlWorkflowEventData>> GetWorkflowEventsAsync(int workflowId);
@@ -74,11 +77,13 @@ namespace AdminStore.Repositories.Workflow
         Task<int> CreateWorkflow(SqlWorkflow workflow, int revision, IDbTransaction transaction);
 
         Task<List<InstanceItem>> GetWorkflowAvailableProjectsAsync(int workflowId, int folderId);
-        Task<QueryResult<WorkflowProjectArtifactTypeDto>> GetProjectArtifactTypesAssignedtoWorkflowAsync(int workflowId, Pagination pagination, string search = null);
+        Task<QueryResult<WorkflowProjectArtifactTypesDto>> GetProjectArtifactTypesAssignedtoWorkflowAsync(int workflowId, Pagination pagination, string search = null);
 
-        Task<int> AssignProjectsAndArtifactTypesToWorkflow(int workFlowId, WorkflowAssignScope scope);
+        Task<AssignProjectsResult> AssignProjectsAndArtifactTypesToWorkflow(int workFlowId, WorkflowAssignScope scope);
 
-        Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workFlowId, int projectId, IEnumerable<int> artifactsIds);
+        Task<SyncResult> AssignArtifactTypesToProjectInWorkflow(int workFlowId, int projectId, OperationScope scope);
         Task<int> UnassignProjectsAndArtifactTypesFromWorkflowAsync(int workflowId, OperationScope scope, string search = null);
+
+        Task<IEnumerable<WorkflowProjectSearch>> SearchProjectsByName(int workflowId, string search = null);
     }
 }

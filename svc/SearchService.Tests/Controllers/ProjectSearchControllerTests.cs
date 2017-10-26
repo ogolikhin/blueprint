@@ -25,7 +25,7 @@ namespace SearchService.Controllers
         {
             // Arrange
             const int projectId = 10;
-            var searchCriteria = new SearchCriteria { Query = "Test"};
+            var searchCriteria = new SearchCriteria { Query = "Test" };
             var project = new ProjectSearchResult { ItemId = projectId, Name = searchCriteria.Query };
             var searchResult = new ProjectSearchResultSet { Items = new[] { project } };
             var controller = CreateController(searchCriteria, searchResult);

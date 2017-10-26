@@ -10,11 +10,11 @@ namespace ServiceLibrary.Models
         [TestMethod]
         public void Validate_PaginationNotSpecified_BadRequestResult()
         {
-            //arrange
+            // arrange
             BadRequestException exception = null;
             Pagination pagination = null;
 
-            //act
+            // act
             try
             {
                 pagination.Validate();
@@ -24,7 +24,7 @@ namespace ServiceLibrary.Models
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(ErrorMessages.InvalidPagination, exception.Message);
             Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
@@ -33,11 +33,11 @@ namespace ServiceLibrary.Models
         [TestMethod]
         public void Validate_OffsetIsNull_BadRequestResult()
         {
-            //arrange
+            // arrange
             BadRequestException exception = null;
             Pagination pagination = new Pagination();
 
-            //act
+            // act
             try
             {
                 pagination.Validate();
@@ -47,7 +47,7 @@ namespace ServiceLibrary.Models
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(ErrorMessages.IncorrectOffsetParameter, exception.Message);
             Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
@@ -56,11 +56,11 @@ namespace ServiceLibrary.Models
         [TestMethod]
         public void Validate_OffsetIsNegative_BadRequestResult()
         {
-            //arrange
+            // arrange
             BadRequestException exception = null;
             var pagination = new Pagination { Offset = -1, Limit = 25 };
 
-            //act
+            // act
             try
             {
                 pagination.Validate();
@@ -70,7 +70,7 @@ namespace ServiceLibrary.Models
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(ErrorMessages.IncorrectOffsetParameter, exception.Message);
             Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
@@ -79,11 +79,11 @@ namespace ServiceLibrary.Models
         [TestMethod]
         public void Validate_LimitIsNull_BadRequestResult()
         {
-            //arrange
+            // arrange
             BadRequestException exception = null;
             var pagination = new Pagination { Offset = 0, Limit = null };
 
-            //act
+            // act
             try
             {
                 pagination.Validate();
@@ -93,7 +93,7 @@ namespace ServiceLibrary.Models
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(ErrorMessages.IncorrectLimitParameter, exception.Message);
             Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
@@ -102,11 +102,11 @@ namespace ServiceLibrary.Models
         [TestMethod]
         public void Validate_LimitIsNegative_BadRequestResult()
         {
-            //arrange
+            // arrange
             BadRequestException exception = null;
             var pagination = new Pagination { Offset = 0, Limit = -1 };
 
-            //act
+            // act
             try
             {
                 pagination.Validate();
@@ -116,7 +116,7 @@ namespace ServiceLibrary.Models
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(ErrorMessages.IncorrectLimitParameter, exception.Message);
             Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
@@ -125,11 +125,11 @@ namespace ServiceLibrary.Models
         [TestMethod]
         public void Validate_LimitIsZero_BadRequestResult()
         {
-            //arrange
+            // arrange
             BadRequestException exception = null;
             var pagination = new Pagination { Offset = 0, Limit = 0 };
 
-            //act
+            // act
             try
             {
                 pagination.Validate();
@@ -139,7 +139,7 @@ namespace ServiceLibrary.Models
                 exception = ex;
             }
 
-            //assert
+            // assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(ErrorMessages.IncorrectLimitParameter, exception.Message);
             Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);

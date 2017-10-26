@@ -13,37 +13,38 @@ namespace SearchService.Services
 {
     public interface ISemanticSearchService
     {
-        Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(SemanticSearchSuggestionParameters parameters);
+        Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(SemanticSearchSuggestionParameters parameters, GetSemanticSearchSuggestionsAsyncDelegate getSuggestionsAsyncDelegate);
     }
-    public class SemanticSearchService: ISemanticSearchService
+    public class SemanticSearchService : ISemanticSearchService
     {
         private IArtifactPermissionsRepository _artifactPermissionsRepository;
         private ISemanticSearchRepository _semanticSearchRepository;
         private IUsersRepository _usersRepository;
-        private ISqlArtifactRepository _sqlArtifactRepository;
+        private IArtifactRepository _artifactRepository;
 
         public SemanticSearchService() : this(
                 new SemanticSearchRepository(),
-                new SqlArtifactPermissionsRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)),
-                new SqlUsersRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)), 
-                new SqlArtifactRepository(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString)))
+                new SqlArtifactPermissionsRepository(),
+                new SqlUsersRepository(),
+                new SqlArtifactRepository())
         {
-            
+
         }
         public SemanticSearchService(
-            ISemanticSearchRepository semanticSearchRepository, 
+            ISemanticSearchRepository semanticSearchRepository,
             IArtifactPermissionsRepository artifactPermissionRepository,
             IUsersRepository usersRepository,
-            ISqlArtifactRepository sqlArtifactRepository)
+            IArtifactRepository artifactRepository)
         {
             _artifactPermissionsRepository = artifactPermissionRepository;
             _semanticSearchRepository = semanticSearchRepository;
             _usersRepository = usersRepository;
-            _sqlArtifactRepository = sqlArtifactRepository;
+            _artifactRepository = artifactRepository;
         }
 
         public async Task<SuggestionsSearchResult> GetSemanticSearchSuggestions(
-            SemanticSearchSuggestionParameters parameters)
+            SemanticSearchSuggestionParameters parameters,
+            GetSemanticSearchSuggestionsAsyncDelegate getSuggestionsAsyncDelegate)
         {
             var artifactId = parameters.ArtifactId;
             var userId = parameters.UserId;
@@ -52,7 +53,7 @@ namespace SearchService.Services
                 throw new BadRequestException("Please specify a valid artifact id");
             }
 
-            var artifactDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(artifactId, userId);
+            var artifactDetails = await _artifactRepository.GetArtifactBasicDetails(artifactId, userId);
             if (artifactDetails == null)
             {
                 throw new ResourceNotFoundException(
@@ -64,7 +65,7 @@ namespace SearchService.Services
                     I18NHelper.FormatInvariant("Artifact Id {0} is deleted", artifactId), ErrorCodes.ArtifactNotFound);
             }
 
-            var itemTypePredefined = (ItemTypePredefined) artifactDetails.PrimitiveItemTypePredefined;
+            var itemTypePredefined = (ItemTypePredefined)artifactDetails.PrimitiveItemTypePredefined;
 
             if (isInvalidSemanticSearchArtifactType(itemTypePredefined))
             {
@@ -79,10 +80,10 @@ namespace SearchService.Services
             }
 
             var currentProject =
-                (await _sqlArtifactRepository.GetProjectNameByIdsAsync(new[] {artifactDetails.ProjectId}))
+                (await _artifactRepository.GetProjectNameByIdsAsync(new[] { artifactDetails.ProjectId }))
                     .FirstOrDefault();
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] {artifactId}, userId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, userId);
 
             RolePermissions permission;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
@@ -102,12 +103,21 @@ namespace SearchService.Services
             var searchEngineParameters = new SearchEngineParameters(artifactId, userId, isInstanceAdmin,
                 accessibleProjectIds.ToHashSet());
 
-            var suggestedArtifactResults =
-                await
-                    SemanticSearchExecutor.Instance.GetSemanticSearchSuggestions(searchEngineParameters);
+            var suggestedArtifactResults = await getSuggestionsAsyncDelegate(searchEngineParameters);
 
+            var artifactIds = suggestedArtifactResults.Select(s => s.Id);
 
-            //Get list of some basic artifact details from the list of returned ids.
+            var resultArtifactPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
+
+            suggestedArtifactResults.ForEach((artifact) =>
+            {
+                if (resultArtifactPermissions.ContainsKey(artifact.Id))
+                {
+                    artifact.HasReadPermission = resultArtifactPermissions[artifact.Id].HasFlag(RolePermissions.Read);
+                }
+            });
+
+            // Get list of some basic artifact details from the list of returned ids.
             suggestionsSearchResult.Items = suggestedArtifactResults;
 
             return suggestionsSearchResult;

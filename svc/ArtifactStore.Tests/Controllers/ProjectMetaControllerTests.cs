@@ -33,7 +33,7 @@ namespace ArtifactStore.Controllers
             // Act
             var result = await projectMetaController.GetProjectTypesAsync(projectId);
 
-            //Assert
+            // Assert
             Assert.AreSame(types, result);
         }
     }

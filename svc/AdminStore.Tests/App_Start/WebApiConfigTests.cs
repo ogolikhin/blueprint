@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(76, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(78, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -71,6 +71,7 @@ namespace AdminStore
             config.AssertAction<GroupsController>("RemoveMembersFromGroup", HttpMethod.Post, "/groups/10/members");
             config.AssertAction<GroupsController>("AssignMembers", HttpMethod.Post, "/groups/1/assign?search=test");
             config.AssertAction<WorkflowController>("ImportWorkflowAsync", HttpMethod.Post, "workflow/import");
+            config.AssertAction<WorkflowController>("SearchProjectsByName", HttpMethod.Get, "workflow/1/projectsearch?search=test");
             config.AssertAction<WorkflowController>("GetImportWorkflowErrorsAsync", HttpMethod.Get, "workflow/import/errors?guid=abc");
             config.AssertAction<WorkflowController>("GetWorkflow", HttpMethod.Get, "workflow/1");
             config.AssertAction<WorkflowController>("GetWorkflows", HttpMethod.Get, "workflow?offset=0&limit=20&sort=name&order=asc");
@@ -98,6 +99,7 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("CreateWorkflow", HttpMethod.Post, "workflow/create");
             config.AssertAction<WorkflowController>("UnassignProjectsAndArtifactTypesFromWorkflowAsync", HttpMethod.Post, "workflow/1/unassign");
             config.AssertAction<WorkflowController>("AssignArtifactTypesToProjectInWorkflow", HttpMethod.Post, "workflow/1/project/1/assign");
+            config.AssertAction<WorkflowController>("UpdateWorkflow", HttpMethod.Put, "workflow/1");
         }
 
         [TestMethod]

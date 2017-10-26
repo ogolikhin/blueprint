@@ -65,13 +65,13 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions to assign projects and artifact types</response>
-        /// <response code="404">Not Found. The workflow with current id were not found.</response> 
+        /// <response code="404">Not Found. The workflow with current id were not found.</response>
         /// <response code="409">Conflict. The workflow with the current id is active.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns></returns>
-        [HttpPost]       
+        [HttpPost]
         [Route("{workflowId:int:min(1)}/assign"), SessionRequired]
-        [ResponseType(typeof(AssignResult))]
+        [ResponseType(typeof(AssignProjectsResult))]
         public async Task<IHttpActionResult> AssignProjectsAndArtifactTypesToWorkflow(int workFlowid, [FromBody] WorkflowAssignScope workflowAssign)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
@@ -83,12 +83,12 @@ namespace AdminStore.Controllers
 
             if (workflowAssign.IsEmpty())
             {
-                return Ok(AssignResult.Empty);
+                return Ok(AssignProjectsResult.Empty);
             }
 
             var result = await _workflowRepository.AssignProjectsAndArtifactTypesToWorkflow(workFlowid, workflowAssign);
 
-            return Ok(new AssignResult() { TotalAssigned = result });
+            return Ok(result);
         }
 
 
@@ -97,29 +97,26 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <param name="workflowId">Id of chosen Workflow</param>
         /// <param name="projectId">Id of chosen Project</param>
-        /// <param name="artifactTypeIds">list of Id chosen Artifact Types</param>
+        /// <param name="scope">scope of artifact types assignment</param>
         /// <response code="200">OK. The artifact types were assigned to the workflow and to the project.</response>
         /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions to assign projects and artifact types</response>
-        /// <response code="404">Not Found. The workflow or project with current id were not found.</response> 
+        /// <response code="404">Not Found. The workflow or project with current id were not found.</response>
         /// <response code="409">Conflict. The workflow with the current id is active or workflow's project doesn't have any artifact types</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns>Returns TotalAdded and TotalDeleted. TotalAdded is a quantity of added artifact types, TotalDeleted is a quantity of removed artifact types</returns>
         [HttpPost]
         [Route("{workflowId:int:min(1)}/project/{projectId:int:min(1)}/assign"), SessionRequired]
         [ResponseType(typeof(SyncResult))]
-        public async Task<IHttpActionResult> AssignArtifactTypesToProjectInWorkflow(int workflowId, int projectId, [FromBody] IEnumerable<int> artifactTypeIds)
+        public async Task<IHttpActionResult> AssignArtifactTypesToProjectInWorkflow(int workflowId, int projectId, [FromBody] OperationScope scope)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            if (artifactTypeIds == null)
-                throw new BadRequestException(ErrorMessages.ArtifactTypeIdsNotValid, ErrorCodes.BadRequest);
+            if (scope == null) // just check this, for empty list of ids we should get custom message from SP
+                 throw new BadRequestException(ErrorMessages.ArtifactTypeIdsNotValid, ErrorCodes.BadRequest);
 
-            if (!artifactTypeIds.Any())
-                return Ok(SyncResult.Empty);
-
-            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(workflowId, projectId, artifactTypeIds);
+            var result = await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(workflowId, projectId, scope);
 
             return Ok(result);
         }
@@ -131,7 +128,7 @@ namespace AdminStore.Controllers
         /// Imports a workflow specified in the uploaded XML file. The file name is specified in Content-Disposition header,
         /// for example, Content-Disposition: workflow;filename=workflow.xml. The first parameter does not matter, can be workflow, file etc.
         /// The file name is required for messages.
-        /// 
+        ///
         /// </remarks>
         /// <response code="200">OK. The workflow is imported successfully from the uploaded XML file. The response contains Id of the new workflow.</response>
         /// <response code="400">Bad Request.
@@ -144,7 +141,7 @@ namespace AdminStore.Controllers
         /// * The user does not permissions to import workflows (currently the user is not an instance administrator).
         /// * The product does not have a license for the Workflow feature.</response>
         /// <response code="409">Conflict. The specified workflow conflicts with existing workflows or some specified elements,
-        ///   e.g. projects, artifact types etc., are not found. 
+        ///   e.g. projects, artifact types etc., are not found.
         ///   The errors can be retrieved with 'Get Import Workflow Errors' call
         ///   by the GUID returned in the response of this call.
         /// </response>
@@ -214,43 +211,43 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get not assigned projects for Workflow by workflowId and by folderId 
+        /// Get not assigned projects for Workflow by workflowId and by folderId
         /// </summary>
         /// <param name="workFlowId"></param>
-        /// <param name="folderId"></param>         
-        /// <response code="200">OK. List not assigned projects for Workflow</response>       
+        /// <param name="folderId"></param>
+        /// <response code="200">OK. List not assigned projects for Workflow</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">User doesn’t have permission to view projects not assigned to workflow.</response>
         /// <response code="404">Not Found. The workflow with workflowId or folder with folderId were not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// 
+        ///
         [HttpGet, NoCache]
         [Route("{workflowId:int:min(1)}/folders/{folderId:int:min(1)}/availablechildren"), SessionRequired]
-        [ResponseType(typeof(List<InstanceItem>))]       
+        [ResponseType(typeof(List<InstanceItem>))]
         public async Task<IHttpActionResult> GetWorkflowAvailableProjects(int workFlowId, int folderId)
-        {            
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);            
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            var availiableProjects = await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId);          
+            var availiableProjects = await _workflowRepository.GetWorkflowAvailableProjectsAsync(workFlowId, folderId);
 
-            return Ok(availiableProjects);        
+            return Ok(availiableProjects);
         }
 
         /// <summary>
         /// Get list of project artifact types assigned to a workflowId
         /// </summary>
-        /// <param name="workflowId"></param>   
+        /// <param name="workflowId"></param>
         /// <param name="pagination">Limit and offset values to query workflows</param>
-        /// <param name="search">(optional) Search query parameter</param>      
-        /// <response code="200">OK. List of assigned project artifact types for Workflow</response>       
+        /// <param name="search">(optional) Search query parameter</param>
+        /// <response code="200">OK. List of assigned project artifact types for Workflow</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">User doesn’t have permission to access project artifact types assigned to workflow.</response>
         /// <response code="404">Not Found. Project artifact types with workflowId were not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// 
+        ///
         [HttpGet, NoCache]
         [Route("{workflowId:int:min(1)}/projects"), SessionRequired]
-        [ResponseType(typeof(QueryResult<WorkflowProjectArtifactTypeDto>))]
+        [ResponseType(typeof(QueryResult<WorkflowProjectArtifactTypesDto>))]
         public async Task<IHttpActionResult> GetProjectArtifactTypesAssignedToWorkflowAsync(int workflowId, [FromUri] Pagination pagination, string search = null)
         {
             pagination.Validate();
@@ -258,7 +255,7 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            var availiableProjects = await _workflowRepository.GetProjectArtifactTypesAssignedtoWorkflowAsync(workflowId, pagination, 
+            var availiableProjects = await _workflowRepository.GetProjectArtifactTypesAssignedtoWorkflowAsync(workflowId, pagination,
                  search);
 
             return Ok(availiableProjects);
@@ -284,8 +281,32 @@ namespace AdminStore.Controllers
             SearchFieldValidator.Validate(search);
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            
+
             var result = await _workflowRepository.GetWorkflows(pagination, sorting, search, SortingHelper.SortWorkflows);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Search projects by name
+        /// </summary>
+        /// <param name="workflowId">workflow's id</param>
+        /// <param name="search">name of the project (or wildcard selection pattern).</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">BadRequest. Search parameter is not valid</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions to search projects</response>
+        /// <response code="404">Not Found. Workflow with workflowId was not found.</response>
+        [HttpGet, NoCache]
+        [Route("{workflowId:int:min(1)}/projectsearch"), SessionRequired]
+        [ResponseType(typeof(IEnumerable<WorkflowProjectSearch>))]
+        public async Task<IHttpActionResult> SearchProjectsByName(int workflowId, string search = null)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            SearchFieldValidator.Validate(search);
+
+            var result = await _workflowRepository.SearchProjectsByName(workflowId, search);
 
             return Ok(result);
         }
@@ -315,7 +336,7 @@ namespace AdminStore.Controllers
             {
                 throw new BadRequestException(ErrorMessages.CreateWorkfloModelIsEmpty, ErrorCodes.BadRequest);
             }
-           
+
             createWorkflowDto.Validate();
 
             var result = await _workflowService.CreateWorkflow(createWorkflowDto.Name, createWorkflowDto.Description, Session.UserId);
@@ -374,12 +395,12 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> UnassignProjectsAndArtifactTypesFromWorkflowAsync(int workflowId, [FromBody] OperationScope scope, string search = null)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            
+
             SearchFieldValidator.Validate(search);
 
             if (scope == null)
             {
-                throw new BadRequestException(ErrorMessages.AssignMemberScopeEmpty, ErrorCodes.BadRequest);
+                throw new BadRequestException(ErrorMessages.UnassignMemberScopeEmpty, ErrorCodes.BadRequest);
             }
 
             if (scope.IsEmpty())
@@ -388,7 +409,7 @@ namespace AdminStore.Controllers
             }
 
             var result = await _workflowRepository.UnassignProjectsAndArtifactTypesFromWorkflowAsync(workflowId, scope, search);
-            
+
             return Ok(new DeleteResult { TotalDeleted = result });
         }
 
@@ -422,6 +443,41 @@ namespace AdminStore.Controllers
             var versionId = await _workflowService.UpdateWorkflowStatusAsync(statusUpdate, workflowId, Session.UserId);
 
             return Ok(versionId);
+        }
+
+        /// <summary>
+        /// Update workflow
+        /// </summary>
+        /// <param name="workflowId">Workflow identity</param>
+        /// <param name="workflowDto">WorkflowDto model</param>
+        /// <response code="204">NoContent. Workflow is updated.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the workflow.</response>
+        /// <response code="404">NotFound. The workflow with the current id doesn’t exist or removed from the system.</response>
+        /// <response code="409">Conflict. The workflow with the current id is active,
+        /// or workflow without project/artifact type assignments cannot be activated,
+        /// or there is at least one project-artifact type assigned to the current workflow which is also assigned to another active workflow.
+        /// or if we try to make an update with  the name which is already exist</response>
+        [HttpPut]
+        [FeatureActivation(FeatureTypes.Workflow)]
+        [SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route("{workflowId:int:min(1)}")]
+        public async Task<HttpResponseMessage> UpdateWorkflow(int workflowId, [FromBody] UpdateWorkflowDto workflowDto)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            if (workflowDto == null)
+            {
+                throw new BadRequestException(ErrorMessages.WorkflowModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
+            workflowDto.Validate();
+
+            await _workflowService.UpdateWorkflowAsync(workflowDto, workflowId, Session.UserId);
+
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -478,7 +534,7 @@ namespace AdminStore.Controllers
         /// * The user does not permissions to import workflows (currently the user is not an instance administrator).
         /// * The product does not have a license for the Workflow feature.</response>
         /// <response code="409">Conflict. The specified workflow conflicts with existing workflows or some specified elements,
-        ///   e.g. projects, artifact types etc., are not found. 
+        ///   e.g. projects, artifact types etc., are not found.
         ///   The errors can be retrieved with 'Get Import Workflow Errors' call
         ///   by the GUID returned in the response of this call.
         /// </response>

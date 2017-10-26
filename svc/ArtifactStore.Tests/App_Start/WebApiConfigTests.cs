@@ -22,7 +22,7 @@ namespace ArtifactStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(42, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(47, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
             config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
             config.AssertAction<ArtifactController>("GetProjectChildren", HttpMethod.Get, "projects/1/children");
@@ -44,6 +44,7 @@ namespace ArtifactStore
             config.AssertAction<WorkflowController>("GetStateForArtifact", HttpMethod.Get, "artifacts/1/state");
             config.AssertAction<WorkflowController>("ChangeStateForArtifact", HttpMethod.Post, "artifacts/1/state");
             config.AssertAction<ReviewContainersController>("GetReviewSummary", HttpMethod.Get, "containers/1");
+            config.AssertAction<ReviewContainersController>("GetReviewSummaryMetrics", HttpMethod.Get, "containers/1/metrics");
             config.AssertAction<ReviewContainersController>("GetContentAsync", HttpMethod.Get, "containers/1/content");
             config.AssertAction<ReviewContainersController>("GetParticipantsAsync", HttpMethod.Get, "containers/1/participants");
             config.AssertAction<ReviewContainersController>("AddParticipantsToReview", HttpMethod.Put, "containers/1/participants");
@@ -62,7 +63,10 @@ namespace ArtifactStore
             config.AssertAction<ReviewContainersController>("RemoveArtifactsFromReviewAsync", HttpMethod.Post, "containers/1/artifacts/remove");
             config.AssertAction<ReviewContainersController>("UpdateReviewerStatusAsync", HttpMethod.Put, "containers/1/reviewer/status");
             config.AssertAction<ArtifactController>("GetProcessInformationAsync", HttpMethod.Post, "artifacts/processInfo");
-            config.AssertAction<ArtifactController>("GetStandardArtifactTypes", HttpMethod.Get, "artifacts/standardartifacttypes");
+            config.AssertAction<ArtifactController>("GetStandardArtifactTypes", HttpMethod.Get, "artifacts/standardartifacttypes?filter=1");
+            config.AssertAction<ReviewContainersController>("RemoveParticipantsFromReviewAsync", HttpMethod.Post, "containers/1/participants/remove");
+            config.AssertAction<ReviewContainersController>("GetReviewSettingsAsync", HttpMethod.Get, "containers/1/settings");
+            config.AssertAction<ReviewContainersController>("UpdateReviewSettingsAsync", HttpMethod.Put, "containers/1/settings");
         }
 
         [TestMethod]

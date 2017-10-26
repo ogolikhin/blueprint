@@ -14,7 +14,7 @@ namespace AdminStore.Models.Workflow
             // Arrange
             var workflow = WorkflowTestHelper.TestWorkflow;
             var clone = WorkflowHelper.CloneViaXmlSerialization(workflow);
-            
+
             // Act
             var actual = workflow.Equals(clone);
 

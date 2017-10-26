@@ -39,19 +39,19 @@ namespace AdminStore.Services.Workflow
 
         public WorkflowService()
             : this(
-                  new WorkflowRepository(), 
-                  new WorkflowXmlValidator(), 
+                  new WorkflowRepository(),
+                  new WorkflowXmlValidator(),
                   new SqlUsersRepository(),
-                  new WorkflowValidationErrorBuilder(), 
+                  new WorkflowValidationErrorBuilder(),
                   new SqlProjectMetaRepository(),
-                  new TriggerConverter(), 
+                  new TriggerConverter(),
                   new WorkflowActionPropertyValueValidator(),
                   new WorkflowDiff())
         {
             _workflowDataValidator = new WorkflowDataValidator(
-                _workflowRepository, 
+                _workflowRepository,
                 _usersRepository,
-                _projectMetaRepository, 
+                _projectMetaRepository,
                 _propertyValueValidator);
         }
 
@@ -170,7 +170,7 @@ namespace AdminStore.Services.Workflow
                     Active = false // imported workflows are inactive. Users need explicitly activate workflows via UI.
                 };
                 newWorkflow =
-                    (await _workflowRepository.CreateWorkflowsAsync(new[] {importParams}, publishRevision, transaction))
+                    (await _workflowRepository.CreateWorkflowsAsync(new[] { importParams }, publishRevision, transaction))
                         .FirstOrDefault();
 
                 if (newWorkflow != null)
@@ -355,16 +355,16 @@ namespace AdminStore.Services.Workflow
 
             workflowDetailsDto.NumberOfStates = workflowStates.Distinct().Count();
 
-            var transitionEventsCount = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.Transition
-                                                                  && e.FromStateId.HasValue 
+            var transitionEventsCount = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition
+                                                                  && e.FromStateId.HasValue
                                                                   && dataMaps.StateMap.ContainsKey(e.FromStateId.Value)
-                                                                  && e.ToStateId.HasValue 
+                                                                  && e.ToStateId.HasValue
                                                                   && dataMaps.StateMap.ContainsKey(e.ToStateId.Value)).Distinct().Count();
 
             var userIds = new HashSet<int>();
             var groupIds = new HashSet<int>();
 
-            var propertyChangeEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.PropertyChange
+            var propertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange
                                                                  && e.PropertyTypeId.HasValue
                                                                  && (dataMaps.PropertyTypeMap.ContainsKey(e.PropertyTypeId.Value)
                                                                  || WorkflowHelper.IsNameOrDescriptionProperty(e.PropertyTypeId.Value)))
@@ -376,7 +376,7 @@ namespace AdminStore.Services.Workflow
             propertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
             var propertyChangeEventsCount = propertyChangeEvents.Count;
 
-            var newArtifactEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.NewArtifact).Select(e => new IeNewArtifactEvent
+            var newArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).Select(e => new IeNewArtifactEvent
                                                                 {
                                                                     Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                                                                 }).Distinct().ToList();
@@ -391,9 +391,9 @@ namespace AdminStore.Services.Workflow
 
             workflowDetailsDto.Projects =
                 workflowProjectsAndArtifactTypes.Select(
-                    e => new WorkflowProjectDto {Id = e.ProjectId, Name = e.ProjectPath}).Distinct().ToList();
+                    e => new WorkflowProjectDto { Id = e.ProjectId, Name = e.ProjectPath }).Distinct().ToList();
             workflowDetailsDto.ArtifactTypes =
-                workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto {Name = e.ArtifactTypeName})
+                workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto { Name = e.ArtifactTypeName })
                     .Distinct()
                     .ToList();
 
@@ -442,6 +442,34 @@ namespace AdminStore.Services.Workflow
             };
             await _workflowRepository.RunInTransactionAsync(action);
             return versionId;
+        }
+
+        public async Task UpdateWorkflowAsync(UpdateWorkflowDto workflowDto, int workflowId, int userId)
+        {
+            var workflow = new SqlWorkflow
+            {
+                Name = workflowDto.Name,
+                Description = workflowDto.Description,
+                Active = workflowDto.Status,
+                WorkflowId = workflowId
+            };
+
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var publishRevision =
+                    await
+                        _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId,
+                            $"Updating the workflow with id {workflowId}.");
+                if (publishRevision < 1)
+                {
+                    throw new ArgumentException(I18NHelper.FormatInvariant("{0} is less than 1.",
+                        nameof(publishRevision)));
+                }
+
+                await _workflowRepository.UpdateWorkflowAsync(workflow, publishRevision, transaction);
+            };
+
+            await _workflowRepository.RunInTransactionAsync(action);
         }
 
         public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
@@ -569,7 +597,7 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
         }
 
-        private Models.Workflow.SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, 
+        private Models.Workflow.SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId,
             WorkflowDataMaps dataMaps)
         {
             var sqlEvent = new Models.Workflow.SqlWorkflowEvent
@@ -587,14 +615,14 @@ namespace AdminStore.Services.Workflow
             {
                 case EventTypes.Transition:
                     sqlEvent.Type = DWorkflowEventType.Transition;
-                    var transition = (IeTransitionEvent) wEvent;
+                    var transition = (IeTransitionEvent)wEvent;
                     var skipPermissionGroups = transition.SkipPermissionGroups.GetValueOrDefault();
                     sqlEvent.Permissions = skipPermissionGroups || !transition.PermissionGroups.IsEmpty()
                         ? sqlEvent.Permissions = SerializationHelper.ToXml(new XmlTriggerPermissions
                         {
-                            Skip = skipPermissionGroups ? 1 : (int?) null,
+                            Skip = skipPermissionGroups ? 1 : (int?)null,
                             GroupIds = transition.PermissionGroups.Select(pg =>
-                                dataMaps.GroupMap[Tuple.Create(pg.Name, (int?) null)]).ToList()
+                                dataMaps.GroupMap[Tuple.Create(pg.Name, (int?)null)]).ToList()
                         })
                         : null;
 
@@ -618,7 +646,7 @@ namespace AdminStore.Services.Workflow
                     break;
                 case EventTypes.PropertyChange:
                     sqlEvent.Type = DWorkflowEventType.PropertyChange;
-                    var pcEvent = (IePropertyChangeEvent) wEvent;
+                    var pcEvent = (IePropertyChangeEvent)wEvent;
                     int propertyTypeId;
                     if (!WorkflowHelper.TryGetNameOrDescriptionPropertyTypeId(pcEvent.PropertyName, out propertyTypeId)
                         && !dataMaps.PropertyTypeMap.TryGetValue(pcEvent.PropertyName, out propertyTypeId))
@@ -663,7 +691,7 @@ namespace AdminStore.Services.Workflow
                 };
                 workflowId = await _workflowRepository.CreateWorkflow(workflow, publishRevision, transaction);
 
-                //generate default states
+                // generate default states
                 var states = new List<IeState>()
                 {
                     new IeState()
@@ -741,7 +769,7 @@ namespace AdminStore.Services.Workflow
                         .Distinct()
                         .ToList(),
                 // Do not include Transition if FromState or ToState is not found.
-                TransitionEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.Transition
+                TransitionEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition
                     && e.FromStateId.HasValue && dataMaps.StateMap.ContainsKey(e.FromStateId.Value)
                     && e.ToStateId.HasValue && dataMaps.StateMap.ContainsKey(e.ToStateId.Value)).
                     Select(e => new IeTransitionEvent
@@ -757,7 +785,7 @@ namespace AdminStore.Services.Workflow
                         Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
                 // Do not include PropertyChangeEvent if PropertyType is not found.
-                PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.PropertyChange
+                PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange
                     && e.PropertyTypeId.HasValue && (dataMaps.PropertyTypeMap.ContainsKey(e.PropertyTypeId.Value)
                     || WorkflowHelper.IsNameOrDescriptionProperty(e.PropertyTypeId.Value))).
                     Select(e => new IePropertyChangeEvent
@@ -768,7 +796,7 @@ namespace AdminStore.Services.Workflow
                         PropertyName = GetPropertyChangedName(e.PropertyTypeId, dataMaps),
                         Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
-                NewArtifactEvents = workflowEvents.Where(e => e.Type == (int) DWorkflowEventType.NewArtifact).
+                NewArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).
                     Select(e => new IeNewArtifactEvent
                     {
                         Id = e.WorkflowEventId,
@@ -863,11 +891,11 @@ namespace AdminStore.Services.Workflow
             return ieTriggers.IsEmpty() ? null : ieTriggers;
         }
 
-        private static WorkflowDataNameMaps LoadDataMaps(ProjectTypes standardTypes, IDictionary<int, string>  stateMap)
+        private static WorkflowDataNameMaps LoadDataMaps(ProjectTypes standardTypes, IDictionary<int, string> stateMap)
         {
             var dataMaps = new WorkflowDataNameMaps();
             dataMaps.StateMap.AddRange(stateMap);
-            
+
             standardTypes.ArtifactTypes.ForEach(t => dataMaps.ArtifactTypeMap.Add(t.Id, t.Name));
             standardTypes.PropertyTypes.ForEach(t => dataMaps.PropertyTypeMap.Add(t.Id, t.Name));
             standardTypes.PropertyTypes.Where(t => t.PrimitiveType == PropertyPrimitiveType.Choice)
@@ -881,7 +909,7 @@ namespace AdminStore.Services.Workflow
 
         private async Task UpdateUserAndGroupInfo(IeWorkflow workflow, ISet<int> userIds, ISet<int> groupIds)
         {
-            //CollectUserAndGroupIds(workflow, out userIds, out groupIds);
+            // CollectUserAndGroupIds(workflow, out userIds, out groupIds);
 
             var userMap = (await _usersRepository.GetExistingUsersByIdsAsync(userIds))
                 .ToDictionary(u => u.UserId, u => u.Login);
@@ -1040,7 +1068,7 @@ namespace AdminStore.Services.Workflow
                     return;
                 }
 
-                var pcAction = (IePropertyChangeAction) t.Action;
+                var pcAction = (IePropertyChangeAction)t.Action;
                 pcAction.UsersGroups?.UsersGroups?.Where(ug => ug.IsGroup.GetValueOrDefault()
                                                   && !ug.GroupProjectId.HasValue
                                                   && !string.IsNullOrWhiteSpace(ug.GroupProjectPath)).ForEach(ug =>
@@ -1205,7 +1233,7 @@ namespace AdminStore.Services.Workflow
             workflowDiffResult.AddedStates?.ForEach(s => s.OrderIndex = changedMaxIndexOrder + 10 * i++);
         }
 
-        #region Update workflow entities for the workflow update via the import. 
+        #region Update workflow entities for the workflow update via the import.
 
         private async Task UpdateWorkflowEntitiesAsync(IeWorkflow workflow, WorkflowDiffResult workflowDiffResult,
             WorkflowDataValidationResult dataValidationResult, int publishRevision, IDbTransaction transaction)
@@ -1246,7 +1274,7 @@ namespace AdminStore.Services.Workflow
         {
             var stateMap = new Dictionary<string, int>(workflowDiffResult.UnchangedStates.ToDictionary(s => s.Name, s => s.Id.Value));
 
-            if(workflowDiffResult.DeletedStates.Any())
+            if (workflowDiffResult.DeletedStates.Any())
             {
                 await _workflowRepository.DeleteWorkflowStatesAsync(workflowDiffResult.DeletedStates.Select(s => s.Id.Value),
                     publishRevision, transaction);
@@ -1254,7 +1282,7 @@ namespace AdminStore.Services.Workflow
 
             if (workflowDiffResult.AddedStates.Any())
             {
-                var newStates = await _workflowRepository.CreateWorkflowStatesAsync(workflowDiffResult.AddedStates.Select(s => 
+                var newStates = await _workflowRepository.CreateWorkflowStatesAsync(workflowDiffResult.AddedStates.Select(s =>
                     ToSqlState(s, workflowId)), publishRevision, transaction);
                 stateMap.AddRange(newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
             }

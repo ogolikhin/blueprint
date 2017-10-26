@@ -33,8 +33,7 @@ namespace Logging.Database.Configuration
                 element.Attribute("bufferingIntervalInSeconds").ToTimeSpan(),
                 (int?)element.Attribute("bufferingCount") ?? Buffering.DefaultBufferingCount,
                 element.Attribute("bufferingFlushAllTimeoutInSeconds").ToTimeSpan() ?? Constants.DefaultBufferingFlushAllTimeout,
-                (int?)element.Attribute("maxBufferSize") ?? Buffering.DefaultMaxBufferSize
-                );
+                (int?)element.Attribute("maxBufferSize") ?? Buffering.DefaultMaxBufferSize);
 
             return subject;
         }

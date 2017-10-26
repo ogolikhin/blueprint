@@ -30,5 +30,8 @@ namespace SearchService.Models
 
         [JsonProperty]
         public ItemTypePredefined PredefinedType { get; set; }
+
+        [JsonProperty]
+        public bool HasReadPermission { get; set; }
     }
 }

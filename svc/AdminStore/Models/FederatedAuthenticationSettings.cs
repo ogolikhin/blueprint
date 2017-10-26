@@ -40,7 +40,7 @@ namespace AdminStore.Models
                 OrderIndex = d.OrderIndex,
                 Name = d.Name
             }));
-            
+
             NameClaimType = string.IsNullOrEmpty(fedAuthSettings.NameClaimType) ? "Username" : fedAuthSettings.NameClaimType;
         }
 
@@ -71,8 +71,8 @@ namespace AdminStore.Models
         {
             public FASettings()
             {
-                //When empty this value is initialized to default 'Username' in FederatedAuthenticationSettings
-                //NameClaimType = "Username";
+                // When empty this value is initialized to default 'Username' in FederatedAuthenticationSettings
+                // NameClaimType = "Username";
             }
 
             [DataMember]

@@ -15,7 +15,7 @@ namespace ServiceLibrary.Models.Jobs
 
         Failed = 4,
 
-        //Warning = 5,
+        // Warning = 5,
 
         Cancelling = 6,
 

@@ -11,7 +11,7 @@ namespace AdminStore.Models.Workflow
     public class IeProject
     {
         // Id or Path can be specified, Id has precedence over Path.
-        //========================================================
+        // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]
         public int? Id { get; set; }
@@ -27,7 +27,7 @@ namespace AdminStore.Models.Workflow
         {
             return Id.HasValue;
         }
-        //========================================================
+        // ========================================================
 
         [XmlElement(IsNullable = false)]
         public string Path { get; set; }
@@ -48,7 +48,7 @@ namespace AdminStore.Models.Workflow
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IeProject) obj);
+            return Equals((IeProject)obj);
         }
 
         public override int GetHashCode()
@@ -56,8 +56,8 @@ namespace AdminStore.Models.Workflow
             unchecked
             {
                 var hashCode = Id.GetHashCode();
-                hashCode = (hashCode*397) ^ (Path != null ? Path.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (ArtifactTypes != null ? ArtifactTypes.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Path != null ? Path.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ArtifactTypes != null ? ArtifactTypes.GetHashCode() : 0);
                 return hashCode;
             }
         }

@@ -73,7 +73,7 @@ namespace SearchService.Repositories
                 ProjectIds = new[] { 1 },
                 PredefinedTypeIds = new[] { 4104 }
             };
-            
+
             var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
@@ -113,7 +113,7 @@ namespace SearchService.Repositories
             {
                 new ItemNameSearchResult()
             };
-            var permissionsDictionary = new Dictionary<int, RolePermissions> {{0, RolePermissions.Read}};
+            var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, null);
@@ -150,9 +150,9 @@ namespace SearchService.Repositories
                 Id = 1,
                 Name = "ArtifactPath"
             };
-            var infoCollection = new List<Artifact> {artifactInfo};
+            var infoCollection = new List<Artifact> { artifactInfo };
             var navigationPaths = new Dictionary<int, IEnumerable<Artifact>> { { 0, infoCollection } };
-            var mockSqlArtifactRepository = new Mock<ISqlArtifactRepository>();
+            var mockSqlArtifactRepository = new Mock<IArtifactRepository>();
             mockSqlArtifactRepository.Setup(r => r.GetArtifactsNavigationPathsAsync(1, new List<int> { 0 }, false, null, true)).ReturnsAsync(navigationPaths);
 
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, mockSqlArtifactRepository.Object);
@@ -206,7 +206,7 @@ namespace SearchService.Repositories
             {
                 new ItemNameSearchResult()
             };
-            var permissionsDictionary = new Dictionary<int, RolePermissions> {{0, RolePermissions.Read}};
+            var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, null);
@@ -528,8 +528,8 @@ namespace SearchService.Repositories
         #endregion
 
         private static IItemSearchRepository CreateFullTextSearchRepository<T>(
-            FullTextSearchCriteria searchCriteria, 
-            ICollection<T> queryResult, 
+            FullTextSearchCriteria searchCriteria,
+            ICollection<T> queryResult,
             ICollection<int?> queryResult2 = null)
         {
             var connectionWrapper = new SqlConnectionWrapperMock();
@@ -579,7 +579,7 @@ namespace SearchService.Repositories
         private static IItemSearchRepository CreateFullTextSearchRepositoryWithException<T>(Exception exception)
         {
             var connectionWrapper = new Mock<ISqlConnectionWrapper>();
-            
+
             connectionWrapper.Setup(
                 t => t.QueryMultipleAsync<T, int?>("SearchFullText", It.IsAny<object>(), It.IsAny<IDbTransaction>(),
                     It.IsAny<int?>(), It.IsAny<CommandType?>())).Throws(exception);
@@ -598,18 +598,18 @@ namespace SearchService.Repositories
             ItemNameSearchCriteria searchCriteria,
             ICollection<T> queryResult,
             IArtifactPermissionsRepository artifactPermissionsRepository,
-            ISqlArtifactRepository artifactRepository)
+            IArtifactRepository artifactRepository)
         {
             var connectionWrapper = new SqlConnectionWrapperMock();
             var parameters = new Dictionary<string, object>
             {
-                {"userId", UserId},
-                {"query", searchCriteria.Query},
-                {"projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds)},
-                {"maxSearchableValueStringSize", MaxSearchableValueStringSize},
-                {"startOffset", StartOffset},
-                {"pageSize", PageSize},
-                {"excludedPredefineds", SqlConnectionWrapper.ToDataTable(SqlItemSearchRepository.GetExcludedPredefineds(searchCriteria))}
+                { "userId", UserId },
+                { "query", searchCriteria.Query },
+                { "projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds) },
+                { "maxSearchableValueStringSize", MaxSearchableValueStringSize },
+                { "startOffset", StartOffset },
+                { "pageSize", PageSize },
+                { "excludedPredefineds", SqlConnectionWrapper.ToDataTable(SqlItemSearchRepository.GetExcludedPredefineds(searchCriteria)) }
             };
 
             if (searchCriteria.PredefinedTypeIds != null)
@@ -630,9 +630,9 @@ namespace SearchService.Repositories
         }
 
         private static IItemSearchRepository CreateItemNameRepositoryWithExceptionExpectation<T>(
-            
+
             IArtifactPermissionsRepository artifactPermissionsRepository,
-            ISqlArtifactRepository artifactRepository,
+            IArtifactRepository artifactRepository,
             Exception exception)
         {
             var connectionWrapper = new Mock<ISqlConnectionWrapper>();

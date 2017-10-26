@@ -23,8 +23,8 @@ namespace FileStore.Controllers
     [RoutePrefix("files")]
     public class FilesController : ApiController
     {
-        //remove unnecessary headers from web api
-        //http://www.4guysfromrolla.com/articles/120209-1.aspx
+        // remove unnecessary headers from web api
+        // http://www.4guysfromrolla.com/articles/120209-1.aspx
 
         private readonly IFilesRepository _filesRepo;
         private readonly IFileStreamRepository _fileStreamRepo;
@@ -119,7 +119,7 @@ namespace FileStore.Controllers
                 if (file == null && _fileStreamRepo.FileExists(fileId))
                 {
                     // if the file is not found in the FileStore check the
-                    // legacy database for the file 
+                    // legacy database for the file
 
                     await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"HEAD:{id}, Getting file head in filestream (legacy)");
                     file = _fileStreamRepo.GetFileHead(fileId);
@@ -127,7 +127,7 @@ namespace FileStore.Controllers
 
                 if (file == null)
                 {
-                    // the file was not found in either FileStore or legacy database 
+                    // the file was not found in either FileStore or legacy database
                     return NotFound();
                 }
 
@@ -193,7 +193,7 @@ namespace FileStore.Controllers
 
                 if (file == null)
                 {
-                    // the file was not found in either FileStore or legacy database 
+                    // the file was not found in either FileStore or legacy database
                     return NotFound();
                 }
 
@@ -209,13 +209,13 @@ namespace FileStore.Controllers
                 await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"GET:{id}, Initializing push stream");
                 if (file.IsLegacyFile)
                 {
-                    // retrieve file content from legacy database 
+                    // retrieve file content from legacy database
                     pushStream = new FileStreamPushStream();
                     ((FileStreamPushStream)pushStream).Initialize(_fileStreamRepo, _configRepo, fileId);
                 }
                 else
                 {
-                    // retrieve file content from FileStore database 
+                    // retrieve file content from FileStore database
                     // Note: In the WriteToStream method, we proceed to read the file chunks progressively from the db
                     // and flush these bits to the output stream.
                     pushStream = new SqlPushStream();
@@ -223,7 +223,7 @@ namespace FileStore.Controllers
                 }
 
                 await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"GET:{id}, Adding content to the response");
-                //Please do not remove the redundant casting
+                // Please do not remove the redundant casting
                 response.Content = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>)pushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
 
                 if (response.Content != null)
@@ -436,7 +436,7 @@ namespace FileStore.Controllers
             }
             catch
             {
-                // Deleting file since there was an exception in uploading the chunks or updating file head, meaning the file is only partially uploaded.                
+                // Deleting file since there was an exception in uploading the chunks or updating file head, meaning the file is only partially uploaded.
                 await DeleteFile(chunk.FileId.ToString());
                 throw;
             }
@@ -449,8 +449,8 @@ namespace FileStore.Controllers
             string decodedFileName = "";
             if (Request.Content.Headers.ContentDisposition != null)
                 decodedFileName = HttpUtility.UrlDecode(Request.Content.Headers.ContentDisposition.FileName);
-            if (string.IsNullOrEmpty(decodedFileName) || 
-                //string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
+            if (string.IsNullOrEmpty(decodedFileName) ||
+                // string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
                 string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
             {
                 return new UploadResult
@@ -505,7 +505,7 @@ namespace FileStore.Controllers
         /// <returns></returns>
         private async Task<FileChunk> PostFileHeader(string fileName, string mediaType, DateTime? expired)
         {
-            //we can access the filename from the part
+            // we can access the filename from the part
             var file = new Models.File
             {
                 StoredTime = DateTime.UtcNow, // use UTC time to store data

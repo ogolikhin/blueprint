@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SearchService.Models;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 
 namespace SearchService.Repositories
@@ -17,12 +19,15 @@ namespace SearchService.Repositories
         Task<SemanticSearchText> GetSemanticSearchText(int artifactId, int userId);
         Task<List<int>> GetItemSimilarItemIds(int artifactId, int userId, int limit, bool isInstanceAdmin,
             IEnumerable<int> projectIds);
+        Task<string> GetSemanticSearchIndex();
     }
-    public class SemanticSearchRepository: ISemanticSearchRepository
+    public class SemanticSearchRepository : ISemanticSearchRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
+        private const string ElasticsearchSemanticSearchIndexKey = "ElasticsearchSemanticSearchIndex";
+
         public SemanticSearchRepository()
-             : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString))
+             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 
@@ -96,6 +101,19 @@ namespace SearchService.Repositories
 
             return (await
                     _connectionWrapper.QueryAsync<int>("GetItemSimilarItemIds", prm, commandType: CommandType.StoredProcedure)).ToList();
+        }
+
+        public async Task<string> GetSemanticSearchIndex()
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@returnNonRestrictedOnly", false);
+            var elasticsearchSemanticSearchIndex =
+                (await
+                    _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", prm,
+                        commandType: CommandType.StoredProcedure)).FirstOrDefault(
+                            s => s.Key == ElasticsearchSemanticSearchIndexKey);
+
+            return elasticsearchSemanticSearchIndex == null ? string.Empty : elasticsearchSemanticSearchIndex.Value;
         }
     }
 }

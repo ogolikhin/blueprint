@@ -95,7 +95,7 @@ namespace AdminStore.Repositories
             dbObject.Settings = xml;
             dbObject.Certificate = null;
             var expectedFedAuthSettings = new FederatedAuthenticationSettings(xml, null);
-            var result = new [] { dbObject };
+            var result = new[] { dbObject };
             cxn.SetupQueryAsync("GetFederatedAuthentications", null, result);
 
             // Act

@@ -8,21 +8,21 @@ namespace ServiceLibrary.Repositories.Reuse
     public interface IReuseRepository
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="artifactIds"></param>
         /// <returns>Dictionary with Item Id as Key</returns>
         Task<IDictionary<int, SqlItemTypeInfo>> GetStandardTypeIdsForArtifactsIdsAsync(ISet<int> artifactIds);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="propertyIds"></param>
         /// <returns>Dictionary with Property Type Id as Key</returns>
         Task<IDictionary<int, SqlPropertyTypeInfo>> GetStandardPropertyTypeIdsForPropertyIdsAsync(ISet<int> propertyIds);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="instanceItemTypeIds"></param>
         /// <param name="transaction"></param>
@@ -30,7 +30,7 @@ namespace ServiceLibrary.Repositories.Reuse
         Task<IDictionary<int, ItemTypeReuseTemplate>> GetReuseItemTypeTemplatesAsyc(IEnumerable<int> instanceItemTypeIds, IDbTransaction transaction = null);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="revisionId"></param>
         /// <param name="transaction"></param>
@@ -38,7 +38,7 @@ namespace ServiceLibrary.Repositories.Reuse
         Task<IEnumerable<SqlModifiedItems>> GetModificationsForRevisionIdAsyc(int revisionId, IDbTransaction transaction = null);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="itemIds"></param>
         /// <param name="transaction"></param>

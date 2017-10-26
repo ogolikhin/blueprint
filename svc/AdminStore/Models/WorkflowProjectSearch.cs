@@ -5,9 +5,10 @@ using System.Web;
 
 namespace AdminStore.Models
 {
-    public class WorkflowArtifact
+    public class WorkflowProjectSearch
     {
+        public int ItemId { get; set; }
+        public string Path { get; set; }
         public string Name { get; set; }
-        public int Id { get; set; }
     }
 }

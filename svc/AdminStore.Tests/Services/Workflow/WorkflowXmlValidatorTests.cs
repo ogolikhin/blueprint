@@ -18,17 +18,17 @@ namespace AdminStore.Services.Workflow
         {
             _workflow = WorkflowTestHelper.TestWorkflow;
 
-            //============= Temp ========================================
-            //var xml = SerializationHelper.ToXml(_workflow);
-            //var objModel = SerializationHelper.FromXml<IeWorkflow>(xml);
+            // ============= Temp ========================================
+            // var xml = SerializationHelper.ToXml(_workflow);
+            // var objModel = SerializationHelper.FromXml<IeWorkflow>(xml);
 
-            //var xmlTriggers = new XmlWorkflowEventTriggers();
-            //xmlTriggers.Triggers.Add(new XmlWorkflowEventTrigger());
-            //xmlTriggers.Triggers.Add(new XmlWorkflowEventTrigger());
+            // var xmlTriggers = new XmlWorkflowEventTriggers();
+            // xmlTriggers.Triggers.Add(new XmlWorkflowEventTrigger());
+            // xmlTriggers.Triggers.Add(new XmlWorkflowEventTrigger());
 
-            //var xml = SerializationHelper.ToXml(xmlTriggers);
-            //var objModel = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(xml);
-            //===========================================================
+            // var xml = SerializationHelper.ToXml(xmlTriggers);
+            // var objModel = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(xml);
+            // ===========================================================
         }
 
         [TestMethod]
@@ -235,7 +235,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            _workflow.States.Add(new IeState { Name = "   "});
+            _workflow.States.Add(new IeState { Name = "   " });
             _workflow.TransitionEvents.Add(new IeTransitionEvent
             {
                 Name = "Transition 1",
@@ -376,7 +376,7 @@ namespace AdminStore.Services.Workflow
                     {
                         Action = new IeGenerateAction
                         {
-                            GenerateActionType =GenerateActionTypes.UserStories
+                            GenerateActionType = GenerateActionTypes.UserStories
                         }
                     }
                 }
@@ -458,7 +458,7 @@ namespace AdminStore.Services.Workflow
                     {
                         Action = new IeGenerateAction
                         {
-                            GenerateActionType =GenerateActionTypes.UserStories
+                            GenerateActionType = GenerateActionTypes.UserStories
                         }
                     }
                 }
@@ -473,7 +473,7 @@ namespace AdminStore.Services.Workflow
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.NewArtifactEventNameExceedsLimit24, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow.NewArtifactEvents.Last(), result.Errors[0].Element);
         }
-        
+
         [TestMethod]
         public void Validate_TransitionStartStateNotSpecified_ReturnsTransitionStartStateNotSpecifiedError()
         {
@@ -577,6 +577,32 @@ namespace AdminStore.Services.Workflow
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.StateDoesNotHaveAnyTransitions, result.Errors[0].ErrorCode);
             Assert.AreEqual(_workflow.States.Last().Name, result.Errors[0].Element);
+        }
+
+        [TestMethod]
+        public void Validate_TransitionEventNameEmpty_ReturnsOnlyOneTransitionEventNameEmptyError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.TransitionEvents.Add(new IeTransitionEvent
+            {
+                FromState = _workflow.States[0].Name,
+                ToState = _workflow.States[2].Name
+            });
+
+            _workflow.TransitionEvents.Add(new IeTransitionEvent
+            {
+                FromState = _workflow.States[2].Name,
+                ToState = _workflow.States[0].Name
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
@@ -872,7 +898,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            ((IePropertyChangeAction) _workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups.UsersGroups[2].GroupProjectId = 0;
+            ((IePropertyChangeAction)_workflow.NewArtifactEvents[1].Triggers[4].Action).UsersGroups.UsersGroups[2].GroupProjectId = 0;
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -996,7 +1022,7 @@ namespace AdminStore.Services.Workflow
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
-            
+
 
             // Assert
             Assert.IsTrue(result.HasErrors);
@@ -1014,8 +1040,8 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.EmailNotification)
                 {
-                    ((IeEmailNotificationAction) t.Action).Emails = null;
-                    ((IeEmailNotificationAction) t.Action).PropertyName = null;
+                    ((IeEmailNotificationAction)t.Action).Emails = null;
+                    ((IeEmailNotificationAction)t.Action).PropertyName = null;
                 }
             }));
             _workflow.PropertyChangeEvents?.ForEach(e => e.Triggers?.ForEach(t =>
@@ -1053,7 +1079,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.EmailNotification)
                 {
-                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> {"user@comapany.com"};
+                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> { "user@comapany.com" };
                     ((IeEmailNotificationAction)t.Action).PropertyName = "a";
                 }
             }));
@@ -1088,7 +1114,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            var action = (IeEmailNotificationAction) _workflow.PropertyChangeEvents[0].Triggers[0].Action;
+            var action = (IeEmailNotificationAction)_workflow.PropertyChangeEvents[0].Triggers[0].Action;
             action.Emails[0] = "a";
 
             // Act
@@ -1175,7 +1201,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            ((IePropertyChangeAction) _workflow.TransitionEvents[1].Triggers[0].Action).PropertyValue = null;
+            ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[0].Action).PropertyValue = null;
             ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).PropertyValue = null;
 
             // Act
@@ -1194,7 +1220,7 @@ namespace AdminStore.Services.Workflow
             var workflowValidator = new WorkflowXmlValidator();
             ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[0].Action).ValidValues = new List<IeValidValue>
             {
-                new IeValidValue { Value = "a"}
+                new IeValidValue { Value = "a" }
             };
             ((IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action).UsersGroups = new IeUsersGroups
             {
@@ -1232,14 +1258,14 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            var pcAction = (IePropertyChangeAction) _workflow.TransitionEvents[1].Triggers[1].Action;
+            var pcAction = (IePropertyChangeAction)_workflow.TransitionEvents[1].Triggers[1].Action;
             pcAction.PropertyValue = null;
             pcAction.ValidValues = null;
             pcAction.UsersGroups = new IeUsersGroups
             {
                 UsersGroups = new List<IeUserGroup>
                 {
-                    new IeUserGroup { Name = "user1"}
+                    new IeUserGroup { Name = "user1" }
                 },
                 IncludeCurrentUser = true
             };
@@ -1260,7 +1286,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.Generate)
                 {
-                    var action = (IeGenerateAction) t.Action;
+                    var action = (IeGenerateAction)t.Action;
                     if (action.GenerateActionType == GenerateActionTypes.Children)
                     {
                         action.ArtifactType = null;
@@ -1587,7 +1613,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Condition?.ConditionType == ConditionTypes.State)
                 {
-                    ((IeStateCondition) t.Condition).State = string.Empty;
+                    ((IeStateCondition)t.Condition).State = string.Empty;
                 }
             }));
 
@@ -1605,7 +1631,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            var stateCondition = (IeStateCondition) _workflow.PropertyChangeEvents[0].Triggers[0].Condition;
+            var stateCondition = (IeStateCondition)_workflow.PropertyChangeEvents[0].Triggers[0].Condition;
             stateCondition.State = "Missing State";
 
             // Act
@@ -1691,7 +1717,7 @@ namespace AdminStore.Services.Workflow
                 return;
             }
 
-            for(var i = 0; i < toAddCount; i++)
+            for (var i = 0; i < toAddCount; i++)
             {
                 workflow.States.Add(new IeState { Name = "State " + i });
                 workflow.TransitionEvents.Add(new IeTransitionEvent

@@ -35,7 +35,7 @@ namespace ArtifactStore.Repositories
             artifactVersionsPrm.Add("@itemId", itemId);
             artifactVersionsPrm.Add("@userId", userId);
             artifactVersionsPrm.Add("@revisionId", revisionId);
-            artifactVersionsPrm.Add("@addDrafts", addDrafts);           
+            artifactVersionsPrm.Add("@addDrafts", addDrafts);
             return await _connectionWrapper.QueryAsync<Attachment>("GetItemAttachments", artifactVersionsPrm, commandType: CommandType.StoredProcedure);
         }
 
@@ -51,7 +51,7 @@ namespace ArtifactStore.Repositories
 
         private async Task<IEnumerable<LinkedArtifactInfo>> GetDocumentArtifactInfos(IEnumerable<int> artifactIds, int userId, int revisionId = int.MaxValue, bool addDrafts = true)
         {
-            var parameters = new DynamicParameters();            
+            var parameters = new DynamicParameters();
             var artifactIdsTable = SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value");
             parameters.Add("@artifactIds", artifactIdsTable);
             parameters.Add("@userId", userId);
@@ -61,11 +61,11 @@ namespace ArtifactStore.Repositories
         }
 
         public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(
-            int artifactId, 
-            int userId, 
-            int? versionId = null, 
-            int? subArtifactId = null, 
-            bool addDrafts = true, 
+            int artifactId,
+            int userId,
+            int? versionId = null,
+            int? subArtifactId = null,
+            bool addDrafts = true,
             int? baselineId = null)
         {
             var itemId = artifactId;
@@ -86,10 +86,10 @@ namespace ArtifactStore.Repositories
             var documentReferenceArtifactInfos = (await GetDocumentArtifactInfos(referencedArtifactIds, userId, revisionId, addDrafts)).ToList();
             var documentReferenceArtifactInfoDictionary = documentReferenceArtifactInfos.ToDictionary(a => a.ArtifactId);
 
-            var distinctUsers = attachments.Select(a => a.UserId).Union(referencedArtifacts.Select(b=>b.UserId)).Distinct().ToList();
+            var distinctUsers = attachments.Select(a => a.UserId).Union(referencedArtifacts.Select(b => b.UserId)).Distinct().ToList();
             var userInfoDictionary = (await _userRepository.GetUserInfos(distinctUsers)).ToDictionary(a => a.UserId);
 
-            var referenceArtifactsToBeRemoved = new List<DocumentReference>();     
+            var referenceArtifactsToBeRemoved = new List<DocumentReference>();
 
             foreach (var attachment in attachments)
             {
@@ -105,7 +105,7 @@ namespace ArtifactStore.Repositories
                 userInfoDictionary.TryGetValue(referencedArtifact.UserId, out userInfo);
                 LinkedArtifactInfo linkedArtifactInfo;
                 documentReferenceArtifactInfoDictionary.TryGetValue(referencedArtifact.ArtifactId, out linkedArtifactInfo);
-                if(linkedArtifactInfo != null)
+                if (linkedArtifactInfo != null)
                 {
                     referencedArtifact.UserName = userInfo.DisplayName;
                     referencedArtifact.ArtifactName = linkedArtifactInfo.ArtifactName;

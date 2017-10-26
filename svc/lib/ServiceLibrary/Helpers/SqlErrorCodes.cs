@@ -3,7 +3,7 @@
     public enum SqlErrorCodes
     {
         None = 0,
-		GeneralSqlError = 50000,
+        GeneralSqlError = 50000,
         UserLoginExist = 50001,
         UserLoginNotExist = 50002,
         UserVersionsNotEqual = 50003,
@@ -29,6 +29,8 @@
         WorkflowWithSuchANameAlreadyExists = 50023,
         WorkflowWithCurrentIdNotExist = 50024,
         WorkflowWithCurrentIdIsActive = 50025,
-        ProjectOfWorkflowDoesNotHaveArtifactTypes = 50026
+        WorkflowProjectHasNoArtifactTypes = 50026,
+        WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated = 50027,
+        WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow = 50028
     }
 }

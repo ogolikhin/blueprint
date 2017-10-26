@@ -347,17 +347,17 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task GetUser_WeHaveThisUserInDb_QueryReturnUser()
         {
-            //arrange
+            // arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 10;
             User[] returnResult = { new User { Id = 5 } };
             cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object> { { "UserId", userId } }, returnResult);
 
-            //act
+            // act
             var result = await repository.GetUserAsync(userId);
 
-            //assert
+            // assert
             cxn.Verify();
             Assert.AreEqual(returnResult.First(), result);
         }
@@ -365,16 +365,16 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task GetUser_WeDoNotHaveThisActiveUserInDb_ReturnsNull()
         {
-            //arrange
+            // arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             User[] returnResult = { };
             cxn.SetupQueryAsync("GetUserDetails", new Dictionary<string, object> { { "UserId", 0 } }, returnResult);
 
-            //act
+            // act
             var result = await repository.GetUserAsync(0);
 
-            //assert
+            // assert
             cxn.Verify();
             Assert.IsNull(result);
         }
@@ -386,7 +386,7 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task DeleteUsersAsync_UsersToDeleteExists_QueryReturnNotEmptyResult()
         {
-            //arrange
+            // arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             int[] userIds = { 1, 2, 3 };
@@ -402,17 +402,17 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("DeleteUsers",
                 new Dictionary<string, object>
                 {
-                    {"UserIds", userIdTable},
-                    {"Search", ""},
-                    {"SessionUserId", 0},
-                    {"SelectAll", operationScope.SelectAll}
+                    { "UserIds", userIdTable },
+                    { "Search", "" },
+                    { "SessionUserId", 0 },
+                    { "SelectAll", operationScope.SelectAll }
                 },
                 returntResult);
 
-            //act
+            // act
             var result = await repository.DeleteUsersAsync(operationScope, string.Empty, 0);
 
-            //assert
+            // assert
             cxn.Verify();
             Assert.AreEqual(result, returntResult);
         }
@@ -420,7 +420,7 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task DeleteUsersAsync_UsersToDeleteDoNotExists_QueryReturnEmptyCollection()
         {
-            //arrange
+            // arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             int[] userIds = { };
@@ -436,17 +436,17 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("DeleteUsers",
                 new Dictionary<string, object>
                 {
-                    {"UserIds", userIdTable},
-                    {"Search", ""},
-                    {"SessionUserId", 0},
-                    {"SelectAll", operationScope.SelectAll}
+                    { "UserIds", userIdTable },
+                    { "Search", "" },
+                    { "SessionUserId", 0 },
+                    { "SelectAll", operationScope.SelectAll }
                 },
                 returntResult);
 
-            //act
+            // act
             var result = await repository.DeleteUsersAsync(operationScope, string.Empty, 0);
 
-            //assert
+            // assert
             cxn.Verify();
             Assert.AreEqual(result, returntResult);
         }
@@ -493,16 +493,16 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task CheckIfAdminCanCreateUsers_CreateUsersPerInstanceLimitDoesNotReached_ReturnTrueResult()
         {
-            //arrange
+            // arrange
             var returnResult = true;
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            cxn.SetupExecuteScalarAsyncFunc("select dbo.CanCreateUsers()",null, returnResult);
+            cxn.SetupExecuteScalarAsyncFunc("select dbo.CanCreateUsers()", null, returnResult);
 
-            //act
+            // act
             var result = await repository.CheckIfAdminCanCreateUsers();
 
-            //assert
+            // assert
             cxn.Verify();
             Assert.AreEqual(returnResult, result);
         }
@@ -510,16 +510,16 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task CheckIfAdminCanCreateUsers_CreateUsersPerInstanceLimitWasReached_ReturnFalseResult()
         {
-            //arrange
+            // arrange
             var returnResult = false;
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             cxn.SetupExecuteScalarAsyncFunc("select dbo.CanCreateUsers()", null, returnResult);
 
-            //act
+            // act
             var result = await repository.CheckIfAdminCanCreateUsers();
 
-            //assert
+            // assert
             cxn.Verify();
             Assert.AreEqual(returnResult, result);
         }

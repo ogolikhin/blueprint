@@ -9,8 +9,7 @@ namespace ArtifactStore.Repositories.VersionControl
     {
         private readonly IPublishRepositoriesContainer _repositoriesContainer;
 
-        public SqlPublishRepositoryComposer() :
-            this(new PublishRepositoriesContainer())
+        public SqlPublishRepositoryComposer() : this(new PublishRepositoriesContainer())
         { }
 
         public SqlPublishRepositoryComposer(IPublishRepositoriesContainer repositoriesContainer)
@@ -30,10 +29,10 @@ namespace ArtifactStore.Repositories.VersionControl
 
             await _repositoriesContainer.PublishReuseProcessingRepo.Execute(revisionId, parameters, environment, transaction);
 
-            //TODO: DISCUSSIONS IS NOT IMPLEMENTED
-            //TODO: Collection Assignment IS NOT IMPLEMENTED
-            
-            //await _repositoriesContainer.PublishCollectionAssignmentsRepo.Execute(revisionId, parameters, environment, transaction);
+            // TODO: DISCUSSIONS IS NOT IMPLEMENTED
+            // TODO: Collection Assignment IS NOT IMPLEMENTED
+
+            // await _repositoriesContainer.PublishCollectionAssignmentsRepo.Execute(revisionId, parameters, environment, transaction);
         }
     }
 }

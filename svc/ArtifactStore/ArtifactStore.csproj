@@ -139,6 +139,7 @@
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
     <Compile Include="Models\Review\ReviewApprovalCheckArtifacts.cs" />
+    <Compile Include="Models\Review\ReviewChangeItemsStatusResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactApprovalResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactId.cs" />
     <Compile Include="Models\Review\ReviewArtifactsQueryResult.cs" />
@@ -146,6 +147,8 @@
     <Compile Include="Models\Review\ReviewArtifactViewedInput.cs" />
     <Compile Include="Models\Review\ParticipantMeaningOfSignatureResult.cs" />
     <Compile Include="Models\Review\ReviewerStatusParameter.cs" />
+    <Compile Include="Models\Review\ReviewSettings.cs" />
+    <Compile Include="Models\Review\ReviewInfo.cs" />
     <Compile Include="Models\VersionControl\PublishEnvironment.cs" />
     <Compile Include="Helpers\ReviewRawDataHelper.cs" />
     <Compile Include="Models\ArtifactHistoryResultSet.cs" />
@@ -210,6 +213,8 @@
     <Compile Include="Repositories\VersionControl\SqlPublishReuseProcessingRepository.cs" />
     <Compile Include="Repositories\VersionControl\SqlVersionControlRepository.cs" />
     <Compile Include="Executors\StateChangeExecutor.cs" />
+    <Compile Include="Services\Reviews\IReviewsService.cs" />
+    <Compile Include="Services\Reviews\ReviewsService.cs" />
     <Compile Include="Services\VersionControl\VersionControlService.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />
   </ItemGroup>
@@ -218,6 +223,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="doc\ArtifactStore Web Service API - Swagger.URL" />
+    <AdditionalFiles Include="..\..\stylecop.json">
+      <Link>stylecop.json</Link>
+    </AdditionalFiles>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -245,6 +253,10 @@
       <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>
       <Name>ServiceLibrary</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

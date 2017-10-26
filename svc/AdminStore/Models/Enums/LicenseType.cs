@@ -5,6 +5,6 @@
         None = 0,
         Viewer = 1,
         Collaborator = 2,
-        Author = 3 
+        Author = 3
     }
 }

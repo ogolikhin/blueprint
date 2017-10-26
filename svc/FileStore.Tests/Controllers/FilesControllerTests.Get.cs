@@ -279,7 +279,7 @@ namespace FileStore.Controllers
             moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync((File)null);
             // #DEBUG
 
-            //moqFileStreamRepo.Setup(m => m.GetFileContent(It.IsAny<Guid>())).Returns((System.IO.Stream)null);
+            // moqFileStreamRepo.Setup(m => m.GetFileContent(It.IsAny<Guid>())).Returns((System.IO.Stream)null);
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {

@@ -65,6 +65,15 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<bool>("IsArtifactDeleted", isDeletedPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
+        public async Task<IEnumerable<int>> GetDeletedAndNotInProjectItems(IEnumerable<int> itemIds, int projectId)
+        {
+            var parameters = new DynamicParameters();
+            var itemIdsTable = SqlConnectionWrapper.ToDataTable(itemIds);
+            parameters.Add("@itemIds", itemIdsTable);
+            parameters.Add("@projectId", projectId);
+            return await _connectionWrapper.QueryAsync<int>("GetDeletedAndNotInProjectItems", parameters, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<DeletedItemInfo> GetDeletedItemInfo(int itemId)
         {
             var parameters = new DynamicParameters();
@@ -194,9 +203,8 @@ namespace ArtifactStore.Repositories
                         Timestamp = DateTime.SpecifyKind(artifactVersion.Timestamp.GetValueOrDefault(), DateTimeKind.Utc),
                         DisplayName = userInfo?.DisplayName,
                         HasUserIcon = userInfo?.ImageId != null,
-                        ArtifactState = artifactVersion.ArtifactState 
-                    }
-                );
+                        ArtifactState = artifactVersion.ArtifactState
+                    });
             }
 
             return new ArtifactHistoryResultSet
@@ -292,7 +300,7 @@ namespace ArtifactStore.Repositories
             return artifactInfo;
         }
 
-        
+
 
         #endregion GetVersionControlArtifactInfoAsync
 

@@ -49,7 +49,7 @@ namespace ConfigControl.Repositories
                                 currentId = record.Id;
                                 writer.WriteLine(record.Line);
                             }
-                            //remember the last id to start the next chunk request with that id-1 
+                            // remember the last id to start the next chunk request with that id-1
                             recordId = currentId - 1;
                             totalRecords += chunkSize;
                         } while (totalRecords < recordLimit);

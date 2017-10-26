@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.CrossCutting.Logging;
@@ -22,7 +23,7 @@ namespace BlueprintSys.RC.Services
 
             Log.Info("Action Handler Service is starting.");
             _messageTransportHost = new TransportHost(new ConfigHelper(), WorkflowServiceBusServer.Instance);
-            _messageTransportHost.Start(false, () => Stop(null));
+            Task.Run(() => _messageTransportHost.Start(false, () => Stop(null)));
             Log.Info("Action Handler Service started.");
 
             return true;

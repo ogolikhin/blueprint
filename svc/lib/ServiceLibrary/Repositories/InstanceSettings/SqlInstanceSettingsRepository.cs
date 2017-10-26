@@ -9,9 +9,9 @@ namespace ServiceLibrary.Repositories.InstanceSettings
 {
     public class SqlInstanceSettingsRepository : SqlBaseArtifactRepository, IInstanceSettingsRepository
     {
-        public SqlInstanceSettingsRepository() : this (new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+        public SqlInstanceSettingsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
-            
+
         }
 
         public SqlInstanceSettingsRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
@@ -22,8 +22,7 @@ namespace ServiceLibrary.Repositories.InstanceSettings
         {
         }
 
-        public SqlInstanceSettingsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : 
-            base(connectionWrapper, artifactPermissionsRepository)
+        public SqlInstanceSettingsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : base(connectionWrapper, artifactPermissionsRepository)
         {
         }
 
@@ -52,7 +51,7 @@ namespace ServiceLibrary.Repositories.InstanceSettings
                 settings.EmailSettingsDeserialized = new EmailConfigInstanceSettings(settings.EmailSettings);
             }
 
-            //TODO temporary solution, MaximumInvalidLogonAttempts property should be moved to database
+            // TODO temporary solution, MaximumInvalidLogonAttempts property should be moved to database
             settings.MaximumInvalidLogonAttempts = maxInvalidLogonAttempts;
 
             return settings;

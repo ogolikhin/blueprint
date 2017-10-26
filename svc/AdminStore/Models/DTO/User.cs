@@ -53,7 +53,7 @@ namespace AdminStore.Models.DTO
         public string LastName { get; set; }
 
         /// <summary>
-        /// ImageId of added user’s picture. 
+        /// ImageId of added user’s picture.
         /// </summary>
         public int? ImageId { get; set; }
 
@@ -84,7 +84,7 @@ namespace AdminStore.Models.DTO
         public int[] GroupMembership { get; set; }
 
         /// <summary>
-        ///  A guest user is someone who has been mentioned by email address in a Blueprint discussion. 
+        ///  A guest user is someone who has been mentioned by email address in a Blueprint discussion.
         /// </summary>
         public bool Guest { get; set; }
     }

@@ -41,79 +41,79 @@ namespace AdminStore.Services.Email
         [TestMethod]
         public void Should_Set_UseSsl_To_Configs_EnableSsl_Case_True()
         {
-            //Act
+            // Act
             _incomingEmailService.TryConnect(_clientConfig);
 
-            //Assert
+            // Assert
             _emailClientMock.VerifySet(client => client.UseSsl = true);
         }
 
         [TestMethod]
         public void Should_Set_UseSsl_To_Configs_EnableSsl_Case_False()
         {
-            //Arrange
+            // Arrange
             _clientConfig.EnableSsl = false;
 
-            //Act
+            // Act
             _incomingEmailService.TryConnect(_clientConfig);
 
-            //Assert
+            // Assert
             _emailClientMock.VerifySet(client => client.UseSsl = false);
         }
 
         [TestMethod]
         public void Should_Connect_To_Config_ServerAddress_And_Port()
         {
-            //Act
+            // Act
             _incomingEmailService.TryConnect(_clientConfig);
 
-            //Assert
+            // Assert
             _emailClientMock.Verify(client => client.Connect(_clientConfig.ServerAddress, _clientConfig.Port));
         }
 
         [TestMethod]
         public void Should_Login_With_Username_And_Password()
         {
-            //Act
+            // Act
             _incomingEmailService.TryConnect(_clientConfig);
 
-            //Assert
+            // Assert
             _emailClientMock.Verify(client => client.Login(_clientConfig.AccountUsername, _clientConfig.AccountPassword));
         }
 
         [TestMethod]
         public void Should_Disconnect()
         {
-            //Act
+            // Act
             _incomingEmailService.TryConnect(_clientConfig);
 
-            //Assert
+            // Assert
             _emailClientMock.Verify(client => client.Disconnect());
         }
 
         [TestMethod]
         public void Should_Dispose_EmailClient()
         {
-            //Act
+            // Act
             _incomingEmailService.TryConnect(_clientConfig);
 
-            //Assert
+            // Assert
             _emailClientMock.Verify(client => client.Dispose());
         }
 
         [TestMethod]
         public void Should_Throw_BadRequestException_When_Connect_Throws_EmailException()
         {
-            //Arrange
+            // Arrange
             _emailClientMock.Setup(client => client.Connect(_clientConfig.ServerAddress, _clientConfig.Port))
                             .Throws(new EmailException("Error Message", ErrorCodes.IncomingMailServerInvalidHostname));
 
-            //Act
+            // Act
             try
             {
                 _incomingEmailService.TryConnect(_clientConfig);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual("Error Message", ex.Message);
@@ -128,16 +128,16 @@ namespace AdminStore.Services.Email
         [TestMethod]
         public void Should_Throw_BadRequestException_When_Login_Throws_EmailException()
         {
-            //Arrange
+            // Arrange
             _emailClientMock.Setup(client => client.Login(_clientConfig.AccountUsername, _clientConfig.AccountPassword))
                             .Throws(new EmailException("Error Message", ErrorCodes.IncomingMailServerInvalidCredentials));
 
-            //Act
+            // Act
             try
             {
                 _incomingEmailService.TryConnect(_clientConfig);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual("Error Message", ex.Message);
@@ -152,16 +152,16 @@ namespace AdminStore.Services.Email
         [TestMethod]
         public void Should_Throw_BadRequestException_When_Disconnect_Throws_EmailException()
         {
-            //Arrange
+            // Arrange
             _emailClientMock.Setup(client => client.Disconnect())
                             .Throws(new EmailException("Error Message", ErrorCodes.UnknownIncomingMailServerError));
 
-            //Act
+            // Act
             try
             {
                 _incomingEmailService.TryConnect(_clientConfig);
             }
-            //Assert
+            // Assert
             catch (BadRequestException ex)
             {
                 Assert.AreEqual("Error Message", ex.Message);

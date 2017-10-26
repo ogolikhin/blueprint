@@ -11,7 +11,7 @@ namespace ArtifactStore.Models.Review
         public string Approval { get; set; }
 
         public ApprovalType ApprovalFlag { get; set; }
-        public bool isExcludedArtifacts { get; set; }
+        public SelectionType SelectionType { get; set; }
         public int? RevisionId { get; set; }
     }
 }

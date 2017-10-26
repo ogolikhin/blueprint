@@ -4,26 +4,26 @@ using System.Web;
 
 namespace FileStore.Models
 {
-	[JsonObject]
-	public class File
-	{
+    [JsonObject]
+    public class File
+    {
         [JsonIgnore]
         private const string DefaultMediaType = "application/octet-stream";
 
         [JsonProperty]
-		public Guid FileId { get; set; }
-		[JsonProperty]
-		public DateTime StoredTime { get; set; }
-		[JsonProperty]
-		public DateTime? ExpiredTime { get; set; }
-		[JsonProperty]
-		public string FileName { get; set; }
-		[JsonProperty]
-		public string FileType { get; set; }
-		[JsonProperty]
-		public long FileSize { get; set; }
-		[JsonProperty]
-		public int ChunkCount { get; set; }
+        public Guid FileId { get; set; }
+        [JsonProperty]
+        public DateTime StoredTime { get; set; }
+        [JsonProperty]
+        public DateTime? ExpiredTime { get; set; }
+        [JsonProperty]
+        public string FileName { get; set; }
+        [JsonProperty]
+        public string FileType { get; set; }
+        [JsonProperty]
+        public long FileSize { get; set; }
+        [JsonProperty]
+        public int ChunkCount { get; set; }
 
         [JsonIgnore]
         public bool IsLegacyFile { get; set; }
@@ -41,21 +41,21 @@ namespace FileStore.Models
             }
         }
 
-		public static string ConvertFileId(Guid guid)
-		{
-			return guid.ToString("N");
-		}
+        public static string ConvertFileId(Guid guid)
+        {
+            return guid.ToString("N");
+        }
 
-		public static Guid ConvertToStoreId(string str)
-		{
-			try
-			{
-				return Guid.ParseExact(str, "N");
-			}
-			catch (FormatException)
-			{
-				return Guid.ParseExact(str, "D");
-			}
-		}
-	}
+        public static Guid ConvertToStoreId(string str)
+        {
+            try
+            {
+                return Guid.ParseExact(str, "N");
+            }
+            catch (FormatException)
+            {
+                return Guid.ParseExact(str, "D");
+            }
+        }
+    }
 }

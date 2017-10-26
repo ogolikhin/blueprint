@@ -34,7 +34,7 @@ namespace AdminStore.Saml
              * which specifies an InResponseTo value. Enforcement of this value is not supported by default.
              * To customize SubjectConfirmationData processing, extend Saml2SecurityTokenHandler and override ValidateConfirmationData.
              */
-            //base.ValidateConfirmationData(confirmationData);
+            // base.ValidateConfirmationData(confirmationData);
         }
 
         public override SecurityToken ReadToken(string tokenString)
@@ -117,10 +117,10 @@ namespace AdminStore.Saml
             }
             catch (SecurityTokenValidationException exception)
             {
-                //TODO logging
-                //Log.ErrorFormat("Need manually validate SAML token {0}", exception);
+                // TODO logging
+                // Log.ErrorFormat("Need manually validate SAML token {0}", exception);
 
-                //Log.InfoFormat("[SAMLHandler].Token: {0}", _samlXml);
+                // Log.InfoFormat("[SAMLHandler].Token: {0}", _samlXml);
 
                 var saml2Token = token as Saml2SecurityToken;
                 if (saml2Token != null && saml2Token.Assertion.SigningCredentials == null)

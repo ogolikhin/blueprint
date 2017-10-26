@@ -121,9 +121,11 @@
     <Compile Include="Helpers\SortingHelper.cs" />
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
+    <Compile Include="Helpers\Workflow\UpdateWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\CreateWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\WorkflowHelper.cs" />
     <Compile Include="Models\AdminRole.cs" />
+    <Compile Include="Models\AssignProjectsResult.cs" />
     <Compile Include="Models\AssignResult.cs" />
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />
@@ -136,11 +138,13 @@
     <Compile Include="Models\Emails\EmailOutgoingSettings.cs" />
     <Compile Include="Models\Emails\EmailSettingsDto.cs" />
     <Compile Include="Models\SyncResult.cs" />
-    <Compile Include="Models\WorkflowArtifact.cs" />
+    <Compile Include="Models\WorkflowArtifactType.cs" />
     <Compile Include="Models\WorkflowProjectArtifactType.cs" />
-    <Compile Include="Models\WorkflowProjectArtifactTypeDto.cs" />
+    <Compile Include="Models\WorkflowProjectArtifactTypesDto.cs" />
+    <Compile Include="Models\WorkflowProjectSearch.cs" />
     <Compile Include="Models\Workflow\IeUsersGroups.cs" />
     <Compile Include="Models\Workflow\WorkflowDetailsDto.cs" />
+    <Compile Include="Models\Workflow\UpdateWorkflowDto.cs" />
     <Compile Include="Services\Email\EmailClientExceptionHandler.cs" />
     <Compile Include="Services\Email\EmailClientType.cs" />
     <Compile Include="Models\Emails\TestEmailConfigInstanceSettings.cs" />
@@ -290,6 +294,9 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+    <AdditionalFiles Include="..\..\stylecop.json">
+      <Link>stylecop.json</Link>
+    </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -299,6 +306,10 @@
       <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>
       <Name>ServiceLibrary</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -28,16 +28,14 @@ namespace SearchService.Controllers
                 (
                     new List<IStatusRepository>
                     {
-                        new SqlStatusRepository(ConfigRepository.Instance.BlueprintDatabase, "Blueprint"),
+                        new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB"),
                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
                     },
                     "SearchService",
                     new ServiceLogRepository(),
-                    WebApiConfig.LogSourceStatus
-                ),
-                WebApiConfig.StatusCheckPreauthorizedKey
-            )
+                    WebApiConfig.LogSourceStatus),
+                WebApiConfig.StatusCheckPreauthorizedKey)
         {
         }
 
@@ -60,7 +58,7 @@ namespace SearchService.Controllers
         [ResponseType(typeof(ServiceStatus))]
         public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
-            //Check pre-authorized key
+            // Check pre-authorized key
             // Refactoring for shorter status as per US955
 
             if (preAuthorizedKey != null && preAuthorizedKey != _expectedPreAuthorizedKey)

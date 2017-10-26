@@ -22,6 +22,7 @@ namespace ServiceLibrary.Models.Workflow
             return Task.Run(() => { });
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         protected Dictionary<string, string> ValidateActions(IExecutionParameters executionParameters)
         {
             var result = new Dictionary<string, string>();

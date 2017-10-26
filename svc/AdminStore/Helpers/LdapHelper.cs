@@ -17,7 +17,7 @@ namespace AdminStore.Helpers
                 return null;
             }
 
-            //http://stackoverflow.com/questions/649149/how-to-escape-a-string-in-c-for-use-in-an-ldap-query/694915#694915
+            // http://stackoverflow.com/questions/649149/how-to-escape-a-string-in-c-for-use-in-an-ldap-query/694915#694915
             StringBuilder escape = new StringBuilder();
             foreach (char current in searchFilter)
             {

@@ -1268,7 +1268,7 @@ namespace ArtifactStore.Repositories
             var updatingArtifacts = GetReviewArtifacts(content, resultErrors, rdReviewContents);
 
             // For Informal review
-            await ExcludeDeletedArtifacts(content, propertyResult, resultErrors, updatingArtifacts);
+            await ExcludeDeletedAndNotInProjectArtifacts(content, propertyResult, resultErrors, updatingArtifacts);
 
             await ExcludeArtifactsWithoutReadPermissions(content, userId, resultErrors, updatingArtifacts);
 
@@ -1329,32 +1329,29 @@ namespace ArtifactStore.Repositories
             }
 
             // Remove deleted items from the result
-            if (updatingArtifactIdsWithReadPermissions.Any())
-            {
-                updatingArtifacts.RemoveAll(ua => updatingArtifactIdsWithReadPermissions.Contains(ua.Id));
-            }
+            updatingArtifacts.RemoveAll(ua => !updatingArtifactIdsWithReadPermissions.Contains(ua.Id));
         }
 
-        private async Task ExcludeDeletedArtifacts(AssignArtifactsApprovalParameter content,
+        private async Task ExcludeDeletedAndNotInProjectArtifacts(AssignArtifactsApprovalParameter content,
             PropertyValueString propertyResult, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
         {
             if (propertyResult.BaselineId == null || propertyResult.BaselineId < 1)
             {
                 var updatingArtifactIdsOnly = updatingArtifacts.Select(ua => ua.Id);
-                var deletedItemIds = await _artifactVersionsRepository.GetDeletedItems(updatingArtifactIdsOnly);
+                var deletedAndNotInProjectItemIds = await _artifactVersionsRepository.GetDeletedAndNotInProjectItems(updatingArtifactIdsOnly, propertyResult.ProjectId.Value);
 
                 // Only show error message if on client side user have an outdated data about deleted artifacts from review
-                if (content.SelectionType == SelectionType.Selected && deletedItemIds != null && deletedItemIds.Any())
+                if (content.SelectionType == SelectionType.Selected && deletedAndNotInProjectItemIds != null && deletedAndNotInProjectItemIds.Any())
                 {
                     resultErrors.Add(new ReviewChangeItemsError()
                     {
-                        ItemsCount = deletedItemIds.Count(),
+                        ItemsCount = deletedAndNotInProjectItemIds.Count(),
                         ErrorCode = ErrorCodes.ArtifactNotFound,
                         ErrorMessage = "Some artifacts are deleted from the project."
                     });
                 }
                 // Remove deleted items from the result
-                updatingArtifacts.RemoveAll(ua => deletedItemIds.Contains(ua.Id));
+                updatingArtifacts.RemoveAll(ua => deletedAndNotInProjectItemIds.Contains(ua.Id));
             }
         }
 

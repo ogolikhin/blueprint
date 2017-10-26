@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using ArtifactStore.Helpers;
+﻿using ArtifactStore.Helpers;
 using ArtifactStore.Models.Review;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Services;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using ArtifactStore.Models;
+using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Repositories.ApplicationSettings;
 
 namespace ArtifactStore.Repositories
 {
@@ -735,7 +736,7 @@ namespace ArtifactStore.Repositories
 
             var participants = await _connectionWrapper.QueryMultipleAsync<ReviewParticipant, int, int, int>("GetReviewParticipants", parameters, commandType: CommandType.StoredProcedure);
 
-            var reviewersRoot = new ReviewParticipantsContent
+            var participantsContent = new ReviewParticipantsContent
             {
                 Items = participants.Item1.ToList(),
                 Total = participants.Item2.SingleOrDefault(),
@@ -743,33 +744,71 @@ namespace ArtifactStore.Repositories
                 TotalArtifactsRequestedApproval = participants.Item4.SingleOrDefault()
             };
 
-            var meaningOfSignatures = await GetMeaningOfSignaturesForParticipantAsync(reviewId, userId);
-
-            foreach (var reviewer in reviewersRoot.Items)
+            if (await IsMeaningOfSignatureEnabled(reviewId, userId, true))
             {
-                if (meaningOfSignatures.ContainsKey(reviewer.UserId))
+                var approverIds = participantsContent.Items.Where(p => p.Role == ReviewParticipantRole.Approver).Select(r => r.UserId).ToList();
+
+                var meaningOfSignatures = await GetMeaningOfSignaturesForParticipantsAsync(reviewId, userId, approverIds);
+                var possibleMeaningOfSignatures = await GetPossibleMeaningOfSignaturesForParticipantsAsync(participantsContent.Items.Select(r => r.UserId));
+
+                foreach (var reviewer in participantsContent.Items)
                 {
-                    reviewer.MeaningOfSignatureIds = meaningOfSignatures[reviewer.UserId];
-                }
-                else
-                {
-                    reviewer.MeaningOfSignatureIds = new int[0];
+                    if (meaningOfSignatures.ContainsKey(reviewer.UserId))
+                    {
+                        reviewer.MeaningOfSignatureIds = meaningOfSignatures[reviewer.UserId];
+                    }
+                    else
+                    {
+                        reviewer.MeaningOfSignatureIds = new int[0];
+                    }
+
+                    if (possibleMeaningOfSignatures.ContainsKey(reviewer.UserId))
+                    {
+                        reviewer.PossibleMeaningOfSignatures = possibleMeaningOfSignatures[reviewer.UserId];
+                    }
+                    else
+                    {
+                        reviewer.PossibleMeaningOfSignatures = new DropdownItem[0];
+                    }
                 }
             }
 
-            return reviewersRoot;
+            return participantsContent;
         }
 
-        private async Task<Dictionary<int, List<int>>> GetMeaningOfSignaturesForParticipantAsync(int reviewId, int userId)
+        private async Task<bool> IsMeaningOfSignatureEnabled(int reviewId, int userId, bool addDrafts)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("reviewId", reviewId);
             parameters.Add("userId", userId);
+            parameters.Add("addDrafts", addDrafts);
+
+            return await _connectionWrapper.ExecuteScalarAsync<bool>("GetReviewMeaningOfSignatureEnabled", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        private async Task<Dictionary<int, List<int>>> GetMeaningOfSignaturesForParticipantsAsync(int reviewId, int userId, IEnumerable<int> participantIds)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("reviewId", reviewId);
+            parameters.Add("userId", userId);
+            parameters.Add("participantIds", SqlConnectionWrapper.ToDataTable(participantIds));
 
             var result = await _connectionWrapper.QueryAsync<ParticipantMeaningOfSignatureResult>("GetParticipantsMeaningOfSignatures", parameters, commandType: CommandType.StoredProcedure);
 
             return result.GroupBy(mos => mos.ParticipantId, mos => mos.MeaningOfSignatureId).ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
+        }
+
+        private async Task<Dictionary<int, List<DropdownItem>>> GetPossibleMeaningOfSignaturesForParticipantsAsync(IEnumerable<int> participantIds)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("participantIds", SqlConnectionWrapper.ToDataTable(participantIds));
+
+            var result = await _connectionWrapper.QueryAsync<ParticipantMeaningOfSignatureResult>("GetPossibleMeaningOfSignaturesForParticipants", parameters, commandType: CommandType.StoredProcedure);
+
+            return result.GroupBy(mos => mos.ParticipantId, mos => new DropdownItem(mos.Label, mos.MeaningOfSignatureId))
+                         .ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
         }
 
         public async Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipant(int artifactId, int reviewId, Pagination pagination, int userId, int? versionId = null, bool? addDrafts = true)

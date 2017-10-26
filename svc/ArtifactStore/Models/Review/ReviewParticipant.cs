@@ -35,6 +35,9 @@ namespace ArtifactStore.Models.Review
 
         [DataMember]
         public IEnumerable<int> MeaningOfSignatureIds { get; set; }
+
+        [DataMember]
+        public IEnumerable<DropdownItem> PossibleMeaningOfSignatures { get; set; }
     }
 
     public class ReviewParticipantsContent

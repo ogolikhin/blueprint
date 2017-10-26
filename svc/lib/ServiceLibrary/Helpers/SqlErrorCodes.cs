@@ -31,6 +31,7 @@
         WorkflowWithCurrentIdIsActive = 50025,
         WorkflowProjectHasNoArtifactTypes = 50026,
         WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated = 50027,
-        WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow = 50028
+        WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow = 50028,
+        WorkflowProjectHasNoLiveArtifactTypes = 50029
     }
 }

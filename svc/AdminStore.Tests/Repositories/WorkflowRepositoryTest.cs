@@ -223,6 +223,27 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
+        public async Task AssignArtifactTypesToProjectInWorkflow_ProjectOfWorkflowDoesNotHaveLiveArtifactTypes_ReturnConflictException()
+        {
+            // arrange
+            Exception exception = null;
+
+            _sqlConnectionWrapperMock.SetupQueryAsync("AssignArtifactTypesToProjectInWorkflow", It.IsAny<Dictionary<string, object>>(), _outputSyncResult, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.WorkflowProjectHasNoLiveArtifactTypes } });
+            // act
+            try
+            {
+                await _workflowRepository.AssignArtifactTypesToProjectInWorkflow(_workflowId, _projectId, _scope);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+            // assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(ConflictException));
+        }
+
+        [TestMethod]
         public async Task AssignArtifactTypesToProjectInWorkflow_ProjectWithCurrentIdNotExist_ReturnResourceNotFoundException()
         {
             // arrange

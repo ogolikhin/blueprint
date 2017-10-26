@@ -133,6 +133,7 @@
         public const int GeneralErrorOfCreatingWorkflow = 16003;
         public const int WorkflowIsActive = 16004;
         public const int WorkflowProjectHasNoArtifactTypes = 16005;
+        public const int WorkflowProjectHasNoLiveArtifactTypes = 16006;
 
         // Search
         public const int SearchEngineNotFound = 17001;

@@ -365,16 +365,16 @@ namespace ArtifactStore.Models.Review
                     ++TotalApproved;
                 else if (a.ReviewState == ApprovalType.Disapproved)
                     ++TotalDisapproved;
-                else if ((a.ReviewState == ApprovalType.NotSpecified) && (a.ApprovalRequired == true))
+                else if ((a.ReviewState == ApprovalType.NotSpecified) && a.ApprovalRequired)
                     ++TotalPending;
 
-                if (a.ViewedAll == true)
+                if (a.ViewedAll)
                     ++TotalViewed;
 
-                if (a.UnviewedAll == true)
+                if (a.UnviewedAll)
                     ++TotalUnviewed;
 
-                if (a.ViewedSome == true)
+                if (a.ViewedSome)
                     ++TotalViewedSome;
             }
         }

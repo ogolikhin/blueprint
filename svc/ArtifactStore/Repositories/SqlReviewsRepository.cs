@@ -620,6 +620,7 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<int>("GetReviewArtifactsForApprove", parameters, commandType: CommandType.StoredProcedure)).ToList();
         }
 
+        // Get all Review Artifacts for Summary Metrics
         private async Task<ReviewArtifactsQueryResult<T>> GetAllReviewArtifactsAsync<T>(int reviewId, int userId)
             where T : BaseReviewArtifact
         {
@@ -735,6 +736,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
+        // Get all Review Participants for Summary Metrics
         public async Task<ReviewParticipantsContent> GetAllReviewParticipantsAsync(int reviewId, int userId)
         {
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, null);

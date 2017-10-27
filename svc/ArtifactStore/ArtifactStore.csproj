@@ -135,6 +135,7 @@
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
     <Compile Include="Helpers\WorkflowEventsMessagesHelper.cs" />
+    <Compile Include="Models\DropdownItem.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
     <Compile Include="Models\Review\ReviewApprovalCheckArtifacts.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Models\Review\ReviewArtifactViewedInput.cs" />
     <Compile Include="Models\Review\ParticipantMeaningOfSignatureResult.cs" />
     <Compile Include="Models\Review\ReviewerStatusParameter.cs" />
+    <Compile Include="Models\Review\ReviewParticipantArtifactsStats.cs" />
     <Compile Include="Models\Review\ReviewSettings.cs" />
     <Compile Include="Models\Review\ReviewInfo.cs" />
     <Compile Include="Models\VersionControl\PublishEnvironment.cs" />

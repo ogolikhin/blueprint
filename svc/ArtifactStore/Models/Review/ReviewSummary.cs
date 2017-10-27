@@ -3,8 +3,6 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Models.ProjectMeta;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 
 namespace ArtifactStore.Models.Review
 {
@@ -32,6 +30,9 @@ namespace ArtifactStore.Models.Review
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? ExpirationDate { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? ClosedDate { get; set; }
+
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool IsExpired { get; set; }
 
@@ -41,7 +42,7 @@ namespace ArtifactStore.Models.Review
 
         public ReviewStatus Status { get; set; }
 
-        public ReviewArtifactsStatus ArtifactsStatus { get; set; }
+        public ReviewParticipantArtifactsStats ArtifactsStatus { get; set; }
 
         public int RevisionId { get; set; }
 
@@ -364,7 +365,7 @@ namespace ArtifactStore.Models.Review
                     ++TotalApproved;
                 else if (a.ReviewState == ApprovalType.Disapproved)
                     ++TotalDisapproved;
-                else if (a.ReviewState == ApprovalType.NotSpecified)
+                else if ((a.ReviewState == ApprovalType.NotSpecified) && (a.ApprovalRequired == true))
                     ++TotalPending;
 
                 if (a.ViewedAll == true)

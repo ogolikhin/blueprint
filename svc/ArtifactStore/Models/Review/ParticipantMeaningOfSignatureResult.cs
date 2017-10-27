@@ -10,5 +10,6 @@ namespace ArtifactStore.Models.Review
     {
         public int ParticipantId { get; set; }
         public int MeaningOfSignatureId { get; set; }
+        public string Label { get; set; }
     }
 }

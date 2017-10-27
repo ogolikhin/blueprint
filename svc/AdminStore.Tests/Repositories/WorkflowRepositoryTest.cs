@@ -846,6 +846,28 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task CopyWorkflowAsync_WorkflowWithSpecifiedNameAlreadyExists_ConflictException()
+        {
+            // Arrange
+            int errorCode = 50023;
+            var updatedWorkflowId = 0;
+            _workflowId = 10000;
+            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("CopyWorkflow",
+                                                        It.IsAny<Dictionary<string, object>>(),
+                                                        updatedWorkflowId,
+                                                        new Dictionary<string, object>
+                                                        {
+                                                            { "ErrorCode", errorCode }
+                                                        });
+            // Act
+            await
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _workflowName);
+
+            // Assert
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(Exception))]
         public async Task CopyWorkflowAsync_GeneralError_Exception()
         {

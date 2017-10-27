@@ -1091,6 +1091,8 @@ namespace AdminStore.Repositories.Workflow
                 {
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                    case (int)SqlErrorCodes.WorkflowWithSuchANameAlreadyExists:
+                        throw new ConflictException(ErrorMessages.WorkflowAlreadyExists, ErrorCodes.Conflict);
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfCopyingWorkflow);
                 }

@@ -12,7 +12,7 @@ namespace AdminStore.Extensions
     {
 
         [TestMethod]
-        public void Validate_NameToShort_BadRequest()
+        public void Validate_NameTooShort_BadRequest()
         {
             // arrange
             Exception exception = null;
@@ -35,7 +35,7 @@ namespace AdminStore.Extensions
         }
 
         [TestMethod]
-        public void Validate_NameToLong_ReturnBadRequestException()
+        public void Validate_NameToLoong_ReturnBadRequestException()
         {
             // arrange
             Exception exception = null;

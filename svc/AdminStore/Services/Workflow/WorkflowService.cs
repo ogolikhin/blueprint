@@ -254,7 +254,7 @@ namespace AdminStore.Services.Workflow
                 var guid = await UploadErrorsToFileStoreAsync(textErrors);
 
                 importResult.ErrorsGuid = guid;
-                importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
+                importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
 
 #if DEBUG
                 importResult.ErrorMessage = textErrors;

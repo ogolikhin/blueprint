@@ -421,7 +421,7 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest. name parameter is invalid. </response>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
         /// <response code="403">Forbidden if used doesn’t have permissions to copy workflow</response>
-        /// <response code="404">NotFound. if the workflow with workflowId doesn’t exists or removed from the system, user with userId in Session doesn’t exists or removed from the system.</response>
+        /// <response code="404">NotFound. if the workflow with workflowId doesn’t exists or removed from the system.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [SessionRequired]
@@ -430,6 +430,8 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> CopyWorkflowAsync(int workflowId, [FromUri] string name)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            name = name?.Trim(); // remove whitespaces
 
             // create a DTO for name validation only
             CreateWorkflowDto copyWorkflowDto = new CreateWorkflowDto()

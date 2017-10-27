@@ -1612,37 +1612,6 @@ namespace AdminStore.Controllers
             Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
         }
 
-        [TestMethod]
-        public async Task CopyWorkflowAsync_WorkflowNameIsInvalid_ReturnBadRequestException()
-        {
-            // arrange
-            var updatedWorkflowId = 1;
-            Exception exception = null;
-
-            _workflowName = "Lorem ipsum dolor sit ame"; // 25 symbols - only max 24 is Ok
-
-            _privilegesRepositoryMock
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
-
-            _workflowRepositoryMock.Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId, _workflowName))
-                .ReturnsAsync(updatedWorkflowId);
-
-            // act
-            try
-            {
-                await _controller.CopyWorkflowAsync(WorkflowId, _workflowName);
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-
-            // assert
-            Assert.IsNotNull(exception);
-            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
-        }
-
         #endregion
     }
 }

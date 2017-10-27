@@ -12,7 +12,7 @@ namespace AdminStore.Extensions
     {
 
         [TestMethod]
-        public void Validate_InvalidNameLength_BadRequest()
+        public void Validate_NameToShort_BadRequest()
         {
             // arrange
             Exception exception = null;
@@ -22,6 +22,29 @@ namespace AdminStore.Extensions
             try
             {
                model.Validate();
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(ErrorMessages.WorkflowNameError, exception.Message);
+        }
+
+        [TestMethod]
+        public void Validate_NameToLong_ReturnBadRequestException()
+        {
+            // arrange
+            Exception exception = null;
+            var model = new CreateWorkflowDto() { Name = "Lorem ipsum dolor sit ame" }; // 25 symbols - only max 24 is Ok
+
+            // act
+            try
+            {
+                model.Validate();
             }
             catch (Exception ex)
             {

@@ -1075,11 +1075,6 @@ namespace AdminStore.Repositories.Workflow
                 throw new ArgumentOutOfRangeException(nameof(workflowId));
             }
 
-            if (userId < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(userId));
-            }
-
             var parameters = new DynamicParameters();
 
             parameters.Add("@WorkflowId", workflowId);
@@ -1096,8 +1091,6 @@ namespace AdminStore.Repositories.Workflow
                 {
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
-                    case (int)SqlErrorCodes.UserLoginNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfCopyingWorkflow);
                 }

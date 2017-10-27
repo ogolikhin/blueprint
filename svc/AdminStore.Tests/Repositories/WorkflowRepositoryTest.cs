@@ -823,44 +823,6 @@ namespace AdminStore.Repositories
             // Assert
 
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task CopyWorkflowAsync_UserIdNotValid_ArgumentOutOfRangeException()
-        {
-            // Arrange
-            _userId = 0;
-
-            // Act
-            await
-                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _workflowName);
-
-            // Assert
-
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task CopyWorkflowAsync_UserIdNotExists_ResourceNotFoundException()
-        {
-            // Arrange
-            int errorCode = 50002;
-            var updatedWorkflowId = 0;
-            _userId = 10000;
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync("CopyWorkflow",
-                                                        It.IsAny<Dictionary<string, object>>(),
-                                                        updatedWorkflowId,
-                                                        new Dictionary<string, object>
-                                                        {
-                                                            { "ErrorCode", errorCode }
-                                                        });
-            // Act
-            await
-                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _workflowName);
-
-            // Assert
-        }
-
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task CopyWorkflowAsync_WorkflowIdNotExists_ResourceNotFoundException()

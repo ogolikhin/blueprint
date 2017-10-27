@@ -1400,21 +1400,12 @@ namespace ArtifactStore.Repositories
             // Only show error message if on client side user have an outdated data about deleted artifacts from review
             if (content.SelectionType == SelectionType.Selected && artifactsWithReadPermissionsCount != updatingArtifactsCount)
             {
-                // Update ArtifactNotFound error with additional items count
-                var artifactNotFoundError = resultErrors.Where(re => re.ErrorCode == ErrorCodes.ArtifactNotFound).SingleOrDefault();
-                if (artifactNotFoundError != null)
+                resultErrors.Add(new ReviewChangeItemsError()
                 {
-                    artifactNotFoundError.ItemsCount = artifactNotFoundError.ItemsCount + (updatingArtifactsCount - artifactsWithReadPermissionsCount);
-                }
-                else
-                {
-                    resultErrors.Add(new ReviewChangeItemsError()
-                    {
-                        ItemsCount = updatingArtifactsCount - artifactsWithReadPermissionsCount,
-                        ErrorCode = ErrorCodes.ArtifactNotFound,
-                        ErrorMessage = "There is no read permissions for some artifacts."
-                    });
-                }
+                    ItemsCount = updatingArtifactsCount - artifactsWithReadPermissionsCount,
+                    ErrorCode = ErrorCodes.UnauthorizedAccess,
+                    ErrorMessage = "There is no read permissions for some artifacts."
+                });
             }
 
             // Remove deleted items from the result
@@ -2153,12 +2144,6 @@ namespace ArtifactStore.Repositories
         {
             var errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
-        }
-
-        private static void ThrowUserCannotAccessArtifactInTheReviewException(int projectId)
-        {
-            var errorMessage = I18NHelper.FormatInvariant("Artifacts could not be updated because they are no longer accessible in this project (Id:{0}).", projectId);
-            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ArtifactNotFound);
         }
 
         private static void ThrowReviewNotFoundException(int reviewId, int? revisionId = null)

@@ -1029,6 +1029,13 @@ namespace AdminStore.Repositories.Workflow
 
                     case (int)SqlErrorCodes.WorkflowProjectHasNoArtifactTypes:
                         throw new ConflictException(ErrorMessages.WorkflowProjectHasNoArtifactTypes, ErrorCodes.WorkflowProjectHasNoArtifactTypes);
+
+                    case (int)SqlErrorCodes.WorkflowProjectHasNoLiveArtifactTypes:
+                        throw new ConflictException(ErrorMessages.WorkflowProjectHasNoLiveArtifactTypes, ErrorCodes.WorkflowProjectHasNoLiveArtifactTypes);
+
+                    case (int)SqlErrorCodes.WorkflowProjectHasNoLiveArtifactTypesAmongChecked:
+                        throw new ConflictException(ErrorMessages.WorkflowProjectHasNoLiveArtifactTypesAmongChecked, ErrorCodes.WorkflowProjectHasNoLiveArtifactTypesAmongChecked);
+
                 }
             }
 

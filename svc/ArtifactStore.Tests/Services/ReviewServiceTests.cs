@@ -9,6 +9,8 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ArtifactStore.Services
 {
@@ -16,7 +18,7 @@ namespace ArtifactStore.Services
     public class ReviewServiceTests
     {
         private const int ReviewId = 1;
-        private const int UserId = 1;
+        private const int UserId = 2;
 
         private IReviewsService _reviewService;
         private Mock<IReviewsRepository> _mockReviewRepository;
@@ -26,6 +28,9 @@ namespace ArtifactStore.Services
 
         private ReviewPackageRawData _reviewPackageRawData;
         private ArtifactBasicDetails _artifactDetails;
+
+        private bool _hasReadPermissions;
+        private Dictionary<int, List<ParticipantMeaningOfSignatureResult>> _possibleMeaningOfSignatures;
 
         [TestInitialize]
         public void Initialize()
@@ -40,21 +45,33 @@ namespace ArtifactStore.Services
             };
 
             _mockReviewRepository = new Mock<IReviewsRepository>();
+
             _mockReviewRepository
                 .Setup(m => m.GetReviewPackageRawDataAsync(ReviewId, UserId, It.IsAny<int>()))
                 .ReturnsAsync(_reviewPackageRawData);
+
+            _mockReviewRepository
+                .Setup(m => m.GetPossibleMeaningOfSignaturesForParticipantsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(() => _possibleMeaningOfSignatures);
+
             _mockArtifactRepository = new Mock<IArtifactRepository>();
             _mockArtifactRepository
                 .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
                 .ReturnsAsync(_artifactDetails);
+
             _mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+
             _mockArtifactPermissionsRepository
                 .Setup(m => m.HasReadPermissions(ReviewId, UserId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
-                .ReturnsAsync(true);
+                .ReturnsAsync(() => _hasReadPermissions);
+
             _mockLockArtifactsRepository = new Mock<ILockArtifactsRepository>();
+
             _mockLockArtifactsRepository
                 .Setup(m => m.LockArtifactAsync(ReviewId, UserId))
                 .ReturnsAsync(true);
+
+            _hasReadPermissions = true;
 
             _reviewService = new ReviewsService(
                 _mockReviewRepository.Object,
@@ -290,9 +307,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_ReviewNotAccessibleForUser_ThrowsAuthorizationException()
         {
             // Arrange
-            _mockArtifactPermissionsRepository
-                .Setup(m => m.HasReadPermissions(ReviewId, UserId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
-                .ReturnsAsync(false);
+            _hasReadPermissions = false;
 
             // Act
             try
@@ -703,5 +718,440 @@ namespace ArtifactStore.Services
         }
 
         #endregion UpdateReviewSettingsAsync
+
+        #region UpdateMeaningOfSignaturesAsync
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_User_Does_Not_Have_Read_Permissions_For_Review()
+        {
+            // Arrange
+            _hasReadPermissions = false;
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new MeaningOfSignatureParameter[0]);
+            }
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("An AuthenticationException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Review_Is_Closed()
+        {
+            // Arrange
+            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new MeaningOfSignatureParameter[0]);
+            }
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ConflictException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Meaning_Of_Signature_Is_Not_Enabled()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = false;
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new MeaningOfSignatureParameter[0]);
+            }
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.MeaningOfSignatureNotEnabled, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ConflictException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Participant_Is_Not_In_Review()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
+                    new MeaningOfSignatureParameter() {
+                    Adding = true,
+                    MeaningOfSignatureId = 3,
+                    ParticipantId = 4
+                    }
+                });
+            }
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UserNotInReview, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A BadRequestException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Participant_Is_Not_An_Approver()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            {
+                new ReviewerRawData()
+                {
+                    UserId = 4,
+                    Permission = ReviewParticipantRole.Reviewer
+                }
+            };
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
+                    new MeaningOfSignatureParameter() {
+                    Adding = true,
+                    MeaningOfSignatureId = 3,
+                    ParticipantId = 4
+                    }
+                });
+            }
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ParticipantIsNotAnApprover, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A BadRequestException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_There_Are_No_Possible_Meaning_Of_Signatures_For_A_Participant()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            {
+                new ReviewerRawData()
+                {
+                    UserId = 4,
+                    Permission = ReviewParticipantRole.Approver
+                }
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>();
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
+                    new MeaningOfSignatureParameter() {
+                    Adding = true,
+                    MeaningOfSignatureId = 3,
+                    ParticipantId = 4
+                    }
+                });
+            }
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.MeaningOfSignatureNotPossible, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ConflictException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_There_Are_No_Matching_Meaning_Of_Signatures_For_A_Participant()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            {
+                new ReviewerRawData()
+                {
+                    UserId = 4,
+                    Permission = ReviewParticipantRole.Approver
+                }
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            {
+                { 4, new List<ParticipantMeaningOfSignatureResult>() }
+            };
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
+                    new MeaningOfSignatureParameter() {
+                    Adding = true,
+                    MeaningOfSignatureId = 3,
+                    ParticipantId = 4
+                    }
+                });
+            }
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.MeaningOfSignatureNotPossible, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ConflictException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Add_New_Meaning_Of_Signature_To_Participant_When_SelectedMoS_Is_Null()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            {
+                new ReviewerRawData()
+                {
+                    UserId = 4,
+                    Permission = ReviewParticipantRole.Approver
+                }
+            };
+
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            {
+                GroupId = 6,
+                MeaningOfSignatureId = 3,
+                MeaningOfSignatureValue = "foo",
+                ParticipantId = 4,
+                RoleAssignmentId = 7,
+                RoleId = 8,
+                RoleName = "bar"
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            {
+                { 4, new List<ParticipantMeaningOfSignatureResult>()
+                    {
+                        meaningOfSignature
+                    }
+                }
+            };
+
+            // Act
+            await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
+                new MeaningOfSignatureParameter() {
+                Adding = true,
+                MeaningOfSignatureId = 3,
+                ParticipantId = 4
+                }
+            });
+
+            // Assert
+            var result = _reviewPackageRawData.Reviewers.FirstOrDefault().SelectedRoleMoSAssignments.FirstOrDefault();
+
+            Assert.IsNotNull(result, "A meaning of signature should have been added");
+            Assert.AreEqual(meaningOfSignature.GroupId, result.GroupId);
+            Assert.AreEqual(meaningOfSignature.MeaningOfSignatureId, result.MeaningOfSignatureId);
+            Assert.AreEqual(meaningOfSignature.MeaningOfSignatureValue, result.MeaningOfSignatureValue);
+            Assert.AreEqual(4, result.ParticipantId);
+            Assert.AreEqual(ReviewId, result.ReviewId);
+            Assert.AreEqual(meaningOfSignature.RoleAssignmentId, result.RoleAssignmentId);
+            Assert.AreEqual(meaningOfSignature.RoleId, result.RoleId);
+            Assert.AreEqual(meaningOfSignature.RoleName, result.RoleName);
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Add_New_Meaning_Of_Signature_To_Participant_When_SelectedMoS_Is_Empty()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            {
+                new ReviewerRawData()
+                {
+                    UserId = 4,
+                    Permission = ReviewParticipantRole.Approver,
+                    SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>()
+                }
+            };
+
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            {
+                GroupId = 6,
+                MeaningOfSignatureId = 3,
+                MeaningOfSignatureValue = "foo",
+                ParticipantId = 4,
+                RoleAssignmentId = 7,
+                RoleId = 8,
+                RoleName = "bar"
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            {
+                { 4, new List<ParticipantMeaningOfSignatureResult>()
+                    {
+                        meaningOfSignature
+                    }
+                }
+            };
+
+            // Act
+            await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
+                new MeaningOfSignatureParameter() {
+                Adding = true,
+                MeaningOfSignatureId = 3,
+                ParticipantId = 4
+                }
+            });
+
+            // Assert
+            var result = _reviewPackageRawData.Reviewers.FirstOrDefault().SelectedRoleMoSAssignments.FirstOrDefault();
+
+            Assert.IsNotNull(result, "A meaning of signature should have been added");
+            Assert.AreEqual(meaningOfSignature.GroupId, result.GroupId);
+            Assert.AreEqual(meaningOfSignature.MeaningOfSignatureId, result.MeaningOfSignatureId);
+            Assert.AreEqual(meaningOfSignature.MeaningOfSignatureValue, result.MeaningOfSignatureValue);
+            Assert.AreEqual(4, result.ParticipantId);
+            Assert.AreEqual(ReviewId, result.ReviewId);
+            Assert.AreEqual(meaningOfSignature.RoleAssignmentId, result.RoleAssignmentId);
+            Assert.AreEqual(meaningOfSignature.RoleId, result.RoleId);
+            Assert.AreEqual(meaningOfSignature.RoleName, result.RoleName);
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Update_Existing_Meaning_Of_Signature_To_Participant()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            {
+                new ReviewerRawData()
+                {
+                    UserId = 4,
+                    Permission = ReviewParticipantRole.Approver,
+                    SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>()
+                    {
+                        new ParticipantMeaningOfSignature()
+                        {
+                            MeaningOfSignatureId = 3
+                        }
+                    }
+                }
+            };
+
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            {
+                GroupId = 6,
+                MeaningOfSignatureId = 3,
+                MeaningOfSignatureValue = "foo",
+                ParticipantId = 4,
+                RoleAssignmentId = 7,
+                RoleId = 8,
+                RoleName = "bar"
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            {
+                { 4, new List<ParticipantMeaningOfSignatureResult>()
+                    {
+                        meaningOfSignature
+                    }
+                }
+            };
+
+            // Act
+            await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
+                new MeaningOfSignatureParameter() {
+                Adding = true,
+                MeaningOfSignatureId = 3,
+                ParticipantId = 4
+                }
+            });
+
+            // Assert
+            var selectedMos = _reviewPackageRawData.Reviewers.FirstOrDefault().SelectedRoleMoSAssignments;
+            var result = selectedMos.FirstOrDefault();
+
+            Assert.AreEqual(1, selectedMos.Count, "There should only be one meaning of signature");
+            Assert.IsNotNull(result, "A meaning of signature should have been added");
+            Assert.AreEqual(meaningOfSignature.GroupId, result.GroupId);
+            Assert.AreEqual(meaningOfSignature.MeaningOfSignatureId, result.MeaningOfSignatureId);
+            Assert.AreEqual(meaningOfSignature.MeaningOfSignatureValue, result.MeaningOfSignatureValue);
+            Assert.AreEqual(4, result.ParticipantId);
+            Assert.AreEqual(ReviewId, result.ReviewId);
+            Assert.AreEqual(meaningOfSignature.RoleAssignmentId, result.RoleAssignmentId);
+            Assert.AreEqual(meaningOfSignature.RoleId, result.RoleId);
+            Assert.AreEqual(meaningOfSignature.RoleName, result.RoleName);
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Call_UpdateReviewPackage()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            {
+                new ReviewerRawData()
+                {
+                    UserId = 4,
+                    Permission = ReviewParticipantRole.Approver
+                }
+            };
+
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            {
+                GroupId = 6,
+                MeaningOfSignatureId = 3,
+                MeaningOfSignatureValue = "foo",
+                ParticipantId = 4,
+                RoleAssignmentId = 7,
+                RoleId = 8,
+                RoleName = "bar"
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            {
+                { 4, new List<ParticipantMeaningOfSignatureResult>()
+                    {
+                        meaningOfSignature
+                    }
+                }
+            };
+
+            // Act
+            await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
+                new MeaningOfSignatureParameter() {
+                Adding = true,
+                MeaningOfSignatureId = 3,
+                ParticipantId = 4
+                }
+            });
+
+            // Assert
+            _mockReviewRepository.Verify(repo => repo.UpdateReviewPackageRawDataAsync(ReviewId, _reviewPackageRawData, 2));
+        }
+
+        #endregion
     }
 }

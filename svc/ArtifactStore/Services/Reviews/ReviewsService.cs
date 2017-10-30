@@ -194,7 +194,7 @@ namespace ArtifactStore.Services.Reviews
 
             if (!reviewPackage.IsMoSEnabled)
             {
-                throw new BadRequestException("Could not update review because meaning of signature is not enabled.", ErrorCodes.MeaningOfSignatureNotEnabled);
+                throw new ConflictException("Could not update review because meaning of signature is not enabled.", ErrorCodes.MeaningOfSignatureNotEnabled);
             }
 
             var participantIds = meaningOfSignatureParamList.Select(mos => mos.ParticipantId);
@@ -219,17 +219,22 @@ namespace ArtifactStore.Services.Reviews
 
                 if (!possibleMeaningOfSignatures.ContainsKey(participantId))
                 {
-                    throw new BadRequestException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
+                    throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
                 }
 
                 var meaningOfSignature = possibleMeaningOfSignatures[participantId].FirstOrDefault(mos => mos.MeaningOfSignatureId == meaningOfSignatureParameter.MeaningOfSignatureId);
 
                 if (meaningOfSignature == null)
                 {
-                    throw new BadRequestException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
+                    throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
                 }
 
                 ParticipantMeaningOfSignature participantMeaningOfSignature;
+
+                if (participant.SelectedRoleMoSAssignments == null)
+                {
+                    participant.SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>();
+                }
 
                 if ((participantMeaningOfSignature = participant.SelectedRoleMoSAssignments.FirstOrDefault(pmos => pmos.MeaningOfSignatureId == meaningOfSignature.MeaningOfSignatureId)) == null)
                 {

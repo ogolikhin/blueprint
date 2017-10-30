@@ -1,4 +1,7 @@
 ﻿using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using ArtifactStore.Helpers;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Exceptions;
@@ -171,6 +174,81 @@ namespace ArtifactStore.Services.Reviews
             }
 
             return artifactInfo;
+        }
+
+        public async Task UpdateMeaningOfSignaturesAsync(int reviewId, int userId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)
+        {
+            if (!await _permissionsRepository.HasReadPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
+            }
+
+            var meaningOfSignatureParamList = meaningOfSignatureParameters.ToList();
+
+            var reviewPackage = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+
+            if (reviewPackage.Status == ReviewPackageStatus.Closed)
+            {
+                throw ReviewsExceptionHelper.ReviewClosedException();
+            }
+
+            if (!reviewPackage.IsMoSEnabled)
+            {
+                throw new BadRequestException("Could not update review because meaning of signature is not enabled.", ErrorCodes.MeaningOfSignatureNotEnabled);
+            }
+
+            var participantIds = meaningOfSignatureParamList.Select(mos => mos.ParticipantId);
+
+            var possibleMeaningOfSignatures = await _reviewsRepository.GetPossibleMeaningOfSignaturesForParticipantsAsync(participantIds);
+
+            foreach (var meaningOfSignatureParameter in meaningOfSignatureParamList)
+            {
+                var participantId = meaningOfSignatureParameter.ParticipantId;
+
+                var participant = reviewPackage.Reviewers.FirstOrDefault(r => r.UserId == participantId);
+
+                if (participant == null)
+                {
+                    throw new BadRequestException("Could not update meaning of signature because participant is not in review.", ErrorCodes.UserNotInReview);
+                }
+
+                if (participant.Permission != ReviewParticipantRole.Approver)
+                {
+                    throw new BadRequestException("Could not update meaning of signature because participant is not an approver.", ErrorCodes.ParticipantIsNotAnApprover);
+                }
+
+                if (!possibleMeaningOfSignatures.ContainsKey(participantId))
+                {
+                    throw new BadRequestException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
+                }
+
+                var meaningOfSignature = possibleMeaningOfSignatures[participantId].FirstOrDefault(mos => mos.MeaningOfSignatureId == meaningOfSignatureParameter.MeaningOfSignatureId);
+
+                if (meaningOfSignature == null)
+                {
+                    throw new BadRequestException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
+                }
+
+                ParticipantMeaningOfSignature participantMeaningOfSignature;
+
+                if ((participantMeaningOfSignature = participant.SelectedRoleMoSAssignments.FirstOrDefault(pmos => pmos.MeaningOfSignatureId == meaningOfSignature.MeaningOfSignatureId)) == null)
+                {
+                    participantMeaningOfSignature = new ParticipantMeaningOfSignature();
+
+                    participant.SelectedRoleMoSAssignments.Add(participantMeaningOfSignature);
+                }
+
+                participantMeaningOfSignature.ParticipantId = participantId;
+                participantMeaningOfSignature.ReviewId = reviewId;
+                participantMeaningOfSignature.MeaningOfSignatureId = meaningOfSignature.MeaningOfSignatureId;
+                participantMeaningOfSignature.MeaningOfSignatureValue = meaningOfSignature.MeaningOfSignatureValue;
+                participantMeaningOfSignature.RoleId = meaningOfSignature.RoleId;
+                participantMeaningOfSignature.RoleName = meaningOfSignature.RoleName;
+                participantMeaningOfSignature.RoleAssignmentId = meaningOfSignature.RoleAssignmentId;
+                participantMeaningOfSignature.GroupId = meaningOfSignature.GroupId;
+            }
+
+            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackage, userId);
         }
     }
 }

@@ -744,7 +744,7 @@ namespace ArtifactStore.Repositories
                 TotalArtifactsRequestedApproval = participants.Item4.SingleOrDefault()
             };
 
-            if (await IsMeaningOfSignatureEnabled(reviewId, userId, true))
+            if (await IsMeaningOfSignatureEnabledAsync(reviewId, userId, true))
             {
                 var approverIds = participantsContent.Items.Where(p => p.Role == ReviewParticipantRole.Approver).Select(r => r.UserId).ToList();
 
@@ -764,7 +764,7 @@ namespace ArtifactStore.Repositories
 
                     if (possibleMeaningOfSignatures.ContainsKey(reviewer.UserId))
                     {
-                        reviewer.PossibleMeaningOfSignatures = possibleMeaningOfSignatures[reviewer.UserId];
+                        reviewer.PossibleMeaningOfSignatures = possibleMeaningOfSignatures[reviewer.UserId].Select(mos => new DropdownItem(mos.MeaningOfSignatureValue, mos.MeaningOfSignatureId));
                     }
                     else
                     {
@@ -776,7 +776,7 @@ namespace ArtifactStore.Repositories
             return participantsContent;
         }
 
-        private async Task<bool> IsMeaningOfSignatureEnabled(int reviewId, int userId, bool addDrafts)
+        public async Task<bool> IsMeaningOfSignatureEnabledAsync(int reviewId, int userId, bool addDrafts)
         {
             var parameters = new DynamicParameters();
 
@@ -800,14 +800,14 @@ namespace ArtifactStore.Repositories
             return result.GroupBy(mos => mos.ParticipantId, mos => mos.MeaningOfSignatureId).ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
         }
 
-        private async Task<Dictionary<int, List<DropdownItem>>> GetPossibleMeaningOfSignaturesForParticipantsAsync(IEnumerable<int> participantIds)
+        public async Task<Dictionary<int, List<ParticipantMeaningOfSignatureResult>>> GetPossibleMeaningOfSignaturesForParticipantsAsync(IEnumerable<int> participantIds)
         {
             var parameters = new DynamicParameters();
             parameters.Add("participantIds", SqlConnectionWrapper.ToDataTable(participantIds));
 
             var result = await _connectionWrapper.QueryAsync<ParticipantMeaningOfSignatureResult>("GetPossibleMeaningOfSignaturesForParticipants", parameters, commandType: CommandType.StoredProcedure);
 
-            return result.GroupBy(mos => mos.ParticipantId, mos => new DropdownItem(mos.Label, mos.MeaningOfSignatureId))
+            return result.GroupBy(mos => mos.ParticipantId)
                          .ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
         }
 
@@ -2092,8 +2092,7 @@ namespace ArtifactStore.Repositories
 
         private static void ThrowUserCannotAccessReviewException(int reviewId)
         {
-            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the review (Id:{0}).", reviewId);
-            throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+            throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
         }
 
         private static void ThrowUserCannotAccessArtifactInTheReviewException(int projectId)
@@ -2130,14 +2129,12 @@ namespace ArtifactStore.Repositories
 
         private static void ThrowReviewClosedException()
         {
-            var errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
-            throw new ConflictException(errorMessage, ErrorCodes.ReviewClosed);
+            throw ReviewsExceptionHelper.ReviewClosedException();
         }
 
         private static void ThrowReviewExpiredException()
         {
-            var errorMessage = "This Review has expired. No modifications can be made to its artifacts or participants.";
-            throw new ConflictException(errorMessage, ErrorCodes.ReviewExpired);
+            throw ReviewsExceptionHelper.ReviewExpiredException();
         }
 
         private static void ThrowReviewActiveFormalException()

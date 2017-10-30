@@ -91,10 +91,13 @@
         public const int NotAllArtifactsReviewed = 10006;
         public const int BaselineIsNotSealed = 10007;
         public const int ReviewExpired = 10008;
+        public const int MeaningOfSignatureNotEnabled = 10009;
+        public const int MeaningOfSignatureNotPossible = 10010;
 
         // User Review Errors
         public const int UserDisabled = 11001;
         public const int UserNotInReview = 11002;
+        public const int ParticipantIsNotAnApprover = 11003;
 
         // Action Handler Service Errors
         public const int TenantInfoNotFound = 12000;

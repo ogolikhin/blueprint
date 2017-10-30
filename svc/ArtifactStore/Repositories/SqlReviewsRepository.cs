@@ -1443,12 +1443,12 @@ namespace ArtifactStore.Repositories
 
                 updatingArtifacts = rdReviewContents.Artifacts.Where(a => content.ItemIds.Contains(a.Id)).ToList();
 
-                var foundArtifactsCount = updatingArtifacts.Count();
-                var requestedArtifactsCount = updatingArtifacts.Count();
+                var foundArtifactsCount = updatingArtifacts.Count;
+                var requestedArtifactsCount = content.ItemIds.Count();
 
                 if (foundArtifactsCount != requestedArtifactsCount)
                 {
-                    resultErrors.Add(new ReviewChangeItemsError()
+                    resultErrors.Add(new ReviewChangeItemsError
                     {
                         ItemsCount = requestedArtifactsCount - foundArtifactsCount,
                         ErrorCode = ErrorCodes.ApprovalRequiredArtifactNotInReview,

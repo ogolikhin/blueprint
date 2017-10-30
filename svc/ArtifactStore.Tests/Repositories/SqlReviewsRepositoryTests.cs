@@ -2059,6 +2059,45 @@ namespace ArtifactStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
+        public async Task AssignApprovalRequiredToArtifacts_Review_ActiveFormal_Throw_ConflictException()
+        {
+            var reviewId = 1;
+            var userId = 1;
+
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                LockedByUserId = userId,
+                ReviewStatus = ReviewPackageStatus.Active,
+                ReviewType = ReviewType.Formal,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ItemIds = new List<int>(new[] { 1, 2, 3 }),
+                ApprovalRequired = true
+            };
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
+            // Act
+            await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_BadRequestException()
         {
             var reviewId = 1;
@@ -2205,6 +2244,66 @@ namespace ArtifactStore.Repositories
 
             var firstError = result.ReviewChangeItemErrors.First();
             Assert.IsTrue(firstError.ErrorCode == ErrorCodes.ArtifactNotFound);
+            Assert.IsTrue(firstError.ItemsCount == 2);
+        }
+
+        [TestMethod]
+        public async Task AssignApprovalRequiredToArtifacts_SomeArtifactsAreNotInTheReview()
+        {
+            var reviewId = 100;
+            var userId = 1;
+            var projectId = 200;
+
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                LockedByUserId = userId,
+                ReviewStatus = ReviewPackageStatus.Draft,
+                BaselineId = null,
+                IsReviewDeleted = false,
+                IsUserDisabled = false,
+                ReviewType = ReviewType.Informal
+            };
+            propertyValueStringResult.Add(propertyValue);
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var artifactIds = new List<int>(new[] { 1, 2, 3, 4, 5 });
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ItemIds = artifactIds,
+                ApprovalRequired = false
+            };
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
+
+            var aproovalRequestedArtifactIds = new List<int>(new[] { 1, 2, 3 });
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetDeletedAndNotInProjectItems(aproovalRequestedArtifactIds, projectId)).ReturnsAsync(new List<int>());
+
+            SetupArtifactPermissionsCheck(aproovalRequestedArtifactIds, userId, new Dictionary<int, RolePermissions>()
+            {
+                { aproovalRequestedArtifactIds[0], RolePermissions.Read },
+                { aproovalRequestedArtifactIds[1], RolePermissions.Read },
+                { aproovalRequestedArtifactIds[2], RolePermissions.Read }
+            });
+
+            // Act
+            var result = await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.ReviewChangeItemErrors);
+            Assert.IsTrue(result.ReviewChangeItemErrors.Count() == 1);
+
+            var firstError = result.ReviewChangeItemErrors.First();
+            Assert.IsTrue(firstError.ErrorCode == ErrorCodes.ApprovalRequiredArtifactNotInReview);
             Assert.IsTrue(firstError.ItemsCount == 2);
         }
 

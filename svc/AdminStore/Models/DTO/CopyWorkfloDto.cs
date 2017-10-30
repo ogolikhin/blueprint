@@ -10,13 +10,5 @@ namespace AdminStore.Models.DTO
     public class CopyWorkfloDto
     {
         public string Name { get; set; }
-
-        public void Validate()
-        {
-            if (Name == null || Name.Length < 4 || Name.Length > 24)
-            {
-                throw new BadRequestException(ErrorMessages.WorkflowNameError, ErrorCodes.BadRequest);
-            }
-        }
     }
 }

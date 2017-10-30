@@ -121,6 +121,7 @@
     <Compile Include="Helpers\SortingHelper.cs" />
     <Compile Include="Helpers\UserConverter.cs" />
     <Compile Include="Helpers\UserValidator.cs" />
+    <Compile Include="Helpers\Workflow\CopyWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\UpdateWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\CreateWorkflowDtoExtension.cs" />
     <Compile Include="Helpers\Workflow\WorkflowHelper.cs" />

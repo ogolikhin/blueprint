@@ -501,7 +501,12 @@ namespace AdminStore.Controllers
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            if (workflowDto == null)
+            if (workflowDto != null)
+            {
+                workflowDto.Name = workflowDto.Name?.Trim() ?? workflowDto.Name;
+                workflowDto.Description = workflowDto.Description?.Trim() ?? workflowDto.Description;
+            }
+            else
             {
                 throw new BadRequestException(ErrorMessages.WorkflowModelIsEmpty, ErrorCodes.BadRequest);
             }

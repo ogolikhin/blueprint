@@ -1337,7 +1337,7 @@ namespace ArtifactStore.Repositories
         {
             if (propertyResult.BaselineId == null || propertyResult.BaselineId < 1)
             {
-                var updatingArtifactIdsOnly = updatingArtifacts.Select(ua => ua.Id).ToList();
+                var updatingArtifactIdsOnly = updatingArtifacts.Select(ua => ua.Id);
                 var deletedAndNotInProjectItemIds = await _artifactVersionsRepository.GetDeletedAndNotInProjectItems(updatingArtifactIdsOnly, propertyResult.ProjectId.Value);
 
                 // Only show error message if on client side user have an outdated data about deleted artifacts from review

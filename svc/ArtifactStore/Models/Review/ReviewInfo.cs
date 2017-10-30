@@ -9,6 +9,8 @@ namespace ArtifactStore.Models.Review
 
         public ReviewPackageStatus ReviewStatus { get; set; }
 
+        public bool IsFormal { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? ExpiryTimestamp { get; set; }
     }

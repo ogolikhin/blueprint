@@ -1308,11 +1308,17 @@ namespace ArtifactStore.Repositories
                 {
                     reviewInfo.ReviewStatus = rawData.Status;
                     reviewInfo.ExpiryTimestamp = rawData.EndDate;
+                    reviewInfo.IsFormal = rawData.Status == ReviewPackageStatus.Active && HasAtLeastOneApprover(rawData.Reviewers);
                 }
                 result.Add(reviewInfo);
             }
 
             return result;
+        }
+
+        private bool HasAtLeastOneApprover(IEnumerable<ReviewerRawData> reviewers)
+        {
+            return reviewers != null && reviewers.Any(r => r.Permission == ReviewParticipantRole.Approver);
         }
 
         public async Task<ReviewChangeItemsStatusResult> AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)

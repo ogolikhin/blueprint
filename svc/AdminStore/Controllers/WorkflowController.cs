@@ -412,7 +412,40 @@ namespace AdminStore.Controllers
 
             return Ok(new DeleteResult { TotalDeleted = result });
         }
+        /// <summary>
+        /// Copy workflow with specified workflowId
+        /// </summary>
+        /// <param name="workflowId">workflow's id</param>
+        /// <param name="name">workflow's name</param>
+        /// <response code="200">OK. Copy of a workflow was successfuly done.</response>
+        /// <response code="400">BadRequest. name parameter is invalid. </response>
+        /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
+        /// <response code="403">Forbidden if used doesn’t have permissions to copy workflow</response>
+        /// <response code="404">NotFound. if the workflow with workflowId doesn’t exists or removed from the system.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [SessionRequired]
+        [Route("copy/{workflowId:int:min(1)}")]
+        [ResponseType(typeof(int))]
+        public async Task<IHttpActionResult> CopyWorkflowAsync(int workflowId, [FromUri] string name)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
+            name = name?.Trim(); // remove whitespaces
+
+            // create a DTO for name validation only
+            CreateWorkflowDto copyWorkflowDto = new CreateWorkflowDto()
+            {
+                Name = name,
+                Description = string.Empty
+            };
+
+            copyWorkflowDto.Validate();
+
+            var result = await _workflowRepository.CopyWorkflowAsync(workflowId, Session.UserId, name);
+
+            return Ok(result);
+        }
         /// <summary>
         /// Update workflow's status
         /// </summary>

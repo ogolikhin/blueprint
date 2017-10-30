@@ -216,6 +216,7 @@ namespace AdminStore.Controllers
         private WorkflowController _controller;
         private const int SessionUserId = 1;
         private const int WorkflowId = 1;
+        private CopyWorkfloDto _copyWorkfloDto;
         private const InstanceAdminPrivileges AllProjectDataPermissions = InstanceAdminPrivileges.AccessAllProjectData;
         private const int FolderId = 1;
         private const int ProjectId = 1;
@@ -284,6 +285,8 @@ namespace AdminStore.Controllers
             };
 
             _scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
+
+            _copyWorkfloDto = new CopyWorkfloDto() { Name = "TestWorkflow" };
         }
 
         #region AssignProjectsAndArtifactTypesToWorkflow
@@ -1555,6 +1558,91 @@ namespace AdminStore.Controllers
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
             Assert.AreEqual(exception.Message, ErrorMessages.WorkflowDescriptionLimit);
+        }
+
+        #endregion
+
+        #region CopyWorkflowAsync
+
+        [TestMethod]
+        public async Task CopyWorkflowAsync_AllParamsAreCorrectAndPermissionsOk_WorkflowSuccussfulyUpdated()
+        {
+            // arrange
+            var updatedWorkflowId = 1;
+
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowRepositoryMock.Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId, _copyWorkfloDto))
+                .ReturnsAsync(updatedWorkflowId);
+
+            // act
+            var result = await _controller.CopyWorkflowAsync(WorkflowId, _copyWorkfloDto) as OkNegotiatedContentResult<int>;
+            // assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Content);
+            Assert.AreEqual(result.Content, updatedWorkflowId);
+        }
+
+        [TestMethod]
+        public async Task CopyWorkflowAsync_IsufficientPermissions_ReturnAuthorizationException()
+        {
+            // arrange
+            var updatedWorkflowId = 1;
+            Exception exception = null;
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
+
+            _workflowRepositoryMock.Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId, _copyWorkfloDto))
+                .ReturnsAsync(updatedWorkflowId);
+
+            // act
+            try
+            {
+                await _controller.CopyWorkflowAsync(WorkflowId, _copyWorkfloDto);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(AuthorizationException));
+        }
+
+        [TestMethod]
+        public async Task CopyWorkflowAsync_WrokflowModelIncorrect_ReturnBadRequestException()
+        {
+            // arrange
+            var updatedWorkflowId = 0;
+            Exception exception = null;
+            _copyWorkfloDto = null;
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowRepositoryMock.Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId, _copyWorkfloDto))
+                .ReturnsAsync(updatedWorkflowId);
+
+            // act
+            try
+            {
+                await _controller.CopyWorkflowAsync(WorkflowId, _copyWorkfloDto);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(exception.Message, ErrorMessages.WorkflowModelIsEmpty);
         }
 
         #endregion

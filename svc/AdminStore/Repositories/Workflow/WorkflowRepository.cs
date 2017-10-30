@@ -13,6 +13,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Models.DTO;
 
 namespace AdminStore.Repositories.Workflow
 {
@@ -915,7 +916,7 @@ namespace AdminStore.Repositories.Workflow
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingWorkflow);
                     case (int)SqlErrorCodes.WorkflowWithSuchANameAlreadyExists:
-                        throw new ConflictException(ErrorMessages.WorkflowAlreadyExists, ErrorCodes.Conflict);
+                        throw new ConflictException(ErrorMessages.WorkflowAlreadyExists, ErrorCodes.WorkflowAlreadyExists);
 
                     case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
                         throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
@@ -1029,6 +1030,13 @@ namespace AdminStore.Repositories.Workflow
 
                     case (int)SqlErrorCodes.WorkflowProjectHasNoArtifactTypes:
                         throw new ConflictException(ErrorMessages.WorkflowProjectHasNoArtifactTypes, ErrorCodes.WorkflowProjectHasNoArtifactTypes);
+
+                    case (int)SqlErrorCodes.WorkflowProjectHasNoLiveArtifactTypes:
+                        throw new ConflictException(ErrorMessages.WorkflowProjectHasNoLiveArtifactTypes, ErrorCodes.WorkflowProjectHasNoLiveArtifactTypes);
+
+                    case (int)SqlErrorCodes.WorkflowProjectHasNoLiveArtifactTypesAmongChecked:
+                        throw new ConflictException(ErrorMessages.WorkflowProjectHasNoLiveArtifactTypesAmongChecked, ErrorCodes.WorkflowProjectHasNoLiveArtifactTypesAmongChecked);
+
                 }
             }
 
@@ -1066,6 +1074,39 @@ namespace AdminStore.Repositories.Workflow
 
             return result;
 
+        }
+
+        public async Task<int> CopyWorkflowAsync(int workflowId, int userId, CopyWorkfloDto copyWorkfloDto)
+        {
+            if (workflowId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(workflowId));
+            }
+
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@WorkflowId", workflowId);
+            parameters.Add("@UserId", userId);
+            parameters.Add("@Name", copyWorkfloDto.Name);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.ExecuteScalarAsync<int>("CopyWorkflow", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                    case (int)SqlErrorCodes.WorkflowWithSuchANameAlreadyExists:
+                        throw new ConflictException(ErrorMessages.WorkflowAlreadyExists, ErrorCodes.WorkflowAlreadyExists);
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new Exception(ErrorMessages.GeneralErrorOfCopyingWorkflow);
+                }
+            }
+
+            return result;
         }
 
         #endregion

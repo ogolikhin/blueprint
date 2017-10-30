@@ -12,6 +12,8 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Services;
+using System.Collections;
+using System.Data;
 
 namespace ArtifactStore.Repositories
 {
@@ -300,6 +302,7 @@ namespace ArtifactStore.Repositories
                 PredefinedType = ItemTypePredefined.ArtifactBaseline
             };
 
+            #region  Mock the method GetReviewParticipants
             var page = new Pagination();
             page.SetDefaultValues(0, int.MaxValue);
 
@@ -315,15 +318,51 @@ namespace ArtifactStore.Repositories
             IEnumerable<int> reqs = new List<int> { 6 };
             var result = new Tuple<IEnumerable<ReviewParticipant>, IEnumerable<int>, IEnumerable<int>, IEnumerable<int>>(rwp, arts, total, reqs);
 
-            bool drafts = true;
+            bool drafts = false;
             int max = int.MaxValue;
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, userId)).ReturnsAsync(baselineInfo);
             _itemInfoRepositoryMock.Setup(r => r.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(max);
 
-            var pparam = new Dictionary<string, object> { { "reviewId", reviewId }, { "offset", 0 }, { "limit", max }, { "revisionId", max }, { "userId", userId }, { "addDrafts", drafts } };
-            _cxn.SetupQueryMultipleAsync<ReviewParticipant, int, int, int>("GetReviewParticipants", pparam, result);
+            var prms = new Dictionary<string, object> { { "reviewId", reviewId }, { "offset", 0 }, { "limit", max }, { "revisionId", max }, { "userId", userId }, { "addDrafts", drafts } };
+            _cxn.SetupQueryMultipleAsync<ReviewParticipant, int, int, int>("GetReviewParticipants", prms, result);
+            #endregion
+
+            #region Mock ReviewArtifactHierarchy...
+
+            int refreshInterval = 20;
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
+            #endregion
+
+            #region Mock GetReviewArtifacts
+
+            var params1 = new Dictionary<string, object> {
+                { "reviewId", reviewId },
+                { "offset", 0 },
+                { "limit", int.MaxValue },
+                { "revisionId", 999 },
+                { "addDrafts", false },
+                { "userId", userId },
+                { "refreshInterval", 20 },
+                { "numResult", ParameterDirection.Output }, // 2 },
+                { "isFormal", ParameterDirection.Output } // false }
+
+            };
+
+            var outParams = new Dictionary<string, object>() {
+                { "numResult", 2 },
+                { "isFormal", false }
+            };
+
+            var reviewArtifacts = new List<ReviewedArtifact>();
+            var artifact1 = new ReviewedArtifact { Id = 2 };
+            reviewArtifacts.Add(artifact1);
+            var artifact2 = new ReviewedArtifact { Id = 3 };
+            reviewArtifacts.Add(artifact2);
+
+            _cxn.SetupQueryAsync("GetReviewArtifacts", params1, reviewArtifacts, outParams);
+            #endregion
 
             // Act
             var review = await _reviewsRepository.GetReviewSummaryMetrics(reviewId, userId);
@@ -338,51 +377,6 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(3, review.Artifacts.ArtifactStatus.Disapproved);
             Assert.AreEqual(2, review.Artifacts.ArtifactStatus.Pending);
             Assert.AreEqual(1, review.Artifacts.ArtifactStatus.UnviewedAll);
-        }
-
-
-        [TestMethod]
-        public async Task GetReviewSummaryMetrics_AuthorizationException()
-        {
-            // Arrange
-            var reviewId = 1;
-            var userId = 2;
-            var reviewInfo = new VersionControlArtifactInfo
-            {
-                PredefinedType = ItemTypePredefined.ArtifactReviewPackage
-            };
-
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
-            var reviewDetails = new ReviewSummaryDetails
-            {
-                ReviewPackageStatus = ReviewPackageStatus.Active,
-                ReviewParticipantRole = null, // User is not assigned to the review
-                TotalReviewers = 2
-            };
-            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
-            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
-
-            var isExceptionThrown = false;
-
-            // Act
-            try
-            {
-                var review = await _reviewsRepository.GetReviewSummaryMetrics(reviewId, userId);
-            }
-            catch (AuthorizationException ex)
-            {
-                isExceptionThrown = true;
-                // Assert
-                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
-                Assert.AreEqual("User does not have permissions to access the review (Id:1).", ex.Message);
-            }
-            finally
-            {
-                if (!isExceptionThrown)
-                {
-                    Assert.Fail();
-                }
-            }
         }
 
         [TestMethod]
@@ -2065,6 +2059,45 @@ namespace ArtifactStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
+        public async Task AssignApprovalRequiredToArtifacts_Review_ActiveFormal_Throw_ConflictException()
+        {
+            var reviewId = 1;
+            var userId = 1;
+
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                LockedByUserId = userId,
+                ReviewStatus = ReviewPackageStatus.Active,
+                ReviewType = ReviewType.Formal,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+            propertyValueStringResult.Add(propertyValue);
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ItemIds = new List<int>(new[] { 1, 2, 3 }),
+                ApprovalRequired = true
+            };
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
+            // Act
+            await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_BadRequestException()
         {
             var reviewId = 1;
@@ -2100,6 +2133,243 @@ namespace ArtifactStore.Repositories
             await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
 
         }
+
+
+        [TestMethod]
+        public async Task AssignApprovalRequiredToArtifacts_Review_Success()
+        {
+            var reviewId = 100;
+            var userId = 1;
+            var projectId = 200;
+
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                LockedByUserId = userId,
+                ReviewStatus = ReviewPackageStatus.Draft,
+                BaselineId = null,
+                IsReviewDeleted = false,
+                IsUserDisabled = false,
+                ReviewType = ReviewType.Informal
+            };
+            propertyValueStringResult.Add(propertyValue);
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var artifactIds = new List<int>(new[] { 1, 2, 3 });
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ItemIds = artifactIds,
+                ApprovalRequired = false
+            };
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
+
+            var aproovalRequestedArtifactIds = new List<int>(new[] { 1, 3 });
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetDeletedAndNotInProjectItems(aproovalRequestedArtifactIds, projectId)).ReturnsAsync(new List<int>());
+
+            SetupArtifactPermissionsCheck(aproovalRequestedArtifactIds, userId, new Dictionary<int, RolePermissions>()
+            {
+                { aproovalRequestedArtifactIds[0], RolePermissions.Read },
+                { aproovalRequestedArtifactIds[1], RolePermissions.Read }
+            });
+
+            // Act
+            var result = await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
+
+            Assert.IsNotNull(result);
+            Assert.IsNull(result.ReviewChangeItemErrors);
+        }
+
+        [TestMethod]
+        public async Task AssignApprovalRequiredToArtifacts_SomeArtifactsDeletedFromReview()
+        {
+            var reviewId = 100;
+            var userId = 1;
+            var projectId = 200;
+
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                LockedByUserId = userId,
+                ReviewStatus = ReviewPackageStatus.Draft,
+                BaselineId = null,
+                IsReviewDeleted = false,
+                IsUserDisabled = false,
+                ReviewType = ReviewType.Informal
+            };
+            propertyValueStringResult.Add(propertyValue);
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var artifactIds = new List<int>(new[] { 1, 2, 3 });
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ItemIds = artifactIds,
+                ApprovalRequired = false
+            };
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
+
+            var aproovalRequestedArtifactIds = new List<int>(new[] { 1, 2, 3 });
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetDeletedAndNotInProjectItems(aproovalRequestedArtifactIds, projectId)).ReturnsAsync(new List<int>(new[] { 1, 2 }));
+
+            var permissionsArtifactIds = new List<int>(new[] { 3 });
+            SetupArtifactPermissionsCheck(permissionsArtifactIds, userId, new Dictionary<int, RolePermissions>()
+            {
+                { permissionsArtifactIds[0], RolePermissions.Read }
+            });
+
+            // Act
+            var result = await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.ReviewChangeItemErrors);
+            Assert.IsTrue(result.ReviewChangeItemErrors.Count() == 1);
+
+            var firstError = result.ReviewChangeItemErrors.First();
+            Assert.IsTrue(firstError.ErrorCode == ErrorCodes.ArtifactNotFound);
+            Assert.IsTrue(firstError.ItemsCount == 2);
+        }
+
+        [TestMethod]
+        public async Task AssignApprovalRequiredToArtifacts_SomeArtifactsAreNotInTheReview()
+        {
+            var reviewId = 100;
+            var userId = 1;
+            var projectId = 200;
+
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                LockedByUserId = userId,
+                ReviewStatus = ReviewPackageStatus.Draft,
+                BaselineId = null,
+                IsReviewDeleted = false,
+                IsUserDisabled = false,
+                ReviewType = ReviewType.Informal
+            };
+            propertyValueStringResult.Add(propertyValue);
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var artifactIds = new List<int>(new[] { 1, 2, 3, 4, 5 });
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ItemIds = artifactIds,
+                ApprovalRequired = false
+            };
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
+
+            var aproovalRequestedArtifactIds = new List<int>(new[] { 1, 2, 3 });
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetDeletedAndNotInProjectItems(aproovalRequestedArtifactIds, projectId)).ReturnsAsync(new List<int>());
+
+            SetupArtifactPermissionsCheck(aproovalRequestedArtifactIds, userId, new Dictionary<int, RolePermissions>()
+            {
+                { aproovalRequestedArtifactIds[0], RolePermissions.Read },
+                { aproovalRequestedArtifactIds[1], RolePermissions.Read },
+                { aproovalRequestedArtifactIds[2], RolePermissions.Read }
+            });
+
+            // Act
+            var result = await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.ReviewChangeItemErrors);
+            Assert.IsTrue(result.ReviewChangeItemErrors.Count() == 1);
+
+            var firstError = result.ReviewChangeItemErrors.First();
+            Assert.IsTrue(firstError.ErrorCode == ErrorCodes.ApprovalRequiredArtifactNotInReview);
+            Assert.IsTrue(firstError.ItemsCount == 2);
+        }
+
+        [TestMethod]
+        public async Task AssignApprovalRequiredToArtifacts_DeletedAndNoPermissions()
+        {
+            var reviewId = 100;
+            var userId = 1;
+            var projectId = 200;
+
+            var propertyValueStringResult = new List<PropertyValueString>();
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
+                RevewSubartifactId = 3,
+                ProjectId = projectId,
+                LockedByUserId = userId,
+                ReviewStatus = ReviewPackageStatus.Draft,
+                BaselineId = null,
+                IsReviewDeleted = false,
+                IsUserDisabled = false,
+                ReviewType = ReviewType.Informal
+            };
+            propertyValueStringResult.Add(propertyValue);
+            var queryParameters = new Dictionary<string, object>()
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var artifactIds = new List<int>(new[] { 1, 2, 3 });
+            var content = new AssignArtifactsApprovalParameter()
+            {
+                ItemIds = artifactIds,
+                ApprovalRequired = false
+            };
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
+
+            var aproovalRequestedArtifactIds = new List<int>(new[] { 1, 2, 3 });
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetDeletedAndNotInProjectItems(aproovalRequestedArtifactIds, projectId)).ReturnsAsync(new List<int>(new[] { 1 }));
+
+            var permissionsArtifactIds = new List<int>(new[] { 2, 3 });
+            SetupArtifactPermissionsCheck(permissionsArtifactIds, userId, new Dictionary<int, RolePermissions>()
+            {
+                { permissionsArtifactIds[0], RolePermissions.Read }
+            });
+
+            // Act
+            var result = await _reviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, 1, content);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.ReviewChangeItemErrors);
+            Assert.IsTrue(result.ReviewChangeItemErrors.Count() == 2);
+
+            var firstError = result.ReviewChangeItemErrors.First();
+            Assert.IsTrue(firstError.ErrorCode == ErrorCodes.ArtifactNotFound);
+            Assert.IsTrue(firstError.ItemsCount == 1);
+
+            var secondError = result.ReviewChangeItemErrors.Last();
+            Assert.IsTrue(secondError.ErrorCode == ErrorCodes.UnauthorizedAccess);
+            Assert.IsTrue(secondError.ItemsCount == 1);
+        }
+
         #endregion
 
         #region UpdateReviewArtifactApprovalAsync

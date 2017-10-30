@@ -129,6 +129,7 @@
     <Compile Include="Models\AssignResult.cs" />
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />
+    <Compile Include="Models\DTO\CopyWorkfloDto.cs" />
     <Compile Include="Models\DTO\CreateWorkflowDto.cs" />
     <Compile Include="Models\DTO\FolderDto.cs" />
     <Compile Include="Models\DTO\ProjectFolderSearchDto.cs" />

@@ -416,7 +416,7 @@ namespace AdminStore.Controllers
         /// Copy workflow with specified workflowId
         /// </summary>
         /// <param name="workflowId">workflow's id</param>
-        /// <param name="name">workflow's name</param>
+        /// <param name="copyWorkfloDto">workflow's DTO</param>
         /// <response code="200">OK. Copy of a workflow was successfuly done.</response>
         /// <response code="400">BadRequest. name parameter is invalid. </response>
         /// <response code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</response>
@@ -427,22 +427,20 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("copy/{workflowId:int:min(1)}")]
         [ResponseType(typeof(int))]
-        public async Task<IHttpActionResult> CopyWorkflowAsync(int workflowId, [FromUri] string name)
+        public async Task<IHttpActionResult> CopyWorkflowAsync(int workflowId, [FromBody] CopyWorkfloDto copyWorkfloDto)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
-            name = name?.Trim(); // remove whitespaces
-
-            // create a DTO for name validation only
-            CreateWorkflowDto copyWorkflowDto = new CreateWorkflowDto()
+            if (copyWorkfloDto == null)
             {
-                Name = name,
-                Description = string.Empty
-            };
+                throw new BadRequestException(ErrorMessages.WorkflowModelIsEmpty, ErrorCodes.BadRequest);
+            }
 
-            copyWorkflowDto.Validate();
+            copyWorkfloDto.Name = copyWorkfloDto.Name?.Trim(); // remove whitespaces
 
-            var result = await _workflowRepository.CopyWorkflowAsync(workflowId, Session.UserId, name);
+            copyWorkfloDto.Validate();
+
+            var result = await _workflowRepository.CopyWorkflowAsync(workflowId, Session.UserId, copyWorkfloDto);
 
             return Ok(result);
         }

@@ -13,6 +13,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Models.DTO;
 
 namespace AdminStore.Repositories.Workflow
 {
@@ -1075,7 +1076,7 @@ namespace AdminStore.Repositories.Workflow
 
         }
 
-        public async Task<int> CopyWorkflowAsync(int workflowId, int userId, string name)
+        public async Task<int> CopyWorkflowAsync(int workflowId, int userId, CopyWorkfloDto copyWorkfloDto)
         {
             if (workflowId < 1)
             {
@@ -1086,7 +1087,7 @@ namespace AdminStore.Repositories.Workflow
 
             parameters.Add("@WorkflowId", workflowId);
             parameters.Add("@UserId", userId);
-            parameters.Add("@Name", name);
+            parameters.Add("@Name", copyWorkfloDto.Name);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             var result = await _connectionWrapper.ExecuteScalarAsync<int>("CopyWorkflow", parameters, commandType: CommandType.StoredProcedure);

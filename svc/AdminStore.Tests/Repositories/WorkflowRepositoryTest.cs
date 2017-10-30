@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models;
+using AdminStore.Models.DTO;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -31,6 +32,7 @@ namespace AdminStore.Repositories
             _pagination = new Pagination() { Limit = int.MaxValue, Offset = 0 };
 
             _scope = new OperationScope() { Ids = _listArtifactTypesIds, SelectAll = false };
+            _copyWorkfloDto = new CopyWorkfloDto() { Name = "TestWorkflow" };
         }
 
         private SqlConnectionWrapperMock _sqlConnectionWrapperMock;
@@ -39,7 +41,6 @@ namespace AdminStore.Repositories
         private WorkflowAssignScope _workflowAssignScope;
         private OperationScope _projectsUnassignedScope;
         private int _workflowId;
-        private string _workflowName = "TestWorkflowName";
         private const int _projectId = 1;
         private Pagination _pagination;
         private List<int> _listArtifactTypesIds;
@@ -47,6 +48,7 @@ namespace AdminStore.Repositories
         private string _projectSearch = "test";
         private OperationScope _scope;
         private int _userId = 1;
+        private CopyWorkfloDto _copyWorkfloDto;
 
         #region AssignProjectsAndArtifactTypesToWorkflow
         [TestMethod]
@@ -823,7 +825,7 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             var copyWorkflowResult = await
-                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _workflowName);
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _copyWorkfloDto);
 
             // Assert
             Assert.IsNotNull(copyWorkflowResult);
@@ -839,7 +841,7 @@ namespace AdminStore.Repositories
 
             // Act
             await
-                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _workflowName);
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _copyWorkfloDto);
 
             // Assert
 
@@ -861,7 +863,7 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             await
-                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _workflowName);
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _copyWorkfloDto);
 
             // Assert
         }
@@ -883,7 +885,7 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             await
-                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _workflowName);
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _copyWorkfloDto);
 
             // Assert
         }
@@ -904,7 +906,7 @@ namespace AdminStore.Repositories
                                                         });
             // Act
             await
-                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _workflowName);
+                _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _copyWorkfloDto);
 
             // Assert
         }

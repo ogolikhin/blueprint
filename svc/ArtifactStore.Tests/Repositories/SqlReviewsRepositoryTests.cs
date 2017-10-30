@@ -1774,7 +1774,7 @@ namespace ArtifactStore.Repositories
             {
                 await _reviewsRepository.AssignRolesToReviewers(reviewId, content, userId);
             }
-            catch (BadRequestException ex)
+            catch (ConflictException ex)
             {
                 // Assert
                 isExceptionThrown = true;
@@ -2020,7 +2020,7 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
+        [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_ReadOnly_Should_Throw_BadRequestException()
         {
             var reviewId = 1;

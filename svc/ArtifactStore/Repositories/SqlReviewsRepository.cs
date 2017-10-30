@@ -1331,7 +1331,7 @@ namespace ArtifactStore.Repositories
 
             if (propertyResult.ReviewStatus == ReviewPackageStatus.Closed)
             {
-                ThrowApprovalRequiredIsReadonlyForReview();
+                ThrowApprovalStatusIsReadonlyForReview();
             }
 
             if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
@@ -1480,29 +1480,6 @@ namespace ArtifactStore.Repositories
             participantIdsToAdd.Permission = content.Role;
 
             return ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
-        }
-
-        private static string UpdateApprovalRequiredForArtifactsXML(string xmlArtifacts, AssignArtifactsApprovalParameter content, out bool hasChanges)
-        {
-            hasChanges = false;
-            var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(xmlArtifacts);
-
-            foreach (var artifactId in content.ItemIds)
-            {
-                var updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.Id == artifactId).ToList();
-                if (!updatingArtifacts.Any())
-                {
-                    ThrowApprovalRequiredArtifactNotInReview();
-                }
-
-                foreach (var updatingArtifact in updatingArtifacts.Where(artifact => artifact.ApprovalNotRequested == content.ApprovalRequired))
-                {
-                    updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
-                    hasChanges = true;
-                }
-            }
-
-            return hasChanges ? ReviewRawDataHelper.GetStoreData(rdReviewContents) : xmlArtifacts;
         }
 
         public async Task AssignRolesToReviewers(int reviewId, AssignReviewerRolesParameter content, int userId)
@@ -2154,22 +2131,10 @@ namespace ArtifactStore.Repositories
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
 
-        public static void ThrowApprovalRequiredIsReadonlyForReview()
-        {
-            var errorMessage = I18NHelper.FormatInvariant("The artifact could not be updated because another user has changed the Review status.");
-            throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
-        }
-
         public static void ThrowApprovalStatusIsReadonlyForReview()
         {
             var errorMessage = I18NHelper.FormatInvariant("The approval status could not be updated because another user has changed the Review status.");
-            throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
-        }
-
-        public static void ThrowApprovalRequiredArtifactNotInReview()
-        {
-            var errorMessage = I18NHelper.FormatInvariant("The artifact could not be updated because it has been removed from review.");
-            throw new BadRequestException(errorMessage, ErrorCodes.ApprovalRequiredArtifactNotInReview);
+            throw new ConflictException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
         }
 
         private static void ThrowReviewClosedException()

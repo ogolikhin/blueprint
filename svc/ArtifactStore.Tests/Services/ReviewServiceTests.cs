@@ -30,6 +30,7 @@ namespace ArtifactStore.Services
         private ArtifactBasicDetails _artifactDetails;
 
         private bool _hasReadPermissions;
+        private bool _isLockSuccessful;
         private Dictionary<int, List<ParticipantMeaningOfSignatureResult>> _possibleMeaningOfSignatures;
 
         [TestInitialize]
@@ -69,9 +70,10 @@ namespace ArtifactStore.Services
 
             _mockLockArtifactsRepository
                 .Setup(m => m.LockArtifactAsync(ReviewId, UserId))
-                .ReturnsAsync(true);
+                .ReturnsAsync(() => _isLockSuccessful);
 
             _hasReadPermissions = true;
+            _isLockSuccessful = true;
 
             _reviewService = new ReviewsService(
                 _mockReviewRepository.Object,
@@ -764,6 +766,27 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Meaning_Of_Signature_Is_Not_Enabled_Case_Empty_ReviewPackage()
+        {
+            // Arrange
+            _reviewPackageRawData = null;
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new MeaningOfSignatureParameter[0]);
+            }
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.MeaningOfSignatureNotEnabled, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ConflictException was not thrown");
+        }
+
+        [TestMethod]
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Meaning_Of_Signature_Is_Not_Enabled()
         {
             // Arrange
@@ -785,6 +808,50 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Review_Is_Locked_By_Other_User()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _artifactDetails.LockedByUserId = 50;
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new MeaningOfSignatureParameter[0]);
+            }
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.LockedByOtherUser, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ConflictException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Locking_Review_Fails()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _isLockSuccessful = false;
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new MeaningOfSignatureParameter[0]);
+            }
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.LockedByOtherUser, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ConflictException was not thrown");
+        }
+
+        [TestMethod]
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Participant_Is_Not_In_Review()
         {
             // Arrange
@@ -797,7 +864,7 @@ namespace ArtifactStore.Services
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                     new MeaningOfSignatureParameter() {
                     Adding = true,
-                    MeaningOfSignatureId = 3,
+                    RoleAssignmentId = 3,
                     ParticipantId = 4
                     }
                 });
@@ -832,7 +899,7 @@ namespace ArtifactStore.Services
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                     new MeaningOfSignatureParameter() {
                     Adding = true,
-                    MeaningOfSignatureId = 3,
+                    RoleAssignmentId = 3,
                     ParticipantId = 4
                     }
                 });
@@ -869,7 +936,7 @@ namespace ArtifactStore.Services
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                     new MeaningOfSignatureParameter() {
                     Adding = true,
-                    MeaningOfSignatureId = 3,
+                    RoleAssignmentId = 3,
                     ParticipantId = 4
                     }
                 });
@@ -909,7 +976,7 @@ namespace ArtifactStore.Services
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                     new MeaningOfSignatureParameter() {
                     Adding = true,
-                    MeaningOfSignatureId = 3,
+                    RoleAssignmentId = 3,
                     ParticipantId = 4
                     }
                 });
@@ -962,7 +1029,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                 new MeaningOfSignatureParameter() {
                 Adding = true,
-                MeaningOfSignatureId = 3,
+                RoleAssignmentId = 7,
                 ParticipantId = 4
                 }
             });
@@ -1020,7 +1087,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                 new MeaningOfSignatureParameter() {
                 Adding = true,
-                MeaningOfSignatureId = 3,
+                RoleAssignmentId = 7,
                 ParticipantId = 4
                 }
             });
@@ -1054,7 +1121,7 @@ namespace ArtifactStore.Services
                     {
                         new ParticipantMeaningOfSignature()
                         {
-                            MeaningOfSignatureId = 3
+                            RoleAssignmentId = 7
                         }
                     }
                 }
@@ -1084,7 +1151,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                 new MeaningOfSignatureParameter() {
                 Adding = true,
-                MeaningOfSignatureId = 3,
+                RoleAssignmentId = 7,
                 ParticipantId = 4
                 }
             });
@@ -1103,6 +1170,118 @@ namespace ArtifactStore.Services
             Assert.AreEqual(meaningOfSignature.RoleAssignmentId, result.RoleAssignmentId);
             Assert.AreEqual(meaningOfSignature.RoleId, result.RoleId);
             Assert.AreEqual(meaningOfSignature.RoleName, result.RoleName);
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Remove_Meaning_Of_Signature_When_Remove_Is_True()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            {
+                new ReviewerRawData()
+                {
+                    UserId = 4,
+                    Permission = ReviewParticipantRole.Approver,
+                    SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>()
+                    {
+                        new ParticipantMeaningOfSignature()
+                        {
+                            RoleAssignmentId = 7
+                        }
+                    }
+                }
+            };
+
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            {
+                GroupId = 6,
+                MeaningOfSignatureId = 3,
+                MeaningOfSignatureValue = "foo",
+                ParticipantId = 4,
+                RoleAssignmentId = 7,
+                RoleId = 8,
+                RoleName = "bar"
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            {
+                { 4, new List<ParticipantMeaningOfSignatureResult>()
+                    {
+                        meaningOfSignature
+                    }
+                }
+            };
+
+            // Act
+            await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
+                new MeaningOfSignatureParameter() {
+                    Adding = false,
+                    RoleAssignmentId = 7,
+                    ParticipantId = 4
+                }
+            });
+
+            // Assert
+            var selectedMos = _reviewPackageRawData.Reviewers.FirstOrDefault().SelectedRoleMoSAssignments;
+
+            Assert.AreEqual(0, selectedMos.Count, "There should be one meaning of signature");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Not_Remove_Meaning_Of_Signature_If_It_Doesnt_Already_Exist()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            {
+                new ReviewerRawData()
+                {
+                    UserId = 4,
+                    Permission = ReviewParticipantRole.Approver,
+                    SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>()
+                    {
+                        new ParticipantMeaningOfSignature()
+                        {
+                            RoleAssignmentId = 6
+                        }
+                    }
+                }
+            };
+
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            {
+                GroupId = 6,
+                MeaningOfSignatureId = 3,
+                MeaningOfSignatureValue = "foo",
+                ParticipantId = 4,
+                RoleAssignmentId = 7,
+                RoleId = 8,
+                RoleName = "bar"
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            {
+                { 4, new List<ParticipantMeaningOfSignatureResult>()
+                    {
+                        meaningOfSignature
+                    }
+                }
+            };
+
+            // Act
+            await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
+                new MeaningOfSignatureParameter() {
+                    Adding = false,
+                    RoleAssignmentId = 7,
+                    ParticipantId = 4
+                }
+            });
+
+            // Assert
+            var selectedMos = _reviewPackageRawData.Reviewers.FirstOrDefault().SelectedRoleMoSAssignments;
+
+            Assert.AreEqual(1, selectedMos.Count, "There should be one meaning of signature");
         }
 
         [TestMethod]
@@ -1143,7 +1322,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                 new MeaningOfSignatureParameter() {
                 Adding = true,
-                MeaningOfSignatureId = 3,
+                RoleAssignmentId = 7,
                 ParticipantId = 4
                 }
             });

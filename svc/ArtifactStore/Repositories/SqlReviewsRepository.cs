@@ -764,7 +764,8 @@ namespace ArtifactStore.Repositories
 
                     if (possibleMeaningOfSignatures.ContainsKey(reviewer.UserId))
                     {
-                        reviewer.PossibleMeaningOfSignatures = possibleMeaningOfSignatures[reviewer.UserId].Select(mos => new DropdownItem(mos.MeaningOfSignatureValue, mos.MeaningOfSignatureId));
+                        reviewer.PossibleMeaningOfSignatures =
+                            possibleMeaningOfSignatures[reviewer.UserId].Select(mos => new DropdownItem($"{mos.MeaningOfSignatureValue} ({mos.RoleName})", mos.RoleAssignmentId));
                     }
                     else
                     {
@@ -797,7 +798,7 @@ namespace ArtifactStore.Repositories
 
             var result = await _connectionWrapper.QueryAsync<ParticipantMeaningOfSignatureResult>("GetParticipantsMeaningOfSignatures", parameters, commandType: CommandType.StoredProcedure);
 
-            return result.GroupBy(mos => mos.ParticipantId, mos => mos.MeaningOfSignatureId).ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
+            return result.GroupBy(mos => mos.ParticipantId, mos => mos.RoleAssignmentId).ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
         }
 
         public async Task<Dictionary<int, List<ParticipantMeaningOfSignatureResult>>> GetPossibleMeaningOfSignaturesForParticipantsAsync(IEnumerable<int> participantIds)

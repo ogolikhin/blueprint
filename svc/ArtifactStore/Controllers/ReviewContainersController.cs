@@ -462,12 +462,12 @@ namespace ArtifactStore.Controllers
         /// <response code="404">Not found. The review for the specified id is not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut, SessionRequired]
-        [Route("containers/{reviewId:int:min(1)}/participants/meaningofsignature")]
+        [Route("containers/{reviewId:int:min(1)}/participants/meaningofsignatures")]
         public async Task UpdateMeaningOfSignatureAsync(int reviewId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)
         {
             if (meaningOfSignatureParameters == null || !meaningOfSignatureParameters.Any())
             {
-                throw new BadRequestException("Must provide at least one meaning of signature", ErrorCodes.BadRequest);
+                throw new BadRequestException("Must provide at least one meaning of signature");
             }
 
             await _reviewsService.UpdateMeaningOfSignaturesAsync(reviewId, Session.UserId, meaningOfSignatureParameters);

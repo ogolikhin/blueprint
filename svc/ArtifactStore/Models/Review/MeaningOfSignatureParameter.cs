@@ -9,7 +9,7 @@ namespace ArtifactStore.Models.Review
     public class MeaningOfSignatureParameter
     {
         public int ParticipantId { get; set; }
-        public int MeaningOfSignatureId { get; set; }
+        public int RoleAssignmentId { get; set; }
         public bool Adding { get; set; }
     }
 }

@@ -57,7 +57,7 @@ namespace ArtifactStore.Models.Review
         public ExtensionDataObject ExtensionData { get; set; }
     }
 
-    [DataContract(Name = "MoS")]
+    [DataContract(Name = "MoS", Namespace = "http://schemas.datacontract.org/2004/07/BluePrintSys.RC.Service.Business.Reviews")]
     public class ParticipantMeaningOfSignature : IExtensibleDataObject
     {
         [DataMember(Name = "MoSUIT")]

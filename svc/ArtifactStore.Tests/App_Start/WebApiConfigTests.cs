@@ -67,7 +67,7 @@ namespace ArtifactStore
             config.AssertAction<ReviewContainersController>("RemoveParticipantsFromReviewAsync", HttpMethod.Post, "containers/1/participants/remove");
             config.AssertAction<ReviewContainersController>("GetReviewSettingsAsync", HttpMethod.Get, "containers/1/settings");
             config.AssertAction<ReviewContainersController>("UpdateReviewSettingsAsync", HttpMethod.Put, "containers/1/settings");
-            config.AssertAction<ReviewContainersController>("UpdateMeaningOfSignatureAsync", HttpMethod.Put, "containers/1/participants/meaningofsignature");
+            config.AssertAction<ReviewContainersController>("UpdateMeaningOfSignatureAsync", HttpMethod.Put, "containers/1/participants/meaningofsignatures");
         }
 
         [TestMethod]

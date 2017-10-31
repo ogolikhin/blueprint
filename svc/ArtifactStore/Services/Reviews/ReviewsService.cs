@@ -185,7 +185,7 @@ namespace ArtifactStore.Services.Reviews
 
             var meaningOfSignatureParamList = meaningOfSignatureParameters.ToList();
 
-            var reviewPackage = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+            var reviewPackage = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
 
             if (reviewPackage.Status == ReviewPackageStatus.Closed)
             {
@@ -196,6 +196,10 @@ namespace ArtifactStore.Services.Reviews
             {
                 throw new ConflictException("Could not update review because meaning of signature is not enabled.", ErrorCodes.MeaningOfSignatureNotEnabled);
             }
+
+            var reviewInfo = await _artifactRepository.GetArtifactBasicDetails(reviewId, userId);
+
+            await LockReviewAsync(reviewId, userId, reviewInfo);
 
             var participantIds = meaningOfSignatureParamList.Select(mos => mos.ParticipantId);
 
@@ -222,7 +226,7 @@ namespace ArtifactStore.Services.Reviews
                     throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
                 }
 
-                var meaningOfSignature = possibleMeaningOfSignatures[participantId].FirstOrDefault(mos => mos.MeaningOfSignatureId == meaningOfSignatureParameter.MeaningOfSignatureId);
+                var meaningOfSignature = possibleMeaningOfSignatures[participantId].FirstOrDefault(mos => mos.RoleAssignmentId == meaningOfSignatureParameter.RoleAssignmentId);
 
                 if (meaningOfSignature == null)
                 {
@@ -236,11 +240,22 @@ namespace ArtifactStore.Services.Reviews
                     participant.SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>();
                 }
 
-                if ((participantMeaningOfSignature = participant.SelectedRoleMoSAssignments.FirstOrDefault(pmos => pmos.MeaningOfSignatureId == meaningOfSignature.MeaningOfSignatureId)) == null)
+                if ((participantMeaningOfSignature = participant.SelectedRoleMoSAssignments.FirstOrDefault(pmos => pmos.RoleAssignmentId == meaningOfSignature.RoleAssignmentId)) == null)
                 {
+                    if (!meaningOfSignatureParameter.Adding)
+                    {
+                        continue;
+                    }
+
                     participantMeaningOfSignature = new ParticipantMeaningOfSignature();
 
                     participant.SelectedRoleMoSAssignments.Add(participantMeaningOfSignature);
+                }
+                else if (!meaningOfSignatureParameter.Adding)
+                {
+                    participant.SelectedRoleMoSAssignments.Remove(participantMeaningOfSignature);
+
+                    continue;
                 }
 
                 participantMeaningOfSignature.ParticipantId = participantId;

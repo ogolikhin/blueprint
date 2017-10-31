@@ -152,7 +152,7 @@ namespace ArtifactStore.Services.Reviews
             reviewPackageRawData.IsMoSEnabled = updatedReviewSettings.RequireMeaningOfSignature;
         }
 
-        private async Task<ArtifactBasicDetails> GetReviewInfoAsync(int reviewId, int userId, int revisionId)
+        private async Task<ArtifactBasicDetails> GetReviewInfoAsync(int reviewId, int userId, int revisionId = int.MaxValue)
         {
             var artifactInfo = await _artifactRepository.GetArtifactBasicDetails(reviewId, userId);
             if (artifactInfo == null)
@@ -170,7 +170,7 @@ namespace ArtifactStore.Services.Reviews
 
             if (!await _permissionsRepository.HasReadPermissions(reviewId, userId))
             {
-                throw new AuthorizationException(I18NHelper.FormatInvariant(ErrorMessages.CannotAccessReview, reviewId), ErrorCodes.Forbidden);
+                throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
             }
 
             return artifactInfo;
@@ -178,10 +178,7 @@ namespace ArtifactStore.Services.Reviews
 
         public async Task UpdateMeaningOfSignaturesAsync(int reviewId, int userId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)
         {
-            if (!await _permissionsRepository.HasReadPermissions(reviewId, userId))
-            {
-                throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
-            }
+            var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
 
             var meaningOfSignatureParamList = meaningOfSignatureParameters.ToList();
 
@@ -196,8 +193,6 @@ namespace ArtifactStore.Services.Reviews
             {
                 throw new ConflictException("Could not update review because meaning of signature is not enabled.", ErrorCodes.MeaningOfSignatureNotEnabled);
             }
-
-            var reviewInfo = await _artifactRepository.GetArtifactBasicDetails(reviewId, userId);
 
             await LockReviewAsync(reviewId, userId, reviewInfo);
 

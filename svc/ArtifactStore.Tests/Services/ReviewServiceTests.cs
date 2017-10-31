@@ -58,7 +58,7 @@ namespace ArtifactStore.Services
             _mockArtifactRepository = new Mock<IArtifactRepository>();
             _mockArtifactRepository
                 .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
-                .ReturnsAsync(_artifactDetails);
+                .ReturnsAsync(() => _artifactDetails);
 
             _mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
 
@@ -88,9 +88,7 @@ namespace ArtifactStore.Services
         public async Task GetReviewSettingsAsync_ReviewNotFound_ThrowsResourceNotFoundException()
         {
             // Arrange
-            _mockArtifactRepository
-                .Setup(m => m.GetArtifactBasicDetails(It.IsIn(ReviewId), It.IsIn(UserId)))
-                .ReturnsAsync((ArtifactBasicDetails)null);
+            _artifactDetails = null;
 
             // Act
             try
@@ -144,7 +142,7 @@ namespace ArtifactStore.Services
             catch (AuthorizationException ex)
             {
                 // Assert
-                Assert.AreEqual(ErrorCodes.Forbidden, ex.ErrorCode);
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
                 return;
             }
 
@@ -319,8 +317,7 @@ namespace ArtifactStore.Services
             catch (AuthorizationException ex)
             {
                 // Assert
-                Assert.AreEqual(ErrorCodes.Forbidden, ex.ErrorCode);
-                Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.CannotAccessReview, ReviewId), ex.Message);
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
                 return;
             }
 
@@ -722,6 +719,48 @@ namespace ArtifactStore.Services
         #endregion UpdateReviewSettingsAsync
 
         #region UpdateMeaningOfSignaturesAsync
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Review_Doesnt_Exist()
+        {
+            // Arrange
+            _artifactDetails = null;
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new MeaningOfSignatureParameter[0]);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ResourceNotFoundException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Artifact_Is_Not_A_Review()
+        {
+            // Arrange
+            _artifactDetails.PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor;
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new MeaningOfSignatureParameter[0]);
+            }
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.BadRequest, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A BadRequestException was not thrown");
+        }
 
         [TestMethod]
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_User_Does_Not_Have_Read_Permissions_For_Review()

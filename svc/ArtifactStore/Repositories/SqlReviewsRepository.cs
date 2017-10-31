@@ -1337,7 +1337,7 @@ namespace ArtifactStore.Repositories
 
             if (propertyResult.ReviewStatus == ReviewPackageStatus.Closed)
             {
-                ThrowApprovalStatusIsReadonlyForReview();
+                ThrowReviewClosedException();
             }
 
             if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)

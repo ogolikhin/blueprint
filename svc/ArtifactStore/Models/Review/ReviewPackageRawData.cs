@@ -50,6 +50,41 @@ namespace ArtifactStore.Models.Review
         [DataMember]
         public int UserId;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [DataMember(EmitDefaultValue = false)]
+        public List<ParticipantMeaningOfSignature> SelectedRoleMoSAssignments { get; set; }
+
+        public ExtensionDataObject ExtensionData { get; set; }
+    }
+
+    [DataContract(Name = "MoS", Namespace = "http://schemas.datacontract.org/2004/07/BluePrintSys.RC.Service.Business.Reviews")]
+    public class ParticipantMeaningOfSignature : IExtensibleDataObject
+    {
+        [DataMember(Name = "MoSUIT")]
+        public int GroupId { get; set; }
+
+        [DataMember(Name = "MoSURI")]
+        public int ParticipantId { get; set; }
+
+        [DataMember(Name = "MoSP")]
+        public int ReviewId { get; set; }
+
+        [DataMember(Name = "MoSI")]
+        public int RoleAssignmentId { get; set; }
+
+        [DataMember(Name = "MoSRI")]
+        public int RoleId { get; set; }
+
+        [DataMember(Name = "MoSRN")]
+        public string RoleName { get; set; }
+
+        [DataMember(Name = "MoSE")]
+        public int MeaningOfSignatureId { get; set; }
+
+        [DataMember(Name = "MoSEV")]
+        public string MeaningOfSignatureValue { get; set; }
+
+
         public ExtensionDataObject ExtensionData { get; set; }
     }
 

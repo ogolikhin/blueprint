@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
@@ -446,6 +448,29 @@ namespace ArtifactStore.Controllers
             }
 
             await _reviewsService.UpdateReviewSettingsAsync(reviewId, reviewSettings, Session.UserId);
+        }
+
+        /// <summary>
+        /// Updates meaning of signatures for a number of participants
+        /// </summary>
+        /// <param name="reviewId">The review id.</param>
+        /// <param name="meaningOfSignatureParameters">The meaning of signatures to add and remove.</param>
+        /// <response code="200">OK. The meaning of signatures for the participants were updated.</response>
+        /// <response code="400">Bad Request. The request parameters are invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions to access review.</response>
+        /// <response code="404">Not found. The review for the specified id is not found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPut, SessionRequired]
+        [Route("containers/{reviewId:int:min(1)}/participants/meaningofsignatures")]
+        public async Task UpdateMeaningOfSignatureAsync(int reviewId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)
+        {
+            if (meaningOfSignatureParameters == null || !meaningOfSignatureParameters.Any())
+            {
+                throw new BadRequestException("Must provide at least one meaning of signature");
+            }
+
+            await _reviewsService.UpdateMeaningOfSignaturesAsync(reviewId, Session.UserId, meaningOfSignatureParameters);
         }
     }
 }

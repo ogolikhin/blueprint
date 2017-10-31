@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ArtifactStore.Models.Review;
 
 namespace ArtifactStore.Services.Reviews
@@ -8,5 +9,7 @@ namespace ArtifactStore.Services.Reviews
         Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int revisionId = int.MaxValue);
 
         Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId);
+
+        Task UpdateMeaningOfSignaturesAsync(int reviewId, int userId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters);
     }
 }

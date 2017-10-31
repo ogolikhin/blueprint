@@ -1,4 +1,7 @@
 ﻿using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using ArtifactStore.Helpers;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Exceptions;
@@ -149,7 +152,7 @@ namespace ArtifactStore.Services.Reviews
             reviewPackageRawData.IsMoSEnabled = updatedReviewSettings.RequireMeaningOfSignature;
         }
 
-        private async Task<ArtifactBasicDetails> GetReviewInfoAsync(int reviewId, int userId, int revisionId)
+        private async Task<ArtifactBasicDetails> GetReviewInfoAsync(int reviewId, int userId, int revisionId = int.MaxValue)
         {
             var artifactInfo = await _artifactRepository.GetArtifactBasicDetails(reviewId, userId);
             if (artifactInfo == null)
@@ -167,10 +170,100 @@ namespace ArtifactStore.Services.Reviews
 
             if (!await _permissionsRepository.HasReadPermissions(reviewId, userId))
             {
-                throw new AuthorizationException(I18NHelper.FormatInvariant(ErrorMessages.CannotAccessReview, reviewId), ErrorCodes.Forbidden);
+                throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
             }
 
             return artifactInfo;
+        }
+
+        public async Task UpdateMeaningOfSignaturesAsync(int reviewId, int userId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)
+        {
+            var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
+
+            var meaningOfSignatureParamList = meaningOfSignatureParameters.ToList();
+
+            var reviewPackage = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
+
+            if (reviewPackage.Status == ReviewPackageStatus.Closed)
+            {
+                throw ReviewsExceptionHelper.ReviewClosedException();
+            }
+
+            if (!reviewPackage.IsMoSEnabled)
+            {
+                throw new ConflictException("Could not update review because meaning of signature is not enabled.", ErrorCodes.MeaningOfSignatureNotEnabled);
+            }
+
+            await LockReviewAsync(reviewId, userId, reviewInfo);
+
+            var participantIds = meaningOfSignatureParamList.Select(mos => mos.ParticipantId);
+
+            var possibleMeaningOfSignatures = await _reviewsRepository.GetPossibleMeaningOfSignaturesForParticipantsAsync(participantIds);
+
+            foreach (var meaningOfSignatureParameter in meaningOfSignatureParamList)
+            {
+                var participantId = meaningOfSignatureParameter.ParticipantId;
+                var participant = reviewPackage.Reviewers.FirstOrDefault(r => r.UserId == participantId);
+
+                if (participant == null)
+                {
+                    throw new BadRequestException("Could not update meaning of signature because participant is not in review.", ErrorCodes.UserNotInReview);
+                }
+
+                if (participant.Permission != ReviewParticipantRole.Approver)
+                {
+                    throw new BadRequestException("Could not update meaning of signature because participant is not an approver.", ErrorCodes.ParticipantIsNotAnApprover);
+                }
+
+                if (!possibleMeaningOfSignatures.ContainsKey(participantId))
+                {
+                    throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
+                }
+
+                var meaningOfSignature = possibleMeaningOfSignatures[participantId].FirstOrDefault(mos => mos.RoleAssignmentId == meaningOfSignatureParameter.RoleAssignmentId);
+
+                if (meaningOfSignature == null)
+                {
+                    throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
+                }
+
+                if (participant.SelectedRoleMoSAssignments == null)
+                {
+                    participant.SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>();
+                }
+
+                ParticipantMeaningOfSignature participantMeaningOfSignature = participant.SelectedRoleMoSAssignments
+                                                                                         .FirstOrDefault(pmos => pmos.RoleAssignmentId == meaningOfSignature.RoleAssignmentId);
+
+                if (participantMeaningOfSignature == null)
+                {
+                    if (!meaningOfSignatureParameter.Adding)
+                    {
+                        continue;
+                    }
+
+                    participantMeaningOfSignature = new ParticipantMeaningOfSignature();
+
+                    participant.SelectedRoleMoSAssignments.Add(participantMeaningOfSignature);
+                }
+                else if (!meaningOfSignatureParameter.Adding)
+                {
+                    participant.SelectedRoleMoSAssignments.Remove(participantMeaningOfSignature);
+
+                    continue;
+                }
+
+                participantMeaningOfSignature.ParticipantId = participantId;
+                participantMeaningOfSignature.ReviewId = reviewId;
+                participantMeaningOfSignature.MeaningOfSignatureId = meaningOfSignature.MeaningOfSignatureId;
+                participantMeaningOfSignature.MeaningOfSignatureValue = meaningOfSignature.MeaningOfSignatureValue;
+                participantMeaningOfSignature.RoleId = meaningOfSignature.RoleId;
+                participantMeaningOfSignature.RoleName = meaningOfSignature.RoleName;
+                participantMeaningOfSignature.RoleAssignmentId = meaningOfSignature.RoleAssignmentId;
+                participantMeaningOfSignature.GroupId = meaningOfSignature.GroupId;
+            }
+
+            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackage, userId);
         }
     }
 }

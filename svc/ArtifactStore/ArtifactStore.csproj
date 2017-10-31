@@ -133,9 +133,10 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\MentionHelper.cs" />
+    <Compile Include="Helpers\ReviewsExceptionHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
     <Compile Include="Helpers\WorkflowEventsMessagesHelper.cs" />
-    <Compile Include="Models\DropdownItem.cs" />
+    <Compile Include="Models\Review\MeaningOfSignatureParameter.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
     <Compile Include="Models\Review\ReviewApprovalCheckArtifacts.cs" />

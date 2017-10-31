@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using ServiceLibrary.Models;
 
 namespace ArtifactStore.Models.Review
 {

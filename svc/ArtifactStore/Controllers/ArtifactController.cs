@@ -264,6 +264,11 @@ namespace ArtifactStore.Controllers
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
+            if (filter != StandardArtifactTypes.All && filter != StandardArtifactTypes.Regular)
+            {
+                throw new BadRequestException(ErrorMessages.ArtifactTypeIdsNotValid);
+            }
+
             return await _artifactRepository.GetStandardArtifactTypes(filter);
         }
     }

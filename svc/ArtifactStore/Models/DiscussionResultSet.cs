@@ -95,6 +95,8 @@ namespace ArtifactStore.Models
         public string Status { get; set; }
 
         public int RepliesCount { get; set; }
+
+        public int? ReviewId { get; set; }
     }
 
     public class Reply : CommentBase

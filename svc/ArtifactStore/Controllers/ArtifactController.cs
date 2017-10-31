@@ -267,7 +267,7 @@ namespace ArtifactStore.Controllers
 
             if (filter != StandardArtifactTypes.All && filter != StandardArtifactTypes.Regular)
             {
-                throw new BadRequestException(ErrorMessages.ArtifactTypeIdsNotValid);
+                throw new BadRequestException(ErrorMessages.InvalidStandardArtifactTypesFilterValue);
             }
 
             return await _artifactRepository.GetStandardArtifactTypes(filter);

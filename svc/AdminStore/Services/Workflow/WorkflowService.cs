@@ -451,7 +451,8 @@ namespace AdminStore.Services.Workflow
                 Name = workflowDto.Name,
                 Description = workflowDto.Description,
                 Active = workflowDto.Status,
-                WorkflowId = workflowId
+                WorkflowId = workflowId,
+                VersionId = workflowDto.VersionId
             };
 
             Func<IDbTransaction, Task> action = async transaction =>

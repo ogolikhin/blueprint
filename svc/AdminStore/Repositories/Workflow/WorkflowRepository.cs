@@ -891,6 +891,7 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@Description", workflow.Description);
             parameters.Add("@Status", workflow.Active);
             parameters.Add("@RevisionId", revision);
+            parameters.Add("@CurrentVersion", workflow.VersionId);
 
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
@@ -915,6 +916,7 @@ namespace AdminStore.Repositories.Workflow
                 {
                     case (int)SqlErrorCodes.GeneralSqlError:
                         throw new Exception(ErrorMessages.GeneralErrorOfUpdatingWorkflow);
+
                     case (int)SqlErrorCodes.WorkflowWithSuchANameAlreadyExists:
                         throw new ConflictException(ErrorMessages.WorkflowAlreadyExists, ErrorCodes.WorkflowAlreadyExists);
 
@@ -929,6 +931,9 @@ namespace AdminStore.Repositories.Workflow
 
                     case (int)SqlErrorCodes.WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow:
                         throw new ConflictException(ErrorMessages.WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow, ErrorCodes.Conflict);
+
+                    case (int)SqlErrorCodes.WorkflowVersionsNotEqual:
+                        throw new ConflictException(ErrorMessages.WorkflowVersionsNotEqual, ErrorCodes.WorkflowVersionsNotEqual);
                 }
             }
         }

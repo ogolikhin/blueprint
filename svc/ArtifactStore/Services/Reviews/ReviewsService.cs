@@ -208,7 +208,6 @@ namespace ArtifactStore.Services.Reviews
             foreach (var meaningOfSignatureParameter in meaningOfSignatureParamList)
             {
                 var participantId = meaningOfSignatureParameter.ParticipantId;
-
                 var participant = reviewPackage.Reviewers.FirstOrDefault(r => r.UserId == participantId);
 
                 if (participant == null)
@@ -233,14 +232,15 @@ namespace ArtifactStore.Services.Reviews
                     throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
                 }
 
-                ParticipantMeaningOfSignature participantMeaningOfSignature;
-
                 if (participant.SelectedRoleMoSAssignments == null)
                 {
                     participant.SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>();
                 }
 
-                if ((participantMeaningOfSignature = participant.SelectedRoleMoSAssignments.FirstOrDefault(pmos => pmos.RoleAssignmentId == meaningOfSignature.RoleAssignmentId)) == null)
+                ParticipantMeaningOfSignature participantMeaningOfSignature = participant.SelectedRoleMoSAssignments
+                                                                                         .FirstOrDefault(pmos => pmos.RoleAssignmentId == meaningOfSignature.RoleAssignmentId);
+
+                if (participantMeaningOfSignature == null)
                 {
                     if (!meaningOfSignatureParameter.Adding)
                     {

@@ -190,11 +190,15 @@ namespace ArtifactStore.Repositories
             var results = (await GetLinkInfo(itemId, userId, addDrafts, revisionId, types)).ToList();
             var manualLinks = results.Where(a => a.LinkType == LinkType.Manual).ToList();
             // filter out Parent/Child links between artifact and its subartifact if exist
-            var internalParentChildLinks = results.Where(link => link.LinkType == LinkType.ParentChild && (link.SourceArtifactId != link.SourceItemId || link.DestinationArtifactId != link.DestinationItemId)).ToList();
+            var excludeParentChildLinks = results.Where(link =>
+                link.LinkType == LinkType.ParentChild &&
+                                ((link.SourceArtifactId != link.SourceItemId || link.DestinationArtifactId != link.DestinationItemId)) || ////internal links
+                                (link.SourceItemId == link.SourceProjectId)) ////to artifact's project
+                                .ToList();
             // get reuse links to to modify them separaratly.
             var reuseLinks = results.Where(a => a.LinkType == LinkType.Reuse).ToList();
             // get collection of other links exept exclude parent/child links and reuse links
-            var otherLinks = results.Except(internalParentChildLinks).Except(reuseLinks).Where(link => link.LinkType != LinkType.Manual).ToList();
+            var otherLinks = results.Except(excludeParentChildLinks).Except(reuseLinks).Where(link => link.LinkType != LinkType.Manual).ToList();
             // modify reuse links by combining matching pais (source match destination on other) and add them back to coolection of otherlinks
             otherLinks.AddRange(UpdateReuseLinks(reuseLinks, itemId));
 

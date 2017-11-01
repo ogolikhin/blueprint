@@ -255,6 +255,7 @@ namespace ArtifactStore.Controllers
         /// </remarks>
         /// <param name="filter">It is filter to receive only regular artifact types or all standard artifact types.</param>
         /// <response code="200">OK. The list of standard artifact types.</response>
+        /// <response code="400">Incorrect filter parameter.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard artifact types.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
@@ -263,6 +264,11 @@ namespace ArtifactStore.Controllers
         public async Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes(StandardArtifactTypes filter = StandardArtifactTypes.All)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            if (filter != StandardArtifactTypes.All && filter != StandardArtifactTypes.Regular)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidStandardArtifactTypesFilterValue);
+            }
 
             return await _artifactRepository.GetStandardArtifactTypes(filter);
         }

@@ -283,7 +283,7 @@ namespace ArtifactStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetStandardArtifactTypes_SuccessResult()
+        public async Task GetStandardArtifactTypes_AllParametersAreCorrect_SuccessResult()
         {
             // Arrange
             var artifacts = new List<StandardArtifactType> { new StandardArtifactType { Id = 1, Name = "CustomActor" } };
@@ -303,8 +303,23 @@ namespace ArtifactStore.Controllers
         }
 
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetStandardArtifactTypes_NotExistingFilter_BadRequestException()
+        {
+            // Arrange
+            _mockSqlPrivilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            // Act
+            await artifactController.GetStandardArtifactTypes((StandardArtifactTypes)100);
+
+            // Assert
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetStandardArtifactTypes_AuthorizationException()
+        public async Task GetStandardArtifactTypes_IncorrectPermissions_AuthorizationException()
         {
             // Arrange
             _mockSqlPrivilegesRepository

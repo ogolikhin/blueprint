@@ -1,4 +1,6 @@
-﻿namespace ServiceLibrary.Helpers
+﻿using System.Web.Http.Filters;
+
+namespace ServiceLibrary.Helpers
 {
     public class ErrorMessages
     {
@@ -144,5 +146,6 @@
         public static readonly string ReviewIsNotDraft = "Review (Id:{0}) is not a draft. This action cannot be completed.";
         public static readonly string RequireESignatureDisabled = "Meaning of Signature setting cannot be updated. Electornic signatures are not enabled for Review (Id:{0}).";
         public static readonly string MeaningOfSignatureDisabledInProject = "Meaning of Signature is disabled for the current project.";
+        public static readonly string InvalidStandardArtifactTypesFilterValue = "Invalid filter parameter value.";
     }
 }

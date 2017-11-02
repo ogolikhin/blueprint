@@ -10,11 +10,15 @@ namespace ArtifactStore.Services.Reviews.MeaningOfSignature
                                                                                   Dictionary<int, List<ParticipantMeaningOfSignatureResult>> possibleMeaningOfSignatures,
                                                                                   IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)
         {
-            return possibleMeaningOfSignatures[participantId]?.Select(pmos => new MeaningOfSignatureUpdate()
-            {
-                Adding = true,
-                MeaningOfSignature = pmos
-            }) ?? new MeaningOfSignatureUpdate[0];
+            List<ParticipantMeaningOfSignatureResult> possibleMeaningOfSignaturesForParticipant;
+
+            return possibleMeaningOfSignatures.TryGetValue(participantId, out possibleMeaningOfSignaturesForParticipant) ?
+                possibleMeaningOfSignaturesForParticipant.Select(pmos => new MeaningOfSignatureUpdate()
+                {
+                    Adding = true,
+                    MeaningOfSignature = pmos
+                })
+                : new MeaningOfSignatureUpdate[0];
         }
     }
 }

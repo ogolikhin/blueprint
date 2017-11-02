@@ -216,6 +216,10 @@
     <Compile Include="Repositories\VersionControl\SqlVersionControlRepository.cs" />
     <Compile Include="Executors\StateChangeExecutor.cs" />
     <Compile Include="Services\Reviews\IReviewsService.cs" />
+    <Compile Include="Services\Reviews\MeaningOfSignature\IMeaningOfSignatureUpdateStrategy.cs" />
+    <Compile Include="Services\Reviews\MeaningOfSignature\MeaningOfSignatureUpdate.cs" />
+    <Compile Include="Services\Reviews\MeaningOfSignature\MeaningOfSignatureUpdateSetDefaultsStrategy.cs" />
+    <Compile Include="Services\Reviews\MeaningOfSignature\MeaningOfSignatureUpdateSpecificStrategy.cs" />
     <Compile Include="Services\Reviews\ReviewsService.cs" />
     <Compile Include="Services\VersionControl\VersionControlService.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />

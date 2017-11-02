@@ -4,6 +4,7 @@ using System.Linq;
 using ArtifactStore.Helpers;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
+using ArtifactStore.Services.Reviews.MeaningOfSignature;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -180,8 +181,6 @@ namespace ArtifactStore.Services.Reviews
         {
             var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
 
-            var meaningOfSignatureParamList = meaningOfSignatureParameters.ToList();
-
             var reviewPackage = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
 
             if (reviewPackage.Status == ReviewPackageStatus.Closed)
@@ -196,13 +195,22 @@ namespace ArtifactStore.Services.Reviews
 
             await LockReviewAsync(reviewId, userId, reviewInfo);
 
-            var participantIds = meaningOfSignatureParamList.Select(mos => mos.ParticipantId);
+            await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewPackage, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSpecificStrategy());
+
+            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackage, userId);
+        }
+
+        private async Task UpdateMeaningOfSignaturesInternalAsync(int reviewId, ReviewPackageRawData reviewPackage, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters,
+                                                                  IMeaningOfSignatureUpdateStrategy updateStrategy)
+        {
+            var meaningOfSignatureParamList = meaningOfSignatureParameters.ToList();
+
+            var participantIds = meaningOfSignatureParamList.Select(mos => mos.ParticipantId).ToList();
 
             var possibleMeaningOfSignatures = await _reviewsRepository.GetPossibleMeaningOfSignaturesForParticipantsAsync(participantIds);
 
-            foreach (var meaningOfSignatureParameter in meaningOfSignatureParamList)
+            foreach (var participantId in participantIds)
             {
-                var participantId = meaningOfSignatureParameter.ParticipantId;
                 var participant = reviewPackage.Reviewers.FirstOrDefault(r => r.UserId == participantId);
 
                 if (participant == null)
@@ -220,53 +228,51 @@ namespace ArtifactStore.Services.Reviews
                     throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
                 }
 
-                var meaningOfSignature = possibleMeaningOfSignatures[participantId].FirstOrDefault(mos => mos.RoleAssignmentId == meaningOfSignatureParameter.RoleAssignmentId);
-
-                if (meaningOfSignature == null)
-                {
-                    throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
-                }
+                var meaningOfSignatureUpdates = updateStrategy.GetMeaningOfSignatureUpdates(participantId, possibleMeaningOfSignatures, meaningOfSignatureParamList);
 
                 if (participant.SelectedRoleMoSAssignments == null)
                 {
                     participant.SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>();
                 }
 
-                ParticipantMeaningOfSignature participantMeaningOfSignature = participant.SelectedRoleMoSAssignments
-                                                                                         .FirstOrDefault(pmos => pmos.RoleAssignmentId == meaningOfSignature.RoleAssignmentId);
-
-                if (participantMeaningOfSignature == null)
+                foreach (var meaningOfSignatureUpdate in meaningOfSignatureUpdates)
                 {
-                    if (!meaningOfSignatureParameter.Adding)
+                    var meaningOfSignature = meaningOfSignatureUpdate.MeaningOfSignature;
+
+                    ParticipantMeaningOfSignature participantMeaningOfSignature = participant.SelectedRoleMoSAssignments
+                                                                                             .FirstOrDefault(pmos => pmos.RoleAssignmentId == meaningOfSignature.RoleAssignmentId);
+
+                    if (participantMeaningOfSignature == null)
                     {
+                        if (!meaningOfSignatureUpdate.Adding)
+                        {
+                            continue;
+                        }
+
+                        participantMeaningOfSignature = new ParticipantMeaningOfSignature();
+
+                        participant.SelectedRoleMoSAssignments.Add(participantMeaningOfSignature);
+                    }
+                    else if (!meaningOfSignatureUpdate.Adding)
+                    {
+                        participant.SelectedRoleMoSAssignments.Remove(participantMeaningOfSignature);
+
                         continue;
                     }
 
-                    participantMeaningOfSignature = new ParticipantMeaningOfSignature();
-
-                    participant.SelectedRoleMoSAssignments.Add(participantMeaningOfSignature);
+                    participantMeaningOfSignature.ParticipantId = participantId;
+                    participantMeaningOfSignature.ReviewId = reviewId;
+                    participantMeaningOfSignature.MeaningOfSignatureId = meaningOfSignature.MeaningOfSignatureId;
+                    participantMeaningOfSignature.MeaningOfSignatureValue = meaningOfSignature.MeaningOfSignatureValue;
+                    participantMeaningOfSignature.RoleId = meaningOfSignature.RoleId;
+                    participantMeaningOfSignature.RoleName = meaningOfSignature.RoleName;
+                    participantMeaningOfSignature.RoleAssignmentId = meaningOfSignature.RoleAssignmentId;
+                    participantMeaningOfSignature.GroupId = meaningOfSignature.GroupId;
                 }
-                else if (!meaningOfSignatureParameter.Adding)
-                {
-                    participant.SelectedRoleMoSAssignments.Remove(participantMeaningOfSignature);
-
-                    continue;
-                }
-
-                participantMeaningOfSignature.ParticipantId = participantId;
-                participantMeaningOfSignature.ReviewId = reviewId;
-                participantMeaningOfSignature.MeaningOfSignatureId = meaningOfSignature.MeaningOfSignatureId;
-                participantMeaningOfSignature.MeaningOfSignatureValue = meaningOfSignature.MeaningOfSignatureValue;
-                participantMeaningOfSignature.RoleId = meaningOfSignature.RoleId;
-                participantMeaningOfSignature.RoleName = meaningOfSignature.RoleName;
-                participantMeaningOfSignature.RoleAssignmentId = meaningOfSignature.RoleAssignmentId;
-                participantMeaningOfSignature.GroupId = meaningOfSignature.GroupId;
             }
-
-            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackage, userId);
         }
 
-        public async Task AssignRoleToParticipantAsync(int reviewId, AssignParticipantRoleParameter content, int userId)
+        public async Task<IEnumerable<DropdownItem>> AssignRoleToParticipantAsync(int reviewId, AssignParticipantRoleParameter content, int userId)
         {
             var propertyResult = await _reviewsRepository.GetReviewApprovalRolesInfoAsync(reviewId, userId, content.UserId);
 
@@ -301,23 +307,41 @@ namespace ArtifactStore.Services.Reviews
                 ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
             }
 
-            var reviewPackage = UpdatePermissionRoles(propertyResult.ArtifactXml, content, reviewId);
+            var reviewPackage = UpdateParticipantRole(propertyResult.ArtifactXml, content, reviewId);
+
+            if (reviewPackage.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
+            {
+                var meaningOfSignatureParameter = new MeaningOfSignatureParameter()
+                {
+                    ParticipantId = content.UserId
+                };
+
+                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewPackage, new[] { meaningOfSignatureParameter }, new MeaningOfSignatureUpdateSetDefaultsStrategy());
+            }
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackage, userId);
+
+            if (reviewPackage.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
+            {
+                return reviewPackage.Reviewers.First(r => r.UserId == content.UserId).SelectedRoleMoSAssignments.Select(mos =>
+                    new DropdownItem($"{mos.MeaningOfSignatureValue} ({mos.RoleName})", mos.RoleAssignmentId));
+            }
+
+            return null;
         }
 
-        private static ReviewPackageRawData UpdatePermissionRoles(string reviewPackageXml, AssignParticipantRoleParameter content, int reviewId)
+        private static ReviewPackageRawData UpdateParticipantRole(string reviewPackageXml, AssignParticipantRoleParameter content, int reviewId)
         {
             var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewPackageXml);
 
-            var participantIdsToAdd = reviewPackageRawData.Reviewers.FirstOrDefault(a => a.UserId == content.UserId);
+            var participant = reviewPackageRawData.Reviewers.FirstOrDefault(a => a.UserId == content.UserId);
 
-            if (participantIdsToAdd == null)
+            if (participant == null)
             {
                 ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
             }
 
-            participantIdsToAdd.Permission = content.Role;
+            participant.Permission = content.Role;
 
             return reviewPackageRawData;
         }

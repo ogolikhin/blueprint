@@ -49,7 +49,7 @@ namespace ArtifactStore.Services.Reviews
 
         public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId)
         {
-            var reviewInfo = await GetReviewInfoAsync(reviewId, userId, int.MaxValue);
+            var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
 
             var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
 
@@ -151,6 +151,15 @@ namespace ArtifactStore.Services.Reviews
             }
 
             reviewPackageRawData.IsMoSEnabled = updatedReviewSettings.RequireMeaningOfSignature;
+
+            var meaningOfSignatureParameters = reviewPackageRawData.Reviewers
+                                                                   .Where(r => r.Permission == ReviewParticipantRole.Approver)
+                                                                   .Select(r => new MeaningOfSignatureParameter()
+                                                                   {
+                                                                       ParticipantId = r.UserId
+                                                                   });
+
+            await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewPackageRawData, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSetDefaultsStrategy());
         }
 
         private async Task<ArtifactBasicDetails> GetReviewInfoAsync(int reviewId, int userId, int revisionId = int.MaxValue)

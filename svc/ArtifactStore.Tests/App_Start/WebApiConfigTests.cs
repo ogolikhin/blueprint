@@ -53,7 +53,7 @@ namespace ArtifactStore
             config.AssertAction<ReviewContainersController>("AddArtifactsToReview", HttpMethod.Put, "containers/1/content");
             config.AssertAction<ReviewContainersController>("GetReviewedArtifacts", HttpMethod.Get, "containers/1/artifacts");
             config.AssertAction<ReviewContainersController>("AssignApprovalRequiredToArtifacts", HttpMethod.Put, "containers/1/artifacts/approval");
-            config.AssertAction<ReviewContainersController>("AssignRolesToReviewers", HttpMethod.Put, "containers/1/reviewers/approval");
+            config.AssertAction<ReviewContainersController>("AssignRoleToParticipantAsync", HttpMethod.Put, "containers/1/reviewers/approval");
             config.AssertAction<ReviewContainersController>("GetReviewArtifactIndex", HttpMethod.Get, "containers/1/index/1");
             config.AssertAction<ReviewContainersController>("GetReviewTableOfContentArtifactIndex", HttpMethod.Get, "containers/1/toc/index/1");
             config.AssertAction<ReviewContainersController>("UpdateReviewArtifactApprovalAsync", HttpMethod.Put, "containers/1/experience/approval");

@@ -250,7 +250,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut]
         [Route("containers/{reviewId:int:min(1)}/reviewers/approval"), SessionRequired]
-        public Task AssignRolesToReviewers(int reviewId, [FromBody] AssignParticipantRoleParameter content)
+        public Task<IEnumerable<DropdownItem>> AssignRoleToParticipantAsync(int reviewId, [FromBody] AssignParticipantRoleParameter content)
         {
             return _reviewsService.AssignRoleToParticipantAsync(reviewId, content, Session.UserId);
         }

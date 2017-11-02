@@ -422,7 +422,6 @@ namespace AdminStore.Services.Workflow
             var hasDuplicateProjectPathError = false;
             var hasProjectDoesNotHaveAnyArtfactTypesError = false;
             var hasArtifactTypeNoSpecifiedError = false;
-            var hasDuplicateArtifactTypesInProjectError = false;
             var projectIds = new HashSet<int>();
             var projectPaths = new HashSet<string>();
             foreach (var project in workflow.Projects.FindAll(p => p != null))
@@ -521,20 +520,6 @@ namespace AdminStore.Services.Workflow
                             });
                             hasArtifactTypeNoSpecifiedError = true;
                         }
-                    }
-                    else
-                    {
-                        if (!hasDuplicateArtifactTypesInProjectError
-                            && projectArtifactTypes.Contains(artifactType.Name))
-                        {
-                            result.Errors.Add(new WorkflowXmlValidationError
-                            {
-                                Element = project,
-                                ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateArtifactTypesInProject
-                            });
-                            hasDuplicateArtifactTypesInProjectError = true;
-                        }
-                        projectArtifactTypes.Add(artifactType.Name);
                     }
                 }
             }
@@ -1190,22 +1175,8 @@ namespace AdminStore.Services.Workflow
                     ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateProjectIds
                 });
             }
-
-            workflow?.Projects?.ForEach(p => ValidateDuplicateArtifactTypeIdsInProject(p, result));
         }
 
-        private static void ValidateDuplicateArtifactTypeIdsInProject(IeProject project, WorkflowXmlValidationResult result)
-        {
-            var atIds = project?.ArtifactTypes?.Where(at => at.Id.HasValue).Select(at => at.Id.Value).ToList();
-            if (atIds?.Count != atIds?.Distinct().Count())
-            {
-                result.Errors.Add(new WorkflowXmlValidationError
-                {
-                    Element = project,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateArtifactTypeIdsInProject
-                });
-            }
-        }
 
         #endregion
 

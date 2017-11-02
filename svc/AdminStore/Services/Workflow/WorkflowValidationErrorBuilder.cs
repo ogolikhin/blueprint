@@ -405,10 +405,6 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlPropertyChangeEventActionNotSupported;
                     errParams = new object[] { };
                     break;
-                case WorkflowXmlValidationErrorCodes.DuplicateArtifactTypesInProject:
-                    template = TemplateXmlDuplicateArtifactTypesInProject;
-                    errParams = new object[] { };
-                    break;
                 case WorkflowXmlValidationErrorCodes.WorkflowIdDoesNotMatchIdInUrl:
                     template = TemplateXmlWorkflowIdDoesNotMatchIdInUrl;
                     errParams = new object[] { };
@@ -423,10 +419,6 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowXmlValidationErrorCodes.DuplicateProjectIds:
                     template = TemplateXmlDuplicateProjectIds;
-                    errParams = new object[] { };
-                    break;
-                case WorkflowXmlValidationErrorCodes.DuplicateArtifactTypeIdsInProject:
-                    template = TemplateXmlDuplicateArtifactTypeIdsInProject;
                     errParams = new object[] { };
                     break;
                 default:

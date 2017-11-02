@@ -250,9 +250,9 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut]
         [Route("containers/{reviewId:int:min(1)}/reviewers/approval"), SessionRequired]
-        public Task AssignRolesToReviewers(int reviewId, [FromBody] AssignReviewerRolesParameter content)
+        public Task<IEnumerable<DropdownItem>> AssignRoleToParticipantAsync(int reviewId, [FromBody] AssignParticipantRoleParameter content)
         {
-            return _sqlReviewsRepository.AssignRolesToReviewers(reviewId, content, Session.UserId);
+            return _reviewsService.AssignRoleToParticipantAsync(reviewId, content, Session.UserId);
         }
 
 
@@ -440,7 +440,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/settings")]
-        public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings reviewSettings)
+        public async Task UpdateReviewSettingsAsync(int reviewId, [FromBody] ReviewSettings reviewSettings)
         {
             if (reviewSettings == null)
             {
@@ -463,7 +463,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/participants/meaningofsignatures")]
-        public async Task UpdateMeaningOfSignatureAsync(int reviewId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)
+        public async Task UpdateMeaningOfSignatureAsync(int reviewId, [FromBody] IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)
         {
             if (meaningOfSignatureParameters == null || !meaningOfSignatureParameters.Any())
             {

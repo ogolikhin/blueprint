@@ -30,7 +30,7 @@ namespace ArtifactStore.Models.Review
         internal int NumApprovers { get; set; }
     }
 
-    internal class PropertyValueString
+    public class PropertyValueString
     {
         public bool IsDraftRevisionExists { get; set; }
         public string ArtifactXml { get; set; }

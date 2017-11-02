@@ -11,5 +11,7 @@ namespace ArtifactStore.Services.Reviews
         Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId);
 
         Task UpdateMeaningOfSignaturesAsync(int reviewId, int userId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters);
+
+        Task AssignRoleToParticipantAsync(int reviewId, AssignParticipantRoleParameter content, int userId);
     }
 }

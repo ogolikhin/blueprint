@@ -164,7 +164,7 @@
     <Compile Include="Models\Review\AddParticipantsParameter.cs" />
     <Compile Include="Models\Review\AddArtifactsParameter.cs" />
     <Compile Include="Models\Review\AddArtifactsResult.cs" />
-    <Compile Include="Models\Review\AssignReviewerRolesParameter.cs" />
+    <Compile Include="Models\Review\AssignParticipantRoleParameter.cs" />
     <Compile Include="Models\Review\BaseReviewArtifactsContent.cs" />
     <Compile Include="Models\Review\RDReviewedArtifacts.cs" />
     <Compile Include="Models\Review\ReviewArtifactApprovalCheck.cs" />

@@ -1371,5 +1371,182 @@ namespace ArtifactStore.Services
         }
 
         #endregion
+
+        #region AssignRoleToParticipantAsync
+
+        [TestMethod]
+        public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_Deleted()
+        {
+            // Arrange
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                LockedByUserId = UserId,
+                IsReviewReadOnly = true,
+                BaselineId = 2,
+                IsReviewDeleted = true,
+                IsUserDisabled = false
+            };
+
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+
+            var content = new AssignParticipantRoleParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+
+            // Act
+            try
+            {
+                await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ResourceNotFoundException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_ReadOnly()
+        {
+            // Arrange
+
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                LockedByUserId = UserId,
+                IsReviewReadOnly = true,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+
+            var content = new AssignParticipantRoleParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+            // Act
+
+            try
+            {
+                await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ApprovalRequiredIsReadonlyForReview, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A Conflict Exception was not  thrown.");
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_Not_Locked()
+        {
+            // Arrange
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                LockedByUserId = null,
+                IsReviewReadOnly = false,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+
+            var content = new AssignParticipantRoleParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+
+            // Act
+            await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task AssignRoleToParticipantAsync_Should_Throw_If_User_Is_Disabled()
+        {
+            // Arrange
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                LockedByUserId = UserId,
+                IsReviewReadOnly = false,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = true
+            };
+
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+
+            var content = new AssignParticipantRoleParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+
+            // Act
+            await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AssignRoleToParticipantAsync_Should_Throw_If_ReviewPackageXml_Is_Empty()
+        {
+            var propertyValue = new PropertyValueString()
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = string.Empty,
+                RevewSubartifactId = 3,
+                ProjectId = 1,
+                LockedByUserId = UserId,
+                IsReviewReadOnly = false,
+                BaselineId = 2,
+                IsReviewDeleted = false,
+                IsUserDisabled = false
+            };
+
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+
+            var content = new AssignParticipantRoleParameter()
+            {
+                UserId = 1,
+                Role = ReviewParticipantRole.Approver
+            };
+            // Act
+
+            await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+        }
+
+        #endregion
     }
 }

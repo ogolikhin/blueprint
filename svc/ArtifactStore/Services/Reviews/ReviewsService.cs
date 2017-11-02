@@ -265,5 +265,61 @@ namespace ArtifactStore.Services.Reviews
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackage, userId);
         }
+
+        public async Task AssignRoleToParticipantAsync(int reviewId, AssignParticipantRoleParameter content, int userId)
+        {
+            var propertyResult = await _reviewsRepository.GetReviewApprovalRolesInfoAsync(reviewId, userId, content.UserId);
+
+            if (propertyResult == null)
+            {
+                throw new BadRequestException("Cannot update approval role as project or review couldn't be found", ErrorCodes.ResourceNotFound);
+            }
+
+            if (propertyResult.IsUserDisabled.HasValue && propertyResult.IsUserDisabled.Value)
+            {
+                throw new ConflictException("User deleted or not active", ErrorCodes.UserDisabled);
+            }
+
+            if (propertyResult.IsReviewDeleted)
+            {
+                throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId);
+            }
+
+            if (propertyResult.IsReviewReadOnly)
+            {
+                var errorMessage = "The approval status could not be updated because another user has changed the Review status.";
+                throw new ConflictException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
+            }
+
+            if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
+            {
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
+            }
+
+            if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
+            {
+                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+            }
+
+            var reviewPackage = UpdatePermissionRoles(propertyResult.ArtifactXml, content, reviewId);
+
+            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackage, userId);
+        }
+
+        private static ReviewPackageRawData UpdatePermissionRoles(string reviewPackageXml, AssignParticipantRoleParameter content, int reviewId)
+        {
+            var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewPackageXml);
+
+            var participantIdsToAdd = reviewPackageRawData.Reviewers.FirstOrDefault(a => a.UserId == content.UserId);
+
+            if (participantIdsToAdd == null)
+            {
+                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+            }
+
+            participantIdsToAdd.Permission = content.Role;
+
+            return reviewPackageRawData;
+        }
     }
 }

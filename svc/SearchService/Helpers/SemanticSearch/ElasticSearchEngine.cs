@@ -105,7 +105,7 @@ namespace SearchService.Helpers.SemanticSearch
                 var results = await _elasticClient.SearchAsync<SemanticSearchItem>(searchDescriptor);
 
                 var hits = results.Hits;
-                var itemIds = new List<int>();
+                var itemIds = new HashSet<int>();
                 hits.ForEach(a =>
                 {
                     int output;

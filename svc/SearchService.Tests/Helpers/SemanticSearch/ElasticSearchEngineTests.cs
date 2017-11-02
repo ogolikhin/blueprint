@@ -109,7 +109,7 @@ namespace SearchService.Helpers.SemanticSearch
 
             _elasticClient.SetupGet(e => e.ConnectionSettings).Returns(connectionSettings.Object);
 
-            _semanticSearchRepository.Setup(s => s.GetSuggestedArtifactDetails(It.IsAny<List<int>>(), It.IsAny<int>()))
+            _semanticSearchRepository.Setup(s => s.GetSuggestedArtifactDetails(It.IsAny<HashSet<int>>(), It.IsAny<int>()))
                 .ReturnsAsync(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 2 } });
 
             _elasticSearchEngine = new ElasticSearchEngine(_elasticClient.Object, _semanticSearchRepository.Object);

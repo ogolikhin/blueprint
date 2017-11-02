@@ -14,10 +14,10 @@ namespace SearchService.Repositories
     public interface ISemanticSearchRepository
     {
         Task<List<int>> GetAccessibleProjectIds(int userId);
-        Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId);
+        Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(HashSet<int> artifactIds, int userId);
         Task<SemanticSearchSetting> GetSemanticSearchSetting();
         Task<SemanticSearchText> GetSemanticSearchText(int artifactId, int userId);
-        Task<List<int>> GetItemSimilarItemIds(int artifactId, int userId, int limit, bool isInstanceAdmin,
+        Task<HashSet<int>> GetItemSimilarItemIds(int artifactId, int userId, int limit, bool isInstanceAdmin,
             IEnumerable<int> projectIds);
         Task<string> GetSemanticSearchIndex();
     }
@@ -36,7 +36,7 @@ namespace SearchService.Repositories
             _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(List<int> artifactIds, int userId)
+        public async Task<List<ArtifactSearchResult>> GetSuggestedArtifactDetails(HashSet<int> artifactIds, int userId)
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", userId);
@@ -90,7 +90,7 @@ namespace SearchService.Repositories
                         commandType: CommandType.Text)).FirstOrDefault();
         }
 
-        public async Task<List<int>> GetItemSimilarItemIds(int artifactId, int userId, int limit, bool isInstanceAdmin, IEnumerable<int> projectIds)
+        public async Task<HashSet<int>> GetItemSimilarItemIds(int artifactId, int userId, int limit, bool isInstanceAdmin, IEnumerable<int> projectIds)
         {
             var prm = new DynamicParameters();
             prm.Add("@itemId", artifactId);
@@ -100,7 +100,7 @@ namespace SearchService.Repositories
             prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(projectIds));
 
             return (await
-                    _connectionWrapper.QueryAsync<int>("GetItemSimilarItemIds", prm, commandType: CommandType.StoredProcedure)).ToList();
+                    _connectionWrapper.QueryAsync<int>("GetItemSimilarItemIds", prm, commandType: CommandType.StoredProcedure)).ToHashSet();
         }
 
         public async Task<string> GetSemanticSearchIndex()

@@ -1668,9 +1668,8 @@ namespace AdminStore.Services.Workflow
             Assert.AreSame(_workflow.PropertyChangeEvents[0], result.Errors[0].Element);
         }
 
-
         [TestMethod]
-        public void Validate_DuplicateArtifactTypesInProject_Success()
+        public void Validate_SDuplicateArtifactTypesInProject_ReturnsDuplicateArtifactTypesInProjectError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1687,8 +1686,9 @@ namespace AdminStore.Services.Workflow
             var result = workflowValidator.ValidateXml(_workflow);
 
             // Assert
-            Assert.IsFalse(result.HasErrors);
-            Assert.AreEqual(0, result.Errors.Count);
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.DuplicateArtifactTypesInProject, result.Errors[0].ErrorCode);
         }
 
         #region Private methods

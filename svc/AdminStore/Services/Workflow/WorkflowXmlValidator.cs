@@ -592,14 +592,14 @@ namespace AdminStore.Services.Workflow
         }
 
         private bool _hasPropertyChangeActionDuplicatePropertiesOnEventError;
-        private bool _hasRecipientsEmailNotificationActionNotSpecitiedError;
+        private bool _hasRecipientsEmailNotificationActionNotSpecifiedError;
         private bool _hasAmbiguousRecipientsSourcesEmailNotificationActionError;
-        private bool _hasMessageEmailNotificationActionNotSpecitiedError;
-        private bool _hasPropertyNamePropertyChangeActionNotSpecitiedError;
-        private bool _hasPropertyValuePropertyChangeActionNotSpecitiedError;
+        private bool _hasMessageEmailNotificationActionNotSpecifiedError;
+        private bool _hasPropertyNamePropertyChangeActionNotSpecifiedError;
+        private bool _hasPropertyValuePropertyChangeActionNotSpecifiedError;
         private bool _hasAmbiguousPropertyValuePropertyChangeActionError;
-        private bool _hasArtifactTypeGenerateChildrenActionNotSpecitiedError;
-        private bool _hasChildCountGenerateChildrenActionNotSpecitiedError;
+        private bool _hasArtifactTypeGenerateChildrenActionNotSpecifiedError;
+        private bool _hasChildCountGenerateChildrenActionNotSpecifiedError;
         private bool _hasChildCountGenerateChildrenActionNotValidError;
         private bool _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError;
         private bool _hasChildCountApplicableOnlyToGenerateChildArtifactActionError;
@@ -608,19 +608,19 @@ namespace AdminStore.Services.Workflow
         private bool _hasPropertyNamePropertyChangeActionNotSupportedError;
         private bool _hasInvalidIdError;
         private bool _hasAmbiguousGroupProjectReference;
-        private bool _hasPropertyChangeActionUserOrGroupNameNotSpecitiedError;
+        private bool _hasPropertyChangeActionUserOrGroupNameNotSpecifiedError;
 
         private void ResetErrorFlags()
         {
             _hasPropertyChangeActionDuplicatePropertiesOnEventError = false;
-            _hasRecipientsEmailNotificationActionNotSpecitiedError = false;
+            _hasRecipientsEmailNotificationActionNotSpecifiedError = false;
             _hasAmbiguousRecipientsSourcesEmailNotificationActionError = false;
-            _hasMessageEmailNotificationActionNotSpecitiedError = false;
-            _hasPropertyNamePropertyChangeActionNotSpecitiedError = false;
+            _hasMessageEmailNotificationActionNotSpecifiedError = false;
+            _hasPropertyNamePropertyChangeActionNotSpecifiedError = false;
             _hasAmbiguousPropertyValuePropertyChangeActionError = false;
-            _hasPropertyValuePropertyChangeActionNotSpecitiedError = false;
-            _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = false;
-            _hasChildCountGenerateChildrenActionNotSpecitiedError = false;
+            _hasPropertyValuePropertyChangeActionNotSpecifiedError = false;
+            _hasArtifactTypeGenerateChildrenActionNotSpecifiedError = false;
+            _hasChildCountGenerateChildrenActionNotSpecifiedError = false;
             _hasChildCountGenerateChildrenActionNotValidError = false;
             _hasArtifactTypeApplicableOnlyToGenerateChildArtifactActionError = false;
             _hasChildCountApplicableOnlyToGenerateChildArtifactActionError = false;
@@ -629,7 +629,7 @@ namespace AdminStore.Services.Workflow
             _hasPropertyNamePropertyChangeActionNotSupportedError = false;
             _hasInvalidIdError = false;
             _hasAmbiguousGroupProjectReference = false;
-            _hasPropertyChangeActionUserOrGroupNameNotSpecitiedError = false;
+            _hasPropertyChangeActionUserOrGroupNameNotSpecifiedError = false;
         }
 
         private void ValidatePropertyChangeActionDuplicatePropertiesOnEvent(IeEvent wEvent, WorkflowXmlValidationResult result)
@@ -691,16 +691,16 @@ namespace AdminStore.Services.Workflow
         private void ValidateEmailNotificationAction(IeEmailNotificationAction action,
             WorkflowXmlValidationResult result)
         {
-            if (!_hasRecipientsEmailNotificationActionNotSpecitiedError
+            if (!_hasRecipientsEmailNotificationActionNotSpecifiedError
                 && ((action.Emails.IsEmpty())
                 && string.IsNullOrWhiteSpace(action.PropertyName)))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
                     Element = action,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.RecipientsEmailNotificationActionNotSpecitied
+                    ErrorCode = WorkflowXmlValidationErrorCodes.RecipientsEmailNotificationActionNotSpecified
                 });
-                _hasRecipientsEmailNotificationActionNotSpecitiedError = true;
+                _hasRecipientsEmailNotificationActionNotSpecifiedError = true;
             }
 
             if (!_hasAmbiguousRecipientsSourcesEmailNotificationActionError
@@ -727,29 +727,29 @@ namespace AdminStore.Services.Workflow
                 }
             });
 
-            if (!_hasMessageEmailNotificationActionNotSpecitiedError
+            if (!_hasMessageEmailNotificationActionNotSpecifiedError
                 && !ValidatePropertyNotEmpty(action.Message))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
                     Element = action,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.MessageEmailNotificationActionNotSpecitied
+                    ErrorCode = WorkflowXmlValidationErrorCodes.MessageEmailNotificationActionNotSpecified
                 });
-                _hasMessageEmailNotificationActionNotSpecitiedError = true;
+                _hasMessageEmailNotificationActionNotSpecifiedError = true;
             }
         }
 
         private void ValidatePropertyChangeAction(IePropertyChangeAction action, WorkflowXmlValidationResult result)
         {
-            if (!_hasPropertyNamePropertyChangeActionNotSpecitiedError
+            if (!_hasPropertyNamePropertyChangeActionNotSpecifiedError
                 && !ValidatePropertyNotEmpty(action.PropertyName))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
                     Element = action,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.PropertyNamePropertyChangeActionNotSpecitied
+                    ErrorCode = WorkflowXmlValidationErrorCodes.PropertyNamePropertyChangeActionNotSpecified
                 });
-                _hasPropertyNamePropertyChangeActionNotSpecitiedError = true;
+                _hasPropertyNamePropertyChangeActionNotSpecifiedError = true;
             }
 
             var pvCount = 0;
@@ -768,15 +768,15 @@ namespace AdminStore.Services.Workflow
 
                 action.UsersGroups?.UsersGroups?.ForEach(ug =>
                 {
-                    if (!_hasPropertyChangeActionUserOrGroupNameNotSpecitiedError
+                    if (!_hasPropertyChangeActionUserOrGroupNameNotSpecifiedError
                         && !ValidatePropertyNotEmpty(ug.Name))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {
                             Element = ug,
-                            ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeActionUserOrGroupNameNotSpecitied
+                            ErrorCode = WorkflowXmlValidationErrorCodes.PropertyChangeActionUserOrGroupNameNotSpecified
                         });
-                        _hasPropertyChangeActionUserOrGroupNameNotSpecitiedError = true;
+                        _hasPropertyChangeActionUserOrGroupNameNotSpecifiedError = true;
                     }
 
                     if (!_hasInvalidIdError && ug.GroupProjectId.HasValue && ug.GroupProjectId < 1)
@@ -801,15 +801,15 @@ namespace AdminStore.Services.Workflow
                 });
             }
 
-            if (!_hasPropertyValuePropertyChangeActionNotSpecitiedError
+            if (!_hasPropertyValuePropertyChangeActionNotSpecifiedError
                 && pvCount == 0)
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
                     Element = action,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecitied
+                    ErrorCode = WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecified
                 });
-                _hasPropertyValuePropertyChangeActionNotSpecitiedError = true;
+                _hasPropertyValuePropertyChangeActionNotSpecifiedError = true;
             }
             else if (!_hasAmbiguousPropertyValuePropertyChangeActionError
                 && pvCount > 1)
@@ -827,26 +827,26 @@ namespace AdminStore.Services.Workflow
         {
             if (action.GenerateActionType == GenerateActionTypes.Children)
             {
-                if (!_hasArtifactTypeGenerateChildrenActionNotSpecitiedError
+                if (!_hasArtifactTypeGenerateChildrenActionNotSpecifiedError
                     && !ValidatePropertyNotEmpty(action.ArtifactType))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
                         Element = action,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypeGenerateChildrenActionNotSpecitied
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ArtifactTypeGenerateChildrenActionNotSpecified
                     });
-                    _hasArtifactTypeGenerateChildrenActionNotSpecitiedError = true;
+                    _hasArtifactTypeGenerateChildrenActionNotSpecifiedError = true;
                 }
 
-                if (!_hasChildCountGenerateChildrenActionNotSpecitiedError
+                if (!_hasChildCountGenerateChildrenActionNotSpecifiedError
                     && !action.ChildCount.HasValue)
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
                         Element = action,
-                        ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied
+                        ErrorCode = WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecified
                     });
-                    _hasChildCountGenerateChildrenActionNotSpecitiedError = true;
+                    _hasChildCountGenerateChildrenActionNotSpecifiedError = true;
                 }
                 else if (!_hasChildCountGenerateChildrenActionNotValidError
                     && action.ChildCount.HasValue

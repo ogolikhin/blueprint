@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories.ApplicationSettings;
 
@@ -420,7 +419,7 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<PropertyValueString>("GetReviewPropertyString", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        private async Task<PropertyValueString> GetReviewApprovalRolesInfo(int reviewId, int userId, int roleUserId)
+        public async Task<PropertyValueString> GetReviewApprovalRolesInfoAsync(int reviewId, int userId, int roleUserId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@reviewId", reviewId);
@@ -1474,63 +1473,6 @@ namespace ArtifactStore.Repositories
             return updatingArtifacts;
         }
 
-        private static string UpdatePermissionRolesXML(string xmlArtifacts, AssignReviewerRolesParameter content, int reviewId)
-        {
-            var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(xmlArtifacts);
-
-            var participantIdsToAdd = reviewPackageRawData.Reviewers.FirstOrDefault(a => a.UserId == content.UserId);
-            if (participantIdsToAdd == null)
-            {
-                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
-            }
-
-            participantIdsToAdd.Permission = content.Role;
-
-            return ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
-        }
-
-        public async Task AssignRolesToReviewers(int reviewId, AssignReviewerRolesParameter content, int userId)
-        {
-            var propertyResult = await GetReviewApprovalRolesInfo(reviewId, userId, content.UserId);
-            if (propertyResult == null)
-            {
-                throw new BadRequestException("Cannot update approval role as project or review couldn't be found", ErrorCodes.ResourceNotFound);
-            }
-
-            if (propertyResult.IsUserDisabled.Value)
-            {
-                throw new ConflictException("User deleted or not active", ErrorCodes.UserDisabled);
-            }
-
-            if (propertyResult.IsReviewDeleted)
-            {
-                ThrowReviewNotFoundException(reviewId);
-            }
-
-            if (propertyResult.IsReviewReadOnly)
-            {
-                ThrowApprovalStatusIsReadonlyForReview();
-            }
-
-            if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
-            {
-                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
-            }
-
-            if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
-            {
-                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
-            }
-
-            var artifactXmlResult = UpdatePermissionRolesXML(propertyResult.ArtifactXml, content, reviewId);
-
-            var result = await UpdateReviewXmlAsync(reviewId, userId, artifactXmlResult);
-            if (result != 1)
-            {
-                throw new BadRequestException("Cannot add participants as project or review couldn't be found", ErrorCodes.ResourceNotFound);
-            }
-        }
-
         public async Task<ReviewArtifactIndex> GetReviewArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId, bool? addDrafts = true)
         {
             var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
@@ -2131,16 +2073,7 @@ namespace ArtifactStore.Repositories
 
         private static void ThrowReviewNotFoundException(int reviewId, int? revisionId = null)
         {
-            var errorMessage = revisionId.HasValue ?
-                I18NHelper.FormatInvariant("Review (Id:{0}) or its revision (#{1}) is not found.", reviewId, revisionId) :
-                I18NHelper.FormatInvariant("Review (Id:{0}) is not found.", reviewId);
-            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
-        }
-
-        public static void ThrowApprovalStatusIsReadonlyForReview()
-        {
-            var errorMessage = I18NHelper.FormatInvariant("The approval status could not be updated because another user has changed the Review status.");
-            throw new ConflictException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
+            throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
         }
 
         private static void ThrowReviewClosedException()

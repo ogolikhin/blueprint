@@ -52,17 +52,17 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlNewArtifactEventNoAnyTriggersSpecified = "<NewArtifacts> element: One or more New Artifact events do not have a trigger. Please ensure each <NewArtifact> child element has a <Triggers> child element, itself with at least one <Trigger> child element.";
         private const string TemplateXmlPropertyChangeActionDuplicatePropertiesOnEvent = "An Event (Transition, New Artifact) has more than one Property Change Action that changes the same property. Please ensure all <PropertyChangeAction> elements reference unique properties.";
         private const string TemplateXmlActionTriggerNotSpecified = "One or more Triggers do not have a corresponding Action. Please ensure all <Trigger> elements include an Action-type child element (for example, <EmailNotificationAction>).";
-        private const string TemplateXmlRecipientsEmailNotificationActionNotSpecitied = "One or more email notification Actions do not specify recipients, either as a list of emails, or through a property representing recipients. Please ensure all <EmailNotificationAction> elements either include an <Emails> child element with one or more <Email> child elements, or include <PropertyName> or <PropertyId> child elements.";
+        private const string TemplateXmlRecipientsEmailNotificationActionNotSpecified = "One or more email notification Actions do not specify recipients, either as a list of emails, or through a property representing recipients. Please ensure all <EmailNotificationAction> elements either include an <Emails> child element with one or more <Email> child elements, or include <PropertyName> or <PropertyId> child elements.";
         private const string TemplateXmlAmbiguousRecipientsSourcesEmailNotificationAction = "One or more email notification Actions specify recipients using both a list of emails, and a property representing recipients. Please ensure all <EmailNotificationAction> elements use one or the other, but not both.";
         private const string TemplateXmlEmailInvalidEmailNotificationAction = "The email address '{0}' provided for an <EmailNotificationAction> element is not valid.";
-        private const string TemplateXmlMessageEmailNotificationActionNotSpecitied = "One or more email notification Actions do not include a message. Please ensure all <EmailNotificationAction> elements include a <Message> child element.";
-        private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecitied = "<PropertyChangeAction> elements: One or more <PropertyName> child elements do not have a value.";
-        private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecitied = "One or more Property Change Actions are missing information. Please ensure all <PropertyChangeActions> elements include one of the following defined child elements: <PropertyValue>, <ValidValues>, or <UsersGroups>.";
+        private const string TemplateXmlMessageEmailNotificationActionNotSpecified = "One or more email notification Actions do not include a message. Please ensure all <EmailNotificationAction> elements include a <Message> child element.";
+        private const string TemplateXmlPropertyNamePropertyChangeActionNotSpecified = "<PropertyChangeAction> elements: One or more <PropertyName> child elements do not have a value.";
+        private const string TemplateXmlPropertyValuePropertyChangeActionNotSpecified = "One or more Property Change Actions are missing information. Please ensure all <PropertyChangeActions> elements include one of the following defined child elements: <PropertyValue>, <ValidValues>, or <UsersGroups>.";
         private const string TemplateXmlAmbiguousPropertyValuePropertyChangeAction = "One or more Property Change Actions specify too many property-value elements. Please ensure all <PropertyChangeAction> elements define only one of the following child elements: <PropertyValue>, <ValidValues>, or <UsersGroups>.";
-        private const string TemplateXmlPropertyChangeActionUserOrGroupNameNotSpecitied = "One or more Property Change Actions is missing information. One or more Users or Groups do not have a specified Name.";
+        private const string TemplateXmlPropertyChangeActionUserOrGroupNameNotSpecified = "One or more Property Change Actions is missing information. One or more Users or Groups do not have a specified Name.";
         private const string TemplateXmlAmbiguousGroupProjectReference = "One or more Property Change Actions specify conflicting group project information. Please ensure all <UsersGroups> child elements define only one of the following child elements: <GroupProjectId> or <GroupProjectPath>.";
-        private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied = "One or more 'generate child artifact' Actions do not specify the child artifact type. Please ensure all <GenerateActionType> elements with the value 'Children' are accompanied by an <ArtifactTypeId> element.";
-        private const string TemplateXmlChildCountGenerateChildrenActionNotSpecitied = "One or more 'generate child artifact' Actions do not specify the number of child artifacts to create. Please ensure all <GenerateActionType> elements with the value 'Children' are accompanied by a <ChildCount> element.";
+        private const string TemplateXmlArtifactTypeGenerateChildrenActionNotSpecified = "One or more 'generate child artifact' Actions do not specify the child artifact type. Please ensure all <GenerateActionType> elements with the value 'Children' are accompanied by an <ArtifactTypeId> element.";
+        private const string TemplateXmlChildCountGenerateChildrenActionNotSpecified = "One or more 'generate child artifact' Actions do not specify the number of child artifacts to create. Please ensure all <GenerateActionType> elements with the value 'Children' are accompanied by a <ChildCount> element.";
         private const string TemplateXmlChildCountGenerateChildrenActionNotValid = "One or more actions that result in the creation of child artifacts are invalid. For all <GenerateAction> elements where the <GenerateActionType> value is Children, please ensure all <ChildCount> values are between 1 and 10 inclusive.";
         private const string TemplateXmlArtifactTypeApplicableOnlyToGenerateChildArtifactAction = "One or more actions that result in the generation of test cases or user stories are incorrectly defined. For all <GenerateAction> elements where the <GenerateActionType> value is UserStories or TestCases, please ensure there is no <ArtifactType> child element.";
         private const string TemplateXmlChildCountApplicableOnlyToGenerateChildArtifactAction = "One or more actions that result in the generation of test cases or user stories are incorrectly defined. For all <GenerateAction> elements where the <GenerateActionType> value is UserStories or TestCases, please ensure there is no <ChildCount> child element.";
@@ -333,8 +333,8 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlActionTriggerNotSpecified;
                     errParams = new object[] { };
                     break;
-                case WorkflowXmlValidationErrorCodes.RecipientsEmailNotificationActionNotSpecitied:
-                    template = TemplateXmlRecipientsEmailNotificationActionNotSpecitied;
+                case WorkflowXmlValidationErrorCodes.RecipientsEmailNotificationActionNotSpecified:
+                    template = TemplateXmlRecipientsEmailNotificationActionNotSpecified;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.AmbiguousRecipientsSourcesEmailNotificationAction:
@@ -345,36 +345,36 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlEmailInvalidEmailNotificationAction;
                     errParams = new object[] { (string)error.Element };
                     break;
-                case WorkflowXmlValidationErrorCodes.MessageEmailNotificationActionNotSpecitied:
-                    template = TemplateXmlMessageEmailNotificationActionNotSpecitied;
+                case WorkflowXmlValidationErrorCodes.MessageEmailNotificationActionNotSpecified:
+                    template = TemplateXmlMessageEmailNotificationActionNotSpecified;
                     errParams = new object[] { };
                     break;
-                case WorkflowXmlValidationErrorCodes.PropertyNamePropertyChangeActionNotSpecitied:
-                    template = TemplateXmlPropertyNamePropertyChangeActionNotSpecitied;
+                case WorkflowXmlValidationErrorCodes.PropertyNamePropertyChangeActionNotSpecified:
+                    template = TemplateXmlPropertyNamePropertyChangeActionNotSpecified;
                     errParams = new object[] { };
                     break;
-                case WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecitied:
-                    template = TemplateXmlPropertyValuePropertyChangeActionNotSpecitied;
+                case WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecified:
+                    template = TemplateXmlPropertyValuePropertyChangeActionNotSpecified;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.AmbiguousPropertyValuePropertyChangeAction:
                     template = TemplateXmlAmbiguousPropertyValuePropertyChangeAction;
                     errParams = new object[] { };
                     break;
-                case WorkflowXmlValidationErrorCodes.PropertyChangeActionUserOrGroupNameNotSpecitied:
-                    template = TemplateXmlPropertyChangeActionUserOrGroupNameNotSpecitied;
+                case WorkflowXmlValidationErrorCodes.PropertyChangeActionUserOrGroupNameNotSpecified:
+                    template = TemplateXmlPropertyChangeActionUserOrGroupNameNotSpecified;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.AmbiguousGroupProjectReference:
                     template = TemplateXmlAmbiguousGroupProjectReference;
                     errParams = new object[] { };
                     break;
-                case WorkflowXmlValidationErrorCodes.ArtifactTypeGenerateChildrenActionNotSpecitied:
-                    template = TemplateXmlArtifactTypeGenerateChildrenActionNotSpecitied;
+                case WorkflowXmlValidationErrorCodes.ArtifactTypeGenerateChildrenActionNotSpecified:
+                    template = TemplateXmlArtifactTypeGenerateChildrenActionNotSpecified;
                     errParams = new object[] { };
                     break;
-                case WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied:
-                    template = TemplateXmlChildCountGenerateChildrenActionNotSpecitied;
+                case WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecified:
+                    template = TemplateXmlChildCountGenerateChildrenActionNotSpecified;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotValid:

@@ -100,7 +100,7 @@ namespace SearchService.Repositories
             prm.Add("@projectIds", SqlConnectionWrapper.ToDataTable(projectIds));
 
             return (await
-                    _connectionWrapper.QueryAsync<int>("GetItemSimilarItemIds", prm, commandType: CommandType.StoredProcedure)).ToList();
+                    _connectionWrapper.QueryAsync<int>("GetItemSimilarItemIds", prm, commandType: CommandType.StoredProcedure)).Distinct().ToList();
         }
 
         public async Task<string> GetSemanticSearchIndex()

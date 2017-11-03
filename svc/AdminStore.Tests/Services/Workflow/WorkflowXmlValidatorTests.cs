@@ -1032,7 +1032,7 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
-        public void Validate_RecipientsEmailNotificationActionNotSpecitied_ReturnsRecipientsEmailNotificationActionNotSpecitiedError()
+        public void Validate_RecipientsEmailNotificationActionNotSpecified_ReturnsRecipientsEmailNotificationActionNotSpecifiedError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1067,7 +1067,7 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.RecipientsEmailNotificationActionNotSpecitied, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.RecipientsEmailNotificationActionNotSpecified, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
@@ -1128,7 +1128,7 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
-        public void Validate_MessageEmailNotificationActionNotSpecitied_ReturnsMessageEmailNotificationActionNotSpecitiedError()
+        public void Validate_MessageEmailNotificationActionNotSpecified_ReturnsMessageEmailNotificationActionNotSpecifiedError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1141,12 +1141,12 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.MessageEmailNotificationActionNotSpecitied, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.MessageEmailNotificationActionNotSpecified, result.Errors[0].ErrorCode);
             Assert.AreSame(action, result.Errors[0].Element);
         }
 
         [TestMethod]
-        public void Validate_PropertyNamePropertyChangeActionNotSpecitied_ReturnsPropertyNamePropertyChangeActionNotSpecitiedError()
+        public void Validate_PropertyNamePropertyChangeActionNotSpecified_ReturnsPropertyNamePropertyChangeActionNotSpecifiedError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1159,7 +1159,7 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyNamePropertyChangeActionNotSpecitied, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyNamePropertyChangeActionNotSpecified, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
@@ -1180,7 +1180,7 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
-        public void Validate_PropertyChangeActionUserOrGroupNameNotSpecitied_ReturnsPropertyChangeActionUserOrGroupNameNotSpecitiedError()
+        public void Validate_PropertyChangeActionUserOrGroupNameNotSpecified_ReturnsPropertyChangeActionUserOrGroupNameNotSpecifiedError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1193,11 +1193,11 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeActionUserOrGroupNameNotSpecitied, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeActionUserOrGroupNameNotSpecified, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
-        public void Validate_PropertyValuePropertyChangeActionNotSpecitied_ReturnsPropertyValuePropertyChangeActionNotSpecitiedError()
+        public void Validate_PropertyValuePropertyChangeActionNotSpecified_ReturnsPropertyValuePropertyChangeActionNotSpecifiedError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1210,7 +1210,7 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecitied, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyValuePropertyChangeActionNotSpecified, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
@@ -1278,7 +1278,7 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
-        public void Validate_ArtifactTypeGenerateChildrenActionNotSpecitied_ReturnsArtifactTypeGenerateChildrenActionNotSpecitiedError()
+        public void Validate_ArtifactTypeGenerateChildrenActionNotSpecified_ReturnsArtifactTypeGenerateChildrenActionNotSpecifiedError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1313,11 +1313,11 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypeGenerateChildrenActionNotSpecitied, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ArtifactTypeGenerateChildrenActionNotSpecified, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]
-        public void Validate_ChildCountGenerateChildrenActionNotSpecitied_ReturnsChildCountGenerateChildrenActionNotSpecitiedError()
+        public void Validate_ChildCountGenerateChildrenActionNotSpecified_ReturnsChildCountGenerateChildrenActionNotSpecifiedError()
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
@@ -1352,7 +1352,7 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecitied, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.ChildCountGenerateChildrenActionNotSpecified, result.Errors[0].ErrorCode);
         }
 
         [TestMethod]

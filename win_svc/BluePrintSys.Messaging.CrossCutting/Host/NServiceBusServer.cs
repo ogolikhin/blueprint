@@ -92,6 +92,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             {
                 Log.Info("Configuring SQL Server Transport");
                 var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
+                transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
                 transport.ConnectionString(connectionString);
                 transport.DefaultSchema("queue");
                 assembliesToExclude.Add("nservicebus.transports.rabbitmq.dll");

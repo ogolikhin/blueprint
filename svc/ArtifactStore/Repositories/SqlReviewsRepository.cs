@@ -881,6 +881,16 @@ namespace ArtifactStore.Repositories
                 addDrafts = false;
             }
 
+            var reviewParameters = new DynamicParameters();
+            reviewParameters.Add("@reviewId", reviewId);
+            reviewParameters.Add("@isReviewExist", dbType: DbType.Boolean, direction: ParameterDirection.Output);
+            var result = await _connectionWrapper.QueryAsync<bool>("CheckIfReviewExists", reviewParameters, commandType: CommandType.StoredProcedure);
+
+            if (!reviewParameters.Get<bool>("@isReviewExist"))
+            {
+                ThrowReviewNotFoundException(reviewId);
+            }
+
             var parameters = new DynamicParameters();
             parameters.Add("@artifactId", artifactId);
             parameters.Add("@reviewId", reviewId);

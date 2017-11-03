@@ -1349,6 +1349,14 @@ namespace AdminStore.Services.Workflow
                 await _workflowRepository.DeleteWorkflowArtifactAssociationsAsync(kvPairs,
                      publishRevision, transaction);
             }
+
+            var artifactTypeToAddKvPairs = workflowDiffResult.AddedProjectArtifactTypes.Select(pAt =>
+                new KeyValuePair<int, string>(pAt.Key, pAt.Value.Name));
+            var artifactTypeToDeleteKvPairs = workflowDiffResult.DeletedProjectArtifactTypes.Select(pAt =>
+                new KeyValuePair<int, string>(pAt.Key, pAt.Value.Name));
+
+            await _workflowRepository.UpdateWorkflowArtifactAssignmentsAsync(artifactTypeToAddKvPairs, artifactTypeToDeleteKvPairs,
+                workflowId, transaction);
         }
 
         #endregion

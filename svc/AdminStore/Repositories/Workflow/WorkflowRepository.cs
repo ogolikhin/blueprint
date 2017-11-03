@@ -536,6 +536,49 @@ namespace AdminStore.Repositories.Workflow
             }
         }
 
+        public async Task UpdateWorkflowArtifactAssignmentsAsync(IEnumerable<KeyValuePair<int, string>> artifactTypeToAddKvPairs, IEnumerable<KeyValuePair<int, string>> artifactTypeToDeleteKvPairs,
+            int workflowId, IDbTransaction transaction = null)
+        {
+            var artifactTypeToAddKvPairList = artifactTypeToAddKvPairs.ToList();
+            var artifactTypeToDeleteKvPairList = artifactTypeToDeleteKvPairs.ToList();
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProjectArtifactTypePairsToAdd", SqlConnectionWrapper.ToIdStringMapDataTable(artifactTypeToAddKvPairList));
+            parameters.Add("@ProjectArtifactTypePairsToDelete", SqlConnectionWrapper.ToIdStringMapDataTable(artifactTypeToDeleteKvPairList));
+            parameters.Add("@WorkflowId", workflowId);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            if (transaction == null)
+            {
+                await _connectionWrapper.ExecuteAsync
+                (
+                    "UpdateWorkflowAssignmentsWithWorkflowId",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await transaction.Connection.ExecuteAsync
+                (
+                    "UpdateWorkflowAssignmentsWithWorkflowId",
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
+            }
+
+            var errorCode = parameters.Get<int?>("ErrorCode");
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int)SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingWorkflows);
+                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
+                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                }
+            }
+        }
+
         public async Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPathsAsync(IEnumerable<string> projectPaths)
         {
             var dProjectPaths = projectPaths.ToList();

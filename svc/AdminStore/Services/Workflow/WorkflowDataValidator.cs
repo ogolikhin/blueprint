@@ -48,7 +48,7 @@ namespace AdminStore.Services.Workflow
 
             await ValidateWorkflowNameForUniquenessAsync(result, workflow);
             await ValidateProjectsDataAsync(result, workflow.Projects, false);
-            await ValidateArtifactTypesDataAsync(result, workflow.Projects, null, true);
+            ValidateArtifactTypesDataAsync(result, workflow.Projects, null, true);
             await ValidateEventsDataAsync(result, workflow, true);
 
             return result;
@@ -66,7 +66,7 @@ namespace AdminStore.Services.Workflow
 
             await ValidateWorkflowNameForUniquenessAsync(result, workflow, workflow.Id);
             await ValidateProjectsDataAsync(result, workflow.Projects, true);
-            await ValidateArtifactTypesDataAsync(result, workflow.Projects, workflow.Id, false);
+            ValidateArtifactTypesDataAsync(result, workflow.Projects, workflow.Id, false);
             await ValidateEventsDataAsync(result, workflow, false);
 
             return result;
@@ -268,7 +268,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private async Task ValidateArtifactTypesDataAsync(WorkflowDataValidationResult result, List<IeProject> projects,
+        private void ValidateArtifactTypesDataAsync(WorkflowDataValidationResult result, List<IeProject> projects,
             int? workflowId, bool ignoreIds)
         {
             if (projects.IsEmpty() || result.ValidProjectIds.IsEmpty())
@@ -321,26 +321,6 @@ namespace AdminStore.Services.Workflow
                     });
                 }
             });
-
-            var artifactTypeInWorkflowInfos =
-                (await _workflowRepository.GetExistingStandardArtifactTypesForWorkflowsAsync(
-                    artifactTypesInProjects, result.ValidProjectIds)).Where(i => i.WorkflowId.HasValue).
-                    ToDictionary(i => Tuple.Create(i.VersionProjectId, i.Name), i => i.WorkflowId);
-
-            projects.ForEach(p => p?.ArtifactTypes?.Where(at => at.Name != null).ForEach(at =>
-            {
-                int? currentWorkflowId;
-                if (artifactTypeInWorkflowInfos.TryGetValue(Tuple.Create(p.Id.GetValueOrDefault(), at.Name), out currentWorkflowId)
-                    && (ignoreIds || currentWorkflowId != workflowId))
-                {
-                    result.Errors.Add(new WorkflowDataValidationError
-                    {
-                        Element = Tuple.Create(p.Id.GetValueOrDefault(), at.Name),
-                        ErrorCode =
-                            WorkflowDataValidationErrorCodes.ArtifactTypeInProjectAlreadyAssociatedWithWorkflow
-                    });
-                }
-            }));
         }
 
         private async Task ValidateEventsDataAsync(WorkflowDataValidationResult result, IeWorkflow workflow,

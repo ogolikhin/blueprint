@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Nest;
 using SearchService.Models;
@@ -116,7 +117,7 @@ namespace SearchService.Helpers.SemanticSearch
                 });
 
                 // parse the artifact ids into a artifactsearchresult to return to the caller
-                return await GetArtifactSearchResultsFromItemIds(itemIds, searchEngineParameters.UserId);
+                return await GetArtifactSearchResultsFromItemIds(itemIds.Distinct().ToList(), searchEngineParameters.UserId);
             }
             catch (Exception ex)
             {

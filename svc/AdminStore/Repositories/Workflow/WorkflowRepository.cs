@@ -927,7 +927,7 @@ namespace AdminStore.Repositories.Workflow
                         throw new ConflictException(ErrorMessages.WorkflowIsActive, ErrorCodes.WorkflowIsActive);
 
                     case (int)SqlErrorCodes.WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated:
-                        throw new ConflictException(ErrorMessages.WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated, ErrorCodes.Conflict);
+                        throw new ConflictException(ErrorMessages.WorkflowWithoutProjectArtifactTypeAssignmentsCannotBeActivated, ErrorCodes.WorkflowProjectHasNoLiveArtifactTypes);
 
                     case (int)SqlErrorCodes.WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow:
                         throw new ConflictException(ErrorMessages.WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow, ErrorCodes.Conflict);

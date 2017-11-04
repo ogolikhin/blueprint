@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ArtifactStore.Models.Review;
+using ServiceLibrary.Models;
 
 namespace ArtifactStore.Services.Reviews
 {
@@ -11,5 +12,7 @@ namespace ArtifactStore.Services.Reviews
         Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId);
 
         Task UpdateMeaningOfSignaturesAsync(int reviewId, int userId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters);
+
+        Task<IEnumerable<DropdownItem>> AssignRoleToParticipantAsync(int reviewId, AssignParticipantRoleParameter content, int userId);
     }
 }

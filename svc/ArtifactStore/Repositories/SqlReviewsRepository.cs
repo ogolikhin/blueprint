@@ -894,7 +894,7 @@ namespace ArtifactStore.Repositories
             var artifactParameters = new DynamicParameters();
             artifactParameters.Add("@reviewId", reviewId);
             artifactParameters.Add("@userId", userId);
-           // (await _connectionWrapper.QueryAsync<PropertyValueString>("GetReviewPropertyString", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+
             var artifactXml = (await _connectionWrapper.QueryAsync<string>("GetReviewArtifactsXml", artifactParameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
             var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(artifactXml);
 

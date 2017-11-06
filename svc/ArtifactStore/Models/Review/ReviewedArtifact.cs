@@ -57,6 +57,6 @@ namespace ArtifactStore.Models.Review
             }
         }
 
-        public IEnumerable<ReviewedArtifactMeaningOfSignature> MeaningOfSignatures { get; set; }
+        public IEnumerable<ReviewMeaningOfSignatureValue> MeaningOfSignatures { get; set; }
     }
 }

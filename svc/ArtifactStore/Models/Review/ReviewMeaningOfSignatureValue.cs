@@ -1,8 +1,8 @@
 ﻿namespace ArtifactStore.Models.Review
 {
-    public class ReviewedArtifactMeaningOfSignature : IMeaningOfSignatureValue
+    public class ReviewMeaningOfSignatureValue : IMeaningOfSignatureValue
     {
-        public int ArtifactId { get; set; }
+        public int Id { get; set; }
         public int MeaningOfSignatureId { get; set; }
         public string MeaningOfSignatureValue { get; set; }
         public int RoleId { get; set; }

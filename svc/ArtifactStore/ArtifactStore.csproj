@@ -149,7 +149,7 @@
     <Compile Include="Models\Review\ReviewArtifactsRemovalParams.cs" />
     <Compile Include="Models\Review\ReviewArtifactViewedInput.cs" />
     <Compile Include="Models\Review\ParticipantMeaningOfSignatureResult.cs" />
-    <Compile Include="Models\Review\ReviewedArtifactMeaningOfSignature.cs" />
+    <Compile Include="Models\Review\ReviewMeaningOfSignatureValue.cs" />
     <Compile Include="Models\Review\ReviewerStatusParameter.cs" />
     <Compile Include="Models\Review\ReviewParticipantArtifactsStats.cs" />
     <Compile Include="Models\Review\ReviewSettings.cs" />

@@ -4512,11 +4512,11 @@ namespace ArtifactStore.Repositories
 
             SetupIsMeaningOfSignatureEnabledQuery(reviewId, userId, true, false);
 
-            SetupGetReviewedArtifactsMeaningOfSignaturesAsync(new[] { 4 }, participantId, reviewId, new[]
+            SetupGetParticipantsMeaningOfSignatureValuesQuery(new[] { 4 }, participantId, reviewId, new[]
             {
-                new ReviewedArtifactMeaningOfSignature()
+                new ReviewMeaningOfSignatureValue()
                 {
-                    ArtifactId = 4,
+                    Id = 4,
                     MeaningOfSignatureValue = "foo",
                     RoleName = "bar"
                 }
@@ -4568,7 +4568,7 @@ namespace ArtifactStore.Repositories
 
             SetupIsMeaningOfSignatureEnabledQuery(reviewId, userId, true, true);
 
-            SetupGetReviewedArtifactsMeaningOfSignaturesAsync(new[] { 4 }, participantId, reviewId, new ReviewedArtifactMeaningOfSignature[0]);
+            SetupGetParticipantsMeaningOfSignatureValuesQuery(new[] { 4 }, participantId, reviewId, new ReviewMeaningOfSignatureValue[0]);
 
             SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
 
@@ -4617,11 +4617,11 @@ namespace ArtifactStore.Repositories
 
             SetupIsMeaningOfSignatureEnabledQuery(reviewId, userId, true, true);
 
-            SetupGetReviewedArtifactsMeaningOfSignaturesAsync(new[] { 4 }, participantId, reviewId, new[]
+            SetupGetParticipantsMeaningOfSignatureValuesQuery(new[] { 4 }, participantId, reviewId, new[]
             {
-                new ReviewedArtifactMeaningOfSignature()
+                new ReviewMeaningOfSignatureValue()
                 {
-                    ArtifactId = 4,
+                    Id = 4,
                     MeaningOfSignatureValue = "foo",
                     RoleName = "bar"
                 }
@@ -4660,7 +4660,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupExecuteScalarAsync("GetReviewMeaningOfSignatureEnabled", parameters, returnValue);
         }
 
-        private void SetupGetReviewedArtifactsMeaningOfSignaturesAsync(IEnumerable<int> artifactIds, int userId, int reviewId, IEnumerable<ReviewedArtifactMeaningOfSignature> result)
+        private void SetupGetParticipantsMeaningOfSignatureValuesQuery(IEnumerable<int> artifactIds, int userId, int reviewId, IEnumerable<ReviewMeaningOfSignatureValue> result)
         {
             var parameters = new Dictionary<string, object>()
             {
@@ -4669,7 +4669,7 @@ namespace ArtifactStore.Repositories
                 { "itemIds", SqlConnectionWrapper.ToDataTable(artifactIds) }
             };
 
-            _cxn.SetupQueryAsync("GetReviewedArtifactsMeaningOfSignatures", parameters,  result);
+            _cxn.SetupQueryAsync("GetParticipantsMeaningOfSignatureValues", parameters,  result);
         }
 
         private void SetupReviewArtifactsQuery(int reviewId, int userId, ReviewedArtifact reviewArtifact, bool isFormal = false)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using ServiceLibrary.Models.ProjectMeta;
 
@@ -55,5 +56,7 @@ namespace ArtifactStore.Models.Review
                 _signedOnTimestamp = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : (DateTime?)null;
             }
         }
+
+        public IEnumerable<ReviewedArtifactMeaningOfSignature> MeaningOfSignatures { get; set; }
     }
 }

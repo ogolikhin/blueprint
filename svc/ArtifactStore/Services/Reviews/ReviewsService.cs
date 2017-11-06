@@ -328,7 +328,7 @@ namespace ArtifactStore.Services.Reviews
             if (reviewPackage.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
             {
                 return reviewPackage.Reviewers.First(r => r.UserId == content.UserId).SelectedRoleMoSAssignments.Select(mos =>
-                    new DropdownItem($"{mos.MeaningOfSignatureValue} ({mos.RoleName})", mos.RoleAssignmentId));
+                    new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
             }
 
             return null;

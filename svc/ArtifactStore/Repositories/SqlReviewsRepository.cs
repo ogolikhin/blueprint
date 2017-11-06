@@ -535,6 +535,19 @@ namespace ArtifactStore.Repositories
 
             var reviewedArtifacts = (await GetReviewArtifactsByParticipantAsync(reviewArtifactIds, participantId, reviewId, revisionId)).ToDictionary(k => k.Id);
 
+            Dictionary<int, List<ReviewedArtifactMeaningOfSignature>> meaningOfSignatures;
+
+            if (await IsMeaningOfSignatureEnabledAsync(reviewId, userId, addDrafts))
+            {
+                var mosList = await GetReviewedArtifactsMeaningOfSignaturesAsync(reviewArtifactIds, participantId, reviewId);
+
+                meaningOfSignatures = mosList.GroupBy(mos => mos.ArtifactId).ToDictionary(mos => mos.Key, mos => mos.ToList());
+            }
+            else
+            {
+                meaningOfSignatures = new Dictionary<int, List<ReviewedArtifactMeaningOfSignature>>();
+            }
+
             foreach (var artifact in reviewArtifacts.Items)
             {
                 if (SqlArtifactPermissionsRepository.HasPermissions(artifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
@@ -566,9 +579,19 @@ namespace ArtifactStore.Repositories
                     artifact.HasRelationships = reviewedArtifact.HasRelationships;
                     artifact.HasAccess = true;
                     artifact.ViewState = reviewedArtifact.ViewState;
+
+                    if (meaningOfSignatures.ContainsKey(artifact.Id))
+                    {
+                        artifact.MeaningOfSignatures = meaningOfSignatures[artifact.Id];
+                    }
+                    else
+                    {
+                        artifact.MeaningOfSignatures = new ReviewedArtifactMeaningOfSignature[0];
+                    }
                 }
                 else
                 {
+                    artifact.MeaningOfSignatures = new ReviewedArtifactMeaningOfSignature[0];
                     ClearReviewArtifactProperties(artifact);
                 }
             }
@@ -603,6 +626,16 @@ namespace ArtifactStore.Repositories
             param.Add("@revisionId", revisionId);
 
             return await _connectionWrapper.QueryAsync<ReviewedArtifact>("GetReviewArtifactsByParticipant", param, commandType: CommandType.StoredProcedure);
+        }
+
+        private async Task<IEnumerable<ReviewedArtifactMeaningOfSignature>> GetReviewedArtifactsMeaningOfSignaturesAsync(IEnumerable<int> artifactIds, int userId, int reviewId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            param.Add("@userId", userId);
+            param.Add("@reviewId", reviewId);
+
+            return await _connectionWrapper.QueryAsync<ReviewedArtifactMeaningOfSignature>("GetReviewedArtifactsMeaningOfSignatures", param, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<IEnumerable<int>> GetReviewArtifactsForApproveAsync(int reviewId, int userId, int? revisionId = null, bool? addDrafts = true)
@@ -814,7 +847,7 @@ namespace ArtifactStore.Repositories
                     if (possibleMeaningOfSignatures.ContainsKey(reviewer.UserId))
                     {
                         reviewer.PossibleMeaningOfSignatures =
-                            possibleMeaningOfSignatures[reviewer.UserId].Select(mos => new DropdownItem($"{mos.MeaningOfSignatureValue} ({mos.RoleName})", mos.RoleAssignmentId));
+                            possibleMeaningOfSignatures[reviewer.UserId].Select(mos => new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
                     }
                     else
                     {

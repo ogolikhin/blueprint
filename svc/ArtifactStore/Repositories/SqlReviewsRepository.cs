@@ -927,7 +927,7 @@ namespace ArtifactStore.Repositories
             var reviewParameters = new DynamicParameters();
             reviewParameters.Add("@reviewId", reviewId);
             reviewParameters.Add("@isReviewExist", dbType: DbType.Boolean, direction: ParameterDirection.Output);
-            var result = await _connectionWrapper.QueryAsync<bool>("CheckIfReviewExists", reviewParameters, commandType: CommandType.StoredProcedure);
+            var doesReviewExist = await _connectionWrapper.QueryAsync<bool>("CheckIfReviewExists", reviewParameters, commandType: CommandType.StoredProcedure);
 
             if (!reviewParameters.Get<bool>("@isReviewExist"))
             {

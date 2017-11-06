@@ -891,6 +891,18 @@ namespace ArtifactStore.Repositories
                 ThrowReviewNotFoundException(reviewId);
             }
 
+            var artifactParameters = new DynamicParameters();
+            artifactParameters.Add("@reviewId", reviewId);
+            artifactParameters.Add("@userId", userId);
+
+            var artifactXml = (await _connectionWrapper.QueryAsync<string>("GetReviewArtifactsXml", artifactParameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(artifactXml);
+
+            if (rdReviewContents.Artifacts.All(a => a.Id != artifactId))
+            {
+                throw new ResourceNotFoundException("Specified artifact is not found in the review", ErrorCodes.ResourceNotFound);
+            }
+
             var parameters = new DynamicParameters();
             parameters.Add("@artifactId", artifactId);
             parameters.Add("@reviewId", reviewId);

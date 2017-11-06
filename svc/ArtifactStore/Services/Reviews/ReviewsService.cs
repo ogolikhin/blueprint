@@ -232,11 +232,6 @@ namespace ArtifactStore.Services.Reviews
                     throw new BadRequestException("Could not update meaning of signature because participant is not an approver.", ErrorCodes.ParticipantIsNotAnApprover);
                 }
 
-                if (!possibleMeaningOfSignatures.ContainsKey(participantId))
-                {
-                    throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
-                }
-
                 var meaningOfSignatureUpdates = updateStrategy.GetMeaningOfSignatureUpdates(participantId, possibleMeaningOfSignatures, meaningOfSignatureParamList);
 
                 if (participant.SelectedRoleMoSAssignments == null)
@@ -333,7 +328,7 @@ namespace ArtifactStore.Services.Reviews
             if (reviewPackage.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
             {
                 return reviewPackage.Reviewers.First(r => r.UserId == content.UserId).SelectedRoleMoSAssignments.Select(mos =>
-                    new DropdownItem($"{mos.MeaningOfSignatureValue} ({mos.RoleName})", mos.RoleAssignmentId));
+                    new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
             }
 
             return null;

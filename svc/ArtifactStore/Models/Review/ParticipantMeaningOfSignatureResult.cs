@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ArtifactStore.Models.Review
+﻿namespace ArtifactStore.Models.Review
 {
-    public class ParticipantMeaningOfSignatureResult
+    public class ParticipantMeaningOfSignatureResult : IMeaningOfSignatureValue
     {
         public int ParticipantId { get; set; }
         public int GroupId { get; set; }

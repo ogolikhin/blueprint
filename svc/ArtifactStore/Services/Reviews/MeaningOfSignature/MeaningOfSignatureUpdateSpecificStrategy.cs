@@ -19,6 +19,11 @@ namespace ArtifactStore.Services.Reviews.MeaningOfSignature
 
             foreach (var meaningOfSignatureParameter in meaningOfSignatureParameters.Where(mosp => mosp.ParticipantId == participantId))
             {
+                if (!possibleMeaningOfSignatures.ContainsKey(participantId))
+                {
+                    throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
+                }
+
                 var meaningOfSignature = possibleMeaningOfSignatures[participantId].FirstOrDefault(mos => mos.RoleAssignmentId == meaningOfSignatureParameter.RoleAssignmentId);
 
                 if (meaningOfSignature == null)

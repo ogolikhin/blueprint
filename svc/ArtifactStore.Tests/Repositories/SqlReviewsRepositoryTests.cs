@@ -4512,7 +4512,7 @@ namespace ArtifactStore.Repositories
 
             SetupIsMeaningOfSignatureEnabledQuery(reviewId, userId, true, false);
 
-            SetupGetReviewedArtifactsMeaningOfSignaturesAsync(new[] { 4 }, userId, reviewId, new[]
+            SetupGetReviewedArtifactsMeaningOfSignaturesAsync(new[] { 4 }, participantId, reviewId, new[]
             {
                 new ReviewedArtifactMeaningOfSignature()
                 {
@@ -4568,13 +4568,13 @@ namespace ArtifactStore.Repositories
 
             SetupIsMeaningOfSignatureEnabledQuery(reviewId, userId, true, true);
 
-            SetupGetReviewedArtifactsMeaningOfSignaturesAsync(new[] { 4 }, userId, reviewId, new ReviewedArtifactMeaningOfSignature[0]);
+            SetupGetReviewedArtifactsMeaningOfSignaturesAsync(new[] { 4 }, participantId, reviewId, new ReviewedArtifactMeaningOfSignature[0]);
 
             SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, participantId, new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { reviewId, RolePermissions.Read },
                 { reviewArtifact.Id, RolePermissions.Read }
@@ -4617,7 +4617,7 @@ namespace ArtifactStore.Repositories
 
             SetupIsMeaningOfSignatureEnabledQuery(reviewId, userId, true, true);
 
-            SetupGetReviewedArtifactsMeaningOfSignaturesAsync(new[] { 4 }, userId, reviewId, new[]
+            SetupGetReviewedArtifactsMeaningOfSignaturesAsync(new[] { 4 }, participantId, reviewId, new[]
             {
                 new ReviewedArtifactMeaningOfSignature()
                 {
@@ -4631,7 +4631,7 @@ namespace ArtifactStore.Repositories
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
-            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, participantId, new Dictionary<int, RolePermissions>()
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { reviewId, RolePermissions.Read },
                 { reviewArtifact.Id, RolePermissions.Read }
@@ -4666,7 +4666,7 @@ namespace ArtifactStore.Repositories
             {
                 { "reviewId", reviewId },
                 { "userId", userId },
-                { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) }
+                { "itemIds", SqlConnectionWrapper.ToDataTable(artifactIds) }
             };
 
             _cxn.SetupQueryAsync("GetReviewedArtifactsMeaningOfSignatures", parameters,  result);

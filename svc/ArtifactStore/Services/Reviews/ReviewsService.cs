@@ -18,12 +18,14 @@ namespace ArtifactStore.Services.Reviews
         private readonly IArtifactRepository _artifactRepository;
         private readonly IArtifactPermissionsRepository _permissionsRepository;
         private readonly ILockArtifactsRepository _lockArtifactsRepository;
+        private readonly IItemInfoRepository _itemInfoRepository;
 
         public ReviewsService() : this(
                 new SqlReviewsRepository(),
                 new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
-                new SqlLockArtifactsRepository())
+                new SqlLockArtifactsRepository(),
+                new SqlItemInfoRepository())
         {
         }
 
@@ -31,24 +33,27 @@ namespace ArtifactStore.Services.Reviews
             IReviewsRepository reviewsRepository,
             IArtifactRepository artifactRepository,
             IArtifactPermissionsRepository permissionsRepository,
-            ILockArtifactsRepository lockArtifactsRepository)
+            ILockArtifactsRepository lockArtifactsRepository,
+            IItemInfoRepository itemInfoRepository)
         {
             _reviewsRepository = reviewsRepository;
             _artifactRepository = artifactRepository;
             _permissionsRepository = permissionsRepository;
             _lockArtifactsRepository = lockArtifactsRepository;
+            _itemInfoRepository = itemInfoRepository;
         }
 
-        public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int revisionId = int.MaxValue)
+        public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int? versionId = null)
         {
+            var revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
             await GetReviewInfoAsync(reviewId, userId, revisionId);
 
-            if (!await _permissionsRepository.HasReadPermissions(reviewId, userId))
+            if (!await _permissionsRepository.HasReadPermissions(reviewId, userId, revisionId: revisionId))
             {
                 throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
             }
 
-            var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+            var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId, revisionId);
             return new ReviewSettings(reviewPackageRawData);
         }
 

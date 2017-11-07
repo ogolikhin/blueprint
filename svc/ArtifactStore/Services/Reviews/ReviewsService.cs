@@ -43,6 +43,11 @@ namespace ArtifactStore.Services.Reviews
         {
             await GetReviewInfoAsync(reviewId, userId, revisionId);
 
+            if (!await _permissionsRepository.HasReadPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
+            }
+
             var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
             return new ReviewSettings(reviewPackageRawData);
         }
@@ -50,6 +55,11 @@ namespace ArtifactStore.Services.Reviews
         public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId)
         {
             var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
+
+            if (!await _permissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
 
             var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
 
@@ -178,17 +188,17 @@ namespace ArtifactStore.Services.Reviews
                 throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactIsNotReview, reviewId), ErrorCodes.BadRequest);
             }
 
-            if (!await _permissionsRepository.HasReadPermissions(reviewId, userId))
-            {
-                throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
-            }
-
             return artifactInfo;
         }
 
         public async Task UpdateMeaningOfSignaturesAsync(int reviewId, int userId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)
         {
             var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
+
+            if (!await _permissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
 
             var reviewPackage = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
 

@@ -19,6 +19,12 @@ namespace ArtifactStore.Helpers
             return new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
+        public static AuthorizationException UserCannotModifyReviewException(int reviewId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions to modify the review (Id:{0}).", reviewId);
+            return new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+        }
+
         public static ConflictException ReviewClosedException()
         {
             const string errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";
@@ -27,7 +33,7 @@ namespace ArtifactStore.Helpers
 
         public static ConflictException ReviewExpiredException()
         {
-            var errorMessage = "This Review has expired. No modifications can be made to its artifacts or participants.";
+            const string errorMessage = "This Review has expired. No modifications can be made to its artifacts or participants.";
             return new ConflictException(errorMessage, ErrorCodes.ReviewExpired);
         }
     }

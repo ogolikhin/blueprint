@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
@@ -9,9 +12,6 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 
 namespace ArtifactStore.Services
 {
@@ -31,6 +31,7 @@ namespace ArtifactStore.Services
         private ArtifactBasicDetails _artifactDetails;
 
         private bool _hasReadPermissions;
+        private bool _hasEditPermissions;
         private bool _isLockSuccessful;
         private Dictionary<int, List<ParticipantMeaningOfSignatureResult>> _possibleMeaningOfSignatures;
 
@@ -67,6 +68,10 @@ namespace ArtifactStore.Services
                 .Setup(m => m.HasReadPermissions(ReviewId, UserId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(() => _hasReadPermissions);
 
+            _mockArtifactPermissionsRepository
+                .Setup(m => m.HasEditPermissions(ReviewId, UserId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(() => _hasEditPermissions);
+
             _mockLockArtifactsRepository = new Mock<ILockArtifactsRepository>();
 
             _mockLockArtifactsRepository
@@ -74,6 +79,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(() => _isLockSuccessful);
 
             _hasReadPermissions = true;
+            _hasEditPermissions = true;
             _isLockSuccessful = true;
 
             _reviewService = new ReviewsService(
@@ -131,9 +137,8 @@ namespace ArtifactStore.Services
         public async Task GetReviewSettingsAsync_ReviewNotAccessibleForUser_ThrowsAuthorizationException()
         {
             // Arrange
-            _mockArtifactPermissionsRepository
-                .Setup(m => m.HasReadPermissions(ReviewId, UserId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
-                .ReturnsAsync(false);
+            _hasReadPermissions = false;
+            _hasEditPermissions = false;
 
             // Act
             try
@@ -308,7 +313,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_ReviewNotAccessibleForUser_ThrowsAuthorizationException()
         {
             // Arrange
-            _hasReadPermissions = false;
+            _hasEditPermissions = false;
 
             // Act
             try
@@ -725,33 +730,30 @@ namespace ArtifactStore.Services
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = false;
             _reviewPackageRawData.IsESignatureEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 2,
                     Permission = ReviewParticipantRole.Approver
                 },
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 3,
                     Permission = ReviewParticipantRole.Reviewer
                 }
             };
 
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 2, new List<ParticipantMeaningOfSignatureResult>()
                 {
-                    new ParticipantMeaningOfSignatureResult()
+                    2,
+                    new List<ParticipantMeaningOfSignatureResult>
                     {
-                        RoleAssignmentId = 5
-                    },
-                    new ParticipantMeaningOfSignatureResult()
-                    {
-                        RoleAssignmentId = 6
+                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 5 },
+                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 6 }
                     }
-                } }
+                }
             };
 
             var updatedReviewSettings = new ReviewSettings
@@ -824,10 +826,10 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
-        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_User_Does_Not_Have_Read_Permissions_For_Review()
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_User_Does_Not_Have_Edit_Permissions_For_Review()
         {
             // Arrange
-            _hasReadPermissions = false;
+            _hasEditPermissions = false;
 
             // Act
             try
@@ -962,10 +964,11 @@ namespace ArtifactStore.Services
             try
             {
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
-                    new MeaningOfSignatureParameter() {
-                    Adding = true,
-                    RoleAssignmentId = 3,
-                    ParticipantId = 4
+                    new MeaningOfSignatureParameter
+                    {
+                        Adding = true,
+                        RoleAssignmentId = 3,
+                        ParticipantId = 4
                     }
                 });
             }
@@ -984,9 +987,9 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 4,
                     Permission = ReviewParticipantRole.Reviewer
@@ -997,10 +1000,11 @@ namespace ArtifactStore.Services
             try
             {
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
-                    new MeaningOfSignatureParameter() {
-                    Adding = true,
-                    RoleAssignmentId = 3,
-                    ParticipantId = 4
+                    new MeaningOfSignatureParameter
+                    {
+                        Adding = true,
+                        RoleAssignmentId = 3,
+                        ParticipantId = 4
                     }
                 });
             }
@@ -1019,9 +1023,9 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 4,
                     Permission = ReviewParticipantRole.Approver
@@ -1034,10 +1038,11 @@ namespace ArtifactStore.Services
             try
             {
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
-                    new MeaningOfSignatureParameter() {
-                    Adding = true,
-                    RoleAssignmentId = 3,
-                    ParticipantId = 4
+                    new MeaningOfSignatureParameter
+                    {
+                        Adding = true,
+                        RoleAssignmentId = 3,
+                        ParticipantId = 4
                     }
                 });
             }
@@ -1056,16 +1061,16 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 4,
                     Permission = ReviewParticipantRole.Approver
                 }
             };
 
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
                 { 4, new List<ParticipantMeaningOfSignatureResult>() }
             };
@@ -1074,10 +1079,11 @@ namespace ArtifactStore.Services
             try
             {
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
-                    new MeaningOfSignatureParameter() {
-                    Adding = true,
-                    RoleAssignmentId = 3,
-                    ParticipantId = 4
+                    new MeaningOfSignatureParameter
+                    {
+                        Adding = true,
+                        RoleAssignmentId = 3,
+                        ParticipantId = 4
                     }
                 });
             }
@@ -1096,16 +1102,16 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 4,
                     Permission = ReviewParticipantRole.Approver
                 }
             };
 
-            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult
             {
                 GroupId = 6,
                 MeaningOfSignatureId = 3,
@@ -1116,26 +1122,23 @@ namespace ArtifactStore.Services
                 RoleName = "bar"
             };
 
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>()
-                    {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
-                new MeaningOfSignatureParameter() {
-                Adding = true,
-                RoleAssignmentId = 7,
-                ParticipantId = 4
+                new MeaningOfSignatureParameter
+                {
+                    Adding = true,
+                    RoleAssignmentId = 7,
+                    ParticipantId = 4
                 }
             });
 
             // Assert
-            var result = _reviewPackageRawData.Reviewers.FirstOrDefault().SelectedRoleMoSAssignments.FirstOrDefault();
+            var result = _reviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments.FirstOrDefault();
 
             Assert.IsNotNull(result, "A meaning of signature should have been added");
             Assert.AreEqual(meaningOfSignature.GroupId, result.GroupId);
@@ -1153,9 +1156,9 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 4,
                     Permission = ReviewParticipantRole.Approver,
@@ -1163,7 +1166,7 @@ namespace ArtifactStore.Services
                 }
             };
 
-            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult
             {
                 GroupId = 6,
                 MeaningOfSignatureId = 3,
@@ -1174,26 +1177,23 @@ namespace ArtifactStore.Services
                 RoleName = "bar"
             };
 
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>()
-                    {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
-                new MeaningOfSignatureParameter() {
-                Adding = true,
-                RoleAssignmentId = 7,
-                ParticipantId = 4
+                new MeaningOfSignatureParameter
+                {
+                    Adding = true,
+                    RoleAssignmentId = 7,
+                    ParticipantId = 4
                 }
             });
 
             // Assert
-            var result = _reviewPackageRawData.Reviewers.FirstOrDefault().SelectedRoleMoSAssignments.FirstOrDefault();
+            var result = _reviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments.FirstOrDefault();
 
             Assert.IsNotNull(result, "A meaning of signature should have been added");
             Assert.AreEqual(meaningOfSignature.GroupId, result.GroupId);
@@ -1211,15 +1211,15 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 4,
                     Permission = ReviewParticipantRole.Approver,
-                    SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>()
+                    SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>
                     {
-                        new ParticipantMeaningOfSignature()
+                        new ParticipantMeaningOfSignature
                         {
                             RoleAssignmentId = 7
                         }
@@ -1227,7 +1227,7 @@ namespace ArtifactStore.Services
                 }
             };
 
-            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult
             {
                 GroupId = 6,
                 MeaningOfSignatureId = 3,
@@ -1238,26 +1238,23 @@ namespace ArtifactStore.Services
                 RoleName = "bar"
             };
 
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>()
-                    {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
-                new MeaningOfSignatureParameter() {
-                Adding = true,
-                RoleAssignmentId = 7,
-                ParticipantId = 4
+                new MeaningOfSignatureParameter
+                {
+                    Adding = true,
+                    RoleAssignmentId = 7,
+                    ParticipantId = 4
                 }
             });
 
             // Assert
-            var selectedMos = _reviewPackageRawData.Reviewers.FirstOrDefault().SelectedRoleMoSAssignments;
+            var selectedMos = _reviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments;
             var result = selectedMos.FirstOrDefault();
 
             Assert.AreEqual(1, selectedMos.Count, "There should only be one meaning of signature");
@@ -1277,15 +1274,15 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 4,
                     Permission = ReviewParticipantRole.Approver,
-                    SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>()
+                    SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>
                     {
-                        new ParticipantMeaningOfSignature()
+                        new ParticipantMeaningOfSignature
                         {
                             RoleAssignmentId = 7
                         }
@@ -1293,7 +1290,7 @@ namespace ArtifactStore.Services
                 }
             };
 
-            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult
             {
                 GroupId = 6,
                 MeaningOfSignatureId = 3,
@@ -1304,18 +1301,15 @@ namespace ArtifactStore.Services
                 RoleName = "bar"
             };
 
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>()
-                    {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
-                new MeaningOfSignatureParameter() {
+                new MeaningOfSignatureParameter
+                {
                     Adding = false,
                     RoleAssignmentId = 7,
                     ParticipantId = 4
@@ -1323,7 +1317,7 @@ namespace ArtifactStore.Services
             });
 
             // Assert
-            var selectedMos = _reviewPackageRawData.Reviewers.FirstOrDefault().SelectedRoleMoSAssignments;
+            var selectedMos = _reviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments;
 
             Assert.AreEqual(0, selectedMos.Count, "There should be one meaning of signature");
         }
@@ -1333,15 +1327,15 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 4,
                     Permission = ReviewParticipantRole.Approver,
-                    SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>()
+                    SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>
                     {
-                        new ParticipantMeaningOfSignature()
+                        new ParticipantMeaningOfSignature
                         {
                             RoleAssignmentId = 6
                         }
@@ -1349,7 +1343,7 @@ namespace ArtifactStore.Services
                 }
             };
 
-            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult
             {
                 GroupId = 6,
                 MeaningOfSignatureId = 3,
@@ -1360,18 +1354,15 @@ namespace ArtifactStore.Services
                 RoleName = "bar"
             };
 
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>()
-                    {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
-                new MeaningOfSignatureParameter() {
+                new MeaningOfSignatureParameter
+                {
                     Adding = false,
                     RoleAssignmentId = 7,
                     ParticipantId = 4
@@ -1379,7 +1370,7 @@ namespace ArtifactStore.Services
             });
 
             // Assert
-            var selectedMos = _reviewPackageRawData.Reviewers.FirstOrDefault().SelectedRoleMoSAssignments;
+            var selectedMos = _reviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments;
 
             Assert.AreEqual(1, selectedMos.Count, "There should be one meaning of signature");
         }
@@ -1389,16 +1380,16 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>()
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                new ReviewerRawData()
+                new ReviewerRawData
                 {
                     UserId = 4,
                     Permission = ReviewParticipantRole.Approver
                 }
             };
 
-            var meaningOfSignature = new ParticipantMeaningOfSignatureResult()
+            var meaningOfSignature = new ParticipantMeaningOfSignatureResult
             {
                 GroupId = 6,
                 MeaningOfSignatureId = 3,
@@ -1409,21 +1400,18 @@ namespace ArtifactStore.Services
                 RoleName = "bar"
             };
 
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>()
-                    {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
-                new MeaningOfSignatureParameter() {
-                Adding = true,
-                RoleAssignmentId = 7,
-                ParticipantId = 4
+                new MeaningOfSignatureParameter
+                {
+                    Adding = true,
+                    RoleAssignmentId = 7,
+                    ParticipantId = 4
                 }
             });
 
@@ -1440,7 +1428,7 @@ namespace ArtifactStore.Services
         {
             _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync((PropertyValueString)null);
 
-            var content = new AssignParticipantRoleParameter()
+            var content = new AssignParticipantRoleParameter
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1466,7 +1454,7 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_Deleted()
         {
             // Arrange
-            var propertyValue = new PropertyValueString()
+            var propertyValue = new PropertyValueString
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
@@ -1481,7 +1469,7 @@ namespace ArtifactStore.Services
 
             _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
 
-            var content = new AssignParticipantRoleParameter()
+            var content = new AssignParticipantRoleParameter
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1508,7 +1496,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
 
-            var propertyValue = new PropertyValueString()
+            var propertyValue = new PropertyValueString
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
@@ -1523,7 +1511,7 @@ namespace ArtifactStore.Services
 
             _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
 
-            var content = new AssignParticipantRoleParameter()
+            var content = new AssignParticipantRoleParameter
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1545,13 +1533,12 @@ namespace ArtifactStore.Services
             Assert.Fail("A Conflict Exception was not  thrown.");
         }
 
-
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_Not_Locked()
         {
             // Arrange
-            var propertyValue = new PropertyValueString()
+            var propertyValue = new PropertyValueString
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
@@ -1566,7 +1553,7 @@ namespace ArtifactStore.Services
 
             _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
 
-            var content = new AssignParticipantRoleParameter()
+            var content = new AssignParticipantRoleParameter
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1581,7 +1568,7 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_User_Is_Disabled()
         {
             // Arrange
-            var propertyValue = new PropertyValueString()
+            var propertyValue = new PropertyValueString
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
@@ -1596,7 +1583,7 @@ namespace ArtifactStore.Services
 
             _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
 
-            var content = new AssignParticipantRoleParameter()
+            var content = new AssignParticipantRoleParameter
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1611,7 +1598,7 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_ReviewPackageXml_Is_Empty()
         {
             // Arrange
-            var propertyValue = new PropertyValueString()
+            var propertyValue = new PropertyValueString
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = string.Empty,
@@ -1626,7 +1613,7 @@ namespace ArtifactStore.Services
 
             _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
 
-            var content = new AssignParticipantRoleParameter()
+            var content = new AssignParticipantRoleParameter
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1641,7 +1628,7 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Update_Review_Package_When_Successful()
         {
             // Arrange
-            var propertyValue = new PropertyValueString()
+            var propertyValue = new PropertyValueString
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>",
@@ -1656,7 +1643,7 @@ namespace ArtifactStore.Services
 
             _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
 
-            var content = new AssignParticipantRoleParameter()
+            var content = new AssignParticipantRoleParameter
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1676,7 +1663,7 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Return_Null_When_Meaning_Of_Signature_Is_Disabled()
         {
             // Arrange
-            var propertyValue = new PropertyValueString()
+            var propertyValue = new PropertyValueString
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>",
@@ -1691,7 +1678,7 @@ namespace ArtifactStore.Services
 
             _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
 
-            var content = new AssignParticipantRoleParameter()
+            var content = new AssignParticipantRoleParameter
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
@@ -1709,7 +1696,7 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Add_All_Possible_Meaning_Of_Signatures_When_Meaning_Of_Signature_Is_Enabled()
         {
             // Arrange
-            var propertyValue = new PropertyValueString()
+            var propertyValue = new PropertyValueString
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsMoSEnabled>true</IsMoSEnabled><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>",
@@ -1724,25 +1711,22 @@ namespace ArtifactStore.Services
 
             _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
 
-            var content = new AssignParticipantRoleParameter()
+            var content = new AssignParticipantRoleParameter
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
             };
 
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 1, new List<ParticipantMeaningOfSignatureResult>()
                 {
-                    new ParticipantMeaningOfSignatureResult()
+                    1,
+                    new List<ParticipantMeaningOfSignatureResult>
                     {
-                        RoleAssignmentId = 2
-                    },
-                    new ParticipantMeaningOfSignatureResult()
-                    {
-                        RoleAssignmentId = 3
+                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 2 },
+                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 3 }
                     }
-                } }
+                }
             };
 
             // Act
@@ -1761,7 +1745,7 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Return_All_Assigned_Meaning_Of_Signatures_When_Meaning_Of_Signature_Is_Enabled()
         {
             // Arrange
-            var propertyValue = new PropertyValueString()
+            var propertyValue = new PropertyValueString
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsMoSEnabled>true</IsMoSEnabled><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>",
@@ -1776,29 +1760,32 @@ namespace ArtifactStore.Services
 
             _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
 
-            var content = new AssignParticipantRoleParameter()
+            var content = new AssignParticipantRoleParameter
             {
                 UserId = 1,
                 Role = ReviewParticipantRole.Approver
             };
 
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>()
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 1, new List<ParticipantMeaningOfSignatureResult>()
                 {
-                    new ParticipantMeaningOfSignatureResult()
+                    1,
+                    new List<ParticipantMeaningOfSignatureResult>
                     {
-                        MeaningOfSignatureValue = "foo1",
-                        RoleAssignmentId = 2,
-                        RoleName = "bar1"
-                    },
-                    new ParticipantMeaningOfSignatureResult()
-                    {
-                        MeaningOfSignatureValue = "foo2",
-                        RoleAssignmentId = 3,
-                        RoleName = "bar2"
+                        new ParticipantMeaningOfSignatureResult
+                        {
+                            MeaningOfSignatureValue = "foo1",
+                            RoleAssignmentId = 2,
+                            RoleName = "bar1"
+                        },
+                        new ParticipantMeaningOfSignatureResult
+                        {
+                            MeaningOfSignatureValue = "foo2",
+                            RoleAssignmentId = 3,
+                            RoleName = "bar2"
+                        }
                     }
-                } }
+                }
             };
 
             // Act

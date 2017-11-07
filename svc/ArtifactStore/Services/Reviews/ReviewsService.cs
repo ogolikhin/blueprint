@@ -58,7 +58,7 @@ namespace ArtifactStore.Services.Reviews
 
             if (!await _permissionsRepository.HasEditPermissions(reviewId, userId))
             {
-                throw ReviewsExceptionHelper.UserCannotEditReviewException(reviewId);
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
             var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
@@ -197,7 +197,7 @@ namespace ArtifactStore.Services.Reviews
 
             if (!await _permissionsRepository.HasEditPermissions(reviewId, userId))
             {
-                throw ReviewsExceptionHelper.UserCannotEditReviewException(reviewId);
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
             var reviewPackage = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();

@@ -410,10 +410,10 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
-        /// Get review settings for a given review (optionally: for a given revision).
+        /// Get review settings for a given review (optionally: for a given version).
         /// </summary>
         /// <param name="reviewId">The review id.</param>
-        /// <param name="revisionId">(optional) The revision id.</param>
+        /// <param name="versionId">(optional) The review version id.</param>
         /// <returns>A ReviewSettings object containing review settings.</returns>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid.</response>
@@ -422,9 +422,9 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/settings")]
-        public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int revisionId = int.MaxValue)
+        public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int? versionId = null)
         {
-            return await _reviewsService.GetReviewSettingsAsync(reviewId, Session.UserId, revisionId);
+            return await _reviewsService.GetReviewSettingsAsync(reviewId, Session.UserId, versionId);
         }
 
         /// <summary>

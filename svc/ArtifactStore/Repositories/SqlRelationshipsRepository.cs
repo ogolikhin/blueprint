@@ -15,7 +15,7 @@ namespace ArtifactStore.Repositories
     public class SqlRelationshipsRepository : IRelationshipsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
-        private readonly ISqlItemInfoRepository _itemInfoRepository;
+        private readonly IItemInfoRepository _itemInfoRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
         public SqlRelationshipsRepository()
@@ -30,7 +30,7 @@ namespace ArtifactStore.Repositories
             _artifactPermissionsRepository = new SqlArtifactPermissionsRepository(connectionWrapper);
         }
 
-        internal SqlRelationshipsRepository(ISqlConnectionWrapper connectionWrapper, ISqlItemInfoRepository itemInfoRepository, IArtifactPermissionsRepository artifactPermissionsRepository)
+        internal SqlRelationshipsRepository(ISqlConnectionWrapper connectionWrapper, IItemInfoRepository itemInfoRepository, IArtifactPermissionsRepository artifactPermissionsRepository)
         {
             _connectionWrapper = connectionWrapper;
             _itemInfoRepository = itemInfoRepository;

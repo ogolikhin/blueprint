@@ -4,7 +4,7 @@ using ServiceLibrary.Models;
 
 namespace ServiceLibrary.Repositories
 {
-    public interface ISqlItemInfoRepository
+    public interface IItemInfoRepository
     {
         Task<IEnumerable<ItemLabel>> GetItemsLabels(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue);
 
@@ -20,7 +20,6 @@ namespace ServiceLibrary.Repositories
 
         Task<string> GetItemDescription(int itemId, int userId, bool? addDrafts = true, int? revisionId = int.MaxValue);
 
-        Task<ISet<int>> GetBaselineArtifacts(int baselineId, int userId, bool addDrafts = true,
-            int revisionId = int.MaxValue);
+        Task<ISet<int>> GetBaselineArtifacts(int baselineId, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
     }
 }

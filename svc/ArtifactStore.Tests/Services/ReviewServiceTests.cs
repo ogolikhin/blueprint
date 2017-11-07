@@ -746,17 +746,14 @@ namespace ArtifactStore.Services
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 2, new List<ParticipantMeaningOfSignatureResult>
                 {
-                    new ParticipantMeaningOfSignatureResult
+                    2,
+                    new List<ParticipantMeaningOfSignatureResult>
                     {
-                        RoleAssignmentId = 5
-                    },
-                    new ParticipantMeaningOfSignatureResult
-                    {
-                        RoleAssignmentId = 6
+                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 5 },
+                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 6 }
                     }
-                } }
+                }
             };
 
             var updatedReviewSettings = new ReviewSettings
@@ -969,9 +966,9 @@ namespace ArtifactStore.Services
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                     new MeaningOfSignatureParameter
                     {
-                    Adding = true,
-                    RoleAssignmentId = 3,
-                    ParticipantId = 4
+                        Adding = true,
+                        RoleAssignmentId = 3,
+                        ParticipantId = 4
                     }
                 });
             }
@@ -1005,9 +1002,9 @@ namespace ArtifactStore.Services
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                     new MeaningOfSignatureParameter
                     {
-                    Adding = true,
-                    RoleAssignmentId = 3,
-                    ParticipantId = 4
+                        Adding = true,
+                        RoleAssignmentId = 3,
+                        ParticipantId = 4
                     }
                 });
             }
@@ -1043,9 +1040,9 @@ namespace ArtifactStore.Services
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                     new MeaningOfSignatureParameter
                     {
-                    Adding = true,
-                    RoleAssignmentId = 3,
-                    ParticipantId = 4
+                        Adding = true,
+                        RoleAssignmentId = 3,
+                        ParticipantId = 4
                     }
                 });
             }
@@ -1084,9 +1081,9 @@ namespace ArtifactStore.Services
                 await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                     new MeaningOfSignatureParameter
                     {
-                    Adding = true,
-                    RoleAssignmentId = 3,
-                    ParticipantId = 4
+                        Adding = true,
+                        RoleAssignmentId = 3,
+                        ParticipantId = 4
                     }
                 });
             }
@@ -1127,20 +1124,16 @@ namespace ArtifactStore.Services
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>
-                {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                 new MeaningOfSignatureParameter
                 {
-                Adding = true,
-                RoleAssignmentId = 7,
-                ParticipantId = 4
+                    Adding = true,
+                    RoleAssignmentId = 7,
+                    ParticipantId = 4
                 }
             });
 
@@ -1186,20 +1179,16 @@ namespace ArtifactStore.Services
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>
-                {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                 new MeaningOfSignatureParameter
                 {
-                Adding = true,
-                RoleAssignmentId = 7,
-                ParticipantId = 4
+                    Adding = true,
+                    RoleAssignmentId = 7,
+                    ParticipantId = 4
                 }
             });
 
@@ -1251,20 +1240,16 @@ namespace ArtifactStore.Services
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>
-                {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                 new MeaningOfSignatureParameter
                 {
-                Adding = true,
-                RoleAssignmentId = 7,
-                ParticipantId = 4
+                    Adding = true,
+                    RoleAssignmentId = 7,
+                    ParticipantId = 4
                 }
             });
 
@@ -1318,11 +1303,7 @@ namespace ArtifactStore.Services
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>
-                {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
@@ -1375,11 +1356,7 @@ namespace ArtifactStore.Services
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>
-                {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
@@ -1425,20 +1402,16 @@ namespace ArtifactStore.Services
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 4, new List<ParticipantMeaningOfSignatureResult>
-                {
-                        meaningOfSignature
-                    }
-                }
+                { 4, new List<ParticipantMeaningOfSignatureResult> { meaningOfSignature } }
             };
 
             // Act
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, UserId, new[] {
                 new MeaningOfSignatureParameter
                 {
-                Adding = true,
-                RoleAssignmentId = 7,
-                ParticipantId = 4
+                    Adding = true,
+                    RoleAssignmentId = 7,
+                    ParticipantId = 4
                 }
             });
 
@@ -1559,7 +1532,6 @@ namespace ArtifactStore.Services
 
             Assert.Fail("A Conflict Exception was not  thrown.");
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
@@ -1747,17 +1719,14 @@ namespace ArtifactStore.Services
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 1, new List<ParticipantMeaningOfSignatureResult>
                 {
-                    new ParticipantMeaningOfSignatureResult
+                    1,
+                    new List<ParticipantMeaningOfSignatureResult>
                     {
-                        RoleAssignmentId = 2
-                    },
-                    new ParticipantMeaningOfSignatureResult
-                    {
-                        RoleAssignmentId = 3
+                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 2 },
+                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 3 }
                     }
-                } }
+                }
             };
 
             // Act
@@ -1799,21 +1768,24 @@ namespace ArtifactStore.Services
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
-                { 1, new List<ParticipantMeaningOfSignatureResult>
                 {
-                    new ParticipantMeaningOfSignatureResult
+                    1,
+                    new List<ParticipantMeaningOfSignatureResult>
                     {
-                        MeaningOfSignatureValue = "foo1",
-                        RoleAssignmentId = 2,
-                        RoleName = "bar1"
-                    },
-                    new ParticipantMeaningOfSignatureResult
-                    {
-                        MeaningOfSignatureValue = "foo2",
-                        RoleAssignmentId = 3,
-                        RoleName = "bar2"
+                        new ParticipantMeaningOfSignatureResult
+                        {
+                            MeaningOfSignatureValue = "foo1",
+                            RoleAssignmentId = 2,
+                            RoleName = "bar1"
+                        },
+                        new ParticipantMeaningOfSignatureResult
+                        {
+                            MeaningOfSignatureValue = "foo2",
+                            RoleAssignmentId = 3,
+                            RoleName = "bar2"
+                        }
                     }
-                } }
+                }
             };
 
             // Act

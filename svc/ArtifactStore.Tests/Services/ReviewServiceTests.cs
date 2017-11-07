@@ -26,10 +26,12 @@ namespace ArtifactStore.Services
         private Mock<IArtifactRepository> _mockArtifactRepository;
         private Mock<IArtifactPermissionsRepository> _mockArtifactPermissionsRepository;
         private Mock<ILockArtifactsRepository> _mockLockArtifactsRepository;
+        private Mock<IItemInfoRepository> _mockItemInfoRepository;
 
         private ReviewPackageRawData _reviewPackageRawData;
         private ArtifactBasicDetails _artifactDetails;
 
+        private int _revisionId;
         private bool _hasReadPermissions;
         private bool _hasEditPermissions;
         private bool _isLockSuccessful;
@@ -78,6 +80,12 @@ namespace ArtifactStore.Services
                 .Setup(m => m.LockArtifactAsync(ReviewId, UserId))
                 .ReturnsAsync(() => _isLockSuccessful);
 
+            _mockItemInfoRepository = new Mock<IItemInfoRepository>();
+            _mockItemInfoRepository
+                .Setup(m => m.GetRevisionId(ReviewId, UserId, It.IsAny<int?>(), It.IsAny<int?>()))
+                .ReturnsAsync(_revisionId);
+
+            _revisionId = int.MaxValue;
             _hasReadPermissions = true;
             _hasEditPermissions = true;
             _isLockSuccessful = true;
@@ -86,7 +94,8 @@ namespace ArtifactStore.Services
                 _mockReviewRepository.Object,
                 _mockArtifactRepository.Object,
                 _mockArtifactPermissionsRepository.Object,
-                _mockLockArtifactsRepository.Object);
+                _mockLockArtifactsRepository.Object,
+                _mockItemInfoRepository.Object);
         }
 
         #region GetReviewSettingsAsync

@@ -367,7 +367,18 @@ namespace ArtifactStore.Repositories
 
                 if (childIds != null)
                 {
-                    content.ArtifactIds = content.ArtifactIds.Concat(childIds);
+                    var set = content.ArtifactIds.ToHashSet();
+
+                    foreach (var item in childIds)
+                    {
+                        if (!set.Contains(item.VersionItemId))
+                        {
+                            set.Add(item.VersionItemId);
+                        }
+                    }
+
+                    content.ArtifactIds = set.ToList();
+
                 }
             }
             var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId.Value);
@@ -419,15 +430,15 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task<IEnumerable<int>> GetChildrenArtifacts(int userId, IEnumerable<int> artifactIds)
+        private async Task<IEnumerable<ChieldArtifactsResult>> GetChildrenArtifacts(int userId, IEnumerable<int> artifactIds)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
             parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
             parameters.Add("@revisionId", int.MaxValue);
             parameters.Add("@includeDrafts", false);
-            parameters.Add("@isExcludeParents", true);
-            return (await _connectionWrapper.QueryAsync<int>("GetChildArtifacts", parameters, commandType: CommandType.StoredProcedure)).ToList();
+
+            return (await _connectionWrapper.QueryAsync<ChieldArtifactsResult>("GetChildArtifacts", parameters, commandType: CommandType.StoredProcedure)).ToList();
         }
 
         private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId)

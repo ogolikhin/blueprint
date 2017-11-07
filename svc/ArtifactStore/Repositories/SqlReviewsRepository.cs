@@ -24,7 +24,7 @@ namespace ArtifactStore.Repositories
 
         private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly IArtifactVersionsRepository _artifactVersionsRepository;
-        private readonly ISqlItemInfoRepository _itemInfoRepository;
+        private readonly IItemInfoRepository _itemInfoRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IUsersRepository _usersRepository;
         private readonly IArtifactRepository _artifactRepository;
@@ -51,7 +51,7 @@ namespace ArtifactStore.Repositories
 
         public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper,
                                     IArtifactVersionsRepository artifactVersionsRepository,
-                                    ISqlItemInfoRepository itemInfoRepository,
+                                    IItemInfoRepository itemInfoRepository,
                                     IArtifactPermissionsRepository artifactPermissionsRepository,
                                     IApplicationSettingsRepository applicationSettingsRepository,
                                     IUsersRepository usersRepository,

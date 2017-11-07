@@ -15,7 +15,7 @@ namespace ArtifactStore.Repositories
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly IUsersRepository _userRepository;
-        private readonly ISqlItemInfoRepository _itemInfoRepository;
+        private readonly IItemInfoRepository _itemInfoRepository;
 
         public SqlAttachmentsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlUsersRepository())

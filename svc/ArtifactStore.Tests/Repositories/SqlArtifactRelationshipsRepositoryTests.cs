@@ -17,14 +17,14 @@ namespace ArtifactStore.Repositories
     {
         private SqlConnectionWrapperMock _cxn;
         private IRelationshipsRepository _relationshipsRepository;
-        private Mock<ISqlItemInfoRepository> _itemInfoRepositoryMock;
+        private Mock<IItemInfoRepository> _itemInfoRepositoryMock;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
 
         [TestInitialize]
         public void Initialize()
         {
             _cxn = new SqlConnectionWrapperMock();
-            _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>();
+            _itemInfoRepositoryMock = new Mock<IItemInfoRepository>();
             _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             _relationshipsRepository = new SqlRelationshipsRepository(_cxn.Object, _itemInfoRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object);
         }

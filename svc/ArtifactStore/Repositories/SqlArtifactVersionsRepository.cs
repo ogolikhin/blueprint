@@ -17,7 +17,7 @@ namespace ArtifactStore.Repositories
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
-        private readonly ISqlItemInfoRepository _itemInfoRepository;
+        private readonly IItemInfoRepository _itemInfoRepository;
 
         public SqlArtifactVersionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -30,7 +30,7 @@ namespace ArtifactStore.Repositories
         }
 
         internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper,
-                IArtifactPermissionsRepository artifactPermissionsRepository, ISqlItemInfoRepository itemInfoRepository)
+                IArtifactPermissionsRepository artifactPermissionsRepository, IItemInfoRepository itemInfoRepository)
         {
             _connectionWrapper = connectionWrapper;
             _artifactPermissionsRepository = artifactPermissionsRepository;

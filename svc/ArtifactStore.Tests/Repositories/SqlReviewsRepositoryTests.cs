@@ -23,7 +23,7 @@ namespace ArtifactStore.Repositories
         private IReviewsRepository _reviewsRepository;
 
         private Mock<IArtifactVersionsRepository> _artifactVersionsRepositoryMock;
-        private Mock<ISqlItemInfoRepository> _itemInfoRepositoryMock;
+        private Mock<IItemInfoRepository> _itemInfoRepositoryMock;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
@@ -39,7 +39,7 @@ namespace ArtifactStore.Repositories
         {
             _cxn = new SqlConnectionWrapperMock();
             _artifactVersionsRepositoryMock = new Mock<IArtifactVersionsRepository>(MockBehavior.Strict);
-            _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>(MockBehavior.Strict);
+            _itemInfoRepositoryMock = new Mock<IItemInfoRepository>(MockBehavior.Strict);
             _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>(MockBehavior.Strict);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Strict);
             _usersRepositoryMock = new Mock<IUsersRepository>();

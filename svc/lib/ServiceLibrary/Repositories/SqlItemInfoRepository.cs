@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
-    public class SqlItemInfoRepository : ISqlItemInfoRepository
+    public class SqlItemInfoRepository : IItemInfoRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
 

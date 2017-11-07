@@ -138,6 +138,8 @@ namespace ArtifactStore.Repositories
                 Status = reviewDetails.ReviewStatus,
                 ReviewPackageStatus = reviewDetails.ReviewPackageStatus,
                 RequireAllArtifactsReviewed = reviewDetails.RequireAllArtifactsReviewed,
+                RequireESignature = reviewDetails.RequireESignature,
+                RequireMeaningOfSignature = reviewDetails.RequireMeaningOfSignature,
                 ShowOnlyDescription = reviewDetails.ShowOnlyDescription,
                 ExpirationDate = reviewDetails.ExpirationDate,
                 ClosedDate = closedDate,

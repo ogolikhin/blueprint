@@ -93,6 +93,8 @@ namespace ArtifactStore.Repositories
                 Pending = 2,
                 RevisionId = revisionId,
                 RequireAllArtifactsReviewed = true,
+                RequireESignature = true,
+                RequireMeaningOfSignature = false,
                 ShowOnlyDescription = true
             };
 
@@ -131,6 +133,8 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
             Assert.AreEqual(true, review.RequireAllArtifactsReviewed);
             Assert.AreEqual(true, review.ShowOnlyDescription);
+            Assert.AreEqual(true, review.RequireESignature);
+            Assert.AreEqual(false, review.RequireMeaningOfSignature);
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
             Assert.AreEqual(2, review.ArtifactsStatus.Pending);

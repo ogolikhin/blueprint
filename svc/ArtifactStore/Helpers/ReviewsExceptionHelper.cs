@@ -19,6 +19,12 @@ namespace ArtifactStore.Helpers
             return new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
+        public static AuthorizationException UserCannotEditReviewException(int reviewId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions to modify the review (Id:{0}).", reviewId);
+            return new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+        }
+
         public static ConflictException ReviewClosedException()
         {
             const string errorMessage = "This Review is now closed. No modifications can be made to its artifacts or participants.";

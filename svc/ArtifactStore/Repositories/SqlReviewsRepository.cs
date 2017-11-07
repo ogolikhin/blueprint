@@ -361,6 +361,15 @@ namespace ArtifactStore.Repositories
                 await _lockArtifactsRepository.LockArtifactAsync(reviewId, userId);
             }
 
+            if (content.AddChildren)
+            {
+                var childIds = await GetChildrenArtifacts(userId, content.ArtifactIds);
+
+                if (childIds != null)
+                {
+                    content.ArtifactIds = content.ArtifactIds.Concat(childIds);
+                }
+            }
             var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId.Value);
 
             if (effectiveIds.ArtifactIds == null || effectiveIds.ArtifactIds.IsEmpty())
@@ -408,6 +417,17 @@ namespace ArtifactStore.Repositories
                 NonexistentArtifactCount = effectiveIds.Nonexistent,
                 UnpublishedArtifactCount = effectiveIds.Unpublished
             };
+        }
+
+        private async Task<IEnumerable<int>> GetChildrenArtifacts(int userId, IEnumerable<int> artifactIds)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            parameters.Add("@revisionId", int.MaxValue);
+            parameters.Add("@includeDrafts", false);
+            parameters.Add("@isExcludeParents", true);
+            return (await _connectionWrapper.QueryAsync<int>("GetChildArtifacts", parameters, commandType: CommandType.StoredProcedure)).ToList();
         }
 
         private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId)

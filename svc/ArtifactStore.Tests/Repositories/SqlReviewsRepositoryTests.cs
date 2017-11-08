@@ -258,21 +258,31 @@ namespace ArtifactStore.Repositories
         #endregion
 
         #region GetReviewSummaryMetrics
-        [Ignore]
+
         [TestMethod]
         public async Task GetReviewSummaryMetrics_Success()
         {
             // Arrange
+            #region  Define local variables
             var reviewId = 1;
             var reviewName = "My Review";
             var reviewDescription = "My Description";
             var userId = 2;
             var baselineId = 3;
-            var totalArtifacts = 8;
+            var totalArtifacts = 2;
             var revisionId = 999;
             var reviewStatus = ReviewStatus.Completed;
+            bool drafts = false;
+            int intmax = int.MaxValue;
+            #endregion
 
-            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
+            #region  Mock the method GetItemDescription
+
+            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, intmax)).ReturnsAsync(reviewDescription);
+
+            #endregion
+
+            #region  Mock the method GetReviewDetails
             var reviewDetails = new ReviewSummaryDetails
             {
                 BaselineId = baselineId,
@@ -294,6 +304,9 @@ namespace ArtifactStore.Repositories
             var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
             _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
 
+            #endregion
+
+            #region  Mock the method GetArtifactInfo & RevisionId
             var reviewInfo = new VersionControlArtifactInfo
             {
                 Name = reviewName,
@@ -305,7 +318,14 @@ namespace ArtifactStore.Repositories
                 PredefinedType = ItemTypePredefined.ArtifactBaseline
             };
 
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, userId)).ReturnsAsync(baselineInfo);
+            _itemInfoRepositoryMock.Setup(r => r.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(intmax);
+
+            #endregion
+
             #region  Mock the method GetReviewParticipants
+
             var page = new Pagination();
             page.SetDefaultValues(0, int.MaxValue);
 
@@ -313,23 +333,19 @@ namespace ArtifactStore.Repositories
             {
                 UserId = userId,
                 Role = ReviewParticipantRole.Approver,
+                Approved = 1,
+                Disapproved = 1,
                 Status = ReviewStatus.Completed
             };
-            IEnumerable<ReviewParticipant> rwp = new List<ReviewParticipant> { item };
-            IEnumerable<int> arts = new List<int> { 6 };
-            IEnumerable<int> total = new List<int> { 5 };
-            IEnumerable<int> reqs = new List<int> { 6 };
-            var result = new Tuple<IEnumerable<ReviewParticipant>, IEnumerable<int>, IEnumerable<int>, IEnumerable<int>>(rwp, arts, total, reqs);
+            IEnumerable<ReviewParticipant> rwp = (new List<ReviewParticipant> { item }).AsEnumerable();
+            IEnumerable<int> arts = (new int[1] { 1 }).AsEnumerable();
+            IEnumerable<int> total = (new int[1] { 2 }).AsEnumerable();
+            IEnumerable<int> reqs = (new int[1] { 2 }).AsEnumerable();
+            var mockResult = new Tuple<IEnumerable<ReviewParticipant>, IEnumerable<int>, IEnumerable<int>, IEnumerable<int>>(rwp, arts, total, reqs);
 
-            bool drafts = false;
-            int max = int.MaxValue;
+            var prms = new Dictionary<string, object> { { "reviewId", reviewId }, { "offset", 0 }, { "limit", intmax }, { "revisionId", intmax }, { "userId", userId }, { "addDrafts", drafts } };
+            _cxn.SetupQueryMultipleAsync("GetReviewParticipants", It.IsAny<Dictionary<string, object>>(), mockResult);
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, userId)).ReturnsAsync(baselineInfo);
-            _itemInfoRepositoryMock.Setup(r => r.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(max);
-
-            var prms = new Dictionary<string, object> { { "reviewId", reviewId }, { "offset", 0 }, { "limit", max }, { "revisionId", max }, { "userId", userId }, { "addDrafts", drafts } };
-            _cxn.SetupQueryMultipleAsync<ReviewParticipant, int, int, int>("GetReviewParticipants", prms, result);
             #endregion
 
             #region Mock ReviewArtifactHierarchy...
@@ -338,20 +354,19 @@ namespace ArtifactStore.Repositories
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
             #endregion
 
+            #region Mock GetReviewArtifactsByParticipant
+
+            var reviewArtifacts2 = new List<ReviewedArtifact>();
+            var reviewArtifact1 = new ReviewedArtifact { Id = 2, ApprovalFlag = ApprovalType.Approved };
+            reviewArtifacts2.Add(reviewArtifact1);
+            var reviewArtifact2 = new ReviewedArtifact { Id = 3, ApprovalFlag = ApprovalType.Disapproved };
+            reviewArtifacts2.Add(reviewArtifact2);
+
+            _cxn.SetupQueryAsync("GetReviewArtifactsByParticipant", It.IsAny<Dictionary<string, object>>(), reviewArtifacts2);
+
+            #endregion
+
             #region Mock GetReviewArtifacts
-
-            var params1 = new Dictionary<string, object> {
-                { "reviewId", reviewId },
-                { "offset", 0 },
-                { "limit", int.MaxValue },
-                { "revisionId", 999 },
-                { "addDrafts", false },
-                { "userId", userId },
-                { "refreshInterval", 20 },
-                { "numResult", ParameterDirection.Output }, // 2 },
-                { "isFormal", ParameterDirection.Output } // false }
-
-            };
 
             var outParams = new Dictionary<string, object>() {
                 { "numResult", 2 },
@@ -359,12 +374,25 @@ namespace ArtifactStore.Repositories
             };
 
             var reviewArtifacts = new List<ReviewedArtifact>();
-            var artifact1 = new ReviewedArtifact { Id = 2 };
+            var artifact1 = new ReviewedArtifact { Id = 2, ApprovalFlag = ApprovalType.Approved };
             reviewArtifacts.Add(artifact1);
-            var artifact2 = new ReviewedArtifact { Id = 3 };
+            var artifact2 = new ReviewedArtifact { Id = 3, ApprovalFlag = ApprovalType.Disapproved };
             reviewArtifacts.Add(artifact2);
 
-            _cxn.SetupQueryAsync("GetReviewArtifacts", params1, reviewArtifacts, outParams);
+            _cxn.SetupQueryAsync("GetReviewArtifacts", It.IsAny<Dictionary<string, object>>(), reviewArtifacts, outParams);
+            #endregion
+
+            #region Mock Permissions
+
+            var permisions = new Dictionary<int, RolePermissions>
+            {
+                { 2, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            };
+            // _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>, It.IsAny<int>, false, int.MaxValue, true)).ReturnsAsync(result);
+
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact1.Id, reviewArtifact2.Id }, userId, permisions);
+
             #endregion
 
             // Act
@@ -375,11 +403,11 @@ namespace ArtifactStore.Repositories
 
             Assert.AreEqual(reviewStatus, review.Status);
             Assert.AreEqual(revisionId, review.RevisionId);
-            Assert.AreEqual(totalArtifacts, review.Artifacts.Total);
-            Assert.AreEqual(5, review.Artifacts.ArtifactStatus.Approved);
-            Assert.AreEqual(3, review.Artifacts.ArtifactStatus.Disapproved);
-            Assert.AreEqual(2, review.Artifacts.ArtifactStatus.Pending);
-            Assert.AreEqual(1, review.Artifacts.ArtifactStatus.UnviewedAll);
+            Assert.AreEqual(2, review.Artifacts.Total);
+            Assert.AreEqual(1, review.Artifacts.ArtifactStatus.Approved);
+            Assert.AreEqual(1, review.Artifacts.ArtifactStatus.Disapproved);
+            Assert.AreEqual(0, review.Artifacts.ArtifactStatus.Pending);
+            Assert.AreEqual(0, review.Artifacts.ArtifactStatus.ViewedSome);
         }
 
         [TestMethod]

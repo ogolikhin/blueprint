@@ -1250,8 +1250,7 @@ namespace AdminStore.Services.Workflow
             await UpdateWorkflowEventsAsync(workflow.Id.Value, workflowDiffResult, dataMaps,
                 publishRevision, transaction);
 
-            await UpdateArtifactAssociationsAsync(workflow.Id.Value, workflowDiffResult,
-                publishRevision, transaction);
+            await UpdateArtifactAssociationsAsync(workflow.Id.Value, workflowDiffResult, transaction);
         }
 
         private async Task UpdateWorkflowPropertiesAsync(IeWorkflow workflow, int publishRevision, IDbTransaction transaction)
@@ -1331,8 +1330,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private async Task UpdateArtifactAssociationsAsync(int workflowId, WorkflowDiffResult workflowDiffResult,
-            int publishRevision, IDbTransaction transaction)
+        private async Task UpdateArtifactAssociationsAsync(int workflowId, WorkflowDiffResult workflowDiffResult, IDbTransaction transaction)
         {
             var artifactTypeToAddKvPairs = workflowDiffResult.AddedProjectArtifactTypes.Select(pAt =>
                 new KeyValuePair<int, string>(pAt.Key, pAt.Value.Name));

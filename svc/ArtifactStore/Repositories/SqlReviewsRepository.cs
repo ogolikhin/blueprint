@@ -1065,14 +1065,16 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task<ReviewXmlResult> GetReviewXmlAsync(int reviewId, int userId)
+        private async Task<ReviewXmlResult> GetReviewXmlAsync(int reviewId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@includeDrafts", includeDrafts);
 
-            var result = (await _connectionWrapper.QueryAsync<string>("GetReviewParticipantsPropertyString", parameters, commandType: CommandType.StoredProcedure)).ToList();
+            var result = (await _connectionWrapper.QueryAsync<string>("GetReviewPackageRawData", parameters, commandType: CommandType.StoredProcedure)).ToList();
 
             return new ReviewXmlResult
             {
@@ -1088,43 +1090,13 @@ namespace ArtifactStore.Repositories
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
             parameters.Add("@xmlString", reviewXml);
-            parameters.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
 
             if (transaction == null)
             {
-            await _connectionWrapper.ExecuteAsync("UpdateReviewParticipants", parameters, commandType: CommandType.StoredProcedure);
-            }
-            else
-            {
-                await _connectionWrapper.ExecuteAsync("UpdateReviewParticipants", parameters, transaction, commandType: CommandType.StoredProcedure);
+                return await _connectionWrapper.ExecuteAsync("UpdateReviewPackageRawData", parameters, commandType: CommandType.StoredProcedure);
             }
 
-            return parameters.Get<int>("@returnValue");
-        }
-
-        private async Task<int> UpdateReviewParticipants(int reviewId, int userId, string reviewXml, IDbTransaction transaction)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@reviewId", reviewId);
-            parameters.Add("@userId", userId);
-            parameters.Add("@xmlString", reviewXml);
-            parameters.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
-
-            if (transaction == null)
-            {
-                return await _connectionWrapper.ExecuteAsync
-                (
-                    "UpdateReviewParticipants",
-                    parameters,
-                    commandType: CommandType.StoredProcedure);
-            }
-
-            return await transaction.Connection.ExecuteAsync
-            (
-                "UpdateReviewParticipants",
-                parameters,
-                transaction,
-                commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.ExecuteAsync("UpdateReviewPackageRawData", parameters, transaction, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<IEnumerable<int>> GetUsersFromGroupsAsync(IEnumerable<int> groupIds)
@@ -1268,17 +1240,19 @@ namespace ArtifactStore.Repositories
 
             var participantXmlResult = ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
 
-            Func<IDbTransaction, Task> transactionAction = async transaction =>
-            {
-                await UpdateReviewParticipants(reviewId, userId, participantXmlResult, transaction);
-            };
+            // Save XML in the database
+            var result = await UpdateReviewXmlAsync(reviewId, userId, participantXmlResult);
 
-            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
+            if (result != 1)
+            {
+                throw new BadRequestException("Cannot add participants as project or review couldn't be found", ErrorCodes.ResourceNotFound);
+            }
         }
 
         public async Task<ReviewPackageRawData> GetReviewPackageRawDataAsync(int reviewId, int userId, int revisionId = int.MaxValue)
         {
-            var reviewXml = await GetReviewXmlAsync(reviewId, userId);
+            var reviewXml = await GetReviewXmlAsync(reviewId, userId, revisionId);
+
             if (!reviewXml.ReviewExists)
             {
                 ThrowReviewNotFoundException(reviewId, revisionId == int.MaxValue ? (int?)null : revisionId);

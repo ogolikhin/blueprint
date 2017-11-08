@@ -546,7 +546,6 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@ProjectArtifactTypePairsToAdd", SqlConnectionWrapper.ToIdStringMapDataTable(artifactTypeToAddKvPairList));
             parameters.Add("@ProjectArtifactTypePairsToDelete", SqlConnectionWrapper.ToIdStringMapDataTable(artifactTypeToDeleteKvPairList));
             parameters.Add("@WorkflowId", workflowId);
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             if (transaction == null)
             {
@@ -564,18 +563,6 @@ namespace AdminStore.Repositories.Workflow
                     parameters,
                     transaction,
                     commandType: CommandType.StoredProcedure);
-            }
-
-            var errorCode = parameters.Get<int?>("ErrorCode");
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new BadRequestException(ErrorMessages.GeneralErrorOfDeletingWorkflows);
-                    case (int)SqlErrorCodes.WorkflowWithCurrentIdNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
-                }
             }
         }
 

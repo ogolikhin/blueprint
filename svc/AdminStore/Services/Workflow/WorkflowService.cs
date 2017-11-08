@@ -531,6 +531,9 @@ namespace AdminStore.Services.Workflow
             {
                 await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(kvPairs,
                     newWorkflowId, publishRevision, transaction);
+
+                await _workflowRepository.UpdateWorkflowArtifactAssignmentsAsync(artifactTypeToAddKvPairs: kvPairs, artifactTypeToDeleteKvPairs: new List<KeyValuePair<int, string>>(),
+                    workflowId: newWorkflowId, transaction: transaction);
             }
         }
 

@@ -39,6 +39,9 @@ namespace AdminStore.Repositories.Workflow
         Task CreateWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
             int workflowId, int publishRevision, IDbTransaction transaction = null);
 
+        Task UpdateWorkflowArtifactAssignmentsAsync(IEnumerable<KeyValuePair<int, string>> artifactTypeToAddKvPairs, IEnumerable<KeyValuePair<int, string>> artifactTypeToDeleteKvPairs,
+            int workflowId, IDbTransaction transaction = null);
+
         Task DeleteWorkflowArtifactAssociationsAsync(IEnumerable<KeyValuePair<int, string>> projectArtifactTypePair,
             int publishRevision, IDbTransaction transaction = null);
 

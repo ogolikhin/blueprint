@@ -536,6 +536,36 @@ namespace AdminStore.Repositories.Workflow
             }
         }
 
+        public async Task UpdateWorkflowArtifactAssignmentsAsync(IEnumerable<KeyValuePair<int, string>> artifactTypeToAddKvPairs, IEnumerable<KeyValuePair<int, string>> artifactTypeToDeleteKvPairs,
+            int workflowId, IDbTransaction transaction = null)
+        {
+            var artifactTypeToAddKvPairList = artifactTypeToAddKvPairs.ToList();
+            var artifactTypeToDeleteKvPairList = artifactTypeToDeleteKvPairs.ToList();
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProjectArtifactTypePairsToAdd", SqlConnectionWrapper.ToIdStringMapDataTable(artifactTypeToAddKvPairList));
+            parameters.Add("@ProjectArtifactTypePairsToDelete", SqlConnectionWrapper.ToIdStringMapDataTable(artifactTypeToDeleteKvPairList));
+            parameters.Add("@WorkflowId", workflowId);
+
+            if (transaction == null)
+            {
+                await _connectionWrapper.ExecuteAsync
+                (
+                    "UpdateWorkflowAssignmentsWithWorkflowId",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await transaction.Connection.ExecuteAsync
+                (
+                    "UpdateWorkflowAssignmentsWithWorkflowId",
+                    parameters,
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
+            }
+        }
+
         public async Task<IEnumerable<SqlProjectPathPair>> GetProjectIdsByProjectPathsAsync(IEnumerable<string> projectPaths)
         {
             var dProjectPaths = projectPaths.ToList();

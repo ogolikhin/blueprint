@@ -529,9 +529,6 @@ namespace AdminStore.Services.Workflow
 
             if (!kvPairs.IsEmpty())
             {
-                await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(kvPairs,
-                    newWorkflowId, publishRevision, transaction);
-
                 await _workflowRepository.UpdateWorkflowArtifactAssignmentsAsync(artifactTypeToAddKvPairs: kvPairs, artifactTypeToDeleteKvPairs: new List<KeyValuePair<int, string>>(),
                     workflowId: newWorkflowId, transaction: transaction);
             }
@@ -1337,24 +1334,9 @@ namespace AdminStore.Services.Workflow
         private async Task UpdateArtifactAssociationsAsync(int workflowId, WorkflowDiffResult workflowDiffResult,
             int publishRevision, IDbTransaction transaction)
         {
-            if (workflowDiffResult.AddedProjectArtifactTypes.Any())
-            {
-                var kvPairs = workflowDiffResult.AddedProjectArtifactTypes.Select(pAt =>
-                    new KeyValuePair<int, string>(pAt.Key, pAt.Value.Name));
-                await _workflowRepository.CreateWorkflowArtifactAssociationsAsync(kvPairs,
-                     workflowId, publishRevision, transaction);
-            }
-
-            if (workflowDiffResult.DeletedProjectArtifactTypes.Any())
-            {
-                var kvPairs = workflowDiffResult.DeletedProjectArtifactTypes.Select(pAt =>
-                    new KeyValuePair<int, string>(pAt.Key, pAt.Value.Name));
-                await _workflowRepository.DeleteWorkflowArtifactAssociationsAsync(kvPairs,
-                     publishRevision, transaction);
-            }
-
             var artifactTypeToAddKvPairs = workflowDiffResult.AddedProjectArtifactTypes.Select(pAt =>
                 new KeyValuePair<int, string>(pAt.Key, pAt.Value.Name));
+
             var artifactTypeToDeleteKvPairs = workflowDiffResult.DeletedProjectArtifactTypes.Select(pAt =>
                 new KeyValuePair<int, string>(pAt.Key, pAt.Value.Name));
 

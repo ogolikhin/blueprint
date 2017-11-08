@@ -381,7 +381,7 @@ namespace ArtifactStore.Repositories
 
                 }
             }
-            var effectiveIds = await GetEffectiveArtifactIds(userId, content, propertyResult.ProjectId.Value);
+            var effectiveIds = await GetEffectiveArtifactIds(userId, content.ArtifactIds, propertyResult.ProjectId.Value);
 
             if (effectiveIds.ArtifactIds == null || effectiveIds.ArtifactIds.IsEmpty())
             {
@@ -460,10 +460,10 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<PropertyValueString>("GetReviewApprovalRolesInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        private async Task<EffectiveArtifactIdsResult> GetEffectiveArtifactIds(int userId, AddArtifactsParameter content, int projectId)
+        private async Task<EffectiveArtifactIdsResult> GetEffectiveArtifactIds(int userId, IEnumerable<int> artifactIds, int projectId)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(content.ArtifactIds));
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
             parameters.Add("@userId", userId);
             parameters.Add("@projectId", projectId);
 

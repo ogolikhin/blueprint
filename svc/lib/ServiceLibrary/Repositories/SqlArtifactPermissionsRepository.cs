@@ -126,14 +126,17 @@ namespace ServiceLibrary.Repositories
         public async Task<bool> HasReadPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
         {
             var result = await GetArtifactPermissions(new[] { artifactId }, sessionUserId, contextUser, revisionId, addDrafts);
-            RolePermissions permission = RolePermissions.None;
+            RolePermissions permission;
 
-            if (result.TryGetValue(artifactId, out permission) && permission.HasFlag(RolePermissions.Read))
-            {
-                return true;
-            }
+            return result.TryGetValue(artifactId, out permission) && permission.HasFlag(RolePermissions.Read);
+        }
 
-            return false;
+        public async Task<bool> HasEditPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
+        {
+            var result = await GetArtifactPermissions(new[] { artifactId }, sessionUserId, contextUser, revisionId, addDrafts);
+            RolePermissions permission;
+
+            return result.TryGetValue(artifactId, out permission) && permission.HasFlag(RolePermissions.Edit);
         }
 
         private async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInternal(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)

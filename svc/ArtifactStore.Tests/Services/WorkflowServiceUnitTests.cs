@@ -24,7 +24,7 @@ namespace ArtifactStore.Services
     {
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IArtifactVersionsRepository> _artifactVersionsRepositoryMock;
-        private Mock<ISqlItemInfoRepository> _itemInfoRepositoryMock;
+        private Mock<IItemInfoRepository> _itemInfoRepositoryMock;
         private WorkflowService _workflowServiceMock;
         private ISqlHelper _sqlHelperMock;
         private Mock<IVersionControlService> _versionControlServiceMock;
@@ -39,7 +39,7 @@ namespace ArtifactStore.Services
         {
             _workflowRepositoryMock = new Mock<IWorkflowRepository>(MockBehavior.Strict);
             _artifactVersionsRepositoryMock = new Mock<IArtifactVersionsRepository>(MockBehavior.Strict);
-            _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>(MockBehavior.Strict);
+            _itemInfoRepositoryMock = new Mock<IItemInfoRepository>(MockBehavior.Strict);
             _sqlHelperMock = new SqlHelperMock();
             _versionControlServiceMock = new Mock<IVersionControlService>();
             _reuseRepository = new Mock<IReuseRepository>(MockBehavior.Loose);

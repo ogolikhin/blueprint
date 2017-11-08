@@ -97,6 +97,8 @@ namespace ArtifactStore.Models
         public int RepliesCount { get; set; }
 
         public int? ReviewId { get; set; }
+
+        public IEnumerable<int> AssociatedReviews { get; set; }
     }
 
     public class Reply : CommentBase
@@ -113,6 +115,13 @@ namespace ArtifactStore.Models
         public string Status { get; set; }
 
         public int DiscussionId { get; set; }
+    }
+
+
+    public class ThreadReviewTrace
+    {
+        public int ThreadId { get; set; }
+        public int ReviewId { get; set; }
     }
 
 }

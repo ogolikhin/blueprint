@@ -21,12 +21,12 @@ namespace ArtifactStore.Services.Workflow
 
     public class WorkflowService : IWorkflowService
     {
-        private readonly ISqlItemInfoRepository _itemInfoRepository;
+        private readonly IItemInfoRepository _itemInfoRepository;
         private readonly ISqlHelper _sqlHelper;
         private readonly IStateChangeExecutorRepositories _stateChangeExecutorRepositories;
 
         public WorkflowService(ISqlHelper sqlHelper,
-            ISqlItemInfoRepository itemInfoRepository,
+            IItemInfoRepository itemInfoRepository,
             IStateChangeExecutorRepositories stateChangeExecutorRepositories)
         {
             _sqlHelper = sqlHelper;

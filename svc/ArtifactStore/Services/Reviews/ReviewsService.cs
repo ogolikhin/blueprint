@@ -18,12 +18,14 @@ namespace ArtifactStore.Services.Reviews
         private readonly IArtifactRepository _artifactRepository;
         private readonly IArtifactPermissionsRepository _permissionsRepository;
         private readonly ILockArtifactsRepository _lockArtifactsRepository;
+        private readonly IItemInfoRepository _itemInfoRepository;
 
         public ReviewsService() : this(
                 new SqlReviewsRepository(),
                 new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
-                new SqlLockArtifactsRepository())
+                new SqlLockArtifactsRepository(),
+                new SqlItemInfoRepository())
         {
         }
 
@@ -31,25 +33,38 @@ namespace ArtifactStore.Services.Reviews
             IReviewsRepository reviewsRepository,
             IArtifactRepository artifactRepository,
             IArtifactPermissionsRepository permissionsRepository,
-            ILockArtifactsRepository lockArtifactsRepository)
+            ILockArtifactsRepository lockArtifactsRepository,
+            IItemInfoRepository itemInfoRepository)
         {
             _reviewsRepository = reviewsRepository;
             _artifactRepository = artifactRepository;
             _permissionsRepository = permissionsRepository;
             _lockArtifactsRepository = lockArtifactsRepository;
+            _itemInfoRepository = itemInfoRepository;
         }
 
-        public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int revisionId = int.MaxValue)
+        public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int? versionId = null)
         {
+            var revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
             await GetReviewInfoAsync(reviewId, userId, revisionId);
 
-            var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+            if (!await _permissionsRepository.HasReadPermissions(reviewId, userId, revisionId: revisionId))
+            {
+                throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
+            }
+
+            var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId, revisionId);
             return new ReviewSettings(reviewPackageRawData);
         }
 
         public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId)
         {
             var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
+
+            if (!await _permissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
 
             var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
 
@@ -178,17 +193,17 @@ namespace ArtifactStore.Services.Reviews
                 throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactIsNotReview, reviewId), ErrorCodes.BadRequest);
             }
 
-            if (!await _permissionsRepository.HasReadPermissions(reviewId, userId))
-            {
-                throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
-            }
-
             return artifactInfo;
         }
 
         public async Task UpdateMeaningOfSignaturesAsync(int reviewId, int userId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)
         {
             var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
+
+            if (!await _permissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
 
             var reviewPackage = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
 
@@ -230,11 +245,6 @@ namespace ArtifactStore.Services.Reviews
                 if (participant.Permission != ReviewParticipantRole.Approver)
                 {
                     throw new BadRequestException("Could not update meaning of signature because participant is not an approver.", ErrorCodes.ParticipantIsNotAnApprover);
-                }
-
-                if (!possibleMeaningOfSignatures.ContainsKey(participantId))
-                {
-                    throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
                 }
 
                 var meaningOfSignatureUpdates = updateStrategy.GetMeaningOfSignatureUpdates(participantId, possibleMeaningOfSignatures, meaningOfSignatureParamList);
@@ -333,7 +343,7 @@ namespace ArtifactStore.Services.Reviews
             if (reviewPackage.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
             {
                 return reviewPackage.Reviewers.First(r => r.UserId == content.UserId).SelectedRoleMoSAssignments.Select(mos =>
-                    new DropdownItem($"{mos.MeaningOfSignatureValue} ({mos.RoleName})", mos.RoleAssignmentId));
+                    new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
             }
 
             return null;

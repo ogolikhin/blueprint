@@ -81,6 +81,7 @@ namespace BlueprintSys.RC.ImageService.Transport
             else if (transportType == NServiceBusTransportType.Sql)
             {
                 transport = endpointConfiguration.UseTransport<SqlServerTransport>();
+                ((TransportExtensions<SqlServerTransport>)transport).Transactions(TransportTransactionMode.SendsAtomicWithReceive);
                 ((TransportExtensions<SqlServerTransport>)transport).ConnectionString(connectionString);
                 ((TransportExtensions<SqlServerTransport>) transport).DefaultSchema("queue");
             }

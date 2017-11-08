@@ -10,9 +10,10 @@ namespace ServiceLibrary.Repositories
 
         Task<bool> HasReadPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true);
 
+        Task<bool> HasEditPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true);
+
         Task<ProjectPermissions> GetProjectPermissions(int projectId);
 
         Task<ItemInfo> GetItemInfo(int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
-
     }
 }

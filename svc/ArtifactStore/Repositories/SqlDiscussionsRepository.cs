@@ -43,7 +43,14 @@ namespace ArtifactStore.Repositories
             var discussionsPrm = new DynamicParameters();
             discussionsPrm.Add("@ItemId", itemId);
 
-            var discussions = (await _connectionWrapper.QueryAsync<Discussion>("GetItemDiscussions", discussionsPrm, commandType: CommandType.StoredProcedure)).ToList();
+            var comments = (await _connectionWrapper.QueryMultipleAsync<Discussion, ThreadReviewTrace>("GetItemDiscussions", discussionsPrm, commandType: CommandType.StoredProcedure));
+            var discussions = comments.Item1.ToList();
+            var associations = comments.Item2.ToList();
+
+            foreach (var d in discussions)
+            {
+                d.AssociatedReviews = associations.Where(a => a.ThreadId == d.DiscussionId).Select(a => a.ReviewId).ToList();
+            }
             var discussionStates = (await GetItemDiscussionStates(itemId)).ToDictionary(k => k.DiscussionId);
             var areEmailDiscussionsEnabled = await _mentionHelper.AreEmailDiscussionsEnabled(projectId);
 

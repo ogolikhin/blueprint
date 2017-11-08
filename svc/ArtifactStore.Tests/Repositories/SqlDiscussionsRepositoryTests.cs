@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ServiceLibrary.Repositories.InstanceSettings;
+using System;
 
 namespace ArtifactStore.Repositories
 {
@@ -54,29 +55,44 @@ namespace ArtifactStore.Repositories
             _artifactPermissionsRepository = new SqlArtifactPermissionsRepository(_cxn.Object);
             _discussionsRepository = new SqlDiscussionsRepository(_cxn.Object, _userRepository, _instanceSettingsRepository, _artifactPermissionsRepository);
         }
+
         [TestMethod]
         public async Task GetDiscussions_CommentReturned_NoCommentReturned()
         {
             // Arrange
             int itemId = 1;
             int projectId = 1;
-            _cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId } }, new List<Discussion>());
+            var discussions = new List<Discussion>();
+            var reviews = new List<ThreadReviewTrace>() { new ThreadReviewTrace() { ThreadId = 1, ReviewId = 1 } };
+            var returnResult = new Tuple<IEnumerable<Discussion>, IEnumerable<ThreadReviewTrace>>(discussions, reviews);
+
+            _cxn.SetupQueryMultipleAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId } }, returnResult);
             _cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId } }, new List<DiscussionState>());
+
             // Act
             var result = (await _discussionsRepository.GetDiscussions(itemId, projectId)).ToList();
+
+            // Assert
             Assert.AreEqual(0, result.Count);
         }
+
         [TestMethod]
         public async Task GetDiscussions_CommentReturned_CorrectCommentReturned()
         {
             // Arrange
             int itemId = 1;
             int projectId = 1;
-            _cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId } }, new List<Discussion> { new Discussion { ItemId = itemId, DiscussionId = 1, UserId = 1, Comment = "<html></html>" } });
+            var discussions = new List<Discussion>() { new Discussion { ItemId = itemId, DiscussionId = 1, UserId = 1, Comment = "<html></html>" } };
+            var reviews = new List<ThreadReviewTrace>() { new ThreadReviewTrace() { ThreadId = 1, ReviewId = 1 } };
+            var returnResult = new Tuple<IEnumerable<Discussion>, IEnumerable<ThreadReviewTrace>>(discussions, reviews);
+
+            _cxn.SetupQueryMultipleAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId } }, returnResult);
             _cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId } }, new List<DiscussionState> { new DiscussionState { DiscussionId = 1, IsClosed = false, Status = "Test Status" } });
+
             // Act
             var result = (await _discussionsRepository.GetDiscussions(itemId, projectId)).ToList();
 
+            // Assert
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(1, result[0].UserId);
             Assert.AreEqual("Test Status", result[0].Status);

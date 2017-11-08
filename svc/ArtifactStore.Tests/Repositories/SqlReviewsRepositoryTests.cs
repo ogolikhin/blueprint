@@ -12,7 +12,6 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Services;
-using System.Collections;
 using System.Data;
 
 namespace ArtifactStore.Repositories
@@ -24,7 +23,7 @@ namespace ArtifactStore.Repositories
         private IReviewsRepository _reviewsRepository;
 
         private Mock<IArtifactVersionsRepository> _artifactVersionsRepositoryMock;
-        private Mock<ISqlItemInfoRepository> _itemInfoRepositoryMock;
+        private Mock<IItemInfoRepository> _itemInfoRepositoryMock;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
@@ -40,7 +39,7 @@ namespace ArtifactStore.Repositories
         {
             _cxn = new SqlConnectionWrapperMock();
             _artifactVersionsRepositoryMock = new Mock<IArtifactVersionsRepository>(MockBehavior.Strict);
-            _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>(MockBehavior.Strict);
+            _itemInfoRepositoryMock = new Mock<IItemInfoRepository>(MockBehavior.Strict);
             _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>(MockBehavior.Strict);
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Strict);
             _usersRepositoryMock = new Mock<IUsersRepository>();
@@ -94,6 +93,8 @@ namespace ArtifactStore.Repositories
                 Pending = 2,
                 RevisionId = revisionId,
                 RequireAllArtifactsReviewed = true,
+                RequireESignature = true,
+                RequireMeaningOfSignature = false,
                 ShowOnlyDescription = true
             };
 
@@ -132,6 +133,8 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(ReviewType.Formal, review.ReviewType);
             Assert.AreEqual(true, review.RequireAllArtifactsReviewed);
             Assert.AreEqual(true, review.ShowOnlyDescription);
+            Assert.AreEqual(true, review.RequireESignature);
+            Assert.AreEqual(false, review.RequireMeaningOfSignature);
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
             Assert.AreEqual(2, review.ArtifactsStatus.Pending);
@@ -4485,6 +4488,192 @@ namespace ArtifactStore.Repositories
             _cxn.Verify();
             Assert.AreEqual(artifactStatsResult.Total, 1);
             Assert.AreEqual("Pending", artifactStatsResult.Items.First().ApprovalStatus);
+        }
+
+        [TestMethod]
+        public async Task GetReviewParticipantArtifactStatsAsync_Meaning_Of_Signatures_Should_Be_Empty_When_MoS_Is_Disabled()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var participantId = 3;
+            var reviewArtifact = new ReviewedArtifact()
+            {
+                Id = 4,
+                IsApprovalRequired = true
+            };
+
+            var participantReviewArtifact = new ReviewedArtifact()
+            {
+                ApprovalFlag = ApprovalType.NotSpecified,
+                Approval = ""
+            };
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                VersionCount = 1
+            });
+
+            SetupIsMeaningOfSignatureEnabledQuery(reviewId, userId, true, false);
+
+            SetupGetParticipantsMeaningOfSignatureValuesQuery(new[] { 4 }, participantId, reviewId, new[]
+            {
+                new ReviewMeaningOfSignatureValue()
+                {
+                    Id = 4,
+                    MeaningOfSignatureValue = "foo",
+                    RoleName = "bar"
+                }
+            });
+
+            SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
+
+            _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
+            {
+                { reviewId, RolePermissions.Read },
+                { reviewArtifact.Id, RolePermissions.Read }
+            });
+
+            SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
+
+            // Act
+            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+
+            // Assert
+            Assert.AreEqual(artifactStatsResult.Total, 1);
+            Assert.IsTrue(!artifactStatsResult.Items.First().MeaningsOfSignature.Any());
+        }
+
+        [TestMethod]
+        public async Task GetReviewParticipantArtifactStatsAsync_Meaning_Of_Signatures_Should_Be_Empty_When_No_MoS_Is_Returned()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var participantId = 3;
+            var reviewArtifact = new ReviewedArtifact()
+            {
+                Id = 4,
+                IsApprovalRequired = true
+            };
+
+            var participantReviewArtifact = new ReviewedArtifact()
+            {
+                ApprovalFlag = ApprovalType.NotSpecified,
+                Approval = ""
+            };
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                VersionCount = 1
+            });
+
+            SetupIsMeaningOfSignatureEnabledQuery(reviewId, userId, true, true);
+
+            SetupGetParticipantsMeaningOfSignatureValuesQuery(new[] { 4 }, participantId, reviewId, new ReviewMeaningOfSignatureValue[0]);
+
+            SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
+
+            _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
+            {
+                { reviewId, RolePermissions.Read },
+                { reviewArtifact.Id, RolePermissions.Read }
+            });
+
+            SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
+
+            // Act
+            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+
+            // Assert
+            _cxn.Verify();
+            Assert.AreEqual(artifactStatsResult.Total, 1);
+            Assert.IsTrue(!artifactStatsResult.Items.First().MeaningsOfSignature.Any());
+        }
+
+        [TestMethod]
+        public async Task GetReviewParticipantArtifactStatsAsync_Meaning_Of_Signatures_Should_Not_Be_Empty_When_MoS_Are_Returned()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var participantId = 3;
+            var reviewArtifact = new ReviewedArtifact()
+            {
+                Id = 4,
+                IsApprovalRequired = true
+            };
+
+            var participantReviewArtifact = new ReviewedArtifact()
+            {
+                ApprovalFlag = ApprovalType.NotSpecified,
+                Approval = ""
+            };
+
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
+            {
+                VersionCount = 1
+            });
+
+            SetupIsMeaningOfSignatureEnabledQuery(reviewId, userId, true, true);
+
+            SetupGetParticipantsMeaningOfSignatureValuesQuery(new[] { 4 }, participantId, reviewId, new[]
+            {
+                new ReviewMeaningOfSignatureValue()
+                {
+                    Id = 4,
+                    MeaningOfSignatureValue = "foo",
+                    RoleName = "bar"
+                }
+            });
+
+            SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
+
+            _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>()
+            {
+                { reviewId, RolePermissions.Read },
+                { reviewArtifact.Id, RolePermissions.Read }
+            });
+
+            SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
+
+            // Act
+            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+
+            // Assert
+            _cxn.Verify();
+            Assert.AreEqual(artifactStatsResult.Total, 1);
+            Assert.IsTrue(artifactStatsResult.Items.First().MeaningsOfSignature.First() == "foo (bar)");
+        }
+
+        private void SetupIsMeaningOfSignatureEnabledQuery(int reviewId, int userId, bool addDrafts, bool returnValue)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "addDrafts", addDrafts }
+            };
+
+            _cxn.SetupExecuteScalarAsync("GetReviewMeaningOfSignatureEnabled", parameters, returnValue);
+        }
+
+        private void SetupGetParticipantsMeaningOfSignatureValuesQuery(IEnumerable<int> artifactIds, int userId, int reviewId, IEnumerable<ReviewMeaningOfSignatureValue> result)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "itemIds", SqlConnectionWrapper.ToDataTable(artifactIds) }
+            };
+
+            _cxn.SetupQueryAsync("GetParticipantsMeaningOfSignatureValues", parameters,  result);
         }
 
         private void SetupReviewArtifactsQuery(int reviewId, int userId, ReviewedArtifact reviewArtifact, bool isFormal = false)

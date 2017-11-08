@@ -1,4 +1,9 @@
-﻿namespace ArtifactStore.Models.Review
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using ArtifactStore.Helpers;
+
+namespace ArtifactStore.Models.Review
 {
     public class ParticipantArtifactStats
     {
@@ -12,6 +17,8 @@
         public ViewStateType ViewState { get; set; }
         public string ApprovalStatus { get; set; }
         public bool HasAccess { get; set; }
+        public DateTime? ESignatureTimestamp { get; set; }
+        public IEnumerable<string> MeaningsOfSignature { get; set; }
 
         public static explicit operator ParticipantArtifactStats(ReviewedArtifact reviewedArtifact)
         {
@@ -26,7 +33,9 @@
                 ArtifactRequiresApproval = reviewedArtifact.IsApprovalRequired,
                 ApprovalStatus = reviewedArtifact.Approval,
                 ViewState = GetViewState(reviewedArtifact),
-                HasAccess = reviewedArtifact.HasAccess
+                HasAccess = reviewedArtifact.HasAccess,
+                ESignatureTimestamp = reviewedArtifact.SignedOnTimestamp,
+                MeaningsOfSignature = reviewedArtifact.MeaningOfSignatures.Select(mos => mos.GetMeaningOfSignatureDisplayValue())
             };
         }
 

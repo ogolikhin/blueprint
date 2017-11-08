@@ -466,11 +466,6 @@ namespace AdminStore.Services.Workflow
                     template = TemplateDataStandardArtifactTypeNotFoundByName;
                     errParams = new object[] { (string)error.Element };
                     break;
-                case WorkflowDataValidationErrorCodes.ArtifactTypeInProjectAlreadyAssociatedWithWorkflow:
-                    template = TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow;
-                    var t = (Tuple<int, string>)error.Element;
-                    errParams = new object[] { t?.Item2, t?.Item1 };
-                    break;
                 case WorkflowDataValidationErrorCodes.PropertyNotFoundByName:
                     template = TemplateDataPropertyNotFoundByName;
                     errParams = new object[] { (string)error.Element };

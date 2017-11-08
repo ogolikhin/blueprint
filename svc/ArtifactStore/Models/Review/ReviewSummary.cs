@@ -50,6 +50,10 @@ namespace ArtifactStore.Models.Review
 
         public bool RequireAllArtifactsReviewed { get; set; }
 
+        public bool RequireESignature { get; set; }
+
+        public bool RequireMeaningOfSignature { get; set; }
+
         public bool ShowOnlyDescription { get; set; }
     }
 
@@ -68,6 +72,10 @@ namespace ArtifactStore.Models.Review
         public ReviewStatus ReviewStatus { get; set; }
 
         public bool RequireAllArtifactsReviewed { get; set; }
+
+        public bool RequireESignature { get; set; }
+
+        public bool RequireMeaningOfSignature { get; set; }
 
         public bool ShowOnlyDescription { get; set; }
 

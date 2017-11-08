@@ -15,7 +15,7 @@ namespace ServiceLibrary.Repositories
 {
     public class SqlArtifactRepository : SqlBaseArtifactRepository, IArtifactRepository
     {
-        private readonly ISqlItemInfoRepository _itemInfoRepository;
+        private readonly IItemInfoRepository _itemInfoRepository;
 
         public SqlArtifactRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -29,7 +29,7 @@ namespace ServiceLibrary.Repositories
         }
 
         public SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper,
-            ISqlItemInfoRepository itemInfoRepository,
+            IItemInfoRepository itemInfoRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository)
             : base(connectionWrapper, artifactPermissionsRepository)
         {

@@ -17,11 +17,11 @@ namespace ArtifactStore.Repositories
     [TestClass]
     public class SqlArtifactVersionsRepositoryTests
     {
-        private Mock<ISqlItemInfoRepository> _itemInfoRepositoryMock;
+        private Mock<IItemInfoRepository> _itemInfoRepositoryMock;
         [TestInitialize]
         public void Initialize()
         {
-            _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>();
+            _itemInfoRepositoryMock = new Mock<IItemInfoRepository>();
         }
 
         [TestMethod]

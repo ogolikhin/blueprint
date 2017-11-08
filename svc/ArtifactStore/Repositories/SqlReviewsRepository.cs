@@ -338,7 +338,7 @@ namespace ArtifactStore.Repositories
 
             int alreadyIncludedCount;
             var propertyResult = await GetReviewPropertyString(reviewId, userId);
-
+            var artifactIds = content.ArtifactIds;
             if (propertyResult.ReviewStatus == ReviewPackageStatus.Closed)
             {
                 ThrowReviewClosedException();
@@ -363,21 +363,12 @@ namespace ArtifactStore.Repositories
 
             if (content.AddChildren)
             {
-                var childIds = await GetChildrenArtifacts(userId, content.ArtifactIds);
-                var setIds = new HashSet<int>(content.ArtifactIds);
-
-                foreach (var item in childIds)
-                {
-                    if (!setIds.Contains(item.VersionItemId))
-                    {
-                        setIds.Add(item.VersionItemId);
-                    }
-                }
-
-                content.ArtifactIds = setIds.ToList();
+                var childIds = await GetChildrenArtifacts(userId, artifactIds);
+                var setIds = new HashSet<int>(artifactIds.Union(childIds.Select(c => c.VersionItemId)));
+                artifactIds = setIds.ToList();
             }
 
-            var effectiveIds = await GetEffectiveArtifactIds(userId, content.ArtifactIds, propertyResult.ProjectId.Value);
+            var effectiveIds = await GetEffectiveArtifactIds(userId, artifactIds, propertyResult.ProjectId.Value);
 
             if (effectiveIds.ArtifactIds == null || effectiveIds.ArtifactIds.IsEmpty())
             {
@@ -409,7 +400,7 @@ namespace ArtifactStore.Repositories
                 int? baselineId = null;
                 if (effectiveIds.IsBaselineAdded)
                 {
-                    baselineId = content.ArtifactIds.First();
+                    baselineId = artifactIds.First();
                 }
 
                 await CreateUpdateRemoveReviewBaselineLink(reviewId, propertyResult.ProjectId.Value, userId, !effectiveIds.IsBaselineAdded, baselineId, transaction);
@@ -426,7 +417,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        private async Task<IEnumerable<ChieldArtifactsResult>> GetChildrenArtifacts(int userId, IEnumerable<int> artifactIds)
+        private async Task<IEnumerable<ChildArtifactsResult>> GetChildrenArtifacts(int userId, IEnumerable<int> artifactIds)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
@@ -434,7 +425,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@revisionId", int.MaxValue);
             parameters.Add("@includeDrafts", false);
 
-            return (await _connectionWrapper.QueryAsync<ChieldArtifactsResult>("GetChildArtifacts", parameters, commandType: CommandType.StoredProcedure)).ToList();
+            return (await _connectionWrapper.QueryAsync<ChildArtifactsResult>("GetChildArtifacts", parameters, commandType: CommandType.StoredProcedure));
         }
 
         private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId)

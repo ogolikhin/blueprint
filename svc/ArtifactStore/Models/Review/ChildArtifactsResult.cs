@@ -5,7 +5,7 @@ using System.Web;
 
 namespace ArtifactStore.Models.Review
 {
-    public class ChieldArtifactsResult
+    public class ChildArtifactsResult
     {
         public int VersionItemId { get; set; }
     }

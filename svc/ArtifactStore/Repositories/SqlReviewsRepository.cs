@@ -284,24 +284,24 @@ namespace ArtifactStore.Repositories
 
             foreach (var reviewArtifact in reviewArtifacts.Items)
             {
+                ReviewArtifactStatus reviewArtifactStatus;
+
+                if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
+                {
+                    reviewArtifact.Pending = reviewArtifactStatus.Pending;
+                    reviewArtifact.Approved = reviewArtifactStatus.Approved;
+                    reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
+                    reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
+                    reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
+                }
+                else
+                {
+                    reviewArtifact.Pending = numApprovers;
+                    reviewArtifact.Unviewed = numUsers;
+                }
+
                 if (SqlArtifactPermissionsRepository.HasPermissions(reviewArtifact.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
-                    ReviewArtifactStatus reviewArtifactStatus;
-
-                    if (artifactStatusDictionary.TryGetValue(reviewArtifact.Id, out reviewArtifactStatus))
-                    {
-                        reviewArtifact.Pending = reviewArtifactStatus.Pending;
-                        reviewArtifact.Approved = reviewArtifactStatus.Approved;
-                        reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
-                        reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
-                        reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
-                    }
-                    else
-                    {
-                        reviewArtifact.Pending = numApprovers;
-                        reviewArtifact.Unviewed = numUsers;
-                    }
-
                     reviewArtifact.HasAccess = true;
                 }
                 else
@@ -321,7 +321,6 @@ namespace ArtifactStore.Repositories
             reviewArtifact.ItemTypePredefined = 0;
             reviewArtifact.IconImageId = null;
             reviewArtifact.HasAccess = false;
-            reviewArtifact.IsApprovalRequired = false;
         }
 
         /// <summary>

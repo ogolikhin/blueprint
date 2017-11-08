@@ -364,23 +364,19 @@ namespace ArtifactStore.Repositories
             if (content.AddChildren)
             {
                 var childIds = await GetChildrenArtifacts(userId, content.ArtifactIds);
+                var setIds = new HashSet<int>(content.ArtifactIds);
 
-                if (childIds != null)
+                foreach (var item in childIds)
                 {
-                    var set = content.ArtifactIds.ToHashSet();
-
-                    foreach (var item in childIds)
+                    if (!setIds.Contains(item.VersionItemId))
                     {
-                        if (!set.Contains(item.VersionItemId))
-                        {
-                            set.Add(item.VersionItemId);
-                        }
+                        setIds.Add(item.VersionItemId);
                     }
-
-                    content.ArtifactIds = set.ToList();
-
                 }
+
+                content.ArtifactIds = setIds.ToList();
             }
+
             var effectiveIds = await GetEffectiveArtifactIds(userId, content.ArtifactIds, propertyResult.ProjectId.Value);
 
             if (effectiveIds.ArtifactIds == null || effectiveIds.ArtifactIds.IsEmpty())

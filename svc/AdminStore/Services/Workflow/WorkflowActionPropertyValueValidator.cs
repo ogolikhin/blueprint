@@ -107,7 +107,7 @@ namespace AdminStore.Services.Workflow
             }
 
             decimal numberValue;
-            if (!decimal.TryParse(action.PropertyValue, out numberValue))
+            if (!decimal.TryParse(action.PropertyValue, NumberStyles.Number, CultureInfo.InvariantCulture, out numberValue))
             {
                 if (!string.IsNullOrWhiteSpace(action.PropertyValue))
                 {

@@ -968,11 +968,21 @@ namespace AdminStore.Repositories.Workflow
             table.Columns.Add("WorkflowId", typeof(int));
             table.Columns.Add("Default", typeof(bool));
             table.Columns.Add("OrderIndex", typeof(float));
+            table.Columns.Add("CanvasSettings", typeof(string));
 
             foreach (var workflowState in workflowStates)
             {
-                table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name,
-                    workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex);
+                if (string.IsNullOrEmpty(workflowState.CanvasSettings))
+                {
+                    table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name,
+                      workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex, string.Empty);
+                }
+                else
+                {
+                    table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name,
+                   workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex, workflowState.CanvasSettings);
+                }
+
             }
 
             return table;
@@ -992,13 +1002,24 @@ namespace AdminStore.Repositories.Workflow
             table.Columns.Add("WorkflowState1Id", typeof(int));
             table.Columns.Add("WorkflowState2Id", typeof(int));
             table.Columns.Add("PropertyTypeId", typeof(int));
+            table.Columns.Add("CanvasSettings", typeof(string));
 
             foreach (var workfloEvent in workflowEvents)
             {
-                table.Rows.Add(workfloEvent.WorkflowEventId, workfloEvent.Name,
-                    workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions,
-                    workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id,
-                    workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId);
+                if (string.IsNullOrEmpty(workfloEvent.CanvasSettings))
+                {
+                    table.Rows.Add(workfloEvent.WorkflowEventId, workfloEvent.Name,
+                        workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions,
+                        workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id,
+                        workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId, string.Empty);
+                }
+                else
+                {
+                    table.Rows.Add(workfloEvent.WorkflowEventId, workfloEvent.Name,
+                        workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions,
+                        workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id,
+                        workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId, workfloEvent.CanvasSettings);
+                }
             }
 
             return table;

@@ -734,6 +734,59 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
+        public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureSetToFalse_Should_Not_Set_Default_Meaning_Of_Signature_For_All_Approvers()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.IsESignatureEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            {
+                new ReviewerRawData
+                {
+                    UserId = 2,
+                    Permission = ReviewParticipantRole.Approver
+                },
+                new ReviewerRawData
+                {
+                    UserId = 3,
+                    Permission = ReviewParticipantRole.Reviewer
+                }
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
+            {
+                {
+                    2,
+                    new List<ParticipantMeaningOfSignatureResult>
+                    {
+                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 5 },
+                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 6 }
+                    }
+                }
+            };
+
+            var updatedReviewSettings = new ReviewSettings
+            {
+                RequireESignature = true,
+                RequireMeaningOfSignature = false
+            };
+
+            _mockArtifactPermissionsRepository
+                .Setup(m => m.GetProjectPermissions(_artifactDetails.ProjectId))
+                .ReturnsAsync(ProjectPermissions.IsMeaningOfSignatureEnabled);
+
+            // Act
+            await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
+
+            // Assert
+            var approver = _reviewPackageRawData.Reviewers.First(r => r.Permission == ReviewParticipantRole.Approver);
+            var reviewer = _reviewPackageRawData.Reviewers.First(r => r.Permission == ReviewParticipantRole.Reviewer);
+
+            Assert.IsNull(reviewer.SelectedRoleMoSAssignments);
+            Assert.IsNull(approver.SelectedRoleMoSAssignments);
+        }
+
+        [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureChanged_Should_Set_Default_Meaning_Of_Signature_For_All_Approvers()
         {
             // Arrange

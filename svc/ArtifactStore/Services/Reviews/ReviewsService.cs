@@ -167,14 +167,14 @@ namespace ArtifactStore.Services.Reviews
 
             reviewPackageRawData.IsMoSEnabled = updatedReviewSettings.RequireMeaningOfSignature;
 
-            var meaningOfSignatureParameters = reviewPackageRawData.Reviewers
-                                                                   .Where(r => r.Permission == ReviewParticipantRole.Approver)
-                                                                   .Select(r => new MeaningOfSignatureParameter()
-                                                                   {
-                                                                       ParticipantId = r.UserId
-                                                                   });
+            if (reviewPackageRawData.IsMoSEnabled)
+            {
+                var meaningOfSignatureParameters = reviewPackageRawData.Reviewers
+                    .Where(r => r.Permission == ReviewParticipantRole.Approver)
+                    .Select(r => new MeaningOfSignatureParameter { ParticipantId = r.UserId });
 
-            await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewPackageRawData, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSetDefaultsStrategy());
+                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewPackageRawData, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSetDefaultsStrategy());
+            }
         }
 
         private async Task<ArtifactBasicDetails> GetReviewInfoAsync(int reviewId, int userId, int revisionId = int.MaxValue)
@@ -258,8 +258,7 @@ namespace ArtifactStore.Services.Reviews
                 {
                     var meaningOfSignature = meaningOfSignatureUpdate.MeaningOfSignature;
 
-                    ParticipantMeaningOfSignature participantMeaningOfSignature = participant.SelectedRoleMoSAssignments
-                                                                                             .FirstOrDefault(pmos => pmos.RoleAssignmentId == meaningOfSignature.RoleAssignmentId);
+                    var participantMeaningOfSignature = participant.SelectedRoleMoSAssignments.FirstOrDefault(pmos => pmos.RoleAssignmentId == meaningOfSignature.RoleAssignmentId);
 
                     if (participantMeaningOfSignature == null)
                     {

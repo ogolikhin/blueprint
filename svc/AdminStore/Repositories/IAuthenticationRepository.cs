@@ -10,9 +10,10 @@ namespace AdminStore.Repositories
         /// </summary>
         /// <param name="login"></param>
         /// <param name="password"></param>
+        /// <param name="ignoreInvalidLoginAttempts"></param>
         /// <returns>An <see cref="P:AdminStore.Models.LoginUser"/> object that specifies the authentificated user.</returns>
         /// <exception cref="T:System.Security.Authentication.AuthenticationException">Thrown when the system fails to authentificate an user.</exception>
-        Task<AuthenticationUser> AuthenticateUserAsync(string login, string password);
+        Task<AuthenticationUser> AuthenticateUserAsync(string login, string password, bool ignoreInvalidLoginAttempts);
 
         /// <summary>
         /// Authenticates SAML user

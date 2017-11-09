@@ -153,7 +153,7 @@ namespace ArtifactStore.Services.Reviews
                 throw new ConflictException(errorMessage, ErrorCodes.Conflict);
             }
 
-            if (!reviewPackageRawData.IsESignatureEnabled)
+            if (updatedReviewSettings.RequireMeaningOfSignature && !reviewPackageRawData.IsESignatureEnabled)
             {
                 var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.RequireESignatureDisabled, reviewId);
                 throw new ConflictException(errorMessage, ErrorCodes.Conflict);

@@ -1436,7 +1436,12 @@ namespace ArtifactStore.Repositories
                 { "@xmlString", xmlString }
             };
 
-            _cxn.SetupExecuteAsync("UpdateReviewPackageRawData", updateParameters, returnValue);
+            var outParameters = new Dictionary<string, object>
+            {
+                { "returnValue", returnValue }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewPackageRawData", updateParameters, -1, outParameters);
         }
 
         #endregion

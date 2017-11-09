@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Xml;
+using AdminStore.Models.Enums;
 
 namespace AdminStore.Controllers
 {
@@ -536,7 +537,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId);
+            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, WorkflowMode.XmlExport);
             var workflowXml = SerializationHelper.ToXml(ieWorkflow, true);
             var response = Request.CreateResponse(HttpStatusCode.OK);
 
@@ -584,9 +585,29 @@ namespace AdminStore.Controllers
             return await UploadWorkflowAsync(workflowId);
         }
 
+        /// <summary>
+        /// Get workflow for canvas diagram
+        /// </summary>
+        /// <param name="workflowId">workflow identity</param>
+        /// <response code="200">OK. Returns the workflow for canvas diagram.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">User doesn’t have permission to get workflow's diagram.</response>
+        /// <response code="404">Not Found. The workflow with the provided Id was not found.</response>
+        [HttpGet, NoCache]
+        [SessionRequired]
+        [FeatureActivation(FeatureTypes.Workflow)]
+        [Route("diagram/{workflowId:int:min(1)}")]
+        [ResponseType(typeof(IeWorkflow))]
+        public async Task<IHttpActionResult> GetWorkflowDiagram(int workflowId)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
+            return Ok(ieWorkflow);
+        }
+
         #region Private methods
 
-        // Upload means Import (Create) or Update
+    // Upload means Import (Create) or Update
         private async Task<IHttpActionResult> UploadWorkflowAsync(int? workflowId = null)
         {
             var session = Session;
@@ -618,7 +639,8 @@ namespace AdminStore.Controllers
 
                 var result = workflowId == null
                     ? await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId, xmlSerError)
-                    : await _workflowService.UpdateWorkflowViaImport(workflowId.Value, workflow, fileName, session.UserId, xmlSerError);
+                    : await _workflowService.UpdateWorkflowViaImport(workflowId.Value, workflow, fileName,
+                        session.UserId, xmlSerError);
 
                 switch (result.ResultCode)
                 {

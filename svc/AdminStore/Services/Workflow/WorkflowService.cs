@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AdminStore.Helpers.Workflow;
+using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Exceptions;
@@ -220,7 +221,7 @@ namespace AdminStore.Services.Workflow
             }
 
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes);
+            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, WorkflowMode.XmlExport);
             if (currentWorkflow.IsActive)
             {
                 var dataValidationErrors = new[]
@@ -669,10 +670,10 @@ namespace AdminStore.Services.Workflow
             return sqlEvent;
         }
 
-        public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId)
+        public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, WorkflowMode mode)
         {
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-            return await GetWorkflowExportAsync(workflowId, standardTypes);
+            return await GetWorkflowExportAsync(workflowId, standardTypes, mode);
         }
 
         public async Task<int> CreateWorkflow(string name, string description, int userId)
@@ -736,7 +737,7 @@ namespace AdminStore.Services.Workflow
             return workflowId;
         }
 
-        private async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, ProjectTypes standardTypes)
+        private async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, ProjectTypes standardTypes, WorkflowMode mode)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (workflowDetails == null)
@@ -765,7 +766,8 @@ namespace AdminStore.Services.Workflow
                             Id = e.WorkflowStateId,
                             IsInitial = e.Default,
                             Name = e.Name,
-                            OrderIndex = e.OrderIndex
+                            OrderIndex = e.OrderIndex,
+                            Location = mode == WorkflowMode.Canvas ? DeserializeStateCanvasSettings(e.CanvasSettings) : null
                         })
                         .Distinct()
                         .ToList(),
@@ -783,7 +785,8 @@ namespace AdminStore.Services.Workflow
                         ToStateId = e.ToStateId,
                         PermissionGroups = DeserializePermissionGroups(e.Permissions, groupIds),
                         SkipPermissionGroups = GetSkipPermissionGroup(e.Permissions),
-                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
+                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds),
+                        PortPair = mode == WorkflowMode.Canvas ? DeserializeTransitionCanvasSettings(e.CanvasSettings) : null
                     }).Distinct().ToList(),
                 // Do not include PropertyChangeEvent if PropertyType is not found.
                 PropertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange
@@ -1351,7 +1354,27 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        #endregion
+        private static string DeserializeStateCanvasSettings(string settings)
+        {
+            var result = string.Empty;
+            if (!string.IsNullOrEmpty(settings))
+            {
+                result = SerializationHelper.FromXml<XmlStateCanvasSettings>(settings).Location;
+            }
+            return result;
+        }
 
+        private static IePortPair DeserializeTransitionCanvasSettings(string settings)
+        {
+            IePortPair iePortPair = null;
+            if (!string.IsNullOrEmpty(settings))
+            {
+                var portPair = SerializationHelper.FromXml<XmlTransitionCanvasSettings>(settings).XmlPortPair;
+                iePortPair = new IePortPair { FromPort = portPair.FromPort, ToPort = portPair.ToPort };
+            }
+            return iePortPair;
+        }
+
+        #endregion
     }
 }

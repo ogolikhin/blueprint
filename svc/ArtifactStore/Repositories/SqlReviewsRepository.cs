@@ -265,8 +265,16 @@ namespace ArtifactStore.Repositories
         public async Task<QueryResult<ReviewArtifact>> GetReviewArtifactsContentAsync(int reviewId, int userId, Pagination pagination, int? versionId = null, bool? addDrafts = true)
         {
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
+            ReviewArtifactsQueryResult<ReviewArtifact> reviewArtifacts;
+            if (versionId == null)
+            {
+                reviewArtifacts = await GetReviewArtifactsAsync<ReviewArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
+            }
+            else
+            {
+                reviewArtifacts = await GetHistoricalReviewArtifactsAsync<ReviewArtifact>(reviewId, userId, pagination, revisionId);
+            }
 
-            var reviewArtifacts = await GetReviewArtifactsAsync<ReviewArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
             reviewArtifactIds.Add(reviewId);
 
@@ -731,6 +739,29 @@ namespace ArtifactStore.Repositories
                 IsFormal = parameters.Get<bool>("@isFormal")
             };
         }
+
+        private async Task<ReviewArtifactsQueryResult<T>> GetHistoricalReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null)
+            where T : BaseReviewArtifact
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@offset", pagination.Offset);
+            parameters.Add("@limit", pagination.Limit);
+            parameters.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@isFormal", false, dbType: DbType.Boolean, direction: ParameterDirection.Output);
+
+            var result = await _connectionWrapper.QueryAsync<T>("GetHistoricalReviewArtifacts", parameters, commandType: CommandType.StoredProcedure);
+
+            return new ReviewArtifactsQueryResult<T>
+            {
+                Items = result.ToList(),
+                Total = parameters.Get<int>("@numResult"),
+                IsFormal = parameters.Get<bool>("@isFormal")
+            };
+        }
+
 
         private async Task<int> UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts, IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
         {

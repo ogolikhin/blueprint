@@ -250,6 +250,7 @@ namespace ServiceLibrary.Repositories
 
         }
 
+        [Ignore] // TODO: Remove the dependency on the actual web server
         [TestMethod]
         [ExpectedException(typeof(AuthenticationException), "Authentication Exception is not thrown.")]
         public async Task UploadFileAsync_AuthenticationException()
@@ -266,9 +267,9 @@ namespace ServiceLibrary.Repositories
             // Act
             var fileRepository = new FileRepository(httpWebClient);
             await fileRepository.UploadFileAsync(fileName, fileType, content);
-
         }
 
+        [Ignore] // TODO: Remove the dependency on the actual web server
         [TestMethod]
         [ExpectedException(typeof(BadRequestException), "The BadRequest Exception is not thrown.")]
         public async Task UploadFileAsync_BadRequestException()
@@ -285,9 +286,9 @@ namespace ServiceLibrary.Repositories
             // Act
             var fileRepository = new FileRepository(httpWebClient);
             await fileRepository.UploadFileAsync(fileName, fileType, content);
-
         }
 
+        [Ignore] // TODO: Remove the dependency on the actual web server
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException), "The ResourceNotFound Exception is not thrown.")]
         public async Task UploadFileAsync_ResourceNotFoundException()
@@ -304,9 +305,9 @@ namespace ServiceLibrary.Repositories
             // Act
             var fileRepository = new FileRepository(httpWebClient);
             await fileRepository.UploadFileAsync(fileName, fileType, content);
-
         }
 
+        [Ignore] // TODO: Remove the dependency on the actual web server
         [TestMethod]
         [ExpectedException(typeof(Exception), "The Default Exception is not thrown.")]
         public async Task UploadFileAsync_DefaultException()
@@ -323,9 +324,9 @@ namespace ServiceLibrary.Repositories
             // Act
             var fileRepository = new FileRepository(httpWebClient);
             await fileRepository.UploadFileAsync(fileName, fileType, content);
-
         }
 
+        [Ignore] // TODO: Remove the dependency on the actual web server
         [TestMethod]
         public async Task UploadFileAsync_Success()
         {
@@ -344,8 +345,8 @@ namespace ServiceLibrary.Repositories
             string responseGuid = await fileRepository.UploadFileAsync(fileName, fileType, content);
 
             Assert.AreEqual(responseGuid, guid);
-
         }
+
         private static HttpWebResponse CreateHttpWebResponse(HttpStatusCode status)
         {
             var responseMock = new Mock<HttpWebResponse>();

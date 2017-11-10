@@ -296,6 +296,7 @@ namespace ArtifactStore.Repositories
                     reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
                     reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
                     reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
+                    reviewArtifact.HasReviewComments = reviewArtifactStatus.HasComments;
                 }
                 else
                 {

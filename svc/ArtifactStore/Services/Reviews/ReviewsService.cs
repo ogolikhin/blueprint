@@ -317,19 +317,19 @@ namespace ArtifactStore.Services.Reviews
 
             if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
             {
-                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
+                throw ExceptionHelper.ArtifactNotLockedException(reviewId, content.UserId);
             }
 
             if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
             {
-                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+                throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
 
             var reviewPackage = UpdateParticipantRole(propertyResult.ArtifactXml, content, reviewId);
 
             if (reviewPackage.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
             {
-                var meaningOfSignatureParameter = new MeaningOfSignatureParameter()
+                var meaningOfSignatureParameter = new MeaningOfSignatureParameter
                 {
                     ParticipantId = content.UserId
                 };
@@ -356,7 +356,7 @@ namespace ArtifactStore.Services.Reviews
 
             if (participant == null)
             {
-                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+                throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
 
             participant.Permission = content.Role;

@@ -50,7 +50,7 @@ namespace ServiceLibrary.Repositories
             // We do not treat the project as the artifact
             if (artifactId == projectId)
             {
-                ExceptionHelper.ThrowNotFoundException(projectId, artifactId);
+                throw ExceptionHelper.NotFoundException(projectId, artifactId);
             }
 
             var prm = new DynamicParameters();
@@ -64,7 +64,7 @@ namespace ServiceLibrary.Repositories
             // The artifact or the project is not found
             if (!artifactVersions.Any())
             {
-                ExceptionHelper.ThrowNotFoundException(projectId, artifactId);
+                throw ExceptionHelper.NotFoundException(projectId, artifactId);
             }
 
             var dicUserArtifactVersions = artifactVersions.GroupBy(v => v.ItemId).ToDictionary(g => g.Key, g => GetUserArtifactVersion(g.ToList()));
@@ -131,14 +131,14 @@ namespace ServiceLibrary.Repositories
             // The artifact or the project is not found
             if (parentUserArtifactVersion == null)
             {
-                ExceptionHelper.ThrowNotFoundException(projectId, artifactId);
+                throw ExceptionHelper.NotFoundException(projectId, artifactId);
             }
 
             // The artifact or the project has the direct permissions without Read
             if (parentUserArtifactVersion.DirectPermissions.HasValue
                     && !parentUserArtifactVersion.DirectPermissions.GetValueOrDefault().HasFlag(RolePermissions.Read))
             {
-                ExceptionHelper.ThrowForbiddenException(projectId, artifactId);
+                throw ExceptionHelper.ForbiddenException(projectId, artifactId);
             }
 
             if (!parentUserArtifactVersion.DirectPermissions.HasValue)
@@ -157,7 +157,7 @@ namespace ServiceLibrary.Repositories
             // The artifact or the project effective permissions does not have Read
             if (!parentUserArtifactVersion.EffectivePermissions.GetValueOrDefault().HasFlag(RolePermissions.Read))
             {
-                ExceptionHelper.ThrowForbiddenException(projectId, artifactId);
+                throw ExceptionHelper.ForbiddenException(projectId, artifactId);
             }
 
             var userArtifactVersionChildren = ProcessChildren(dicUserArtifactVersions, parentUserArtifactVersion);
@@ -439,7 +439,7 @@ namespace ServiceLibrary.Repositories
             var setAncestorsAndSelfIds = new HashSet<int>(ancestorsAndSelfIds);
 
             if (!setAncestorsAndSelfIds.Any())
-                ExceptionHelper.ThrowNotFoundException(projectId, expandedToArtifactId);
+                throw ExceptionHelper.NotFoundException(projectId, expandedToArtifactId);
 
             if (!includeChildren)
                 setAncestorsAndSelfIds.Remove(expandedToArtifactId);
@@ -467,7 +467,7 @@ namespace ServiceLibrary.Repositories
 
             if (!isFetched)
             {
-                ExceptionHelper.ThrowForbiddenException(projectId, expandedToArtifactId);
+                throw ExceptionHelper.ForbiddenException(projectId, expandedToArtifactId);
             }
 
             return rootArtifacts;

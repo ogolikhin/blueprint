@@ -35,6 +35,7 @@ namespace AdminStore
             config.AssertAction<SessionsController>("PostSessionSingleSignOn", HttpMethod.Post, "sessions/sso?force=true");
             config.AssertAction<SessionsController>("DeleteSession", HttpMethod.Delete, "sessions");
             config.AssertAction<SessionsController>("IsSessionAlive", HttpMethod.Get, "sessions/alive");
+            config.AssertAction<SessionsController>("VerifyCredentials", HttpMethod.Post, "sessions/verify?login=admin");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
             config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
             config.AssertAction<InstanceController>("GetInstanceFolder", HttpMethod.Get, "instance/folders/1");

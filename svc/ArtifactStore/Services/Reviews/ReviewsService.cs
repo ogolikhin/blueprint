@@ -21,11 +21,11 @@ namespace ArtifactStore.Services.Reviews
         private readonly IItemInfoRepository _itemInfoRepository;
 
         public ReviewsService() : this(
-                new SqlReviewsRepository(),
-                new SqlArtifactRepository(),
-                new SqlArtifactPermissionsRepository(),
-                new SqlLockArtifactsRepository(),
-                new SqlItemInfoRepository())
+            new SqlReviewsRepository(),
+            new SqlArtifactRepository(),
+            new SqlArtifactPermissionsRepository(),
+            new SqlLockArtifactsRepository(),
+            new SqlItemInfoRepository())
         {
         }
 
@@ -90,16 +90,14 @@ namespace ArtifactStore.Services.Reviews
             {
                 if (reviewInfo.LockedByUserId.Value != userId)
                 {
-                    var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotLockedByUser, reviewId, userId);
-                    throw new ConflictException(errorMessage, ErrorCodes.LockedByOtherUser);
+                    throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
                 }
             }
             else
             {
                 if (!await _lockArtifactsRepository.LockArtifactAsync(reviewId, userId))
                 {
-                    var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotLockedByUser, reviewId, userId);
-                    throw new ConflictException(errorMessage, ErrorCodes.LockedByOtherUser);
+                    throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
                 }
             }
         }
@@ -182,10 +180,7 @@ namespace ArtifactStore.Services.Reviews
             var artifactInfo = await _artifactRepository.GetArtifactBasicDetails(reviewId, userId);
             if (artifactInfo == null)
             {
-                var errorMessage = revisionId != int.MaxValue ?
-                    I18NHelper.FormatInvariant(ErrorMessages.ReviewOrRevisionNotFound, reviewId, revisionId) :
-                    I18NHelper.FormatInvariant(ErrorMessages.ReviewNotFound, reviewId);
-                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+                throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
             }
 
             if (artifactInfo.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactReviewPackage)

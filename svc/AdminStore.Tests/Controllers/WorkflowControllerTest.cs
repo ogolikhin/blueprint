@@ -839,6 +839,7 @@ namespace AdminStore.Controllers
             _privilegesRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(AllProjectDataPermissions);
+
             // Act
             var result = await _controller.ExportWorkflow(WorkflowId);
 
@@ -1566,7 +1567,7 @@ namespace AdminStore.Controllers
         #region CopyWorkflowAsync
 
         [TestMethod]
-        public async Task CopyWorkflowAsync_AllParamsAreCorrectAndPermissionsOk_WorkflowSuccussfulyUpdated()
+        public async Task CopyWorkflowAsync_AllParamsAreCorrectAndPermissionsOk_WorkflowSuccessfullyUpdated()
         {
             // arrange
             var updatedWorkflowId = 1;
@@ -1587,7 +1588,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task CopyWorkflowAsync_IsufficientPermissions_ReturnAuthorizationException()
+        public async Task CopyWorkflowAsync_InSufficientPermissions_ReturnAuthorizationException()
         {
             // arrange
             var updatedWorkflowId = 1;
@@ -1644,6 +1645,56 @@ namespace AdminStore.Controllers
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
             Assert.AreEqual(exception.Message, ErrorMessages.WorkflowModelIsEmpty);
+        }
+
+        #endregion
+
+        #region GetWorkflowDiagram
+
+        [TestMethod]
+        public async Task GetWorkflowDiagram_AllParamsAreCorrectAndPermissionsOk_WorkflowSuccessfullyReceived()
+        {
+            // arrange
+            var workflow = new IeWorkflow
+            {
+                Name = "Workflow1",
+                Description = "DescriptionWorkflow1",
+                States = new List<IeState>(),
+                Projects = new List<IeProject>()
+            };
+
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>(), It.IsAny<WorkflowMode>())).ReturnsAsync(workflow);
+
+            // act
+            var result = await _controller.GetWorkflowDiagram(WorkflowId) as OkNegotiatedContentResult<IeWorkflow>;
+
+            // assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Content, workflow);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetWorkflowDiagram_InSufficientPermissions_ReturnAuthorizationException()
+        {
+            // arrange
+            var workflow = new IeWorkflow();
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
+
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>(), It.IsAny<WorkflowMode>())).ReturnsAsync(workflow);
+
+            // act
+            await _controller.GetWorkflowDiagram(WorkflowId);
+
+            // assert
+            // exception
         }
 
         #endregion

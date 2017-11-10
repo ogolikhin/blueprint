@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using System.Xml.Schema;
+using AdminStore.Models.Enums;
 
 namespace AdminStore.Controllers
 {
@@ -834,7 +835,7 @@ namespace AdminStore.Controllers
                 States = new List<IeState>(),
                 Projects = new List<IeProject>()
             };
-            _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>())).ReturnsAsync(workflow);
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>(), It.IsAny<WorkflowMode>())).ReturnsAsync(workflow);
             _privilegesRepositoryMock
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(AllProjectDataPermissions);

@@ -21,11 +21,11 @@ namespace ArtifactStore.Services.Reviews
         private readonly IItemInfoRepository _itemInfoRepository;
 
         public ReviewsService() : this(
-                new SqlReviewsRepository(),
-                new SqlArtifactRepository(),
-                new SqlArtifactPermissionsRepository(),
-                new SqlLockArtifactsRepository(),
-                new SqlItemInfoRepository())
+            new SqlReviewsRepository(),
+            new SqlArtifactRepository(),
+            new SqlArtifactPermissionsRepository(),
+            new SqlLockArtifactsRepository(),
+            new SqlItemInfoRepository())
         {
         }
 
@@ -90,16 +90,14 @@ namespace ArtifactStore.Services.Reviews
             {
                 if (reviewInfo.LockedByUserId.Value != userId)
                 {
-                    var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotLockedByUser, reviewId, userId);
-                    throw new ConflictException(errorMessage, ErrorCodes.LockedByOtherUser);
+                    throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
                 }
             }
             else
             {
                 if (!await _lockArtifactsRepository.LockArtifactAsync(reviewId, userId))
                 {
-                    var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotLockedByUser, reviewId, userId);
-                    throw new ConflictException(errorMessage, ErrorCodes.LockedByOtherUser);
+                    throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
                 }
             }
         }
@@ -182,10 +180,7 @@ namespace ArtifactStore.Services.Reviews
             var artifactInfo = await _artifactRepository.GetArtifactBasicDetails(reviewId, userId);
             if (artifactInfo == null)
             {
-                var errorMessage = revisionId != int.MaxValue ?
-                    I18NHelper.FormatInvariant(ErrorMessages.ReviewOrRevisionNotFound, reviewId, revisionId) :
-                    I18NHelper.FormatInvariant(ErrorMessages.ReviewNotFound, reviewId);
-                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+                throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
             }
 
             if (artifactInfo.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactReviewPackage)
@@ -317,19 +312,19 @@ namespace ArtifactStore.Services.Reviews
 
             if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
             {
-                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
+                throw ExceptionHelper.ArtifactNotLockedException(reviewId, content.UserId);
             }
 
             if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
             {
-                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+                throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
 
             var reviewPackage = UpdateParticipantRole(propertyResult.ArtifactXml, content, reviewId);
 
             if (reviewPackage.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
             {
-                var meaningOfSignatureParameter = new MeaningOfSignatureParameter()
+                var meaningOfSignatureParameter = new MeaningOfSignatureParameter
                 {
                     ParticipantId = content.UserId
                 };
@@ -356,7 +351,7 @@ namespace ArtifactStore.Services.Reviews
 
             if (participant == null)
             {
-                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+                throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
 
             participant.Permission = content.Role;

@@ -44,12 +44,12 @@ namespace ServiceLibrary.Repositories
             var artifactBasicDetails = await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
             if (artifactBasicDetails == null)
             {
-                ExceptionHelper.ThrowArtifactNotFoundException(artifactId);
+                throw ExceptionHelper.ArtifactNotFoundException(artifactId);
             }
 
             if (!((ItemTypePredefined)artifactBasicDetails.PrimitiveItemTypePredefined).IsRegularArtifactType())
             {
-                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(artifactId);
+                throw ExceptionHelper.ArtifactDoesNotSupportOperation(artifactId);
             }
 
             var artifactsPermissions =
@@ -58,7 +58,7 @@ namespace ServiceLibrary.Repositories
             if (!artifactsPermissions.ContainsKey(artifactId) ||
                 !artifactsPermissions[artifactId].HasFlag(permissions))
             {
-                ExceptionHelper.ThrowArtifactForbiddenException(artifactId);
+                throw ExceptionHelper.ArtifactForbiddenException(artifactId);
             }
         }
     }

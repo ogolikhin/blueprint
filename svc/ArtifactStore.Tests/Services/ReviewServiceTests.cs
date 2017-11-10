@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
 using ArtifactStore.Services.Reviews;
+using Castle.Components.DictionaryAdapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -654,7 +655,7 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
-        public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureChanged_ESignatureNotEnabled_ThrowsConflictException()
+        public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureSetToTrue_ESignatureNotEnabled_ThrowsConflictException()
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = false;
@@ -677,6 +678,83 @@ namespace ArtifactStore.Services
 
             // Assert
             Assert.Fail("Expected ConflictException to have been thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureSetToFalse_ESignatureNotEnabled_DoesNotThrowException()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.IsESignatureEnabled = false;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            var updatedReviewSettings = new ReviewSettings { RequireMeaningOfSignature = false };
+
+            _mockArtifactPermissionsRepository
+                .Setup(m => m.GetProjectPermissions(_artifactDetails.ProjectId))
+                .ReturnsAsync(ProjectPermissions.IsMeaningOfSignatureEnabled);
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
+            }
+            catch (Exception ex)
+            {
+                // Assert
+                Assert.Fail("Unexpected exception thrown: {0}!", ex);
+            }
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureSetToTrue_ESignatureEnabled_DoesNotThrowException()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = false;
+            _reviewPackageRawData.IsESignatureEnabled = true;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+
+            var updatedReviewSettings = new ReviewSettings { RequireESignature = true, RequireMeaningOfSignature = true };
+
+            _mockArtifactPermissionsRepository
+                .Setup(m => m.GetProjectPermissions(_artifactDetails.ProjectId))
+                .ReturnsAsync(ProjectPermissions.IsMeaningOfSignatureEnabled);
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
+            }
+            catch (Exception ex)
+            {
+                // Assert
+                Assert.Fail("Unexpected exception thrown: {0}!", ex);
+            }
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureSetToFalse_ESignatureEnabled_DoesNotThrowException()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.IsESignatureEnabled = true;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            var updatedReviewSettings = new ReviewSettings { RequireESignature = true, RequireMeaningOfSignature = false };
+
+            _mockArtifactPermissionsRepository
+                .Setup(m => m.GetProjectPermissions(_artifactDetails.ProjectId))
+                .ReturnsAsync(ProjectPermissions.IsMeaningOfSignatureEnabled);
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
+            }
+            catch (Exception ex)
+            {
+                // Assert
+                Assert.Fail("Unexpected exception thrown: {0}!", ex);
+            }
         }
 
         [TestMethod]

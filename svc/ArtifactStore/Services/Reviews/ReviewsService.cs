@@ -291,9 +291,13 @@ namespace ArtifactStore.Services.Reviews
             }
         }
 
-        public async Task<IEnumerable<DropdownItem>> AssignRoleToParticipantAsync(int reviewId, AssignParticipantRoleParameter content, int userId)
+        public async Task<ReviewChangeParticipantsStatusResult> AssignRoleToParticipantsAsync(int reviewId, AssignParticipantRoleParameter content, int userId)
         {
-            var propertyResult = await _reviewsRepository.GetReviewApprovalRolesInfoAsync(reviewId, userId, content.UserId);
+            if ((content.ItemIds == null || !content.ItemIds.Any()) && content.SelectionType == SelectionType.Selected)
+            {
+                throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
+            }
+            var propertyResult = await _reviewsRepository.GetReviewApprovalRolesInfoAsync(reviewId, userId);
 
             if (propertyResult == null)
             {
@@ -318,51 +322,86 @@ namespace ArtifactStore.Services.Reviews
 
             if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
             {
-                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, content.UserId);
+                ExceptionHelper.ThrowArtifactNotLockedException(reviewId, userId);
             }
 
             if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
             {
                 ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
             }
+            var resultErrors = new List<ReviewChangeItemsError>();
 
-            var reviewPackage = UpdateParticipantRole(propertyResult.ArtifactXml, content, reviewId);
+            var reviewPackage = UpdateParticipantRole(propertyResult.ArtifactXml, content, reviewId, resultErrors);
 
             if (reviewPackage.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
             {
-                var meaningOfSignatureParameter = new MeaningOfSignatureParameter()
-                {
-                    ParticipantId = content.UserId
-                };
 
-                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewPackage, new[] { meaningOfSignatureParameter }, new MeaningOfSignatureUpdateSetDefaultsStrategy());
+                var meaningOfSignatureParameter = content.ItemIds.Select(i => new MeaningOfSignatureParameter() { ParticipantId = i }).ToArray();
+
+                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewPackage,  meaningOfSignatureParameter, new MeaningOfSignatureUpdateSetDefaultsStrategy());
             }
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackage, userId);
-
-            if (reviewPackage.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
+            var changeResult = new ReviewChangeParticipantsStatusResult();
+            if (reviewPackage.IsMoSEnabled && content.ItemIds.Count() == 1
+                && content.SelectionType == SelectionType.Selected && content.Role == ReviewParticipantRole.Approver)
             {
-                return reviewPackage.Reviewers.First(r => r.UserId == content.UserId).SelectedRoleMoSAssignments.Select(mos =>
+                 changeResult.DropdownItems = reviewPackage.Reviewers.First(r => r.UserId == content.ItemIds.FirstOrDefault()).SelectedRoleMoSAssignments.Select(mos =>
                     new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
             }
 
-            return null;
+            if (resultErrors.Any())
+            {
+                changeResult.ReviewChangeItemErrors = resultErrors;
+            }
+
+            return changeResult;
         }
 
-        private static ReviewPackageRawData UpdateParticipantRole(string reviewPackageXml, AssignParticipantRoleParameter content, int reviewId)
+        private static ReviewPackageRawData UpdateParticipantRole(string reviewPackageXml, AssignParticipantRoleParameter content, int reviewId, List<ReviewChangeItemsError> resultErrors)
         {
             var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewPackageXml);
 
-            var participant = reviewPackageRawData.Reviewers.FirstOrDefault(a => a.UserId == content.UserId);
-
-            if (participant == null)
+            if (content.SelectionType == SelectionType.Selected)
             {
-                ExceptionHelper.ThrowArtifactDoesNotSupportOperation(reviewId);
+                foreach (var reviewer in reviewPackageRawData.Reviewers)
+                {
+                    if (content.ItemIds.Contains(reviewer.UserId))
+                    {
+                        reviewer.Permission = content.Role;
+                    }
+                }
             }
+            else
+            {
+                if (content.ItemIds != null && content.ItemIds.Any())
+                {
+                    foreach (var reviewer in reviewPackageRawData.Reviewers)
+                    {
+                        if (!content.ItemIds.Contains(reviewer.UserId))
+                        {
+                            reviewer.Permission = content.Role;
+                        }
+                    }
+                }
+                else
+                {
+                    reviewPackageRawData.Reviewers = reviewPackageRawData.Reviewers.Select(r => { r.Permission = content.Role; return r; }).ToList();
+                }
+            }
+            var nonIntersecCount = content.ItemIds.Count() - content.ItemIds.Intersect<int>(reviewPackageRawData.Reviewers.Select(r => r.UserId)).Count();
+            if (nonIntersecCount > 0)
+                {
+                    resultErrors.Add(new ReviewChangeItemsError()
+                    {
+                        ItemsCount = nonIntersecCount,
+                        ErrorCode = ErrorCodes.UserNotInReview,
+                        ErrorMessage = "Some users are not in the review."
 
-            participant.Permission = content.Role;
+                    });
+                }
+                return reviewPackageRawData;
 
-            return reviewPackageRawData;
         }
     }
 }

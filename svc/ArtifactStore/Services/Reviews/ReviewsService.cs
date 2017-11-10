@@ -165,7 +165,7 @@ namespace ArtifactStore.Services.Reviews
 
             reviewPackageRawData.IsMoSEnabled = updatedReviewSettings.RequireMeaningOfSignature;
 
-            if (reviewPackageRawData.IsMoSEnabled)
+            if (reviewPackageRawData.IsMoSEnabled && reviewPackageRawData.Reviewers != null)
             {
                 var meaningOfSignatureParameters = reviewPackageRawData.Reviewers
                     .Where(r => r.Permission == ReviewParticipantRole.Approver)

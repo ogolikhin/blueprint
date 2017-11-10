@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models;
@@ -40,7 +41,6 @@ namespace AdminStore.Services.Workflow
         private ProjectTypes _projectTypes;
         private const int SessionUserId = 1;
         private const int WorkflowId = 1;
-        private const InstanceAdminPrivileges AllProjectDataPermissions = InstanceAdminPrivileges.AccessAllProjectData;
 
         #endregion
 
@@ -243,11 +243,12 @@ namespace AdminStore.Services.Workflow
         public async Task GetWorkflowExportAsync_WorkflowNotExistsInDb_NotFoundResult()
         {
             // Arrange
-            var workflowId = 10;
             _workflowRepositoryMock
                 .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
+
             // Act
-            await _service.GetWorkflowExportAsync(workflowId, WorkflowMode.XmlExport);
+            await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.XmlExport);
+
             // Assert
             // Exception
         }
@@ -365,9 +366,29 @@ namespace AdminStore.Services.Workflow
         {
             // arrange
             var location = "200 200";
-            var canvasSettings = $"<S><LN>{location}</LN></S>";
-            var workflowState = new SqlState { Name = "new", Default = true, CanvasSettings = "<S><LN>200 200</LN></S>" };
-            _workflowStates.Add(workflowState);
+            var workflowStateFrom = new SqlState { VersionId = 1, WorkflowStateId = 1, Name = "New", Default = true, CanvasSettings = $"<S><LN>{location}</LN></S>" };
+            var workflowStateTo = new SqlState { VersionId = 2, WorkflowStateId = 2, Name = "Active", Default = true, CanvasSettings = String.Empty };
+            _workflowStates.Add(workflowStateFrom);
+            _workflowStates.Add(workflowStateTo);
+
+            var fromPort = 1;
+            var toPort = 2;
+            var eventData = new SqlWorkflowEventData
+            {
+                WorkflowId = 10,
+                Name = "First Trigger",
+                FromState = "New",
+                ToState = "Active",
+                FromStateId = 1,
+                ToStateId = 2,
+                Permissions = "<P S=\"0\"><G>1</G></P>",
+                CanvasSettings = $"<S><PRT><FR>{fromPort}</FR><TO>{toPort}</TO></PRT></S>",
+                Type = 0,
+                Triggers =
+                    "<Triggers><Trigger><Name>Trigger 1</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
+            };
+
+            _workflowEvents.Add(eventData);
 
             _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null)).ReturnsAsync(_userQueryResult);
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(_workflow);
@@ -381,9 +402,15 @@ namespace AdminStore.Services.Workflow
 
             // assert
             Assert.IsNotNull(workflowForCanvas);
+
             Assert.IsNotNull(workflowForCanvas.States);
-            Assert.AreEqual(workflowForCanvas.States.Count, 1);
-            Assert.AreEqual(workflowForCanvas.States[0].Location, "200 200");
+            Assert.AreEqual(workflowForCanvas.States.Count, 2);
+            Assert.AreEqual(workflowForCanvas.States[0].Location, location);
+
+            Assert.IsNotNull(workflowForCanvas.TransitionEvents);
+            Assert.AreEqual(workflowForCanvas.TransitionEvents.Count, 1);
+            Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.FromPort, fromPort);
+            Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.ToPort, toPort);
         }
         #endregion
     }

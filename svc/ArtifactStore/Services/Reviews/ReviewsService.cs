@@ -361,7 +361,7 @@ namespace ArtifactStore.Services.Reviews
         private static ReviewPackageRawData UpdateParticipantRole(string reviewPackageXml, AssignParticipantRoleParameter content, int reviewId, List<ReviewChangeItemsError> resultErrors)
         {
             var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewPackageXml);
-
+            int nonIntersecCount = 0;
             if (content.SelectionType == SelectionType.Selected)
             {
                 foreach (var reviewer in reviewPackageRawData.Reviewers)
@@ -371,6 +371,7 @@ namespace ArtifactStore.Services.Reviews
                         reviewer.Permission = content.Role;
                     }
                 }
+                nonIntersecCount = content.ItemIds.Count() - content.ItemIds.Intersect<int>(reviewPackageRawData.Reviewers.Select(r => r.UserId)).Count();
             }
             else
             {
@@ -386,10 +387,13 @@ namespace ArtifactStore.Services.Reviews
                 }
                 else
                 {
-                    reviewPackageRawData.Reviewers = reviewPackageRawData.Reviewers.Select(r => { r.Permission = content.Role; return r; }).ToList();
+                    foreach (var reviewer in reviewPackageRawData.Reviewers)
+                    {
+                        reviewer.Permission = content.Role;
+                    }
                 }
             }
-            var nonIntersecCount = content.ItemIds.Count() - content.ItemIds.Intersect<int>(reviewPackageRawData.Reviewers.Select(r => r.UserId)).Count();
+
             if (nonIntersecCount > 0)
                 {
                     resultErrors.Add(new ReviewChangeItemsError()

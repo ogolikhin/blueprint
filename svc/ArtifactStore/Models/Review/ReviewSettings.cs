@@ -8,13 +8,14 @@ namespace ArtifactStore.Models.Review
         {
         }
 
-        public ReviewSettings(ReviewPackageRawData reviewPackageRawData)
+        public ReviewSettings(ReviewPackageRawData reviewPackageRawData, ReviewType reviewType)
         {
             EndDate = reviewPackageRawData?.EndDate;
             ShowOnlyDescription = reviewPackageRawData?.ShowOnlyDescription ?? false;
             CanMarkAsComplete = reviewPackageRawData?.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed ?? false;
             RequireESignature = reviewPackageRawData?.IsESignatureEnabled ?? false;
             RequireMeaningOfSignature = reviewPackageRawData?.IsMoSEnabled ?? false;
+            ReviewType = reviewType;
         }
 
         public DateTime? EndDate { get; set; }
@@ -26,5 +27,7 @@ namespace ArtifactStore.Models.Review
         public bool RequireESignature { get; set; }
 
         public bool RequireMeaningOfSignature { get; set; }
+
+        public ReviewType? ReviewType { get; set; }
     }
 }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
 using ArtifactStore.Services.Reviews;
-using Castle.Components.DictionaryAdapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -36,6 +35,7 @@ namespace ArtifactStore.Services
         private bool _hasReadPermissions;
         private bool _hasEditPermissions;
         private bool _isLockSuccessful;
+        private ReviewType _reviewType;
         private Dictionary<int, List<ParticipantMeaningOfSignatureResult>> _possibleMeaningOfSignatures;
 
         [TestInitialize]
@@ -59,6 +59,10 @@ namespace ArtifactStore.Services
             _mockReviewRepository
                 .Setup(m => m.GetPossibleMeaningOfSignaturesForParticipantsAsync(It.IsAny<IEnumerable<int>>()))
                 .ReturnsAsync(() => _possibleMeaningOfSignatures);
+
+            _mockReviewRepository
+                .Setup(m => m.GetReviewTypeAsync(ReviewId, UserId, It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(() => _reviewType);
 
             _mockArtifactRepository = new Mock<IArtifactRepository>();
             _mockArtifactRepository
@@ -90,6 +94,7 @@ namespace ArtifactStore.Services
             _hasReadPermissions = true;
             _hasEditPermissions = true;
             _isLockSuccessful = true;
+            _reviewType = ReviewType.Public;
 
             _reviewService = new ReviewsService(
                 _mockReviewRepository.Object,
@@ -268,6 +273,45 @@ namespace ArtifactStore.Services
             // Assert
             Assert.AreEqual(_reviewPackageRawData.IsMoSEnabled, reviewSettings.RequireMeaningOfSignature);
         }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_PublicReview_ReviewSettingsReviewTypeIsPublic()
+        {
+            // Arrange
+            _reviewType = ReviewType.Public;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(ReviewType.Public, reviewSettings.ReviewType);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_InformalReview_ReviewSettingsReviewTypeIsInformal()
+        {
+            // Arrange
+            _reviewType = ReviewType.Informal;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(ReviewType.Informal, reviewSettings.ReviewType);
+        }
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_FormalReview_ReviewSettingsReviewTypeIsFormal()
+        {
+            // Arrange
+            _reviewType = ReviewType.Formal;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(ReviewType.Formal, reviewSettings.ReviewType);
+        }
+
 
         #endregion GetReviewSettingsAsync
 

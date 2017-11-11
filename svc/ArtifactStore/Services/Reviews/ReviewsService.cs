@@ -54,7 +54,9 @@ namespace ArtifactStore.Services.Reviews
             }
 
             var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId, revisionId);
-            return new ReviewSettings(reviewPackageRawData);
+            var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId, revisionId);
+
+            return new ReviewSettings(reviewPackageRawData, reviewType);
         }
 
         public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId)

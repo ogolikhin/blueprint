@@ -46,7 +46,7 @@ namespace ArtifactStore.Services.Reviews
         public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int? versionId = null)
         {
             var revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
-            await GetReviewInfoAsync(reviewId, userId, revisionId);
+            var reviewInfo = await GetReviewInfoAsync(reviewId, userId, revisionId);
 
             if (!await _permissionsRepository.HasReadPermissions(reviewId, userId, revisionId: revisionId))
             {
@@ -54,9 +54,17 @@ namespace ArtifactStore.Services.Reviews
             }
 
             var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId, revisionId);
-            var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId, revisionId);
+            var reviewSettings = new ReviewSettings(reviewPackageRawData);
 
-            return new ReviewSettings(reviewPackageRawData, reviewType);
+            var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId, revisionId);
+            if (reviewType == ReviewType.Formal)
+            {
+                var projectPermissions = await _permissionsRepository.GetProjectPermissions(reviewInfo.ProjectId);
+                reviewSettings.IsESignatureEnabledInProject = projectPermissions.HasFlag(ProjectPermissions.IsReviewESignatureEnabled);
+                reviewSettings.IsMeaningOfSignatureEnabledInProject = projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
+            }
+
+            return reviewSettings;
         }
 
         public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId)

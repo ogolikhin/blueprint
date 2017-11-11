@@ -1,18 +1,18 @@
-﻿using ArtifactStore.Helpers;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using ArtifactStore.Helpers;
 using ArtifactStore.Models.Review;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Services;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ApplicationSettings;
+using ServiceLibrary.Services;
 
 namespace ArtifactStore.Repositories
 {
@@ -36,29 +36,31 @@ namespace ArtifactStore.Repositories
         internal const string ReviewArtifactHierarchyRebuildIntervalInMinutesKey = "ReviewArtifactHierarchyRebuildIntervalInMinutes";
         internal const int DefaultReviewArtifactHierarchyRebuildIntervalInMinutes = 20;
 
-        public SqlReviewsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
-                                            new SqlArtifactVersionsRepository(),
-                                            new SqlItemInfoRepository(),
-                                            new SqlArtifactPermissionsRepository(),
-                                            new ApplicationSettingsRepository(),
-                                            new SqlUsersRepository(),
-                                            new SqlArtifactRepository(),
-                                            new CurrentDateTimeService(),
-                                            new SqlLockArtifactsRepository(),
-                                            new SqlHelper())
+        public SqlReviewsRepository() : this(
+            new SqlConnectionWrapper(ServiceConstants.RaptorMain),
+            new SqlArtifactVersionsRepository(),
+            new SqlItemInfoRepository(),
+            new SqlArtifactPermissionsRepository(),
+            new ApplicationSettingsRepository(),
+            new SqlUsersRepository(),
+            new SqlArtifactRepository(),
+            new CurrentDateTimeService(),
+            new SqlLockArtifactsRepository(),
+            new SqlHelper())
         {
         }
 
-        public SqlReviewsRepository(ISqlConnectionWrapper connectionWrapper,
-                                    IArtifactVersionsRepository artifactVersionsRepository,
-                                    IItemInfoRepository itemInfoRepository,
-                                    IArtifactPermissionsRepository artifactPermissionsRepository,
-                                    IApplicationSettingsRepository applicationSettingsRepository,
-                                    IUsersRepository usersRepository,
-                                    IArtifactRepository artifactRepository,
-                                    ICurrentDateTimeService currentDateTimeService,
-                                    ILockArtifactsRepository lockArtifactsRepository,
-                                    ISqlHelper sqlHelper)
+        public SqlReviewsRepository(
+            ISqlConnectionWrapper connectionWrapper,
+            IArtifactVersionsRepository artifactVersionsRepository,
+            IItemInfoRepository itemInfoRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IApplicationSettingsRepository applicationSettingsRepository,
+            IUsersRepository usersRepository,
+            IArtifactRepository artifactRepository,
+            ICurrentDateTimeService currentDateTimeService,
+            ILockArtifactsRepository lockArtifactsRepository,
+            ISqlHelper sqlHelper)
         {
             _connectionWrapper = connectionWrapper;
             _artifactVersionsRepository = artifactVersionsRepository;
@@ -121,7 +123,7 @@ namespace ArtifactStore.Repositories
             }
             else
             {
-                reviewType = await GetReviewType(containerId, userId);
+                reviewType = await GetReviewTypeAsync(containerId, userId);
             }
 
             return new ReviewSummary
@@ -239,11 +241,13 @@ namespace ArtifactStore.Repositories
             return artifactsReview;
         }
 
-        private Task<ReviewType> GetReviewType(int reviewId, int userId)
+        public Task<ReviewType> GetReviewTypeAsync(int reviewId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@includeDrafts", revisionId == int.MaxValue && includeDrafts);
 
             return _connectionWrapper.ExecuteScalarAsync<ReviewType>("GetReviewType", parameters, commandType: CommandType.StoredProcedure);
         }
@@ -1116,7 +1120,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
             parameters.Add("@revisionId", revisionId);
-            parameters.Add("@includeDrafts", includeDrafts);
+            parameters.Add("@includeDrafts", revisionId == int.MaxValue && includeDrafts);
 
             var result = (await _connectionWrapper.QueryAsync<string>("GetReviewPackageRawData", parameters, commandType: CommandType.StoredProcedure)).ToList();
 

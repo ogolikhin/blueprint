@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
 using ArtifactStore.Models.Review;
 using ServiceLibrary.Models;
 
@@ -33,5 +31,6 @@ namespace ArtifactStore.Repositories
         Task<bool> IsMeaningOfSignatureEnabledAsync(int reviewId, int userId, bool addDrafts);
         Task<Dictionary<int, List<ParticipantMeaningOfSignatureResult>>> GetPossibleMeaningOfSignaturesForParticipantsAsync(IEnumerable<int> participantIds);
         Task<PropertyValueString> GetReviewApprovalRolesInfoAsync(int reviewId, int userId, int roleUserId);
+        Task<ReviewType> GetReviewTypeAsync(int reviewId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true);
     }
 }

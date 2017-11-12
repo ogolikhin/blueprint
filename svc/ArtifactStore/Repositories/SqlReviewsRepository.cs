@@ -346,7 +346,7 @@ namespace ArtifactStore.Repositories
             }
 
             int alreadyIncludedCount;
-            var propertyResult = await GetReviewPropertyString(reviewId, userId);
+            var propertyResult = await GetReviewPropertyStringAsync(reviewId, userId);
             var artifactIds = content.ArtifactIds;
             if (propertyResult.ReviewStatus == ReviewPackageStatus.Closed)
             {
@@ -404,7 +404,7 @@ namespace ArtifactStore.Repositories
 
             Func<IDbTransaction, Task> transactionAction = async transaction =>
             {
-                await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, transaction);
+                await UpdateReviewArtifactsAsync(reviewId, userId, artifactXmlResult, transaction);
 
                 int? baselineId = null;
                 if (effectiveIds.IsBaselineAdded)
@@ -437,7 +437,7 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<ChildArtifactsResult>("GetChildArtifacts", parameters, commandType: CommandType.StoredProcedure));
         }
 
-        private async Task<PropertyValueString> GetReviewPropertyString(int reviewId, int userId)
+        public async Task<PropertyValueString> GetReviewPropertyStringAsync(int reviewId, int userId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@reviewId", reviewId);
@@ -762,8 +762,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
-
-        private async Task<int> UpdateReviewArtifacts(int reviewId, int userId, string xmlArtifacts, IDbTransaction transaction, bool addReviewSubArtifactIfNeeded = true)
+        public async Task<int> UpdateReviewArtifactsAsync(int reviewId, int userId, string xmlArtifacts, IDbTransaction transaction = null, bool addReviewSubArtifactIfNeeded = true)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@reviewId", reviewId);
@@ -831,7 +830,7 @@ namespace ArtifactStore.Repositories
         // Get all Review Participants for Summary Metrics
         public async Task<ReviewParticipantsContent> GetAllReviewParticipantsAsync(int reviewId, int userId)
         {
-            int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, null);
+            int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId);
             var parameters = new DynamicParameters();
 
             parameters.Add("@reviewId", reviewId);
@@ -1351,7 +1350,7 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }
 
-            var propertyResult = await GetReviewPropertyString(reviewId, userId);
+            var propertyResult = await GetReviewPropertyStringAsync(reviewId, userId);
 
             if (propertyResult.ReviewStatus == ReviewPackageStatus.Closed)
             {
@@ -1398,12 +1397,7 @@ namespace ArtifactStore.Repositories
 
             var artifactXmlResult = ReviewRawDataHelper.GetStoreData(rdReviewContents);
 
-            Func<IDbTransaction, Task> transactionAction = async transaction =>
-            {
-                await UpdateReviewArtifacts(reviewId, userId, artifactXmlResult, transaction);
-            };
-
-            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
+            await UpdateReviewArtifactsAsync(reviewId, userId, artifactXmlResult);
         }
 
         public async Task<IEnumerable<ReviewInfo>> GetReviewInfo(ISet<int> artifactIds, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
@@ -1437,158 +1431,6 @@ namespace ArtifactStore.Repositories
         private bool HasAtLeastOneApprover(IEnumerable<ReviewerRawData> reviewers)
         {
             return reviewers != null && reviewers.Any(r => r.Permission == ReviewParticipantRole.Approver);
-        }
-
-        public async Task<ReviewChangeItemsStatusResult> AssignApprovalRequiredToArtifacts(int reviewId, int userId, AssignArtifactsApprovalParameter content)
-        {
-            if ((content.ItemIds == null || !content.ItemIds.Any()) && content.SelectionType == SelectionType.Selected)
-            {
-                throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
-            }
-
-            var propertyResult = await GetReviewPropertyString(reviewId, userId);
-
-            if (propertyResult.IsReviewDeleted)
-            {
-                throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId);
-            }
-
-            if (propertyResult.ReviewStatus == ReviewPackageStatus.Closed)
-            {
-                throw ReviewsExceptionHelper.ReviewClosedException();
-            }
-
-            if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
-            {
-                throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
-            }
-
-            if (propertyResult.ProjectId == null || propertyResult.ProjectId < 1 || string.IsNullOrEmpty(propertyResult.ArtifactXml))
-            {
-                throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
-            }
-
-            // If review is active and formal we throw conflict exception. No changes allowed
-            if (propertyResult.ReviewStatus == ReviewPackageStatus.Active &&
-                propertyResult.ReviewType == ReviewType.Formal)
-            {
-                throw ReviewsExceptionHelper.ReviewActiveFormalException();
-            }
-
-            var resultErrors = new List<ReviewChangeItemsError>();
-
-            var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
-            var updatingArtifacts = GetReviewArtifacts(content, resultErrors, rdReviewContents);
-
-            // For Informal review
-            await ExcludeDeletedAndNotInProjectArtifacts(content, propertyResult, resultErrors, updatingArtifacts);
-
-            await ExcludeArtifactsWithoutReadPermissions(content, userId, resultErrors, updatingArtifacts);
-
-            if (updatingArtifacts.Any())
-            {
-                foreach (var updatingArtifact in updatingArtifacts)
-                {
-                    updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
-                }
-
-                var resultArtifactsXml = ReviewRawDataHelper.GetStoreData(rdReviewContents);
-
-                Func<IDbTransaction, Task> transactionAction = async transaction =>
-                {
-                    await UpdateReviewArtifacts(reviewId, userId, resultArtifactsXml, transaction, false);
-                };
-
-                await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
-            }
-
-            var result = new ReviewChangeItemsStatusResult();
-            if (resultErrors.Any())
-            {
-                result.ReviewChangeItemErrors = resultErrors;
-            }
-            return result;
-        }
-
-        private async Task ExcludeArtifactsWithoutReadPermissions(AssignArtifactsApprovalParameter content,
-            int userId, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
-        {
-            var updatingArtifactIds = updatingArtifacts.Select(ua => ua.Id);
-            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(updatingArtifactIds, userId);
-            var artifactsWithReadPermissions = artifactPermissionsDictionary.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
-
-            var updatingArtifactIdsWithReadPermissions = artifactsWithReadPermissions.Intersect(updatingArtifactIds);
-            var artifactsWithReadPermissionsCount = updatingArtifactIdsWithReadPermissions.Count();
-            var updatingArtifactsCount = updatingArtifactIds.Count();
-
-            // Only show error message if on client side user have an outdated data about deleted artifacts from review
-            if (content.SelectionType == SelectionType.Selected && artifactsWithReadPermissionsCount != updatingArtifactsCount)
-            {
-                resultErrors.Add(new ReviewChangeItemsError()
-                {
-                    ItemsCount = updatingArtifactsCount - artifactsWithReadPermissionsCount,
-                    ErrorCode = ErrorCodes.UnauthorizedAccess,
-                    ErrorMessage = "There is no read permissions for some artifacts."
-                });
-            }
-
-            // Remove deleted items from the result
-            updatingArtifacts.RemoveAll(ua => !updatingArtifactIdsWithReadPermissions.Contains(ua.Id));
-        }
-
-        private async Task ExcludeDeletedAndNotInProjectArtifacts(AssignArtifactsApprovalParameter content,
-            PropertyValueString propertyResult, List<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
-        {
-            if (propertyResult.BaselineId == null || propertyResult.BaselineId < 1)
-            {
-                var updatingArtifactIdsOnly = updatingArtifacts.Select(ua => ua.Id);
-                var deletedAndNotInProjectItemIds = await _artifactVersionsRepository.GetDeletedAndNotInProjectItems(updatingArtifactIdsOnly, propertyResult.ProjectId.Value);
-
-                // Only show error message if on client side user have an outdated data about deleted artifacts from review
-                if (content.SelectionType == SelectionType.Selected && deletedAndNotInProjectItemIds != null && deletedAndNotInProjectItemIds.Any())
-                {
-                    resultErrors.Add(new ReviewChangeItemsError()
-                    {
-                        ItemsCount = deletedAndNotInProjectItemIds.Count(),
-                        ErrorCode = ErrorCodes.ArtifactNotFound,
-                        ErrorMessage = "Some artifacts are deleted from the project."
-                    });
-                }
-                // Remove deleted items from the result
-                updatingArtifacts.RemoveAll(ua => deletedAndNotInProjectItemIds.Contains(ua.Id));
-            }
-        }
-
-        private static List<RDArtifact> GetReviewArtifacts(AssignArtifactsApprovalParameter content, List<ReviewChangeItemsError> resultErrors, RDReviewContents rdReviewContents)
-        {
-            List<RDArtifact> updatingArtifacts;
-            if (content.SelectionType == SelectionType.Selected)
-            {
-
-                updatingArtifacts = rdReviewContents.Artifacts.Where(a => content.ItemIds.Contains(a.Id)).ToList();
-
-                var foundArtifactsCount = updatingArtifacts.Count;
-                var requestedArtifactsCount = content.ItemIds.Count();
-
-                if (foundArtifactsCount != requestedArtifactsCount)
-                {
-                    resultErrors.Add(new ReviewChangeItemsError
-                    {
-                        ItemsCount = requestedArtifactsCount - foundArtifactsCount,
-                        ErrorCode = ErrorCodes.ApprovalRequiredArtifactNotInReview,
-                        ErrorMessage = "Some of the artifacts are not in the review."
-                    });
-                }
-
-                updatingArtifacts = updatingArtifacts.Where(a => a.ApprovalNotRequested == content.ApprovalRequired).ToList();
-            }
-            else
-            {
-                updatingArtifacts = rdReviewContents.Artifacts.Where(a => a.ApprovalNotRequested == content.ApprovalRequired &&
-                                                                          !content.ItemIds.Contains(a.Id)).ToList();
-            }
-
-            return updatingArtifacts;
         }
 
         public async Task<ReviewArtifactIndex> GetReviewArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId, bool? addDrafts = true)

@@ -68,9 +68,9 @@ namespace ArtifactStore.Repositories
         public async Task<IEnumerable<int>> GetDeletedAndNotInProjectItems(IEnumerable<int> itemIds, int projectId)
         {
             var parameters = new DynamicParameters();
-            var itemIdsTable = SqlConnectionWrapper.ToDataTable(itemIds);
-            parameters.Add("@itemIds", itemIdsTable);
+            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
             parameters.Add("@projectId", projectId);
+
             return await _connectionWrapper.QueryAsync<int>("GetDeletedAndNotInProjectItems", parameters, commandType: CommandType.StoredProcedure);
         }
 

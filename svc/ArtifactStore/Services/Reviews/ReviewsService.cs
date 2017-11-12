@@ -59,9 +59,10 @@ namespace ArtifactStore.Services.Reviews
             var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId, revisionId);
             if (reviewType == ReviewType.Formal)
             {
+                reviewSettings.IsESignatureEnabled = reviewPackageRawData.Status == ReviewPackageStatus.Draft;
+
                 var projectPermissions = await _permissionsRepository.GetProjectPermissions(reviewInfo.ProjectId);
-                reviewSettings.IsESignatureEnabledInProject = projectPermissions.HasFlag(ProjectPermissions.IsReviewESignatureEnabled);
-                reviewSettings.IsMeaningOfSignatureEnabledInProject = projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
+                reviewSettings.IsMeaningOfSignatureEnabled = projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
             }
 
             return reviewSettings;

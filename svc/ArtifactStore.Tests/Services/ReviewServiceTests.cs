@@ -54,7 +54,19 @@ namespace ArtifactStore.Services
                 PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage
             };
 
-            _propertyValueString = new PropertyValueString();
+            _propertyValueString = new PropertyValueString
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
+                RevewSubartifactId = 3,
+                ProjectId = ProjectId,
+                LockedByUserId = UserId,
+                ReviewStatus = ReviewPackageStatus.Draft,
+                BaselineId = null,
+                IsReviewDeleted = false,
+                IsUserDisabled = false,
+                ReviewType = ReviewType.Informal
+            };
 
             _mockReviewRepository = new Mock<IReviewsRepository>();
 
@@ -2253,20 +2265,10 @@ namespace ArtifactStore.Services
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task AssignApprovalRequiredToArtifacts_Should_Throw_ResourceNotFoundException()
+        public async Task AssignApprovalRequiredToArtifacts_ReviewIsDeleted_Should_Throw_ResourceNotFoundException()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                RevewSubartifactId = 3,
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                IsReviewReadOnly = false,
-                BaselineId = 2,
-                IsReviewDeleted = true,
-                IsUserDisabled = false
-            };
+            _propertyValueString.IsReviewDeleted = true;
+
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2279,20 +2281,10 @@ namespace ArtifactStore.Services
 
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
-        public async Task AssignApprovalRequiredToArtifacts_Review_ReadOnly_Should_Throw_BadRequestException()
+        public async Task AssignApprovalRequiredToArtifacts_Review_ReadOnly_Should_Throw_ConflictException()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                RevewSubartifactId = 3,
-                ProjectId = 1,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Closed,
-                BaselineId = 2,
-                IsReviewDeleted = false,
-                IsUserDisabled = false
-            };
+            _propertyValueString.ReviewStatus = ReviewPackageStatus.Closed;
+
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2307,19 +2299,9 @@ namespace ArtifactStore.Services
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_ActiveFormal_Throw_ConflictException()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                RevewSubartifactId = 3,
-                ProjectId = 1,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Active,
-                ReviewType = ReviewType.Formal,
-                BaselineId = 2,
-                IsReviewDeleted = false,
-                IsUserDisabled = false
-            };
+            _propertyValueString.ReviewStatus = ReviewPackageStatus.Active;
+            _propertyValueString.ReviewType = ReviewType.Formal;
+
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2332,20 +2314,10 @@ namespace ArtifactStore.Services
 
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
-        public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_BadRequestException()
+        public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_ConflictException()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                RevewSubartifactId = 3,
-                ProjectId = 1,
-                LockedByUserId = null,
-                IsReviewReadOnly = false,
-                BaselineId = 2,
-                IsReviewDeleted = false,
-                IsUserDisabled = false
-            };
+            _propertyValueString.LockedByUserId = null;
+
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2359,19 +2331,7 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_Review_Success()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                RevewSubartifactId = 3,
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Draft,
-                BaselineId = null,
-                IsReviewDeleted = false,
-                IsUserDisabled = false,
-                ReviewType = ReviewType.Informal
-            };
+            _propertyValueString.ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>";
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -2404,19 +2364,6 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_SomeArtifactsDeletedFromReview()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                RevewSubartifactId = 3,
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Draft,
-                BaselineId = null,
-                IsReviewDeleted = false,
-                IsUserDisabled = false,
-                ReviewType = ReviewType.Informal
-            };
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
             {
@@ -2455,19 +2402,6 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_SomeArtifactsAreNotInTheReview()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                RevewSubartifactId = 3,
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Draft,
-                BaselineId = null,
-                IsReviewDeleted = false,
-                IsUserDisabled = false,
-                ReviewType = ReviewType.Informal
-            };
             var artifactIds = new List<int> { 1, 2, 3, 4, 5 };
             var content = new AssignArtifactsApprovalParameter
             {
@@ -2506,20 +2440,6 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_DeletedAndNoPermissions()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                RevewSubartifactId = 3,
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Draft,
-                BaselineId = null,
-                IsReviewDeleted = false,
-                IsUserDisabled = false,
-                ReviewType = ReviewType.Informal
-            };
-
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
             {

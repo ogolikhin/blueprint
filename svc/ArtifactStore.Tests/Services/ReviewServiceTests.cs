@@ -54,7 +54,19 @@ namespace ArtifactStore.Services
                 PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage
             };
 
-            _propertyValueString = new PropertyValueString();
+            _propertyValueString = new PropertyValueString
+            {
+                IsDraftRevisionExists = true,
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
+                RevewSubartifactId = 3,
+                ProjectId = ProjectId,
+                LockedByUserId = UserId,
+                ReviewStatus = ReviewPackageStatus.Draft,
+                BaselineId = null,
+                IsReviewDeleted = false,
+                IsUserDisabled = false,
+                ReviewType = ReviewType.Informal
+            };
 
             _mockReviewRepository = new Mock<IReviewsRepository>();
 
@@ -556,6 +568,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_ReviewIsNotLocked_LocksReview()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _artifactDetails.LockedByUserId = null;
 
             // Act
@@ -714,9 +727,60 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
+        public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_PublicReview_ThrowsConflictException()
+        {
+            // Arrange
+            _reviewPackageRawData.IsESignatureEnabled = false;
+            _reviewType = ReviewType.Public;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.Conflict, ex.ErrorCode);
+                Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotFormal, ReviewId), ex.Message);
+                return;
+            }
+
+            Assert.Fail("Expected ConflictException to have been thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_InformalReview_ThrowsConflictException()
+        {
+            // Arrange
+            _reviewPackageRawData.IsESignatureEnabled = false;
+            _reviewType = ReviewType.Informal;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.Conflict, ex.ErrorCode);
+                Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotFormal, ReviewId), ex.Message);
+                return;
+            }
+
+            Assert.Fail("Expected ConflictException to have been thrown.");
+        }
+
+        [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_ReviewIsDraft_UpdatesSetting()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsESignatureEnabled = false;
             _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
@@ -729,18 +793,28 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
-        public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_ReviewIsActive_UpdatesSetting()
+        public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_ReviewIsActive_ThrowsConflictException()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsESignatureEnabled = false;
             _reviewPackageRawData.Status = ReviewPackageStatus.Active;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
 
             // Act
-            await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
+            try
+            {
+                await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.Conflict, ex.ErrorCode);
+                Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, ReviewId), ex.Message);
+                return;
+            }
 
-            // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.Fail("Expected ConflictException to have been thrown.");
         }
 
         [TestMethod]
@@ -756,6 +830,58 @@ namespace ArtifactStore.Services
 
             // Assert
             Assert.AreEqual(false, _reviewPackageRawData.IsESignatureEnabled);
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureChanged_PublicReview_ThrowsConflictException()
+        {
+            // Arrange
+            _reviewPackageRawData.IsESignatureEnabled = true;
+            _reviewPackageRawData.IsMoSEnabled = false;
+            _reviewType = ReviewType.Public;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            var updatedReviewSettings = new ReviewSettings { RequireMeaningOfSignature = true };
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.Conflict, ex.ErrorCode);
+                Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotFormal, ReviewId), ex.Message);
+                return;
+            }
+
+            Assert.Fail("Expected ConflictException to have been thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureChanged_InformalReview_ThrowsConflictException()
+        {
+            // Arrange
+            _reviewPackageRawData.IsESignatureEnabled = true;
+            _reviewPackageRawData.IsMoSEnabled = false;
+            _reviewType = ReviewType.Informal;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            var updatedReviewSettings = new ReviewSettings { RequireMeaningOfSignature = true };
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.Conflict, ex.ErrorCode);
+                Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotFormal, ReviewId), ex.Message);
+                return;
+            }
+
+            Assert.Fail("Expected ConflictException to have been thrown.");
         }
 
         [TestMethod]
@@ -777,6 +903,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureChanged_ReviewIsActive_ThrowsConflictException()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsMoSEnabled = false;
             _reviewPackageRawData.Status = ReviewPackageStatus.Active;
             var updatedReviewSettings = new ReviewSettings { RequireMeaningOfSignature = true };
@@ -802,6 +929,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureSetToTrue_ESignatureNotEnabled_ThrowsConflictException()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsMoSEnabled = false;
             _reviewPackageRawData.IsESignatureEnabled = false;
             _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
@@ -828,6 +956,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureSetToFalse_ESignatureNotEnabled_DoesNotThrowException()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsMoSEnabled = true;
             _reviewPackageRawData.IsESignatureEnabled = false;
             _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
@@ -853,6 +982,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureSetToTrue_ESignatureEnabled_DoesNotThrowException()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsMoSEnabled = false;
             _reviewPackageRawData.IsESignatureEnabled = true;
             _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
@@ -880,6 +1010,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureSetToFalse_ESignatureEnabled_DoesNotThrowException()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsMoSEnabled = true;
             _reviewPackageRawData.IsESignatureEnabled = true;
             _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
@@ -905,6 +1036,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureChanged_MeaningOfSignatureDisabledInProject_ThrowsConflictException()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsMoSEnabled = false;
             _reviewPackageRawData.IsESignatureEnabled = true;
             var updatedReviewSettings = new ReviewSettings { RequireMeaningOfSignature = true };
@@ -934,6 +1066,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureChanged_AllConditionsSatisfied_UpdatesSetting()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsMoSEnabled = false;
             _reviewPackageRawData.IsESignatureEnabled = true;
             _reviewPackageRawData.Reviewers = new List<ReviewerRawData>();
@@ -959,6 +1092,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureSetToFalse_Should_Not_Set_Default_Meaning_Of_Signature_For_All_Approvers()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsMoSEnabled = true;
             _reviewPackageRawData.IsESignatureEnabled = true;
             _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
@@ -1012,6 +1146,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureChanged_Should_Set_Default_Meaning_Of_Signature_For_All_Approvers()
         {
             // Arrange
+            _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsMoSEnabled = false;
             _reviewPackageRawData.IsESignatureEnabled = true;
             _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
@@ -2132,20 +2267,10 @@ namespace ArtifactStore.Services
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task AssignApprovalRequiredToArtifacts_Should_Throw_ResourceNotFoundException()
+        public async Task AssignApprovalRequiredToArtifacts_ReviewIsDeleted_Should_Throw_ResourceNotFoundException()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                RevewSubartifactId = 3,
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                IsReviewReadOnly = false,
-                BaselineId = 2,
-                IsReviewDeleted = true,
-                IsUserDisabled = false
-            };
+            _propertyValueString.IsReviewDeleted = true;
+
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2158,20 +2283,10 @@ namespace ArtifactStore.Services
 
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
-        public async Task AssignApprovalRequiredToArtifacts_Review_ReadOnly_Should_Throw_BadRequestException()
+        public async Task AssignApprovalRequiredToArtifacts_Review_ReadOnly_Should_Throw_ConflictException()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                RevewSubartifactId = 3,
-                ProjectId = 1,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Closed,
-                BaselineId = 2,
-                IsReviewDeleted = false,
-                IsUserDisabled = false
-            };
+            _propertyValueString.ReviewStatus = ReviewPackageStatus.Closed;
+
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2186,19 +2301,9 @@ namespace ArtifactStore.Services
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_ActiveFormal_Throw_ConflictException()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                RevewSubartifactId = 3,
-                ProjectId = 1,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Active,
-                ReviewType = ReviewType.Formal,
-                BaselineId = 2,
-                IsReviewDeleted = false,
-                IsUserDisabled = false
-            };
+            _propertyValueString.ReviewStatus = ReviewPackageStatus.Active;
+            _propertyValueString.ReviewType = ReviewType.Formal;
+
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2211,20 +2316,10 @@ namespace ArtifactStore.Services
 
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
-        public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_BadRequestException()
+        public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_ConflictException()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                RevewSubartifactId = 3,
-                ProjectId = 1,
-                LockedByUserId = null,
-                IsReviewReadOnly = false,
-                BaselineId = 2,
-                IsReviewDeleted = false,
-                IsUserDisabled = false
-            };
+            _propertyValueString.LockedByUserId = null;
+
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2238,19 +2333,7 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_Review_Success()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                RevewSubartifactId = 3,
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Draft,
-                BaselineId = null,
-                IsReviewDeleted = false,
-                IsUserDisabled = false,
-                ReviewType = ReviewType.Informal
-            };
+            _propertyValueString.ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>";
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -2283,19 +2366,6 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_SomeArtifactsDeletedFromReview()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                RevewSubartifactId = 3,
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Draft,
-                BaselineId = null,
-                IsReviewDeleted = false,
-                IsUserDisabled = false,
-                ReviewType = ReviewType.Informal
-            };
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
             {
@@ -2334,19 +2404,6 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_SomeArtifactsAreNotInTheReview()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                RevewSubartifactId = 3,
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Draft,
-                BaselineId = null,
-                IsReviewDeleted = false,
-                IsUserDisabled = false,
-                ReviewType = ReviewType.Informal
-            };
             var artifactIds = new List<int> { 1, 2, 3, 4, 5 };
             var content = new AssignArtifactsApprovalParameter
             {
@@ -2385,20 +2442,6 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_DeletedAndNoPermissions()
         {
-            _propertyValueString = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                RevewSubartifactId = 3,
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Draft,
-                BaselineId = null,
-                IsReviewDeleted = false,
-                IsUserDisabled = false,
-                ReviewType = ReviewType.Informal
-            };
-
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
             {

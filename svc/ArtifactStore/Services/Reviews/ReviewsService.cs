@@ -57,13 +57,13 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
             }
 
-            var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId, revisionId);
-            var reviewSettings = new ReviewSettings(reviewPackageRawData);
+            var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId, revisionId);
+            var reviewSettings = new ReviewSettings(reviewRawData);
 
             var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId, revisionId);
             if (reviewType == ReviewType.Formal)
             {
-                reviewSettings.IsESignatureEnabled = reviewPackageRawData.Status == ReviewPackageStatus.Draft;
+                reviewSettings.IsESignatureEnabled = reviewRawData.Status == ReviewPackageStatus.Draft;
 
                 var projectPermissions = await _permissionsRepository.GetProjectPermissions(reviewInfo.ProjectId);
                 reviewSettings.IsMeaningOfSignatureEnabled = projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
@@ -81,22 +81,25 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
-            var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
+            var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
 
-            if (reviewPackageRawData.Status == ReviewPackageStatus.Closed)
+            if (reviewRawData.Status == ReviewPackageStatus.Closed)
             {
                 throw new ConflictException(I18NHelper.FormatInvariant(ErrorMessages.ReviewIsClosed, reviewId), ErrorCodes.ReviewClosed);
             }
 
             await LockReviewAsync(reviewId, userId, reviewInfo);
 
-            UpdateEndDate(updatedReviewSettings, reviewPackageRawData);
-            UpdateShowOnlyDescription(updatedReviewSettings, reviewPackageRawData);
-            UpdateCanMarkAsComplete(reviewId, updatedReviewSettings, reviewPackageRawData);
-            UpdateRequireESignature(updatedReviewSettings, reviewPackageRawData);
-            await UpdateRequireMeaningOfSignatureAsync(reviewInfo.ItemId, reviewInfo.ProjectId, updatedReviewSettings, reviewPackageRawData);
+            UpdateEndDate(updatedReviewSettings, reviewRawData);
+            UpdateShowOnlyDescription(updatedReviewSettings, reviewRawData);
+            UpdateCanMarkAsComplete(reviewId, updatedReviewSettings, reviewRawData);
 
-            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackageRawData, userId);
+            var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId);
+
+            UpdateRequireESignature(reviewId, reviewType, updatedReviewSettings, reviewRawData);
+            await UpdateRequireMeaningOfSignatureAsync(reviewInfo.ItemId, reviewInfo.ProjectId, reviewType, updatedReviewSettings, reviewRawData);
+
+            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewRawData, userId);
         }
 
         private async Task LockReviewAsync(int reviewId, int userId, ArtifactBasicDetails reviewInfo)
@@ -117,76 +120,97 @@ namespace ArtifactStore.Services.Reviews
             }
         }
 
-        private static void UpdateEndDate(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
+        private static void UpdateEndDate(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
         {
-            reviewPackageRawData.EndDate = updatedReviewSettings.EndDate;
+            reviewRawData.EndDate = updatedReviewSettings.EndDate;
         }
 
-        private static void UpdateShowOnlyDescription(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
+        private static void UpdateShowOnlyDescription(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
         {
-            reviewPackageRawData.ShowOnlyDescription = updatedReviewSettings.ShowOnlyDescription;
+            reviewRawData.ShowOnlyDescription = updatedReviewSettings.ShowOnlyDescription;
         }
 
-        private static void UpdateCanMarkAsComplete(int reviewId, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
+        private static void UpdateCanMarkAsComplete(int reviewId, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
         {
             var settingChanged =
-                reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed != updatedReviewSettings.CanMarkAsComplete;
+                reviewRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed != updatedReviewSettings.CanMarkAsComplete;
 
             if (!settingChanged)
             {
                 return;
             }
 
-            if (reviewPackageRawData.Status != ReviewPackageStatus.Draft)
+            if (reviewRawData.Status != ReviewPackageStatus.Draft)
             {
                 var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, reviewId);
                 throw new ConflictException(errorMessage, ErrorCodes.Conflict);
             }
 
-            reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = updatedReviewSettings.CanMarkAsComplete;
+            reviewRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = updatedReviewSettings.CanMarkAsComplete;
         }
 
-        private static void UpdateRequireESignature(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
+        private static void UpdateRequireESignature(int reviewId, ReviewType reviewType, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
         {
-            reviewPackageRawData.IsESignatureEnabled = updatedReviewSettings.RequireESignature;
-        }
-
-        private async Task UpdateRequireMeaningOfSignatureAsync(int reviewId, int projectId, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewPackageRawData)
-        {
-            var settingChanged = reviewPackageRawData.IsMoSEnabled != updatedReviewSettings.RequireMeaningOfSignature;
+            var settingChanged = (!reviewRawData.IsESignatureEnabled.HasValue && updatedReviewSettings.RequireESignature)
+                || (reviewRawData.IsESignatureEnabled.HasValue && reviewRawData.IsESignatureEnabled.Value != updatedReviewSettings.RequireESignature);
 
             if (!settingChanged)
             {
                 return;
             }
 
-            if (reviewPackageRawData.Status != ReviewPackageStatus.Draft)
+            if (reviewType != ReviewType.Formal)
             {
-                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, reviewId);
-                throw new ConflictException(errorMessage, ErrorCodes.Conflict);
+                throw ReviewsExceptionHelper.ReviewIsNotFormalException(reviewId);
             }
 
-            if (updatedReviewSettings.RequireMeaningOfSignature && !reviewPackageRawData.IsESignatureEnabled)
+            if (reviewRawData.Status != ReviewPackageStatus.Draft)
             {
-                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.RequireESignatureDisabled, reviewId);
-                throw new ConflictException(errorMessage, ErrorCodes.Conflict);
+                throw ReviewsExceptionHelper.ReviewIsNotDraftException(reviewId);
+            }
+
+            reviewRawData.IsESignatureEnabled = updatedReviewSettings.RequireESignature;
+        }
+
+        private async Task UpdateRequireMeaningOfSignatureAsync(int reviewId, int projectId, ReviewType reviewType, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
+        {
+            var settingChanged = reviewRawData.IsMoSEnabled != updatedReviewSettings.RequireMeaningOfSignature;
+
+            if (!settingChanged)
+            {
+                return;
+            }
+
+            if (reviewType != ReviewType.Formal)
+            {
+                throw ReviewsExceptionHelper.ReviewIsNotFormalException(reviewId);
+            }
+
+            if (reviewRawData.Status != ReviewPackageStatus.Draft)
+            {
+                throw ReviewsExceptionHelper.ReviewIsNotDraftException(reviewId);
+            }
+
+            if (updatedReviewSettings.RequireMeaningOfSignature && (!reviewRawData.IsESignatureEnabled.HasValue || !reviewRawData.IsESignatureEnabled.Value))
+            {
+                throw ReviewsExceptionHelper.RequireESignatureDisabledException(reviewId);
             }
 
             var projectPermissions = await _permissionsRepository.GetProjectPermissions(projectId);
             if (!projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled))
             {
-                throw new ConflictException(ErrorMessages.MeaningOfSignatureDisabledInProject, ErrorCodes.Conflict);
+                throw ReviewsExceptionHelper.MeaningOfSignatureIsDisabledInProjectException();
             }
 
-            reviewPackageRawData.IsMoSEnabled = updatedReviewSettings.RequireMeaningOfSignature;
+            reviewRawData.IsMoSEnabled = updatedReviewSettings.RequireMeaningOfSignature;
 
-            if (reviewPackageRawData.IsMoSEnabled && reviewPackageRawData.Reviewers != null)
+            if (reviewRawData.IsMoSEnabled && reviewRawData.Reviewers != null)
             {
-                var meaningOfSignatureParameters = reviewPackageRawData.Reviewers
+                var meaningOfSignatureParameters = reviewRawData.Reviewers
                     .Where(r => r.Permission == ReviewParticipantRole.Approver)
                     .Select(r => new MeaningOfSignatureParameter { ParticipantId = r.UserId });
 
-                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewPackageRawData, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSetDefaultsStrategy());
+                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSetDefaultsStrategy());
             }
         }
 
@@ -215,26 +239,26 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
-            var reviewPackage = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
+            var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
 
-            if (reviewPackage.Status == ReviewPackageStatus.Closed)
+            if (reviewRawData.Status == ReviewPackageStatus.Closed)
             {
                 throw ReviewsExceptionHelper.ReviewClosedException();
             }
 
-            if (!reviewPackage.IsMoSEnabled)
+            if (!reviewRawData.IsMoSEnabled)
             {
                 throw new ConflictException("Could not update review because meaning of signature is not enabled.", ErrorCodes.MeaningOfSignatureNotEnabled);
             }
 
             await LockReviewAsync(reviewId, userId, reviewInfo);
 
-            await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewPackage, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSpecificStrategy());
+            await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSpecificStrategy());
 
-            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackage, userId);
+            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewRawData, userId);
         }
 
-        private async Task UpdateMeaningOfSignaturesInternalAsync(int reviewId, ReviewPackageRawData reviewPackage,
+        private async Task UpdateMeaningOfSignaturesInternalAsync(int reviewId, ReviewPackageRawData reviewRawData,
             IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters, IMeaningOfSignatureUpdateStrategy updateStrategy)
         {
             var meaningOfSignatureParamList = meaningOfSignatureParameters.ToList();
@@ -243,14 +267,14 @@ namespace ArtifactStore.Services.Reviews
 
             var possibleMeaningOfSignatures = await _reviewsRepository.GetPossibleMeaningOfSignaturesForParticipantsAsync(participantIds);
 
-            if (reviewPackage.Reviewers == null)
+            if (reviewRawData.Reviewers == null)
             {
                 throw new BadRequestException("Could not update meaning of signature because participant is not in review.", ErrorCodes.UserNotInReview);
             }
 
             foreach (var participantId in participantIds)
             {
-                var participant = reviewPackage.Reviewers.FirstOrDefault(r => r.UserId == participantId);
+                var participant = reviewRawData.Reviewers.FirstOrDefault(r => r.UserId == participantId);
 
                 if (participant == null)
                 {
@@ -345,23 +369,31 @@ namespace ArtifactStore.Services.Reviews
             }
             var resultErrors = new List<ReviewChangeItemsError>();
 
-            var reviewPackage = UpdateParticipantRole(propertyResult.ArtifactXml, content, reviewId, resultErrors);
+            var reviewRawData = UpdateParticipantRole(propertyResult.ArtifactXml, content, reviewId, resultErrors);
 
-            if (reviewPackage.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
+            if (reviewRawData.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
             {
+                var meaningOfSignatureParameter = content.ItemIds
+                    .Select(i => new MeaningOfSignatureParameter { ParticipantId = i })
+                    .ToArray();
 
-                var meaningOfSignatureParameter = content.ItemIds.Select(i => new MeaningOfSignatureParameter() { ParticipantId = i }).ToArray();
-
-                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewPackage,  meaningOfSignatureParameter, new MeaningOfSignatureUpdateSetDefaultsStrategy());
+                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData,  meaningOfSignatureParameter, new MeaningOfSignatureUpdateSetDefaultsStrategy());
             }
 
-            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewPackage, userId);
+            await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewRawData, userId);
+
             var changeResult = new ReviewChangeParticipantsStatusResult();
-            if (reviewPackage.IsMoSEnabled && content.ItemIds.Count() == 1
-                && content.SelectionType == SelectionType.Selected && content.Role == ReviewParticipantRole.Approver)
+
+            if (content.Role == ReviewParticipantRole.Approver)
             {
-                 changeResult.DropdownItems = reviewPackage.Reviewers.First(r => r.UserId == content.ItemIds.FirstOrDefault()).SelectedRoleMoSAssignments.Select(mos =>
-                    new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
+                await EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(reviewId, userId, propertyResult.ProjectId.Value, reviewRawData);
+
+                if (reviewRawData.IsMoSEnabled && content.ItemIds.Count() == 1 && content.SelectionType == SelectionType.Selected)
+                {
+                    changeResult.DropdownItems = reviewRawData.Reviewers
+                        .First(r => r.UserId == content.ItemIds.FirstOrDefault())
+                        .SelectedRoleMoSAssignments.Select(mos => new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
+                }
             }
 
             if (resultErrors.Any())
@@ -374,24 +406,26 @@ namespace ArtifactStore.Services.Reviews
 
         private static ReviewPackageRawData UpdateParticipantRole(string reviewPackageXml, AssignParticipantRoleParameter content, int reviewId, List<ReviewChangeItemsError> resultErrors)
         {
-            var reviewPackageRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewPackageXml);
+            var reviewRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewPackageXml);
             int nonIntersecCount = 0;
+
             if (content.SelectionType == SelectionType.Selected)
             {
-                foreach (var reviewer in reviewPackageRawData.Reviewers)
+                foreach (var reviewer in reviewRawData.Reviewers)
                 {
                     if (content.ItemIds.Contains(reviewer.UserId))
                     {
                         reviewer.Permission = content.Role;
                     }
                 }
-                nonIntersecCount = content.ItemIds.Count() - content.ItemIds.Intersect<int>(reviewPackageRawData.Reviewers.Select(r => r.UserId)).Count();
+
+                nonIntersecCount = content.ItemIds.Count() - content.ItemIds.Intersect<int>(reviewRawData.Reviewers.Select(r => r.UserId)).Count();
             }
             else
             {
                 if (content.ItemIds != null && content.ItemIds.Any())
                 {
-                    foreach (var reviewer in reviewPackageRawData.Reviewers)
+                    foreach (var reviewer in reviewRawData.Reviewers)
                     {
                         if (!content.ItemIds.Contains(reviewer.UserId))
                         {
@@ -401,7 +435,7 @@ namespace ArtifactStore.Services.Reviews
                 }
                 else
                 {
-                    foreach (var reviewer in reviewPackageRawData.Reviewers)
+                    foreach (var reviewer in reviewRawData.Reviewers)
                     {
                         reviewer.Permission = content.Role;
                     }
@@ -409,17 +443,18 @@ namespace ArtifactStore.Services.Reviews
             }
 
             if (nonIntersecCount > 0)
-                {
-                    resultErrors.Add(new ReviewChangeItemsError()
+            {
+                resultErrors.Add(
+                    new ReviewChangeItemsError()
                     {
                         ItemsCount = nonIntersecCount,
                         ErrorCode = ErrorCodes.UserNotInReview,
                         ErrorMessage = "Some users are not in the review."
 
                     });
-                }
-                return reviewPackageRawData;
+            }
 
+            return reviewRawData;
         }
 
         public async Task<ReviewChangeItemsStatusResult> AssignApprovalRequiredToArtifactsAsync(int reviewId, AssignArtifactsApprovalParameter content, int userId)
@@ -477,6 +512,12 @@ namespace ArtifactStore.Services.Reviews
                 var resultArtifactsXml = ReviewRawDataHelper.GetStoreData(rdReviewContents);
 
                 await _reviewsRepository.UpdateReviewArtifactsAsync(reviewId, userId, resultArtifactsXml, null, false);
+
+                if (content.ApprovalRequired)
+                {
+                    var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
+                    await EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(reviewId, userId, propertyResult.ProjectId.Value, reviewRawData);
+                }
             }
 
             var result = new ReviewChangeItemsStatusResult();
@@ -569,6 +610,27 @@ namespace ArtifactStore.Services.Reviews
             updatingArtifacts = updatingArtifacts.Where(a => a.ApprovalNotRequested == content.ApprovalRequired).ToList();
 
             return updatingArtifacts;
+        }
+
+        private async Task EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(int reviewId, int userId, int projectId, ReviewPackageRawData reviewRawData)
+        {
+            if (reviewRawData.IsESignatureEnabled.HasValue)
+            {
+                return;
+            }
+
+            var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId);
+            if (reviewType != ReviewType.Formal)
+            {
+                return;
+            }
+
+            var projectPermissions = await _permissionsRepository.GetProjectPermissions(projectId);
+            if (projectPermissions.HasFlag(ProjectPermissions.IsReviewESignatureEnabled))
+            {
+                reviewRawData.IsESignatureEnabled = true;
+                await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewRawData, userId);
+            }
         }
     }
 }

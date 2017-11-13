@@ -55,6 +55,29 @@ namespace ArtifactStore.Helpers
             return new ConflictException(errorMessage, ErrorCodes.LiveArtifactsReplacingWithBaseline);
         }
 
+        public static ConflictException ReviewIsNotFormalException(int reviewId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotFormal, reviewId);
+            return new ConflictException(errorMessage, ErrorCodes.Conflict);
+        }
+
+        public static ConflictException ReviewIsNotDraftException(int reviewId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, reviewId);
+            return new ConflictException(errorMessage, ErrorCodes.Conflict);
+        }
+
+        public static ConflictException RequireESignatureDisabledException(int reviewId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.RequireESignatureDisabled, reviewId);
+            return new ConflictException(errorMessage, ErrorCodes.Conflict);
+        }
+
+        public static ConflictException MeaningOfSignatureIsDisabledInProjectException()
+        {
+            return new ConflictException(ErrorMessages.MeaningOfSignatureDisabledInProject, ErrorCodes.Conflict);
+        }
+
         public static BadRequestException BaselineNotSealedException()
         {
             var errorMessage = I18NHelper.FormatInvariant("The baseline could not be added to the review because it is not sealed.");

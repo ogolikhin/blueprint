@@ -105,8 +105,10 @@
         public const int TenantInfoNotFound = 12000;
         public const int UnsupportedActionType = 12001;
         public const int MessageHeaderValueNotFound = 12002;
-        public const int InvalidConnectionString = 12003;
+        public const int NServiceBusConnection = 12003;
         public const int BoundaryReached = 12004;
+        public const int RabbitMqSend = 12005;
+        public const int SqlServerSend = 12006;
 
         // Unexpected Errors
         public const int UnexpectedError = 13001;

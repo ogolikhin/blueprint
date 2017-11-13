@@ -1238,17 +1238,48 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
-        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Participant_Is_Not_In_Review()
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Participant_Is_Not_In_Review_Case_Reviewers_Is_Null()
         {
             // Arrange
             _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _reviewPackageRawData.Reviewers = null;
+
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,
                 RoleAssignmentId = 3,
                 ParticipantId = 4
             };
+
+            // Act
+            try
+            {
+                await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, new[] { meaningOfSignatureParameter }, UserId);
+            }
+            catch (BadRequestException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UserNotInReview, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A BadRequestException was not thrown");
+        }
+
+        [TestMethod]
+        public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Participant_Is_Not_In_Review()
+        {
+            // Arrange
+            _reviewPackageRawData.IsMoSEnabled = true;
+            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+
+            var meaningOfSignatureParameter = new MeaningOfSignatureParameter
+            {
+                Adding = true,
+                RoleAssignmentId = 3,
+                ParticipantId = 4
+            };
+
             // Act
             try
             {
@@ -1277,6 +1308,7 @@ namespace ArtifactStore.Services
                     Permission = ReviewParticipantRole.Reviewer
                 }
             };
+
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,

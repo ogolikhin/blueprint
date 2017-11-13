@@ -7,5 +7,7 @@ namespace ArtifactStore.Models.Review
         public IEnumerable<int> ArtifactIds { get; set; }
 
         public bool AddChildren { get; set; }
+
+        public bool Force { get; set; }
     }
 }

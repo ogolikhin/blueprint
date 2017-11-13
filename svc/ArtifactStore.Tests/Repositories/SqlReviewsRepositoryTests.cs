@@ -1514,6 +1514,7 @@ namespace ArtifactStore.Repositories
 
             _cxn.SetupQueryMultipleAsync("GetEffectiveArtifactIds", effectiveArtifactIdsQueryParameters, mockResult, outParameters);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
             // Act
             var result = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
 
@@ -1595,6 +1596,7 @@ namespace ArtifactStore.Repositories
 
             _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
             // Act
             try
             {
@@ -1653,6 +1655,7 @@ namespace ArtifactStore.Repositories
 
             _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
             // Act
             try
             {
@@ -1664,6 +1667,67 @@ namespace ArtifactStore.Repositories
 
                 // Assert
                 Assert.AreEqual(ErrorCodes.LockedByOtherUser, ex.ErrorCode);
+
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task AddArtifactsToReviewAsync_ShouldThrowUserCannotModifyReviewException()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var projectId = 1;
+            var isExceptionThrown = false;
+            var content = new AddArtifactsParameter
+            {
+                ArtifactIds = new[] { 1, 2 },
+                AddChildren = false
+            };
+
+            var queryParameters = new Dictionary<string, object>
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+
+            var propertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+                    IsDraftRevisionExists = true,
+                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
+                    RevewSubartifactId = 3,
+                    ProjectId = projectId,
+                    LockedByUserId = 999
+                }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
+            // Act
+            try
+            {
+                await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+            }
+            catch (AuthorizationException ex)
+            {
+                isExceptionThrown = true;
+
+                // Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
 
             }
             finally

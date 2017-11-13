@@ -1734,18 +1734,19 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Does_Not_Exist()
         {
-            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync((PropertyValueString)null);
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId)).ReturnsAsync((PropertyValueString)null);
 
             var content = new AssignParticipantRoleParameter
             {
-                UserId = 1,
-                Role = ReviewParticipantRole.Approver
+                Role = ReviewParticipantRole.Approver,
+                ItemIds = new List<int>() { 1 },
+                SelectionType = SelectionType.Selected,
             };
 
             // Act
             try
             {
-                await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+                await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
             }
             catch (BadRequestException ex)
             {
@@ -1775,18 +1776,18 @@ namespace ArtifactStore.Services
                 IsUserDisabled = false
             };
 
-            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId)).ReturnsAsync(propertyValue);
 
             var content = new AssignParticipantRoleParameter
             {
-                UserId = 1,
+                ItemIds = new List<int>() { 1 },
                 Role = ReviewParticipantRole.Approver
             };
 
             // Act
             try
             {
-                await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+                await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -1817,18 +1818,18 @@ namespace ArtifactStore.Services
                 IsUserDisabled = false
             };
 
-            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId)).ReturnsAsync(propertyValue);
 
             var content = new AssignParticipantRoleParameter
             {
-                UserId = 1,
+                ItemIds = new List<int>() { 1 },
                 Role = ReviewParticipantRole.Approver
             };
             // Act
 
             try
             {
-                await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+                await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
             }
             catch (ConflictException ex)
             {
@@ -1859,16 +1860,16 @@ namespace ArtifactStore.Services
                 IsUserDisabled = false
             };
 
-            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId)).ReturnsAsync(propertyValue);
 
             var content = new AssignParticipantRoleParameter
             {
-                UserId = 1,
+                ItemIds = new List<int>() { 1 },
                 Role = ReviewParticipantRole.Approver
             };
 
             // Act
-            await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
         }
 
         [TestMethod]
@@ -1889,16 +1890,16 @@ namespace ArtifactStore.Services
                 IsUserDisabled = true
             };
 
-            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId)).ReturnsAsync(propertyValue);
 
             var content = new AssignParticipantRoleParameter
             {
-                UserId = 1,
+                ItemIds = new List<int>() { 1 },
                 Role = ReviewParticipantRole.Approver
             };
 
             // Act
-            await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
         }
 
         [TestMethod]
@@ -1919,21 +1920,21 @@ namespace ArtifactStore.Services
                 IsUserDisabled = false
             };
 
-            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId)).ReturnsAsync(propertyValue);
 
             var content = new AssignParticipantRoleParameter
             {
-                UserId = 1,
+                ItemIds = new List<int>() { 1 },
                 Role = ReviewParticipantRole.Approver
             };
 
             // Act
-            await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
         }
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task AssignRoleToParticipantAsync_Should_Update_Review_Package_When_Successful()
+        public async Task AssignRoleToParticipantAsync_Should_Throw_BadRequestException_With_Wrong_Parameters()
         {
             // Arrange
             var propertyValue = new PropertyValueString
@@ -1949,16 +1950,18 @@ namespace ArtifactStore.Services
                 IsUserDisabled = false
             };
 
-            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId)).ReturnsAsync(propertyValue);
 
             var content = new AssignParticipantRoleParameter
             {
-                UserId = 1,
-                Role = ReviewParticipantRole.Approver
+                ItemIds = new List<int>(),
+                Role = ReviewParticipantRole.Approver,
+                SelectionType = SelectionType.Selected
+
             };
 
             // Act
-            await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
 
             // Assert
             Expression<Func<ReviewPackageRawData, bool>> reviewPackageCheck = reviewPackage => reviewPackage.Reviewers.All(r => r.Permission == ReviewParticipantRole.Approver);
@@ -1967,8 +1970,7 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task AssignRoleToParticipantAsync_Should_Return_Null_When_Meaning_Of_Signature_Is_Disabled()
+        public async Task AssignRoleToParticipantAsync_Should_Return_DropdownItems_Null_When_Meaning_Of_Signature_Is_Disabled()
         {
             // Arrange
             var propertyValue = new PropertyValueString
@@ -1984,19 +1986,19 @@ namespace ArtifactStore.Services
                 IsUserDisabled = false
             };
 
-            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId)).ReturnsAsync(propertyValue);
 
             var content = new AssignParticipantRoleParameter
             {
-                UserId = 1,
+                ItemIds = new List<int>() { 1 },
                 Role = ReviewParticipantRole.Approver
             };
 
             // Act
-            var result = await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+            var result = await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.IsNull(result);
+            Assert.IsNull(result.DropdownItems);
         }
 
         [TestMethod]
@@ -2017,11 +2019,11 @@ namespace ArtifactStore.Services
                 IsUserDisabled = false
             };
 
-            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId)).ReturnsAsync(propertyValue);
 
             var content = new AssignParticipantRoleParameter
             {
-                UserId = 1,
+                ItemIds = new List<int>() { 1 },
                 Role = ReviewParticipantRole.Approver
             };
 
@@ -2038,7 +2040,7 @@ namespace ArtifactStore.Services
             };
 
             // Act
-            await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId);
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
 
             // Assert
             Expression<Func<ReviewPackageRawData, bool>> reviewPackageCheck = reviewPackage => reviewPackage.Reviewers.First().SelectedRoleMoSAssignments.Count == 2
@@ -2066,11 +2068,11 @@ namespace ArtifactStore.Services
                 IsUserDisabled = false
             };
 
-            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId, It.IsAny<int>())).ReturnsAsync(propertyValue);
+            _mockReviewRepository.Setup(repo => repo.GetReviewApprovalRolesInfoAsync(ReviewId, UserId)).ReturnsAsync(propertyValue);
 
             var content = new AssignParticipantRoleParameter
             {
-                UserId = 1,
+                ItemIds = new List<int>() { 1 },
                 Role = ReviewParticipantRole.Approver
             };
 
@@ -2097,16 +2099,16 @@ namespace ArtifactStore.Services
             };
 
             // Act
-            var result = (await _reviewService.AssignRoleToParticipantAsync(ReviewId, content, UserId)).ToList();
-
+            var result = (await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId));
+            var dropDowns = result.DropdownItems.ToArray();
             // Assert
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(2, result.DropdownItems.Count());
 
-            Assert.AreEqual("foo1 (bar1)", result[0].Label);
-            Assert.AreEqual(2, result[0].Value);
+            Assert.AreEqual("foo1 (bar1)", dropDowns[0].Label);
+            Assert.AreEqual(2, dropDowns[0].Value);
 
-            Assert.AreEqual("foo2 (bar2)", result[1].Label);
-            Assert.AreEqual(3, result[10].Value);
+            Assert.AreEqual("foo2 (bar2)", dropDowns[1].Label);
+            Assert.AreEqual(3, dropDowns[10].Value);
         }
 
         #endregion

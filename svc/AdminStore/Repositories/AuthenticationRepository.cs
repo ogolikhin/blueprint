@@ -39,7 +39,7 @@ namespace AdminStore.Repositories
             _applicationSettingsRepository = applicationSettingsRepository;
         }
 
-        public async Task<AuthenticationUser> AuthenticateUserAsync(string login, string password)
+        public async Task<AuthenticationUser> AuthenticateUserAsync(string login, string password, bool ignoreInvalidLoginAttempts)
         {
             if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
             {
@@ -82,14 +82,15 @@ namespace AdminStore.Repositories
                     throw new AuthenticationException(string.Format("Authentication provider could not be found for login: {0}", login));
             }
 
-            await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings);
+            await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings, ignoreInvalidLoginAttempts);
 
             user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);
 
             return user;
         }
 
-        private async Task<AuthenticationUser> ProcessAuthenticationStatus(AuthenticationStatus authenticationStatus, AuthenticationUser user, InstanceSettings instanceSettings)
+        private async Task<AuthenticationUser> ProcessAuthenticationStatus(AuthenticationStatus authenticationStatus, AuthenticationUser user, InstanceSettings instanceSettings,
+                                                                           bool ignoreInvalidLoginAttempts)
         {
             switch (authenticationStatus)
             {
@@ -98,11 +99,20 @@ namespace AdminStore.Repositories
                     {
                         throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login), ErrorCodes.AccountIsLocked);
                     }
-                    await ResetInvalidLogonAttemptsNumber(user);
+
+                    if (!ignoreInvalidLoginAttempts)
+                    {
+                        await ResetInvalidLogonAttemptsNumber(user);
+                    }
+
                     break;
 
                 case AuthenticationStatus.InvalidCredentials:
-                    await LockUserIfApplicable(user, instanceSettings);
+                    if (!ignoreInvalidLoginAttempts)
+                    {
+                        await LockUserIfApplicable(user, instanceSettings);
+                    }
+
                     await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Invalid password for user '{0}'", user.Login));
                     throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
 
@@ -201,7 +211,7 @@ namespace AdminStore.Repositories
             {
                 case UserGroupSource.Database:
                     var authenticationStatus = AuthenticateDatabaseUser(user, password, 0);
-                    return await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings);
+                    return await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings, false);
 
                 case UserGroupSource.Windows:
                     throw new AuthenticationException($"Cannot reset password for ldap user {login}", ErrorCodes.LdapIsDisabled);

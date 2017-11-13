@@ -40,6 +40,9 @@ namespace AdminStore.Models.Workflow
         public bool? SkipPermissionGroups { get; set; }
         public bool ShouldSerializeSkipPermissionGroups() { return SkipPermissionGroups.HasValue; }
 
+        [XmlIgnore]
+        public IePortPair PortPair { get; set; }
+
         #region Generated and modified Equals and GetHashCode methods
 
         protected bool Equals(IeTransitionEvent other)

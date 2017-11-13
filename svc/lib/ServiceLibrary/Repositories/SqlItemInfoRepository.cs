@@ -86,6 +86,7 @@ namespace ServiceLibrary.Repositories
         public async Task<int> GetRevisionId(int artifactId, int userId, int? versionId = null, int? baselineId = null)
         {
             var revisionId = int.MaxValue;
+
             if (versionId != null)
             {
                 revisionId = await GetRevisionIdByVersionIndex(artifactId, versionId.Value);

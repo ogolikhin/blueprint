@@ -17,5 +17,7 @@
         public bool Default { get; set; }
 
         public float OrderIndex { get; set; }
+
+        public string CanvasSettings { get; set; }
     }
 }

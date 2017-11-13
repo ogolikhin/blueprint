@@ -230,11 +230,10 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut]
         [Route("containers/{reviewId:int:min(1)}/artifacts/approval"), SessionRequired]
-        public Task<ReviewChangeItemsStatusResult> AssignApprovalRequiredToArtifacts(int reviewId, [FromBody] AssignArtifactsApprovalParameter content)
+        public Task<ReviewChangeItemsStatusResult> AssignApprovalRequiredToArtifactsAsync(int reviewId, [FromBody] AssignArtifactsApprovalParameter content)
         {
-            return _sqlReviewsRepository.AssignApprovalRequiredToArtifacts(reviewId, Session.UserId, content);
+            return _reviewsService.AssignApprovalRequiredToArtifactsAsync(reviewId, content, Session.UserId);
         }
-
 
         /// <summary>
         /// Assigns Roles to revievers in the review.
@@ -254,7 +253,6 @@ namespace ArtifactStore.Controllers
         {
             return _reviewsService.AssignRoleToParticipantsAsync(reviewId, content, Session.UserId);
         }
-
 
         /// <summary>
         /// Returns an artifact index inside ra review content
@@ -470,7 +468,7 @@ namespace ArtifactStore.Controllers
                 throw new BadRequestException("Must provide at least one meaning of signature");
             }
 
-            await _reviewsService.UpdateMeaningOfSignaturesAsync(reviewId, Session.UserId, meaningOfSignatureParameters);
+            await _reviewsService.UpdateMeaningOfSignaturesAsync(reviewId, meaningOfSignatureParameters, Session.UserId);
         }
     }
 }

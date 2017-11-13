@@ -64,7 +64,7 @@ namespace AdminStore.Controllers
             {
                 var decodedLogin = SystemEncryptions.Decode(login);
                 var decodedPassword = SystemEncryptions.Decode(password);
-                var user = await _authenticationRepository.AuthenticateUserAsync(decodedLogin, decodedPassword);
+                var user = await _authenticationRepository.AuthenticateUserAsync(decodedLogin, decodedPassword, false);
 
                 return await RequestSessionTokenAsync(user, force);
             }
@@ -95,6 +95,44 @@ namespace AdminStore.Controllers
                 await _log.LogError(WebApiConfig.LogSourceSessions, ex);
 
                 return InternalServerError();
+            }
+        }
+
+        /// <summary>
+        /// VerifyCredentials
+        /// </summary>
+        /// <remarks>
+        /// Verifies the credentials of the logged in Database or Windows user with the given <paramref name="login" /> and <paramref name="password" />.
+        /// </remarks>
+        /// <param name="login">The encrypted user login.</param>
+        /// <param name="password">The encrypted password.</param>
+        /// <response code="204">The credentials were valid.</response>
+        /// <response code="400">The credentials were not valid.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("verify"), SessionRequired]
+        [BaseExceptionFilter]
+        public async Task VerifyCredentials(string login, [FromBody] string password)
+        {
+            var session = ServerHelper.GetSession(Request);
+
+            var decodedLogin = SystemEncryptions.Decode(login);
+            var decodedPassword = SystemEncryptions.Decode(password);
+
+            AuthenticationUser user;
+
+            try
+            {
+                user = await _authenticationRepository.AuthenticateUserAsync(decodedLogin, decodedPassword, true);
+            }
+            catch (AuthenticationException authenticationException)
+            {
+                throw new BadRequestException(authenticationException.Message, authenticationException.ErrorCode);
+            }
+
+            if (user.Id != session.UserId)
+            {
+                throw new BadRequestException("Invalid username or password", ErrorCodes.InvalidCredentials);
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using BlueprintSys.RC.Services.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
+using BluePrintSys.Messaging.CrossCutting.Host;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Enums;
@@ -79,11 +80,12 @@ namespace BlueprintSys.RC.Services.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidConnectionStringException))]
-        public void ConfigHelper_ThrowsException_WhenGettingMessageBrokerForEmptyConnectionString()
+        [ExpectedException(typeof(NServiceBusConnectionException))]
+        public void NServiceBusValidator_ThrowsException_WhenGettingTransportTypeForEmptyConnectionString()
         {
-            var configValue = _configHelper.GetMessageBroker();
-            Assert.IsTrue(configValue != MessageBroker.SQL);
+            var connectionString = string.Empty;
+            var configValue = NServiceBusValidator.GetTransportType(connectionString);
+            Assert.IsTrue(configValue != NServiceBusTransportType.RabbitMq && configValue != NServiceBusTransportType.Sql);
         }
 
         [TestMethod]

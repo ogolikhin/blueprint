@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using BlueprintSys.RC.ImageService.Helpers;
+using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.ProcessImageGeneration;
 using NServiceBus;
@@ -11,13 +12,6 @@ using NServiceBus.Transport.SQLServer;
 
 namespace BlueprintSys.RC.ImageService.Transport
 {
-    public enum NServiceBusTransportType
-    {
-        None,
-        RabbitMq,
-        Sql
-    }
-
     public class NServiceBusServer
     {
         private static string Handler = "ImageGen.ImageGenServer";
@@ -50,17 +44,7 @@ namespace BlueprintSys.RC.ImageService.Transport
 
         private async Task CreateEndPoint(string name, string connectionString)
         {
-            NServiceBusTransportType transportType = NServiceBusTransportType.None;
-
-            if (connectionString.Replace(" ","").Replace("\t", "").ToLower().Contains("host="))
-            {
-                transportType = NServiceBusTransportType.RabbitMq;
-            }
-            else if (connectionString.Replace(" ", "").Replace("\t", "").ToLower().Contains("datasource="))
-            {
-                transportType = NServiceBusTransportType.Sql;
-            }
-
+            NServiceBusTransportType transportType = NServiceBusValidator.GetTransportType(connectionString);
             var instanceId = NServiceBusInstanceId;
             if (string.IsNullOrEmpty(instanceId))
             {

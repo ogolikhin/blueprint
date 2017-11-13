@@ -6,8 +6,6 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
     {
         string NServiceBusConnectionString { get; }
 
-        MessageBroker GetMessageBroker();
-
         string MessageQueue { get; }
 
         string ErrorQueue { get; }
@@ -17,7 +15,9 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
         MessageActionType SupportedActionTypes { get; }
 
         int CacheExpirationMinutes { get; }
+
         string TenantsDatabase { get; }
+
         string NServiceBusInstanceId { get; }
     }
 }

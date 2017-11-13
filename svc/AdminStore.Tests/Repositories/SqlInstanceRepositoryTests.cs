@@ -20,6 +20,7 @@ namespace AdminStore.Repositories
     {
 
         private SqlConnectionWrapperMock _connection;
+        private Mock<ISqlHelper> _sqlHelperMock;
         private SqlInstanceRepository _instanceRepository;
         private const int ProjectId = 1;
         private const int ParentFolderId = 88;
@@ -35,7 +36,8 @@ namespace AdminStore.Repositories
         public void Initialize()
         {
             _connection = new SqlConnectionWrapperMock();
-            _instanceRepository = new SqlInstanceRepository(_connection.Object);
+            _sqlHelperMock = new Mock<ISqlHelper>();
+            _instanceRepository = new SqlInstanceRepository(_connection.Object, _sqlHelperMock.Object);
 
             _projectRolesAssignments = new List<RoleAssignment>
             {
@@ -62,7 +64,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 99;
             var userId = 9;
             InstanceItem[] result = { new InstanceItem { Id = folderId, Name = "Blueprint", ParentFolderId = 88 } };
@@ -83,7 +85,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 99;
             var userId = 9;
             InstanceItem[] result = null;
@@ -101,7 +103,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
 
             // Act
             await repository.GetInstanceFolderAsync(0, 9);
@@ -118,7 +120,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             int folderId = 99;
             int userId = 10;
             InstanceItem[] result =
@@ -146,7 +148,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
 
             // Act
             var folder = await repository.GetInstanceFolderChildrenAsync(0, 10);
@@ -160,7 +162,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
 
             // Act
             var folder = await repository.GetInstanceFolderChildrenAsync(10, 0);
@@ -177,7 +179,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             int projectId = 99;
             int userId = 10;
             InstanceItem[] result = { new InstanceItem { Id = projectId, Name = "My Project", ParentFolderId = 88, IsAccesible = true } };
@@ -196,7 +198,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             int projectId = 99;
             int userId = 10;
             InstanceItem[] result = { new InstanceItem { Id = projectId, Name = "My Project", ParentFolderId = 88, IsAccesible = true } };
@@ -216,7 +218,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
 
             // Act
             var folder = await repository.GetInstanceProjectAsync(0, 10);
@@ -230,7 +232,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
 
             // Act
             var folder = await repository.GetInstanceProjectAsync(0, 10, fromAdminPortal: true);
@@ -244,7 +246,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
 
             // Act
             var folder = await repository.GetInstanceProjectAsync(10, 0);
@@ -258,7 +260,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
 
             // Act
             var folder = await repository.GetInstanceProjectAsync(10, 0, fromAdminPortal: true);
@@ -272,7 +274,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             int projectId = 99;
             int userId = 10;
             InstanceItem[] result = { };
@@ -292,7 +294,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             int projectId = 99;
             int userId = 10;
             InstanceItem[] result = { };
@@ -312,7 +314,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             int projectId = 99;
             int userId = 10;
             InstanceItem[] result = { new InstanceItem { Id = projectId, Name = "My Project", ParentFolderId = 88, IsAccesible = false } };
@@ -332,7 +334,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             int projectId = 99;
             int userId = 10;
             InstanceItem[] result = { new InstanceItem { Id = projectId, Name = "My Project", ParentFolderId = 88, IsAccesible = false } };
@@ -356,7 +358,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
 
             // Act
             await repository.GetProjectNavigationPathAsync(0, 10);
@@ -370,7 +372,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
 
             // Act
             await repository.GetProjectNavigationPathAsync(10, 0);
@@ -384,7 +386,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             const int projectId = 99;
             const int userId = 10;
             cxn.SetupQueryAsync("GetProjectNavigationPath", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, new List<ArtifactsNavigationPath>());
@@ -400,7 +402,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             const int projectId = 99;
             const int userId = 10;
             var result = GetProjectNavigationPathSample();
@@ -420,7 +422,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             const int projectId = 99;
             const int userId = 10;
             var result = GetProjectNavigationPathSample();
@@ -453,7 +455,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var adminRoles = new List<AdminRole>
             {
                 new AdminRole
@@ -484,7 +486,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
@@ -504,7 +506,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
@@ -523,7 +525,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
@@ -547,7 +549,7 @@ namespace AdminStore.Repositories
             var name = "folderName";
             var result = new List<InstanceItem> { new InstanceItem { Id = 1 } };
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
 
             // act
@@ -567,7 +569,7 @@ namespace AdminStore.Repositories
             var name = "someName";
             var result = new List<InstanceItem>();
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             cxn.SetupQueryAsync("GetFoldersByName", new Dictionary<string, object> { { "name", name } }, result);
 
             // act
@@ -587,7 +589,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var deletedFolderCount = 1;
 
             cxn.SetupExecuteScalarAsync("DeleteFolder", It.IsAny<Dictionary<string, object>>(), deletedFolderCount, new Dictionary<string, object> { { "ErrorCode", 0 } });
@@ -606,7 +608,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var deletedFolderCount = 0;
 
             cxn.SetupExecuteScalarAsync("DeleteFolder", It.IsAny<Dictionary<string, object>>(), deletedFolderCount, new Dictionary<string, object> { { "ErrorCode", (int)SqlErrorCodes.InstanceFolderContainsChildrenItems } });
@@ -624,7 +626,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var deletedFolderCount = 0;
 
             cxn.SetupExecuteScalarAsync("DeleteFolder", It.IsAny<Dictionary<string, object>>(), deletedFolderCount, new Dictionary<string, object> { { "ErrorCode", 0 } });
@@ -645,7 +647,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
@@ -667,7 +669,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
@@ -686,7 +688,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
@@ -705,7 +707,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
@@ -724,7 +726,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1", ParentFolderId = 1 };
 
@@ -743,7 +745,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var folderId = 1;
             var folder = new FolderDto { Name = "Folder1" };
 
@@ -758,6 +760,40 @@ namespace AdminStore.Repositories
 
         #endregion
 
+        #region DeactivateWorkflowIfLastProjectDeleted
+
+        [TestMethod]
+        public async Task DeactivateWorkflowIfLastProjectDeleted_AllParametersCorrect_SuccessfulDeactivateWorkflow()
+        {
+            // Arrange
+
+            _connection.SetupExecuteScalarAsync("DeactivateWorkflowIfLastProjectDeleted",
+                                        It.IsAny<Dictionary<string, object>>(),
+                                        0);
+
+            // Act
+            await _instanceRepository.DeactivateWorkflowIfLastProjectDeleted(ProjectId);
+
+            // Assert
+            _connection.Verify();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task DeactivateWorkflowIfLastProjectDeleted_InvalidProjectId_SuccessfulDeactivateWorkflow()
+        {
+            // Arrange
+            var projectId = 0;
+
+            // Act
+            await _instanceRepository.DeactivateWorkflowIfLastProjectDeleted(projectId);
+
+            // Assert
+            _connection.Verify();
+        }
+
+        #endregion DeactivateWorkflowIfLastProjectDeleted
+
         #region DeleteProject
 
         [TestMethod]
@@ -765,6 +801,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             _instanceItems.First().ParentFolderId = ParentFolderId;
+
             _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
 
             // Act
@@ -899,7 +936,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var projectId = 100;
             int errorCode = 0;
 
@@ -950,7 +987,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var projectId = 1;
             int errorCode = 50016; // there are no project with this projectId
 
@@ -1066,7 +1103,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlInstanceRepository(cxn.Object);
+            var repository = new SqlInstanceRepository(cxn.Object, _sqlHelperMock.Object);
             var userId = 1;
             var hasProjectExternalLocksAsync = 1;
             cxn.SetupExecuteScalarAsync("IsProjectHasForeignLocks", It.IsAny<Dictionary<string, object>>(), hasProjectExternalLocksAsync);

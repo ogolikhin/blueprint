@@ -18,15 +18,17 @@ namespace AdminStore.Repositories
     public class SqlInstanceRepository : IInstanceRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlHelper _sqlHelper;
 
         public SqlInstanceRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlHelper())
         {
         }
 
-        internal SqlInstanceRepository(ISqlConnectionWrapper connectionWrapper)
+        internal SqlInstanceRepository(ISqlConnectionWrapper connectionWrapper, ISqlHelper sqlHelper)
         {
             _connectionWrapper = connectionWrapper;
+            _sqlHelper = sqlHelper;
         }
 
         #region folders
@@ -189,6 +191,19 @@ namespace AdminStore.Repositories
 
         #region projects
 
+        public async Task DeactivateWorkflowIfLastProjectDeleted(int projectId)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@ProjectId", projectId);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("DeactivateWorkflowIfLastProjectDeleted", prm, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId, bool fromAdminPortal = false)
         {
             if (projectId < 1)
@@ -261,44 +276,61 @@ namespace AdminStore.Repositories
 
             if (!TryGetProjectStatusIfProjectExist(project, out projectStatus))
             {
-                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ProjectWasDeletedByAnotherUser, project.Id, project.Name), ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(
+                    I18NHelper.FormatInvariant(ErrorMessages.ProjectWasDeletedByAnotherUser, project.Id,
+                        project.Name), ErrorCodes.ResourceNotFound);
             }
 
-            if (projectStatus == ProjectStatus.Live)
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@userId", userId);
-                parameters.Add("@projectId", projectId);
+            // Func<IDbTransaction, Task> action = async transaction =>
+            // {
 
-                await _connectionWrapper.ExecuteAsync("RemoveProject", parameters,
-                    commandType: CommandType.StoredProcedure);
+                if (projectStatus == ProjectStatus.Live)
+                {
+
+                Func<IDbTransaction, Task> action = async transaction =>
+                {
+
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@userId", userId);
+                    parameters.Add("@projectId", projectId);
+
+                    await _connectionWrapper.ExecuteAsync("RemoveProject", parameters,
+                        commandType: CommandType.StoredProcedure);
+
+                    await DeactivateWorkflowIfLastProjectDeleted(projectId);
+                };
+
+                await RunInTransactionAsync(action);
+
             }
             else
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@projectId", projectId);
-                parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-                await _connectionWrapper.ExecuteScalarAsync<int>("PurgeProject", parameters,
-                    commandType: CommandType.StoredProcedure);
-                var errorCode = parameters.Get<int?>("result");
-
-                if (errorCode.HasValue)
                 {
-                    switch (errorCode.Value)
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@projectId", projectId);
+                    parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                    await _connectionWrapper.ExecuteScalarAsync<int>("PurgeProject", parameters,
+                        commandType: CommandType.StoredProcedure);
+                    var errorCode = parameters.Get<int?>("result");
+
+                    if (errorCode.HasValue)
                     {
-                        case -2: // Instance project issue
-                            throw new ConflictException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.Conflict);
-                        case -1: // Cross project move issue
-                            throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.ResourceNotFound);
-                        case 0:
-                            // Success
-                            break;
-                        default:
-                            throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
+                        switch (errorCode.Value)
+                        {
+                            case -2: // Instance project issue
+                                throw new ConflictException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.Conflict);
+                            case -1: // Cross project move issue
+                                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.ResourceNotFound);
+                            case 0:
+                                // Success
+                                break;
+                            default:
+                                throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
+                        }
                     }
                 }
-            }
+            // };
+            // await RunInTransactionAsync(action);
         }
 
         public async Task<QueryResult<ProjectFolderSearchDto>> GetProjectsAndFolders(int userId, TabularData tabularData, Func<Sorting, string> sort = null)
@@ -552,6 +584,11 @@ namespace AdminStore.Repositories
 
 
         #endregion
+
+        public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
+        {
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
+        }
 
         #region private methods
 

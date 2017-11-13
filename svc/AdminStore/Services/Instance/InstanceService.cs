@@ -11,7 +11,7 @@ namespace AdminStore.Services.Instance
     {
         private readonly IInstanceRepository _instanceRepository;
 
-        public InstanceService() : this(new SqlInstanceRepository(new SqlConnectionWrapper(ServiceConstants.RaptorMain)))
+        public InstanceService() : this(new SqlInstanceRepository(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlHelper()))
         {
 
         }

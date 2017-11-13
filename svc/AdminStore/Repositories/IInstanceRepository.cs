@@ -3,6 +3,7 @@ using AdminStore.Models.DTO;
 using ServiceLibrary.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 
 namespace AdminStore.Repositories
@@ -14,6 +15,8 @@ namespace AdminStore.Repositories
         Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId, bool fromAdminPortal = false);
 
         Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId, bool fromAdminPortal = false);
+
+        Task DeactivateWorkflowIfLastProjectDeleted(int projectId);
 
         Task<List<string>> GetProjectNavigationPathAsync(int userId, int projectId, bool includeProjectItself);
 
@@ -43,5 +46,7 @@ namespace AdminStore.Repositories
         Task<int> CreateRoleAssignmentAsync(int projectId, RoleAssignmentDTO roleAssignment);
 
         Task UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment);
+
+        Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
     }
 }

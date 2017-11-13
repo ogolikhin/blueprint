@@ -329,9 +329,13 @@ namespace ArtifactStore.Services.Reviews
             }
         }
 
-        public async Task<IEnumerable<DropdownItem>> AssignRoleToParticipantAsync(int reviewId, AssignParticipantRoleParameter content, int userId)
+        public async Task<ReviewChangeParticipantsStatusResult> AssignRoleToParticipantsAsync(int reviewId, AssignParticipantRoleParameter content, int userId)
         {
-            var propertyResult = await _reviewsRepository.GetReviewApprovalRolesInfoAsync(reviewId, userId, content.UserId);
+            if ((content.ItemIds == null || !content.ItemIds.Any()) && content.SelectionType == SelectionType.Selected)
+            {
+                throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
+            }
+            var propertyResult = await _reviewsRepository.GetReviewApprovalRolesInfoAsync(reviewId, userId);
 
             if (propertyResult == null)
             {
@@ -356,56 +360,99 @@ namespace ArtifactStore.Services.Reviews
 
             if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
             {
-                throw ExceptionHelper.ArtifactNotLockedException(reviewId, content.UserId);
+                throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
             }
 
             if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
             {
                 throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
+            var resultErrors = new List<ReviewChangeItemsError>();
 
-            var reviewRawData = UpdateParticipantRole(propertyResult.ArtifactXml, content, reviewId);
+            var reviewRawData = UpdateParticipantRole(propertyResult.ArtifactXml, content, reviewId, resultErrors);
 
             if (reviewRawData.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
             {
-                var meaningOfSignatureParameter = new MeaningOfSignatureParameter
-                {
-                    ParticipantId = content.UserId
-                };
+                var meaningOfSignatureParameter = content.ItemIds
+                    .Select(i => new MeaningOfSignatureParameter { ParticipantId = i })
+                    .ToArray();
 
-                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData, new[] { meaningOfSignatureParameter }, new MeaningOfSignatureUpdateSetDefaultsStrategy());
+                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData,  meaningOfSignatureParameter, new MeaningOfSignatureUpdateSetDefaultsStrategy());
             }
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewRawData, userId);
+
+            var changeResult = new ReviewChangeParticipantsStatusResult();
 
             if (content.Role == ReviewParticipantRole.Approver)
             {
                 await EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(reviewId, userId, propertyResult.ProjectId.Value, reviewRawData);
 
-                if (reviewRawData.IsMoSEnabled)
+                if (reviewRawData.IsMoSEnabled && content.ItemIds.Count() == 1 && content.SelectionType == SelectionType.Selected)
                 {
-                    return reviewRawData.Reviewers
-                        .First(r => r.UserId == content.UserId)
-                        .SelectedRoleMoSAssignments
-                        .Select(mos => new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
+                    changeResult.DropdownItems = reviewRawData.Reviewers
+                        .First(r => r.UserId == content.ItemIds.FirstOrDefault())
+                        .SelectedRoleMoSAssignments.Select(mos => new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
                 }
             }
 
-            return null;
-        }
-
-        private static ReviewPackageRawData UpdateParticipantRole(string reviewPackageXml, AssignParticipantRoleParameter content, int reviewId)
-        {
-            var reviewRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewPackageXml);
-
-            var participant = reviewRawData.Reviewers.FirstOrDefault(a => a.UserId == content.UserId);
-
-            if (participant == null)
+            if (resultErrors.Any())
             {
-                throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
+                changeResult.ReviewChangeItemErrors = resultErrors;
             }
 
-            participant.Permission = content.Role;
+            return changeResult;
+        }
+
+        private static ReviewPackageRawData UpdateParticipantRole(string reviewPackageXml, AssignParticipantRoleParameter content, int reviewId, List<ReviewChangeItemsError> resultErrors)
+        {
+            var reviewRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewPackageXml);
+            int nonIntersecCount = 0;
+
+            if (content.SelectionType == SelectionType.Selected)
+            {
+                foreach (var reviewer in reviewRawData.Reviewers)
+                {
+                    if (content.ItemIds.Contains(reviewer.UserId))
+                    {
+                        reviewer.Permission = content.Role;
+                    }
+                }
+
+                nonIntersecCount = content.ItemIds.Count() - content.ItemIds.Intersect<int>(reviewRawData.Reviewers.Select(r => r.UserId)).Count();
+            }
+            else
+            {
+                if (content.ItemIds != null && content.ItemIds.Any())
+                {
+                    foreach (var reviewer in reviewRawData.Reviewers)
+                    {
+                        if (!content.ItemIds.Contains(reviewer.UserId))
+                        {
+                            reviewer.Permission = content.Role;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var reviewer in reviewRawData.Reviewers)
+                    {
+                        reviewer.Permission = content.Role;
+                    }
+                }
+            }
+
+            if (nonIntersecCount > 0)
+            {
+                resultErrors.Add(
+                    new ReviewChangeItemsError()
+                    {
+                        ItemsCount = nonIntersecCount,
+                        ErrorCode = ErrorCodes.UserNotInReview,
+                        ErrorMessage = "Some users are not in the review."
+
+                    });
+            }
 
             return reviewRawData;
         }

@@ -460,12 +460,11 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<PropertyValueString>("GetReviewPropertyString", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        public async Task<PropertyValueString> GetReviewApprovalRolesInfoAsync(int reviewId, int userId, int roleUserId)
+        public async Task<PropertyValueString> GetReviewApprovalRolesInfoAsync(int reviewId, int userId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
-            parameters.Add("@roleUserId", roleUserId);
 
             return (await _connectionWrapper.QueryAsync<PropertyValueString>("GetReviewApprovalRolesInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }

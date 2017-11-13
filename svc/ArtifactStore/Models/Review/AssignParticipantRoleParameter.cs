@@ -1,9 +1,7 @@
 ﻿namespace ArtifactStore.Models.Review
 {
-    public class AssignParticipantRoleParameter
+    public class AssignParticipantRoleParameter : ReviewItemsRemovalParams
     {
-        public int UserId { get; set; }
-
         public ReviewParticipantRole Role { get; set; }
     }
 }

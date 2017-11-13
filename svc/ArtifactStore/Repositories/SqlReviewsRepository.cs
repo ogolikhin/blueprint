@@ -345,6 +345,11 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("There is nothing to add to review.", ErrorCodes.OutOfRangeParameter);
             }
 
+            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
+
             int alreadyIncludedCount;
             var propertyResult = await GetReviewPropertyStringAsync(reviewId, userId);
             var artifactIds = content.ArtifactIds;

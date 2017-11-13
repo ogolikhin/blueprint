@@ -43,6 +43,18 @@ namespace ArtifactStore.Helpers
             return new ConflictException(errorMessage, ErrorCodes.ReviewActive);
         }
 
+        public static ConflictException BaselineIsAlreadyAttachedToReviewException(int baselineId)
+        {
+            string errorMessage = I18NHelper.FormatInvariant("If you continue, the current Baseline will be replaced. The selected Review is already built on a Baseline {0}. Reviews are based on either a group of live artifacts, or one sealed Baseline.", baselineId);
+            return new ConflictException(errorMessage, ErrorCodes.BaselineIsAlreadyAttachedToReview);
+        }
+
+        public static ConflictException LiveArtifactsReplacedWithBaselineException()
+        {
+            const string errorMessage = "If you add this Baseline, all currently included artifacts will be replaced. The selected Review already contains artifacts. Reviews are based on either a group of live artifacts, or a sealed Baseline.";
+            return new ConflictException(errorMessage, ErrorCodes.LiveArtifactsReplacingWithBaseline);
+        }
+
         public static BadRequestException BaselineNotSealedException()
         {
             var errorMessage = I18NHelper.FormatInvariant("The baseline could not be added to the review because it is not sealed.");

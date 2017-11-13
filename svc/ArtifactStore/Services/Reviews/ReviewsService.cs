@@ -243,6 +243,11 @@ namespace ArtifactStore.Services.Reviews
 
             var possibleMeaningOfSignatures = await _reviewsRepository.GetPossibleMeaningOfSignaturesForParticipantsAsync(participantIds);
 
+            if (reviewPackage.Reviewers == null)
+            {
+                throw new BadRequestException("Could not update meaning of signature because participant is not in review.", ErrorCodes.UserNotInReview);
+            }
+
             foreach (var participantId in participantIds)
             {
                 var participant = reviewPackage.Reviewers.FirstOrDefault(r => r.UserId == participantId);

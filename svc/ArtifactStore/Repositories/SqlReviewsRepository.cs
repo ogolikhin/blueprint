@@ -394,8 +394,22 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewActiveFormalException();
             }
 
+            if (content.Force == false)
+            {
+                if (propertyResult.BaselineId != null &&
+                    propertyResult.BaselineId.Value > 0)
+                {
+                    throw ReviewsExceptionHelper.BaselineIsAlreadyAttachedToReviewException(propertyResult.BaselineId.Value);
+                }
+
+                if (effectiveIds.IsBaselineAdded)
+                {
+                    throw ReviewsExceptionHelper.LiveArtifactsReplacedWithBaselineException();
+                }
+            }
+
             // We replace all artifacts if baseline was added or baseline was replaced
-            var replaceAllArtifacts = effectiveIds.IsBaselineAdded || (propertyResult.BaselineId != null && propertyResult.BaselineId > 0);
+            var replaceAllArtifacts = effectiveIds.IsBaselineAdded || (propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0);
 
             var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml,
                 new HashSet<int>(effectiveIds.ArtifactIds),

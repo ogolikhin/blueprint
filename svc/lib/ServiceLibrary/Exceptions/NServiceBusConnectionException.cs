@@ -6,7 +6,7 @@ namespace ServiceLibrary.Exceptions
     [Serializable]
     public class NServiceBusConnectionException : ExceptionWithErrorCode
     {
-        public NServiceBusConnectionException(string connectionString) : base("The NServiceBus connection string is invalid: " + connectionString, ErrorCodes.NServiceBusConnection)
+        public NServiceBusConnectionException(string connectionString) : base("The NServiceBus.ConnectionString settings are invalid: " + connectionString, ErrorCodes.NServiceBusConnection)
         {
         }
     }

@@ -80,7 +80,7 @@ namespace ArtifactStore.Helpers
 
         public static BadRequestException BaselineNotSealedException()
         {
-            var errorMessage = I18NHelper.FormatInvariant("The baseline could not be added to the review because it is not sealed.");
+            var errorMessage = I18NHelper.FormatInvariant("The baseline could not be added to the review because it is not sealed and published.");
             return new BadRequestException(errorMessage, ErrorCodes.BaselineIsNotSealed);
         }
     }

@@ -17,7 +17,7 @@ namespace AdminStore.Repositories
 
         Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId, bool fromAdminPortal = false);
 
-        Task DeactivateWorkflowIfLastProjectDeleted(int projectId);
+        Task DeactivateWorkflowsWithLastAssignmentForDeletedProject(int projectId);
 
         Task<List<string>> GetProjectNavigationPathAsync(int userId, int projectId, bool includeProjectItself);
 

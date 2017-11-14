@@ -191,7 +191,7 @@ namespace AdminStore.Repositories
 
         #region projects
 
-        public async Task DeactivateWorkflowIfLastProjectDeleted(int projectId)
+        public async Task DeactivateWorkflowsWithLastAssignmentForDeletedProject(int projectId)
         {
             if (projectId < 1)
             {
@@ -201,7 +201,7 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@ProjectId", projectId);
 
-            await _connectionWrapper.ExecuteScalarAsync<int>("DeactivateWorkflowIfLastProjectDeleted", prm, commandType: CommandType.StoredProcedure);
+            await _connectionWrapper.ExecuteScalarAsync<int>("DeactivateWorkflowsWithLastAssignmentForDeletedProject", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId, bool fromAdminPortal = false)

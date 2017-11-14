@@ -760,19 +760,19 @@ namespace AdminStore.Repositories
 
         #endregion
 
-        #region DeactivateWorkflowIfLastProjectDeleted
+        #region DeactivateWorkflowsWithLastAssignmentForDeletedProject
 
         [TestMethod]
         public async Task DeactivateWorkflowIfLastProjectDeleted_AllParametersCorrect_SuccessfulDeactivateWorkflow()
         {
             // Arrange
 
-            _connection.SetupExecuteScalarAsync("DeactivateWorkflowIfLastProjectDeleted",
+            _connection.SetupExecuteScalarAsync("DeactivateWorkflowsWithLastAssignmentForDeletedProject",
                                         It.IsAny<Dictionary<string, object>>(),
                                         0);
 
             // Act
-            await _instanceRepository.DeactivateWorkflowIfLastProjectDeleted(ProjectId);
+            await _instanceRepository.DeactivateWorkflowsWithLastAssignmentForDeletedProject(ProjectId);
 
             // Assert
             _connection.Verify();
@@ -786,148 +786,109 @@ namespace AdminStore.Repositories
             var projectId = 0;
 
             // Act
-            await _instanceRepository.DeactivateWorkflowIfLastProjectDeleted(projectId);
+            await _instanceRepository.DeactivateWorkflowsWithLastAssignmentForDeletedProject(projectId);
 
             // Assert
             _connection.Verify();
         }
 
-        #endregion DeactivateWorkflowIfLastProjectDeleted
+        #endregion DeactivateWorkflowsWithLastAssignmentForDeletedProject
 
-        // #region DeleteProject
+        #region RemoveProject
 
-        // [TestMethod]
-        // public async Task DeleteProject_AllParametersCorrect_SuccessfulDeletionOfProject()
-        // {
-        //    // Arrange
-        //    _instanceItems.First().ParentFolderId = ParentFolderId;
+        [TestMethod]
+        public async Task DeleteProject_AllParametersCorrect_SuccessfulDeletionOfProject()
+        {
+            // Arrange
 
-        // _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
+            // Act
+            await _instanceRepository.RemoveProject(UserId, ProjectId);
 
-        // // Act
-        //    await _instanceRepository.DeleteProject(UserId, ProjectId);
+            // Assert
+            _connection.Verify();
+        }
 
-        // // Assert
-        //    _connection.Verify();
-        // }
+        #endregion
 
-        // [TestMethod]
-        // public async Task DeleteProject_ProjectStatusImporting_SuccessfulPurgeOfProject()
-        // {
-        //    // Arrange
-        //    int? errorCode = 0;
-        //    _instanceItems.First().ParentFolderId = ParentFolderId;
-        //    _instanceItems.First().ProjectStatus = "I";
-        //    _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
-        //    _connection.SetupExecuteScalarAsync("PurgeProject",
-        //        It.IsAny<Dictionary<string, object>>(), errorCode.Value,
-        //        new Dictionary<string, object> { { "result", errorCode } });
+        #region PurgeProject
+        [TestMethod]
+        public async Task PurgeProject_ProjectStatusImporting_SuccessfulPurgeOfProject()
+        {
+            // Arrange
+            int? errorCode = 0;
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupExecuteScalarAsync("PurgeProject",
+                It.IsAny<Dictionary<string, object>>(), errorCode.Value,
+                new Dictionary<string, object> { { "result", errorCode } });
 
-        // // Act
-        //    await _instanceRepository.DeleteProject(UserId, ProjectId);
+            // Act
+            await _instanceRepository.PurgeProject(ProjectId, _instanceItems.First());
 
-        // // Assert
-        //    _connection.Verify();
-        // }
+            // Assert
+            _connection.Verify();
+        }
 
-        // [TestMethod]
-        // [ExpectedException(typeof(ResourceNotFoundException))]
-        // public async Task DeleteProject_ProjectWasDeletedByAnotherUser_ReturnResourceNotFoundException()
-        // {
-        //    // Arrange
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task PurgeProject_ProjectStatusImporting_ConflictExceptionOnPurgeOfProject()
+        {
+            // Arrange
+            int? errorCode = -2;
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupExecuteScalarAsync("PurgeProject",
+                It.IsAny<Dictionary<string, object>>(), errorCode.Value,
+                new Dictionary<string, object> { { "result", errorCode } });
 
-        // _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
+            // Act
+            await _instanceRepository.PurgeProject(ProjectId, _instanceItems.First());
 
-        // // Act
-        //    await _instanceRepository.DeleteProject(UserId, ProjectId);
+            // Assert
+        }
 
-        // // Assert
-        // }
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task PurgeProject_ProjectStatusImporting_ResourceNotFoundExceptionOnPurgeOfProject()
+        {
+            // Arrange
+            int? errorCode = -1;
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupExecuteScalarAsync("PurgeProject",
+                It.IsAny<Dictionary<string, object>>(), errorCode.Value,
+                new Dictionary<string, object> { { "result", errorCode } });
 
-        // [TestMethod]
-        // public async Task DeleteProject_UnhandledStatusOfProject_ReturnException()
-        // {
-        //    // Arrange
+            // Act
+            await _instanceRepository.PurgeProject(ProjectId, _instanceItems.First());
 
-        // _instanceItems.First().ParentFolderId = ParentFolderId;
-        //    _instanceItems.First().ProjectStatus = string.Empty;
-        //    _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
+            // Assert
+        }
 
-        // // Act
-        //    try
-        //    {
-        //        await _instanceRepository.DeleteProject(UserId, ProjectId);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Assert
-        //        Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, _instanceItems.First().ProjectStatus), ex.Message);
-        //    }
-        // }
+        [TestMethod]
+        public async Task PurgeProject_ProjectStatusImporting_DefaultExceptionOnPurgeOfProject()
+        {
+            // Arrange
+            int? errorCode = -3;
+            _instanceItems.First().ParentFolderId = ParentFolderId;
+            _instanceItems.First().ProjectStatus = "I";
+            _connection.SetupExecuteScalarAsync("PurgeProject",
+                It.IsAny<Dictionary<string, object>>(), errorCode.Value,
+                new Dictionary<string, object> { { "result", errorCode } });
 
-        // [TestMethod]
-        // [ExpectedException(typeof(ConflictException))]
-        // public async Task DeleteProject_ProjectStatusImporting_ConflictExceptionOnPurgeOfProject()
-        // {
-        //    // Arrange
-        //    int? errorCode = -2;
-        //    _instanceItems.First().ParentFolderId = ParentFolderId;
-        //    _instanceItems.First().ProjectStatus = "I";
-        //    _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
-        //    _connection.SetupExecuteScalarAsync("PurgeProject",
-        //        It.IsAny<Dictionary<string, object>>(), errorCode.Value,
-        //        new Dictionary<string, object> { { "result", errorCode } });
+            // Act
+            try
+            {
+                await _instanceRepository.PurgeProject(ProjectId, _instanceItems.First());
+            }
+            catch (Exception ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorMessages.GeneralErrorOfUpdatingProject, ex.Message);
+            }
+        }
 
-        // // Act
-        //    await _instanceRepository.DeleteProject(UserId, ProjectId);
-
-        // // Assert
-        // }
-
-        // [TestMethod]
-        // [ExpectedException(typeof(ResourceNotFoundException))]
-        // public async Task DeleteProject_ProjectStatusImporting_ResourceNotFoundExceptionOnPurgeOfProject()
-        // {
-        //    // Arrange
-        //    int? errorCode = -1;
-        //    _instanceItems.First().ParentFolderId = ParentFolderId;
-        //    _instanceItems.First().ProjectStatus = "I";
-        //    _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
-        //    _connection.SetupExecuteScalarAsync("PurgeProject",
-        //        It.IsAny<Dictionary<string, object>>(), errorCode.Value,
-        //        new Dictionary<string, object> { { "result", errorCode } });
-
-        // // Act
-        //    await _instanceRepository.DeleteProject(UserId, ProjectId);
-
-        // // Assert
-        // }
-
-        // [TestMethod]
-        // public async Task DeleteProject_ProjectStatusImporting_DefaultExceptionOnPurgeOfProject()
-        // {
-        //    // Arrange
-        //    int? errorCode = -3;
-        //    _instanceItems.First().ParentFolderId = ParentFolderId;
-        //    _instanceItems.First().ProjectStatus = "I";
-        //    _connection.SetupQueryAsync("GetProjectDetails", It.IsAny<Dictionary<string, object>>(), _instanceItems);
-        //    _connection.SetupExecuteScalarAsync("PurgeProject",
-        //        It.IsAny<Dictionary<string, object>>(), errorCode.Value,
-        //        new Dictionary<string, object> { { "result", errorCode } });
-
-        // // Act
-        //    try
-        //    {
-        //        await _instanceRepository.DeleteProject(UserId, ProjectId);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Assert
-        //        Assert.AreEqual(ErrorMessages.GeneralErrorOfUpdatingProject, ex.Message);
-        //    }
-        // }
-
-        // #endregion
+        #endregion
 
         #region Project Roles
 

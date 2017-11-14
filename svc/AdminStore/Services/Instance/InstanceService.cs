@@ -47,7 +47,7 @@ namespace AdminStore.Services.Instance
                 Func<IDbTransaction, Task> action = async transaction =>
                 {
                     await _instanceRepository.RemoveProject(userId, projectId);
-                    await _instanceRepository.DeactivateWorkflowIfLastProjectDeleted(projectId);
+                    await _instanceRepository.DeactivateWorkflowsWithLastAssignmentForDeletedProject(projectId);
                 };
 
                 await _instanceRepository.RunInTransactionAsync(action);
@@ -87,7 +87,7 @@ namespace AdminStore.Services.Instance
         /// <param name="project">Project</param>
         /// <param name="projectStatus">If the project exists it returns ProjectStatus as output If the Project does not exists projectstatus = null</param>
         /// <returns>Returns true if project exists in the database and not marked as deleted for that specific revision</returns>
-        public bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus)
+        private bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus)
         {
             if (project == null)
             {

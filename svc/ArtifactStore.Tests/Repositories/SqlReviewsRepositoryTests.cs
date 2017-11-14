@@ -1482,7 +1482,6 @@ namespace ArtifactStore.Repositories
                {
                     IsDraftRevisionExists = true,
                     ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
-                    RevewSubartifactId = 3,
                     ProjectId = projectId,
                     LockedByUserId = userId
                 }
@@ -1588,7 +1587,6 @@ namespace ArtifactStore.Repositories
                {
                     IsDraftRevisionExists = true,
                     ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                    RevewSubartifactId = 3,
                     ProjectId = projectId,
                     LockedByUserId = userId
                 }
@@ -1647,7 +1645,6 @@ namespace ArtifactStore.Repositories
                {
                     IsDraftRevisionExists = true,
                     ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                    RevewSubartifactId = 3,
                     ProjectId = projectId,
                     LockedByUserId = 999
                 }
@@ -1708,7 +1705,6 @@ namespace ArtifactStore.Repositories
                {
                     IsDraftRevisionExists = true,
                     ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>",
-                    RevewSubartifactId = 3,
                     ProjectId = projectId,
                     LockedByUserId = 999
                 }
@@ -4422,7 +4418,6 @@ namespace ArtifactStore.Repositories
                {
                    IsDraftRevisionExists = true,
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
-                   RevewSubartifactId = 3,
                    ProjectId = projectId,
                    LockedByUserId = userId,
                    ReviewStatus = ReviewPackageStatus.Closed
@@ -4459,7 +4454,6 @@ namespace ArtifactStore.Repositories
                    IsReviewReadOnly = false,
                    IsDraftRevisionExists = true,
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
-                   RevewSubartifactId = 3,
                    ProjectId = 0,
                    LockedByUserId = userId
                }
@@ -4497,7 +4491,6 @@ namespace ArtifactStore.Repositories
                    IsReviewReadOnly = false,
                    IsDraftRevisionExists = true,
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
-                   RevewSubartifactId = 3,
                    ProjectId = projectId,
                    LockedByUserId = null
                }
@@ -4536,7 +4529,6 @@ namespace ArtifactStore.Repositories
                    IsReviewReadOnly = false,
                    IsDraftRevisionExists = true,
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
-                   RevewSubartifactId = 3,
                    ProjectId = projectId,
                    LockedByUserId = userId,
                    BaselineId = baselineId

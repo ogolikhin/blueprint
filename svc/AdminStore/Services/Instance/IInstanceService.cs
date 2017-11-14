@@ -7,5 +7,6 @@ namespace AdminStore.Services.Instance
     public interface IInstanceService
     {
         Task<IEnumerable<InstanceItem>> GetFoldersByName(string name);
+        Task DeleteProject(int userId, int projectId);
     }
 }

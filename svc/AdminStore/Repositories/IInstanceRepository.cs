@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using AdminStore.Models.Enums;
 
 namespace AdminStore.Repositories
 {
@@ -30,7 +31,11 @@ namespace AdminStore.Repositories
 
         Task UpdateFolderAsync(int folderId, FolderDto folderDto);
 
-        Task DeleteProject(int userId, int projectId);
+        Task RemoveProject(int userId, int projectId);
+
+        Task PurgeProject(int projectId, InstanceItem project);
+
+        bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus);
 
         Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId);
 

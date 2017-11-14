@@ -266,28 +266,9 @@ namespace AdminStore.Repositories
             return projectPaths.OrderByDescending(p => p.Level).Select(p => p.Name).ToList();
         }
 
-        public async Task DeleteProject(int userId, int projectId)
+        public async Task RemoveProject(int userId, int projectId)
         {
-            // We need to check if project is still exist in database and not makred as deleted
-            // Also we need to get the latest projectstatus to apply the right delete method
-            ProjectStatus? projectStatus;
-
-            InstanceItem project = await GetInstanceProjectAsync(projectId, userId, fromAdminPortal: true);
-
-            if (!TryGetProjectStatusIfProjectExist(project, out projectStatus))
-            {
-                throw new ResourceNotFoundException(
-                    I18NHelper.FormatInvariant(ErrorMessages.ProjectWasDeletedByAnotherUser, project.Id,
-                        project.Name), ErrorCodes.ResourceNotFound);
-            }
-
-            // Func<IDbTransaction, Task> action = async transaction =>
-            // {
-
-                if (projectStatus == ProjectStatus.Live)
-                {
-
-                Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, Task> action = async transaction =>
                 {
 
                     var parameters = new DynamicParameters();
@@ -300,37 +281,39 @@ namespace AdminStore.Repositories
                     await DeactivateWorkflowIfLastProjectDeleted(projectId);
                 };
 
-                await RunInTransactionAsync(action);
+            await RunInTransactionAsync(action);
+        }
 
-            }
-            else
+        public async Task PurgeProject(int projectId, InstanceItem project)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("PurgeProject", parameters,
+                commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("result");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
                 {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@projectId", projectId);
-                    parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-                    await _connectionWrapper.ExecuteScalarAsync<int>("PurgeProject", parameters,
-                        commandType: CommandType.StoredProcedure);
-                    var errorCode = parameters.Get<int?>("result");
-
-                    if (errorCode.HasValue)
-                    {
-                        switch (errorCode.Value)
-                        {
-                            case -2: // Instance project issue
-                                throw new ConflictException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.Conflict);
-                            case -1: // Cross project move issue
-                                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.ResourceNotFound);
-                            case 0:
-                                // Success
-                                break;
-                            default:
-                                throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
-                        }
-                    }
+                    case -2: // Instance project issue
+                        throw new ConflictException(
+                            I18NHelper.FormatInvariant(
+                                ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id),
+                            ErrorCodes.Conflict);
+                    case -1: // Cross project move issue
+                        throw new ResourceNotFoundException(
+                            I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id),
+                            ErrorCodes.ResourceNotFound);
+                    case 0:
+                        // Success
+                        break;
+                    default:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
                 }
-            // };
-            // await RunInTransactionAsync(action);
+            }
         }
 
         public async Task<QueryResult<ProjectFolderSearchDto>> GetProjectsAndFolders(int userId, TabularData tabularData, Func<Sorting, string> sort = null)
@@ -599,7 +582,7 @@ namespace AdminStore.Repositories
         /// <param name="project">Project</param>
         /// <param name="projectStatus">If the project exists it returns ProjectStatus as output If the Project does not exists projectstatus = null</param>
         /// <returns>Returns true if project exists in the database and not marked as deleted for that specific revision</returns>
-        private bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus)
+        public bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus)
         {
             if (project == null)
             {

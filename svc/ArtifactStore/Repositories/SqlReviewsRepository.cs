@@ -1323,7 +1323,9 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
             }
 
-            return ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString);
+            return !string.IsNullOrEmpty(reviewXml.XmlString)
+                ? ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString)
+                : new ReviewPackageRawData();
         }
 
         public async Task UpdateReviewPackageRawDataAsync(int reviewId, ReviewPackageRawData reviewPackageRawData, int userId)

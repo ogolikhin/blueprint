@@ -23,11 +23,11 @@ namespace ArtifactStore.Models.Review
 
         public bool CanMarkAsComplete { get; set; }
 
-        public bool CanRequireESignature { get; set; }
+        public bool CanEditRequireESignature { get; set; }
 
         public bool RequireESignature { get; set; }
 
-        public bool CanRequireMeaningOfSignature { get; set; }
+        public bool CanEditRequireMeaningOfSignature { get; set; }
 
         public bool RequireMeaningOfSignature { get; set; }
     }

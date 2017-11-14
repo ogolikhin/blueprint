@@ -61,13 +61,14 @@ namespace ArtifactStore.Services.Reviews
             var reviewSettings = new ReviewSettings(reviewRawData);
 
             var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId, revisionId);
-            if (reviewType == ReviewType.Formal)
-            {
-                reviewSettings.IsESignatureEnabled = reviewRawData.Status == ReviewPackageStatus.Draft;
 
-                var projectPermissions = await _permissionsRepository.GetProjectPermissions(reviewInfo.ProjectId);
-                reviewSettings.IsMeaningOfSignatureEnabled = projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
-            }
+            reviewSettings.IsESignatureEnabled = reviewRawData.Status == ReviewPackageStatus.Draft
+                || (reviewRawData.Status == ReviewPackageStatus.Active && reviewType != ReviewType.Formal);
+
+            var projectPermissions = await _permissionsRepository.GetProjectPermissions(reviewInfo.ProjectId);
+
+            reviewSettings.IsMeaningOfSignatureEnabled = reviewSettings.IsESignatureEnabled
+                && projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
 
             return reviewSettings;
         }
@@ -81,7 +82,7 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
-            var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
+            var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
 
             if (reviewRawData.Status == ReviewPackageStatus.Closed)
             {
@@ -96,7 +97,7 @@ namespace ArtifactStore.Services.Reviews
 
             var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId);
 
-            UpdateRequireESignature(reviewId, reviewType, updatedReviewSettings, reviewRawData);
+            UpdateRequireESignature(reviewType, updatedReviewSettings, reviewRawData);
             await UpdateRequireMeaningOfSignatureAsync(reviewInfo.ItemId, reviewInfo.ProjectId, reviewType, updatedReviewSettings, reviewRawData);
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewRawData, userId);
@@ -110,13 +111,13 @@ namespace ArtifactStore.Services.Reviews
                 {
                     throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
                 }
+
+                return;
             }
-            else
+
+            if (!await _lockArtifactsRepository.LockArtifactAsync(reviewId, userId))
             {
-                if (!await _lockArtifactsRepository.LockArtifactAsync(reviewId, userId))
-                {
-                    throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
-                }
+                throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
             }
         }
 
@@ -149,7 +150,7 @@ namespace ArtifactStore.Services.Reviews
             reviewRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = updatedReviewSettings.CanMarkAsComplete;
         }
 
-        private static void UpdateRequireESignature(int reviewId, ReviewType reviewType, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
+        private static void UpdateRequireESignature(ReviewType reviewType, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
         {
             var settingChanged = (!reviewRawData.IsESignatureEnabled.HasValue && updatedReviewSettings.RequireESignature)
                 || (reviewRawData.IsESignatureEnabled.HasValue && reviewRawData.IsESignatureEnabled.Value != updatedReviewSettings.RequireESignature);
@@ -159,14 +160,9 @@ namespace ArtifactStore.Services.Reviews
                 return;
             }
 
-            if (reviewType != ReviewType.Formal)
+            if (reviewType == ReviewType.Formal && reviewRawData.Status == ReviewPackageStatus.Active)
             {
-                throw ReviewsExceptionHelper.ReviewIsNotFormalException(reviewId);
-            }
-
-            if (reviewRawData.Status != ReviewPackageStatus.Draft)
-            {
-                throw ReviewsExceptionHelper.ReviewIsNotDraftException(reviewId);
+                throw ReviewsExceptionHelper.ReviewActiveFormalException();
             }
 
             reviewRawData.IsESignatureEnabled = updatedReviewSettings.RequireESignature;
@@ -181,14 +177,9 @@ namespace ArtifactStore.Services.Reviews
                 return;
             }
 
-            if (reviewType != ReviewType.Formal)
+            if (reviewType == ReviewType.Formal && reviewRawData.Status == ReviewPackageStatus.Active)
             {
-                throw ReviewsExceptionHelper.ReviewIsNotFormalException(reviewId);
-            }
-
-            if (reviewRawData.Status != ReviewPackageStatus.Draft)
-            {
-                throw ReviewsExceptionHelper.ReviewIsNotDraftException(reviewId);
+                throw ReviewsExceptionHelper.ReviewActiveFormalException();
             }
 
             if (updatedReviewSettings.RequireMeaningOfSignature && (!reviewRawData.IsESignatureEnabled.HasValue || !reviewRawData.IsESignatureEnabled.Value))
@@ -239,7 +230,7 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
-            var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
+            var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
 
             if (reviewRawData.Status == ReviewPackageStatus.Closed)
             {
@@ -377,7 +368,7 @@ namespace ArtifactStore.Services.Reviews
                     .Select(i => new MeaningOfSignatureParameter { ParticipantId = i })
                     .ToArray();
 
-                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData,  meaningOfSignatureParameter, new MeaningOfSignatureUpdateSetDefaultsStrategy());
+                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData, meaningOfSignatureParameter, new MeaningOfSignatureUpdateSetDefaultsStrategy());
             }
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewRawData, userId);
@@ -419,7 +410,7 @@ namespace ArtifactStore.Services.Reviews
                     }
                 }
 
-                nonIntersecCount = content.ItemIds.Count() - content.ItemIds.Intersect<int>(reviewRawData.Reviewers.Select(r => r.UserId)).Count();
+                nonIntersecCount = content.ItemIds.Count() - content.ItemIds.Intersect(reviewRawData.Reviewers.Select(r => r.UserId)).Count();
             }
             else
             {
@@ -445,7 +436,7 @@ namespace ArtifactStore.Services.Reviews
             if (nonIntersecCount > 0)
             {
                 resultErrors.Add(
-                    new ReviewChangeItemsError()
+                    new ReviewChangeItemsError
                     {
                         ItemsCount = nonIntersecCount,
                         ErrorCode = ErrorCodes.UserNotInReview,
@@ -498,12 +489,12 @@ namespace ArtifactStore.Services.Reviews
             var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
             var updatingArtifacts = GetReviewArtifacts(content, resultErrors, rdReviewContents);
 
-            // For Informal review
-            await ExcludeDeletedAndNotInProjectArtifacts(content, propertyResult, resultErrors, updatingArtifacts);
-            await ExcludeArtifactsWithoutReadPermissions(content, userId, resultErrors, updatingArtifacts);
-
             if (updatingArtifacts.Any())
             {
+                // For Informal review
+                await ExcludeDeletedAndNotInProjectArtifacts(content, propertyResult, resultErrors, updatingArtifacts);
+                await ExcludeArtifactsWithoutReadPermissions(content, userId, resultErrors, updatingArtifacts);
+
                 foreach (var updatingArtifact in updatingArtifacts)
                 {
                     updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
@@ -515,7 +506,7 @@ namespace ArtifactStore.Services.Reviews
 
                 if (content.ApprovalRequired)
                 {
-                    var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId) ?? new ReviewPackageRawData();
+                    var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
                     await EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(reviewId, userId, propertyResult.ProjectId.Value, reviewRawData);
                 }
             }

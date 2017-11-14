@@ -1328,7 +1328,9 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
             }
 
-            return ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString);
+            return !string.IsNullOrEmpty(reviewXml.XmlString)
+                ? ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString)
+                : new ReviewPackageRawData();
         }
 
         public async Task UpdateReviewPackageRawDataAsync(int reviewId, ReviewPackageRawData reviewPackageRawData, int userId)
@@ -1336,7 +1338,6 @@ namespace ArtifactStore.Repositories
             var reviewXml = ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
 
             await UpdateReviewXmlAsync(reviewId, userId, reviewXml);
-            await UpdateReviewLastSaveInvalidAsync(reviewId, userId);
         }
 
         public async Task<int> UpdateReviewLastSaveInvalidAsync(int reviewId, int userId, IDbTransaction transaction = null)

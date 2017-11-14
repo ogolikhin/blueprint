@@ -39,13 +39,12 @@ namespace ArtifactStore.Helpers
 
         public static ConflictException ReviewActiveFormalException()
         {
-            const string errorMessage = "The content of the review cannot be changed because review is active and formal.";
-            return new ConflictException(errorMessage, ErrorCodes.ReviewActive);
+            return new ConflictException(ErrorMessages.ReviewActiveFormal, ErrorCodes.ReviewActive);
         }
 
         public static ConflictException BaselineIsAlreadyAttachedToReviewException(int baselineId)
         {
-            string errorMessage = I18NHelper.FormatInvariant("If you continue, the current Baseline will be replaced. The selected Review is already built on a Baseline {0}. Reviews are based on either a group of live artifacts, or one sealed Baseline.", baselineId);
+            var errorMessage = I18NHelper.FormatInvariant("If you continue, the current Baseline will be replaced. The selected Review is already built on a Baseline {0}. Reviews are based on either a group of live artifacts, or one sealed Baseline.", baselineId);
             return new ConflictException(errorMessage, ErrorCodes.BaselineIsAlreadyAttachedToReview);
         }
 
@@ -53,18 +52,6 @@ namespace ArtifactStore.Helpers
         {
             const string errorMessage = "If you add this Baseline, all currently included artifacts will be replaced. The selected Review already contains artifacts. Reviews are based on either a group of live artifacts, or a sealed Baseline.";
             return new ConflictException(errorMessage, ErrorCodes.LiveArtifactsReplacingWithBaseline);
-        }
-
-        public static ConflictException ReviewIsNotFormalException(int reviewId)
-        {
-            var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotFormal, reviewId);
-            return new ConflictException(errorMessage, ErrorCodes.Conflict);
-        }
-
-        public static ConflictException ReviewIsNotDraftException(int reviewId)
-        {
-            var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, reviewId);
-            return new ConflictException(errorMessage, ErrorCodes.Conflict);
         }
 
         public static ConflictException RequireESignatureDisabledException(int reviewId)

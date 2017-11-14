@@ -34,9 +34,6 @@ namespace AdminStore.Repositories
         Task RemoveProject(int userId, int projectId);
 
         Task PurgeProject(int projectId, InstanceItem project);
-
-        bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus);
-
         Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId);
 
         Task<RoleAssignmentQueryResult<RoleAssignment>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData,

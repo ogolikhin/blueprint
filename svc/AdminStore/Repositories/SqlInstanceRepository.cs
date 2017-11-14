@@ -268,20 +268,13 @@ namespace AdminStore.Repositories
 
         public async Task RemoveProject(int userId, int projectId)
         {
-            Func<IDbTransaction, Task> action = async transaction =>
-                {
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@projectId", projectId);
 
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@userId", userId);
-                    parameters.Add("@projectId", projectId);
+            await _connectionWrapper.ExecuteAsync("RemoveProject", parameters,
+                commandType: CommandType.StoredProcedure);
 
-                    await _connectionWrapper.ExecuteAsync("RemoveProject", parameters,
-                        commandType: CommandType.StoredProcedure);
-
-                    await DeactivateWorkflowIfLastProjectDeleted(projectId);
-                };
-
-            await RunInTransactionAsync(action);
         }
 
         public async Task PurgeProject(int projectId, InstanceItem project)
@@ -573,53 +566,5 @@ namespace AdminStore.Repositories
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
         }
 
-        #region private methods
-
-
-        /// <summary>
-        ///  This method takes the projectId and checks if the project is still exist in the database and not marked as deleted
-        /// </summary>
-        /// <param name="project">Project</param>
-        /// <param name="projectStatus">If the project exists it returns ProjectStatus as output If the Project does not exists projectstatus = null</param>
-        /// <returns>Returns true if project exists in the database and not marked as deleted for that specific revision</returns>
-        public bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus)
-        {
-            if (project == null)
-            {
-                projectStatus = null;
-                return false;
-            }
-            if (project.ParentFolderId == null)
-            {
-                projectStatus = null;
-                return false;
-            }
-
-            projectStatus = GetProjectStatus(project.ProjectStatus);
-            return true;
-        }
-
-        /// <summary>
-        /// Maps the project status string to enum.
-        /// </summary>
-        private static ProjectStatus GetProjectStatus(string status)
-        {
-            // Project status is used to identify different status of the import process a project can be in
-            switch (status)
-            {
-                case "I":
-                    return ProjectStatus.Importing;
-                case "F":
-                    return ProjectStatus.ImportFailed;
-                case "C":
-                    return ProjectStatus.CancelingImport;
-                case null:
-                    return ProjectStatus.Live;
-                default:
-                    throw new Exception(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, status));
-            }
-        }
-
-        #endregion
             }
 }

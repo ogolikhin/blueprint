@@ -14,25 +14,40 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Controllers
 {
     [TestClass]
     public class SessionsControllerTests
     {
+        private Mock<IAuthenticationRepository> _authenticationRepositoryMock;
+        private Mock<IServiceLogRepository> _logMock;
+
+        private const string SamlResponse = "samlResponse";
+        private const string Login = "admin";
+        private const string Password = "changeme";
+        private const string EncryptedUsername = "Zm9v";
+        private const string EncryptedPassword = "YmFy";
+        private readonly AuthenticationUser _loginUser = new AuthenticationUser() { Id = 1, Login = Login };
+
+        private HttpClientProvider _httpClientProvider;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            _authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
+            _logMock = new Mock<IServiceLogRepository>();
+            _httpClientProvider = new HttpClientProvider();
+        }
+
         #region PostSession
 
         [TestMethod]
         public async Task PostSession_ForceIsTrue_Success()
         {
             // Arrange
-            const string login = "admin";
-            const string password = "changeme";
-            var loginUser = new AuthenticationUser { Id = 1, Login = login };
-
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(Login, Password, false)).ReturnsAsync(_loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -47,10 +62,10 @@ namespace AdminStore.Controllers
                 return httpResponseMessage;
             });
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider, logMock.Object);
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, httpClientProvider, _logMock.Object);
 
             // Act
-            var result = (ResponseMessageResult)await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
+            var result = (ResponseMessageResult)await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(Login), SystemEncryptions.EncodeTo64UTF8(Password), true);
 
             // Assert
             Assert.AreEqual(HttpStatusCode.OK, result.Response.StatusCode);
@@ -63,13 +78,7 @@ namespace AdminStore.Controllers
         public async Task PostSession_SessionNotFound_Success()
         {
             // Arrange
-            const string login = "admin";
-            const string password = "changeme";
-            var loginUser = new AuthenticationUser { Id = 1, Login = login };
-
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(Login, Password, false)).ReturnsAsync(_loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -84,10 +93,10 @@ namespace AdminStore.Controllers
                 return httpResponseMessage;
             });
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider, logMock.Object);
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, httpClientProvider, _logMock.Object);
 
             // Act
-            var result = (ResponseMessageResult)await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password));
+            var result = (ResponseMessageResult)await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(Login), SystemEncryptions.EncodeTo64UTF8(Password));
 
             // Assert
             Assert.AreEqual(HttpStatusCode.OK, result.Response.StatusCode);
@@ -100,20 +109,14 @@ namespace AdminStore.Controllers
         public async Task PostSession_SessionFound_ConflictResult()
         {
             // Arrange
-            const string login = "admin";
-            const string password = "changeme";
-            var loginUser = new AuthenticationUser { Id = 1, Login = login };
-
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(Login, Password, false)).ReturnsAsync(_loginUser);
 
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider, logMock.Object);
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, httpClientProvider, _logMock.Object);
 
             // Act
-            IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password));
+            IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(Login), SystemEncryptions.EncodeTo64UTF8(Password));
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ConflictResult));
@@ -123,20 +126,14 @@ namespace AdminStore.Controllers
         public async Task PostSession_ServerError_InternalServerErrorResult()
         {
             // Arrange
-            const string login = "admin";
-            const string password = "changeme";
-            var loginUser = new AuthenticationUser { Id = 1, Login = login };
-
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>().Object;
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(Login, Password, false)).ReturnsAsync(_loginUser);
 
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider, logMock);
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, httpClientProvider, _logMock.Object);
 
             // Act
-            IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
+            IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(Login), SystemEncryptions.EncodeTo64UTF8(Password), true);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
@@ -147,39 +144,29 @@ namespace AdminStore.Controllers
         public async Task PostSession_AuthenticationException_HttpResponseException()
         {
             // Arrange
-            const string login = "admin";
-            const string password = "changeme";
-
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password))
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(Login, Password, false))
                 .Throws(new AuthenticationException("Invalid username or password"));
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider(), logMock.Object)
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
 
             // Act
-            await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
+            await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(Login), SystemEncryptions.EncodeTo64UTF8(Password), true);
         }
 
         [TestMethod]
         public async Task PostSession_ArgumentNullException_BadRequestResult()
         {
             // Arrange
-            const string login = "admin";
-            const string password = "changeme";
-
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password))
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(Login, Password, false))
                 .Throws(new ArgumentNullException());
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider(), logMock.Object);
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object);
 
             // Act
-            IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
+            IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(Login), SystemEncryptions.EncodeTo64UTF8(Password), true);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(BadRequestResult));
@@ -189,13 +176,7 @@ namespace AdminStore.Controllers
         public async Task PostSession_FormatException_BadRequestResult()
         {
             // Arrange
-            const string login = "admin";
-            const string password = "changeme";
-
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider(), logMock.Object)
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -203,7 +184,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await controller.PostSession(login, password, true);
+                await controller.PostSession(Login, Password, true);
             }
             catch (HttpResponseException ex)
             {
@@ -222,13 +203,7 @@ namespace AdminStore.Controllers
         public async Task PostSessionSingleSignOn_SessionNotFound_Success()
         {
             // Arrange
-            const string login = "admin";
-            var loginUser = new AuthenticationUser { Id = 1, Login = login };
-            const string samlResponse = "samlResponse";
-
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).ReturnsAsync(loginUser);
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(SamlResponse)).ReturnsAsync(_loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -243,10 +218,10 @@ namespace AdminStore.Controllers
                 return httpResponseMessage;
             });
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider, logMock.Object);
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, httpClientProvider, _logMock.Object);
 
             // Act
-            var result = (ResponseMessageResult)await controller.PostSessionSingleSignOn(samlResponse);
+            var result = (ResponseMessageResult)await controller.PostSessionSingleSignOn(SamlResponse);
 
             // Assert
             Assert.AreEqual(HttpStatusCode.OK, result.Response.StatusCode);
@@ -259,15 +234,11 @@ namespace AdminStore.Controllers
         public async Task PostSessionSingleSignOn_FederatedAuthenticationException_UnauthorizedResult()
         {
             // Arrange
-            const string samlResponse = "samlResponse";
             var httpRequestMessage = new HttpRequestMessage();
-            Exception exception = null;
 
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Throws(new FederatedAuthenticationException(FederatedAuthenticationErrorCode.Unknown));
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(SamlResponse)).Throws(new FederatedAuthenticationException(FederatedAuthenticationErrorCode.Unknown));
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider(), logMock.Object)
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object)
             {
                 Request = httpRequestMessage
             };
@@ -275,32 +246,29 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await controller.PostSessionSingleSignOn(samlResponse);
+                await controller.PostSessionSingleSignOn(SamlResponse);
             }
-            catch (Exception ex)
+            catch (HttpResponseException ex)
             {
-                exception = ex;
+                // Assert
+                Assert.AreEqual(ex.Response.StatusCode, HttpStatusCode.Unauthorized);
+
+                return;
             }
 
-            // Assert
-            Assert.IsInstanceOfType(exception, typeof(HttpResponseException));
-            Assert.AreEqual(((HttpResponseException)exception).Response.StatusCode, HttpStatusCode.Unauthorized);
+            Assert.Fail("A HttpResponseException was not thrown");
         }
 
         [TestMethod]
         public async Task PostSessionSingleSignOn_FormatException_BadRequestResult()
         {
             // Arrange
-            const string samlResponse = "samlResponse";
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(SamlResponse)).Throws(new FormatException());
 
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Throws(new FormatException());
-
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider(), logMock.Object);
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object);
 
             // Act
-            IHttpActionResult result = await controller.PostSessionSingleSignOn(samlResponse);
+            IHttpActionResult result = await controller.PostSessionSingleSignOn(SamlResponse);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(BadRequestResult));
@@ -310,15 +278,11 @@ namespace AdminStore.Controllers
         public async Task PostSessionSingleSignOn_FederatedAuthenticationException_BadRequestResult()
         {
             // Arrange
-            const string samlResponse = "samlResponse";
             var httpRequestMessage = new HttpRequestMessage();
-            Exception exception = null;
 
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Throws(new FederatedAuthenticationException(FederatedAuthenticationErrorCode.WrongFormat));
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(SamlResponse)).Throws(new FederatedAuthenticationException(FederatedAuthenticationErrorCode.WrongFormat));
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider(), logMock.Object)
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object)
             {
                 Request = httpRequestMessage
             };
@@ -326,29 +290,24 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                await controller.PostSessionSingleSignOn(samlResponse);
+                await controller.PostSessionSingleSignOn(SamlResponse);
             }
-            catch (Exception ex)
+            catch (HttpResponseException ex)
             {
-                exception = ex;
+                // Assert
+                Assert.AreEqual(ex.Response.StatusCode, HttpStatusCode.BadRequest);
+
+                return;
             }
 
-            // Assert
-            Assert.IsInstanceOfType(exception, typeof(HttpResponseException));
-            Assert.AreEqual(((HttpResponseException)exception).Response.StatusCode, HttpStatusCode.BadRequest);
+            Assert.Fail("A HttpResponseException was not thrown");
         }
 
         [TestMethod]
         public async Task PostSessionSingleSignOn_SessionFound_ConflictResult()
         {
             // Arrange
-            const string login = "admin";
-            var loginUser = new AuthenticationUser { Id = 1, Login = login };
-            const string samlResponse = "samlResponse";
-
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).ReturnsAsync(loginUser);
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(SamlResponse)).ReturnsAsync(_loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -359,10 +318,10 @@ namespace AdminStore.Controllers
                 return httpResponseMessage;
             });
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider, logMock.Object);
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, httpClientProvider, _logMock.Object);
 
             // Act
-            IHttpActionResult result = await controller.PostSessionSingleSignOn(samlResponse);
+            IHttpActionResult result = await controller.PostSessionSingleSignOn(SamlResponse);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ConflictResult));
@@ -372,20 +331,14 @@ namespace AdminStore.Controllers
         public async Task PostSessionSingleSignOn_ServerError_InternalServerErrorResult()
         {
             // Arrange
-            const string login = "admin";
-            var loginUser = new AuthenticationUser { Id = 1, Login = login };
-            const string samlResponse = "samlResponse";
-
-            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).ReturnsAsync(loginUser);
+            _authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(SamlResponse)).ReturnsAsync(_loginUser);
 
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider, logMock.Object);
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, httpClientProvider, _logMock.Object);
 
             // Act
-            IHttpActionResult result = await controller.PostSessionSingleSignOn(samlResponse);
+            IHttpActionResult result = await controller.PostSessionSingleSignOn(SamlResponse);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
@@ -401,11 +354,10 @@ namespace AdminStore.Controllers
             // Arrange
             var httpRequestMessage = new HttpRequestMessage();
             httpRequestMessage.Headers.Add("Session-Token", Guid.NewGuid().ToString());
-            var logMock = new Mock<IServiceLogRepository>();
 
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
 
-            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider, logMock.Object)
+            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider, _logMock.Object)
             {
                 Request = httpRequestMessage
             };
@@ -423,11 +375,10 @@ namespace AdminStore.Controllers
             // Arrange
             var httpRequestMessage = new HttpRequestMessage();
             httpRequestMessage.Headers.Add("Session-Token", Guid.NewGuid().ToString());
-            var logMock = new Mock<IServiceLogRepository>();
 
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
 
-            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider, logMock.Object)
+            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider, _logMock.Object)
             {
                 Request = httpRequestMessage
             };
@@ -445,11 +396,10 @@ namespace AdminStore.Controllers
             // Arrange
             var httpRequestMessage = new HttpRequestMessage();
             httpRequestMessage.Headers.Add("Session-Token", Guid.NewGuid().ToString());
-            var logMock = new Mock<IServiceLogRepository>();
 
             var httpClientProvider = new TestHttpClientProvider(request => { throw new Exception(); });
 
-            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider, logMock.Object)
+            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider, _logMock.Object)
             {
                 Request = httpRequestMessage
             };
@@ -466,9 +416,8 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
-            var logMock = new Mock<IServiceLogRepository>();
 
-            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider, logMock.Object)
+            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider, _logMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -478,6 +427,190 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(BadRequestResult));
+        }
+
+        #endregion
+
+        #region VerifyCredentials
+
+        [TestMethod]
+        public async Task VerifyCredentials_Should_Decrypt_Username_From_Base64()
+        {
+            // Arrange
+            _authenticationRepositoryMock.Setup(repo => repo.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>(), true)).ReturnsAsync(new AuthenticationUser()
+            {
+                Id = 2
+            });
+
+            // Act
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object)
+            {
+                Request = new HttpRequestMessage()
+                {
+                    Properties =
+                    {
+                        { ServiceConstants.SessionProperty, new Session() { UserId = 2 } }
+                    }
+                }
+            };
+
+            await controller.VerifyCredentials(EncryptedUsername, EncryptedPassword);
+
+            // Assert
+            _authenticationRepositoryMock.Verify(repo => repo.AuthenticateUserAsync("foo", It.IsAny<string>(), true));
+        }
+
+        [TestMethod]
+        public async Task VerifyCredentials_Should_Decrypt_Password_From_Base64()
+        {
+            // Arrange
+            _authenticationRepositoryMock.Setup(repo => repo.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>(), true)).ReturnsAsync(new AuthenticationUser()
+            {
+                Id = 2
+            });
+
+            // Act
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object)
+            {
+                Request = new HttpRequestMessage()
+                {
+                    Properties =
+                    {
+                        { ServiceConstants.SessionProperty, new Session() { UserId = 2 } }
+                    }
+                }
+            };
+
+            await controller.VerifyCredentials(EncryptedUsername, EncryptedPassword);
+
+            // Assert
+            _authenticationRepositoryMock.Verify(repo => repo.AuthenticateUserAsync(It.IsAny<string>(), "bar", true));
+        }
+
+        [TestMethod]
+        public async Task VerifyCredentials_Should_Throw_Bad_Request_Exception_When_AuthenticateUserAsync_Throws_Authentication_Exception()
+        {
+            // Arrange
+            _authenticationRepositoryMock.Setup(repo => repo.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>(), true))
+                                         .Throws(new AuthenticationException("baz", ErrorCodes.UserDisabled));
+
+            // Act
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object)
+            {
+                Request = new HttpRequestMessage()
+                {
+                    Properties =
+                    {
+                        { ServiceConstants.SessionProperty, new Session() { UserId = 2 } }
+                    }
+                }
+            };
+
+            try
+            {
+                await controller.VerifyCredentials(EncryptedUsername, EncryptedPassword);
+            }
+            catch (BadRequestException ex)
+            {
+                // Assert
+                Assert.AreEqual("baz", ex.Message);
+                Assert.AreEqual(ErrorCodes.UserDisabled, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A Bad Request Exception was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task VerifyCredentials_Should_Throw_Authentication_Exception_When_Session_Does_Not_Exist()
+        {
+            // Arrange
+            _authenticationRepositoryMock.Setup(repo => repo.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>(), true))
+                                         .Throws(new AuthenticationException("baz", ErrorCodes.UserDisabled));
+
+            // Act
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object)
+            {
+                Request = new HttpRequestMessage()
+                {
+                    Properties = { }
+                }
+            };
+
+            try
+            {
+                await controller.VerifyCredentials(EncryptedUsername, EncryptedPassword);
+            }
+            catch (AuthenticationException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("An Authentication Exception was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task VerifyCredentials_Should_Throw_Bad_Request_Exception_When_Session_UserId_Doesnt_Match_User()
+        {
+            // Arrange
+            _authenticationRepositoryMock.Setup(repo => repo.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>(), true)).ReturnsAsync(new AuthenticationUser()
+            {
+                Id = 2
+            });
+
+            // Act
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object)
+            {
+                Request = new HttpRequestMessage()
+                {
+                    Properties =
+                    {
+                        { ServiceConstants.SessionProperty, new Session() { UserId = 3 } }
+                    }
+                }
+            };
+
+            try
+            {
+                await controller.VerifyCredentials(EncryptedUsername, EncryptedPassword);
+            }
+            catch (BadRequestException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.InvalidCredentials, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A BadRequestException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task VerifyCredentials_Should_Succeed_When_Session_UserId_Matches_User()
+        {
+            // Arrange
+            _authenticationRepositoryMock.Setup(repo => repo.AuthenticateUserAsync("foo", "bar", true)).ReturnsAsync(new AuthenticationUser()
+            {
+                Id = 2
+            });
+
+            // Act
+            var controller = new SessionsController(_authenticationRepositoryMock.Object, _httpClientProvider, _logMock.Object)
+            {
+                Request = new HttpRequestMessage()
+                {
+                    Properties =
+                    {
+                        { ServiceConstants.SessionProperty, new Session() { UserId = 2 } }
+                    }
+                }
+            };
+
+            await controller.VerifyCredentials(EncryptedUsername, EncryptedPassword);
         }
 
         #endregion

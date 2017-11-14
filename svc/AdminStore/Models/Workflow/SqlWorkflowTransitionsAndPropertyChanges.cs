@@ -18,5 +18,6 @@ namespace AdminStore.Models.Workflow
         public string ToState { get; set; }
         public int? ToStateId { get; set; }
         public int? PropertyTypeId { get; set; }
+        public string CanvasSettings { get; set; }
     }
 }

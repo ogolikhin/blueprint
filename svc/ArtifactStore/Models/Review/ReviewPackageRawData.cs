@@ -17,7 +17,7 @@ namespace ArtifactStore.Models.Review
         public bool IsBaselineFollowUpReview;
 
         [DataMember(EmitDefaultValue = false)]
-        public bool IsESignatureEnabled;
+        public bool? IsESignatureEnabled;
 
         [DataMember(EmitDefaultValue = false)]
         public bool IsFollowUpReview;

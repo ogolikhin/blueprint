@@ -93,6 +93,8 @@
         public const int ReviewExpired = 10008;
         public const int MeaningOfSignatureNotEnabled = 10009;
         public const int MeaningOfSignatureNotPossible = 10010;
+        public const int BaselineIsAlreadyAttachedToReview = 10011;
+        public const int LiveArtifactsReplacingWithBaseline = 10012;
 
         // User Review Errors
         public const int UserDisabled = 11001;
@@ -103,8 +105,10 @@
         public const int TenantInfoNotFound = 12000;
         public const int UnsupportedActionType = 12001;
         public const int MessageHeaderValueNotFound = 12002;
-        public const int InvalidConnectionString = 12003;
+        public const int NServiceBusConnection = 12003;
         public const int BoundaryReached = 12004;
+        public const int RabbitMqSend = 12005;
+        public const int SqlServerSend = 12006;
 
         // Unexpected Errors
         public const int UnexpectedError = 13001;

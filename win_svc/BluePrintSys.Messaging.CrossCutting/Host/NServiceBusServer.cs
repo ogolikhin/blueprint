@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using NServiceBus;
 using NServiceBus.Transport.SQLServer;
+using RabbitMQ.Client.Exceptions;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 
@@ -80,15 +83,15 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 "MailBee.NET.4.dll"
             };
 
-            var messageBroker = ConfigHelper.GetMessageBroker();
-            if (messageBroker == MessageBroker.RabbitMQ)
+            var transportType = NServiceBusValidator.GetTransportType(connectionString);
+            if (transportType == NServiceBusTransportType.RabbitMq)
             {
                 Log.Info("Configuring RabbitMQ Transport");
                 var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
                 transport.ConnectionString(connectionString);
                 assembliesToExclude.Add("nservicebus.transport.sqlserver.dll");
             }
-            else if (messageBroker == MessageBroker.SQL)
+            else if (transportType == NServiceBusTransportType.Sql)
             {
                 Log.Info("Configuring SQL Server Transport");
                 var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
@@ -128,7 +131,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             loggerDefinition.Level(NServiceBus.Logging.LogLevel.Warn);
 
             EndpointInstance = await Endpoint.Start(endpointConfiguration);
-            Log.Debug($"Started Endpoint for connection string: {connectionString} for message queue {MessageQueue} for message broker {messageBroker}");
+            Log.Debug($"Started Endpoint for connection string: {connectionString} for message queue {MessageQueue} for message broker {transportType}");
         }
 
         private void ExcludeMessageHandlers(AssemblyScannerConfiguration assemblyScanner)
@@ -170,6 +173,16 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 
                 LogInfo(tenantId, message, null);
                 await EndpointInstance.Send(message, options);
+            }
+            catch (SqlException ex)
+            {
+                LogInfo(tenantId, message, ex);
+                throw new SqlServerSendException(ex);
+            }
+            catch (BrokerUnreachableException ex)
+            {
+                LogInfo(tenantId, message, ex);
+                throw new RabbitMqSendException(ex);
             }
             catch (Exception ex)
             {

@@ -11,6 +11,7 @@ namespace ArtifactStore.Models.Review
         public int Viewed { get; set; }
         public int Unviewed { get; set; }
         public bool HasMovedProject { get; set; }
+        public bool HasReviewComments { get; set; }
     }
 
     internal class ReviewArtifactStatus
@@ -21,6 +22,7 @@ namespace ArtifactStore.Models.Review
         public int Disapproved { get; set; }
         public int Viewed { get; set; }
         public int Unviewed { get; set; }
+        public bool HasComments { get; set; }
     }
 
     internal class ContentStatusDetails

@@ -109,7 +109,7 @@ namespace AdminStore.Repositories
             // Arrange
 
             // Act
-            await _authenticationRepository.AuthenticateUserAsync("", Password);
+            await _authenticationRepository.AuthenticateUserAsync("", Password, false);
 
             // Assert
             // Exception
@@ -122,7 +122,7 @@ namespace AdminStore.Repositories
             // Arrange
 
             // Act
-            await _authenticationRepository.AuthenticateUserAsync(Login, "");
+            await _authenticationRepository.AuthenticateUserAsync(Login, "", false);
 
             // Assert
             // Exception
@@ -137,7 +137,7 @@ namespace AdminStore.Repositories
             _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(fakeLogin)).ReturnsAsync((AuthenticationUser)null);
 
             // Act
-            await _authenticationRepository.AuthenticateUserAsync(fakeLogin, Password);
+            await _authenticationRepository.AuthenticateUserAsync(fakeLogin, Password, false);
 
             // Assert
             // Exception
@@ -152,7 +152,7 @@ namespace AdminStore.Repositories
             _loginUser.IsFallbackAllowed = false;
 
             // Act
-            await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             // Exception
@@ -170,7 +170,7 @@ namespace AdminStore.Repositories
             _loginUser.Source = UserGroupSource.Database;
 
             // Act
-            var result = await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            var result = await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             Assert.AreEqual(_loginUser, result);
@@ -186,7 +186,7 @@ namespace AdminStore.Repositories
             _instanceSettings.IsLdapIntegrationEnabled = false;
 
             // Act
-            await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             // Exception
@@ -203,7 +203,7 @@ namespace AdminStore.Repositories
                 .ReturnsAsync(AuthenticationStatus.Success);
 
             // Act
-            var result = await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            var result = await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             Assert.AreEqual(_loginUser, result);
@@ -224,7 +224,7 @@ namespace AdminStore.Repositories
             // Act
             try
             {
-                await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+                await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
             }
             catch (AuthenticationException ex)
             {
@@ -243,7 +243,7 @@ namespace AdminStore.Repositories
             _loginUser.Source = (UserGroupSource)999;
 
             // Act
-            await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             // Exception
@@ -258,7 +258,7 @@ namespace AdminStore.Repositories
             const string dummyPassword = "dummyPassword";
 
             // Act
-            await _authenticationRepository.AuthenticateUserAsync(Login, dummyPassword);
+            await _authenticationRepository.AuthenticateUserAsync(Login, dummyPassword, false);
 
             // Assert
             // Exception
@@ -273,7 +273,7 @@ namespace AdminStore.Repositories
             _loginUser.IsEnabled = false;
 
             // Act
-            await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             // Exception
@@ -290,7 +290,7 @@ namespace AdminStore.Repositories
             _instanceSettings.PasswordExpirationInDays = 1;
 
             // Act
-            await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             // Exception
@@ -306,7 +306,7 @@ namespace AdminStore.Repositories
             _instanceSettings.PasswordExpirationInDays = 1;
 
             // Act
-            var result = await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            var result = await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             Assert.AreEqual(_loginUser, result);
@@ -321,7 +321,7 @@ namespace AdminStore.Repositories
             _instanceSettings.PasswordExpirationInDays = 1;
 
             // Act
-            var result = await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            var result = await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             Assert.AreEqual(_loginUser, result);
@@ -337,7 +337,7 @@ namespace AdminStore.Repositories
             _instanceSettings.PasswordExpirationInDays = 1;
 
             // Act
-            var result = await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            var result = await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             Assert.AreEqual(_loginUser, result);
@@ -356,7 +356,7 @@ namespace AdminStore.Repositories
                 .ReturnsAsync(AuthenticationStatus.Error);
 
             // Act
-            await _authenticationRepository.AuthenticateUserAsync(Login, Password);
+            await _authenticationRepository.AuthenticateUserAsync(Login, Password, false);
 
             // Assert
             // Exception
@@ -373,11 +373,30 @@ namespace AdminStore.Repositories
             // Act & Assert
             try
             {
-                await _authenticationRepository.AuthenticateUserAsync(Login, dummyPassword);
+                await _authenticationRepository.AuthenticateUserAsync(Login, dummyPassword, false);
             }
             catch
             {
                 _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<AuthenticationUser>(u => u.IsEnabled == false)));
+            }
+        }
+
+        [TestMethod]
+        public async Task AuthenticateUserAsync_Should_Not_Lock_User_When_IgnoreInvalidLogins_Is_True()
+        {
+            // Arrange
+            _loginUser.Source = UserGroupSource.Database;
+            _loginUser.InvalidLogonAttemptsNumber = _instanceSettings.MaximumInvalidLogonAttempts;
+            const string dummyPassword = "dummyPassword";
+
+            // Act
+            try
+            {
+                await _authenticationRepository.AuthenticateUserAsync(Login, dummyPassword, true);
+            }
+            catch
+            {
+                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<AuthenticationUser>(u => u.InvalidLogonAttemptsNumber == 1)), Times.Never);
             }
         }
 
@@ -392,7 +411,7 @@ namespace AdminStore.Repositories
             // Act & Assert
             try
             {
-                await _authenticationRepository.AuthenticateUserAsync(Login, dummyPassword);
+                await _authenticationRepository.AuthenticateUserAsync(Login, dummyPassword, false);
             }
             catch
             {
@@ -413,11 +432,32 @@ namespace AdminStore.Repositories
             // Act & Assert
             try
             {
-                await _authenticationRepository.AuthenticateUserAsync(Login, dummyPassword);
+                await _authenticationRepository.AuthenticateUserAsync(Login, dummyPassword, false);
             }
             catch
             {
                 _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<AuthenticationUser>(u => u.InvalidLogonAttemptsNumber == 1)));
+            }
+        }
+
+        [TestMethod]
+        public async Task AuthenticateUserAsync_Should_Not_ResetInvalidLogonAttempts_When_IgnoreInvalidLogins_Is_True()
+        {
+            // Arrange
+            _loginUser.Source = UserGroupSource.Database;
+            _loginUser.InvalidLogonAttemptsNumber = 999;
+            _loginUser.LastInvalidLogonTimeStamp = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2));
+
+            const string dummyPassword = "dummyPassword";
+
+            // Act & Assert
+            try
+            {
+                await _authenticationRepository.AuthenticateUserAsync(Login, dummyPassword, true);
+            }
+            catch
+            {
+                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<AuthenticationUser>(u => u.InvalidLogonAttemptsNumber == 1)), Times.Never);
             }
         }
 

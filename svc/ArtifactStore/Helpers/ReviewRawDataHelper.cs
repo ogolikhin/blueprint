@@ -21,6 +21,7 @@ namespace ArtifactStore.Helpers
             }
 
             var matches = Regex.Matches(rawData, "<UserId[^>]*>(.+?)</UserId\\s*>", RegexOptions.IgnoreCase);
+
             foreach (Match match in matches)
             {
                 if (match.Groups.Count > 1)
@@ -109,17 +110,18 @@ namespace ArtifactStore.Helpers
         /// Extracts serialized string from raw data object
         /// </summary>
         /// <param name="rawData"></param>
-        /// <typeparam name="RawDataType"></typeparam>
+        /// <typeparam name="TRawData"></typeparam>
         /// <returns></returns>
-        public static string GetStoreData<RawDataType>(RawDataType rawData)
+        public static string GetStoreData<TRawData>(TRawData rawData)
         {
-            var serializer = new DataContractSerializer(typeof(RawDataType));
+            var serializer = new DataContractSerializer(typeof(TRawData));
 
             var result = new StringBuilder();
             using (var xmlWriter = XmlWriter.Create(result))
             {
                 serializer.WriteObject(xmlWriter, rawData);
             }
+
             return result.ToString();
         }
 
@@ -129,17 +131,19 @@ namespace ArtifactStore.Helpers
         /// </summary>
         /// <param name="rawDataValue"></param>
         /// <param name="rawDataObject"></param>
-        /// <typeparam name="RawDataType"></typeparam>
-        public static bool TryRestoreData<RawDataType>(string rawDataValue, out RawDataType rawDataObject) where RawDataType : class
+        /// <typeparam name="TRawData"></typeparam>
+        public static bool TryRestoreData<TRawData>(string rawDataValue, out TRawData rawDataObject) where TRawData : class
         {
             rawDataObject = null;
+
             if (string.IsNullOrEmpty(rawDataValue))
             {
                 return false;
             }
+
             try
             {
-                rawDataObject = RestoreData<RawDataType>(rawDataValue);
+                rawDataObject = RestoreData<TRawData>(rawDataValue);
                 return true;
             }
             catch (Exception)
@@ -152,19 +156,20 @@ namespace ArtifactStore.Helpers
         /// Extracts data from serialized raw data
         /// </summary>
         /// <param name="rawDataValue"></param>
-        /// <typeparam name="RawDataType"></typeparam>
-        public static RawDataType RestoreData<RawDataType>(string rawDataValue) where RawDataType : class
+        /// <typeparam name="TRawData"></typeparam>
+        public static TRawData RestoreData<TRawData>(string rawDataValue) where TRawData : class
         {
-            if (!string.IsNullOrEmpty(rawDataValue))
+            if (string.IsNullOrEmpty(rawDataValue))
             {
-                var serializer = new DataContractSerializer(typeof(RawDataType));
-
-                using (var xmlReaderCreate = XmlReader.Create(new StringReader(rawDataValue)))
-                {
-                    return serializer.ReadObject(xmlReaderCreate) as RawDataType;
-                }
+                return null;
             }
-            return null;
+
+            var serializer = new DataContractSerializer(typeof(TRawData));
+
+            using (var xmlReaderCreate = XmlReader.Create(new StringReader(rawDataValue)))
+            {
+                return serializer.ReadObject(xmlReaderCreate) as TRawData;
+            }
         }
     }
 }

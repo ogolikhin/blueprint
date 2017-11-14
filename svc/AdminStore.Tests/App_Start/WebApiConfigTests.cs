@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(79, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(81, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -35,6 +35,7 @@ namespace AdminStore
             config.AssertAction<SessionsController>("PostSessionSingleSignOn", HttpMethod.Post, "sessions/sso?force=true");
             config.AssertAction<SessionsController>("DeleteSession", HttpMethod.Delete, "sessions");
             config.AssertAction<SessionsController>("IsSessionAlive", HttpMethod.Get, "sessions/alive");
+            config.AssertAction<SessionsController>("VerifyCredentials", HttpMethod.Post, "sessions/verify?login=admin");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
             config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
             config.AssertAction<InstanceController>("GetInstanceFolder", HttpMethod.Get, "instance/folders/1");
@@ -101,6 +102,7 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("UnassignProjectsAndArtifactTypesFromWorkflowAsync", HttpMethod.Post, "workflow/1/unassign");
             config.AssertAction<WorkflowController>("AssignArtifactTypesToProjectInWorkflow", HttpMethod.Post, "workflow/1/project/1/assign");
             config.AssertAction<WorkflowController>("UpdateWorkflow", HttpMethod.Put, "workflow/1");
+            config.AssertAction<WorkflowController>("GetWorkflowDiagram", HttpMethod.Get, "workflow/diagram/1");
         }
 
         [TestMethod]

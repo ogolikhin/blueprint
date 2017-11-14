@@ -402,9 +402,17 @@ namespace ArtifactStore.Repositories
                     throw ReviewsExceptionHelper.BaselineIsAlreadyAttachedToReviewException(propertyResult.BaselineId.Value);
                 }
 
-                if (effectiveIds.IsBaselineAdded)
+                // Adding Baseline to review (Not new created one)
+                if (effectiveIds.IsBaselineAdded && !string.IsNullOrEmpty(propertyResult.ArtifactXml))
                 {
-                    throw ReviewsExceptionHelper.LiveArtifactsReplacedWithBaselineException();
+                    var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
+                    // only if review has at least one artifact which will be replaced
+                    if (rdReviewContents != null &&
+                        rdReviewContents.Artifacts != null &&
+                        rdReviewContents.Artifacts.Any())
+                    {
+                        throw ReviewsExceptionHelper.LiveArtifactsReplacedWithBaselineException();
+                    }
                 }
             }
 

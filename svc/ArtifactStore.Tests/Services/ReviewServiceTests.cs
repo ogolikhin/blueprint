@@ -59,7 +59,6 @@ namespace ArtifactStore.Services
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                RevewSubartifactId = 3,
                 ProjectId = ProjectId,
                 LockedByUserId = UserId,
                 ReviewStatus = ReviewPackageStatus.Draft,
@@ -73,7 +72,6 @@ namespace ArtifactStore.Services
             {
                 IsDraftRevisionExists = true,
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsMoSEnabled>true</IsMoSEnabled><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>",
-                RevewSubartifactId = 3,
                 ProjectId = 1,
                 LockedByUserId = UserId,
                 IsReviewReadOnly = false,

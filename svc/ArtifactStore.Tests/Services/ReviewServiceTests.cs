@@ -321,7 +321,7 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_PublicDraftReview_IsESignatureEnabledIsTrue()
+        public async Task GetReviewSettingsAsync_PublicDraftReview_CanEditRequireESignatureIsTrue()
         {
             // Arrange
             _reviewType = ReviewType.Public;
@@ -331,11 +331,11 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(true, reviewSettings.IsESignatureEnabled);
+            Assert.AreEqual(true, reviewSettings.CanEditRequireESignature);
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_PublicActiveReview_IsESignatureEnabledIsTrue()
+        public async Task GetReviewSettingsAsync_PublicActiveReview_CanEditRequireESignatureIsTrue()
         {
             // Arrange
             _reviewType = ReviewType.Public;
@@ -345,11 +345,11 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(true, reviewSettings.IsESignatureEnabled);
+            Assert.AreEqual(true, reviewSettings.CanEditRequireESignature);
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_InformalDraftReview_IsESignatureEnabledIsTrue()
+        public async Task GetReviewSettingsAsync_InformalDraftReview_CanEditRequireESignatureIsTrue()
         {
             // Arrange
             _reviewType = ReviewType.Informal;
@@ -359,11 +359,11 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(true, reviewSettings.IsESignatureEnabled);
+            Assert.AreEqual(true, reviewSettings.CanEditRequireESignature);
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_InformalActiveReview_IsESignatureEnabledIsTrue()
+        public async Task GetReviewSettingsAsync_InformalActiveReview_CanEditRequireESignatureIsTrue()
         {
             // Arrange
             _reviewType = ReviewType.Informal;
@@ -373,11 +373,11 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(true, reviewSettings.IsESignatureEnabled);
+            Assert.AreEqual(true, reviewSettings.CanEditRequireESignature);
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_FormalDraftReview_IsESignatureEnabledIsTrue()
+        public async Task GetReviewSettingsAsync_FormalDraftReview_CanEditRequireESignatureIsTrue()
         {
             // Arrange
             _reviewType = ReviewType.Formal;
@@ -387,11 +387,11 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(true, reviewSettings.IsESignatureEnabled);
+            Assert.AreEqual(true, reviewSettings.CanEditRequireESignature);
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_FormalActiveReview_IsESignatureEnabledIsFalse()
+        public async Task GetReviewSettingsAsync_FormalActiveReview_CanEditRequireESignatureIsFalse()
         {
             // Arrange
             _reviewType = ReviewType.Formal;
@@ -401,11 +401,11 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(false, reviewSettings.IsESignatureEnabled);
+            Assert.AreEqual(false, reviewSettings.CanEditRequireESignature);
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_PublicClosedReview_IsESignatureEnabledIsFalse()
+        public async Task GetReviewSettingsAsync_PublicClosedReview_CanEditRequireESignatureIsFalse()
         {
             // Arrange
             _reviewType = ReviewType.Public;
@@ -415,11 +415,11 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(false, reviewSettings.IsESignatureEnabled);
+            Assert.AreEqual(false, reviewSettings.CanEditRequireESignature);
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_InformalClosedReview_IsESignatureEnabledIsFalse()
+        public async Task GetReviewSettingsAsync_InformalClosedReview_CanEditRequireESignatureIsFalse()
         {
             // Arrange
             _reviewType = ReviewType.Informal;
@@ -429,11 +429,11 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(false, reviewSettings.IsESignatureEnabled);
+            Assert.AreEqual(false, reviewSettings.CanEditRequireESignature);
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_FormalClosedReview_IsESignatureEnabledIsFalse()
+        public async Task GetReviewSettingsAsync_FormalClosedReview_CanEditRequireESignatureIsFalse()
         {
             // Arrange
             _reviewType = ReviewType.Formal;
@@ -443,11 +443,11 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(false, reviewSettings.IsESignatureEnabled);
+            Assert.AreEqual(false, reviewSettings.CanEditRequireESignature);
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_MeaningOfSignatureDisabledInProject_IsMeaningOfSignatureEnabledIsFalse()
+        public async Task GetReviewSettingsAsync_MeaningOfSignatureDisabledInProject_CanEditRequireMeaningOfSignatureIsFalse()
         {
             // Arrange
             _reviewType = ReviewType.Formal;
@@ -458,11 +458,11 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(false, reviewSettings.IsMeaningOfSignatureEnabled);
+            Assert.AreEqual(false, reviewSettings.CanEditRequireMeaningOfSignature);
         }
 
         [TestMethod]
-        public async Task GetReviewSettingsAsync_MeaningOfSignatureEnabledInProject_IsMeaningOfSignatureEnabledIsTrue()
+        public async Task GetReviewSettingsAsync_MeaningOfSignatureEnabledInProject_CanEditRequireMeaningOfSignatureIsTrue()
         {
             // Arrange
             _reviewType = ReviewType.Formal;
@@ -473,7 +473,7 @@ namespace ArtifactStore.Services
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(true, reviewSettings.IsMeaningOfSignatureEnabled);
+            Assert.AreEqual(true, reviewSettings.CanEditRequireMeaningOfSignature);
         }
 
         #endregion GetReviewSettingsAsync

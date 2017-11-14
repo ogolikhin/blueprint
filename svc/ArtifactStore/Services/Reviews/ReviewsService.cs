@@ -374,6 +374,7 @@ namespace ArtifactStore.Services.Reviews
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewRawData, userId);
 
             var changeResult = new ReviewChangeParticipantsStatusResult();
+            changeResult.ReviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId);
 
             if (content.Role == ReviewParticipantRole.Approver)
             {
@@ -512,6 +513,7 @@ namespace ArtifactStore.Services.Reviews
             }
 
             var result = new ReviewChangeItemsStatusResult();
+            result.ReviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId);
 
             if (resultErrors.Any())
             {

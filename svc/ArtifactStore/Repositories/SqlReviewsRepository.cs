@@ -402,7 +402,7 @@ namespace ArtifactStore.Repositories
                     throw ReviewsExceptionHelper.BaselineIsAlreadyAttachedToReviewException(propertyResult.BaselineId.Value);
                 }
 
-                // Adding Baseline to review (Not new created one)
+                // Adding Baseline to existing review (Not new created one)
                 if (effectiveIds.IsBaselineAdded && !string.IsNullOrEmpty(propertyResult.ArtifactXml))
                 {
                     var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);

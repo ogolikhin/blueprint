@@ -1333,7 +1333,6 @@ namespace ArtifactStore.Repositories
             var reviewXml = ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
 
             await UpdateReviewXmlAsync(reviewId, userId, reviewXml);
-            await UpdateReviewLastSaveInvalidAsync(reviewId, userId);
         }
 
         public async Task<int> UpdateReviewLastSaveInvalidAsync(int reviewId, int userId, IDbTransaction transaction = null)

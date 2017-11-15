@@ -8,6 +8,7 @@ namespace ArtifactStore.Models.Review
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public IEnumerable<ReviewChangeItemsError> ReviewChangeItemErrors { get; set; }
 
+        public ReviewType ReviewType { get; set; }
     }
 
 

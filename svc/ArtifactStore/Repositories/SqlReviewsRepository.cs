@@ -345,6 +345,11 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("There is nothing to add to review.", ErrorCodes.OutOfRangeParameter);
             }
 
+            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
+
             int alreadyIncludedCount;
             var propertyResult = await GetReviewPropertyStringAsync(reviewId, userId);
             var artifactIds = content.ArtifactIds;
@@ -402,9 +407,17 @@ namespace ArtifactStore.Repositories
                     throw ReviewsExceptionHelper.BaselineIsAlreadyAttachedToReviewException(propertyResult.BaselineId.Value);
                 }
 
-                if (effectiveIds.IsBaselineAdded)
+                // Adding Baseline to existing review (Not new created one)
+                if (effectiveIds.IsBaselineAdded && !string.IsNullOrEmpty(propertyResult.ArtifactXml))
                 {
-                    throw ReviewsExceptionHelper.LiveArtifactsReplacedWithBaselineException();
+                    var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
+                    // only if review has at least one artifact which will be replaced
+                    if (rdReviewContents != null &&
+                        rdReviewContents.Artifacts != null &&
+                        rdReviewContents.Artifacts.Any())
+                    {
+                        throw ReviewsExceptionHelper.LiveArtifactsReplacedWithBaselineException();
+                    }
                 }
             }
 
@@ -446,7 +459,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
             parameters.Add("@revisionId", int.MaxValue);
-            parameters.Add("@includeDrafts", false);
+            parameters.Add("@includeDrafts", true);
 
             return (await _connectionWrapper.QueryAsync<ChildArtifactsResult>("GetChildArtifacts", parameters, commandType: CommandType.StoredProcedure));
         }
@@ -1323,7 +1336,9 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
             }
 
-            return ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString);
+            return !string.IsNullOrEmpty(reviewXml.XmlString)
+                ? ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString)
+                : new ReviewPackageRawData();
         }
 
         public async Task UpdateReviewPackageRawDataAsync(int reviewId, ReviewPackageRawData reviewPackageRawData, int userId)
@@ -1331,7 +1346,6 @@ namespace ArtifactStore.Repositories
             var reviewXml = ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
 
             await UpdateReviewXmlAsync(reviewId, userId, reviewXml);
-            await UpdateReviewLastSaveInvalidAsync(reviewId, userId);
         }
 
         public async Task<int> UpdateReviewLastSaveInvalidAsync(int reviewId, int userId, IDbTransaction transaction = null)

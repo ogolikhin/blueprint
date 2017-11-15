@@ -763,7 +763,7 @@ namespace AdminStore.Repositories
         #region DeactivateWorkflowsWithLastAssignmentForDeletedProject
 
         [TestMethod]
-        public async Task DeactivateWorkflowIfLastProjectDeleted_AllParametersCorrect_SuccessfulDeactivateWorkflow()
+        public async Task DeactivateWorkflowsWithLastAssignmentForDeletedProject_AllParametersCorrect_SuccessfulDeactivateWorkflow()
         {
             // Arrange
 
@@ -780,7 +780,7 @@ namespace AdminStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task DeactivateWorkflowIfLastProjectDeleted_InvalidProjectId_SuccessfulDeactivateWorkflow()
+        public async Task DeactivateWorkflowsWithLastAssignmentForDeletedProject_InvalidProjectId_ThrowsArgumentOutOfRangeException()
         {
             // Arrange
             var projectId = 0;
@@ -797,7 +797,7 @@ namespace AdminStore.Repositories
         #region RemoveProject
 
         [TestMethod]
-        public async Task DeleteProject_AllParametersCorrect_SuccessfulDeletionOfProject()
+        public async Task RemoveProject_AllParametersCorrect_SuccessfulRemovingOfProject()
         {
             // Arrange
 

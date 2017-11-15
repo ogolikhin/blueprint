@@ -1069,6 +1069,8 @@ namespace ArtifactStore.Repositories
                 UserIds = new int[0]
             };
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
         }
@@ -1096,6 +1098,8 @@ namespace ArtifactStore.Repositories
             };
 
             _cxn.SetupQueryAsync("GetReviewPackageRawData", queryParameters, new List<string>());
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -1129,6 +1133,8 @@ namespace ArtifactStore.Repositories
 
             _artifactRepositoryMock.Setup(artifactRepository => artifactRepository.IsArtifactLockedByUserAsync(reviewId, userId)).ReturnsAsync(false);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
         }
@@ -1150,6 +1156,8 @@ namespace ArtifactStore.Repositories
 
             SetupUpdateReviewXmlQuery(reviewId, userId, 1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>");
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -1178,6 +1186,8 @@ namespace ArtifactStore.Repositories
             SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Closed</Status></ReviewPackageRawData>");
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
         }
@@ -1198,6 +1208,8 @@ namespace ArtifactStore.Repositories
             SetupGetReviewXmlQuery(reviewId, userId, null);
 
             _usersRepositoryMock.Setup(repo => repo.FindNonExistentUsersAsync(new[] { 2, 3, 4 })).ReturnsAsync(new[] { 2, 3, 4 });
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             var addParticipantsResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -1226,6 +1238,8 @@ namespace ArtifactStore.Repositories
 
             SetupUpdateReviewXmlQuery(reviewId, userId, 1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>");
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -1261,6 +1275,8 @@ namespace ArtifactStore.Repositories
                 new UserInfo { UserId = 5 }
             });
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
 
@@ -1294,6 +1310,8 @@ namespace ArtifactStore.Repositories
                 new UserInfo { UserId = 2 }
             });
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
 
@@ -1317,6 +1335,8 @@ namespace ArtifactStore.Repositories
 
             SetupGetReviewXmlQuery(reviewId, userId,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>");
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             var addParticipantResult = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, addParticipantsParameter);
@@ -1350,6 +1370,8 @@ namespace ArtifactStore.Repositories
                 new UserInfo() { UserId = 5 }
             });
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
 
@@ -1376,6 +1398,8 @@ namespace ArtifactStore.Repositories
 
             SetupUpdateReviewXmlQuery(reviewId, userId, 1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>");
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             var result = await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
@@ -1406,7 +1430,34 @@ namespace ArtifactStore.Repositories
             SetupUpdateReviewXmlQuery(reviewId, userId, -1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>");
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task AddParticipants_ShouldThrowUserCannotModifyReviewException()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var content = new AddParticipantsParameter
+            {
+                UserIds = new[] { 1, 2 }
+            };
+
+            SetupGetReviewXmlQuery(reviewId, userId,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>");
+
+            SetupUpdateReviewXmlQuery(reviewId, userId, 1,
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>");
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
+
+            // Act
+            await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+
         }
 
         private void SetupGetReviewXmlQuery(int reviewId, int userId, string xmlString)
@@ -1682,6 +1733,7 @@ namespace ArtifactStore.Repositories
         [TestMethod]
         public async Task AddArtifactsToReviewAsync_ShouldThrowUserCannotModifyReviewException()
         {
+
             // Arrange
             var reviewId = 1;
             var userId = 2;
@@ -1810,6 +1862,8 @@ namespace ArtifactStore.Repositories
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             var result = await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
 
@@ -1868,6 +1922,8 @@ namespace ArtifactStore.Repositories
             };
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -1934,6 +1990,8 @@ namespace ArtifactStore.Repositories
             };
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -2026,6 +2084,8 @@ namespace ArtifactStore.Repositories
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
 
@@ -2078,6 +2138,8 @@ namespace ArtifactStore.Repositories
             };
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -2132,6 +2194,8 @@ namespace ArtifactStore.Repositories
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
 
@@ -2171,6 +2235,8 @@ namespace ArtifactStore.Repositories
             };
             SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
@@ -2208,6 +2274,8 @@ namespace ArtifactStore.Repositories
 
             SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
@@ -2243,6 +2311,8 @@ namespace ArtifactStore.Repositories
             };
 
             SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -2291,6 +2361,8 @@ namespace ArtifactStore.Repositories
 
             SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
@@ -2328,8 +2400,77 @@ namespace ArtifactStore.Repositories
             };
             SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UpdateReviewArtifactApprovalAsync_ShouldThrowUserCannotModifyReviewException()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var approvalParameter = new ReviewArtifactApprovalParameter
+            {
+                Approval = "Disapproved",
+                ApprovalFlag = ApprovalType.Disapproved,
+                ArtifactIds = new List<int> { 3 },
+                SelectionType = SelectionType.Selected
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds);
+            SetupGetVersionNumber(reviewId, artifactIds);
+
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            var revApppCheck = new ReviewArtifactApprovalCheck
+            {
+                ReviewExists = true,
+                ReviewStatus = ReviewPackageStatus.Active,
+                ReviewDeleted = false,
+                AllArtifactsInReview = true,
+                AllArtifactsRequireApproval = true,
+                UserInReview = true,
+                ReviewerRole = ReviewParticipantRole.Approver,
+                ReviewType = ReviewType.Formal,
+                ReviewerStatus = ReviewStatus.InProgress
+            };
+
+            var getXmlParameters = new Dictionary<string, object>
+            {
+                { "reviewId", 1 },
+                { "userId", 2 }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>
+            {
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>"
+            });
+
+            var updateXmlParameters = new Dictionary<string, object>
+            {
+                { "reviewId", 1 },
+                { "userId", 2 },
+                { "updateReviewerStatus", false },
+                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Disapproved</A><AF>Disapproved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
+
+            // act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+
         }
 
         [TestMethod]
@@ -2395,6 +2536,8 @@ namespace ArtifactStore.Repositories
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStatsXml", updateXmlParameters, 1);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
@@ -2447,6 +2590,8 @@ namespace ArtifactStore.Repositories
                 { "artifactIds", SqlConnectionWrapper.ToDataTable(new List<int> { 3 }) }
             };
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             _cxn.SetupQueryMultipleAsync("CheckReviewArtifactUserApproval", getCheckParameters, mockResult, outParameters);
 
             // Act
@@ -2486,6 +2631,8 @@ namespace ArtifactStore.Repositories
             };
 
             SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds, reviewApprovalCheck);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
@@ -2540,6 +2687,8 @@ namespace ArtifactStore.Repositories
 
             _cxn.SetupQueryMultipleAsync("CheckReviewArtifactUserApproval", getCheckParameters, mockResult, outParameters);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
         }
@@ -2582,6 +2731,8 @@ namespace ArtifactStore.Repositories
             {
                 { 3, RolePermissions.Read }
             });
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
 
@@ -2628,6 +2779,8 @@ namespace ArtifactStore.Repositories
             {
                 { 1, RolePermissions.Read }
             });
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -2988,6 +3141,8 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewExists = false);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             try
             {
@@ -3005,6 +3160,23 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UpdateReviewerStatusAsync_ShouldThrowUserCannotModifyReviewException()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = int.MaxValue;
+
+            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewExists = false);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
+
+            await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.InProgress, userId);
+
+        }
+
+        [TestMethod]
         public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Has_Been_Deleted()
         {
             // Arrange
@@ -3013,6 +3185,8 @@ namespace ArtifactStore.Repositories
             var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewDeleted = true);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -3040,6 +3214,8 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Draft);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             try
             {
@@ -3066,6 +3242,8 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Closed);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             try
             {
@@ -3091,6 +3269,8 @@ namespace ArtifactStore.Repositories
             var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.UserInReview = false);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -3119,6 +3299,8 @@ namespace ArtifactStore.Repositories
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>());
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -3161,6 +3343,8 @@ namespace ArtifactStore.Repositories
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", parameters, 1);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.InProgress, userId);
 
@@ -3177,6 +3361,8 @@ namespace ArtifactStore.Repositories
             var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewExists = false);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -3204,6 +3390,8 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewDeleted = true);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             try
             {
@@ -3229,6 +3417,8 @@ namespace ArtifactStore.Repositories
             var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Draft);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -3256,6 +3446,8 @@ namespace ArtifactStore.Repositories
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewStatus = ReviewPackageStatus.Closed);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             try
             {
@@ -3281,6 +3473,8 @@ namespace ArtifactStore.Repositories
             var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.UserInReview = false);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -3309,6 +3503,8 @@ namespace ArtifactStore.Repositories
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>());
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -3342,6 +3538,8 @@ namespace ArtifactStore.Repositories
                 { reviewId, RolePermissions.Read }
             });
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
         }
@@ -3362,6 +3560,8 @@ namespace ArtifactStore.Repositories
             });
 
             SetupGetRequireAllArtifactsReviewedQuery(reviewId, userId, false, false);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
@@ -3391,6 +3591,8 @@ namespace ArtifactStore.Repositories
 
             SetupReviewedArtifactsQueries(reviewId, userId, ra => ra.ApprovalFlag = ApprovalType.Approved);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
 
@@ -3418,6 +3620,8 @@ namespace ArtifactStore.Repositories
             SetupGetRequireAllArtifactsReviewedQuery(reviewId, userId, false, true);
 
             SetupReviewedArtifactsQueries(reviewId, userId, ra => ra.ApprovalFlag = ApprovalType.Disapproved);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
@@ -3447,6 +3651,8 @@ namespace ArtifactStore.Repositories
 
             SetupReviewedArtifactsQueries(reviewId, userId, ra => ra.HasAccess = false);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
 
@@ -3474,6 +3680,8 @@ namespace ArtifactStore.Repositories
             SetupGetRequireAllArtifactsReviewedQuery(reviewId, userId, false, true);
 
             SetupReviewedArtifactsQueries(reviewId, userId, ra => ra.IsApprovalRequired = false);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
@@ -3508,6 +3716,8 @@ namespace ArtifactStore.Repositories
                 ra.ViewState = ViewStateType.Viewed;
             });
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.Completed, userId);
 
@@ -3538,6 +3748,8 @@ namespace ArtifactStore.Repositories
             {
                 ra.ViewState = ViewStateType.NotViewed;
             });
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -3581,6 +3793,8 @@ namespace ArtifactStore.Repositories
                 ra.ViewedArtifactVersion = 1;
             });
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             try
             {
@@ -3620,6 +3834,8 @@ namespace ArtifactStore.Repositories
             {
                 ra.ApprovalFlag = ApprovalType.NotSpecified;
             });
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             try
@@ -4399,6 +4615,43 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task RemoveArtifactsFromReviewAsync_ShouldThrowUserCannotModifyReviewException()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var queryParameters = new Dictionary<string, object>
+            {
+                { "@reviewId", reviewId },
+                { "@userId", userId }
+            };
+            var propertyValueStringResult = new[]
+            {
+               new PropertyValueString
+               {
+                   IsReviewReadOnly = false,
+                   IsDraftRevisionExists = true,
+                   ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
+                   ProjectId = 0,
+                   LockedByUserId = userId
+               }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewPropertyString", queryParameters, propertyValueStringResult);
+            var prms = new ReviewItemsRemovalParams
+            {
+                ItemIds = new List<int> { 1, 2, 3 },
+                SelectionType = SelectionType.Selected
+            };
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
+
+            // Act
+            await _reviewsRepository.RemoveArtifactsFromReviewAsync(1, prms, 2);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ConflictException))]
         public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewClosed()
         {
@@ -4431,8 +4684,13 @@ namespace ArtifactStore.Repositories
                 SelectionType = SelectionType.Selected
             };
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
         }
 
         [TestMethod]
@@ -4465,6 +4723,8 @@ namespace ArtifactStore.Repositories
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
             };
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
@@ -4502,6 +4762,8 @@ namespace ArtifactStore.Repositories
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
             };
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
@@ -4542,6 +4804,8 @@ namespace ArtifactStore.Repositories
                 SelectionType = SelectionType.Selected
             };
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
         }
@@ -4568,6 +4832,8 @@ namespace ArtifactStore.Repositories
                 SelectionType = SelectionType.Selected
             };
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
         }
@@ -4588,10 +4854,34 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task RemoveParticipantsFromReviewAsync_ShouldThrowUserCannotModifyReviewException()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
+            var updatedXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers /><Status>Active</Status></ReviewPackageRawData>";
+
+            SetupGetReviewXmlQuery(reviewId, userId, xmlString);
+            SetupUpdateReviewXmlQuery(reviewId, userId, 1, updatedXml);
+
+            var prms = new ReviewItemsRemovalParams
+            {
+                ItemIds = new List<int> { 1, 2, 3 },
+                SelectionType = SelectionType.Selected
+            };
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
+
+            // Act
+            await _reviewsRepository.RemoveParticipantsFromReviewAsync(1, prms, 2);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ConflictException))]
         public async Task RemoveParticipantsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewClosed()
         {
-            // Arrange
             // Arrange
             var reviewId = 1;
             var userId = 2;
@@ -4605,6 +4895,8 @@ namespace ArtifactStore.Repositories
                 SelectionType = SelectionType.Selected
             };
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
         }
@@ -4613,7 +4905,6 @@ namespace ArtifactStore.Repositories
         [ExpectedException(typeof(BadRequestException))]
         public async Task RemoveParticipantsFromReviewAsync_ShouldThrow_BadRequestException_WhenXMLNotExist()
         {
-            // Arrange
             // Arrange
             var reviewId = 1;
             var userId = 2;
@@ -4626,6 +4917,8 @@ namespace ArtifactStore.Repositories
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
             };
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
@@ -4649,6 +4942,8 @@ namespace ArtifactStore.Repositories
             };
             _artifactRepositoryMock.Setup(artifactRepository => artifactRepository.IsArtifactLockedByUserAsync(reviewId, userId)).ReturnsAsync(false);
 
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
+
             // Act
             await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
         }
@@ -4671,6 +4966,8 @@ namespace ArtifactStore.Repositories
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
             };
+
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(true);
 
             // Act
             await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);

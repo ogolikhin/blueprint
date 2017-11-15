@@ -1072,6 +1072,11 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("No users were selected to be added.", ErrorCodes.OutOfRangeParameter);
             }
 
+            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
+
             var reviewXmlResult = await GetReviewXmlAsync(reviewId, userId);
 
             if (!reviewXmlResult.ReviewExists)
@@ -1274,6 +1279,11 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }
 
+            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
+
             var reviewXmlResult = await GetReviewXmlAsync(reviewId, userId);
 
             if (!reviewXmlResult.ReviewExists)
@@ -1375,6 +1385,11 @@ namespace ArtifactStore.Repositories
             if ((removeParams.ItemIds == null || !removeParams.ItemIds.Any()) && removeParams.SelectionType == SelectionType.Selected)
             {
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
+            }
+
+            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
             var propertyResult = await GetReviewPropertyStringAsync(reviewId, userId);
@@ -1557,6 +1572,11 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Not all parameters provided.", ErrorCodes.OutOfRangeParameter);
             }
 
+            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
+
             var artifactIds = new List<int>();
 
             if (reviewArtifactApprovalParameters.SelectionType == SelectionType.Excluded)
@@ -1725,6 +1745,11 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
             }
 
+            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
+
             Func<IDbTransaction, Task> transactionAction = async transaction =>
             {
                 var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId, transaction);
@@ -1773,6 +1798,11 @@ namespace ArtifactStore.Repositories
             if (reviewStatus == ReviewStatus.NotStarted)
             {
                 throw new BadRequestException("Cannot set reviewer status to not started");
+            }
+
+            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, new int[0]);

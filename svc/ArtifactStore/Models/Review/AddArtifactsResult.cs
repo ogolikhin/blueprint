@@ -15,6 +15,9 @@ namespace ArtifactStore.Models.Review
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int NonexistentArtifactCount { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IEnumerable<int> AddedArtifactIds { get; set; }
     }
 
     internal class EffectiveArtifactIdsResult

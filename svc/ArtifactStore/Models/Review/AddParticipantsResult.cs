@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace ArtifactStore.Models.Review
 {
@@ -12,5 +13,8 @@ namespace ArtifactStore.Models.Review
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public int NonExistentUsers { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IEnumerable<int> AddedParticipantIds { get; set; }
     }
 }

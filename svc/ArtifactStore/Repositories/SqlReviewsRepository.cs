@@ -423,10 +423,10 @@ namespace ArtifactStore.Repositories
 
             // We replace all artifacts if baseline was added or baseline was replaced
             var replaceAllArtifacts = effectiveIds.IsBaselineAdded || (propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0);
-
+            var addedIdsList = new List<int>();
             var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml,
                 new HashSet<int>(effectiveIds.ArtifactIds),
-                replaceAllArtifacts,
+                replaceAllArtifacts, addedIdsList,
                 out alreadyIncludedCount);
 
             Func<IDbTransaction, Task> transactionAction = async transaction =>
@@ -449,7 +449,8 @@ namespace ArtifactStore.Repositories
                 ArtifactCount = effectiveIds.ArtifactIds.Count() - alreadyIncludedCount,
                 AlreadyIncludedArtifactCount = alreadyIncludedCount,
                 NonexistentArtifactCount = effectiveIds.Nonexistent,
-                UnpublishedArtifactCount = effectiveIds.Unpublished
+                UnpublishedArtifactCount = effectiveIds.Unpublished,
+                AddedArtifactIds = addedIdsList
             };
         }
 
@@ -528,7 +529,7 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        private static string AddArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToAdd, bool replaceAllArtifacts, out int alreadyIncluded)
+        private static string AddArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToAdd, bool replaceAllArtifacts, List<int> addedIdsList, out int alreadyIncluded)
         {
             alreadyIncluded = 0;
 
@@ -557,6 +558,7 @@ namespace ArtifactStore.Repositories
                     };
 
                     rdReviewContents.Artifacts.Add(addedArtifact);
+                    addedIdsList.Add(artifactToAdd);
                 }
                 else
                 {
@@ -1134,7 +1136,8 @@ namespace ArtifactStore.Repositories
             {
                 ParticipantCount = newParticipantsCount,
                 AlreadyIncludedCount = uniqueParticipantsSet.Count - newParticipantsCount,
-                NonExistentUsers = deletedUserIds.Count
+                NonExistentUsers = deletedUserIds.Count,
+                AddedParticipantIds = participantIdsToAdd
             };
         }
 

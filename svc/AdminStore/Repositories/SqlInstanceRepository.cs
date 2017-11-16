@@ -18,15 +18,17 @@ namespace AdminStore.Repositories
     public class SqlInstanceRepository : IInstanceRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlHelper _sqlHelper;
 
         public SqlInstanceRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlHelper())
         {
         }
 
-        internal SqlInstanceRepository(ISqlConnectionWrapper connectionWrapper)
+        internal SqlInstanceRepository(ISqlConnectionWrapper connectionWrapper, ISqlHelper sqlHelper)
         {
             _connectionWrapper = connectionWrapper;
+            _sqlHelper = sqlHelper;
         }
 
         #region folders
@@ -189,6 +191,19 @@ namespace AdminStore.Repositories
 
         #region projects
 
+        public async Task DeactivateWorkflowsWithLastAssignmentForDeletedProject(int projectId)
+        {
+            if (projectId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
+            var prm = new DynamicParameters();
+            prm.Add("@ProjectId", projectId);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("DeactivateWorkflowsWithLastAssignmentForDeletedProject", prm, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId, bool fromAdminPortal = false)
         {
             if (projectId < 1)
@@ -251,52 +266,45 @@ namespace AdminStore.Repositories
             return projectPaths.OrderByDescending(p => p.Level).Select(p => p.Name).ToList();
         }
 
-        public async Task DeleteProject(int userId, int projectId)
+        public async Task RemoveProject(int userId, int projectId)
         {
-            // We need to check if project is still exist in database and not makred as deleted
-            // Also we need to get the latest projectstatus to apply the right delete method
-            ProjectStatus? projectStatus;
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@projectId", projectId);
 
-            InstanceItem project = await GetInstanceProjectAsync(projectId, userId, fromAdminPortal: true);
+            await _connectionWrapper.ExecuteAsync("RemoveProject", parameters,
+                commandType: CommandType.StoredProcedure);
 
-            if (!TryGetProjectStatusIfProjectExist(project, out projectStatus))
+        }
+
+        public async Task PurgeProject(int projectId, InstanceItem project)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connectionWrapper.ExecuteScalarAsync<int>("PurgeProject", parameters,
+                commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("result");
+
+            if (errorCode.HasValue)
             {
-                throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ProjectWasDeletedByAnotherUser, project.Id, project.Name), ErrorCodes.ResourceNotFound);
-            }
-
-            if (projectStatus == ProjectStatus.Live)
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@userId", userId);
-                parameters.Add("@projectId", projectId);
-
-                await _connectionWrapper.ExecuteAsync("RemoveProject", parameters,
-                    commandType: CommandType.StoredProcedure);
-            }
-            else
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@projectId", projectId);
-                parameters.Add("@result", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-                await _connectionWrapper.ExecuteScalarAsync<int>("PurgeProject", parameters,
-                    commandType: CommandType.StoredProcedure);
-                var errorCode = parameters.Get<int?>("result");
-
-                if (errorCode.HasValue)
+                switch (errorCode.Value)
                 {
-                    switch (errorCode.Value)
-                    {
-                        case -2: // Instance project issue
-                            throw new ConflictException(I18NHelper.FormatInvariant(ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id), ErrorCodes.Conflict);
-                        case -1: // Cross project move issue
-                            throw new ResourceNotFoundException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id), ErrorCodes.ResourceNotFound);
-                        case 0:
-                            // Success
-                            break;
-                        default:
-                            throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
-                    }
+                    case -2: // Instance project issue
+                        throw new ConflictException(
+                            I18NHelper.FormatInvariant(
+                                ErrorMessages.ForbidToPurgeSystemInstanceProjectForInternalUseOnly, project.Id),
+                            ErrorCodes.Conflict);
+                    case -1: // Cross project move issue
+                        throw new ResourceNotFoundException(
+                            I18NHelper.FormatInvariant(ErrorMessages.ArtifactWasMovedToAnotherProject, project.Id),
+                            ErrorCodes.ResourceNotFound);
+                    case 0:
+                        // Success
+                        break;
+                    default:
+                        throw new Exception(ErrorMessages.GeneralErrorOfUpdatingProject);
                 }
             }
         }
@@ -553,53 +561,10 @@ namespace AdminStore.Repositories
 
         #endregion
 
-        #region private methods
-
-
-        /// <summary>
-        ///  This method takes the projectId and checks if the project is still exist in the database and not marked as deleted
-        /// </summary>
-        /// <param name="project">Project</param>
-        /// <param name="projectStatus">If the project exists it returns ProjectStatus as output If the Project does not exists projectstatus = null</param>
-        /// <returns>Returns true if project exists in the database and not marked as deleted for that specific revision</returns>
-        private bool TryGetProjectStatusIfProjectExist(InstanceItem project, out ProjectStatus? projectStatus)
+        public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
         {
-            if (project == null)
-            {
-                projectStatus = null;
-                return false;
-            }
-            if (project.ParentFolderId == null)
-            {
-                projectStatus = null;
-                return false;
-            }
-
-            projectStatus = GetProjectStatus(project.ProjectStatus);
-            return true;
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
         }
 
-        /// <summary>
-        /// Maps the project status string to enum.
-        /// </summary>
-        private static ProjectStatus GetProjectStatus(string status)
-        {
-            // Project status is used to identify different status of the import process a project can be in
-            switch (status)
-            {
-                case "I":
-                    return ProjectStatus.Importing;
-                case "F":
-                    return ProjectStatus.ImportFailed;
-                case "C":
-                    return ProjectStatus.CancelingImport;
-                case null:
-                    return ProjectStatus.Live;
-                default:
-                    throw new Exception(I18NHelper.FormatInvariant(ErrorMessages.UnhandledStatusOfProject, status));
-            }
-        }
-
-        #endregion
             }
 }

@@ -313,7 +313,7 @@ namespace AdminStore.Controllers
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.DeleteProjects);
 
-            await _instanceRepository.DeleteProject(Session.UserId, projectId);
+            await _instanceService.DeleteProject(Session.UserId, projectId);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }

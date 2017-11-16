@@ -345,6 +345,11 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("There is nothing to add to review.", ErrorCodes.OutOfRangeParameter);
             }
 
+            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
+
             int alreadyIncludedCount;
             var propertyResult = await GetReviewPropertyStringAsync(reviewId, userId);
             var artifactIds = content.ArtifactIds;
@@ -394,8 +399,30 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewActiveFormalException();
             }
 
+            if (content.Force == false)
+            {
+                if (propertyResult.BaselineId != null &&
+                    propertyResult.BaselineId.Value > 0)
+                {
+                    throw ReviewsExceptionHelper.BaselineIsAlreadyAttachedToReviewException(propertyResult.BaselineId.Value);
+                }
+
+                // Adding Baseline to existing review (Not new created one)
+                if (effectiveIds.IsBaselineAdded && !string.IsNullOrEmpty(propertyResult.ArtifactXml))
+                {
+                    var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
+                    // only if review has at least one artifact which will be replaced
+                    if (rdReviewContents != null &&
+                        rdReviewContents.Artifacts != null &&
+                        rdReviewContents.Artifacts.Any())
+                    {
+                        throw ReviewsExceptionHelper.LiveArtifactsReplacedWithBaselineException();
+                    }
+                }
+            }
+
             // We replace all artifacts if baseline was added or baseline was replaced
-            var replaceAllArtifacts = effectiveIds.IsBaselineAdded || (propertyResult.BaselineId != null && propertyResult.BaselineId > 0);
+            var replaceAllArtifacts = effectiveIds.IsBaselineAdded || (propertyResult.BaselineId != null && propertyResult.BaselineId.Value > 0);
 
             var artifactXmlResult = AddArtifactsToXML(propertyResult.ArtifactXml,
                 new HashSet<int>(effectiveIds.ArtifactIds),
@@ -432,7 +459,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
             parameters.Add("@revisionId", int.MaxValue);
-            parameters.Add("@includeDrafts", false);
+            parameters.Add("@includeDrafts", true);
 
             return (await _connectionWrapper.QueryAsync<ChildArtifactsResult>("GetChildArtifacts", parameters, commandType: CommandType.StoredProcedure));
         }
@@ -446,12 +473,11 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<PropertyValueString>("GetReviewPropertyString", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        public async Task<PropertyValueString> GetReviewApprovalRolesInfoAsync(int reviewId, int userId, int roleUserId)
+        public async Task<PropertyValueString> GetReviewApprovalRolesInfoAsync(int reviewId, int userId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
-            parameters.Add("@roleUserId", roleUserId);
 
             return (await _connectionWrapper.QueryAsync<PropertyValueString>("GetReviewApprovalRolesInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
@@ -1310,7 +1336,9 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
             }
 
-            return ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString);
+            return !string.IsNullOrEmpty(reviewXml.XmlString)
+                ? ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewXml.XmlString)
+                : new ReviewPackageRawData();
         }
 
         public async Task UpdateReviewPackageRawDataAsync(int reviewId, ReviewPackageRawData reviewPackageRawData, int userId)
@@ -1318,7 +1346,6 @@ namespace ArtifactStore.Repositories
             var reviewXml = ReviewRawDataHelper.GetStoreData(reviewPackageRawData);
 
             await UpdateReviewXmlAsync(reviewId, userId, reviewXml);
-            await UpdateReviewLastSaveInvalidAsync(reviewId, userId);
         }
 
         public async Task<int> UpdateReviewLastSaveInvalidAsync(int reviewId, int userId, IDbTransaction transaction = null)

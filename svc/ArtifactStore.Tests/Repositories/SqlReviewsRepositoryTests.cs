@@ -1436,12 +1436,12 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
         public async Task AddParticipants_ShouldThrowUserCannotModifyReviewException()
         {
             // Arrange
             var reviewId = 1;
             var userId = 2;
+            var isExceptionThrown = false;
             var content = new AddParticipantsParameter
             {
                 UserIds = new[] { 1, 2 }
@@ -1456,8 +1456,25 @@ namespace ArtifactStore.Repositories
             _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
 
             // Act
-            await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+            try
+            {
+                await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+            }
+            catch (AuthorizationException ex)
+            {
+                isExceptionThrown = true;
 
+                // Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
         }
 
         private void SetupGetReviewXmlQuery(int reviewId, int userId, string xmlString)
@@ -2371,6 +2388,7 @@ namespace ArtifactStore.Repositories
         [ExpectedException(typeof(ConflictException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Reviewer_Status_Is_Completed()
         {
+
             // Arrange
             var reviewId = 1;
             var userId = 2;
@@ -2407,12 +2425,12 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
         public async Task UpdateReviewArtifactApprovalAsync_ShouldThrowUserCannotModifyReviewException()
         {
             // Arrange
             var reviewId = 1;
             var userId = 2;
+            var isExceptionThrown = false;
             var approvalParameter = new ReviewArtifactApprovalParameter
             {
                 Approval = "Disapproved",
@@ -2468,8 +2486,26 @@ namespace ArtifactStore.Repositories
 
             _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
 
-            // act
-            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+            // Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
+            }
+            catch (AuthorizationException ex)
+            {
+                isExceptionThrown = true;
+
+                // Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
 
         }
 
@@ -3160,19 +3196,37 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
         public async Task UpdateReviewerStatusAsync_ShouldThrowUserCannotModifyReviewException()
         {
             // Arrange
             var reviewId = 1;
             var userId = 2;
+            var isExceptionThrown = false;
             var revisionId = int.MaxValue;
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewExists = false);
 
             _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
 
-            await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.InProgress, userId);
+            try
+            {
+                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.InProgress, userId);
+            }
+            catch (AuthorizationException ex)
+            {
+                isExceptionThrown = true;
+
+                // Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
 
         }
 
@@ -4615,12 +4669,12 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
         public async Task RemoveArtifactsFromReviewAsync_ShouldThrowUserCannotModifyReviewException()
         {
             // Arrange
             var reviewId = 1;
             var userId = 2;
+            var isExceptionThrown = false;
             var queryParameters = new Dictionary<string, object>
             {
                 { "@reviewId", reviewId },
@@ -4647,8 +4701,27 @@ namespace ArtifactStore.Repositories
 
             _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
 
+
             // Act
-            await _reviewsRepository.RemoveArtifactsFromReviewAsync(1, prms, 2);
+            try
+            {
+                await _reviewsRepository.RemoveArtifactsFromReviewAsync(1, prms, 2);
+            }
+            catch (AuthorizationException ex)
+            {
+                isExceptionThrown = true;
+
+                // Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
         }
 
         [TestMethod]
@@ -4854,12 +4927,12 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
         public async Task RemoveParticipantsFromReviewAsync_ShouldThrowUserCannotModifyReviewException()
         {
             // Arrange
             var reviewId = 1;
             var userId = 2;
+            var isExceptionThrown = false;
             var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
             var updatedXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers /><Status>Active</Status></ReviewPackageRawData>";
 
@@ -4875,7 +4948,25 @@ namespace ArtifactStore.Repositories
             _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(reviewId, userId, false, int.MaxValue, true)).ReturnsAsync(false);
 
             // Act
-            await _reviewsRepository.RemoveParticipantsFromReviewAsync(1, prms, 2);
+            try
+            {
+                await _reviewsRepository.RemoveParticipantsFromReviewAsync(1, prms, 2);
+            }
+            catch (AuthorizationException ex)
+            {
+                isExceptionThrown = true;
+
+                // Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+            }
+            finally
+            {
+                if (!isExceptionThrown)
+                {
+                    Assert.Fail();
+                }
+            }
         }
 
         [TestMethod]

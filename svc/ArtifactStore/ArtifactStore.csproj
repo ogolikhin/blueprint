@@ -146,7 +146,6 @@
     <Compile Include="Models\Review\ReviewChangeItemsStatusResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactApprovalResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactId.cs" />
-    <Compile Include="Models\Review\ReviewArtifactsQueryResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactsRemovalParams.cs" />
     <Compile Include="Models\Review\ReviewArtifactViewedInput.cs" />
     <Compile Include="Models\Review\ParticipantMeaningOfSignatureResult.cs" />

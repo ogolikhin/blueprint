@@ -197,7 +197,7 @@ namespace ArtifactStore.Repositories
             return reviewDetails;
         }
 
-        private async Task<ReviewArtifactContent> GetReviewMetricsAsync(int reviewId, ReviewArtifactsQueryResult<ReviewedArtifact> artifacts, ReviewParticipantsContent participants)
+        private async Task<ReviewArtifactContent> GetReviewMetricsAsync(int reviewId, QueryResult<ReviewedArtifact> artifacts, ReviewParticipantsContent participants)
         {
             int revisionId = int.MaxValue;
             var artifactIds = artifacts.Items.Select(a => a.Id).ToList();
@@ -264,7 +264,7 @@ namespace ArtifactStore.Repositories
         public async Task<QueryResult<ReviewArtifact>> GetReviewArtifactsContentAsync(int reviewId, int userId, Pagination pagination, int? versionId = null, bool? addDrafts = true)
         {
             int? revisionId = await _itemInfoRepository.GetRevisionId(reviewId, userId, versionId);
-            ReviewArtifactsQueryResult<ReviewArtifact> reviewArtifacts;
+            QueryResult<ReviewArtifact> reviewArtifacts;
             if (versionId == null)
             {
                 reviewArtifacts = await GetReviewArtifactsAsync<ReviewArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
@@ -716,7 +716,7 @@ namespace ArtifactStore.Repositories
         }
 
         // Get all Review Artifacts for Summary Metrics
-        private async Task<ReviewArtifactsQueryResult<T>> GetAllReviewArtifactsAsync<T>(int reviewId, int userId)
+        private async Task<QueryResult<T>> GetAllReviewArtifactsAsync<T>(int reviewId, int userId)
             where T : BaseReviewArtifact
         {
             var refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
@@ -733,15 +733,14 @@ namespace ArtifactStore.Repositories
 
             var result = await _connectionWrapper.QueryAsync<T>("GetReviewArtifacts", parameters, commandType: CommandType.StoredProcedure);
 
-            return new ReviewArtifactsQueryResult<T>
+            return new QueryResult<T>
             {
                 Items = result.ToList(),
-                Total = parameters.Get<int>("@numResult"),
-                IsFormal = parameters.Get<bool>("@isFormal")
+                Total = parameters.Get<int>("@numResult")
             };
         }
 
-        private async Task<ReviewArtifactsQueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
+        private async Task<QueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
             where T : BaseReviewArtifact
         {
             var refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
@@ -758,15 +757,14 @@ namespace ArtifactStore.Repositories
 
             var result = await _connectionWrapper.QueryAsync<T>("GetReviewArtifacts", parameters, commandType: CommandType.StoredProcedure);
 
-            return new ReviewArtifactsQueryResult<T>
+            return new QueryResult<T>
             {
                 Items = result.ToList(),
-                Total = parameters.Get<int>("@numResult"),
-                IsFormal = parameters.Get<bool>("@isFormal")
+                Total = parameters.Get<int>("@numResult")
             };
         }
 
-        private async Task<ReviewArtifactsQueryResult<T>> GetHistoricalReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null)
+        private async Task<QueryResult<T>> GetHistoricalReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null)
             where T : BaseReviewArtifact
         {
             var parameters = new DynamicParameters();
@@ -780,11 +778,10 @@ namespace ArtifactStore.Repositories
 
             var result = await _connectionWrapper.QueryAsync<T>("GetHistoricalReviewArtifacts", parameters, commandType: CommandType.StoredProcedure);
 
-            return new ReviewArtifactsQueryResult<T>
+            return new QueryResult<T>
             {
                 Items = result.ToList(),
-                Total = parameters.Get<int>("@numResult"),
-                IsFormal = parameters.Get<bool>("@isFormal")
+                Total = parameters.Get<int>("@numResult")
             };
         }
 

@@ -529,7 +529,7 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        private static string AddArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToAdd, bool replaceAllArtifacts, List<int> addedIdsList, out int alreadyIncluded)
+        private static string AddArtifactsToXML(string xmlArtifacts, ISet<int> artifactsToAdd, bool replaceAllArtifacts, IList<int> addedIdsList, out int alreadyIncluded)
         {
             alreadyIncluded = 0;
 

@@ -67,8 +67,11 @@ namespace ArtifactStore.Services.Reviews
 
             var projectPermissions = await _permissionsRepository.GetProjectPermissions(reviewInfo.ProjectId);
 
+            reviewSettings.IsMeaningOfSignatureEnabledInProject =
+                projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
+
             reviewSettings.CanEditRequireMeaningOfSignature = reviewSettings.CanEditRequireESignature
-                && projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
+                && reviewSettings.IsMeaningOfSignatureEnabledInProject;
 
             return reviewSettings;
         }

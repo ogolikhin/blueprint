@@ -447,6 +447,66 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
+        public async Task GetReviewSettingsAsync_ClosedFormalReview_CanEditRequireMeaningOfSignatureIsFalse()
+        {
+            // Arrange
+            _reviewType = ReviewType.Formal;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(false, reviewSettings.CanEditRequireMeaningOfSignature);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ClosedPublicReview_CanEditRequireMeaningOfSignatureIsFalse()
+        {
+            // Arrange
+            _reviewType = ReviewType.Public;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(false, reviewSettings.CanEditRequireMeaningOfSignature);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ClosedInformalReview_CanEditRequireMeaningOfSignatureIsFalse()
+        {
+            // Arrange
+            _reviewType = ReviewType.Informal;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(false, reviewSettings.CanEditRequireMeaningOfSignature);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_ActiveFormalReview_CanEditRequireMeaningOfSignatureIsFalse()
+        {
+            // Arrange
+            _reviewType = ReviewType.Formal;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(false, reviewSettings.CanEditRequireMeaningOfSignature);
+        }
+
+        [TestMethod]
         public async Task GetReviewSettingsAsync_MeaningOfSignatureDisabledInProject_CanEditRequireMeaningOfSignatureIsFalse()
         {
             // Arrange
@@ -474,6 +534,36 @@ namespace ArtifactStore.Services
 
             // Assert
             Assert.AreEqual(true, reviewSettings.CanEditRequireMeaningOfSignature);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_MeaningOfSignatureDisabledInProject_IsMeaningOfSignatureEnabledInProjectIsFalse()
+        {
+            // Arrange
+            _reviewType = ReviewType.Formal;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _projectPermissions = ProjectPermissions.None;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(false, reviewSettings.IsMeaningOfSignatureEnabledInProject);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_MeaningOfSignatureEnabledInProject_IsMeaningOfSignatureEnabledInProjectIsTrue()
+        {
+            // Arrange
+            _reviewType = ReviewType.Formal;
+            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
+
+            // Act
+            var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+
+            // Assert
+            Assert.AreEqual(true, reviewSettings.IsMeaningOfSignatureEnabledInProject);
         }
 
         #endregion GetReviewSettingsAsync

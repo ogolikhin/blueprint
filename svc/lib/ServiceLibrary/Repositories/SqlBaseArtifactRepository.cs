@@ -32,7 +32,7 @@ namespace ServiceLibrary.Repositories
         /// <summary>
         /// Checks whether the user has permission for this artifact.
         /// if a revision Id is provided, the artifact's revision has to be less than the current revision.
-        /// If the artifact is not a regular artifact type then we throw a non-supported exception.
+        /// For SqlWorkflowRepository - If the artifact is not a regular artifact type then we throw a non-supported exception.
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="artifactId"></param>
@@ -47,10 +47,8 @@ namespace ServiceLibrary.Repositories
                 throw ExceptionHelper.ArtifactNotFoundException(artifactId);
             }
 
-            if (!((ItemTypePredefined)artifactBasicDetails.PrimitiveItemTypePredefined).IsRegularArtifactType())
-            {
-                throw ExceptionHelper.ArtifactDoesNotSupportOperation(artifactId);
-            }
+            // TODO: Move out to derived class.
+            InternalCheckForOperationSupport(artifactBasicDetails);
 
             var artifactsPermissions =
                 await ArtifactPermissionsRepository.GetArtifactPermissions(new List<int> { artifactId }, userId);
@@ -60,6 +58,11 @@ namespace ServiceLibrary.Repositories
             {
                 throw ExceptionHelper.ArtifactForbiddenException(artifactId);
             }
+        }
+
+        protected virtual void InternalCheckForOperationSupport(ArtifactBasicDetails artifactBasicDetails)
+        {
+            // Do nothing
         }
     }
 }

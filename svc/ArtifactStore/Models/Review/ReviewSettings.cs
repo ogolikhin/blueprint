@@ -30,5 +30,7 @@ namespace ArtifactStore.Models.Review
         public bool CanEditRequireMeaningOfSignature { get; set; }
 
         public bool RequireMeaningOfSignature { get; set; }
+
+        public bool IsMeaningOfSignatureEnabledInProject { get; set; }
     }
 }

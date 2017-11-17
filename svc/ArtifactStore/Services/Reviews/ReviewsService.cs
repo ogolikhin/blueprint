@@ -67,8 +67,11 @@ namespace ArtifactStore.Services.Reviews
 
             var projectPermissions = await _permissionsRepository.GetProjectPermissions(reviewInfo.ProjectId);
 
+            reviewSettings.IsMeaningOfSignatureEnabledInProject =
+                projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
+
             reviewSettings.CanEditRequireMeaningOfSignature = reviewSettings.CanEditRequireESignature
-                && projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
+                && reviewSettings.IsMeaningOfSignatureEnabledInProject;
 
             return reviewSettings;
         }
@@ -326,6 +329,12 @@ namespace ArtifactStore.Services.Reviews
             {
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }
+
+            if (!await _permissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
+            }
+
             var propertyResult = await _reviewsRepository.GetReviewApprovalRolesInfoAsync(reviewId, userId);
 
             if (propertyResult == null)
@@ -454,6 +463,11 @@ namespace ArtifactStore.Services.Reviews
             if ((content.ItemIds == null || !content.ItemIds.Any()) && content.SelectionType == SelectionType.Selected)
             {
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
+            }
+
+            if (!await _permissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
             var propertyResult = await _reviewsRepository.GetReviewPropertyStringAsync(reviewId, userId);

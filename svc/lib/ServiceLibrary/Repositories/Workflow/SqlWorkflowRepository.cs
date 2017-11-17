@@ -127,7 +127,24 @@ namespace ServiceLibrary.Repositories.Workflow
             return await GetWorkflowMessageArtifactInfoAsyncInternal(userId, artifactIds, revisionId, transaction);
         }
 
+        public bool IsWorkflowSupported(ItemTypePredefined baseArtifactTypePredefined)
+        {
+            return IsWorkflowSupportedForArtifactType(baseArtifactTypePredefined);
+        }
+
+        public static bool IsWorkflowSupportedForArtifactType(ItemTypePredefined baseArtifactTypePredefined)
+        {
+            return baseArtifactTypePredefined.IsRegularArtifactType();
+        }
         #endregion
+
+        protected override void InternalCheckForOperationSupport(ArtifactBasicDetails artifactBasicDetails)
+        {
+            if (!IsWorkflowSupported((ItemTypePredefined)artifactBasicDetails.PrimitiveItemTypePredefined))
+            {
+                throw ExceptionHelper.ArtifactDoesNotSupportOperation(artifactBasicDetails.ItemId);
+            }
+        }
 
         #region Private methods
 
@@ -671,7 +688,6 @@ namespace ServiceLibrary.Repositories.Workflow
                     param,
                     commandType: CommandType.StoredProcedure)).ToList();
         }
-
         #endregion
     }
 }

@@ -1243,10 +1243,16 @@ namespace ArtifactStore.Repositories
 
             var reviewedArtifacts = (await GetReviewArtifactsByParticipantAsync(toc.Items.Select(a => a.Id), userId, reviewId, revisionId)).ToList();
 
+            var reviewPackage = await GetReviewPackageRawDataAsync(reviewId, userId, revisionId);
+
             // TODO: Update artifact statuses and permissions
             foreach (var tocItem in toc.Items)
             {
-                if (SqlArtifactPermissionsRepository.HasPermissions(tocItem.Id, artifactPermissionsDictionary, RolePermissions.Read))
+                if (reviewPackage.IsIgnoreFolder && tocItem.ItemTypePredefined == (int)ItemTypePredefined.PrimitiveFolder)
+                {
+                    tocItem.HasAccess = false;
+                }
+                else if (SqlArtifactPermissionsRepository.HasPermissions(tocItem.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
                     // TODO update item status
                     tocItem.HasAccess = true;
@@ -2054,7 +2060,6 @@ namespace ArtifactStore.Repositories
         private static void UnauthorizedItem(ReviewTableOfContentItem item)
         {
             item.Name = Unauthorized; // unauthorize
-            item.Included = false;
             item.HasAccess = false;
             item.IsApprovalRequired = false;
         }

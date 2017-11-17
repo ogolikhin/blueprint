@@ -7,10 +7,8 @@ namespace ArtifactStore.Models.Review
     public class ReviewTableOfContentItem : BaseReviewArtifact
     {
         public ApprovalType ApprovalStatus { get; set; }
-        public int Level { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public bool Included { get; set; }
+        public int Level { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int ArtifactVersion { get; set; }

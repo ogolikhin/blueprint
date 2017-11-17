@@ -3143,40 +3143,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task UpdateReviewerStatusAsync_ShouldThrowUserCannotModifyReviewException()
-        {
-            // Arrange
-            var reviewId = 1;
-            var userId = 2;
-            var isExceptionThrown = false;
-            _hasEditPermissions = false;
-            var revisionId = int.MaxValue;
-
-            SetupArtifactApprovalCheck(reviewId, userId, new int[0], check => check.ReviewExists = false);
-
-            try
-            {
-                await _reviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, ReviewStatus.InProgress, userId);
-            }
-            catch (AuthorizationException ex)
-            {
-                isExceptionThrown = true;
-
-                // Assert
-                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
-
-            }
-            finally
-            {
-                if (!isExceptionThrown)
-                {
-                    Assert.Fail();
-                }
-            }
-
-        }
-
-        [TestMethod]
         public async Task UpdateReviewerStatusAsync_Set_To_InProgress_Should_Throw_When_Review_Has_Been_Deleted()
         {
             // Arrange

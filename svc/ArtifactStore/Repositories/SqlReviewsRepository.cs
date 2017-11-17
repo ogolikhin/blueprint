@@ -1797,11 +1797,6 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Cannot set reviewer status to not started");
             }
 
-            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
-            {
-                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
-            }
-
             var approvalCheck = await CheckReviewArtifactApprovalAsync(reviewId, userId, new int[0]);
 
             CheckReviewStatsCanBeUpdated(approvalCheck, reviewId, true);

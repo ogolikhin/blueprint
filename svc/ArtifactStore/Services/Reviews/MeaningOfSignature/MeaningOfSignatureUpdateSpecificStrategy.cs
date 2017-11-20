@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ArtifactStore.Helpers;
 using ArtifactStore.Models.Review;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -21,7 +22,7 @@ namespace ArtifactStore.Services.Reviews.MeaningOfSignature
             {
                 if (!possibleMeaningOfSignatures.ContainsKey(participantId))
                 {
-                    throw new ConflictException("Could not update meaning of signature because meaning of signature is not possible for a participant.", ErrorCodes.MeaningOfSignatureNotPossible);
+                    throw ReviewsExceptionHelper.MeaningOfSignatureNotPossibleException();
                 }
 
                 var meaningOfSignature = possibleMeaningOfSignatures[participantId].FirstOrDefault(mos => mos.RoleAssignmentId == meaningOfSignatureParameter.RoleAssignmentId);

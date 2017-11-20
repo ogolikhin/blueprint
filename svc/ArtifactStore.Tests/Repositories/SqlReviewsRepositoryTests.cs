@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ArtifactStore.Models.Review;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,7 +34,7 @@ namespace ArtifactStore.Repositories
         private bool _hasEditPermissions = true;
 
         public const int ReviewId = 1;
-        public const int UserId = 1;
+        public const int UserId = 2;
 
         [TestInitialize]
         public void Initialize()
@@ -3003,6 +3004,382 @@ namespace ArtifactStore.Repositories
             }
 
             Assert.Fail();
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_When_MoS_Is_Enabled_Should_Throw_If_MoSIds_Is_Null()
+        {
+            // Arrange
+            var approvalParameter = new ReviewArtifactApprovalParameter
+            {
+                Approval = "Pending",
+                ApprovalFlag = ApprovalType.NotSpecified,
+                ArtifactIds = new List<int> { 3 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupReviewArtifactsUserApprovalCheck(ReviewId, UserId, artifactIds);
+
+            SetupGetVersionNumber(ReviewId, artifactIds);
+
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], ReviewId }, UserId, new Dictionary<int, RolePermissions>
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            SetupIsMeaningOfSignatureEnabledQuery(ReviewId, UserId, false, true);
+
+            // Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(ReviewId, approvalParameter, UserId);
+            }
+            catch (BadRequestException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.MeaningOfSignatureNotChosen, ex.ErrorCode);
+
+                return;
+            }
+
+
+            Assert.Fail("A BadRequestException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_When_MoS_Is_Enabled_Should_Throw_If_MoSIds_Is_Empty()
+        {
+            // Arrange
+            var approvalParameter = new ReviewArtifactApprovalParameter
+            {
+                Approval = "Pending",
+                ApprovalFlag = ApprovalType.NotSpecified,
+                ArtifactIds = new List<int> { 3 },
+                MeaningOfSignatureIds = new int[0]
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupReviewArtifactsUserApprovalCheck(ReviewId, UserId, artifactIds);
+
+            SetupGetVersionNumber(ReviewId, artifactIds);
+
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], ReviewId }, UserId, new Dictionary<int, RolePermissions>
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            SetupIsMeaningOfSignatureEnabledQuery(ReviewId, UserId, false, true);
+
+            // Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(ReviewId, approvalParameter, UserId);
+            }
+            catch (BadRequestException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.MeaningOfSignatureNotChosen, ex.ErrorCode);
+
+                return;
+            }
+
+
+            Assert.Fail("A BadRequestException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_When_MoS_Is_Enabled_Should_Throw_If_No_Possible_MoS_For_Participant()
+        {
+            // Arrange
+            var approvalParameter = new ReviewArtifactApprovalParameter
+            {
+                Approval = "Pending",
+                ApprovalFlag = ApprovalType.NotSpecified,
+                ArtifactIds = new List<int> { 3 },
+                MeaningOfSignatureIds = new[] { 4 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupReviewArtifactsUserApprovalCheck(ReviewId, UserId, artifactIds);
+
+            SetupGetVersionNumber(ReviewId, artifactIds);
+
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], ReviewId }, UserId, new Dictionary<int, RolePermissions>
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            SetupIsMeaningOfSignatureEnabledQuery(ReviewId, UserId, false, true);
+
+            SetupPossibleMeaningOfSignaturesQuery(new[] { UserId }, new ParticipantMeaningOfSignatureResult[0]);
+
+            // Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(ReviewId, approvalParameter, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.MeaningOfSignatureNotPossible, ex.ErrorCode);
+
+                return;
+            }
+
+
+            Assert.Fail("A ConflictException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_When_MoS_Is_Enabled_Should_Throw_If_No_Assigned_MoS_For_Participant()
+        {
+            // Arrange
+            var approvalParameter = new ReviewArtifactApprovalParameter
+            {
+                Approval = "Pending",
+                ApprovalFlag = ApprovalType.NotSpecified,
+                ArtifactIds = new List<int> { 3 },
+                MeaningOfSignatureIds = new[] { 4 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupReviewArtifactsUserApprovalCheck(ReviewId, UserId, artifactIds);
+
+            SetupGetVersionNumber(ReviewId, artifactIds);
+
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], ReviewId }, UserId, new Dictionary<int, RolePermissions>
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            SetupIsMeaningOfSignatureEnabledQuery(ReviewId, UserId, false, true);
+
+            SetupPossibleMeaningOfSignaturesQuery(new[] { UserId }, new[]
+            {
+                new ParticipantMeaningOfSignatureResult()
+                {
+                    RoleAssignmentId = 4
+                }
+            });
+
+            SetupParticipantMeaningOfSignaturesQuery(new[] { UserId }, new ParticipantMeaningOfSignatureResult[0]);
+
+            // Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(ReviewId, approvalParameter, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.MeaningOfSignatureNotPossible, ex.ErrorCode);
+
+                return;
+            }
+
+
+            Assert.Fail("A ConflictException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_When_MoS_Is_Enabled_Should_Throw_If_Assigned_MoS_Doesnt_Match_Possible_MoS()
+        {
+            // Arrange
+            var approvalParameter = new ReviewArtifactApprovalParameter
+            {
+                Approval = "Pending",
+                ApprovalFlag = ApprovalType.NotSpecified,
+                ArtifactIds = new List<int> { 3 },
+                MeaningOfSignatureIds = new[] { 4 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupReviewArtifactsUserApprovalCheck(ReviewId, UserId, artifactIds);
+
+            SetupGetVersionNumber(ReviewId, artifactIds);
+
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], ReviewId }, UserId, new Dictionary<int, RolePermissions>
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            SetupIsMeaningOfSignatureEnabledQuery(ReviewId, UserId, false, true);
+
+            SetupPossibleMeaningOfSignaturesQuery(new[] { UserId }, new[]
+            {
+                new ParticipantMeaningOfSignatureResult()
+                {
+                    RoleAssignmentId = 4
+                }
+            });
+
+            SetupParticipantMeaningOfSignaturesQuery(new[] { UserId }, new[]
+            {
+                new ParticipantMeaningOfSignatureResult()
+                {
+                    RoleAssignmentId = 5
+                }
+            });
+
+            // Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(ReviewId, approvalParameter, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.MeaningOfSignatureNotPossible, ex.ErrorCode);
+
+                return;
+            }
+
+
+            Assert.Fail("A ConflictException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_When_MoS_Is_Enabled_Should_Throw_If_Assigned_MoS_Doesnt_Contain_Input_MoS()
+        {
+            // Arrange
+            var approvalParameter = new ReviewArtifactApprovalParameter
+            {
+                Approval = "Pending",
+                ApprovalFlag = ApprovalType.NotSpecified,
+                ArtifactIds = new List<int> { 3 },
+                MeaningOfSignatureIds = new[] { 4 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupReviewArtifactsUserApprovalCheck(ReviewId, UserId, artifactIds);
+
+            SetupGetVersionNumber(ReviewId, artifactIds);
+
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], ReviewId }, UserId, new Dictionary<int, RolePermissions>
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            SetupIsMeaningOfSignatureEnabledQuery(ReviewId, UserId, false, true);
+
+            SetupPossibleMeaningOfSignaturesQuery(new[] { UserId }, new[]
+            {
+                new ParticipantMeaningOfSignatureResult()
+                {
+                    RoleAssignmentId = 5
+                }
+            });
+
+            SetupParticipantMeaningOfSignaturesQuery(new[] { UserId }, new[]
+            {
+                new ParticipantMeaningOfSignatureResult()
+                {
+                    RoleAssignmentId = 5
+                }
+            });
+
+            // Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(ReviewId, approvalParameter, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.MeaningOfSignatureNotPossible, ex.ErrorCode);
+
+                return;
+            }
+
+
+            Assert.Fail("A ConflictException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactApprovalAsync_When_MoS_Is_Enabled_Should_Set_Selected_MoS_For_Artifacts()
+        {
+            // Arrange
+            var approvalParameter = new ReviewArtifactApprovalParameter
+            {
+                Approval = "Pending",
+                ApprovalFlag = ApprovalType.NotSpecified,
+                ArtifactIds = new List<int> { 3 },
+                MeaningOfSignatureIds = new[] { 4 }
+            };
+
+            var artifactIds = new[] { 3 };
+
+            SetupReviewArtifactsUserApprovalCheck(ReviewId, UserId, artifactIds);
+
+            SetupGetVersionNumber(ReviewId, artifactIds);
+
+            SetupArtifactPermissionsCheck(new[] { artifactIds[0], ReviewId }, UserId, new Dictionary<int, RolePermissions>
+            {
+                { 1, RolePermissions.Read },
+                { 3, RolePermissions.Read }
+            });
+
+            SetupIsMeaningOfSignatureEnabledQuery(ReviewId, UserId, false, true);
+
+            SetupPossibleMeaningOfSignaturesQuery(new[] { UserId }, new[]
+            {
+                new ParticipantMeaningOfSignatureResult()
+                {
+                    ParticipantId = UserId,
+                    RoleAssignmentId = 4,
+                    MeaningOfSignatureId = 5,
+                    MeaningOfSignatureValue = "mos",
+                    RoleId = 6,
+                    RoleName = "role"
+                }
+            });
+
+            SetupParticipantMeaningOfSignaturesQuery(new[] { UserId }, new[]
+            {
+                new ParticipantMeaningOfSignatureResult()
+                {
+                    ParticipantId = UserId,
+                    RoleAssignmentId = 4
+                }
+            });
+
+            var getXmlParameters = new Dictionary<string, object>
+            {
+                { "reviewId", ReviewId },
+                { "userId", UserId }
+            };
+
+            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>
+            {
+                null
+            });
+
+            var updateXmlParameters = new Dictionary<string, object>
+            {
+                { "reviewId", ReviewId },
+                { "userId", UserId },
+                { "updateReviewerStatus", false },
+                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Pending</A><Id>3</Id><SMS xmlns:d4p1=\"Blueprint.Reviews\"><d4p1:RESMI><d4p1:MOSEV>mos</d4p1:MOSEV><d4p1:MOSRID>6</d4p1:MOSRID><d4p1:MOSRN>role</d4p1:MOSRN><d4p1:MoSEID>5</d4p1:MoSEID></d4p1:RESMI></SMS><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+            };
+
+            _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
+
+            // Act
+            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(ReviewId, approvalParameter, UserId);
+
+            _cxn.Verify();
         }
 
         private void SetupGetVersionNumber(int reviewId, IEnumerable<int> artifactIds)

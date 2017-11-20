@@ -160,30 +160,32 @@ namespace ArtifactStore.Repositories
 
             if (reviewDetails.RequireMeaningOfSignature && reviewDetails.ReviewParticipantRole == ReviewParticipantRole.Approver)
             {
-                var possibleMeaningOfSignaturesDictionary = await GetPossibleMeaningOfSignaturesForParticipantsAsync(new[] { userId });
+                var meaningOfSignatures = await GetAssignedMeaningOfSignatures(containerId, userId);
 
-                if (!possibleMeaningOfSignaturesDictionary.ContainsKey(userId))
-                {
-                    reviewSummary.MeaningOfSignatures = new DropdownItem[0];
-
-                    return reviewSummary;
-                }
-
-                var meaningOfSignaturesDictionary = await GetMeaningOfSignaturesForParticipantsAsync(containerId, userId, new[] { userId });
-
-                if (meaningOfSignaturesDictionary.ContainsKey(userId))
-                {
-                    reviewSummary.MeaningOfSignatures = possibleMeaningOfSignaturesDictionary[userId]
-                                                        .Where(pmos => meaningOfSignaturesDictionary[userId].Contains(pmos.RoleAssignmentId))
-                                                        .Select(pmos => new DropdownItem(pmos.GetMeaningOfSignatureDisplayValue(), pmos.RoleAssignmentId));
-                }
-                else
-                {
-                    reviewSummary.MeaningOfSignatures = new DropdownItem[0];
-                }
+                reviewSummary.MeaningOfSignatures = meaningOfSignatures.Select(pmos => new DropdownItem(pmos.GetMeaningOfSignatureDisplayValue(), pmos.RoleAssignmentId));
             }
 
             return reviewSummary;
+        }
+
+        private async Task<IEnumerable<ParticipantMeaningOfSignatureResult>> GetAssignedMeaningOfSignatures(int reviewId, int userId)
+        {
+            var possibleMeaningOfSignaturesDictionary = await GetPossibleMeaningOfSignaturesForParticipantsAsync(new[] { userId });
+
+            if (!possibleMeaningOfSignaturesDictionary.ContainsKey(userId))
+            {
+                return new ParticipantMeaningOfSignatureResult[0];
+            }
+
+            var meaningOfSignaturesDictionary = await GetMeaningOfSignaturesForParticipantsAsync(reviewId, userId, new[] { userId });
+
+            if (meaningOfSignaturesDictionary.ContainsKey(userId))
+            {
+                return possibleMeaningOfSignaturesDictionary[userId]
+                    .Where(pmos => meaningOfSignaturesDictionary[userId].Contains(pmos.RoleAssignmentId));
+            }
+
+            return new ParticipantMeaningOfSignatureResult[0];
         }
 
         public async Task<ReviewSummaryMetrics> GetReviewSummaryMetrics(int containerId, int userId)
@@ -1626,6 +1628,36 @@ namespace ArtifactStore.Repositories
             var eligibleArtifacts = await CheckApprovalsAndPermissions(reviewId, userId, artifactIds);
             var isAllArtifactsProcessed = eligibleArtifacts.Count == artifactIds.Count;
 
+            var isMeaningOfSignatureEnabled = await IsMeaningOfSignatureEnabledAsync(reviewId, userId, false);
+            List<SelectedMeaningOfSignatureValue> selectedMeaningOfSignatures = null;
+
+            if (isMeaningOfSignatureEnabled)
+            {
+                if (reviewArtifactApprovalParameters.MeaningOfSignatureIds == null || !reviewArtifactApprovalParameters.MeaningOfSignatureIds.Any())
+                {
+                    throw new BadRequestException("Meaning of signature must be provided to change the approval status of an artifact.", ErrorCodes.MeaningOfSignatureNotChosen);
+                }
+
+                var meaningOfSignatureIds = reviewArtifactApprovalParameters.MeaningOfSignatureIds.ToList();
+
+                var assignedMeaningOfSignatures = await GetAssignedMeaningOfSignatures(reviewId, userId);
+
+                selectedMeaningOfSignatures = assignedMeaningOfSignatures.Where(amos => meaningOfSignatureIds.Contains(amos.RoleAssignmentId))
+                                                                         .Select(mos => new SelectedMeaningOfSignatureValue()
+                                                                         {
+                                                                             RoleId = mos.RoleId,
+                                                                             RoleName = mos.RoleName,
+                                                                             MeaningOfSignatureId = mos.MeaningOfSignatureId,
+                                                                             MeaningOfSignatureValue = mos.MeaningOfSignatureValue
+                                                                         })
+                                                                         .ToList();
+
+                if (selectedMeaningOfSignatures.Count != meaningOfSignatureIds.Count)
+                {
+                    throw ReviewsExceptionHelper.MeaningOfSignatureNotPossibleException();
+                }
+            }
+
             var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
             var artifactVersionDictionary = await GetVersionNumberForArtifacts(reviewId, eligibleArtifacts);
             var timestamp = _currentDateTimeService.GetUtcNow();
@@ -1669,6 +1701,11 @@ namespace ArtifactStore.Repositories
                 if (artifactVersionDictionary.ContainsKey(id))
                 {
                     reviewArtifactApproval.ArtifactVersion = artifactVersionDictionary[id];
+                }
+
+                if (isMeaningOfSignatureEnabled)
+                {
+                    reviewArtifactApproval.SelectedMeaningofSignatureValues = selectedMeaningOfSignatures;
                 }
 
                 approvedArtifacts.Add(new ArtifactApprovalResult

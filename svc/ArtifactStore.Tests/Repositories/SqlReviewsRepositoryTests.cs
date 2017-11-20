@@ -142,6 +142,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(5, review.ArtifactsStatus.Approved);
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
             Assert.AreEqual(2, review.ArtifactsStatus.Pending);
+            Assert.AreEqual(null, review.MeaningOfSignatures);
         }
 
         [TestMethod]
@@ -258,6 +259,229 @@ namespace ArtifactStore.Repositories
                     Assert.Fail();
                 }
             }
+        }
+
+        public async Task GetReviewSummary_When_Meaning_of_Signature_Is_Enabled_Should_Return_Empty_MoS_When_No_Possible_Mos_For_Participant()
+        {
+            // Arange
+            var reviewName = "My Review";
+            var reviewDescription = "My Description";
+            var baselineId = 3;
+            var totalArtifacts = 8;
+            var revisionId = 999;
+            var reviewStatus = ReviewStatus.Completed;
+
+            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(ReviewId, UserId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
+
+            var reviewDetails = new ReviewSummaryDetails
+            {
+                BaselineId = baselineId,
+                ReviewPackageStatus = ReviewPackageStatus.Active,
+                ReviewParticipantRole = ReviewParticipantRole.Approver,
+                TotalArtifacts = totalArtifacts,
+                TotalViewable = 7,
+                TotalReviewers = 5,
+                ReviewStatus = reviewStatus,
+                Approved = 5,
+                Disapproved = 3,
+                Pending = 2,
+                RevisionId = revisionId,
+                RequireAllArtifactsReviewed = true,
+                RequireESignature = true,
+                RequireMeaningOfSignature = true,
+                ShowOnlyDescription = true
+            };
+
+            var param = new Dictionary<string, object> { { "reviewId", ReviewId }, { "userId", UserId } };
+            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
+
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                Name = reviewName,
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage
+            };
+            var baselineInfo = new VersionControlArtifactInfo
+            {
+                Id = baselineId,
+                PredefinedType = ItemTypePredefined.ArtifactBaseline
+            };
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, UserId)).ReturnsAsync(baselineInfo);
+
+            _cxn.SetupExecuteScalarAsync("GetReviewType", param, ReviewType.Formal);
+
+            SetupPossibleMeaningOfSignaturesQuery(new[] { UserId }, new ParticipantMeaningOfSignatureResult[0]);
+
+            // Act
+            var review = await _reviewsRepository.GetReviewSummary(ReviewId, UserId);
+
+            // Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(0, review.MeaningOfSignatures.Count());
+        }
+
+        public async Task GetReviewSummary_When_Meaning_of_Signature_Is_Enabled_Should_Return_Empty_MoS_When_No_Mos_For_Participant()
+        {
+            // Arange
+            var reviewName = "My Review";
+            var reviewDescription = "My Description";
+            var baselineId = 3;
+            var totalArtifacts = 8;
+            var revisionId = 999;
+            var reviewStatus = ReviewStatus.Completed;
+
+            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(ReviewId, UserId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
+
+            var reviewDetails = new ReviewSummaryDetails
+            {
+                BaselineId = baselineId,
+                ReviewPackageStatus = ReviewPackageStatus.Active,
+                ReviewParticipantRole = ReviewParticipantRole.Approver,
+                TotalArtifacts = totalArtifacts,
+                TotalViewable = 7,
+                TotalReviewers = 5,
+                ReviewStatus = reviewStatus,
+                Approved = 5,
+                Disapproved = 3,
+                Pending = 2,
+                RevisionId = revisionId,
+                RequireAllArtifactsReviewed = true,
+                RequireESignature = true,
+                RequireMeaningOfSignature = true,
+                ShowOnlyDescription = true
+            };
+
+            var param = new Dictionary<string, object> { { "reviewId", ReviewId }, { "userId", UserId } };
+            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
+
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                Name = reviewName,
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage
+            };
+            var baselineInfo = new VersionControlArtifactInfo
+            {
+                Id = baselineId,
+                PredefinedType = ItemTypePredefined.ArtifactBaseline
+            };
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, UserId)).ReturnsAsync(baselineInfo);
+
+            _cxn.SetupExecuteScalarAsync("GetReviewType", param, ReviewType.Formal);
+
+            SetupPossibleMeaningOfSignaturesQuery(new[] { UserId }, new[]
+            {
+                new ParticipantMeaningOfSignatureResult() { RoleAssignmentId = 3 }
+            });
+
+            SetupParticipantMeaningOfSignaturesQuery(new[] { UserId }, new ParticipantMeaningOfSignatureResult[0]);
+
+            // Act
+            var review = await _reviewsRepository.GetReviewSummary(ReviewId, UserId);
+
+            // Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(0, review.MeaningOfSignatures.Count());
+        }
+
+        public async Task GetReviewSummary_When_Meaning_of_Signature_Is_Enabled_Should_Return_MoS_For_Participant()
+        {
+            // Arange
+            var reviewName = "My Review";
+            var reviewDescription = "My Description";
+            var baselineId = 3;
+            var totalArtifacts = 8;
+            var revisionId = 999;
+            var reviewStatus = ReviewStatus.Completed;
+
+            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(ReviewId, UserId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
+
+            var reviewDetails = new ReviewSummaryDetails
+            {
+                BaselineId = baselineId,
+                ReviewPackageStatus = ReviewPackageStatus.Active,
+                ReviewParticipantRole = ReviewParticipantRole.Approver,
+                TotalArtifacts = totalArtifacts,
+                TotalViewable = 7,
+                TotalReviewers = 5,
+                ReviewStatus = reviewStatus,
+                Approved = 5,
+                Disapproved = 3,
+                Pending = 2,
+                RevisionId = revisionId,
+                RequireAllArtifactsReviewed = true,
+                RequireESignature = true,
+                RequireMeaningOfSignature = true,
+                ShowOnlyDescription = true
+            };
+
+            var param = new Dictionary<string, object> { { "reviewId", ReviewId }, { "userId", UserId } };
+            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
+
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                Name = reviewName,
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage
+            };
+            var baselineInfo = new VersionControlArtifactInfo
+            {
+                Id = baselineId,
+                PredefinedType = ItemTypePredefined.ArtifactBaseline
+            };
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, UserId)).ReturnsAsync(baselineInfo);
+
+            _cxn.SetupExecuteScalarAsync("GetReviewType", param, ReviewType.Formal);
+
+            SetupPossibleMeaningOfSignaturesQuery(new[] { UserId }, new[]
+            {
+                new ParticipantMeaningOfSignatureResult() { RoleAssignmentId = 3, MeaningOfSignatureValue = "mos", RoleName = "role" }
+            });
+
+            SetupParticipantMeaningOfSignaturesQuery(new[] { UserId }, new[]
+            {
+                new ParticipantMeaningOfSignatureResult() { ParticipantId = UserId, RoleAssignmentId = 3 }
+            });
+
+            // Act
+            var review = await _reviewsRepository.GetReviewSummary(ReviewId, UserId);
+
+            // Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(1, review.MeaningOfSignatures.Count());
+
+            var mos = review.MeaningOfSignatures.First();
+
+            Assert.AreEqual("mos (role)", mos.Label);
+            Assert.AreEqual(3, mos.Value);
+        }
+
+        private void SetupParticipantMeaningOfSignaturesQuery(IEnumerable<int> participantIds, IEnumerable<ParticipantMeaningOfSignatureResult> result)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "reviewId", ReviewId },
+                { "userId", UserId },
+                { "participantIds", SqlConnectionWrapper.ToDataTable(participantIds) }
+            };
+
+            _cxn.SetupQueryAsync("GetParticipantsMeaningOfSignatures", parameters, result);
+        }
+
+        private void SetupPossibleMeaningOfSignaturesQuery(IEnumerable<int> participantIds, IEnumerable<ParticipantMeaningOfSignatureResult> result)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "participantIds", SqlConnectionWrapper.ToDataTable(participantIds) }
+            };
+
+            _cxn.SetupQueryAsync("GetPossibleMeaningOfSignaturesForParticipants", parameters, result);
         }
 
         #endregion

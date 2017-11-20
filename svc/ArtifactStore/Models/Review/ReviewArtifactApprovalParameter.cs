@@ -12,6 +12,6 @@ namespace ArtifactStore.Models.Review
         public ApprovalType ApprovalFlag { get; set; }
         public SelectionType SelectionType { get; set; }
         public int? RevisionId { get; set; }
-        public IEnumerable<int> MeaningOfSignatureIds { get; set; }
+        public IEnumerable<SelectedMeaningOfSignatureValue> MeaningOfSignatures { get; set; }
     }
 }

@@ -162,7 +162,11 @@ namespace ArtifactStore.Repositories
             {
                 var meaningOfSignatures = await GetAssignedMeaningOfSignatures(containerId, userId);
 
-                reviewSummary.MeaningOfSignatures = meaningOfSignatures.Select(pmos => new DropdownItem(pmos.GetMeaningOfSignatureDisplayValue(), pmos.RoleAssignmentId));
+                reviewSummary.MeaningOfSignatures = meaningOfSignatures.Select(mos => new SelectedMeaningOfSignature() {
+                    Label = mos.GetMeaningOfSignatureDisplayValue(),
+                    RoleId = mos.RoleId,
+                    MeaningOfSignatureId = mos.MeaningOfSignatureId
+                });
             }
 
             return reviewSummary;
@@ -666,16 +670,23 @@ namespace ArtifactStore.Repositories
 
                     if (meaningOfSignatures.ContainsKey(artifact.Id))
                     {
-                        artifact.MeaningOfSignatures = meaningOfSignatures[artifact.Id];
+                        artifact.MeaningOfSignatures = meaningOfSignatures[artifact.Id].GroupBy(mos => new { mos.MeaningOfSignatureId, mos.RoleId })
+                                                                                       .Select(g => g.First())
+                                                                                       .Select(mos => new SelectedMeaningOfSignature()
+                                                                                       {
+                                                                                           Label = mos.GetMeaningOfSignatureDisplayValue(),
+                                                                                           MeaningOfSignatureId = mos.MeaningOfSignatureId,
+                                                                                           RoleId = mos.RoleId
+                                                                                       });
                     }
                     else
                     {
-                        artifact.MeaningOfSignatures = new ReviewMeaningOfSignatureValue[0];
+                        artifact.MeaningOfSignatures = new SelectedMeaningOfSignature[0];
                     }
                 }
                 else
                 {
-                    artifact.MeaningOfSignatures = new ReviewMeaningOfSignatureValue[0];
+                    artifact.MeaningOfSignatures = new SelectedMeaningOfSignature[0];
                     ClearReviewArtifactProperties(artifact);
                 }
             }
@@ -1632,21 +1643,22 @@ namespace ArtifactStore.Repositories
             var isAllArtifactsProcessed = eligibleArtifacts.Count == artifactIds.Count;
 
             var isMeaningOfSignatureEnabled = await IsMeaningOfSignatureEnabledAsync(reviewId, userId, false);
-            List<SelectedMeaningOfSignatureValue> selectedMeaningOfSignatures = null;
+            List<SelectedMeaningOfSignatureXml> selectedMeaningOfSignatures = null;
 
             if (isMeaningOfSignatureEnabled)
             {
-                if (reviewArtifactApprovalParameters.MeaningOfSignatureIds == null || !reviewArtifactApprovalParameters.MeaningOfSignatureIds.Any())
+                if (reviewArtifactApprovalParameters.MeaningOfSignatures == null || !reviewArtifactApprovalParameters.MeaningOfSignatures.Any())
                 {
                     throw new BadRequestException("Meaning of signature must be provided to change the approval status of an artifact.", ErrorCodes.MeaningOfSignatureNotChosen);
                 }
 
-                var meaningOfSignatureIds = reviewArtifactApprovalParameters.MeaningOfSignatureIds.ToList();
+                var meaningOfSignatureIds = reviewArtifactApprovalParameters.MeaningOfSignatures.ToList();
 
                 var assignedMeaningOfSignatures = await GetAssignedMeaningOfSignatures(reviewId, userId);
 
-                selectedMeaningOfSignatures = assignedMeaningOfSignatures.Where(amos => meaningOfSignatureIds.Contains(amos.RoleAssignmentId))
-                                                                         .Select(mos => new SelectedMeaningOfSignatureValue()
+                selectedMeaningOfSignatures = assignedMeaningOfSignatures.Where(amos => meaningOfSignatureIds.Any(
+                                                                             mos => mos.MeaningOfSignatureId == amos.MeaningOfSignatureId && mos.RoleId == amos.RoleId))
+                                                                         .Select(mos => new SelectedMeaningOfSignatureXml()
                                                                          {
                                                                              RoleId = mos.RoleId,
                                                                              RoleName = mos.RoleName,

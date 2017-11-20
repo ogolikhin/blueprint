@@ -35,7 +35,7 @@ namespace ArtifactStore.Models.Review
                 ViewState = GetViewState(reviewedArtifact),
                 HasAccess = reviewedArtifact.HasAccess,
                 ESignatureTimestamp = reviewedArtifact.SignedOnTimestamp,
-                MeaningsOfSignature = reviewedArtifact.MeaningOfSignatures.Select(mos => mos.GetMeaningOfSignatureDisplayValue())
+                MeaningsOfSignature = reviewedArtifact.MeaningOfSignatures.Select(mos => mos.Label)
             };
         }
 

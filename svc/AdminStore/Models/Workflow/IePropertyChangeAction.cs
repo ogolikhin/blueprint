@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Models.Workflow

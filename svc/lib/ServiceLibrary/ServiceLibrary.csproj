@@ -168,6 +168,7 @@
     <Compile Include="Helpers\UserManagementHelper.cs" />
     <Compile Include="Models\DropdownItem.cs" />
     <Compile Include="Models\Email\DiscussionEmail.cs" />
+    <Compile Include="Models\Enums\ActionTypes.cs" />
     <Compile Include="Models\Enums\StandardArtifactTypes.cs" />
     <Compile Include="Models\StandardArtifactType.cs" />
     <Compile Include="Models\PropertyType\ChoicePropertyValidator.cs" />

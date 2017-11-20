@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Xml;
+using AdminStore.Models.DiagramWorkflow;
 using AdminStore.Models.Enums;
 
 namespace AdminStore.Controllers
@@ -607,7 +608,7 @@ namespace AdminStore.Controllers
 
         #region Private methods
 
-    // Upload means Import (Create) or Update
+        // Upload means Import (Create) or Update
         private async Task<IHttpActionResult> UploadWorkflowAsync(int? workflowId = null)
         {
             var session = Session;

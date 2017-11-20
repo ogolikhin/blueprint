@@ -1,6 +1,6 @@
-﻿namespace AdminStore.Models.Workflow
+﻿namespace AdminStore.Models.DiagramWorkflow
 {
-    public class IePortPair
+    public class DPortPair
     {
         public int FromPort { get; set; }
         public int ToPort { get; set; }

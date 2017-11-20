@@ -2,11 +2,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
+using AdminStore.Models.Enums;
 
 namespace AdminStore.Models.Workflow
 {
-    public enum EventTypes { None, Transition, PropertyChange, NewArtifact }
-
     // !!! Updating of this class requires regenerating of the xml schema IeWorkflow.xsd is required, see below:
     // !!! xsd.exe AdminStore.dll /t:IeWorkflow
     /// <summary>

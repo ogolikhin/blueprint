@@ -441,7 +441,7 @@ namespace ArtifactStore.Repositories
 
             SetupPossibleMeaningOfSignaturesQuery(new[] { UserId }, new[]
             {
-                new ParticipantMeaningOfSignatureResult() { RoleAssignmentId = 3, MeaningOfSignatureValue = "mos", RoleName = "role" }
+                new ParticipantMeaningOfSignatureResult() { ParticipantId = UserId, RoleAssignmentId = 3, RoleId = 4, MeaningOfSignatureId = 5, MeaningOfSignatureValue = "mos", RoleName = "role" }
             });
 
             SetupParticipantMeaningOfSignaturesQuery(new[] { UserId }, new[]
@@ -460,7 +460,8 @@ namespace ArtifactStore.Repositories
             var mos = review.MeaningOfSignatures.First();
 
             Assert.AreEqual("mos (role)", mos.Label);
-            Assert.AreEqual(3, mos.Value);
+            Assert.AreEqual(4, mos.MeaningOfSignatureId);
+            Assert.AreEqual(5, mos.MeaningOfSignatureId);
         }
 
         private void SetupParticipantMeaningOfSignaturesQuery(IEnumerable<int> participantIds, IEnumerable<ParticipantMeaningOfSignatureResult> result)
@@ -3057,7 +3058,7 @@ namespace ArtifactStore.Repositories
                 Approval = "Pending",
                 ApprovalFlag = ApprovalType.NotSpecified,
                 ArtifactIds = new List<int> { 3 },
-                MeaningOfSignatureIds = new int[0]
+                MeaningOfSignatures = new SelectedMeaningOfSignatureValue[0]
             };
 
             var artifactIds = new[] { 3 };
@@ -3100,7 +3101,14 @@ namespace ArtifactStore.Repositories
                 Approval = "Pending",
                 ApprovalFlag = ApprovalType.NotSpecified,
                 ArtifactIds = new List<int> { 3 },
-                MeaningOfSignatureIds = new[] { 4 }
+                MeaningOfSignatures = new[]
+                {
+                    new SelectedMeaningOfSignatureValue()
+                    {
+                        MeaningOfSignatureId = 4,
+                        RoleId = 5
+                    }
+                }
             };
 
             var artifactIds = new[] { 3 };
@@ -3145,7 +3153,14 @@ namespace ArtifactStore.Repositories
                 Approval = "Pending",
                 ApprovalFlag = ApprovalType.NotSpecified,
                 ArtifactIds = new List<int> { 3 },
-                MeaningOfSignatureIds = new[] { 4 }
+                MeaningOfSignatures = new[]
+                {
+                    new SelectedMeaningOfSignatureValue()
+                    {
+                        MeaningOfSignatureId = 4,
+                        RoleId = 5
+                    }
+                }
             };
 
             var artifactIds = new[] { 3 };
@@ -3198,7 +3213,14 @@ namespace ArtifactStore.Repositories
                 Approval = "Pending",
                 ApprovalFlag = ApprovalType.NotSpecified,
                 ArtifactIds = new List<int> { 3 },
-                MeaningOfSignatureIds = new[] { 4 }
+                MeaningOfSignatures = new[]
+                {
+                    new SelectedMeaningOfSignatureValue()
+                    {
+                        MeaningOfSignatureId = 4,
+                        RoleId = 5
+                    }
+                }
             };
 
             var artifactIds = new[] { 3 };
@@ -3257,7 +3279,14 @@ namespace ArtifactStore.Repositories
                 Approval = "Pending",
                 ApprovalFlag = ApprovalType.NotSpecified,
                 ArtifactIds = new List<int> { 3 },
-                MeaningOfSignatureIds = new[] { 4 }
+                MeaningOfSignatures = new[]
+                {
+                    new SelectedMeaningOfSignatureValue()
+                    {
+                        MeaningOfSignatureId = 4,
+                        RoleId = 5
+                    }
+                }
             };
 
             var artifactIds = new[] { 3 };
@@ -3278,7 +3307,9 @@ namespace ArtifactStore.Repositories
             {
                 new ParticipantMeaningOfSignatureResult()
                 {
-                    RoleAssignmentId = 5
+                    RoleAssignmentId = 5,
+                    RoleId = 6,
+                    MeaningOfSignatureId = 7
                 }
             });
 
@@ -3316,7 +3347,14 @@ namespace ArtifactStore.Repositories
                 Approval = "Pending",
                 ApprovalFlag = ApprovalType.NotSpecified,
                 ArtifactIds = new List<int> { 3 },
-                MeaningOfSignatureIds = new[] { 4 }
+                MeaningOfSignatures = new[]
+                {
+                    new SelectedMeaningOfSignatureValue()
+                    {
+                        MeaningOfSignatureId = 5,
+                        RoleId = 6
+                    }
+                }
             };
 
             var artifactIds = new[] { 3 };
@@ -3371,7 +3409,7 @@ namespace ArtifactStore.Repositories
                 { "reviewId", ReviewId },
                 { "userId", UserId },
                 { "updateReviewerStatus", false },
-                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Pending</A><Id>3</Id><SMS xmlns:d4p1=\"Blueprint.Reviews\"><d4p1:RESMI><d4p1:MOSEV>mos</d4p1:MOSEV><d4p1:MOSRID>6</d4p1:MOSRID><d4p1:MOSRN>role</d4p1:MOSRN><d4p1:MoSEID>5</d4p1:MoSEID></d4p1:RESMI></SMS><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Pending</A><Id>3</Id><SMSFE xmlns:d4p1=\"Blueprint.Reviews\"><d4p1:RESMI><d4p1:MOSEV>mos</d4p1:MOSEV><d4p1:MOSRID>6</d4p1:MOSRID><d4p1:MOSRN>role</d4p1:MOSRN><d4p1:MoSEID>5</d4p1:MoSEID></d4p1:RESMI></SMSFE><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);

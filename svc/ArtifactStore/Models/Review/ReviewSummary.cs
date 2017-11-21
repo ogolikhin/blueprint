@@ -56,7 +56,7 @@ namespace ArtifactStore.Models.Review
 
         public bool ShowOnlyDescription { get; set; }
 
-        public IEnumerable<DropdownItem> MeaningOfSignatures { get; set; }
+        public IEnumerable<SelectedMeaningOfSignature> MeaningOfSignatures { get; set; }
     }
 
     internal class ReviewSummaryDetails

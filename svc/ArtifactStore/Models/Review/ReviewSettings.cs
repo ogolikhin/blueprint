@@ -15,6 +15,7 @@ namespace ArtifactStore.Models.Review
             CanMarkAsComplete = reviewPackageRawData?.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed ?? false;
             RequireESignature = reviewPackageRawData?.IsESignatureEnabled ?? false;
             RequireMeaningOfSignature = reviewPackageRawData?.IsMoSEnabled ?? false;
+            IgnoreFolder = reviewPackageRawData?.IsIgnoreFolder ?? false;
         }
 
         public DateTime? EndDate { get; set; }
@@ -32,5 +33,7 @@ namespace ArtifactStore.Models.Review
         public bool RequireMeaningOfSignature { get; set; }
 
         public bool IsMeaningOfSignatureEnabledInProject { get; set; }
+
+        public bool IgnoreFolder { get; set; }
     }
 }

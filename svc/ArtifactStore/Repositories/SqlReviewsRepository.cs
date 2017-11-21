@@ -196,6 +196,10 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewNotFoundException(containerId);
             }
 
+            return await GetReviewSummaryMetricsAsync(containerId, userId);
+
+            /*
+
             var reviewDetails = await GetReviewDetailsAsync(containerId, userId);
 
             var participants = await GetAllReviewParticipantsAsync(containerId, userId);
@@ -211,6 +215,61 @@ namespace ArtifactStore.Repositories
                 Status = reviewDetails.ReviewStatus,
                 Artifacts = new ArtifactsMetrics(artifactsMetrics, participants),
                 Participants = new ParticipantsMetrics(participants)
+            };*/
+        }
+
+        private async Task<ReviewSummaryMetrics> GetReviewSummaryMetricsAsync(int reviewId, int userId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@reviewId", reviewId);
+            parameters.Add("@userId", userId);
+
+            var result = (await _connectionWrapper.QueryAsync<FlatReviewSummaryMetrics>("GetReviewSummaryMetrics", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            ReviewStatus reviewStatus = ReviewStatus.NotStarted;
+
+            return new ReviewSummaryMetrics {
+                Id = result.ReviewId,
+                RevisionId = result.RevisionId,
+                Status = Enum.TryParse(result.ReviewStatus, out reviewStatus) ? reviewStatus : ReviewStatus.NotStarted,
+                Artifacts = new ArtifactsMetrics
+                {
+                    Total = result.TotalArtifacts,
+                    RequestStatus = new ReviewRequestStatus
+                    {
+                        ApprovalRequested = result.ArtifactApprovalRequired,
+                        ReviewRequested = result.ArtifactReviewRequired
+                    },
+                    ArtifactStatus = new ReviewArtifactsStatus
+                    {
+                        Approved = result.ArtifactsApprovedByAll,
+                        Disapproved = result.ArtifactsDisapproved,
+                        Pending = result.ArtifactsPending,
+                        ViewedAll = result.ArtifactsViewedByAll,
+                        UnviewedAll = result.ArtifactsViewedByNone,
+                        ViewedSome = result.ArtifactsViewedBySome
+                    }
+                },
+                Participants = new ParticipantsMetrics
+                {
+                    Total = result.TotalParticipants,
+                    RoleStatus = new ParticipantRoles
+                    {
+                        Approvers = result.NumberOfApprovers,
+                        Reviewers = result.NumberOfReviewers
+                    },
+                    ApproverStatus = new ParticipantStatus
+                    {
+                        Completed = result.ApproverStatusCompleted,
+                        InProgress = result.ApproverStatusInProgress,
+                        NotStarted = result.ApproverStatusNotStarted
+                    },
+                    ReviewerStatus = new ParticipantStatus
+                    {
+                        Completed = result.ReviewerStatusCompleted,
+                        InProgress = result.ReviewerStatusInProgress,
+                        NotStarted = result.ReviewerStatusNotStarted
+                    }
+                }
             };
         }
 

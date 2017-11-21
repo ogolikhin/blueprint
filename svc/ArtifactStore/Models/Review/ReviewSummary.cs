@@ -145,6 +145,8 @@ namespace ArtifactStore.Models.Review
         // Number of Approval/Review Requests for included Artifacts
         public ReviewRequestStatus RequestStatus { get; set; }
 
+        public ArtifactsMetrics() { }
+
         public ArtifactsMetrics(ReviewArtifactContent artifactsReview, ReviewParticipantsContent participants)
         {
             Total = participants.TotalArtifacts;
@@ -188,6 +190,11 @@ namespace ArtifactStore.Models.Review
 
         // Number of reviewers in each status
         public ParticipantStatus ReviewerStatus { get; set; }
+
+        public ParticipantsMetrics()
+        {
+
+        }
 
         public ParticipantsMetrics(ReviewParticipantsContent participants)
         {
@@ -388,6 +395,34 @@ namespace ArtifactStore.Models.Review
                     ++TotalViewedSome;
             }
         }
+    }
+
+    public class FlatReviewSummaryMetrics
+    {
+        public int ReviewId { get; set; }
+        public int RevisionId { get; set; }
+        public string ReviewStatus { get; set; }
+        public int TotalArtifacts { get; set; }
+        public int ArtifactsApprovedByAll { get; set; }
+        public int ArtifactsDisapproved { get; set; }
+        public int ArtifactsPending { get; set; }
+        public int ArtifactApprovalRequired { get; set; }
+        public int ArtifactReviewRequired { get; set; }
+        public int ArtifactsViewedByAll { get; set; }
+        public int ArtifactsViewedByNone { get; set; }
+        public int ArtifactsViewedBySome { get; set; }
+        public int TotalParticipants { get; set; }
+        public int NumberOfApprovers { get; set; }
+        public int NumberOfReviewers { get; set; }
+        public int ApproverStatusCompleted { get; set; }
+        public int ApproverStatusInProgress { get; set; }
+        public int ApproverStatusNotStarted { get; set; }
+        public int ReviewerStatusCompleted { get; set; }
+        public int ReviewerStatusInProgress { get; set; }
+        public int ReviewerStatusNotStarted { get; set; }
+
+
+
     }
 }
 

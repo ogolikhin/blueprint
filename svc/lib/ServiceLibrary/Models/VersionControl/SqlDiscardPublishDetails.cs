@@ -25,6 +25,8 @@
         public int? Icon_ImageId { get; set; }
 
         public int VersionsCount { get; set; }
+
+        public int? InstanceItemTypeTypeId { get; set; }
     }
 
     public class DiscardPublishDetails

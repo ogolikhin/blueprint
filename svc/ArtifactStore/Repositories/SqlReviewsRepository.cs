@@ -2109,7 +2109,7 @@ namespace ArtifactStore.Repositories
         private static void UnauthorizedItem(ReviewTableOfContentItem item)
         {
             item.Name = Unauthorized; // unauthorize
-            item.HasAccess = false;
+            item.HasAccess = true;
             item.IsApprovalRequired = false;
         }
     }

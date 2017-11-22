@@ -790,13 +790,13 @@ namespace ServiceLibrary.Repositories
 
             var propertyTypeVersions = await ConnectionWrapper.QueryAsync<SqlProjectMetaRepository.PropertyTypeVersion>("GetStandardProperties", prm, commandType: CommandType.StoredProcedure);
 
-            var propTypes = new List<PropertyType>();
+            var propertyTypes = new List<PropertyType>();
             foreach (var pv in propertyTypeVersions)
             {
-                propTypes.Add(pv.ConvertToPropertyType());
+                propertyTypes.Add(pv.ConvertToPropertyType());
             }
 
-            return propTypes;
+            return propertyTypes;
         }
     }
 }

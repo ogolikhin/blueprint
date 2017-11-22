@@ -815,6 +815,38 @@ namespace AdminStore.Services.Workflow
             ieWorkflow.PropertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
             ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
+            // error list
+            // workflow
+            // WorkflowDataValidationErrorCodes.WorkflowNameNotUnique
+            // project
+            // WorkflowDataValidationErrorCodes.ProjectByPathNotFound
+            // WorkflowDataValidationErrorCodes.ProjectByIdNotFound
+            // WorkflowDataValidationErrorCodes.ProjectDuplicate
+            // artifact type
+            // WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundById
+            // WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundByName
+            // event
+            // event transition
+            // transition group
+            // WorkflowDataValidationErrorCodes.InstanceGroupNotFoundById
+            // WorkflowDataValidationErrorCodes.InstanceGroupNotFoundByName
+            // transition trigger
+            // event property change
+            // WorkflowDataValidationErrorCodes.PropertyNotFoundById
+            // WorkflowDataValidationErrorCodes.PropertyNotFoundByName
+            // property change trigger
+            // event new artifact event
+            // new artifact event trigger
+            // trigger
+            // WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundById
+            // WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundByName
+            // WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundByName
+            // ValidatePropertyValue ?
+            // WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById
+            // WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundByName
+
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
         }
 

@@ -1784,11 +1784,6 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
             }
 
-            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
-            {
-                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
-            }
-
             Func<IDbTransaction, Task> transactionAction = async transaction =>
             {
                 var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId, transaction);
@@ -1801,7 +1796,7 @@ namespace ArtifactStore.Repositories
 
                     if (!SqlArtifactPermissionsRepository.HasPermissions(artifactId, artifactPermissionsDictionary, RolePermissions.Read))
                     {
-                        continue;
+                        throw new AuthorizationException("Artifacts could not be updated because they are no longer accessible.", ErrorCodes.UnauthorizedAccess);
                     }
 
                     if (reviewedArtifact == null)

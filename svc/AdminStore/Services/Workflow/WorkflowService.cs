@@ -374,8 +374,8 @@ namespace AdminStore.Services.Workflow
                 LastModifiedBy = ieWorkflow.LastModifiedBy,
                 NumberOfActions = transitionEventTriggersCount + propertyChangeEventTriggersCount + newArtifactEventTriggersCount,
                 NumberOfStates = numberStates,
-                Projects = ieWorkflow.Projects?.Select(e => new WorkflowProjectDto { Id = e.Id ?? 0, Name = e.Path ?? String.Empty }).Distinct().ToList(),
-                ArtifactTypes = ieWorkflow.Projects?.SelectMany(e => e.ArtifactTypes).Select(t => new WorkflowArtifactTypeDto { Name = t.Name }).Distinct().ToList()
+                Projects = ieWorkflow.Projects?.Select(e => new WorkflowProjectDto { Id = e.Id ?? 0, Name = e.Path ?? string.Empty }).Distinct().ToList(),
+                ArtifactTypes = ieWorkflow.Projects?.SelectMany(e => e.ArtifactTypes).Select(t => new WorkflowArtifactTypeDto { Name = t.Name ?? string.Empty }).Distinct().ToList()
             };
 
             return workflowDetailsDto;

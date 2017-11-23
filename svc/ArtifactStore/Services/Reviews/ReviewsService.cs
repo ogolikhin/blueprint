@@ -417,10 +417,6 @@ namespace ArtifactStore.Services.Reviews
                         meaningOfSignatureParameter =
                             reviewRawData.Reviewers.Select(
                                 reviewer => new MeaningOfSignatureParameter { ParticipantId = reviewer.UserId });
-
-                        await
-                            UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData, meaningOfSignatureParameter,
-                                new MeaningOfSignatureUpdateSetDefaultsStrategy());
                     }
                     else
                     {
@@ -438,9 +434,6 @@ namespace ArtifactStore.Services.Reviews
                         }
 
                         meaningOfSignatureParameter = meaningOfSignaturelist;
-                        await
-                            UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData, meaningOfSignatureParameter,
-                                new MeaningOfSignatureUpdateSetDefaultsStrategy());
                     }
                 }
 

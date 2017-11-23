@@ -92,17 +92,17 @@ namespace AdminStore.Services.Workflow
                 },
                 new SqlWorkflowArtifactTypes
                 {
-                    ProjectId = 1,
-                    ProjectPath = "Project1",
+                    ProjectId = 2,
+                    ProjectPath = "Project2",
                     ArtifactTypeName = "Artifact2",
                     ArtifactTypeId = 205
                 },
                 new SqlWorkflowArtifactTypes
                 {
-                    ProjectId = 2,
-                    ProjectPath = "Project2",
-                    ArtifactTypeName = "Artifact2",
-                    ArtifactTypeId = 205
+                    ProjectId = 3,
+                    ProjectPath = "Project3",
+                    ArtifactTypeName = "Artifact3",
+                    ArtifactTypeId = 206
                 }
             };
 
@@ -118,7 +118,7 @@ namespace AdminStore.Services.Workflow
                     FromState = "New",
                     FromStateId = 1,
                     ToState = "Active",
-                    ToStateId = 2,
+                    ToStateId = 2
                 },
                 new SqlWorkflowEventData
                 {
@@ -183,8 +183,8 @@ namespace AdminStore.Services.Workflow
 
             // assert
             Assert.IsNotNull(workflowDetails);
-            Assert.AreEqual(2, workflowDetails.Projects.Count());
-            Assert.AreEqual(2, workflowDetails.ArtifactTypes.Count());
+            Assert.AreEqual(3, workflowDetails.Projects.Count());
+            Assert.AreEqual(3, workflowDetails.ArtifactTypes.Count());
             Assert.AreEqual(2, workflowDetails.NumberOfStates);
             Assert.AreEqual(4, workflowDetails.NumberOfActions);
         }

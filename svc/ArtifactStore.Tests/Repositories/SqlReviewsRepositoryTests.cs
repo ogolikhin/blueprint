@@ -3637,6 +3637,41 @@ namespace ArtifactStore.Repositories
             Assert.Fail("An AuthorizationException was not thrown.");
         }
 
+        [TestMethod]
+        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Cannot_Access_Review_Artifact()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput
+            {
+                ArtifactIds = new[] { artifactId },
+                Viewed = true
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds);
+
+            SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, new Dictionary<int, RolePermissions>()
+            {
+                { 3, RolePermissions.None }
+            });
+
+            // Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
+            }
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("An AuthorizationException was not thrown.");
+        }
+
         #endregion
 
         #region UpdateReviewerStatusAsync

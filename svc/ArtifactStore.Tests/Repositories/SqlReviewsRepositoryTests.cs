@@ -2259,60 +2259,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task UpdateReviewArtifactApprovalAsync_Should_Remove_Approval_Timestamp_If_Approval_Set_To_NotSpecified()
-        {
-            // Arrange
-            var reviewId = 1;
-            var userId = 2;
-            var approvalParameter = new ReviewArtifactApprovalParameter
-            {
-                Approval = "Pending",
-                ApprovalFlag = ApprovalType.NotSpecified,
-                ArtifactIds = new List<int> { 3 }
-            };
-
-            var artifactIds = new[] { 3 };
-
-            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds);
-
-            SetupGetVersionNumber(reviewId, artifactIds);
-
-            SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>
-            {
-                { 1, RolePermissions.Read },
-                { 3, RolePermissions.Read }
-            });
-
-            var getXmlParameters = new Dictionary<string, object>
-            {
-                { "reviewId", 1 },
-                { "userId", 2 }
-            };
-
-            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>
-            {
-                "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><EO>2017-07-10T15:00:00</EO><Id>3</Id><V>1</V></RA></ReviewedArtifacts></RDReviewedArtifacts>"
-            });
-
-            var updateXmlParameters = new Dictionary<string, object>
-            {
-                { "reviewId", 1 },
-                { "userId", 2 },
-                { "updateReviewerStatus", false },
-                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Pending</A><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
-            };
-
-            _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
-
-
-            // Act
-            await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
-
-            // Assert
-            _cxn.Verify();
-        }
-
-        [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Throw_When_Review_Doesnt_Exist()
         {
@@ -3308,7 +3254,7 @@ namespace ArtifactStore.Repositories
                 { "reviewId", ReviewId },
                 { "userId", UserId },
                 { "updateReviewerStatus", false },
-                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Pending</A><Id>3</Id><SMSFE xmlns:d4p1=\"Blueprint.Reviews\"><d4p1:RESMI><d4p1:MOSEV>mos</d4p1:MOSEV><d4p1:MOSRID>6</d4p1:MOSRID><d4p1:MOSRN>role</d4p1:MOSRN><d4p1:MoSEID>5</d4p1:MoSEID></d4p1:RESMI></SMSFE><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
+                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Pending</A><EO>2017-07-10T13:20:00</EO><Id>3</Id><SMSFE xmlns:d4p1=\"Blueprint.Reviews\"><d4p1:RESMI><d4p1:MOSEV>mos</d4p1:MOSEV><d4p1:MOSRID>6</d4p1:MOSRID><d4p1:MOSRN>role</d4p1:MOSRN><d4p1:MoSEID>5</d4p1:MoSEID></d4p1:RESMI></SMSFE><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
             };
 
             _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);

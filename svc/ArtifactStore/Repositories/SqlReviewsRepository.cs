@@ -209,7 +209,10 @@ namespace ArtifactStore.Repositories
             parameters.Add("@reviewId", reviewId);
             parameters.Add("@userId", userId);
 
-            var result = (await _connectionWrapper.QueryAsync<FlatReviewSummaryMetrics>("GetReviewSummaryMetrics", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            // For large reviews - this Stored Procedure will take longer than 30s to complete - default SQL Timeout
+            // We need to specify a timeout to allow the Stored Procedure to complete if it tasks longer than 30s
+            var result = (await _connectionWrapper.QueryAsync<FlatReviewSummaryMetrics>("GetReviewSummaryMetrics", parameters,
+                commandTimeout: ServiceConstants.DefaultRequestTimeout, commandType: CommandType.StoredProcedure)).SingleOrDefault();
 
             ReviewPackageStatus resultReviewPackageStatus = ReviewPackageStatus.Draft;
             Enum.TryParse(result.ReviewPackageStatus, out resultReviewPackageStatus);

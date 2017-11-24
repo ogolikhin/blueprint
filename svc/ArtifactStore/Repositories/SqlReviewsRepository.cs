@@ -2116,5 +2116,22 @@ namespace ArtifactStore.Repositories
             item.HasAccess = false;
             item.IsApprovalRequired = false;
         }
+
+        public async Task<ReviewData> GetReviewDataAsync(int reviewId, int userId, int revisionId = int.MaxValue, bool? addDraft = true)
+        {
+            return (await GetReviewsDataAsync(new[] { reviewId }, userId, revisionId, addDraft)).FirstOrDefault(r => r.Id == reviewId);
+        }
+
+        public Task<IEnumerable<ReviewData>> GetReviewsDataAsync(IEnumerable<int> reviewIds, int userId, int revisionId = int.MaxValue, bool? addDraft = true)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@reviewIds", SqlConnectionWrapper.ToDataTable(reviewIds));
+            parameters.Add("@userId", userId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@addDrafts", addDraft);
+
+            return _connectionWrapper.QueryAsync<ReviewData>("GetReviewsData", parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }

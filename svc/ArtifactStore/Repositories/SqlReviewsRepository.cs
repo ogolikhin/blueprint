@@ -1252,7 +1252,7 @@ namespace ArtifactStore.Repositories
             {
                 if (reviewPackage.IsIgnoreFolder && tocItem.ItemTypePredefined == (int)ItemTypePredefined.PrimitiveFolder)
                 {
-                    tocItem.HasAccess = false;
+                    tocItem.IsIncluded = false;
                 }
                 else if (SqlArtifactPermissionsRepository.HasPermissions(tocItem.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
@@ -2113,7 +2113,7 @@ namespace ArtifactStore.Repositories
         private static void UnauthorizedItem(ReviewTableOfContentItem item)
         {
             item.Name = Unauthorized; // unauthorize
-            item.HasAccess = true;
+            item.HasAccess = false;
             item.IsApprovalRequired = false;
         }
     }

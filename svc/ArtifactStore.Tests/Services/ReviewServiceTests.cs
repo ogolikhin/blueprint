@@ -74,7 +74,6 @@ namespace ArtifactStore.Services
                 ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsMoSEnabled>true</IsMoSEnabled><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>",
                 ProjectId = 1,
                 LockedByUserId = UserId,
-                IsReviewReadOnly = false,
                 BaselineId = 2,
                 IsReviewDeleted = false,
                 IsUserDisabled = false
@@ -2174,8 +2173,6 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_ReadOnly()
         {
             // Arrange
-            _reviewApprovalRolesInfo.IsReviewReadOnly = true;
-
             var content = new AssignParticipantRoleParameter
             {
                 ItemIds = new List<int> { 1 },

@@ -352,24 +352,39 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId);
             }
 
-            if (propertyResult.IsReviewReadOnly)
-            {
-                var errorMessage = "The approval status could not be updated because another user has changed the Review status.";
-                throw new ConflictException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
-            }
-
             if (propertyResult.LockedByUserId.GetValueOrDefault() != userId)
             {
                 throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
             }
 
-            if (string.IsNullOrEmpty(propertyResult.ArtifactXml))
+            if (string.IsNullOrEmpty(propertyResult.ParticipantXml))
             {
                 throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
+
+            var reviewRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(propertyResult.ParticipantXml);
+
+            if (reviewRawData.Status == ReviewPackageStatus.Closed)
+            {
+                var errorMessage = "The approval status could not be updated because another user has changed the Review status.";
+                throw new ConflictException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
+            }
+
+            if (reviewRawData.Status == ReviewPackageStatus.Active &&
+                content.Role == ReviewParticipantRole.Approver)
+            {
+                var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
+                var artifactRequredApproval =
+                    rdReviewContents.Artifacts?.FirstOrDefault(a => a.ApprovalNotRequested == false);
+                if (artifactRequredApproval != null)
+                {
+                    throw new ConflictException("Could not update review participants because review needs to be converted to Formal.", ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                }
+            }
+
             var resultErrors = new List<ReviewChangeItemsError>();
 
-            var reviewRawData = UpdateParticipantRole(propertyResult.ArtifactXml, content, reviewId, resultErrors);
+            reviewRawData = UpdateParticipantRole(reviewRawData, content, resultErrors);
 
             if (reviewRawData.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
             {
@@ -405,9 +420,8 @@ namespace ArtifactStore.Services.Reviews
             return changeResult;
         }
 
-        private static ReviewPackageRawData UpdateParticipantRole(string reviewPackageXml, AssignParticipantRoleParameter content, int reviewId, List<ReviewChangeItemsError> resultErrors)
+        private static ReviewPackageRawData UpdateParticipantRole(ReviewPackageRawData reviewRawData, AssignParticipantRoleParameter content, List<ReviewChangeItemsError> resultErrors)
         {
-            var reviewRawData = ReviewRawDataHelper.RestoreData<ReviewPackageRawData>(reviewPackageXml);
             int nonIntersecCount = 0;
 
             if (content.SelectionType == SelectionType.Selected)
@@ -510,6 +524,20 @@ namespace ArtifactStore.Services.Reviews
                 await ExcludeDeletedAndNotInProjectArtifacts(content, propertyResult, resultErrors, updatingArtifacts);
                 await ExcludeArtifactsWithoutReadPermissions(content, userId, resultErrors, updatingArtifacts);
 
+                ReviewPackageRawData reviewRawData = null;
+                if (propertyResult.ReviewStatus == ReviewPackageStatus.Active &&
+                    updatingArtifacts.Any() &&
+                    content.ApprovalRequired)
+                {
+                    reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+                    var approver =
+                        reviewRawData.Reviewers?.FirstOrDefault(r => r.Permission == ReviewParticipantRole.Approver);
+                    if (approver != null)
+                    {
+                        throw new ConflictException("Could not update review artifacts because review needs to be converted to Formal.", ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                    }
+                }
+
                 foreach (var updatingArtifact in updatingArtifacts)
                 {
                     updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
@@ -521,7 +549,10 @@ namespace ArtifactStore.Services.Reviews
 
                 if (content.ApprovalRequired)
                 {
-                    var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+                    if (reviewRawData == null)
+                    {
+                        reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+                    }
                     await EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(reviewId, userId, propertyResult.ProjectId.Value, reviewRawData);
                 }
             }

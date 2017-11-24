@@ -5192,7 +5192,6 @@ namespace ArtifactStore.Repositories
             {
                new PropertyValueString
                {
-                   IsReviewReadOnly = false,
                    IsDraftRevisionExists = true,
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
                    ProjectId = 0,
@@ -5283,7 +5282,6 @@ namespace ArtifactStore.Repositories
             {
                new PropertyValueString
                {
-                   IsReviewReadOnly = false,
                    IsDraftRevisionExists = true,
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
                    ProjectId = 0,
@@ -5320,7 +5318,6 @@ namespace ArtifactStore.Repositories
             {
                new PropertyValueString
                {
-                   IsReviewReadOnly = false,
                    IsDraftRevisionExists = true,
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
                    ProjectId = projectId,
@@ -5358,7 +5355,6 @@ namespace ArtifactStore.Repositories
             {
                new PropertyValueString
                {
-                   IsReviewReadOnly = false,
                    IsDraftRevisionExists = true,
                    ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
                    ProjectId = projectId,

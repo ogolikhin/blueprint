@@ -815,6 +815,13 @@ namespace AdminStore.Services.Workflow
             ieWorkflow.PropertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
             ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
+            ieWorkflow = await DeleteInValidDataFromExportedWorkflow(ieWorkflow);
+
+            return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
+        }
+
+        private async Task<IeWorkflow> DeleteInValidDataFromExportedWorkflow(IeWorkflow workflow)
+        {
             // error list
             // workflow
             // WorkflowDataValidationErrorCodes.WorkflowNameNotUnique
@@ -843,11 +850,88 @@ namespace AdminStore.Services.Workflow
             // WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType
             // WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById
             // WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundByName
-            // ValidatePropertyValue ?
+            // ValidatePropertyValue
+            // Text
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty
+            // Number
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberFormat;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberDecimalPlaces;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionNumberOutOfRange;
+            // Date
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange;
+            // User
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundByName;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundByName;
+            // Choice
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById;
+            // WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundByValue;
             // WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById
             // WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundByName
 
-            return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
+            if (workflow != null)
+            {
+                workflow.Projects[0].ArtifactTypes[0].Id = 9999;
+                var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow);
+                if (dataValidationResult.HasErrors)
+                {
+                    foreach (var error in dataValidationResult.Errors)
+                    {
+                        switch (error.ErrorCode)
+                        {
+                            // case WorkflowDataValidationErrorCodes.WorkflowNameNotUnique:
+                            //    workflow = null;
+                            //    break;
+                            case WorkflowDataValidationErrorCodes.ProjectByPathNotFound:
+                            case WorkflowDataValidationErrorCodes.ProjectByIdNotFound:
+                            case WorkflowDataValidationErrorCodes.ProjectDuplicate:
+                                workflow.Projects.RemoveAll(q => q.IdSerializable == (int)error.Element);
+                                break;
+                            case WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundById:
+                            case WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundByName:
+                                workflow.Projects.ForEach(q => q.ArtifactTypes.RemoveAll(qu => qu.IdSerializable == (int)error.Element));
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyNotFoundById:
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyNotFoundByName:
+                                break;
+                            case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundById:
+                                break;
+                            case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundByName:
+                                break;
+                            case WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType:
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById:
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundByName:
+                                break;
+                            case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById:
+                                break;
+                            case WorkflowDataValidationErrorCodes
+                                .GenerateChildArtifactsActionArtifactTypeNotFoundByName:
+                                break;
+                        }
+                    }
+                }
+            }
+            return workflow;
         }
 
         private static string GetPropertyChangedName(int? propertyTypeId, WorkflowDataNameMaps dataMaps)

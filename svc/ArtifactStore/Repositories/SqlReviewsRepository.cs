@@ -1252,7 +1252,7 @@ namespace ArtifactStore.Repositories
             {
                 if (reviewPackage.IsIgnoreFolder && tocItem.ItemTypePredefined == (int)ItemTypePredefined.PrimitiveFolder)
                 {
-                    tocItem.Included = false;
+                    tocItem.IsIncluded = false;
                 }
                 else if (SqlArtifactPermissionsRepository.HasPermissions(tocItem.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {

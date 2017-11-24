@@ -23,6 +23,6 @@ namespace ArtifactStore.Models.Review
         /// Viewed artifact version
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public bool Included { get; set; }
+        public bool IsIncluded { get; set; }
     }
 }

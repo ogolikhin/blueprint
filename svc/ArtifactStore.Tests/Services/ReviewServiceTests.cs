@@ -71,7 +71,8 @@ namespace ArtifactStore.Services
             _reviewApprovalRolesInfo = new PropertyValueString
             {
                 IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsMoSEnabled>true</IsMoSEnabled><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>",
+                ParticipantXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsMoSEnabled>true</IsMoSEnabled><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>",
+                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
                 ProjectId = 1,
                 LockedByUserId = UserId,
                 BaselineId = 2,
@@ -2178,6 +2179,8 @@ namespace ArtifactStore.Services
                 ItemIds = new List<int> { 1 },
                 Role = ReviewParticipantRole.Approver
             };
+            _reviewApprovalRolesInfo.ParticipantXml =
+                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Closed</Status></ReviewPackageRawData>";
             // Act
 
             try
@@ -2234,7 +2237,7 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_ReviewPackageXml_Is_Empty()
         {
             // Arrange
-            _reviewApprovalRolesInfo.ArtifactXml = null;
+            _reviewApprovalRolesInfo.ParticipantXml = null;
 
             var content = new AssignParticipantRoleParameter
             {
@@ -2271,7 +2274,7 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Return_DropdownItems_Null_When_Meaning_Of_Signature_Is_Disabled()
         {
             // Arrange
-            _reviewApprovalRolesInfo.ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>";
+            _reviewApprovalRolesInfo.ParticipantXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>";
 
             var content = new AssignParticipantRoleParameter
             {

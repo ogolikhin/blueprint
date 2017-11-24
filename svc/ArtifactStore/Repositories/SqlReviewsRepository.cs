@@ -1655,13 +1655,9 @@ namespace ArtifactStore.Repositories
                     reviewArtifactApproval.ViewState = ViewStateType.Viewed;
                 }
 
-                if (reviewArtifactApprovalParameters.ApprovalFlag == ApprovalType.NotSpecified &&
-                    reviewArtifactApprovalParameters.Approval.Equals(Pending, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    reviewArtifactApproval.ESignedOn = null;
-                }
-                else if (reviewArtifactApproval.Approval != reviewArtifactApprovalParameters.Approval
-                         || reviewArtifactApproval.ApprovalFlag != reviewArtifactApprovalParameters.ApprovalFlag)
+                if (!reviewArtifactApproval.ESignedOn.HasValue
+                    || reviewArtifactApproval.Approval != reviewArtifactApprovalParameters.Approval
+                    || reviewArtifactApproval.ApprovalFlag != reviewArtifactApprovalParameters.ApprovalFlag)
                 {
                     reviewArtifactApproval.ESignedOn = timestamp;
                 }

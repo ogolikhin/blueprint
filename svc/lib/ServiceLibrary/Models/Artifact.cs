@@ -32,6 +32,9 @@ namespace ServiceLibrary.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? CreatedOn { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool IsStandard { get; set; }
     }
 
     [JsonObject]

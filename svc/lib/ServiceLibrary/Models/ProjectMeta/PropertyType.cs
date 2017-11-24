@@ -67,6 +67,9 @@ namespace ServiceLibrary.Models.ProjectMeta
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? DefaultValidValueId { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? BaseArtifactTypeId { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2238:ImplementSerializationMethodsCorrectly"), OnSerializing]
         internal void OnSerializing(StreamingContext context)
         {

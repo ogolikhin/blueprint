@@ -386,14 +386,7 @@ namespace ArtifactStore.Services.Reviews
 
             reviewRawData = UpdateParticipantRole(reviewRawData, content, resultErrors);
 
-            if (reviewRawData.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
-            {
-                var meaningOfSignatureParameter = content.ItemIds
-                    .Select(i => new MeaningOfSignatureParameter { ParticipantId = i })
-                    .ToArray();
-
-                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData, meaningOfSignatureParameter, new MeaningOfSignatureUpdateSetDefaultsStrategy());
-            }
+            await UpdateMeaningOfSignatureWhenAssignApprovalRoles(reviewId, content, reviewRawData);
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewRawData, userId);
 
@@ -418,6 +411,51 @@ namespace ArtifactStore.Services.Reviews
             }
 
             return changeResult;
+        }
+
+        private async Task UpdateMeaningOfSignatureWhenAssignApprovalRoles(int reviewId, AssignParticipantRoleParameter content,
+            ReviewPackageRawData reviewRawData)
+        {
+            if (reviewRawData.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
+            {
+                IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameter;
+
+                if (content.SelectionType == SelectionType.Selected)
+                {
+                    meaningOfSignatureParameter = content.ItemIds
+                        .Select(i => new MeaningOfSignatureParameter { ParticipantId = i });
+                }
+                else
+                {
+                    if (!content.ItemIds.Any())
+                    {
+                        meaningOfSignatureParameter =
+                            reviewRawData.Reviewers.Select(
+                                reviewer => new MeaningOfSignatureParameter { ParticipantId = reviewer.UserId });
+                    }
+                    else
+                    {
+                        var meaningOfSignaturelist = new List<MeaningOfSignatureParameter>();
+
+                        foreach (var reviewer in reviewRawData.Reviewers)
+                        {
+                            if (!content.ItemIds.Contains(reviewer.UserId))
+                            {
+                                meaningOfSignaturelist.Add(new MeaningOfSignatureParameter
+                                {
+                                    ParticipantId = reviewer.UserId
+                                });
+                            }
+                        }
+
+                        meaningOfSignatureParameter = meaningOfSignaturelist;
+                    }
+                }
+
+                await
+                    UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData, meaningOfSignatureParameter,
+                        new MeaningOfSignatureUpdateSetDefaultsStrategy());
+            }
         }
 
         private static ReviewPackageRawData UpdateParticipantRole(ReviewPackageRawData reviewRawData, AssignParticipantRoleParameter content, List<ReviewChangeItemsError> resultErrors)

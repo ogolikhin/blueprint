@@ -257,7 +257,8 @@ namespace ArtifactStore.Services.VersionControl
                         ItemTypeIconId = dpd.Icon_ImageId,
                         PredefinedType = dpd.PrimitiveItemTypePredefined,
                         ProjectId = dpd.VersionProjectId,
-                        Version = dpd.VersionsCount == 0 ? -1 : dpd.VersionsCount
+                        Version = dpd.VersionsCount == 0 ? -1 : dpd.VersionsCount,
+                        IsStandard = dpd.InstanceItemTypeTypeId.HasValue
                     };
                     if (environment != null && environment.SensitivityCollector.ArtifactModifications != null)
                     {

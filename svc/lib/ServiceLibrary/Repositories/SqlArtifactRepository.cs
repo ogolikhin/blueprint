@@ -10,6 +10,9 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.ProjectMeta.Sql;
+using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace ServiceLibrary.Repositories
 {
@@ -772,6 +775,28 @@ namespace ServiceLibrary.Repositories
         public async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId)
         {
             return await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
+        }
+
+        public async Task<IEnumerable<PropertyType>> GetStandardProperties(ISet<int> standardArtifactTypeIds)
+        {
+            if (standardArtifactTypeIds == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(standardArtifactTypeIds));
+            }
+
+            var prm = new DynamicParameters();
+            // When the count of standardArtifactTypeIds is zero, you will receive all standard properties in system.
+            prm.Add("@standardArtifactTypeIds", SqlConnectionWrapper.ToDataTable(standardArtifactTypeIds, "Int32Collection", "Int32Value"));
+
+            var propertyTypeVersions = await ConnectionWrapper.QueryAsync<SqlProjectMetaRepository.PropertyTypeVersion>("GetStandardProperties", prm, commandType: CommandType.StoredProcedure);
+
+            var propertyTypes = new List<PropertyType>();
+            foreach (var pv in propertyTypeVersions)
+            {
+                propertyTypes.Add(pv.ConvertToPropertyType());
+            }
+
+            return propertyTypes;
         }
     }
 }

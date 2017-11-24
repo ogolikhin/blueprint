@@ -496,138 +496,36 @@ namespace ArtifactStore.Repositories
             // Arrange
             #region  Define local variables
             var reviewId = 1;
-            var reviewName = "My Review";
-            var reviewDescription = "My Description";
             var userId = 2;
-            var baselineId = 3;
             var totalArtifacts = 2;
             var revisionId = 999;
-            var reviewStatus = ReviewStatus.Completed;
-            bool drafts = false;
-            int intmax = int.MaxValue;
-            #endregion
-
-            #region  Mock the method GetItemDescription
-
-            _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, intmax)).ReturnsAsync(reviewDescription);
-
-            #endregion
-
-            #region  Mock the method GetReviewDetails
-            var reviewDetails = new ReviewSummaryDetails
-            {
-                BaselineId = baselineId,
-                ReviewPackageStatus = ReviewPackageStatus.Active,
-                ReviewParticipantRole = ReviewParticipantRole.Approver,
-                TotalArtifacts = totalArtifacts,
-                TotalViewable = 7,
-                TotalReviewers = 5,
-                ReviewStatus = reviewStatus,
-                Approved = 5,
-                Disapproved = 3,
-                Pending = 2,
-                Viewed = 7,
-                RevisionId = revisionId,
-                RequireAllArtifactsReviewed = true,
-                ShowOnlyDescription = true
-            };
-
-            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
-            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
-
+            var reviewStatus = ReviewStatus.InProgress;
+            var reviewPackageStatus = ReviewPackageStatus.Active;
             #endregion
 
             #region  Mock the method GetArtifactInfo & RevisionId
             var reviewInfo = new VersionControlArtifactInfo
             {
-                Name = reviewName,
                 PredefinedType = ItemTypePredefined.ArtifactReviewPackage
             };
-            var baselineInfo = new VersionControlArtifactInfo
-            {
-                Id = baselineId,
-                PredefinedType = ItemTypePredefined.ArtifactBaseline
-            };
-
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, userId)).ReturnsAsync(baselineInfo);
-            _itemInfoRepositoryMock.Setup(r => r.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(intmax);
-
             #endregion
 
-            #region  Mock the method GetReviewParticipants
-
-            var page = new Pagination();
-            page.SetDefaultValues(0, int.MaxValue);
-
-            var item = new ReviewParticipant
+            #region Mock the method GetReviewSummaryMetricsAsync
+            var resultSummaryMetrics = new FlatReviewSummaryMetrics
             {
-                UserId = userId,
-                Role = ReviewParticipantRole.Approver,
-                Approved = 1,
-                Disapproved = 1,
-                Status = ReviewStatus.Completed
-            };
-            IEnumerable<ReviewParticipant> rwp = (new List<ReviewParticipant> { item }).AsEnumerable();
-            IEnumerable<int> arts = (new int[1] { 1 }).AsEnumerable();
-            IEnumerable<int> total = (new int[1] { 2 }).AsEnumerable();
-            IEnumerable<int> reqs = (new int[1] { 2 }).AsEnumerable();
-            var mockResult = new Tuple<IEnumerable<ReviewParticipant>, IEnumerable<int>, IEnumerable<int>, IEnumerable<int>>(rwp, arts, total, reqs);
-
-            var prms = new Dictionary<string, object> { { "reviewId", reviewId }, { "offset", 0 }, { "limit", intmax }, { "revisionId", intmax }, { "userId", userId }, { "addDrafts", drafts } };
-            _cxn.SetupQueryMultipleAsync("GetReviewParticipants", It.IsAny<Dictionary<string, object>>(), mockResult);
-
-            #endregion
-
-            #region Mock ReviewArtifactHierarchy...
-
-            var refreshInterval = 20;
-
-            _applicationSettingsRepositoryMock
-                .Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval))
-                .ReturnsAsync(refreshInterval);
-
-            #endregion
-
-            #region Mock GetReviewArtifactsByParticipant
-
-            var reviewArtifacts2 = new List<ReviewedArtifact>();
-            var reviewArtifact1 = new ReviewedArtifact { Id = 2, ApprovalFlag = ApprovalType.Approved };
-            reviewArtifacts2.Add(reviewArtifact1);
-            var reviewArtifact2 = new ReviewedArtifact { Id = 3, ApprovalFlag = ApprovalType.Disapproved };
-            reviewArtifacts2.Add(reviewArtifact2);
-
-            _cxn.SetupQueryAsync("GetReviewArtifactsByParticipant", It.IsAny<Dictionary<string, object>>(), reviewArtifacts2);
-
-            #endregion
-
-            #region Mock GetReviewArtifacts
-
-            var outParams = new Dictionary<string, object>() {
-                { "numResult", 2 },
-                { "isFormal", false }
+                TotalArtifacts = totalArtifacts,
+                ReviewPackageStatus = reviewPackageStatus.ToString(),
+                ReviewStatus = reviewStatus.ToString(),
+                RevisionId = revisionId,
+                ArtifactsApprovedByAll = 1,
+                ArtifactsDisapproved = 1,
+                ArtifactsPending = 0,
+                ArtifactsViewedBySome = 0
             };
 
-            var reviewArtifacts = new List<ReviewedArtifact>();
-            var artifact1 = new ReviewedArtifact { Id = 2, ApprovalFlag = ApprovalType.Approved };
-            reviewArtifacts.Add(artifact1);
-            var artifact2 = new ReviewedArtifact { Id = 3, ApprovalFlag = ApprovalType.Disapproved };
-            reviewArtifacts.Add(artifact2);
-
-            _cxn.SetupQueryAsync("GetReviewArtifacts", It.IsAny<Dictionary<string, object>>(), reviewArtifacts, outParams);
-            #endregion
-
-            #region Mock Permissions
-
-            var permisions = new Dictionary<int, RolePermissions>
-            {
-                { 2, RolePermissions.Read },
-                { 3, RolePermissions.Read }
-            };
-            // _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>, It.IsAny<int>, false, int.MaxValue, true)).ReturnsAsync(result);
-
-            SetupArtifactPermissionsCheck(new[] { reviewArtifact1.Id, reviewArtifact2.Id }, userId, permisions);
-
+            var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
+            _cxn.SetupQueryAsync("GetReviewSummaryMetrics", param, Enumerable.Repeat(resultSummaryMetrics, 1));
             #endregion
 
             // Act
@@ -694,12 +592,13 @@ namespace ArtifactStore.Repositories
             };
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
 
-            var reviewDetails = new ReviewSummaryDetails
+            var resultSummaryMetrics = new FlatReviewSummaryMetrics
             {
-                ReviewPackageStatus = ReviewPackageStatus.Draft // Draft Status
+                ReviewPackageStatus = ReviewPackageStatus.Draft.ToString() // Draft Status
             };
+
             var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
-            _cxn.SetupQueryAsync("GetReviewDetails", param, Enumerable.Repeat(reviewDetails, 1));
+            _cxn.SetupQueryAsync("GetReviewSummaryMetrics", param, Enumerable.Repeat(resultSummaryMetrics, 1));
 
             // Act
             try
@@ -3721,6 +3620,41 @@ namespace ArtifactStore.Repositories
             SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, new Dictionary<int, RolePermissions>()
             {
                 { 3, RolePermissions.Read }
+            });
+
+            // Act
+            try
+            {
+                await _reviewsRepository.UpdateReviewArtifactsViewedAsync(reviewId, viewInput, userId);
+            }
+            catch (AuthorizationException ex)
+            {
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("An AuthorizationException was not thrown.");
+        }
+
+        [TestMethod]
+        public async Task UpdateReviewArtifactViewedAsync_Should_Throw_When_User_Cannot_Access_Review_Artifact()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var artifactId = 3;
+            var viewInput = new ReviewArtifactViewedInput
+            {
+                ArtifactIds = new[] { artifactId },
+                Viewed = true
+            };
+
+            SetupArtifactApprovalCheck(reviewId, userId, viewInput.ArtifactIds);
+
+            SetupArtifactPermissionsCheck(new[] { artifactId, reviewId }, userId, new Dictionary<int, RolePermissions>()
+            {
+                { 3, RolePermissions.None }
             });
 
             // Act

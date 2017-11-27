@@ -27,7 +27,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             IWorkflowMessagingProcessor messageProcessor,
             int transactionCommitWaitTimeInMilliSeconds = 60000)
         {
-            var createdArtifacts = message?.Artifacts?.Where(p => p.IsFirstTimePublished).ToList();
+            var createdArtifacts = message?.Artifacts?.Where(p => p.IsFirstTimePublished && repository.WorkflowRepository.IsWorkflowSupported((ItemTypePredefined)p.Predefined)).ToList();
             if (createdArtifacts == null || createdArtifacts.Count <= 0)
             {
                 return false;

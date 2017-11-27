@@ -11,6 +11,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -271,6 +272,32 @@ namespace ArtifactStore.Controllers
             }
 
             return await _artifactRepository.GetStandardArtifactTypes(filter);
+        }
+
+        /// <summary>
+        /// Get a list of standard properties for certain artifact types or all standard properties in system.
+        /// </summary>
+        /// <remarks>
+        /// Return the list of standard properties.
+        /// </remarks>
+        /// <param name="standardArtifactTypeIds">It is filter to receive only standard properties for certain artifact types or all standard properties in system if the parameter doesn't have any ids.</param>
+        /// <response code="200">OK. The list of standard properties.</response>
+        /// <response code="400">Incorrect parameter.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard properties.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("artifacts/standardproperties"), SessionRequired]
+        public async Task<IEnumerable<PropertyType>> GetStandardProperties([FromBody] ISet<int> standardArtifactTypeIds)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            if (standardArtifactTypeIds == null)
+            {
+                throw new BadRequestException(ErrorMessages.ModelIsEmpty);
+            }
+
+            return await _artifactRepository.GetStandardProperties(standardArtifactTypeIds);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ServiceLibrary.Repositories
 {
@@ -37,5 +38,7 @@ namespace ServiceLibrary.Repositories
         Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes(StandardArtifactTypes filter = StandardArtifactTypes.All);
 
         Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId);
+
+        Task<IEnumerable<PropertyType>> GetStandardProperties(ISet<int> standardArtifactTypeIds);
     }
 }

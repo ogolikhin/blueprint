@@ -32,5 +32,24 @@ namespace ArtifactStore.Models.Review
 
         [DataMember(Name = "EO", EmitDefaultValue = false)]
         public DateTime? ESignedOn;
+
+        [DataMember(Name = "SMSFE", EmitDefaultValue = false)]
+        public List<SelectedMeaningOfSignatureXml> SelectedMeaningofSignatureValues { get; set; }
+    }
+
+    [DataContract(Namespace = "Blueprint.Reviews", Name = "RESMI")]
+    internal class SelectedMeaningOfSignatureXml
+    {
+        [DataMember(Name = "MOSRID")]
+        public int? RoleId { get; set; }
+
+        [DataMember(Name = "MOSRN")]
+        public string RoleName { get; set; }
+
+        [DataMember(Name = "MoSEID")]
+        public int? MeaningOfSignatureId { get; set; }
+
+        [DataMember(Name = "MOSEV")]
+        public string MeaningOfSignatureValue { get; set; }
     }
 }

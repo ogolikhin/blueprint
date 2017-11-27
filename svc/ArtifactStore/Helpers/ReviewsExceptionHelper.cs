@@ -67,8 +67,14 @@ namespace ArtifactStore.Helpers
 
         public static BadRequestException BaselineNotSealedException()
         {
-            var errorMessage = I18NHelper.FormatInvariant("The baseline could not be added to the review because it is not sealed and published.");
+            var errorMessage = "The baseline could not be added to the review because it is not sealed and published.";
             return new BadRequestException(errorMessage, ErrorCodes.BaselineIsNotSealed);
+        }
+
+        public static ConflictException MeaningOfSignatureNotPossibleException()
+        {
+            var errorMessage = "Could not update meaning of signature because meaning of signature is not possible for a participant.";
+            return new ConflictException(errorMessage, ErrorCodes.MeaningOfSignatureNotPossible);
         }
     }
 }

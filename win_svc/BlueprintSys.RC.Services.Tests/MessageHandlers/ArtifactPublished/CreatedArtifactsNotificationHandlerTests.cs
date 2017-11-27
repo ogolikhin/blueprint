@@ -95,6 +95,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactPublished
             _artifactsPublishedRepositoryMock = new Mock<IArtifactsPublishedRepository>(MockBehavior.Loose);
             _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
             _workflowRepoMock = new Mock<IWorkflowRepository>(MockBehavior.Loose);
+            _workflowRepoMock
+                .Setup(r => r.IsWorkflowSupported(It.IsAny<ItemTypePredefined>()))
+                .Returns((ItemTypePredefined p) => SqlWorkflowRepository.IsWorkflowSupportedForArtifactType(p));
             _userRepoMock = new Mock<IUsersRepository>(MockBehavior.Loose);
             _wfMessagingMock = new Mock<IWorkflowMessagingProcessor>(MockBehavior.Loose);
 

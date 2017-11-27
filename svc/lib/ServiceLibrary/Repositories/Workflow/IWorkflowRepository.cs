@@ -3,6 +3,7 @@ using System.Data;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.PropertyType;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Models;
 
 namespace ServiceLibrary.Repositories.Workflow
 {
@@ -34,5 +35,7 @@ namespace ServiceLibrary.Repositories.Workflow
 
         Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId, IEnumerable<int> artifactIds, int revisionId,
             IDbTransaction transaction = null);
+
+        bool IsWorkflowSupported(ItemTypePredefined baseArtifactItemType);
     }
 }

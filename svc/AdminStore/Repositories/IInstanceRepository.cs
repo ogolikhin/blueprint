@@ -3,7 +3,9 @@ using AdminStore.Models.DTO;
 using ServiceLibrary.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
+using AdminStore.Models.Enums;
 
 namespace AdminStore.Repositories
 {
@@ -14,6 +16,8 @@ namespace AdminStore.Repositories
         Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId, bool fromAdminPortal = false);
 
         Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId, bool fromAdminPortal = false);
+
+        Task DeactivateWorkflowsWithLastAssignmentForDeletedProject(int projectId);
 
         Task<List<string>> GetProjectNavigationPathAsync(int userId, int projectId, bool includeProjectItself);
 
@@ -27,8 +31,9 @@ namespace AdminStore.Repositories
 
         Task UpdateFolderAsync(int folderId, FolderDto folderDto);
 
-        Task DeleteProject(int userId, int projectId);
+        Task RemoveProject(int userId, int projectId);
 
+        Task PurgeProject(int projectId, InstanceItem project);
         Task<IEnumerable<ProjectRole>> GetProjectRolesAsync(int projectId);
 
         Task<RoleAssignmentQueryResult<RoleAssignment>> GetProjectRoleAssignmentsAsync(int projectId, TabularData tabularData,
@@ -43,5 +48,7 @@ namespace AdminStore.Repositories
         Task<int> CreateRoleAssignmentAsync(int projectId, RoleAssignmentDTO roleAssignment);
 
         Task UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment);
+
+        Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
     }
 }

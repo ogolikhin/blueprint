@@ -1003,7 +1003,7 @@ namespace AdminStore.Repositories.Workflow
             foreach (var workflowState in workflowStates)
             {
                 table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name,
-                    workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex, workflowState.CanvasSettings);
+                  workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex, workflowState.CanvasSettings);
             }
 
             return table;

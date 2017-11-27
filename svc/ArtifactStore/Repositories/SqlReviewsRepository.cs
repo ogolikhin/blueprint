@@ -1608,30 +1608,7 @@ namespace ArtifactStore.Repositories
 
             if (isMeaningOfSignatureEnabled)
             {
-                if (reviewArtifactApprovalParameters.MeaningOfSignatures == null || !reviewArtifactApprovalParameters.MeaningOfSignatures.Any())
-                {
-                    throw new BadRequestException("Meaning of signature must be provided to change the approval status of an artifact.", ErrorCodes.MeaningOfSignatureNotChosen);
-                }
-
-                var meaningOfSignatureIds = reviewArtifactApprovalParameters.MeaningOfSignatures.ToList();
-
-                var assignedMeaningOfSignatures = await GetAssignedMeaningOfSignatures(reviewId, userId);
-
-                selectedMeaningOfSignatures = assignedMeaningOfSignatures.Where(amos => meaningOfSignatureIds.Any(
-                                                                             mos => mos.MeaningOfSignatureId == amos.MeaningOfSignatureId && mos.RoleId == amos.RoleId))
-                                                                         .Select(mos => new SelectedMeaningOfSignatureXml()
-                                                                         {
-                                                                             RoleId = mos.RoleId,
-                                                                             RoleName = mos.RoleName,
-                                                                             MeaningOfSignatureId = mos.MeaningOfSignatureId,
-                                                                             MeaningOfSignatureValue = mos.MeaningOfSignatureValue
-                                                                         })
-                                                                         .ToList();
-
-                if (selectedMeaningOfSignatures.Count != meaningOfSignatureIds.Count)
-                {
-                    throw ReviewsExceptionHelper.MeaningOfSignatureNotPossibleException();
-                }
+                selectedMeaningOfSignatures = await GetSelectedMeaningOfSignaturesFromValues(reviewId, userId, reviewArtifactApprovalParameters.MeaningOfSignatures);
             }
 
             var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId);
@@ -1827,8 +1804,10 @@ namespace ArtifactStore.Repositories
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, transactionAction);
         }
 
-        public async Task UpdateReviewerStatusAsync(int reviewId, int revisionId, ReviewStatus reviewStatus, int userId)
+        public async Task UpdateReviewerStatusAsync(int reviewId, int revisionId, ReviewerStatusParameter reviewStatusParameter, int userId)
         {
+            var reviewStatus = reviewStatusParameter.Status;
+
             if (reviewStatus == ReviewStatus.NotStarted)
             {
                 throw new BadRequestException("Cannot set reviewer status to not started");
@@ -1852,7 +1831,7 @@ namespace ArtifactStore.Repositories
                     break;
 
                 case ReviewStatus.Completed:
-                    await UpdateReviewerStatusToCompletedAsync(reviewId, revisionId, userId, approvalCheck);
+                    await UpdateReviewerStatusToCompletedAsync(reviewId, revisionId, userId, reviewStatusParameter.MeaningOfSignatures, approvalCheck);
                     break;
 
                 default:
@@ -1865,16 +1844,15 @@ namespace ArtifactStore.Repositories
             await UpdateReviewUserStatsAsync(reviewId, userId, true, ReviewStatus.InProgress.ToString());
         }
 
-        private async Task UpdateReviewerStatusToCompletedAsync(int reviewId, int revisionId, int userId, ReviewArtifactApprovalCheck approvalCheck)
+        private async Task UpdateReviewerStatusToCompletedAsync(int reviewId, int revisionId, int userId, IEnumerable<SelectedMeaningOfSignatureValue> meaningOfSignatures,
+                                                                ReviewArtifactApprovalCheck approvalCheck)
         {
             if (approvalCheck.ReviewerStatus == ReviewStatus.NotStarted)
             {
                 throw new BadRequestException("Cannot set reviewer status to complete when reviewer status is not started.");
             }
 
-            var requireAllReviewed = await GetRequireAllArtifactsReviewedAsync(reviewId, userId, false);
-
-            if (requireAllReviewed)
+            if (await GetRequireAllArtifactsReviewedAsync(reviewId, userId, false))
             {
                 var reviewedArtifactsResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, new Pagination { Offset = 0, Limit = int.MaxValue }, revisionId);
 
@@ -1882,6 +1860,17 @@ namespace ArtifactStore.Repositories
                 {
                     throw new ConflictException("Review cannot be completed until all artifacts have been reviewed.", ErrorCodes.NotAllArtifactsReviewed);
                 }
+            }
+
+            if (approvalCheck.ReviewerRole == ReviewParticipantRole.Approver && await IsMeaningOfSignatureEnabledAsync(reviewId, userId, false))
+            {
+                var selectedMeaningOfSignatures = await GetSelectedMeaningOfSignaturesFromValues(reviewId, userId, meaningOfSignatures);
+
+                var reviewerStats = await GetReviewUserStatsXmlAsync(reviewId, userId);
+
+                reviewerStats.SelectedCompletionMeaningOfSignatureValues = selectedMeaningOfSignatures;
+
+                await UpdateReviewUserStatsXmlAsync(reviewId, userId, reviewerStats);
             }
 
             await UpdateReviewUserStatsAsync(reviewId, userId, true, ReviewStatus.Completed.ToString());
@@ -1912,6 +1901,36 @@ namespace ArtifactStore.Repositories
             parameters.Add("addDrafts", addDrafts);
 
             return _connectionWrapper.ExecuteScalarAsync<bool>("GetReviewRequireAllArtifactsReviewed", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        private async Task<List<SelectedMeaningOfSignatureXml>> GetSelectedMeaningOfSignaturesFromValues(int reviewId, int userId, IEnumerable<SelectedMeaningOfSignatureValue> meaningOfSignatureValues)
+        {
+            List<SelectedMeaningOfSignatureValue> meaningOfSignatureValuesList;
+
+            if (meaningOfSignatureValues == null || !(meaningOfSignatureValuesList = meaningOfSignatureValues.ToList()).Any())
+            {
+                throw ReviewsExceptionHelper.MeaningOfSignatureNotChosenException();
+            }
+
+            var assignedMeaningOfSignatures = await GetAssignedMeaningOfSignatures(reviewId, userId);
+
+            var selectedMeaningOfSignatures = assignedMeaningOfSignatures
+                .Where(amos => meaningOfSignatureValuesList.Any(mos => mos.MeaningOfSignatureId == amos.MeaningOfSignatureId && mos.RoleId == amos.RoleId))
+                .Select(mos => new SelectedMeaningOfSignatureXml()
+                {
+                    RoleId = mos.RoleId,
+                    RoleName = mos.RoleName,
+                    MeaningOfSignatureId = mos.MeaningOfSignatureId,
+                    MeaningOfSignatureValue = mos.MeaningOfSignatureValue
+                })
+                .ToList();
+
+            if (selectedMeaningOfSignatures.Count != meaningOfSignatureValuesList.Count)
+            {
+                throw ReviewsExceptionHelper.MeaningOfSignatureNotPossibleException();
+            }
+
+            return selectedMeaningOfSignatures;
         }
 
         private void CheckReviewStatsCanBeUpdated(ReviewArtifactApprovalCheck approvalCheck, int reviewId, bool requireUserInReview, bool byPassArtifacts = false)

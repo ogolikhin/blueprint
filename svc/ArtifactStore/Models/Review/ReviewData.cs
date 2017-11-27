@@ -11,14 +11,7 @@ namespace ArtifactStore.Models.Review
 
         public string ReviewContentsXml { get; set; }
 
-        public int? ProjectId { get; set; }
-
         public int? BaselineId { get; set; }
-
-        public bool Exists()
-        {
-            return ProjectId.HasValue;
-        }
 
         private RDReviewContents _reviewContents;
         internal RDReviewContents ReviewContents
@@ -43,7 +36,7 @@ namespace ArtifactStore.Models.Review
             {
                 if (_reviewPackageRawData == null)
                 {
-                    if (!ReviewRawDataHelper.TryRestoreData(ReviewPackageRawDataXml, out _reviewContents))
+                    if (!ReviewRawDataHelper.TryRestoreData(ReviewPackageRawDataXml, out _reviewPackageRawData))
                     {
                         _reviewPackageRawData = new ReviewPackageRawData();
                     }
@@ -58,11 +51,12 @@ namespace ArtifactStore.Models.Review
         {
             get
             {
-                if (!ReviewPackageRawData.Reviewers.Any())
+                if (ReviewPackageRawData.Reviewers == null || !ReviewPackageRawData.Reviewers.Any())
                 {
                     return ReviewType.Public;
                 }
                 if (ReviewPackageRawData.Reviewers.Any(r => r.Permission == ReviewParticipantRole.Reviewer)
+                    || ReviewContents.Artifacts == null
                     || ReviewContents.Artifacts.Any(a => a.ApprovalNotRequested))
                 {
                     return ReviewType.Informal;

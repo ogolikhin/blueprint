@@ -354,7 +354,8 @@ namespace ArtifactStore.Services.Reviews
                 throw new ConflictException(errorMessage, ErrorCodes.ApprovalRequiredIsReadonlyForReview);
             }
 
-            if (string.IsNullOrEmpty(reviewData.ReviewPackageRawDataXml))
+            if (reviewData.ReviewPackageRawData.Reviewers == null
+                || !reviewData.ReviewPackageRawData.Reviewers.Any())
             {
                 throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
@@ -371,7 +372,7 @@ namespace ArtifactStore.Services.Reviews
 
             if (content.Role == ReviewParticipantRole.Approver)
             {
-                await EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(reviewId, userId, reviewData.ProjectId.Value, reviewRawData);
+                await EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(reviewId, userId, reviewInfo.ProjectId, reviewRawData);
 
                 if (reviewRawData.IsMoSEnabled && content.ItemIds.Count() == 1 && content.SelectionType == SelectionType.Selected)
                 {
@@ -510,9 +511,8 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.ReviewClosedException();
             }
 
-            var projectId = reviewData.ProjectId;
-
-            if (!projectId.HasValue || projectId < 1 || string.IsNullOrEmpty(reviewData.ReviewContentsXml))
+            if (reviewData.ReviewContents.Artifacts == null
+                || !reviewData.ReviewContents.Artifacts.Any())
             {
                 throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
@@ -531,7 +531,7 @@ namespace ArtifactStore.Services.Reviews
             if (updatingArtifacts.Any())
             {
                 // For Informal review
-                await ExcludeDeletedAndNotInProjectArtifacts(content, reviewData, resultErrors, updatingArtifacts);
+                await ExcludeDeletedAndNotInProjectArtifacts(content, reviewData, reviewInfo.ProjectId, resultErrors, updatingArtifacts);
                 await ExcludeArtifactsWithoutReadPermissions(content, userId, resultErrors, updatingArtifacts);
 
                 foreach (var updatingArtifact in updatingArtifacts)
@@ -546,7 +546,7 @@ namespace ArtifactStore.Services.Reviews
                 if (content.ApprovalRequired)
                 {
                     var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
-                    await EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(reviewId, userId, projectId.Value, reviewRawData);
+                    await EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(reviewId, userId, reviewInfo.ProjectId, reviewRawData);
                 }
             }
 
@@ -589,12 +589,12 @@ namespace ArtifactStore.Services.Reviews
             updatingArtifacts.RemoveAll(ua => !updatingArtifactIdsWithReadPermissions.Contains(ua.Id));
         }
 
-        private async Task ExcludeDeletedAndNotInProjectArtifacts(AssignArtifactsApprovalParameter content, ReviewData reviewData, ICollection<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
+        private async Task ExcludeDeletedAndNotInProjectArtifacts(AssignArtifactsApprovalParameter content, ReviewData reviewData, int projectId, ICollection<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
         {
             if (reviewData.BaselineId == null || reviewData.BaselineId < 1)
             {
                 var updatingArtifactIdsOnly = updatingArtifacts.Select(ua => ua.Id);
-                var deletedAndNotInProjectItemIds = await _artifactVersionsRepository.GetDeletedAndNotInProjectItems(updatingArtifactIdsOnly, reviewData.ProjectId.Value);
+                var deletedAndNotInProjectItemIds = await _artifactVersionsRepository.GetDeletedAndNotInProjectItems(updatingArtifactIdsOnly, projectId);
 
                 // Only show error message if on client side user have an outdated data about deleted artifacts from review
                 if (content.SelectionType == SelectionType.Selected && deletedAndNotInProjectItemIds != null && deletedAndNotInProjectItemIds.Any())

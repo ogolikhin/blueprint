@@ -43,6 +43,6 @@ namespace ArtifactStore.Models.Review
         public bool IsReviewDeleted { get; set; }
         public bool? IsUserDisabled { get; set; }
         public ReviewType ReviewType { get; set; }
-        public bool IsReviewReadOnly { get; set; }
+        public string ParticipantXml { get; set; }
     }
 }

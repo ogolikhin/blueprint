@@ -384,7 +384,7 @@ namespace ArtifactStore.Services.Reviews
 
             var resultErrors = new List<ReviewChangeItemsError>();
 
-            reviewRawData = UpdateParticipantRole(reviewRawData, content, resultErrors);
+            UpdateParticipantRole(reviewRawData, content, resultErrors);
 
             await UpdateMeaningOfSignatureWhenAssignApprovalRoles(reviewId, content, reviewRawData);
 
@@ -458,7 +458,7 @@ namespace ArtifactStore.Services.Reviews
             }
         }
 
-        private static ReviewPackageRawData UpdateParticipantRole(ReviewPackageRawData reviewRawData, AssignParticipantRoleParameter content, List<ReviewChangeItemsError> resultErrors)
+        private static void UpdateParticipantRole(ReviewPackageRawData reviewRawData, AssignParticipantRoleParameter content, List<ReviewChangeItemsError> resultErrors)
         {
             int nonIntersecCount = 0;
 
@@ -506,8 +506,6 @@ namespace ArtifactStore.Services.Reviews
 
                     });
             }
-
-            return reviewRawData;
         }
 
         public async Task<ReviewChangeItemsStatusResult> AssignApprovalRequiredToArtifactsAsync(int reviewId, AssignArtifactsApprovalParameter content, int userId)

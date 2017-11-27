@@ -1018,7 +1018,64 @@ namespace AdminStore.Services.Workflow
                                     .RemoveAll(que => ((IePropertyChangeAction)que.Action).PropertyName ==
                                                       (string)error.Element));
                                 break;
-                                // cases Validation Property value in PropertyChangeAction trigger
+                            // cases Validation Property value in PropertyChangeAction trigger
+                            // Text
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:
+
+                                break;
+
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty:
+
+                                break;
+                            // only for Number
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberFormat:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberDecimalPlaces:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionNumberOutOfRange:
+
+                                break;
+                            // only for Date
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange:
+
+                                break;
+                            // only for User
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundByName:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundByName:
+
+                                break;
+                            // only for Choice
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById:
+
+                                break;
+                            case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundByValue:
+
+                                break;
                         }
                     }
                 }

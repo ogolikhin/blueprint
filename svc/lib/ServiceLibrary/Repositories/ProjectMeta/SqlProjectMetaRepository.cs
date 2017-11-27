@@ -331,7 +331,6 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             internal bool? Required { get; set; }
             internal bool? Validate { get; set; }
             internal string XmlInfo { get; set; }
-            internal int BaseArtifactTypeId { get; set; }
         }
 
         public class ItemTypeVersion

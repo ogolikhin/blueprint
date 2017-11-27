@@ -330,74 +330,54 @@ namespace AdminStore.Services.Workflow
 
         public async Task<WorkflowDetailsDto> GetWorkflowDetailsAsync(int workflowId)
         {
-            var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
-            if (workflowDetails == null)
+            var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
+
+            var numberStates = ieWorkflow.States.Count;
+
+            var transitionEventTriggersCount = 0;
+            if (ieWorkflow.TransitionEvents != null)
             {
-                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+                foreach (var transition in ieWorkflow.TransitionEvents)
+                {
+                    if (transition.Triggers != null)
+                        transitionEventTriggersCount += transition.Triggers.Count;
+                }
+            }
+
+            var propertyChangeEventTriggersCount = 0;
+            if (ieWorkflow.PropertyChangeEvents != null)
+            {
+                foreach (var propertyChangeEvent in ieWorkflow.PropertyChangeEvents)
+                {
+                    if (propertyChangeEvent.Triggers != null)
+                        propertyChangeEventTriggersCount += propertyChangeEvent.Triggers.Count;
+                }
+            }
+
+            var newArtifactEventTriggersCount = 0;
+            if (ieWorkflow.NewArtifactEvents != null)
+            {
+                foreach (var newArtifactEvent in ieWorkflow.NewArtifactEvents)
+                {
+                    if (newArtifactEvent.Triggers != null)
+                        newArtifactEventTriggersCount += newArtifactEvent.Triggers.Count;
+                }
             }
 
             var workflowDetailsDto = new WorkflowDetailsDto
             {
-                Name = workflowDetails.Name,
-                Description = workflowDetails.Description,
-                Active = workflowDetails.Active,
-                WorkflowId = workflowDetails.WorkflowId,
-                VersionId = workflowDetails.VersionId,
-                LastModified = workflowDetails.LastModified,
-                LastModifiedBy = workflowDetails.LastModifiedBy
+                Name = ieWorkflow.Name,
+                Description = ieWorkflow.Description,
+                Active = ieWorkflow.IsActive,
+                WorkflowId = ieWorkflow.Id ?? 0,
+                VersionId = ieWorkflow.VersionId,
+                LastModified = ieWorkflow.LastModified,
+                LastModifiedBy = ieWorkflow.LastModifiedBy,
+                NumberOfActions = transitionEventTriggersCount + propertyChangeEventTriggersCount + newArtifactEventTriggersCount,
+                NumberOfStates = numberStates,
+                Projects = ieWorkflow.Projects?.Select(e => new WorkflowProjectDto { Id = e.Id ?? 0, Name = e.Path ?? string.Empty }).Distinct().ToList(),
+                ArtifactTypes = ieWorkflow.Projects?.SelectMany(e => e.ArtifactTypes).Select(t => new WorkflowArtifactTypeDto { Name = t.Name ?? string.Empty }).Distinct().ToList()
             };
-
-            var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-
-            var workflowStates = (await _workflowRepository.GetWorkflowStatesAsync(workflowId)).ToList();
-            var workflowEvents = (await _workflowRepository.GetWorkflowEventsAsync(workflowId)).ToList();
-
-            var dataMaps = LoadDataMaps(standardTypes,
-                workflowStates.ToDictionary(s => s.WorkflowStateId, s => s.Name));
-
-            workflowDetailsDto.NumberOfStates = workflowStates.Distinct().Count();
-
-            var transitionEventsCount = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.Transition
-                                                                  && e.FromStateId.HasValue
-                                                                  && dataMaps.StateMap.ContainsKey(e.FromStateId.Value)
-                                                                  && e.ToStateId.HasValue
-                                                                  && dataMaps.StateMap.ContainsKey(e.ToStateId.Value)).Distinct().Count();
-
-            var userIds = new HashSet<int>();
-            var groupIds = new HashSet<int>();
-
-            var propertyChangeEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.PropertyChange
-                                                                 && e.PropertyTypeId.HasValue
-                                                                 && (dataMaps.PropertyTypeMap.ContainsKey(e.PropertyTypeId.Value)
-                                                                 || WorkflowHelper.IsNameOrDescriptionProperty(e.PropertyTypeId.Value)))
-                                                                .Select(e => new IePropertyChangeEvent
-                                                                {
-                                                                    Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
-                                                                }).Distinct().ToList();
-
-            propertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
-            var propertyChangeEventsCount = propertyChangeEvents.Count;
-
-            var newArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).Select(e => new IeNewArtifactEvent
-                                                                {
-                                                                    Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
-                                                                }).Distinct().ToList();
-
-            newArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
-            var newArtifactEventsCount = newArtifactEvents.Count;
-
-            workflowDetailsDto.NumberOfActions = transitionEventsCount + propertyChangeEventsCount + newArtifactEventsCount;
-
-            var workflowProjectsAndArtifactTypes =
-                (await _workflowRepository.GetWorkflowArtifactTypesAsync(workflowId)).ToList();
-
-            workflowDetailsDto.Projects =
-                workflowProjectsAndArtifactTypes.Select(
-                    e => new WorkflowProjectDto { Id = e.ProjectId, Name = e.ProjectPath }).Distinct().ToList();
-            workflowDetailsDto.ArtifactTypes =
-                workflowProjectsAndArtifactTypes.Select(e => new WorkflowArtifactTypeDto { Name = e.ArtifactTypeName })
-                    .Distinct()
-                    .ToList();
 
             return workflowDetailsDto;
         }
@@ -760,6 +740,9 @@ namespace AdminStore.Services.Workflow
                 Name = workflowDetails.Name,
                 Description = workflowDetails.Description,
                 IsActive = workflowDetails.Active,
+                VersionId = workflowDetails.VersionId,
+                LastModified = workflowDetails.LastModified,
+                LastModifiedBy = workflowDetails.LastModifiedBy,
                 States =
                     workflowStates.Select(
                         e => new IeState
@@ -808,7 +791,7 @@ namespace AdminStore.Services.Workflow
                         Name = e.Name,
                         Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
-                Projects = GetProjects(workflowArtifactTypes)
+                Projects = GetProjects(workflowArtifactTypes, mode)
             };
 
             await UpdateUserAndGroupInfo(ieWorkflow, userIds, groupIds);
@@ -1094,18 +1077,19 @@ namespace AdminStore.Services.Workflow
             return name;
         }
 
-        private static List<IeProject> GetProjects(IEnumerable<SqlWorkflowArtifactTypes> wpa)
+        private static List<IeProject> GetProjects(IEnumerable<SqlWorkflowArtifactTypes> wpa, WorkflowMode mode)
         {
             var listWpa = wpa.ToList();
-            var wprojects = listWpa.GroupBy(g => g.ProjectId).Select(w => w).ToList();
+            var wprojects = listWpa.GroupBy(g => new { id = g.ProjectId, path = g.ProjectPath }).Select(w => w).ToList();
 
             var projects = new List<IeProject>();
             wprojects.ForEach(w =>
             {
                 var project = new IeProject
                 {
-                    Id = w.Key,
-                    ArtifactTypes = listWpa.Where(p => p.ProjectId == w.Key).
+                    Id = w.Key.id,
+                    Path = mode == WorkflowMode.Canvas ? w.Key.path : null,
+                    ArtifactTypes = listWpa.Where(p => p.ProjectId == w.Key.id).
                         Select(a => new IeArtifactType
                         {
                             Id = a.ArtifactTypeId,

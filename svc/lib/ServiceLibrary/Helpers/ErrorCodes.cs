@@ -95,7 +95,7 @@
         public const int MeaningOfSignatureNotPossible = 10010;
         public const int BaselineIsAlreadyAttachedToReview = 10011;
         public const int LiveArtifactsReplacingWithBaseline = 10012;
-        public const int MeaningOfSignatureNotChosen = 10011;
+        public const int MeaningOfSignatureNotChosen = 10013;
 
         // User Review Errors
         public const int UserDisabled = 11001;

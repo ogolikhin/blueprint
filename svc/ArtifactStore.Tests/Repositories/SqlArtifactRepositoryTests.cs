@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Castle.Components.DictionaryAdapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace ArtifactStore.Repositories
 {
@@ -85,5 +89,17 @@ namespace ArtifactStore.Repositories
             Assert.IsNotNull(standardArtifacts);
             Assert.AreEqual(standardArtifacts.Count(), 1);
         }
+
+        #region GetStandardProperties
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetStandardProperties_IncorrectParameters_ArgumentOutOfBoundsException()
+        {
+            // Act
+            await repository.GetStandardProperties(null);
+        }
+
+        #endregion
     }
 }

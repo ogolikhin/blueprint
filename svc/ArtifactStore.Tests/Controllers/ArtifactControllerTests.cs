@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,6 +11,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 using System.Web.Http;
 using System.Net;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Controllers
@@ -281,6 +283,70 @@ namespace ArtifactStore.Controllers
             var result = await artifactController.GetProcessInformationAsync(artifactIds);
 
         }
+
+        #region GetStandardProperties
+
+        [TestMethod]
+        public async Task GetStandardProperties_AllParametersAreCorrect_SuccessResult()
+        {
+            // Arrange
+            HashSet<int> artifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+            List<PropertyType> properties = new List<PropertyType>()
+            {
+                new PropertyType() { Id = 1, Name = "Property1" },
+                new PropertyType() { Id = 2, Name = "Property2" }
+            };
+
+            mockArtifactRepository.Setup(r => r.GetStandardProperties(artifactTypeIds))
+                                  .ReturnsAsync(properties);
+
+            _mockSqlPrivilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            // Act
+            var result = await artifactController.GetStandardProperties(artifactTypeIds);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result, properties);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetStandardProperties_IncorrectParameters_ThrowsBadRequestException()
+        {
+            // Arrange
+            HashSet<int> artifactTypeIds = null;
+
+            _mockSqlPrivilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            // Act
+            await artifactController.GetStandardProperties(artifactTypeIds);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetStandardProperties_InsufficientPermissions_ThrowsAuthorizationException()
+        {
+            // Arrange
+            HashSet<int> artifactTypeIds = null;
+
+            _mockSqlPrivilegesRepository
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+
+            // Act
+            await artifactController.GetStandardProperties(artifactTypeIds);
+
+            // Assert
+        }
+
+        #endregion
 
         [TestMethod]
         public async Task GetStandardArtifactTypes_AllParametersAreCorrect_SuccessResult()

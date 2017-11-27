@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
@@ -45,6 +46,15 @@ namespace AdminStore.Models.Workflow
 
         [XmlIgnore]
         public bool IsActive { get; set; }
+
+        [XmlIgnore]
+        public int VersionId { get; set; }
+
+        [XmlIgnore]
+        public string LastModifiedBy { get; set; }
+
+        [XmlIgnore]
+        public DateTime LastModified { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
         [XmlArray("States"), XmlArrayItem("State")]

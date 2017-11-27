@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 
@@ -11,7 +12,7 @@ namespace AdminStore.Services.Workflow
         #region Interface Implementation
 
         // Id in IeProjects and GroupProjectId for groups in IeUserGroup should be filled in.
-        public WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow)
+        public WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow, WorkflowMode workflowMode = WorkflowMode.XmlExport)
         {
             var result = new WorkflowDiffResult();
             if (workflow == null) throw new ArgumentNullException(nameof(workflow));
@@ -20,12 +21,12 @@ namespace AdminStore.Services.Workflow
             result.IsWorkflowPropertiesChanged = IsWorkflowPropertiesChanged(workflow, currentWorkflow);
 
             DiffWorkflowEntities(workflow.States, currentWorkflow.States, result.AddedStates,
-                result.DeletedStates, result.ChangedStates, result.NotFoundStates, result.UnchangedStates);
+                result.DeletedStates, result.ChangedStates, result.NotFoundStates, result.UnchangedStates, workflowMode);
 
             var events = workflow.TransitionEvents?.Select(e => e as IeEvent).ToList();
             var currentEvents = currentWorkflow.TransitionEvents?.Select(e => e as IeEvent).ToList();
             DiffWorkflowEntities(events, currentEvents, result.AddedEvents,
-                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents);
+                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents, workflowMode);
 
             events = workflow.PropertyChangeEvents?.Select(te => te as IeEvent).ToList();
             currentEvents = currentWorkflow.PropertyChangeEvents?.Select(te => te as IeEvent).ToList();
@@ -54,15 +55,18 @@ namespace AdminStore.Services.Workflow
         }
 
         private static void DiffWorkflowEntities<T>(ICollection<T> entities, ICollection<T> currentEntities,
-            ICollection<T> added, ICollection<T> deleted, ICollection<T> changed, ICollection<T> notFound, ICollection<T> unchanged)
+            ICollection<T> added, ICollection<T> deleted, ICollection<T> changed, ICollection<T> notFound,
+            ICollection<T> unchanged, WorkflowMode workflowMode = WorkflowMode.XmlExport)
             where T : IIeWorkflowEntityWithId
         {
-            var stateIds = (entities?.Where(s => s.Id.HasValue).Select(s => s.Id.Value).ToHashSet()) ?? new HashSet<int>();
-            var currentStateIds = (currentEntities?.Where(s => s.Id.HasValue).Select(s => s.Id.Value).ToHashSet()) ?? new HashSet<int>();
+            var stateIds = (entities?.Where(s => s.Id.HasValue).Select(s => s.Id.Value).ToHashSet()) ??
+                           new HashSet<int>();
+            var currentStateIds = (currentEntities?.Where(s => s.Id.HasValue).Select(s => s.Id.Value).ToHashSet()) ??
+                                  new HashSet<int>();
 
             entities?.ForEach(s =>
             {
-                ICollection<T> colToAddTo;
+                ICollection<T> colToAddTo = null;
                 if (!s.Id.HasValue)
                 {
                     colToAddTo = added;
@@ -74,7 +78,21 @@ namespace AdminStore.Services.Workflow
                 else
                 {
                     var currentState = currentEntities.First(cs => cs.Id == s.Id);
-                    colToAddTo = s.Equals(currentState) ? unchanged : changed;
+                    if (workflowMode == WorkflowMode.XmlExport)
+                    {
+                        colToAddTo = s.Equals(currentState) ? unchanged : changed;
+                    }
+                    else if (workflowMode == WorkflowMode.Canvas)
+                    {
+                        if (s is IeState && currentState is IeState)
+                        {
+                            colToAddTo = (s as IeState).EqualsIncludingLocation(currentState as IeState) ? unchanged : changed;
+                        }
+                        if (s is IeTransitionEvent && currentState is IeTransitionEvent)
+                        {
+                            colToAddTo = (s as IeTransitionEvent).EqualsIncludingPortPair(currentState as IeTransitionEvent) ? unchanged : changed;
+                        }
+                    }
                 }
 
                 colToAddTo.Add(s);

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 
 namespace AdminStore.Services.Workflow
@@ -7,7 +8,7 @@ namespace AdminStore.Services.Workflow
     public interface IWorkflowDiff
     {
         // Id in IeProjects and GroupProjectId for groups in IeUserGroup should be filled in.
-        WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow);
+        WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow, WorkflowMode workflowMode = WorkflowMode.XmlExport);
     }
 
     public class WorkflowDiffResult

@@ -10,7 +10,7 @@ namespace AdminStore.Services.Workflow
     {
         Task<ImportWorkflowResult> ImportWorkflowAsync(IeWorkflow workflow, string fileName, int userId, string xmlSerError);
 
-        Task<ImportWorkflowResult> UpdateWorkflowViaImport(int workflowId, IeWorkflow workflow, string fileName, int userId, string xmlSerError);
+        Task<ImportWorkflowResult> UpdateWorkflowViaImport(int userId, int workflowId, IeWorkflow workflow, string fileName = null, string xmlSerError = null, WorkflowMode workflowMode = WorkflowMode.XmlExport);
 
         IFileRepository FileRepository { get; set; }
 

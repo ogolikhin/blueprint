@@ -27,6 +27,8 @@
         public int? WorkflowState2Id { get; set; }
 
         public int? PropertyTypeId { get; set; }
+
+        public string CanvasSettings { get; set; }
     }
 
     public enum DWorkflowEventType

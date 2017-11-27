@@ -248,9 +248,9 @@ namespace AdminStore.Helpers.Workflow
                     {
                         Id = dNewArtifactEvent.Id,
                         Name = dNewArtifactEvent.Name,
-                        Triggers = MapToIeTriggers(dNewArtifactEvent.Triggers.ToList())
+                        Triggers = MapToIeTriggers(dNewArtifactEvent.Triggers)
                     })
-                    .ToList(),
+                    .ToList() ?? new List<IeNewArtifactEvent>(),
                 Projects = sourceWorkflow.Projects?.Select(dProject => new IeProject
                     {
                         Id = dProject.Id,
@@ -262,18 +262,18 @@ namespace AdminStore.Helpers.Workflow
                                     Id = dArtifactType.Id,
                                     Name = dArtifactType.Name
                                 })
-                            .ToList()
-                    })
-                    .ToList(),
+                            .ToList() ?? new List<IeArtifactType>()
+                })
+                    .ToList() ?? new List<IeProject>(),
                 PropertyChangeEvents = sourceWorkflow.PropertyChangeEvents?.Select(dPropertyChangeEvent => new IePropertyChangeEvent
                     {
                         Id = dPropertyChangeEvent.Id,
                         Name = dPropertyChangeEvent.Name,
                         PropertyId = dPropertyChangeEvent.PropertyId,
                         PropertyName = dPropertyChangeEvent.PropertyName,
-                        Triggers = MapToIeTriggers(dPropertyChangeEvent.Triggers.ToList())
+                        Triggers = MapToIeTriggers(dPropertyChangeEvent.Triggers)
                     })
-                    .ToList(),
+                    .ToList() ?? new List<IePropertyChangeEvent>(),
                 States = sourceWorkflow.States?.Select(dState => new IeState
                     {
                         Id = dState.Id,
@@ -282,7 +282,7 @@ namespace AdminStore.Helpers.Workflow
                         Location = dState.Location,
                         OrderIndex = dState.OrderIndex
                     })
-                    .ToList(),
+                    .ToList() ?? new List<IeState>(),
                 TransitionEvents = sourceWorkflow.TransitionEvents?.Select(dTransitionEvent => new IeTransitionEvent
                     {
                         Id = dTransitionEvent.Id,
@@ -299,21 +299,21 @@ namespace AdminStore.Helpers.Workflow
                                 ToPort = dTransitionEvent.PortPair.ToPort
                             }
                             : null,
-                        Triggers = MapToIeTriggers(dTransitionEvent.Triggers.ToList()),
+                        Triggers = MapToIeTriggers(dTransitionEvent.Triggers),
                         PermissionGroups = dTransitionEvent.PermissionGroups?.Select(dGroup => new IeGroup
                             {
                                 Id = dGroup.Id,
                                 Name = dGroup.Name
                             })
-                            .ToList()
-                    })
-                    .ToList()
+                            .ToList() ?? new List<IeGroup>()
+                })
+                    .ToList() ?? new List<IeTransitionEvent>()
             };
 
             return destinationWorkflow;
         }
 
-        private static List<IeTrigger> MapToIeTriggers(List<DTrigger> dTriggers)
+        private static List<IeTrigger> MapToIeTriggers(IEnumerable<DTrigger> dTriggers)
         {
             return dTriggers?.Select(dTrigger => new IeTrigger
                 {
@@ -327,7 +327,7 @@ namespace AdminStore.Helpers.Workflow
                         }
                         : null
                 })
-                .ToList();
+                .ToList() ?? new List<IeTrigger>();
         }
 
         private static IeBaseAction MapToIeAction(DBaseAction dBaseAction)
@@ -372,13 +372,13 @@ namespace AdminStore.Helpers.Workflow
                                 GroupProjectId = dUserGroup.GroupProjectId,
                                 GroupProjectPath = dUserGroup.GroupProjectPath,
                                 IsGroup = dUserGroup.IsGroup
-                            }).ToList()
+                            }).ToList() ?? new List<IeUserGroup>()
                         },
                         ValidValues = dPropertyChangeAction.ValidValues?.Select(dValidValue => new IeValidValue
                         {
                             Id = dValidValue.Id,
                             Value = dValidValue.Value
-                        }).ToList()
+                        }).ToList() ?? new List<IeValidValue>()
                     };
                 default:
                     return null;

@@ -7,5 +7,9 @@ namespace AdminStore.Services.Workflow
         string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors, string fileName, bool isEditFileMessage = true);
 
         string BuildTextDataErrors(IEnumerable<WorkflowDataValidationError> errors, string fileName, bool isEditFileMessage = true);
+
+        string BuildTextDataErrors(IEnumerable<WorkflowDataValidationError> errors);
+
+        string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors);
     }
 }

@@ -339,7 +339,7 @@ namespace ArtifactStore.Repositories
                     reviewArtifact.Approved = reviewArtifactStatus.Approved;
                     reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
                     reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
-                    reviewArtifact.Unviewed = reviewArtifactStatus.Unviewed;
+                    reviewArtifact.Unviewed = reviewArtifactStatus.Viewed == 0 ? numUsers : reviewArtifactStatus.Unviewed;
                     reviewArtifact.HasReviewComments = reviewArtifactStatus.HasComments;
                 }
                 else

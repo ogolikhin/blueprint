@@ -857,35 +857,35 @@ namespace AdminStore.Services.Workflow
                     }
                 }
 
-                var propertyIds = artifactRepository.GetStandardProperties(artifactTypesIds)
-                    .Result.Select(q => q.Id)
-                    .Distinct().ToList();
+                // var propertyIds = artifactRepository.GetStandardProperties(artifactTypesIds)
+                //    .Result.Select(q => q.Id)
+                //    .Distinct().ToList();
 
-                if (dataValidationResult.HasErrors)
-                {
-                    foreach (var workflowTransitionEvent in workflow.TransitionEvents)
-                    {
-                        var triggers = workflowTransitionEvent.Triggers;
-                        foreach (var ieTrigger in workflowTransitionEvent.Triggers)
-                        {
-                            switch (ieTrigger.Action.ActionType)
-                            {
+                // if (dataValidationResult.HasErrors)
+                // {
+                //    foreach (var workflowTransitionEvent in workflow.TransitionEvents)
+                //    {
+                //        var triggers = workflowTransitionEvent.Triggers;
+                //        foreach (var ieTrigger in workflowTransitionEvent.Triggers)
+                //        {
+                //            switch (ieTrigger.Action.ActionType)
+                //            {
 
-                                case ActionTypes.EmailNotification:
-                                    triggers.RemoveAll(q => !propertyIds.Contains(
-                                        ((IeEmailNotificationAction)q.Action)
-                                        .PropertyId.Value));
-                                    break;
+                // case ActionTypes.EmailNotification:
+                //                    triggers.RemoveAll(q => !propertyIds.Contains(
+                //                        ((IeEmailNotificationAction)q.Action)
+                //                        .PropertyId.Value));
+                //                    break;
 
-                                case ActionTypes.Generate:
-                                    break;
+                // case ActionTypes.Generate:
+                //                    break;
 
-                                case ActionTypes.PropertyChange:
-                                    break;
+                // case ActionTypes.PropertyChange:
+                //                    break;
 
-                            }
-                        }
-                    }
+                // }
+                //        }
+                //    }
 
                     foreach (var error in dataValidationResult.Errors)
                     {
@@ -1041,67 +1041,42 @@ namespace AdminStore.Services.Workflow
                                                       (string)error.Element));
                                 break;
                             // cases Validation Property value in PropertyChangeAction trigger
-                            // Text
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:
-
-                                break;
-
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty:
-
-                                break;
-                            // only for Number
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberFormat:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberDecimalPlaces:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionNumberOutOfRange:
-
-                                break;
-                            // only for Date
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange:
-
-                                break;
-                            // only for User
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundByName:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundByName:
-
-                                break;
-                            // only for Choice
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById:
-
-                                break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundByValue:
-
+                            workflow.TransitionEvents.ForEach(q => q.Triggers
+                                    .Where(qu => qu.Action.ActionType == ActionTypes.PropertyChange)
+                                    .ToList()
+                                    .RemoveAll(que => ((IePropertyChangeAction)que.Action).PropertyName ==
+                                                      (string)error.Element));
+                                workflow.PropertyChangeEvents.ForEach(q => q.Triggers
+                                    .Where(qu => qu.Action.ActionType == ActionTypes.PropertyChange)
+                                    .ToList()
+                                    .RemoveAll(que => ((IePropertyChangeAction)que.Action).PropertyName ==
+                                                      (string)error.Element));
+                                workflow.NewArtifactEvents.ForEach(q => q.Triggers
+                                    .Where(qu => qu.Action.ActionType == ActionTypes.PropertyChange)
+                                    .ToList()
+                                    .RemoveAll(que => ((IePropertyChangeAction)que.Action).PropertyName ==
+                                                      (string)error.Element));
                                 break;
                         }
                     }
                 }
-            }
             return workflow;
         }
 

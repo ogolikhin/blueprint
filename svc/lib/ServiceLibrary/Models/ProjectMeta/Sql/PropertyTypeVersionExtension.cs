@@ -65,7 +65,6 @@ namespace ServiceLibrary.Models.ProjectMeta.Sql
                 DefaultValidValueId = pv.PrimitiveType == PropertyPrimitiveType.Choice
                                       ? FindDefaultValidValueId(propertyFromXml.ValidValues) // TODO
                                       : null,
-                BaseArtifactTypeId = pv.BaseArtifactTypeId < 1 ? null : (int?)pv.BaseArtifactTypeId
             };
         }
 

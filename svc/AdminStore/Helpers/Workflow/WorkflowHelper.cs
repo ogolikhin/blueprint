@@ -5,6 +5,8 @@ using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
+using AdminStore.Models.DiagramWorkflow;
+using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Helpers.Workflow
 {
@@ -112,8 +114,7 @@ namespace AdminStore.Helpers.Workflow
 
         #endregion
 
-
-            #region NormalizeWorkflow
+        #region NormalizeWorkflow
 
             // Remove empty collections and nullable boolean properties with the default value.
         public static IeWorkflow NormalizeWorkflow(IeWorkflow workflow)
@@ -235,5 +236,153 @@ namespace AdminStore.Helpers.Workflow
 
         #endregion
 
+        public static IeWorkflow MapDWorkflowToIeWorkflow(DWorkflow sourceWorkflow)
+        {
+            var destinationWorkflow = new IeWorkflow
+            {
+                Id = sourceWorkflow.Id,
+                Name = sourceWorkflow.Name,
+                Description = sourceWorkflow.Description,
+                IsActive = sourceWorkflow.IsActive,
+                NewArtifactEvents = sourceWorkflow.NewArtifactEvents?.Select(dNewArtifactEvent => new IeNewArtifactEvent
+                    {
+                        Id = dNewArtifactEvent.Id,
+                        Name = dNewArtifactEvent.Name,
+                        Triggers = MapToIeTriggers(dNewArtifactEvent.Triggers.ToList())
+                    })
+                    .ToList(),
+                Projects = sourceWorkflow.Projects?.Select(dProject => new IeProject
+                    {
+                        Id = dProject.Id,
+                        Path = dProject.Path,
+                        ArtifactTypes = dProject.ArtifactTypes
+                            ?.Select(
+                                dArtifactType => new IeArtifactType
+                                {
+                                    Id = dArtifactType.Id,
+                                    Name = dArtifactType.Name
+                                })
+                            .ToList()
+                    })
+                    .ToList(),
+                PropertyChangeEvents = sourceWorkflow.PropertyChangeEvents?.Select(dPropertyChangeEvent => new IePropertyChangeEvent
+                    {
+                        Id = dPropertyChangeEvent.Id,
+                        Name = dPropertyChangeEvent.Name,
+                        PropertyId = dPropertyChangeEvent.PropertyId,
+                        PropertyName = dPropertyChangeEvent.PropertyName,
+                        Triggers = MapToIeTriggers(dPropertyChangeEvent.Triggers.ToList())
+                    })
+                    .ToList(),
+                States = sourceWorkflow.States?.Select(dState => new IeState
+                    {
+                        Id = dState.Id,
+                        Name = dState.Name,
+                        IsInitial = dState.IsInitial,
+                        Location = dState.Location,
+                        OrderIndex = dState.OrderIndex
+                    })
+                    .ToList(),
+                TransitionEvents = sourceWorkflow.TransitionEvents?.Select(dTransitionEvent => new IeTransitionEvent
+                    {
+                        Id = dTransitionEvent.Id,
+                        Name = dTransitionEvent.Name,
+                        FromState = dTransitionEvent.FromState,
+                        FromStateId = dTransitionEvent.FromStateId,
+                        ToState = dTransitionEvent.ToState,
+                        ToStateId = dTransitionEvent.ToStateId,
+                        SkipPermissionGroups = dTransitionEvent.SkipPermissionGroups,
+                        PortPair = dTransitionEvent.PortPair != null
+                            ? new IePortPair
+                            {
+                                FromPort = dTransitionEvent.PortPair.FromPort,
+                                ToPort = dTransitionEvent.PortPair.ToPort
+                            }
+                            : null,
+                        Triggers = MapToIeTriggers(dTransitionEvent.Triggers.ToList()),
+                        PermissionGroups = dTransitionEvent.PermissionGroups?.Select(dGroup => new IeGroup
+                            {
+                                Id = dGroup.Id,
+                                Name = dGroup.Name
+                            })
+                            .ToList()
+                    })
+                    .ToList()
+            };
+
+            return destinationWorkflow;
+        }
+
+        private static List<IeTrigger> MapToIeTriggers(List<DTrigger> dTriggers)
+        {
+            return dTriggers?.Select(dTrigger => new IeTrigger
+                {
+                    Name = dTrigger.Name,
+                    Action = MapToIeAction(dTrigger.Action),
+                    Condition = dTrigger.Condition != null
+                        ? new IeStateCondition
+                        {
+                            StateId = dTrigger.Condition.StateId,
+                            State = dTrigger.Condition.State
+                        }
+                        : null
+                })
+                .ToList();
+        }
+
+        private static IeBaseAction MapToIeAction(DBaseAction dBaseAction)
+        {
+            switch (dBaseAction.ActionType)
+            {
+                case ActionTypes.EmailNotification:
+                    var dEmailNotificationAction = dBaseAction as DEmailNotificationAction;
+                    return new IeEmailNotificationAction
+                    {
+                        Name = dEmailNotificationAction.Name,
+                        Emails = dEmailNotificationAction.Emails.ToList(),
+                        Message = dEmailNotificationAction.Message,
+                        PropertyId = dEmailNotificationAction.PropertyId,
+                        PropertyName = dEmailNotificationAction.PropertyName
+                    };
+                case ActionTypes.Generate:
+                    var dGenerateAction = dBaseAction as DGenerateAction;
+                    return new IeGenerateAction
+                    {
+                        Name = dGenerateAction.Name,
+                        ArtifactType = dGenerateAction.ArtifactType,
+                        ArtifactTypeId = dGenerateAction.ArtifactTypeId,
+                        ChildCount = dGenerateAction.ChildCount,
+                        GenerateActionType = dGenerateAction.GenerateActionType
+                    };
+                case ActionTypes.PropertyChange:
+                    var dPropertyChangeAction = dBaseAction as DPropertyChangeAction;
+                    return new IePropertyChangeAction
+                    {
+                        Name = dPropertyChangeAction.Name,
+                        PropertyName = dPropertyChangeAction.PropertyName,
+                        PropertyId = dPropertyChangeAction.PropertyId,
+                        PropertyValue = dPropertyChangeAction.PropertyValue,
+                        UsersGroups = new IeUsersGroups
+                        {
+                            IncludeCurrentUser = dPropertyChangeAction.UsersGroups?.IncludeCurrentUser,
+                            UsersGroups = dPropertyChangeAction.UsersGroups?.UsersGroups?.Select(dUserGroup => new IeUserGroup
+                            {
+                                Id = dUserGroup.Id,
+                                Name = dUserGroup.Name,
+                                GroupProjectId = dUserGroup.GroupProjectId,
+                                GroupProjectPath = dUserGroup.GroupProjectPath,
+                                IsGroup = dUserGroup.IsGroup
+                            }).ToList()
+                        },
+                        ValidValues = dPropertyChangeAction.ValidValues?.Select(dValidValue => new IeValidValue
+                        {
+                            Id = dValidValue.Id,
+                            Value = dValidValue.Value
+                        }).ToList()
+                    };
+                default:
+                    return null;
+            }
+        }
     }
 }

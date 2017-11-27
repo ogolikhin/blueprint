@@ -404,7 +404,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/reviewer/status")]
         public Task UpdateReviewerStatusAsync(int reviewId, [FromBody] ReviewerStatusParameter reviewStatusParameter, int revisionId = int.MaxValue)
         {
-            return _sqlReviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, reviewStatusParameter.Status, Session.UserId);
+            return _sqlReviewsRepository.UpdateReviewerStatusAsync(reviewId, revisionId, reviewStatusParameter, Session.UserId);
         }
 
         /// <summary>

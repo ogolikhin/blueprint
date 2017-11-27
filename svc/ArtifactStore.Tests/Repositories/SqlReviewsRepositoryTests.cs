@@ -1849,7 +1849,7 @@ namespace ArtifactStore.Repositories
                new ReviewData
                {
                     ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>"
-               }
+                }
             };
 
             _cxn.SetupQueryAsync("GetReviewsData", queryParameters, reviewsDataResult);

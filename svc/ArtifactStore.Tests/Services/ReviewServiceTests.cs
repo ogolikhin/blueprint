@@ -2103,8 +2103,8 @@ namespace ArtifactStore.Services
             };
 
             // Act
-            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
-        }
+                await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
+            }
 
         [TestMethod]
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_ReadOnly()

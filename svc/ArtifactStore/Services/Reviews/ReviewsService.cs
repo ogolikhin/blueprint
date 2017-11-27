@@ -342,12 +342,6 @@ namespace ArtifactStore.Services.Reviews
             }
 
             var reviewData = await _reviewsRepository.GetReviewDataAsync(reviewId, userId);
-            // TODO extend review Data
-            // if (propertyResult.IsUserDisabled.HasValue && propertyResult.IsUserDisabled.Value)
-            // {
-            //    throw new ConflictException("User deleted or not active", ErrorCodes.UserDisabled);
-            // }
-
             if (reviewData.ReviewStatus == ReviewPackageStatus.Closed)
             {
                 var errorMessage = "The approval status could not be updated because another user has changed the Review status.";
@@ -534,6 +528,20 @@ namespace ArtifactStore.Services.Reviews
                 await ExcludeDeletedAndNotInProjectArtifacts(content, reviewData, reviewInfo.ProjectId, resultErrors, updatingArtifacts);
                 await ExcludeArtifactsWithoutReadPermissions(content, userId, resultErrors, updatingArtifacts);
 
+                ReviewPackageRawData reviewRawData = null;
+                if (reviewData.ReviewStatus == ReviewPackageStatus.Active &&
+                    updatingArtifacts.Any() &&
+                    content.ApprovalRequired)
+                {
+                    reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+                    var approver =
+                        reviewRawData.Reviewers?.FirstOrDefault(r => r.Permission == ReviewParticipantRole.Approver);
+                    if (approver != null)
+                    {
+                        throw new ConflictException("Could not update review artifacts because review needs to be converted to Formal.", ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                    }
+                }
+
                 foreach (var updatingArtifact in updatingArtifacts)
                 {
                     updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
@@ -545,7 +553,10 @@ namespace ArtifactStore.Services.Reviews
 
                 if (content.ApprovalRequired)
                 {
-                    var reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+                    if (reviewRawData == null)
+                    {
+                        reviewRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(reviewId, userId);
+                    }
                     await EnableRequireESignatureWhenProjectESignatureEnabledByDefaultAsync(reviewId, userId, reviewInfo.ProjectId, reviewRawData);
                 }
             }

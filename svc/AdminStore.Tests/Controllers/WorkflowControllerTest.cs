@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using System.Xml.Schema;
+using AdminStore.Models.DiagramWorkflow;
 using AdminStore.Models.Enums;
 
 namespace AdminStore.Controllers
@@ -1692,6 +1693,122 @@ namespace AdminStore.Controllers
 
             // act
             await _controller.GetWorkflowDiagram(WorkflowId);
+
+            // assert
+            // exception
+        }
+
+        #endregion
+
+        #region UpdateWorkflowDiagram
+
+        [TestMethod]
+        public async Task UpdateWorkflowDiagram_AllParamsAreCorrectAndPermissionsOk_ImportWorkflowResultSuccessfullyReceived()
+        {
+            // arrange
+            var expectedUpdateWorkflowDiagramResult = new ImportWorkflowResult
+            {
+                ResultCode = ImportWorkflowResultCodes.Ok
+            };
+            var workflow = new DWorkflow();
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowServiceMock.Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
+                    It.IsAny<int>(), It.IsAny<IeWorkflow>(),
+                    It.IsAny<string>(), It.IsAny<string>(), It.Is<WorkflowMode>(mode => mode == WorkflowMode.Canvas)))
+                .ReturnsAsync(expectedUpdateWorkflowDiagramResult);
+
+            // act
+            var result = await _controller.UpdateWorkflowDiagram(WorkflowId, workflow) as OkNegotiatedContentResult<ImportWorkflowResult>;
+
+            // assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedUpdateWorkflowDiagramResult, result.Content);
+            Assert.AreEqual(expectedUpdateWorkflowDiagramResult.ResultCode, result.Content.ResultCode);
+        }
+
+        [TestMethod]
+        public async Task UpdateWorkflowDiagram_InvalidModel_ReturnBadRequestResult()
+        {
+            // arrange
+            var expectedUpdateWorkflowDiagramResult = new ImportWorkflowResult
+            {
+                ResultCode = ImportWorkflowResultCodes.InvalidModel
+            };
+            var workflow = new DWorkflow();
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowServiceMock.Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
+                    It.IsAny<int>(), It.IsAny<IeWorkflow>(),
+                    It.IsAny<string>(), It.IsAny<string>(), It.Is<WorkflowMode>(mode => mode == WorkflowMode.Canvas)))
+                .ReturnsAsync(expectedUpdateWorkflowDiagramResult);
+
+            // act
+            var result = await _controller.UpdateWorkflowDiagram(WorkflowId, workflow) as ResponseMessageResult;
+
+            // assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.BadRequest, result.Response.StatusCode);
+
+            var content = await result.Response.Content.ReadAsAsync<ImportWorkflowResult>();
+            Assert.AreEqual(expectedUpdateWorkflowDiagramResult.ResultCode, content.ResultCode);
+        }
+
+        [TestMethod]
+        public async Task UpdateWorkflowDiagram_Conflict_ReturnConflictResult()
+        {
+            // arrange
+            var expectedUpdateWorkflowDiagramResult = new ImportWorkflowResult
+            {
+                ResultCode = ImportWorkflowResultCodes.Conflict
+            };
+            var workflow = new DWorkflow();
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            _workflowServiceMock.Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
+                    It.IsAny<int>(), It.IsAny<IeWorkflow>(),
+                    It.IsAny<string>(), It.IsAny<string>(), It.Is<WorkflowMode>(mode => mode == WorkflowMode.Canvas)))
+                .ReturnsAsync(expectedUpdateWorkflowDiagramResult);
+
+            // act
+            var result = await _controller.UpdateWorkflowDiagram(WorkflowId, workflow) as ResponseMessageResult;
+
+            // assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.Conflict, result.Response.StatusCode);
+
+            var content = await result.Response.Content.ReadAsAsync<ImportWorkflowResult>();
+            Assert.AreEqual(expectedUpdateWorkflowDiagramResult.ResultCode, content.ResultCode);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task UpdateWorkflowDiagram_InSufficientPermissions_ReturnAuthorizationException()
+        {
+            // arrange
+            var updateWorkflowDiagramResult = new ImportWorkflowResult();
+            var workflow = new DWorkflow();
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
+
+            _workflowServiceMock.Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
+                    It.IsAny<int>(), It.IsAny<IeWorkflow>(),
+                    It.IsAny<string>(), It.IsAny<string>(), It.Is<WorkflowMode>(mode => mode == WorkflowMode.Canvas)))
+                .ReturnsAsync(updateWorkflowDiagramResult);
+
+            // act
+            await _controller.UpdateWorkflowDiagram(WorkflowId, workflow);
 
             // assert
             // exception

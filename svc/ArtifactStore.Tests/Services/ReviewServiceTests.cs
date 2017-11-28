@@ -32,8 +32,7 @@ namespace ArtifactStore.Services
 
         private ReviewPackageRawData _reviewPackageRawData;
         private ArtifactBasicDetails _artifactDetails;
-        private PropertyValueString _reviewPropertyString;
-        private PropertyValueString _reviewApprovalRolesInfo;
+        private ReviewData _reviewData;
 
         private int _revisionId;
         private bool _hasReadPermissions;
@@ -46,8 +45,6 @@ namespace ArtifactStore.Services
         [TestInitialize]
         public void Initialize()
         {
-            _reviewPackageRawData = new ReviewPackageRawData();
-
             _artifactDetails = new ArtifactBasicDetails
             {
                 ItemId = ReviewId,
@@ -55,30 +52,11 @@ namespace ArtifactStore.Services
                 PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage
             };
 
-            _reviewPropertyString = new PropertyValueString
+            _reviewData = new ReviewData
             {
-                IsDraftRevisionExists = true,
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                ProjectId = ProjectId,
-                LockedByUserId = UserId,
-                ReviewStatus = ReviewPackageStatus.Draft,
-                BaselineId = null,
-                IsReviewDeleted = false,
-                IsUserDisabled = false,
-                ReviewType = ReviewType.Informal
+                ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>"
             };
-
-            _reviewApprovalRolesInfo = new PropertyValueString
-            {
-                IsDraftRevisionExists = true,
-                ParticipantXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsMoSEnabled>true</IsMoSEnabled><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>",
-                ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>",
-                ProjectId = 1,
-                LockedByUserId = UserId,
-                BaselineId = 2,
-                IsReviewDeleted = false,
-                IsUserDisabled = false
-            };
+            _reviewPackageRawData = _reviewData.ReviewPackageRawData;
 
             _mockReviewRepository = new Mock<IReviewsRepository>();
 
@@ -95,12 +73,8 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(() => _reviewType);
 
             _mockReviewRepository
-                .Setup(m => m.GetReviewPropertyStringAsync(ReviewId, UserId))
-                .ReturnsAsync(() => _reviewPropertyString);
-
-            _mockReviewRepository
-                .Setup(m => m.GetReviewApprovalRolesInfoAsync(ReviewId, UserId))
-                .ReturnsAsync(_reviewApprovalRolesInfo);
+                .Setup(m => m.GetReviewDataAsync(ReviewId, UserId, It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(() => _reviewData);
 
             _mockArtifactRepository = new Mock<IArtifactRepository>();
             _mockArtifactRepository
@@ -2113,11 +2087,12 @@ namespace ArtifactStore.Services
         #region AssignRoleToParticipantAsync
 
         [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Does_Not_Exist()
         {
-            _mockReviewRepository
-                .Setup(m => m.GetReviewApprovalRolesInfoAsync(ReviewId, UserId))
-                .ReturnsAsync((PropertyValueString)null);
+            _mockArtifactRepository
+                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+                .ReturnsAsync(() => null);
 
             var content = new AssignParticipantRoleParameter
             {
@@ -2127,48 +2102,8 @@ namespace ArtifactStore.Services
             };
 
             // Act
-            try
-            {
                 await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
             }
-            catch (BadRequestException ex)
-            {
-                // Assert
-                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
-
-                return;
-            }
-
-            Assert.Fail("A BadRequestException was not thrown.");
-        }
-
-        [TestMethod]
-        public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_Deleted()
-        {
-            // Arrange
-            _reviewApprovalRolesInfo.IsReviewDeleted = true;
-
-            var content = new AssignParticipantRoleParameter
-            {
-                ItemIds = new List<int> { 1 },
-                Role = ReviewParticipantRole.Approver
-            };
-
-            // Act
-            try
-            {
-                await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                // Assert
-                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
-
-                return;
-            }
-
-            Assert.Fail("A ResourceNotFoundException was not thrown.");
-        }
 
         [TestMethod]
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_ReadOnly()
@@ -2179,10 +2114,10 @@ namespace ArtifactStore.Services
                 ItemIds = new List<int> { 1 },
                 Role = ReviewParticipantRole.Approver
             };
-            _reviewApprovalRolesInfo.ParticipantXml =
-                "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Closed</Status></ReviewPackageRawData>";
-            // Act
+            _artifactDetails.LockedByUserId = UserId;
+            _reviewData.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
 
+            // Act
             try
             {
                 await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
@@ -2203,8 +2138,6 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_Not_Locked()
         {
             // Arrange
-            _reviewApprovalRolesInfo.LockedByUserId = null;
-
             var content = new AssignParticipantRoleParameter
             {
                 ItemIds = new List<int> { 1 },
@@ -2217,11 +2150,10 @@ namespace ArtifactStore.Services
 
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
+        [Ignore]
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_User_Is_Disabled()
         {
             // Arrange
-            _reviewApprovalRolesInfo.IsUserDisabled = true;
-
             var content = new AssignParticipantRoleParameter
             {
                 ItemIds = new List<int> { 1 },
@@ -2234,16 +2166,15 @@ namespace ArtifactStore.Services
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task AssignRoleToParticipantAsync_Should_Throw_When_ReviewPackageXml_Is_Empty()
+        public async Task AssignRoleToParticipantAsync_Should_Throw_When_NoReviewers()
         {
             // Arrange
-            _reviewApprovalRolesInfo.ParticipantXml = null;
-
             var content = new AssignParticipantRoleParameter
             {
                 ItemIds = new List<int> { 1 },
                 Role = ReviewParticipantRole.Approver
             };
+            _artifactDetails.LockedByUserId = UserId;
 
             // Act
             await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
@@ -2274,7 +2205,14 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Return_DropdownItems_Null_When_Meaning_Of_Signature_Is_Disabled()
         {
             // Arrange
-            _reviewApprovalRolesInfo.ParticipantXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>3</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>";
+            _artifactDetails.LockedByUserId = UserId;
+
+            var reviewerId = 3;
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            {
+                UserId = reviewerId
+            });
 
             var content = new AssignParticipantRoleParameter
             {
@@ -2290,20 +2228,29 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task AssignRoleToParticipantAsync_Should_Add_All_Possible_Meaning_Of_Signatures_When_Meaning_Of_Signature_Is_Enabled()
         {
             // Arrange
+            _artifactDetails.LockedByUserId = UserId;
+
+            var reviewerId = 3;
+            _reviewData.ReviewPackageRawData.IsMoSEnabled = true;
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            {
+                UserId = reviewerId
+            });
+
             var content = new AssignParticipantRoleParameter
             {
-                ItemIds = new List<int> { 1 },
+                ItemIds = new List<int> { reviewerId },
                 Role = ReviewParticipantRole.Approver
             };
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
                 {
-                    1,
+                    reviewerId,
                     new List<ParticipantMeaningOfSignatureResult>
                     {
                         new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 2 },
@@ -2324,20 +2271,28 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
         public async Task AssignRoleToParticipantAsync_Should_Return_All_Assigned_Meaning_Of_Signatures_When_Meaning_Of_Signature_Is_Enabled()
         {
             // Arrange
+            _artifactDetails.LockedByUserId = UserId;
+            var reviewerId = 3;
+            _reviewData.ReviewPackageRawData.IsMoSEnabled = true;
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            {
+                UserId = reviewerId
+            });
+
             var content = new AssignParticipantRoleParameter
             {
-                ItemIds = new List<int> { 1 },
+                ItemIds = new List<int> { reviewerId },
                 Role = ReviewParticipantRole.Approver
             };
 
             _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
             {
                 {
-                    1,
+                    reviewerId,
                     new List<ParticipantMeaningOfSignatureResult>
                     {
                         new ParticipantMeaningOfSignatureResult
@@ -2366,7 +2321,7 @@ namespace ArtifactStore.Services
             Assert.AreEqual(2, dropDowns[0].Value);
 
             Assert.AreEqual("foo2 (bar2)", dropDowns[1].Label);
-            Assert.AreEqual(3, dropDowns[10].Value);
+            Assert.AreEqual(3, dropDowns[1].Value);
         }
 
         [TestMethod]
@@ -2376,10 +2331,18 @@ namespace ArtifactStore.Services
             _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsESignatureEnabled = null;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
+
+            var reviewerId = 3;
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            {
+                UserId = reviewerId
+            });
 
             var content = new AssignParticipantRoleParameter
             {
-                ItemIds = new List<int> { 3 },
+                ItemIds = new List<int> { reviewerId },
                 Role = ReviewParticipantRole.Reviewer
             };
 
@@ -2413,10 +2376,18 @@ namespace ArtifactStore.Services
             _reviewType = ReviewType.Informal;
             _reviewPackageRawData.IsESignatureEnabled = null;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
+
+            var reviewerId = 3;
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            {
+                UserId = reviewerId
+            });
 
             var content = new AssignParticipantRoleParameter
             {
-                ItemIds = new List<int> { 3 },
+                ItemIds = new List<int> { reviewerId },
                 Role = ReviewParticipantRole.Approver
             };
 
@@ -2450,6 +2421,14 @@ namespace ArtifactStore.Services
             _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsESignatureEnabled = false;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
+
+            var reviewerId = 3;
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            {
+                UserId = reviewerId
+            });
 
             var content = new AssignParticipantRoleParameter
             {
@@ -2487,10 +2466,18 @@ namespace ArtifactStore.Services
             _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsESignatureEnabled = true;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
+
+            var reviewerId = 3;
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            {
+                UserId = reviewerId
+            });
 
             var content = new AssignParticipantRoleParameter
             {
-                ItemIds = new List<int> { 3 },
+                ItemIds = new List<int> { reviewerId },
                 Role = ReviewParticipantRole.Approver
             };
 
@@ -2524,10 +2511,18 @@ namespace ArtifactStore.Services
             _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsESignatureEnabled = null;
             _projectPermissions = ProjectPermissions.None;
+            _artifactDetails.LockedByUserId = UserId;
+
+            var reviewerId = 3;
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            {
+                UserId = reviewerId
+            });
 
             var content = new AssignParticipantRoleParameter
             {
-                ItemIds = new List<int> { 3 },
+                ItemIds = new List<int> { reviewerId },
                 Role = ReviewParticipantRole.Approver
             };
 
@@ -2562,10 +2557,19 @@ namespace ArtifactStore.Services
             _reviewType = ReviewType.Formal;
             _reviewPackageRawData.IsESignatureEnabled = null;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
+            const int reviewerId = 3;
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            {
+                new ReviewerRawData
+                {
+                    UserId = reviewerId
+                }
+            };
 
             var content = new AssignParticipantRoleParameter
             {
-                ItemIds = new List<int> { 3 },
+                ItemIds = new List<int> { reviewerId },
                 Role = ReviewParticipantRole.Approver
             };
 
@@ -2589,7 +2593,7 @@ namespace ArtifactStore.Services
             await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.AreEqual(null, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
         }
 
         #endregion
@@ -2615,7 +2619,9 @@ namespace ArtifactStore.Services
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task AssignApprovalRequiredToArtifacts_ReviewIsDeleted_Should_Throw_ResourceNotFoundException()
         {
-            _reviewPropertyString.IsReviewDeleted = true;
+            _mockArtifactRepository
+                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+                .ReturnsAsync((ArtifactBasicDetails)null);
 
             var content = new AssignArtifactsApprovalParameter
             {
@@ -2631,7 +2637,7 @@ namespace ArtifactStore.Services
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_ReadOnly_Should_Throw_ConflictException()
         {
-            _reviewPropertyString.ReviewStatus = ReviewPackageStatus.Closed;
+            // _reviewData.ReviewStatus = ReviewPackageStatus.Closed;
 
             var content = new AssignArtifactsApprovalParameter
             {
@@ -2647,8 +2653,8 @@ namespace ArtifactStore.Services
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_ActiveFormal_Throw_ConflictException()
         {
-            _reviewPropertyString.ReviewStatus = ReviewPackageStatus.Active;
-            _reviewPropertyString.ReviewType = ReviewType.Formal;
+            // _reviewData.ReviewStatus = ReviewPackageStatus.Active;
+            // _reviewData.ReviewType = ReviewType.Formal;
 
             var content = new AssignArtifactsApprovalParameter
             {
@@ -2664,8 +2670,6 @@ namespace ArtifactStore.Services
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_NotLocked_Should_Throw_ConflictException()
         {
-            _reviewPropertyString.LockedByUserId = null;
-
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2679,7 +2683,8 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_Review_Success()
         {
-            _reviewPropertyString.ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _artifactDetails.LockedByUserId = UserId;
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -2718,6 +2723,7 @@ namespace ArtifactStore.Services
                 ItemIds = artifactIds,
                 ApprovalRequired = false
             };
+            _artifactDetails.LockedByUserId = UserId;
 
             var requestedArtifactIds = new List<int> { 1, 2, 3 };
 
@@ -2756,6 +2762,7 @@ namespace ArtifactStore.Services
                 ItemIds = artifactIds,
                 ApprovalRequired = false
             };
+            _artifactDetails.LockedByUserId = UserId;
 
             var requestedArtifactIds = new List<int> { 1, 2, 3 };
 
@@ -2788,6 +2795,7 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_DeletedAndNoPermissions()
         {
+            _artifactDetails.LockedByUserId = UserId;
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
             {
@@ -2833,8 +2841,9 @@ namespace ArtifactStore.Services
             _reviewPackageRawData.IsESignatureEnabled = null;
             _reviewType = ReviewType.Formal;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
 
-            _reviewPropertyString.ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -2869,8 +2878,9 @@ namespace ArtifactStore.Services
             _reviewPackageRawData.IsESignatureEnabled = null;
             _reviewType = ReviewType.Formal;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
 
-            _reviewPropertyString.ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -2905,8 +2915,9 @@ namespace ArtifactStore.Services
             _reviewPackageRawData.IsESignatureEnabled = null;
             _reviewType = ReviewType.Informal;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
 
-            _reviewPropertyString.ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -2941,8 +2952,9 @@ namespace ArtifactStore.Services
             _reviewPackageRawData.IsESignatureEnabled = false;
             _reviewType = ReviewType.Formal;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
 
-            _reviewPropertyString.ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -2977,8 +2989,9 @@ namespace ArtifactStore.Services
             _reviewPackageRawData.IsESignatureEnabled = true;
             _reviewType = ReviewType.Formal;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
 
-            _reviewPropertyString.ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -3013,8 +3026,9 @@ namespace ArtifactStore.Services
             _reviewPackageRawData.IsESignatureEnabled = null;
             _reviewType = ReviewType.Formal;
             _projectPermissions = ProjectPermissions.None;
+            _artifactDetails.LockedByUserId = UserId;
 
-            _reviewPropertyString.ArtifactXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter

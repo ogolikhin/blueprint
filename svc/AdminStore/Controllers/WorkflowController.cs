@@ -1,7 +1,20 @@
-﻿using AdminStore.Helpers;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
+using System.Xml;
+using AdminStore.Helpers;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models;
 using AdminStore.Models.DTO;
+using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
 using AdminStore.Services.Workflow;
@@ -15,20 +28,6 @@ using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using System.Xml;
-using AdminStore.Models.Enums;
 
 namespace AdminStore.Controllers
 {
@@ -42,8 +41,6 @@ namespace AdminStore.Controllers
         private readonly IWorkflowService _workflowService;
         private readonly IWorkflowRepository _workflowRepository;
         private readonly PrivilegesManager _privilegesManager;
-
-        private const string InvalidXmlErrorMessageTemplate = "There was an error uploading {0}. The supplied XML is not valid.  Please edit your file and upload again. \r\n {1}";
 
         public WorkflowController() : this(new WorkflowRepository(), new WorkflowService(), new ServiceLogRepository(), new SqlPrivilegesRepository())
         {

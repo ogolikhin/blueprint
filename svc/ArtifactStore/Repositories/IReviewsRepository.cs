@@ -21,7 +21,7 @@ namespace ArtifactStore.Repositories
         Task<ReviewArtifactIndex> GetReviewTableOfContentArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId);
         Task<ReviewArtifactApprovalResult> UpdateReviewArtifactApprovalAsync(int reviewId, ReviewArtifactApprovalParameter reviewArtifactApproval, int userId);
         Task UpdateReviewArtifactsViewedAsync(int reviewId, ReviewArtifactViewedInput viewedInput, int userId);
-        Task UpdateReviewerStatusAsync(int reviewId, int revisionId, ReviewStatus status, int userId);
+        Task UpdateReviewerStatusAsync(int reviewId, int revisionId, ReviewerStatusParameter statusParameter, int userId);
         Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, int userId, Pagination pagination);
         Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId);
         Task RemoveParticipantsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId);

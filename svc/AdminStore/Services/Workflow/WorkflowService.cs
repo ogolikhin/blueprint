@@ -805,18 +805,17 @@ namespace AdminStore.Services.Workflow
             ieWorkflow.PropertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
             ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
-            ieWorkflow = await DeleteInValidDataFromExportedWorkflow(ieWorkflow);
+            var dataValidationResult = await _workflowDataValidator.ValidateDataAsync(ieWorkflow);
+            ieWorkflow = DeleteInValidDataFromExportedWorkflow(ieWorkflow, dataValidationResult);
 
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
         }
 
-        private async Task<IeWorkflow> DeleteInValidDataFromExportedWorkflow(IeWorkflow workflow)
+        private IeWorkflow DeleteInValidDataFromExportedWorkflow(IeWorkflow workflow, WorkflowDataValidationResult validationResult)
         {
             if (workflow != null)
             {
-                var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow);
-
-                foreach (var error in dataValidationResult.Errors)
+                foreach (var error in validationResult.Errors)
                     {
                         switch (error.ErrorCode)
                         {

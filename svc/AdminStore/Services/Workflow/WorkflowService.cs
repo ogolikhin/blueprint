@@ -696,7 +696,7 @@ namespace AdminStore.Services.Workflow
                 {
                     new SqlWorkflowEvent()
                     {
-                       Name = "Transition1",
+                       Name = "Transition 1",
                        WorkflowId = workflowId,
                        WorkflowState1Id = newStates[0].WorkflowStateId,
                        WorkflowState2Id = newStates[1].WorkflowStateId,

@@ -598,11 +598,11 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [FeatureActivation(FeatureTypes.Workflow)]
         [Route("diagram/{workflowId:int:min(1)}")]
-        [ResponseType(typeof(IeWorkflow))]
+        [ResponseType(typeof(DWorkflow))]
         public async Task<IHttpActionResult> GetWorkflowDiagram(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
+            var ieWorkflow = await _workflowService.GetWorkflowDiagramAsync(workflowId);
             return Ok(ieWorkflow);
         }
 

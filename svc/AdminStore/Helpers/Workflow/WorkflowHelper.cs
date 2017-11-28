@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
@@ -236,6 +237,80 @@ namespace AdminStore.Helpers.Workflow
 
         #endregion
 
+        public static DWorkflow MapIeWorkflowToDWorkflow(IeWorkflow sourceWorkflow)
+        {
+            var destinationWorkflow = new DWorkflow();
+            destinationWorkflow.Id = sourceWorkflow.Id;
+            destinationWorkflow.Name = sourceWorkflow.Name;
+            destinationWorkflow.Description = sourceWorkflow.Description;
+            destinationWorkflow.IsActive = sourceWorkflow.IsActive;
+            destinationWorkflow.NewArtifactEvents = sourceWorkflow.NewArtifactEvents?.Select(ieNewArtifactEvent =>
+                new DNewArtifactEvent
+                {
+                    Id = ieNewArtifactEvent.Id,
+                    Name = ieNewArtifactEvent.Name,
+                    Triggers = MapToDTriggers(ieNewArtifactEvent.Triggers)
+                }).ToList();
+
+            destinationWorkflow.Projects = sourceWorkflow.Projects?.Select(ieProject => new DProject
+            {
+                Id = ieProject.Id,
+                Path = ieProject.Path,
+                ArtifactTypes = ieProject.ArtifactTypes?.Select(ieArtifactType => new DArtifactType
+                {
+                    Id = ieArtifactType.Id,
+                    Name = ieArtifactType.Name
+                })
+            });
+
+            destinationWorkflow.PropertyChangeEvents = sourceWorkflow.PropertyChangeEvents?.Select(
+                iePropertyChangeEvent => new DPropertyChangeEvent
+                {
+                    Id = iePropertyChangeEvent.Id,
+                    Name = iePropertyChangeEvent.Name,
+                    PropertyId = iePropertyChangeEvent.PropertyId,
+                    PropertyName = iePropertyChangeEvent.PropertyName,
+                    Triggers = MapToDTriggers(iePropertyChangeEvent.Triggers.ToList())
+                }).ToList();
+
+            destinationWorkflow.States = sourceWorkflow.States?.Select(ieState => new DState
+                {
+                    Id = ieState.Id,
+                    Name = ieState.Name,
+                    IsInitial = ieState.IsInitial,
+                    Location = ieState.Location
+                })
+                .ToList();
+
+            destinationWorkflow.TransitionEvents = sourceWorkflow.TransitionEvents?.Select(ieTransitionEvent =>
+                new DTransitionEvent
+                {
+                    Id = ieTransitionEvent.Id,
+                    Name = ieTransitionEvent.Name,
+                    FromState = ieTransitionEvent.FromState,
+                    FromStateId = ieTransitionEvent.FromStateId,
+                    ToState = ieTransitionEvent.ToState,
+                    ToStateId = ieTransitionEvent.ToStateId,
+                    SkipPermissionGroups = ieTransitionEvent.SkipPermissionGroups,
+                    PortPair = ieTransitionEvent.PortPair != null
+                        ? new DPortPair
+                        {
+                            FromPort = ieTransitionEvent.PortPair.FromPort,
+                            ToPort = ieTransitionEvent.PortPair.ToPort
+                        }
+                        : null,
+                    Triggers = MapToDTriggers(ieTransitionEvent.Triggers),
+                    PermissionGroups = ieTransitionEvent.PermissionGroups?.Select(ieGroup => new DGroup
+                        {
+                            Id = ieGroup.Id,
+                            Name = ieGroup.Name
+                        })
+                        .ToList()
+                }).ToList();
+
+            return destinationWorkflow;
+        }
+
         public static IeWorkflow MapDWorkflowToIeWorkflow(DWorkflow sourceWorkflow)
         {
             var destinationWorkflow = new IeWorkflow
@@ -279,8 +354,7 @@ namespace AdminStore.Helpers.Workflow
                         Id = dState.Id,
                         Name = dState.Name,
                         IsInitial = dState.IsInitial,
-                        Location = dState.Location,
-                        OrderIndex = dState.OrderIndex
+                        Location = dState.Location
                     })
                     .ToList(),
                 TransitionEvents = sourceWorkflow.TransitionEvents?.Select(dTransitionEvent => new IeTransitionEvent
@@ -328,6 +402,22 @@ namespace AdminStore.Helpers.Workflow
                         : null
                 })
                 .ToList();
+        }
+
+        private static List<DTrigger> MapToDTriggers(List<IeTrigger> ieTriggers)
+        {
+            return ieTriggers?.Select(ieTrigger => new DTrigger
+                {
+                    Name = ieTrigger.Name,
+                    Action = MapToDAction(ieTrigger.Action),
+                    Condition = ieTrigger.Condition is IeStateCondition
+                        ? new DStateCondition
+                        {
+                            StateId = ((IeStateCondition)ieTrigger.Condition).StateId,
+                            State = ((IeStateCondition)ieTrigger.Condition).State
+                        }
+                        : null
+                }).ToList();
         }
 
         private static IeBaseAction MapToIeAction(DBaseAction dBaseAction)
@@ -383,6 +473,75 @@ namespace AdminStore.Helpers.Workflow
                 default:
                     return null;
             }
+        }
+
+        private static DBaseAction MapToDAction(IeBaseAction ieBaseAction)
+        {
+            switch (ieBaseAction.ActionType)
+            {
+                case ActionTypes.EmailNotification:
+                    var ieEmailNotificationAction = ieBaseAction as IeEmailNotificationAction;
+                    if (ieEmailNotificationAction != null)
+                    {
+                        return new DEmailNotificationAction
+                        {
+                            Name = ieEmailNotificationAction.Name,
+                            Emails = ieEmailNotificationAction.Emails?.ToList(),
+                            Message = ieEmailNotificationAction.Message,
+                            PropertyId = ieEmailNotificationAction.PropertyId,
+                            PropertyName = ieEmailNotificationAction.PropertyName
+                        };
+                    }
+                    break;
+                case ActionTypes.Generate:
+                    var ieGenerateAction = ieBaseAction as IeGenerateAction;
+                    if (ieGenerateAction != null)
+                    {
+                        return new DGenerateAction
+                        {
+                            Name = ieGenerateAction.Name,
+                            ArtifactType = ieGenerateAction.ArtifactType,
+                            ArtifactTypeId = ieGenerateAction.ArtifactTypeId,
+                            ChildCount = ieGenerateAction.ChildCount,
+                            GenerateActionType = ieGenerateAction.GenerateActionType
+                        };
+                    }
+                    break;
+                case ActionTypes.PropertyChange:
+                    var iePropertyChangeAction = ieBaseAction as IePropertyChangeAction;
+                    if (iePropertyChangeAction != null)
+                    {
+                        return new DPropertyChangeAction
+                        {
+                            Name = iePropertyChangeAction.Name,
+                            PropertyName = iePropertyChangeAction.PropertyName,
+                            PropertyId = iePropertyChangeAction.PropertyId,
+                            PropertyValue = iePropertyChangeAction.PropertyValue,
+                            UsersGroups = new DUsersGroups
+                            {
+                                IncludeCurrentUser = iePropertyChangeAction.UsersGroups?.IncludeCurrentUser,
+                                UsersGroups = iePropertyChangeAction.UsersGroups?.UsersGroups?.Select(ieUserGroup =>
+                                    new DUserGroup
+                                    {
+                                        Id = ieUserGroup.Id,
+                                        Name = ieUserGroup.Name,
+                                        GroupProjectId = ieUserGroup.GroupProjectId,
+                                        GroupProjectPath = ieUserGroup.GroupProjectPath,
+                                        IsGroup = ieUserGroup.IsGroup
+                                    }).ToList()
+                            },
+                            ValidValues = iePropertyChangeAction.ValidValues?.Select(ieValidValue => new DValidValue
+                            {
+                                Id = ieValidValue.Id,
+                                Value = ieValidValue.Value
+                            }).ToList()
+                        };
+                    }
+                    break;
+                default:
+                    return null;
+            }
+            return null;
         }
     }
 }

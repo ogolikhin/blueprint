@@ -146,6 +146,7 @@
     <Compile Include="Models\Emails\EmailIncomingSettings.cs" />
     <Compile Include="Models\Emails\EmailOutgoingSettings.cs" />
     <Compile Include="Models\Emails\EmailSettingsDto.cs" />
+    <Compile Include="Models\Enums\DiagramPort.cs" />
     <Compile Include="Models\Enums\EventTypes.cs" />
     <Compile Include="Models\Enums\WorkflowMode.cs" />
     <Compile Include="Models\SyncResult.cs" />

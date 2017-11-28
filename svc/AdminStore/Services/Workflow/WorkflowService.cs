@@ -652,6 +652,13 @@ namespace AdminStore.Services.Workflow
             return sqlEvent;
         }
 
+        public async Task<DWorkflow> GetWorkflowDiagramAsync(int workflowId)
+        {
+            var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
+            var dWorkflow = WorkflowHelper.MapIeWorkflowToDWorkflow(ieWorkflow);
+            return dWorkflow;
+        }
+
         public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, WorkflowMode mode)
         {
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
@@ -1347,7 +1354,7 @@ namespace AdminStore.Services.Workflow
             if (!string.IsNullOrEmpty(settings))
             {
                 var portPair = SerializationHelper.FromXml<XmlTransitionCanvasSettings>(settings).XmlPortPair;
-                iePortPair = new IePortPair { FromPort = portPair.FromPort, ToPort = portPair.ToPort };
+                iePortPair = new IePortPair { FromPort = (DiagramPort)portPair.FromPort, ToPort = (DiagramPort)portPair.ToPort };
             }
             return iePortPair;
         }

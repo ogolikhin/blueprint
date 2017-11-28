@@ -1216,17 +1216,21 @@ namespace AdminStore.Services.Workflow
 
         private static void ValidateWorkflowConnectivity(IeWorkflow workflow, WorkflowXmlValidationResult result)
         {
-            if (result.Errors.Any(error =>
-                error.ErrorCode == WorkflowXmlValidationErrorCodes.WorkflowDoesNotContainAnyStates ||
-                error.ErrorCode == WorkflowXmlValidationErrorCodes.NoInitialState ||
-                error.ErrorCode == WorkflowXmlValidationErrorCodes.MultipleInitialStates ||
-                error.ErrorCode == WorkflowXmlValidationErrorCodes.InitialStateDoesNotHaveOutgoingTransition ||
-                error.ErrorCode == WorkflowXmlValidationErrorCodes.StateNameEmpty ||
-                error.ErrorCode == WorkflowXmlValidationErrorCodes.StateNameNotUnique ||
-                error.ErrorCode == WorkflowXmlValidationErrorCodes.StateDoesNotHaveAnyTransitions ||
-                error.ErrorCode == WorkflowXmlValidationErrorCodes.TransitionStartStateNotSpecified ||
-                error.ErrorCode == WorkflowXmlValidationErrorCodes.TransitionEndStateNotSpecified ||
-                error.ErrorCode == WorkflowXmlValidationErrorCodes.TransitionStateNotFound))
+            var blockingErrors = new[]
+            {
+                WorkflowXmlValidationErrorCodes.WorkflowDoesNotContainAnyStates,
+                WorkflowXmlValidationErrorCodes.NoInitialState,
+                WorkflowXmlValidationErrorCodes.MultipleInitialStates,
+                WorkflowXmlValidationErrorCodes.InitialStateDoesNotHaveOutgoingTransition,
+                WorkflowXmlValidationErrorCodes.StateNameEmpty,
+                WorkflowXmlValidationErrorCodes.StateNameNotUnique,
+                WorkflowXmlValidationErrorCodes.StateDoesNotHaveAnyTransitions,
+                WorkflowXmlValidationErrorCodes.TransitionStartStateNotSpecified,
+                WorkflowXmlValidationErrorCodes.TransitionEndStateNotSpecified,
+                WorkflowXmlValidationErrorCodes.TransitionStateNotFound
+            };
+
+            if (result.Errors.Any(error => blockingErrors.Contains(error.ErrorCode)))
             {
                 return;
             }

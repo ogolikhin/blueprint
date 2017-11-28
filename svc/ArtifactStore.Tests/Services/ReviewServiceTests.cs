@@ -45,8 +45,6 @@ namespace ArtifactStore.Services
         [TestInitialize]
         public void Initialize()
         {
-            _reviewPackageRawData = new ReviewPackageRawData();
-
             _artifactDetails = new ArtifactBasicDetails
             {
                 ItemId = ReviewId,
@@ -58,6 +56,7 @@ namespace ArtifactStore.Services
             {
                 ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>"
             };
+            _reviewPackageRawData = _reviewData.ReviewPackageRawData;
 
             _mockReviewRepository = new Mock<IReviewsRepository>();
 
@@ -2559,12 +2558,14 @@ namespace ArtifactStore.Services
             _reviewPackageRawData.IsESignatureEnabled = null;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
             _artifactDetails.LockedByUserId = UserId;
-            var reviewerId = 3;
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
-            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            const int reviewerId = 3;
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                UserId = reviewerId
-            });
+                new ReviewerRawData
+                {
+                    UserId = reviewerId
+                }
+            };
 
             var content = new AssignParticipantRoleParameter
             {
@@ -2592,7 +2593,7 @@ namespace ArtifactStore.Services
             await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.AreEqual(null, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
         }
 
         #endregion

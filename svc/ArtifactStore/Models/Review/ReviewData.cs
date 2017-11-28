@@ -55,9 +55,9 @@ namespace ArtifactStore.Models.Review
                 {
                     return ReviewType.Public;
                 }
-                if (ReviewPackageRawData.Reviewers.Any(r => r.Permission == ReviewParticipantRole.Reviewer)
+                if (ReviewPackageRawData.Reviewers.All(r => r.Permission == ReviewParticipantRole.Reviewer)
                     || ReviewContents.Artifacts == null
-                    || ReviewContents.Artifacts.Any(a => a.ApprovalNotRequested))
+                    || ReviewContents.Artifacts.All(a => a.ApprovalNotRequested))
                 {
                     return ReviewType.Informal;
                 }

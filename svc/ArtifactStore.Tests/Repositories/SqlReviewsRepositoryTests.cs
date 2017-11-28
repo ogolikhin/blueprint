@@ -5121,22 +5121,9 @@ namespace ArtifactStore.Repositories
             // Arrange
             var reviewId = 1;
             var userId = 2;
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewIds", SqlConnectionWrapper.ToDataTable(new int[] { reviewId }) },
-                { "@userId", userId },
-                { "@revisionId", int.MaxValue },
-                { "@addDrafts", true }
-            };
 
-            // ReviewStatus = ReviewPackageStatus.Closed
-            var reviewsDataResult = new[]
-            {
-               new ReviewData
-               {
-                    ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>"
-               }
-            };
+            var reviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>";
+            SetupGetReviewDataQuery(reviewId, userId, reviewContentsXml, null);
             var prms = new ReviewItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -5157,28 +5144,12 @@ namespace ArtifactStore.Repositories
             var baselineId = 1;
             _artifactDetails.LockedByUserId = userId;
 
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewIds", SqlConnectionWrapper.ToDataTable(new int[] { reviewId }) },
-                { "@userId", userId },
-                { "@revisionId", int.MaxValue },
-                { "@addDrafts", true }
-            };
-
-            var reviewsDataResult = new[]
-            {
-               new ReviewData
-               {
-                   Id = reviewId,
-                   ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>",
-                   BaselineId = baselineId
-               }
-            };
-            _cxn.SetupQueryAsync("GetReviewsData", queryParameters, reviewsDataResult);
+            var reviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>";
+            SetupGetReviewDataQuery(reviewId, userId, reviewContentsXml, null, baselineId);
 
             var prms = new ReviewItemsRemovalParams
             {
-                ItemIds = new List<int>() { 1, 2, 3 },
+                ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
             };
 

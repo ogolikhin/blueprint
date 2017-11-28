@@ -261,7 +261,7 @@ namespace AdminStore.Helpers.Workflow
                     Id = ieArtifactType.Id,
                     Name = ieArtifactType.Name
                 })
-            });
+            }).ToList();
 
             destinationWorkflow.PropertyChangeEvents = sourceWorkflow.PropertyChangeEvents?.Select(
                 iePropertyChangeEvent => new DPropertyChangeEvent

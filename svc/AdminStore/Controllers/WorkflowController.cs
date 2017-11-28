@@ -602,8 +602,8 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetWorkflowDiagram(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var ieWorkflow = await _workflowService.GetWorkflowDiagramAsync(workflowId);
-            return Ok(ieWorkflow);
+            var dWorkflow = await _workflowService.GetWorkflowDiagramAsync(workflowId);
+            return Ok(dWorkflow);
         }
 
         #region Private methods

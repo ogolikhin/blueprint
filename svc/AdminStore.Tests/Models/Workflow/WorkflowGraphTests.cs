@@ -18,7 +18,7 @@ namespace AdminStore.Models.Workflow
             try
             {
                 // Act
-                var graph = new WorkflowGraph(workflow);
+                new WorkflowGraph(workflow);
             }
             catch (ArgumentNullException ex)
             {
@@ -40,7 +40,7 @@ namespace AdminStore.Models.Workflow
             try
             {
                 // Act
-                var graph = new WorkflowGraph(workflow);
+                new WorkflowGraph(workflow);
             }
             catch (ArgumentNullException ex)
             {
@@ -65,7 +65,7 @@ namespace AdminStore.Models.Workflow
             try
             {
                 // Act
-                var graph = new WorkflowGraph(workflow);
+                new WorkflowGraph(workflow);
             }
             catch (ArgumentNullException ex)
             {
@@ -90,7 +90,7 @@ namespace AdminStore.Models.Workflow
             try
             {
                 // Act
-                var graph = new WorkflowGraph(workflow);
+                new WorkflowGraph(workflow);
             }
             catch (ArgumentException ex)
             {
@@ -116,7 +116,7 @@ namespace AdminStore.Models.Workflow
             try
             {
                 // Act
-                var graph = new WorkflowGraph(workflow);
+                new WorkflowGraph(workflow);
             }
             catch (ArgumentException ex)
             {
@@ -142,7 +142,7 @@ namespace AdminStore.Models.Workflow
             try
             {
                 // Act
-                var graph = new WorkflowGraph(workflow);
+                new WorkflowGraph(workflow);
             }
             catch (ArgumentException ex)
             {
@@ -168,7 +168,7 @@ namespace AdminStore.Models.Workflow
             try
             {
                 // Act
-                var graph = new WorkflowGraph(workflow);
+                new WorkflowGraph(workflow);
             }
             catch (ArgumentException ex)
             {

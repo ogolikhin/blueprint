@@ -9,7 +9,7 @@ namespace AdminStore.Models.Workflow
     public class WorkflowGraphTests
     {
         [TestMethod]
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraphTests")]
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraph")]
         public void Construction_NullWorkflow_ThrowsArgumentNullException()
         {
             // Arrange
@@ -31,7 +31,7 @@ namespace AdminStore.Models.Workflow
         }
 
         [TestMethod]
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraphTests")]
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraph")]
         public void Construction_WorkflowWithoutStates_ThrowsArgumentNullException()
         {
             // Arrange
@@ -53,7 +53,7 @@ namespace AdminStore.Models.Workflow
         }
 
         [TestMethod]
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraphTests")]
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraph")]
         public void Construction_WorkflowWithoutTransitions_ThrowsArgumentNullException()
         {
             // Arrange
@@ -78,7 +78,7 @@ namespace AdminStore.Models.Workflow
         }
 
         [TestMethod]
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraphTests")]
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraph")]
         public void Construction_WorkflowStateWithoutName_ThrowsArgumentException()
         {
             // Arrange
@@ -103,7 +103,7 @@ namespace AdminStore.Models.Workflow
         }
 
         [TestMethod]
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraphTests")]
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraph")]
         public void Construction_WorkflowTransitionWithoutFromState_ThrowsArgumentException()
         {
             // Arrange
@@ -129,7 +129,7 @@ namespace AdminStore.Models.Workflow
         }
 
         [TestMethod]
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraphTests")]
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraph")]
         public void Construction_WorkflowTransitionWithoutToState_ThrowsArgumentException()
         {
             // Arrange
@@ -142,7 +142,7 @@ namespace AdminStore.Models.Workflow
             try
             {
                 // Act
-                new WorkflowGraph(workflow);
+                var graph = new WorkflowGraph(workflow);
             }
             catch (ArgumentException ex)
             {
@@ -155,7 +155,7 @@ namespace AdminStore.Models.Workflow
         }
 
         [TestMethod]
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraphTests")]
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "AdminStore.Models.Workflow.WorkflowGraph")]
         public void Construction_WorkflowWithoutInitialState_ThrowsArgumentException()
         {
             // Arrange
@@ -168,7 +168,7 @@ namespace AdminStore.Models.Workflow
             try
             {
                 // Act
-                new WorkflowGraph(workflow);
+                var graph = new WorkflowGraph(workflow);
             }
             catch (ArgumentException ex)
             {

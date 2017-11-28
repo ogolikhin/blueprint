@@ -342,7 +342,6 @@ namespace ArtifactStore.Repositories
                     reviewArtifact.Approved = reviewArtifactStatus.Approved;
                     reviewArtifact.Disapproved = reviewArtifactStatus.Disapproved;
                     reviewArtifact.Viewed = reviewArtifactStatus.Viewed;
-                    // TODO: Fix Unviewed status in sp "GetReviewArtifactsStatus" (see the query after 'CREATE TABLE #artifactsReviewStatus')
                     reviewArtifact.Unviewed = reviewArtifactStatus.Viewed == 0 ? numUsers : reviewArtifactStatus.Unviewed;
                     reviewArtifact.HasReviewComments = reviewArtifactStatus.HasComments;
                 }

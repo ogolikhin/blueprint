@@ -1195,19 +1195,21 @@ namespace ArtifactStore.Repositories
             // TODO: Update artifact statuses and permissions
             foreach (var tocItem in toc.Items)
             {
-                if (reviewPackage.IsIgnoreFolder && tocItem.ItemTypePredefined == (int)ItemTypePredefined.PrimitiveFolder)
+                if (SqlArtifactPermissionsRepository.HasPermissions(tocItem.Id, artifactPermissionsDictionary, RolePermissions.Read))
                 {
-                    tocItem.IsIncluded = false;
-                }
-                else if (SqlArtifactPermissionsRepository.HasPermissions(tocItem.Id, artifactPermissionsDictionary, RolePermissions.Read))
-                {
-                    // TODO update item status
                     tocItem.HasAccess = true;
 
-                    var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
-                    tocItem.ArtifactVersion = artifact.ArtifactVersion;
-                    tocItem.ApprovalStatus = artifact.ApprovalFlag;
-                    tocItem.ViewedArtifactVersion = artifact.ViewState == ViewStateType.Viewed ? artifact.ViewedArtifactVersion : 0;
+                    if (reviewPackage.IsIgnoreFolder && tocItem.ItemTypePredefined == (int)ItemTypePredefined.PrimitiveFolder)
+                    {
+                        tocItem.IsIncluded = false;
+                    }
+                    else
+                    {
+                        var artifact = reviewedArtifacts.First(it => it.Id == tocItem.Id);
+                        tocItem.ArtifactVersion = artifact.ArtifactVersion;
+                        tocItem.ApprovalStatus = artifact.ApprovalFlag;
+                        tocItem.ViewedArtifactVersion = artifact.ViewState == ViewStateType.Viewed ? artifact.ViewedArtifactVersion : 0;
+                    }
                 }
                 else
                 {

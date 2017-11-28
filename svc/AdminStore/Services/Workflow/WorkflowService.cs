@@ -816,57 +816,10 @@ namespace AdminStore.Services.Workflow
             {
                 var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow);
 
-                // TODO: Remove invalid Property from Triggers.
-                // TODO: Remove invalid Property from workflow.PropertyChangeEvents-?
-                // It is invalid because not contains in stadart properties for existing Artifact types in this workflow
-                // var artifactRepository = new SqlArtifactRepository();
-                // var artifactTypesIds = new SortedSet<int>();
-
-                // foreach (var workflowProject in workflow.Projects)
-                // {
-                //    foreach (var workflowProjectArtifactType in workflowProject.ArtifactTypes)
-                //    {
-                //        artifactTypesIds.Add(workflowProjectArtifactType.IdSerializable);
-                //    }
-                // }
-
-                // var propertyIds = artifactRepository.GetStandardProperties(artifactTypesIds)
-                //    .Result.Select(q => q.Id)
-                //    .Distinct().ToList();
-
-                // if (dataValidationResult.HasErrors)
-                // {
-                //    foreach (var workflowTransitionEvent in workflow.TransitionEvents)
-                //    {
-                //        var triggers = workflowTransitionEvent.Triggers;
-                //        foreach (var ieTrigger in workflowTransitionEvent.Triggers)
-                //        {
-                //            switch (ieTrigger.Action.ActionType)
-                //            {
-
-                // case ActionTypes.EmailNotification:
-                //                    triggers.RemoveAll(q => !propertyIds.Contains(
-                //                        ((IeEmailNotificationAction)q.Action)
-                //                        .PropertyId.Value));
-                //                    break;
-
-                // case ActionTypes.Generate:
-                //                    break;
-
-                // case ActionTypes.PropertyChange:
-                //                    break;
-
-                // }
-                //        }
-                //    }
-
                 foreach (var error in dataValidationResult.Errors)
                     {
                         switch (error.ErrorCode)
                         {
-                            // case WorkflowDataValidationErrorCodes.WorkflowNameNotUnique:
-                            //    workflow = null;
-                            //    break;
                             case WorkflowDataValidationErrorCodes.ProjectByPathNotFound:
                                 workflow.Projects.RemoveAll(q => q.Path == (string)error.Element);
                                 break;

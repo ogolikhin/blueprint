@@ -1396,7 +1396,7 @@ namespace ArtifactStore.Repositories
                 {
                     reviewInfo.ReviewStatus = rawData.Status;
                     reviewInfo.ExpiryTimestamp = rawData.EndDate;
-                    reviewInfo.IsFormal = rawData.Status == ReviewPackageStatus.Active && HasAtLeastOneApprover(rawData.Reviewers);
+                    reviewInfo.IsFormal = rawData.Status != ReviewPackageStatus.Draft && HasAtLeastOneApprover(rawData.Reviewers);
                 }
                 result.Add(reviewInfo);
             }

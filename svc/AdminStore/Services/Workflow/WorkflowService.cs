@@ -331,6 +331,11 @@ namespace AdminStore.Services.Workflow
         {
             var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
 
+            if (ieWorkflow == null)
+            {
+                return null;
+            }
+
             var numberStates = ieWorkflow.States?.Count ?? 0;
 
             var transitionEventTriggersCount = 0;

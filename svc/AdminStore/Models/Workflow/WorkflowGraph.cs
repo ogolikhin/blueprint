@@ -35,7 +35,7 @@ namespace AdminStore.Models.Workflow
                 }
 
                 var node = new WorkflowGraphNode(state);
-                _nodesByName.Add(state.Name, node);
+                _nodesByName[state.Name] = node;
 
                 if (node.IsInitial)
                 {

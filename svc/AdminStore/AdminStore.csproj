@@ -147,6 +147,7 @@
     <Compile Include="Models\WorkflowProjectSearch.cs" />
     <Compile Include="Models\Workflow\IePortPair.cs" />
     <Compile Include="Models\Workflow\IeUsersGroups.cs" />
+    <Compile Include="Models\Workflow\WorkflowGraph.cs" />
     <Compile Include="Models\Workflow\XmlPortPair.cs" />
     <Compile Include="Models\Workflow\WorkflowDetailsDto.cs" />
     <Compile Include="Models\Workflow\UpdateWorkflowDto.cs" />

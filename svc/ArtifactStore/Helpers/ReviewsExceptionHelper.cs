@@ -76,5 +76,11 @@ namespace ArtifactStore.Helpers
             var errorMessage = "Could not update meaning of signature because meaning of signature is not possible for a participant.";
             return new ConflictException(errorMessage, ErrorCodes.MeaningOfSignatureNotPossible);
         }
+
+        public static BadRequestException MeaningOfSignatureNotChosenException()
+        {
+            var errorMessage = "Meaning of signature must be provided to change the approval status of an artifact.";
+            return new BadRequestException(errorMessage, ErrorCodes.MeaningOfSignatureNotChosen);
+        }
     }
 }

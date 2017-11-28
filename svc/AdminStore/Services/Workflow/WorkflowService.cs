@@ -333,7 +333,12 @@ namespace AdminStore.Services.Workflow
         {
             var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
 
-            var numberStates = ieWorkflow.States.Count;
+            if (ieWorkflow == null)
+            {
+                return null;
+            }
+
+            var numberStates = ieWorkflow.States?.Count ?? 0;
 
             var transitionEventTriggersCount = 0;
             if (ieWorkflow.TransitionEvents != null)
@@ -370,14 +375,14 @@ namespace AdminStore.Services.Workflow
                 Name = ieWorkflow.Name,
                 Description = ieWorkflow.Description,
                 Active = ieWorkflow.IsActive,
-                WorkflowId = ieWorkflow.Id ?? 0,
+                WorkflowId = ieWorkflow.Id.GetValueOrDefault(),
                 VersionId = ieWorkflow.VersionId,
                 LastModified = ieWorkflow.LastModified,
                 LastModifiedBy = ieWorkflow.LastModifiedBy,
                 NumberOfActions = transitionEventTriggersCount + propertyChangeEventTriggersCount + newArtifactEventTriggersCount,
                 NumberOfStates = numberStates,
-                Projects = ieWorkflow.Projects?.Select(e => new WorkflowProjectDto { Id = e.Id ?? 0, Name = e.Path ?? string.Empty }).Distinct().ToList(),
-                ArtifactTypes = ieWorkflow.Projects?.SelectMany(e => e.ArtifactTypes).Select(t => new WorkflowArtifactTypeDto { Name = t.Name ?? string.Empty }).Distinct().ToList()
+                Projects = ieWorkflow.Projects?.Select(e => new WorkflowProjectDto { Id = e.Id.GetValueOrDefault(), Name = e.Path ?? string.Empty }).Distinct().ToList(),
+                ArtifactTypes = ieWorkflow.Projects?.Where(p => p.ArtifactTypes != null).SelectMany(e => e.ArtifactTypes).Select(t => new WorkflowArtifactTypeDto { Name = t.Name ?? string.Empty }).Distinct().ToList()
             };
 
             return workflowDetailsDto;
@@ -705,7 +710,7 @@ namespace AdminStore.Services.Workflow
                 {
                     new SqlWorkflowEvent()
                     {
-                       Name = "Transition1",
+                       Name = "Transition 1",
                        WorkflowId = workflowId,
                        WorkflowState1Id = newStates[0].WorkflowStateId,
                        WorkflowState2Id = newStates[1].WorkflowStateId,

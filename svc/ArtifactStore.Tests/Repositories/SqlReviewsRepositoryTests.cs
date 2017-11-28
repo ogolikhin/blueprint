@@ -5622,15 +5622,13 @@ namespace ArtifactStore.Repositories
         public async Task RemoveParticipantsFromReviewAsync_ShouldThrowUserCannotModifyReviewException()
         {
             // Arrange
-            var reviewId = 1;
-            var userId = 2;
-            var isExceptionThrown = false;
             _hasEditPermissions = false;
+            _artifactDetails.LockedByUserId = UserId;
             var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
             var updatedXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers /><Status>Active</Status></ReviewPackageRawData>";
 
-            SetupGetReviewDataQuery(reviewId, userId, null, xmlString);
-            SetupUpdateReviewXmlQuery(reviewId, userId, 1, updatedXml);
+            SetupGetReviewDataQuery(ReviewId, UserId, null, xmlString);
+            SetupUpdateReviewXmlQuery(ReviewId, UserId, 1, updatedXml);
 
             var prms = new ReviewItemsRemovalParams
             {
@@ -5645,31 +5643,23 @@ namespace ArtifactStore.Repositories
             }
             catch (AuthorizationException ex)
             {
-                isExceptionThrown = true;
-
                 // Assert
                 Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
 
+                return;
             }
-            finally
-            {
-                if (!isExceptionThrown)
-                {
-                    Assert.Fail();
-                }
-            }
+
+            Assert.Fail("An AuthorizationException was not thrown");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ConflictException))]
         public async Task RemoveParticipantsFromReviewAsync_ShouldThrow_ConflictException_WhenReviewClosed()
         {
             // Arrange
-            var reviewId = 1;
-            var userId = 2;
+            _artifactDetails.LockedByUserId = UserId;
             var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Closed</Status></ReviewPackageRawData>";
 
-            SetupGetReviewDataQuery(reviewId, userId, null, xmlString);
+            SetupGetReviewDataQuery(ReviewId, UserId, null, xmlString);
 
             var prms = new ReviewItemsRemovalParams
             {
@@ -5678,7 +5668,18 @@ namespace ArtifactStore.Repositories
             };
 
             // Act
-            await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
+            try
+            {
+                await _reviewsRepository.RemoveParticipantsFromReviewAsync(ReviewId, prms, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ReviewClosed, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A Conflict Exception was not thrown.");
         }
 
         [TestMethod]

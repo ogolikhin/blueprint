@@ -1229,15 +1229,16 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }
 
-            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
-            {
-                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
-            }
-
             var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
+
             if (reviewInfo.LockedByUserId.GetValueOrDefault() != userId)
             {
                 throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
+            }
+
+            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
+            {
+                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
             var reviewData = await GetReviewDataAsync(reviewId, userId);
@@ -1396,7 +1397,7 @@ namespace ArtifactStore.Repositories
                 {
                     reviewInfo.ReviewStatus = rawData.Status;
                     reviewInfo.ExpiryTimestamp = rawData.EndDate;
-                    reviewInfo.IsFormal = rawData.Status == ReviewPackageStatus.Active && HasAtLeastOneApprover(rawData.Reviewers);
+                    reviewInfo.IsFormal = rawData.Status != ReviewPackageStatus.Draft && HasAtLeastOneApprover(rawData.Reviewers);
                 }
                 result.Add(reviewInfo);
             }

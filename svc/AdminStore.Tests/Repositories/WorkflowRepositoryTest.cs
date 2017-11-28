@@ -33,6 +33,8 @@ namespace AdminStore.Repositories
 
             _scope = new OperationScope() { Ids = _listArtifactTypesIds, SelectAll = false };
             _copyWorkfloDto = new CopyWorkfloDto() { Name = "TestWorkflow" };
+
+            _workflowStateIds = new List<int> { 1, 2, 3 };
         }
 
         private SqlConnectionWrapperMock _sqlConnectionWrapperMock;
@@ -49,6 +51,7 @@ namespace AdminStore.Repositories
         private OperationScope _scope;
         private int _userId = 1;
         private CopyWorkfloDto _copyWorkfloDto;
+        private IEnumerable<int> _workflowStateIds;
 
         #region AssignProjectsAndArtifactTypesToWorkflow
         [TestMethod]
@@ -909,6 +912,35 @@ namespace AdminStore.Repositories
                 _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _copyWorkfloDto);
 
             // Assert
+        }
+
+        #endregion
+
+        #region DeleteWorkflowStatesAsync
+
+        [TestMethod]
+        public async Task DeleteWorkflowStatesAsync_DeleteWorkflowStatesInDb_QueryReturnWorkflowStateIds()
+        {
+            // arrange
+            var publishRevision = 12;
+            var sqlStates = new List<SqlState>(3);
+            sqlStates.AddRange(_workflowStateIds.Select(
+                workflowStateId => new SqlState
+                {
+                    WorkflowStateId = workflowStateId
+                }));
+            _sqlConnectionWrapperMock.SetupQueryAsync("DeleteWorkflowStates", It.IsAny<Dictionary<string, object>>(), sqlStates);
+
+            // act
+            var deletedWorkflowStates = await _workflowRepository.DeleteWorkflowStatesAsync(_workflowStateIds, publishRevision);
+
+            // assert
+            Assert.IsNotNull(deletedWorkflowStates);
+            var deletedWorkflowStatesList = deletedWorkflowStates.ToList();
+            foreach (var workflowStateId in _workflowStateIds)
+            {
+                Assert.IsTrue(deletedWorkflowStatesList.Exists(x => x == workflowStateId));
+            }
         }
 
         #endregion

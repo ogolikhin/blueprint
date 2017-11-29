@@ -14,7 +14,6 @@ using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.ProjectMeta.Sql;
 using ServiceLibrary.Repositories.ProjectMeta;
 
-
 namespace ServiceLibrary.Repositories
 {
     public class SqlArtifactRepository : SqlBaseArtifactRepository, IArtifactRepository

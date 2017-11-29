@@ -8,7 +8,6 @@ using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
-using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
 
@@ -35,8 +34,6 @@ namespace AdminStore.Services.Workflow
 
         #region Interface Implementation
 
-        public ProjectTypes StandardTypes { get; set; }
-
         public async Task<WorkflowDataValidationResult> ValidateDataAsync(IeWorkflow workflow)
         {
             if (workflow == null)
@@ -55,14 +52,14 @@ namespace AdminStore.Services.Workflow
         }
 
         // During the update data validation names of elements with Id are assigned according to the meta data.
-        public async Task<WorkflowDataValidationResult> ValidateUpdateDataAsync(IeWorkflow workflow)
+        public async Task<WorkflowDataValidationResult> ValidateUpdateDataAsync(IeWorkflow workflow, ProjectTypes standardTypes)
         {
             if (workflow == null)
             {
                 throw new ArgumentNullException(nameof(workflow));
             }
 
-            var result = await InitializeDataValidationResultAsync(workflow, false);
+            var result = await InitializeDataValidationResultAsync(workflow, false, standardTypes);
 
             await ValidateWorkflowNameForUniquenessAsync(result, workflow, workflow.Id);
             await ValidateProjectsDataAsync(result, workflow.Projects, true);
@@ -77,11 +74,11 @@ namespace AdminStore.Services.Workflow
 
         #region Private methods
 
-        private async Task<WorkflowDataValidationResult> InitializeDataValidationResultAsync(IeWorkflow workflow, bool ignoreIds)
+        private async Task<WorkflowDataValidationResult> InitializeDataValidationResultAsync(IeWorkflow workflow, bool ignoreIds, ProjectTypes standardTypes = null)
         {
             var result = new WorkflowDataValidationResult();
 
-            result.StandardTypes = StandardTypes ?? await _projectMetaRepository.GetStandardProjectTypesAsync();
+            result.StandardTypes = standardTypes ?? await _projectMetaRepository.GetStandardProjectTypesAsync();
             result.StandardTypes.ArtifactTypes?.RemoveAll(at => at.PredefinedType != null
                                                                 && !at.PredefinedType.Value.IsRegularArtifactType());
             result.StandardArtifactTypeMapByName.AddRange(result.StandardTypes.ArtifactTypes.ToDictionary(pt => pt.Name));

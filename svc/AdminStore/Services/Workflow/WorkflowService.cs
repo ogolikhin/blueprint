@@ -268,8 +268,7 @@ namespace AdminStore.Services.Workflow
 
             await ReplaceProjectPathsWithIdsAsync(workflow);
 
-            _workflowDataValidator.StandardTypes = standardTypes;
-            var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow);
+            var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow, standardTypes);
 
             var workflowDiffResult = _workflowDiff.DiffWorkflows(workflow, currentWorkflow);
 

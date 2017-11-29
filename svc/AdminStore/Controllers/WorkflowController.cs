@@ -28,6 +28,8 @@ using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
+using AdminStore.Models.DiagramWorkflow;
+
 
 namespace AdminStore.Controllers
 {
@@ -594,17 +596,17 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [FeatureActivation(FeatureTypes.Workflow)]
         [Route("diagram/{workflowId:int:min(1)}")]
-        [ResponseType(typeof(IeWorkflow))]
+        [ResponseType(typeof(DWorkflow))]
         public async Task<IHttpActionResult> GetWorkflowDiagram(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
-            return Ok(ieWorkflow);
+            var dWorkflow = await _workflowService.GetWorkflowDiagramAsync(workflowId);
+            return Ok(dWorkflow);
         }
 
         #region Private methods
 
-    // Upload means Import (Create) or Update
+        // Upload means Import (Create) or Update
         private async Task<IHttpActionResult> UploadWorkflowAsync(int? workflowId = null)
         {
             var session = Session;

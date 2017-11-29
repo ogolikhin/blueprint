@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
+using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Models.Workflow
 {

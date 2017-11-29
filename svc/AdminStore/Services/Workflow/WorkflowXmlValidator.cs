@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Helpers.Workflow;
+using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;

@@ -8,12 +8,14 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using AdminStore.Helpers.Workflow;
+using AdminStore.Models.DiagramWorkflow;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
@@ -655,6 +657,13 @@ namespace AdminStore.Services.Workflow
             }
 
             return sqlEvent;
+        }
+
+        public async Task<DWorkflow> GetWorkflowDiagramAsync(int workflowId)
+        {
+            var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
+            var dWorkflow = WorkflowHelper.MapIeWorkflowToDWorkflow(ieWorkflow);
+            return dWorkflow;
         }
 
         public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, WorkflowMode mode)
@@ -1519,7 +1528,7 @@ namespace AdminStore.Services.Workflow
             if (!string.IsNullOrEmpty(settings))
             {
                 var portPair = SerializationHelper.FromXml<XmlTransitionCanvasSettings>(settings).XmlPortPair;
-                iePortPair = new IePortPair { FromPort = portPair.FromPort, ToPort = portPair.ToPort };
+                iePortPair = new IePortPair { FromPort = (DiagramPort)portPair.FromPort, ToPort = (DiagramPort)portPair.ToPort };
             }
             return iePortPair;
         }

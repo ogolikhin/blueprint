@@ -1,8 +1,8 @@
 ﻿using AdminStore.Models.Enums;
 
-namespace AdminStore.Models.Workflow
+namespace AdminStore.Models.DiagramWorkflow
 {
-    public class IePortPair
+    public class DPortPair
     {
         public DiagramPort FromPort { get; set; }
         public DiagramPort ToPort { get; set; }

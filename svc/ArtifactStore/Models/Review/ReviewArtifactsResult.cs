@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ArtifactStore.Models.Review
 {
@@ -32,17 +31,4 @@ namespace ArtifactStore.Models.Review
         internal int NumApprovers { get; set; }
     }
 
-    public class PropertyValueString
-    {
-        public bool IsDraftRevisionExists { get; set; }
-        public string ArtifactXml { get; set; }
-        public int? ProjectId { get; set; }
-        public int? LockedByUserId { get; set; }
-        public ReviewPackageStatus ReviewStatus { get; set; }
-        public int? BaselineId { get; set; }
-        public bool IsReviewDeleted { get; set; }
-        public bool? IsUserDisabled { get; set; }
-        public ReviewType ReviewType { get; set; }
-        public string ParticipantXml { get; set; }
-    }
 }

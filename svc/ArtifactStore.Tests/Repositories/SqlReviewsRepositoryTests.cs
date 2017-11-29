@@ -34,7 +34,7 @@ namespace ArtifactStore.Repositories
 
         public const int ReviewId = 1;
         public const int UserId = 2;
-        private const int ProjectId = 1;
+        private const int ProjectId = 3;
 
         [TestInitialize]
         public void Initialize()
@@ -1556,41 +1556,34 @@ namespace ArtifactStore.Repositories
         public async Task AddParticipants_ShouldThrowUserCannotModifyReviewException()
         {
             // Arrange
-            var reviewId = 1;
-            var userId = 2;
-            var isExceptionThrown = false;
             _hasEditPermissions = false;
+            _artifactDetails.LockedByUserId = UserId;
+
             var content = new AddParticipantsParameter
             {
                 UserIds = new[] { 1, 2 }
             };
 
-            SetupGetReviewDataQuery(reviewId, userId, null,
+            SetupGetReviewDataQuery(ReviewId, UserId, null,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"/>");
 
-            SetupUpdateReviewXmlQuery(reviewId, userId, 1,
+            SetupUpdateReviewXmlQuery(ReviewId, UserId, 1,
                 "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><Permission>Reviewer</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData></Reviwers></ReviewPackageRawData>");
 
             // Act
             try
             {
-                await _reviewsRepository.AddParticipantsToReviewAsync(reviewId, userId, content);
+                await _reviewsRepository.AddParticipantsToReviewAsync(ReviewId, UserId, content);
             }
             catch (AuthorizationException ex)
             {
-                isExceptionThrown = true;
-
                 // Assert
                 Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
 
+                return;
             }
-            finally
-            {
-                if (!isExceptionThrown)
-                {
-                    Assert.Fail();
-                }
-            }
+
+            Assert.Fail("An AuthorizationException was not thrown.");
         }
 
         private void SetupGetReviewDataQuery(int reviewId, int userId, string reviewContentsXml, string reviewPackageRawDataXml, int? baselineId = null)
@@ -1641,9 +1634,6 @@ namespace ArtifactStore.Repositories
         public async Task AddArtifacts_AndCollections_Success()
         {
             // Arrange
-            var reviewId = 1;
-            var userId = 2;
-            var projectId = 1;
             var ids = new[] { 1, 2 };
             var content = new AddArtifactsParameter
             {
@@ -1651,28 +1641,22 @@ namespace ArtifactStore.Repositories
                 AddChildren = false
             };
 
-            var queryParameters = new Dictionary<string, object>
-            {
-                { "@reviewId", reviewId },
-                { "@userId", userId }
-            };
-
             var param = new Dictionary<string, object>
             {
-                { "reviewId", reviewId },
-                { "userId", userId },
+                { "reviewId", ReviewId },
+                { "userId", UserId },
                 { "xmlArtifacts", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA></Artifacts></RDReviewContents>" }
             };
             _cxn.SetupExecuteAsync("UpdateReviewArtifacts", param, 0);
 
             var reviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>";
-            SetupGetReviewDataQuery(reviewId, userId, reviewContentsXml, null);
+            SetupGetReviewDataQuery(ReviewId, UserId, reviewContentsXml, null);
 
             var effectiveArtifactIdsQueryParameters = new Dictionary<string, object>
             {
                 { "@artifactIds",  SqlConnectionWrapper.ToDataTable(ids) },
-                { "@userId", userId },
-                { "@projectId", projectId }
+                { "@userId", UserId },
+                { "@projectId", ProjectId }
             };
 
             IEnumerable<int> artifactIds = new List<int> { 1, 2 };
@@ -1693,7 +1677,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryMultipleAsync("GetEffectiveArtifactIds", effectiveArtifactIdsQueryParameters, mockResult, outParameters);
 
             // Act
-            var result = await _reviewsRepository.AddArtifactsToReviewAsync(reviewId, userId, content);
+            var result = await _reviewsRepository.AddArtifactsToReviewAsync(ReviewId, UserId, content);
 
             // Assert
             _cxn.Verify();

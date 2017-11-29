@@ -146,6 +146,7 @@
     <Compile Include="Models\Emails\EmailIncomingSettings.cs" />
     <Compile Include="Models\Emails\EmailOutgoingSettings.cs" />
     <Compile Include="Models\Emails\EmailSettingsDto.cs" />
+    <Compile Include="Models\Enums\DiagramPort.cs" />
     <Compile Include="Models\Enums\EventTypes.cs" />
     <Compile Include="Models\Enums\WorkflowMode.cs" />
     <Compile Include="Models\SyncResult.cs" />
@@ -167,6 +168,7 @@
     <Compile Include="Models\DiagramWorkflow\DPropertyChangeEvent.cs" />
     <Compile Include="Models\DiagramWorkflow\DProject.cs" />
     <Compile Include="Models\Workflow\IeUsersGroups.cs" />
+    <Compile Include="Models\Workflow\WorkflowGraph.cs" />
     <Compile Include="Models\DiagramWorkflow\DWorkflow.cs" />
     <Compile Include="Models\Workflow\XmlPortPair.cs" />
     <Compile Include="Models\Workflow\WorkflowDetailsDto.cs" />

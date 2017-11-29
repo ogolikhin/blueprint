@@ -1691,6 +1691,25 @@ namespace AdminStore.Services.Workflow
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.DuplicateArtifactTypesInProject, result.Errors[0].ErrorCode);
         }
 
+        [TestMethod]
+        public void Validate_DisconnectedWorkflow_ReturnsStatesNotConnectedToInitialStateError()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.States.Add(new IeState { Name = "Investigate" });
+            _workflow.States.Add(new IeState { Name = "On Hold" });
+            _workflow.TransitionEvents.Add(new IeTransitionEvent { Name = "Investigate to On Hold", FromState = "Investigate", ToState = "On Hold" });
+            _workflow.TransitionEvents.Add(new IeTransitionEvent { Name = "On Hold to Investigate", FromState = "On Hold", ToState = "Investigate" });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.StatesNotConnectedToInitialState, result.Errors[0].ErrorCode);
+        }
+
         #region Private methods
 
         private static void AddStates(IeWorkflow workflow, int statesCount)

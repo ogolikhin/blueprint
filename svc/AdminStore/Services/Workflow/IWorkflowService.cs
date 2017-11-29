@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using AdminStore.Models.DiagramWorkflow;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Models;
@@ -25,6 +26,9 @@ namespace AdminStore.Services.Workflow
         Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId);
 
         Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, WorkflowMode mode);
+
         Task<int> CreateWorkflow(string name, string description, int userId);
+
+        Task<DWorkflow> GetWorkflowDiagramAsync(int workflowId);
     }
 }

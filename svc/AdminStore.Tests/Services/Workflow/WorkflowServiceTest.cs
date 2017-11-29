@@ -371,8 +371,8 @@ namespace AdminStore.Services.Workflow
             _workflowStates.Add(workflowStateFrom);
             _workflowStates.Add(workflowStateTo);
 
-            var fromPort = 1;
-            var toPort = 2;
+            var fromPort = DiagramPort.Left;
+            var toPort = DiagramPort.Right;
             var eventData = new SqlWorkflowEventData
             {
                 WorkflowId = 10,
@@ -382,7 +382,7 @@ namespace AdminStore.Services.Workflow
                 FromStateId = 1,
                 ToStateId = 2,
                 Permissions = "<P S=\"0\"><G>1</G></P>",
-                CanvasSettings = $"<S><PRT><FR>{fromPort}</FR><TO>{toPort}</TO></PRT></S>",
+                CanvasSettings = $"<S><PRT><FR>{(int)fromPort}</FR><TO>{(int)toPort}</TO></PRT></S>",
                 Type = 0,
                 Triggers =
                     "<Triggers><Trigger><Name>Trigger 1</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"

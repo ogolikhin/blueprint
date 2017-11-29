@@ -1,4 +1,5 @@
 ﻿using System.Xml.Serialization;
+using AdminStore.Models.Enums;
 
 namespace AdminStore.Models.Workflow
 {

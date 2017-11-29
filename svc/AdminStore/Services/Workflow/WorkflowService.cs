@@ -23,7 +23,6 @@ using ServiceLibrary.Repositories.Files;
 using ServiceLibrary.Repositories.ProjectMeta;
 using File = ServiceLibrary.Models.Files.File;
 using SqlWorkflowEvent = AdminStore.Models.Workflow.SqlWorkflowEvent;
-using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Services.Workflow
 {

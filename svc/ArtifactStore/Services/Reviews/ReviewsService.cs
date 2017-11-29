@@ -540,7 +540,17 @@ namespace ArtifactStore.Services.Reviews
             var resultErrors = new List<ReviewChangeItemsError>();
 
             var rdReviewContents = ReviewRawDataHelper.RestoreData<RDReviewContents>(propertyResult.ArtifactXml);
+
+            foreach (var artifact in rdReviewContents.Artifacts)
+            {
+                if (artifact.ApprovalNotRequested == null)
+                {
+                    artifact.ApprovalNotRequested = (propertyResult.BaselineId == null || propertyResult.BaselineId.Value <= 0);
+                }
+            }
+
             var updatingArtifacts = GetReviewArtifacts(content, resultErrors, rdReviewContents);
+
 
             if (updatingArtifacts.Any())
             {

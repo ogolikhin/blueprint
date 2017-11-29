@@ -107,7 +107,7 @@ namespace ArtifactStore.Models.Review
         public int Id;
 
         [DataMember(Name = "ANR", EmitDefaultValue = false)]
-        public bool ApprovalNotRequested;
+        public bool? ApprovalNotRequested;
 
         [DataMember(EmitDefaultValue = false)]
         public SimulationSettingsRawData Settings;

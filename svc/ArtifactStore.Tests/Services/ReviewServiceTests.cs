@@ -2716,7 +2716,7 @@ namespace ArtifactStore.Services
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = artifactIds,
-                ApprovalRequired = false
+                ApprovalRequired = true
             };
 
             var requestedArtifactIds = new List<int> { 1, 2, 3 };
@@ -2792,7 +2792,7 @@ namespace ArtifactStore.Services
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = artifactIds,
-                ApprovalRequired = false
+                ApprovalRequired = true
             };
 
             var requestedArtifactIds = new List<int> { 1, 2, 3 };

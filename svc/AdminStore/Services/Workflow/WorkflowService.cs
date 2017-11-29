@@ -806,12 +806,12 @@ namespace AdminStore.Services.Workflow
             ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
             var dataValidationResult = await _workflowDataValidator.ValidateDataAsync(ieWorkflow);
-            ieWorkflow = DeleteInValidDataFromExportedWorkflow(ieWorkflow, dataValidationResult);
+            DeleteInValidDataFromExportedWorkflow(ref ieWorkflow, dataValidationResult);
 
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
         }
 
-        private IeWorkflow DeleteInValidDataFromExportedWorkflow(IeWorkflow workflow, WorkflowDataValidationResult validationResult)
+        private void DeleteInValidDataFromExportedWorkflow(ref IeWorkflow workflow, WorkflowDataValidationResult validationResult)
         {
             if (workflow != null)
             {
@@ -973,7 +973,6 @@ namespace AdminStore.Services.Workflow
                         }
                     }
                 }
-            return workflow;
         }
 
         private static string GetPropertyChangedName(int? propertyTypeId, WorkflowDataNameMaps dataMaps)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
@@ -41,6 +42,7 @@ namespace AdminStore.Services.Workflow
         private ProjectTypes _projectTypes;
         private const int SessionUserId = 1;
         private const int WorkflowId = 1;
+        private Mock<IWorkflowDataValidator> _workflowDataValidatorMock;
 
         #endregion
 
@@ -54,6 +56,10 @@ namespace AdminStore.Services.Workflow
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             _triggerConverter = new Mock<ITriggerConverter>();
             _projectMetaRepository = new Mock<ISqlProjectMetaRepository>();
+            _workflowDataValidatorMock = new Mock<IWorkflowDataValidator>();
+
+            _workflowDataValidatorMock.Setup(q => q.ValidateDataAsync(It.IsAny<IeWorkflow>()))
+                .ReturnsAsync(new WorkflowDataValidationResult());
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
@@ -71,6 +77,10 @@ namespace AdminStore.Services.Workflow
             _userItems = new List<UserDto>();
             _userQueryResult = new QueryResult<UserDto>();
             _projectTypes = new ProjectTypes();
+
+            typeof(WorkflowService)
+                .GetField("_workflowDataValidator", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(_service, _workflowDataValidatorMock.Object);
         }
 
         #region GetWorkflowDetailsAsync

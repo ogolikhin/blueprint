@@ -10,11 +10,10 @@ namespace AdminStore.Services.Workflow
         public bool HasErrors => Errors.Any();
 
         private List<WorkflowDataValidationError> _errors;
-
-        public List<WorkflowDataValidationError> Errors
-            => _errors ?? (_errors = new List<WorkflowDataValidationError>());
+        public List<WorkflowDataValidationError> Errors => _errors ?? (_errors = new List<WorkflowDataValidationError>());
 
         public HashSet<int> ValidProjectIds { get; } = new HashSet<int>();
+        public HashSet<int> ValidArtifactTypeIds { get; } = new HashSet<int>();
 
         public ProjectTypes StandardTypes { get; set; }
         public Dictionary<string, ItemType> StandardArtifactTypeMapByName { get; } = new Dictionary<string, ItemType>();
@@ -29,7 +28,6 @@ namespace AdminStore.Services.Workflow
     {
         public object Element { get; set; }
         public WorkflowDataValidationErrorCodes ErrorCode { get; set; }
-
     }
 
     public enum WorkflowDataValidationErrorCodes
@@ -42,10 +40,12 @@ namespace AdminStore.Services.Workflow
         StandardArtifactTypeNotFoundByName,
         ArtifactTypeInProjectAlreadyAssociatedWithWorkflow,
         PropertyNotFoundByName,
+        PropertyNotAssociated,
         GenerateChildArtifactsActionArtifactTypeNotFoundByName,
         EmailNotificationActionPropertyTypeNotFoundByName,
         EmailNotificationActionUnacceptablePropertyType,
         PropertyChangeActionPropertyTypeNotFoundByName,
+        PropertyChangeActionPropertyTypeNotAssociated,
         // Property Value Validation error codes
         PropertyChangeActionRequiredPropertyValueEmpty,
         PropertyChangeActionUserNotFoundByName,

@@ -45,7 +45,7 @@ namespace AdminStore.Services.Workflow
 
             await ValidateWorkflowNameForUniquenessAsync(result, workflow);
             await ValidateProjectsDataAsync(result, workflow.Projects, false);
-            ValidateArtifactTypesDataAsync(result, workflow.Projects, null, true);
+            ValidateArtifactTypesDataAsync(result, workflow.Projects, true);
             await ValidateEventsDataAsync(result, workflow, true);
 
             return result;
@@ -63,7 +63,7 @@ namespace AdminStore.Services.Workflow
 
             await ValidateWorkflowNameForUniquenessAsync(result, workflow, workflow.Id);
             await ValidateProjectsDataAsync(result, workflow.Projects, true);
-            ValidateArtifactTypesDataAsync(result, workflow.Projects, workflow.Id, false);
+            ValidateArtifactTypesDataAsync(result, workflow.Projects, false);
             await ValidateEventsDataAsync(result, workflow, false);
 
             return result;
@@ -265,8 +265,7 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private void ValidateArtifactTypesDataAsync(WorkflowDataValidationResult result, List<IeProject> projects,
-            int? workflowId, bool ignoreIds)
+        private static void ValidateArtifactTypesDataAsync(WorkflowDataValidationResult result, List<IeProject> projects, bool ignoreIds)
         {
             if (projects.IsEmpty() || result.ValidProjectIds.IsEmpty())
             {
@@ -304,18 +303,22 @@ namespace AdminStore.Services.Workflow
                 }));
             }
 
-            var artifactTypesInProjects =
-                    projects.SelectMany(p => p.ArtifactTypes?.Where(at => at.Name != null).Select(at => at.Name)).ToList();
+            var artifactTypesInProjects = projects.SelectMany(p => p.ArtifactTypes?.Where(at => at.Name != null).Select(at => at.Name)).ToList();
 
             artifactTypesInProjects.ForEach(at =>
             {
-                if (!result.StandardArtifactTypeMapByName.Keys.Contains(at))
+                ItemType itemType;
+                if (!result.StandardArtifactTypeMapByName.TryGetValue(at, out itemType))
                 {
                     result.Errors.Add(new WorkflowDataValidationError
                     {
                         Element = at,
                         ErrorCode = WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundByName
                     });
+                }
+                else
+                {
+                    result.ValidArtifactTypeIds.Add(itemType.Id);
                 }
             });
         }
@@ -399,18 +402,18 @@ namespace AdminStore.Services.Workflow
             transition.Triggers?.ForEach(t => ValidateTriggerData(result, t, ignoreIds));
         }
 
-        private void ValidatePropertyChangeEventData(WorkflowDataValidationResult result, IePropertyChangeEvent pcEvent,
-            bool ignoreIds)
+        internal void ValidatePropertyChangeEventData(WorkflowDataValidationResult result, IePropertyChangeEvent pcEvent, bool ignoreIds)
         {
             if (pcEvent == null)
             {
                 return;
             }
 
+            PropertyType propertyType;
+
             // Update Name where Id is present (to null if Id is not found)
             if (!ignoreIds && pcEvent.PropertyId.HasValue)
             {
-                PropertyType propertyType;
                 if (!WorkflowHelper.TryGetNameOrDescriptionPropertyType(pcEvent.PropertyId.Value, out propertyType)
                     && !result.StandardPropertyTypeMapById.TryGetValue(pcEvent.PropertyId.Value, out propertyType))
                 {
@@ -420,18 +423,35 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowDataValidationErrorCodes.PropertyNotFoundById
                     });
                 }
+
                 pcEvent.PropertyName = propertyType?.Name;
             }
 
-            if (pcEvent.PropertyName != null
-                && !WorkflowHelper.IsNameOrDescriptionProperty(pcEvent.PropertyName)
-                && !result.StandardPropertyTypeMapByName.ContainsKey(pcEvent.PropertyName))
+            if (pcEvent.PropertyName != null)
             {
-                result.Errors.Add(new WorkflowDataValidationError
+                if (!WorkflowHelper.TryGetNameOrDescriptionPropertyType(pcEvent.PropertyName, out propertyType)
+                && !result.StandardPropertyTypeMapByName.TryGetValue(pcEvent.PropertyName, out propertyType))
                 {
-                    Element = pcEvent.PropertyName,
-                    ErrorCode = WorkflowDataValidationErrorCodes.PropertyNotFoundByName
-                });
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = pcEvent.PropertyName,
+                        ErrorCode = WorkflowDataValidationErrorCodes.PropertyNotFoundByName
+                    });
+
+                    return;
+                }
+
+                var validPropertyTypeIds = result.StandardTypes.ArtifactTypes.Where(at => result.ValidArtifactTypeIds.Contains(at.Id)).SelectMany(at => at.CustomPropertyTypeIds);
+                if (!validPropertyTypeIds.Contains(propertyType.Id))
+                {
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = pcEvent.PropertyName,
+                        ErrorCode = WorkflowDataValidationErrorCodes.PropertyNotAssociated
+                    });
+
+                    return;
+                }
             }
 
             pcEvent.Triggers?.ForEach(t => ValidateTriggerData(result, t, ignoreIds));
@@ -592,12 +612,13 @@ namespace AdminStore.Services.Workflow
                 return;
             }
 
+            PropertyType propertyType;
+
             // Update Name where Id is present (to null if Id is not found)
             if (!ignoreIds && action.PropertyId.HasValue)
             {
-                PropertyType pt;
-                if (!result.StandardPropertyTypeMapById.TryGetValue(action.PropertyId.Value, out pt)
-                    && !WorkflowHelper.TryGetNameOrDescriptionPropertyType(action.PropertyId.Value, out pt))
+                if (!result.StandardPropertyTypeMapById.TryGetValue(action.PropertyId.Value, out propertyType)
+                    && !WorkflowHelper.TryGetNameOrDescriptionPropertyType(action.PropertyId.Value, out propertyType))
                 {
                     result.Errors.Add(new WorkflowDataValidationError
                     {
@@ -605,7 +626,8 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById
                     });
                 }
-                action.PropertyName = pt?.Name;
+
+                action.PropertyName = propertyType?.Name;
             }
 
             if (action.PropertyName == null)
@@ -613,7 +635,6 @@ namespace AdminStore.Services.Workflow
                 return;
             }
 
-            PropertyType propertyType;
             if (!result.StandardPropertyTypeMapByName.TryGetValue(action.PropertyName, out propertyType)
                 && !WorkflowHelper.TryGetNameOrDescriptionPropertyType(action.PropertyName, out propertyType))
             {
@@ -621,6 +642,18 @@ namespace AdminStore.Services.Workflow
                 {
                     Element = action.PropertyName,
                     ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundByName
+                });
+
+                return;
+            }
+
+            var validPropertyTypeIds = result.StandardTypes.ArtifactTypes.Where(at => result.ValidArtifactTypeIds.Contains(at.Id)).SelectMany(at => at.CustomPropertyTypeIds);
+            if (!validPropertyTypeIds.Contains(propertyType.Id))
+            {
+                result.Errors.Add(new WorkflowDataValidationError
+                {
+                    Element = action.PropertyName,
+                    ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotAssociated
                 });
 
                 return;

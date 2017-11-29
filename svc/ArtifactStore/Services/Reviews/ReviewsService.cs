@@ -216,6 +216,11 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
             }
 
+            if (artifactInfo.LatestDeleted)
+            {
+                throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
+            }
+
             if (artifactInfo.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactReviewPackage)
             {
                 throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactIsNotReview, reviewId), ErrorCodes.BadRequest);

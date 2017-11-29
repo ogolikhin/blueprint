@@ -562,11 +562,12 @@ namespace AdminStore.Services.Workflow
                 return;
             }
 
+            PropertyType propertyType;
+
             // Update Name where Id is present (to null if Id is not found)
             if (!ignoreIds && action.PropertyId.HasValue)
             {
-                PropertyType pt;
-                if (!result.StandardPropertyTypeMapById.TryGetValue(action.PropertyId.Value, out pt))
+                if (!result.StandardPropertyTypeMapById.TryGetValue(action.PropertyId.Value, out propertyType))
                 {
                     result.Errors.Add(new WorkflowDataValidationError
                     {
@@ -574,7 +575,7 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundById
                     });
                 }
-                action.PropertyName = pt?.Name;
+                action.PropertyName = propertyType?.Name;
             }
 
             if (action.PropertyName == null)
@@ -582,7 +583,7 @@ namespace AdminStore.Services.Workflow
                 return;
             }
 
-            if (!result.StandardPropertyTypeMapByName.ContainsKey(action.PropertyName))
+            if (!result.StandardPropertyTypeMapByName.TryGetValue(action.PropertyName, out propertyType))
             {
                 result.Errors.Add(new WorkflowDataValidationError
                 {
@@ -590,17 +591,26 @@ namespace AdminStore.Services.Workflow
                     ErrorCode = WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundByName
                 });
             }
-
-            PropertyType propertyType;
-            if (result.StandardPropertyTypeMapByName.TryGetValue(action.PropertyName, out propertyType)
-                && propertyType.PrimitiveType != PropertyPrimitiveType.Text
-                && propertyType.PrimitiveType != PropertyPrimitiveType.User)
+            else
             {
-                result.Errors.Add(new WorkflowDataValidationError
+                if (propertyType.PrimitiveType != PropertyPrimitiveType.Text && propertyType.PrimitiveType != PropertyPrimitiveType.User)
                 {
-                    Element = action.PropertyName,
-                    ErrorCode = WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType
-                });
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = action.PropertyName,
+                        ErrorCode = WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType
+                    });
+                }
+
+                var validPropertyTypeIds = result.StandardTypes.ArtifactTypes.Where(at => result.ValidArtifactTypeIds.Contains(at.Id)).SelectMany(at => at.CustomPropertyTypeIds);
+                if (!validPropertyTypeIds.Contains(propertyType.Id))
+                {
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = action.PropertyName,
+                        ErrorCode = WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated
+                    });
+                }
             }
         }
 

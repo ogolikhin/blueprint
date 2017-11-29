@@ -234,6 +234,47 @@ namespace AdminStore.Services.Workflow
             Assert.AreEqual(artifactType, result.Errors[0].Element as string);
         }
 
+        [TestMethod]
+        public void ValidateEmailNotificationActionData_PropertyTypeNotAssociated_Error()
+        {
+            // Arrange
+            var propertyName = "some";
+            var emailNotificationAction = new IeEmailNotificationAction { PropertyName = propertyName };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            var propertyType = new PropertyType { Id = 1, Name = propertyName, PrimitiveType = PropertyPrimitiveType.Text };
+            result.StandardPropertyTypeMapByName.Add(propertyName, propertyType);
+
+            // Act
+            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, emailNotificationAction, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyName, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidateEmailNotificationActionData_PropertyTypeAssociated_Success()
+        {
+            // Arrange
+            var propertyName = "some";
+            var emailNotificationAction = new IeEmailNotificationAction { PropertyName = propertyName };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            var propertyType = new PropertyType { Id = 1, Name = propertyName, PrimitiveType = PropertyPrimitiveType.User };
+            var itemType = new ItemType { Id = 1, CustomPropertyTypeIds = { propertyType.Id } };
+            result.StandardPropertyTypeMapByName.Add(propertyName, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(itemType);
+            result.ValidArtifactTypeIds.Add(itemType.Id);
+
+            // Act
+            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, emailNotificationAction, true);
+
+            // Assert
+            Assert.AreEqual(false, result.HasErrors);
+            Assert.AreEqual(0, result.Errors.Count);
+        }
+
         #endregion
 
         #region Events
@@ -246,10 +287,7 @@ namespace AdminStore.Services.Workflow
             var propertyChangeEvent = new IePropertyChangeEvent { PropertyName = propertyName };
             var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
             var propertyType = new PropertyType { Id = 1, Name = propertyName };
-            ////var itemType = new ItemType { Id = 1, CustomPropertyTypeIds = { propertyType.Id } };
             result.StandardPropertyTypeMapByName.Add(propertyName, propertyType);
-            ////result.StandardTypes.ArtifactTypes.Add(itemType);
-            ////result.ValidArtifactTypeIds.Add(itemType.Id);
 
             // Act
             _dataValidatorMock.Object.ValidatePropertyChangeEventData(result, propertyChangeEvent, true);
@@ -262,7 +300,7 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
-        public void ValidatePropertyChangeEvent_PropertyTypeAssociated_NoError()
+        public void ValidatePropertyChangeEvent_PropertyTypeAssociated_Success()
         {
             // Arrange
             var propertyName = "some";

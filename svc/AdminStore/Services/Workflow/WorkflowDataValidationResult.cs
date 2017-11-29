@@ -43,6 +43,7 @@ namespace AdminStore.Services.Workflow
         PropertyNotAssociated,
         GenerateChildArtifactsActionArtifactTypeNotFoundByName,
         EmailNotificationActionPropertyTypeNotFoundByName,
+        EmailNotificationActionPropertyTypeNotAssociated,
         EmailNotificationActionUnacceptablePropertyType,
         PropertyChangeActionPropertyTypeNotFoundByName,
         PropertyChangeActionPropertyTypeNotAssociated,

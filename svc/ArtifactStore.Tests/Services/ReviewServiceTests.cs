@@ -2176,6 +2176,48 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
+        public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Needs_To_Be_Deactivated()
+        {
+            // Arrange
+            var content = new AssignParticipantRoleParameter
+            {
+                ItemIds = new List<int> { UserId },
+                Role = ReviewParticipantRole.Approver
+            };
+            _artifactDetails.LockedByUserId = UserId;
+
+            _reviewData.ReviewContents.Artifacts = new List<RDArtifact>();
+            _reviewData.ReviewContents.Artifacts.Add(new RDArtifact
+            {
+                Id = 5,
+                ApprovalNotRequested = false
+            });
+
+            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            {
+                UserId = UserId,
+                Permission = ReviewParticipantRole.Reviewer
+            });
+            _reviewData.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
+
+            // Act
+            try
+            {
+                await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ReviewNeedsToMoveBackToDraftState, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A Conflict Exception was not  thrown.");
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ConflictException))]
         [Ignore]
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_User_Is_Disabled()

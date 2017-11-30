@@ -358,6 +358,19 @@ namespace ArtifactStore.Services.Reviews
             {
                 throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
+
+            if (reviewData.ReviewStatus == ReviewPackageStatus.Active &&
+                content.Role == ReviewParticipantRole.Approver)
+            {
+                var artifactRequredApproval =
+                    reviewData.ReviewContents.Artifacts?.FirstOrDefault(a => a.ApprovalNotRequested == false);
+                if (artifactRequredApproval != null)
+                {
+                    throw new ConflictException("Could not update review participants because review needs to be converted to Formal.", ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                }
+            }
+
+
             var resultErrors = new List<ReviewChangeItemsError>();
 
             UpdateParticipantRole(reviewData.ReviewPackageRawData, content, resultErrors);

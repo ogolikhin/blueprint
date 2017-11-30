@@ -56,7 +56,7 @@ namespace AdminStore.Helpers.Workflow
         {
             // Arrange
 
-            IeWorkflow sourceWF = new IeWorkflow();
+            var sourceWF = new IeWorkflow();
             sourceWF.Name = "sourceWFTestName";
             sourceWF.Description = "TestDescription";
             sourceWF.Id = 1;

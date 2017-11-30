@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using AdminStore.Models.Workflow;
@@ -131,76 +132,41 @@ namespace AdminStore.Services.Workflow
         public string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors, string fileName, bool isEditFileMessage = true)
         {
             var errorList = errors.ToList();
-            var sb = new StringBuilder();
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
-                string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName,
-                isEditFileMessage ? " " + XmlIsNotValid : string.Empty);
 
-            foreach (var error in errorList)
-            {
-                string template;
-                var errParams = GetXmlErrorMessageTemaplateAndParams(error, out template);
-                Append(sb, "\t- ");
-                AppendLine(sb, template, errParams);
-            }
+            var templateText = string.Format(CultureInfo.InvariantCulture, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
+            string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName,
+            isEditFileMessage ? " " + XmlIsNotValid : string.Empty);
 
-            return sb.ToString();
+            return FormatXmlErrorListToString(templateText, errorList);
         }
 
         public string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors)
         {
             var errorList = errors.ToList();
-            var sb = new StringBuilder();
+            var templateText = errorList.Count > 1
+                ? TemplateWorkflowUpdateDiagramFailedPlural
+                : TemplateWorkflowUpdateDiagramFailedSingular;
 
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowUpdateDiagramFailedPlural : TemplateWorkflowUpdateDiagramFailedSingular);
-
-            foreach (var error in errorList)
-            {
-                string template;
-                var errParams = GetXmlErrorMessageTemaplateAndParams(error, out template);
-                Append(sb, "\t- ");
-                AppendLine(sb, template, errParams);
-            }
-
-            return sb.ToString();
+            return FormatXmlErrorListToString(templateText, errorList);
         }
 
         public string BuildTextDataErrors(IEnumerable<WorkflowDataValidationError> errors, string fileName, bool isEditFileMessage = true)
         {
             var errorList = errors.ToList();
-            var sb = new StringBuilder();
-
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
+            var templateText = string.Format(CultureInfo.InvariantCulture,
+                errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
                 string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName,
                 isEditFileMessage ? " " + XmlIsNotValid : string.Empty);
 
-            foreach (var error in errorList)
-            {
-                string template;
-                var errParams = GetDataErrorMessageTemaplateAndParams(error, out template);
-                Append(sb, "\t- ");
-                AppendLine(sb, template, errParams);
-            }
-
-            return sb.ToString();
+            return FormatDataErrorListToString(templateText, errorList);
         }
 
         public string BuildTextDataErrors(IEnumerable<WorkflowDataValidationError> errors)
         {
             var errorList = errors.ToList();
-            var sb = new StringBuilder();
+            var templateText = string.Format(CultureInfo.InvariantCulture, errorList.Count > 1 ? TemplateWorkflowUpdateDiagramFailedPlural : TemplateWorkflowUpdateDiagramFailedSingular);
 
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowUpdateDiagramFailedPlural : TemplateWorkflowUpdateDiagramFailedSingular);
-
-            foreach (var error in errorList)
-            {
-                string template;
-                var errParams = GetDataErrorMessageTemaplateAndParams(error, out template);
-                Append(sb, "\t- ");
-                AppendLine(sb, template, errParams);
-            }
-
-            return sb.ToString();
+            return FormatDataErrorListToString(templateText, errorList);
         }
 
         #endregion
@@ -217,6 +183,39 @@ namespace AdminStore.Services.Workflow
         }
 
         #region Private Methods
+
+        private static string FormatXmlErrorListToString(string templateText, List<WorkflowXmlValidationError> errorList)
+        {
+            var sb = new StringBuilder();
+            AppendLine(sb, templateText);
+
+            foreach (var error in errorList)
+            {
+                string template;
+                var errParams = GetXmlErrorMessageTemaplateAndParams(error, out template);
+                Append(sb, "\t- ");
+                AppendLine(sb, template, errParams);
+            }
+
+            return sb.ToString();
+        }
+
+        private static string FormatDataErrorListToString(string templateText, List<WorkflowDataValidationError> errorList)
+        {
+            var sb = new StringBuilder();
+
+            AppendLine(sb, templateText);
+
+            foreach (var error in errorList)
+            {
+                string template;
+                var errParams = GetDataErrorMessageTemaplateAndParams(error, out template);
+                Append(sb, "\t- ");
+                AppendLine(sb, template, errParams);
+            }
+
+            return sb.ToString();
+        }
 
         private static object[] GetXmlErrorMessageTemaplateAndParams(WorkflowXmlValidationError error, out string template)
         {

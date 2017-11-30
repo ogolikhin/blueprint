@@ -197,89 +197,53 @@ namespace AdminStore.Services.Workflow
         }
 
         public async Task<ImportWorkflowResult> UpdateWorkflowViaImport(int userId, int workflowId, IeWorkflow workflow,
-            string fileName = null, string xmlSerError = null, WorkflowMode workflowMode = WorkflowMode.XmlExport)
+            string fileName = null, string xmlSerError = null, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
             var importResult = new ImportWorkflowResult();
 
-            WorkflowXmlValidationResult xmlValidationResult;
+            var xmlValidationResult = new WorkflowXmlValidationResult();
 
-            if (workflowMode == WorkflowMode.XmlExport)
+            if (workflowMode == WorkflowMode.Xml)
             {
                 xmlValidationResult = ValidateWorkflowXmlSerialization(xmlSerError);
-                if (!xmlValidationResult.HasErrors)
-                {
-                    xmlValidationResult = ValidateWorkflowId(workflow, workflowId);
-                }
-
-                if (xmlValidationResult.HasErrors)
-                {
-                    var textErrors = _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors, fileName);
-                    var guid = await UploadErrorsToFileStoreAsync(textErrors);
-
-                    importResult.ErrorsGuid = guid;
-                    importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
-
-#if DEBUG
-                    importResult.ErrorMessage = textErrors;
-#endif
-
-                    return importResult;
-                }
             }
+
+            if (!xmlValidationResult.HasErrors)
+            {
+                xmlValidationResult = ValidateWorkflowId(workflow, workflowId);
+            }
+
+            if (xmlValidationResult.HasErrors)
+            {
+                return await FillingXmlErrorsWorkflowResult(fileName, workflowMode, xmlValidationResult, importResult);
+            }
+
+            var dataValidationResult = new WorkflowDataValidationResult();
 
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
             var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, workflowMode);
             if (currentWorkflow.IsActive)
             {
-                var dataValidationErrors = new[]
+                dataValidationResult.Errors.Add(new WorkflowDataValidationError
                 {
-                    new WorkflowDataValidationError
-                    {
-                        Element = workflow,
-                        ErrorCode = WorkflowDataValidationErrorCodes.WorkflowActive
-                    }
-                };
-                var textErrors = workflowMode == WorkflowMode.XmlExport
-                    ? _workflowValidationErrorBuilder.BuildTextDataErrors(dataValidationErrors, fileName, false)
-                    : _workflowValidationErrorBuilder.BuildTextDataErrors(dataValidationErrors);
+                    Element = workflow,
+                    ErrorCode = WorkflowDataValidationErrorCodes.WorkflowActive
+                });
 
-                var guid = await UploadErrorsToFileStoreAsync(textErrors);
-
-                importResult.ErrorsGuid = guid;
-                importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
-
-#if DEBUG
-                importResult.ErrorMessage = textErrors;
-#endif
-
-                return importResult;
-
+                return await FillingDataErrorsWorkflowResult(fileName, workflowMode, dataValidationResult, importResult, isEditFileMessage: false);
             }
 
             ReplaceNewLinesInNames(workflow);
             xmlValidationResult = _workflowXmlValidator.ValidateUpdateXml(workflow);
             if (xmlValidationResult.HasErrors)
             {
-                var textErrors = workflowMode == WorkflowMode.XmlExport
-                    ? _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors, fileName)
-                    : _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors);
-
-                var guid = await UploadErrorsToFileStoreAsync(textErrors);
-
-                importResult.ErrorsGuid = guid;
-                importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
-
-#if DEBUG
-                importResult.ErrorMessage = textErrors;
-#endif
-
-                return importResult;
+                return await FillingXmlErrorsWorkflowResult(fileName, workflowMode, xmlValidationResult, importResult);
             }
 
             await ReplaceProjectPathsWithIdsAsync(workflow);
 
             _workflowDataValidator.StandardTypes = standardTypes;
-            var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow);
+            dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow);
 
             var workflowDiffResult = _workflowDiff.DiffWorkflows(workflow, currentWorkflow, workflowMode);
 
@@ -298,23 +262,9 @@ namespace AdminStore.Services.Workflow
                 });
             }
 
-
             if (dataValidationResult.HasErrors)
             {
-                var textErrors = workflowMode == WorkflowMode.XmlExport
-                    ? _workflowValidationErrorBuilder.BuildTextDataErrors(dataValidationResult.Errors, fileName)
-                    : _workflowValidationErrorBuilder.BuildTextDataErrors(dataValidationResult.Errors);
-
-                var guid = await UploadErrorsToFileStoreAsync(textErrors);
-
-                importResult.ErrorsGuid = guid;
-                importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
-
-#if DEBUG
-                importResult.ErrorMessage = textErrors;
-#endif
-
-                return importResult;
+                return await FillingDataErrorsWorkflowResult(fileName, workflowMode, dataValidationResult, importResult);
             }
 
             AssignStateOrderIndexes(workflowDiffResult,
@@ -325,7 +275,7 @@ namespace AdminStore.Services.Workflow
                 var publishRevision =
                     await
                         _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId,
-                            workflowMode == WorkflowMode.XmlExport ? "Workflow update via import." : "Workflow's diagram update.");
+                            workflowMode == WorkflowMode.Xml ? "Workflow update via import." : "Workflow's diagram update.");
 
                 await UpdateWorkflowEntitiesAsync(workflow, workflowDiffResult, dataValidationResult,
                     publishRevision, transaction, workflowMode);
@@ -338,6 +288,43 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.RunInTransactionAsync(action);
 
             importResult.ResultCode = ImportWorkflowResultCodes.Ok;
+            return importResult;
+        }
+
+        private async Task<ImportWorkflowResult> FillingDataErrorsWorkflowResult(string fileName, WorkflowMode workflowMode,
+            WorkflowDataValidationResult dataValidationResult, ImportWorkflowResult importResult, bool isEditFileMessage = true)
+        {
+            var textErrors = workflowMode == WorkflowMode.Xml
+                ? _workflowValidationErrorBuilder.BuildTextDataErrors(dataValidationResult.Errors, fileName, isEditFileMessage)
+                : _workflowValidationErrorBuilder.BuildTextDataErrors(dataValidationResult.Errors);
+
+            var guid = await UploadErrorsToFileStoreAsync(textErrors);
+
+            importResult.ErrorsGuid = guid;
+            importResult.ResultCode = ImportWorkflowResultCodes.Conflict;
+
+#if DEBUG
+            importResult.ErrorMessage = textErrors;
+#endif
+
+            return importResult;
+        }
+
+        private async Task<ImportWorkflowResult> FillingXmlErrorsWorkflowResult(string fileName, WorkflowMode workflowMode,
+            WorkflowXmlValidationResult xmlValidationResult, ImportWorkflowResult importResult)
+        {
+            var textErrors = workflowMode == WorkflowMode.Xml
+                ? _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors, fileName)
+                : _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors);
+            var guid = await UploadErrorsToFileStoreAsync(textErrors);
+
+            importResult.ErrorsGuid = guid;
+            importResult.ResultCode = ImportWorkflowResultCodes.InvalidModel;
+
+#if DEBUG
+            importResult.ErrorMessage = textErrors;
+#endif
+
             return importResult;
         }
 
@@ -565,7 +552,7 @@ namespace AdminStore.Services.Workflow
             return dataMaps;
         }
 
-        private static SqlState ToSqlState(IeState ieState, int? workflowId, WorkflowMode workflowMode = WorkflowMode.XmlExport)
+        private static SqlState ToSqlState(IeState ieState, int? workflowId, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
             return ieState == null ? null : new SqlState
             {
@@ -599,7 +586,7 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.CreateWorkflowEventsAsync(importTriggersParams, publishRevision, transaction);
         }
 
-        private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, WorkflowDataMaps dataMaps, WorkflowMode workflowMode = WorkflowMode.XmlExport)
+        private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, WorkflowDataMaps dataMaps, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
             var sqlEvent = new Models.Workflow.SqlWorkflowEvent
             {
@@ -1250,7 +1237,7 @@ namespace AdminStore.Services.Workflow
 
         #region Update workflow entities for the workflow update via the import.
 
-        private async Task UpdateWorkflowEntitiesAsync(IeWorkflow workflow, WorkflowDiffResult workflowDiffResult, WorkflowDataValidationResult dataValidationResult, int publishRevision, IDbTransaction transaction, WorkflowMode workflowMode = WorkflowMode.XmlExport)
+        private async Task UpdateWorkflowEntitiesAsync(IeWorkflow workflow, WorkflowDiffResult workflowDiffResult, WorkflowDataValidationResult dataValidationResult, int publishRevision, IDbTransaction transaction, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
             if (workflowDiffResult.IsWorkflowPropertiesChanged)
             {
@@ -1282,7 +1269,7 @@ namespace AdminStore.Services.Workflow
             await _workflowRepository.UpdateWorkflowsAsync(sqlWorkflows, publishRevision, transaction);
         }
 
-        private async Task<IDictionary<string, int>> UpdateWorkflowStatesAsync(int workflowId, WorkflowDiffResult workflowDiffResult, int publishRevision, IDbTransaction transaction, WorkflowMode workflowMode = WorkflowMode.XmlExport)
+        private async Task<IDictionary<string, int>> UpdateWorkflowStatesAsync(int workflowId, WorkflowDiffResult workflowDiffResult, int publishRevision, IDbTransaction transaction, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
             var stateMap = new Dictionary<string, int>(workflowDiffResult.UnchangedStates.ToDictionary(s => s.Name, s => s.Id.Value));
 
@@ -1314,7 +1301,7 @@ namespace AdminStore.Services.Workflow
             return stateMap;
         }
 
-        private async Task UpdateWorkflowEventsAsync(int workflowId, WorkflowDiffResult workflowDiffResult, WorkflowDataMaps dataMaps, int publishRevision, IDbTransaction transaction, WorkflowMode workflowMode = WorkflowMode.XmlExport)
+        private async Task UpdateWorkflowEventsAsync(int workflowId, WorkflowDiffResult workflowDiffResult, WorkflowDataMaps dataMaps, int publishRevision, IDbTransaction transaction, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
             if (workflowDiffResult.DeletedEvents.Any())
             {

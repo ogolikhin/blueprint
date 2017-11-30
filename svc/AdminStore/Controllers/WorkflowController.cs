@@ -536,7 +536,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, WorkflowMode.XmlExport);
+            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, WorkflowMode.Xml);
             var workflowXml = SerializationHelper.ToXml(ieWorkflow, true);
             var response = Request.CreateResponse(HttpStatusCode.OK);
 
@@ -626,6 +626,17 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> UpdateWorkflowDiagram(int workflowId, [FromBody] DWorkflow workflow)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            if (workflow == null)
+            {
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.BadRequest,
+                    new ImportWorkflowResult
+                    {
+                        ErrorMessage = ErrorMessages.WorkflowModelIsEmpty,
+                        WorkflowId = workflowId,
+                        ResultCode = ImportWorkflowResultCodes.InvalidModel
+                    }));
+            }
 
             var ieWorkflow = WorkflowHelper.MapDWorkflowToIeWorkflow(workflow);
 

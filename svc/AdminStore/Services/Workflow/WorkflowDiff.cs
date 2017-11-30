@@ -12,7 +12,7 @@ namespace AdminStore.Services.Workflow
         #region Interface Implementation
 
         // Id in IeProjects and GroupProjectId for groups in IeUserGroup should be filled in.
-        public WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow, WorkflowMode workflowMode = WorkflowMode.XmlExport)
+        public WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
             var result = new WorkflowDiffResult();
             if (workflow == null) throw new ArgumentNullException(nameof(workflow));
@@ -56,7 +56,7 @@ namespace AdminStore.Services.Workflow
 
         private static void DiffWorkflowEntities<T>(ICollection<T> entities, ICollection<T> currentEntities,
             ICollection<T> added, ICollection<T> deleted, ICollection<T> changed, ICollection<T> notFound,
-            ICollection<T> unchanged, WorkflowMode workflowMode = WorkflowMode.XmlExport)
+            ICollection<T> unchanged, WorkflowMode workflowMode = WorkflowMode.Xml)
             where T : IIeWorkflowEntityWithId
         {
             var stateIds = (entities?.Where(s => s.Id.HasValue).Select(s => s.Id.Value).ToHashSet()) ??
@@ -78,7 +78,7 @@ namespace AdminStore.Services.Workflow
                 else
                 {
                     var currentState = currentEntities.First(cs => cs.Id == s.Id);
-                    if (workflowMode == WorkflowMode.XmlExport)
+                    if (workflowMode == WorkflowMode.Xml)
                     {
                         colToAddTo = s.Equals(currentState) ? unchanged : changed;
                     }

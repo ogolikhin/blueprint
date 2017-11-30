@@ -422,57 +422,67 @@ namespace AdminStore.Helpers.Workflow
 
         private static IeBaseAction MapToIeAction(DBaseAction dBaseAction)
         {
-            switch (dBaseAction.ActionType)
+            switch (dBaseAction?.ActionType)
             {
                 case ActionTypes.EmailNotification:
                     var dEmailNotificationAction = dBaseAction as DEmailNotificationAction;
-                    return new IeEmailNotificationAction
-                    {
-                        Name = dEmailNotificationAction.Name,
-                        Emails = dEmailNotificationAction.Emails.ToList(),
-                        Message = dEmailNotificationAction.Message,
-                        PropertyId = dEmailNotificationAction.PropertyId,
-                        PropertyName = dEmailNotificationAction.PropertyName
-                    };
+                    if (dEmailNotificationAction != null)
+                        return new IeEmailNotificationAction
+                        {
+                            Name = dEmailNotificationAction.Name,
+                            Emails = dEmailNotificationAction.Emails?.ToList(),
+                            Message = dEmailNotificationAction.Message,
+                            PropertyId = dEmailNotificationAction.PropertyId,
+                            PropertyName = dEmailNotificationAction.PropertyName
+                        };
+                    break;
                 case ActionTypes.Generate:
                     var dGenerateAction = dBaseAction as DGenerateAction;
-                    return new IeGenerateAction
-                    {
-                        Name = dGenerateAction.Name,
-                        ArtifactType = dGenerateAction.ArtifactType,
-                        ArtifactTypeId = dGenerateAction.ArtifactTypeId,
-                        ChildCount = dGenerateAction.ChildCount,
-                        GenerateActionType = dGenerateAction.GenerateActionType
-                    };
+                    if (dGenerateAction != null)
+                        return new IeGenerateAction
+                        {
+                            Name = dGenerateAction.Name,
+                            ArtifactType = dGenerateAction.ArtifactType,
+                            ArtifactTypeId = dGenerateAction.ArtifactTypeId,
+                            ChildCount = dGenerateAction.ChildCount,
+                            GenerateActionType = dGenerateAction.GenerateActionType
+                        };
+                    break;
                 case ActionTypes.PropertyChange:
                     var dPropertyChangeAction = dBaseAction as DPropertyChangeAction;
-                    return new IePropertyChangeAction
-                    {
-                        Name = dPropertyChangeAction.Name,
-                        PropertyName = dPropertyChangeAction.PropertyName,
-                        PropertyId = dPropertyChangeAction.PropertyId,
-                        PropertyValue = dPropertyChangeAction.PropertyValue,
-                        UsersGroups = new IeUsersGroups
+                    if (dPropertyChangeAction != null)
+                        return new IePropertyChangeAction
                         {
-                            IncludeCurrentUser = dPropertyChangeAction.UsersGroups?.IncludeCurrentUser,
-                            UsersGroups = dPropertyChangeAction.UsersGroups?.UsersGroups?.Select(dUserGroup => new IeUserGroup
+                            Name = dPropertyChangeAction.Name,
+                            PropertyName = dPropertyChangeAction.PropertyName,
+                            PropertyId = dPropertyChangeAction.PropertyId,
+                            PropertyValue = dPropertyChangeAction.PropertyValue,
+                            UsersGroups = new IeUsersGroups
                             {
-                                Id = dUserGroup.Id,
-                                Name = dUserGroup.Name,
-                                GroupProjectId = dUserGroup.GroupProjectId,
-                                GroupProjectPath = dUserGroup.GroupProjectPath,
-                                IsGroup = dUserGroup.IsGroup
-                            }).ToList() ?? new List<IeUserGroup>()
-                        },
-                        ValidValues = dPropertyChangeAction.ValidValues?.Select(dValidValue => new IeValidValue
-                        {
-                            Id = dValidValue.Id,
-                            Value = dValidValue.Value
-                        }).ToList() ?? new List<IeValidValue>()
-                    };
+                                IncludeCurrentUser = dPropertyChangeAction.UsersGroups?.IncludeCurrentUser,
+                                UsersGroups = dPropertyChangeAction.UsersGroups?.UsersGroups?.Select(
+                                                      dUserGroup => new IeUserGroup
+                                                      {
+                                                          Id = dUserGroup.Id,
+                                                          Name = dUserGroup.Name,
+                                                          GroupProjectId = dUserGroup.GroupProjectId,
+                                                          GroupProjectPath = dUserGroup.GroupProjectPath,
+                                                          IsGroup = dUserGroup.IsGroup
+                                                      })
+                                                  .ToList() ?? new List<IeUserGroup>()
+                            },
+                            ValidValues = dPropertyChangeAction.ValidValues?.Select(dValidValue => new IeValidValue
+                                              {
+                                                  Id = dValidValue.Id,
+                                                  Value = dValidValue.Value
+                                              })
+                                              .ToList() ?? new List<IeValidValue>()
+                        };
+                    break;
                 default:
                     return null;
             }
+            return null;
         }
 
         private static DBaseAction MapToDAction(IeBaseAction ieBaseAction)

@@ -30,7 +30,8 @@ namespace ArtifactStore.Repositories
         Task<IEnumerable<ReviewInfo>> GetReviewInfo(ISet<int> artifactIds, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
         Task<bool> IsMeaningOfSignatureEnabledAsync(int reviewId, int userId, bool addDrafts);
         Task<Dictionary<int, List<ParticipantMeaningOfSignatureResult>>> GetPossibleMeaningOfSignaturesForParticipantsAsync(IEnumerable<int> participantIds);
-        Task<ReviewData> GetReviewDataAsync(int reviewId, int userId, int revisionId = int.MaxValue, bool? addDraft = true);
+        Task<Review> GetReviewAsync(int reviewId, int userId, int revisionId = int.MaxValue, bool? addDraft = true);
+        Task<IEnumerable<Review>> GetReviewsAsync(IEnumerable<int> reviewIds, int userId, int revisionId = int.MaxValue, bool? addDraft = true);
         Task<int> UpdateReviewArtifactsAsync(int reviewId, int userId, string xmlArtifacts, IDbTransaction transaction = null, bool addReviewSubArtifactIfNeeded = true);
         Task<ReviewType> GetReviewTypeAsync(int reviewId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true);
     }

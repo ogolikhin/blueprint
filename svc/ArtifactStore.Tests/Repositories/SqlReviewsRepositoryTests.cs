@@ -1590,22 +1590,20 @@ namespace ArtifactStore.Repositories
         {
             var queryParameters = new Dictionary<string, object>
             {
-                { "@reviewIds", SqlConnectionWrapper.ToDataTable(new int[] { reviewId }) },
+                { "@reviewIds", SqlConnectionWrapper.ToDataTable(new[] { reviewId }) },
                 { "@userId", userId },
                 { "@revisionId", int.MaxValue },
                 { "@addDrafts", true }
             };
 
-            var reviewsDataResult = new[]
+            var reviewData = new ReviewData
             {
-               new ReviewData
-               {
-                   Id = reviewId,
-                   ReviewContentsXml = reviewContentsXml,
-                   ReviewPackageRawDataXml = reviewPackageRawDataXml,
-                   BaselineId = baselineId
-               }
+                Id = reviewId,
+                ReviewContentsXml = reviewContentsXml,
+                ReviewPackageRawDataXml = reviewPackageRawDataXml,
+                BaselineId = baselineId
             };
+            var reviewsDataResult = new[] { reviewData };
             _cxn.SetupQueryAsync("GetReviewsData", queryParameters, reviewsDataResult);
         }
 
@@ -5495,7 +5493,6 @@ namespace ArtifactStore.Repositories
 
             // Act
             await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
-
         }
 
         [TestMethod]

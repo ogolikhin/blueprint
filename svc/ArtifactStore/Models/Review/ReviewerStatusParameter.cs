@@ -9,5 +9,6 @@ namespace ArtifactStore.Models.Review
     public class ReviewerStatusParameter
     {
         public ReviewStatus Status { get; set; }
+        public IEnumerable<SelectedMeaningOfSignatureValue> MeaningOfSignatures { get; set; }
     }
 }

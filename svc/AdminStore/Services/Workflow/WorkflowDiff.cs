@@ -98,7 +98,8 @@ namespace AdminStore.Services.Workflow
                     .ForEach(at => cpAtIds.Add(Tuple.Create(p.Id.Value, at.Id.Value)));
             });
 
-            var notSpecifiedAtIds = new HashSet<int>();
+            // Tuple - item1 is project id, item2 is artifact type id.
+            var notSpecifiedAtIds = new HashSet<Tuple<int, int>>();
             projects?.Where(p => p.Id.HasValue).ForEach(p => p.ArtifactTypes?.ForEach(at =>
             {
                 // I this case the workflow data validator logs an error.
@@ -113,7 +114,7 @@ namespace AdminStore.Services.Workflow
                 if (!isSpecifiedInXml)
                 {
                     at.Id *= -1;
-                    notSpecifiedAtIds.Add(at.Id.Value);
+                    notSpecifiedAtIds.Add(Tuple.Create(p.Id.Value, at.Id.Value));
                 }
 
                 var colToAddTo = cpAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
@@ -127,7 +128,7 @@ namespace AdminStore.Services.Workflow
 
             currentProjects?.Where(p => p.Id.HasValue).ForEach(p => p.ArtifactTypes?
                 .Where(at => at.Id.HasValue
-                    && !notSpecifiedAtIds.Contains(at.Id.Value)
+                    && !notSpecifiedAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
                     && !pAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value)))
                 .ForEach(at => result.DeletedProjectArtifactTypes.Add(new KeyValuePair<int, IeArtifactType>(p.Id.Value, at))));
         }

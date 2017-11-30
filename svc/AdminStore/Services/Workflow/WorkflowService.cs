@@ -7,12 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AdminStore.Helpers.Workflow;
+using AdminStore.Models.DiagramWorkflow;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
@@ -331,7 +333,12 @@ namespace AdminStore.Services.Workflow
         {
             var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
 
-            var numberStates = ieWorkflow.States.Count;
+            if (ieWorkflow == null)
+            {
+                return null;
+            }
+
+            var numberStates = ieWorkflow.States?.Count ?? 0;
 
             var transitionEventTriggersCount = 0;
             if (ieWorkflow.TransitionEvents != null)
@@ -368,14 +375,14 @@ namespace AdminStore.Services.Workflow
                 Name = ieWorkflow.Name,
                 Description = ieWorkflow.Description,
                 Active = ieWorkflow.IsActive,
-                WorkflowId = ieWorkflow.Id ?? 0,
+                WorkflowId = ieWorkflow.Id.GetValueOrDefault(),
                 VersionId = ieWorkflow.VersionId,
                 LastModified = ieWorkflow.LastModified,
                 LastModifiedBy = ieWorkflow.LastModifiedBy,
                 NumberOfActions = transitionEventTriggersCount + propertyChangeEventTriggersCount + newArtifactEventTriggersCount,
                 NumberOfStates = numberStates,
-                Projects = ieWorkflow.Projects?.Select(e => new WorkflowProjectDto { Id = e.Id ?? 0, Name = e.Path ?? string.Empty }).Distinct().ToList(),
-                ArtifactTypes = ieWorkflow.Projects?.SelectMany(e => e.ArtifactTypes).Select(t => new WorkflowArtifactTypeDto { Name = t.Name ?? string.Empty }).Distinct().ToList()
+                Projects = ieWorkflow.Projects?.Select(e => new WorkflowProjectDto { Id = e.Id.GetValueOrDefault(), Name = e.Path ?? string.Empty }).Distinct().ToList(),
+                ArtifactTypes = ieWorkflow.Projects?.Where(p => p.ArtifactTypes != null).SelectMany(e => e.ArtifactTypes).Select(t => new WorkflowArtifactTypeDto { Name = t.Name ?? string.Empty }).Distinct().ToList()
             };
 
             return workflowDetailsDto;
@@ -650,6 +657,13 @@ namespace AdminStore.Services.Workflow
             return sqlEvent;
         }
 
+        public async Task<DWorkflow> GetWorkflowDiagramAsync(int workflowId)
+        {
+            var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
+            var dWorkflow = WorkflowHelper.MapIeWorkflowToDWorkflow(ieWorkflow);
+            return dWorkflow;
+        }
+
         public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, WorkflowMode mode)
         {
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
@@ -696,7 +710,7 @@ namespace AdminStore.Services.Workflow
                 {
                     new SqlWorkflowEvent()
                     {
-                       Name = "Transition1",
+                       Name = "Transition 1",
                        WorkflowId = workflowId,
                        WorkflowState1Id = newStates[0].WorkflowStateId,
                        WorkflowState2Id = newStates[1].WorkflowStateId,
@@ -1345,7 +1359,7 @@ namespace AdminStore.Services.Workflow
             if (!string.IsNullOrEmpty(settings))
             {
                 var portPair = SerializationHelper.FromXml<XmlTransitionCanvasSettings>(settings).XmlPortPair;
-                iePortPair = new IePortPair { FromPort = portPair.FromPort, ToPort = portPair.ToPort };
+                iePortPair = new IePortPair { FromPort = (DiagramPort)portPair.FromPort, ToPort = (DiagramPort)portPair.ToPort };
             }
             return iePortPair;
         }

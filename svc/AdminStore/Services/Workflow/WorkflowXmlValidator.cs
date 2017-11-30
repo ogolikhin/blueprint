@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Helpers.Workflow;
+using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
@@ -93,9 +94,9 @@ namespace AdminStore.Services.Workflow
             var duplicateStateNames = new HashSet<string>();
             var initialStates = new HashSet<string>();
             var hasStateNameEmptyError = false;
+
             foreach (var state in workflow.States.FindAll(s => s != null))
             {
-
                 if (!ValidatePropertyNotEmpty(state.Name))
                 {
                     // There should be only one such an error.
@@ -160,6 +161,7 @@ namespace AdminStore.Services.Workflow
             var statesWithDuplicateOutgoingTransitions = new HashSet<string>();
             var hasTransitionNameEmptyError = false;
             var hasActionTriggerNotSpecifiedError = false;
+
             foreach (var transition in workflow.TransitionEvents.FindAll(s => s != null))
             {
                 statesWithIncomingTransitions.Add(transition.ToState);
@@ -212,7 +214,6 @@ namespace AdminStore.Services.Workflow
                     stateTransitions[to].Add(transition.Name);
                 }
 
-
                 if (string.IsNullOrEmpty(from))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
@@ -221,6 +222,7 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.TransitionStartStateNotSpecified
                     });
                 }
+
                 if (string.IsNullOrEmpty(to))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
@@ -248,7 +250,6 @@ namespace AdminStore.Services.Workflow
                         ErrorCode = WorkflowXmlValidationErrorCodes.TransitionStateNotFound
                     });
                 }
-
 
                 if (transition.Triggers?.Count > 10)
                 {
@@ -278,6 +279,7 @@ namespace AdminStore.Services.Workflow
             var hasPcEventNoAnyTriggersError = false;
             var hasPcEventDuplicatePropertyError = false;
             var pcEventPropertyNames = new HashSet<string>();
+
             foreach (var pcEvent in workflow.PropertyChangeEvents.FindAll(s => s != null))
             {
                 if (!ValidatePropertyLimit(pcEvent.Name, 24))
@@ -305,7 +307,6 @@ namespace AdminStore.Services.Workflow
                     });
                     hasPcEventDuplicatePropertyError = true;
                 }
-
 
                 if (pcEvent.Triggers.IsEmpty() && !hasPcEventNoAnyTriggersError)
                 {
@@ -344,6 +345,7 @@ namespace AdminStore.Services.Workflow
             }
 
             var hasNaEventNoAnyTriggersError = false;
+
             foreach (var naEvent in workflow.NewArtifactEvents.FindAll(s => s != null))
             {
                 if (!ValidatePropertyLimit(naEvent.Name, 24))
@@ -416,6 +418,8 @@ namespace AdminStore.Services.Workflow
                 }
             }
 
+            ValidateWorkflowConnectivity(workflow, result);
+
             var hasProjectNoSpecifieError = false;
             var hasAmbiguousProjectReference = false;
             var hasDuplicateProjectIdError = false;
@@ -425,6 +429,7 @@ namespace AdminStore.Services.Workflow
             var hasDuplicateArtifactTypesInProjectError = false;
             var projectIds = new HashSet<int>();
             var projectPaths = new HashSet<string>();
+
             foreach (var project in workflow.Projects.FindAll(p => p != null))
             {
                 if (!hasProjectNoSpecifieError && !project.Id.HasValue && !ValidatePropertyNotEmpty(project.Path))
@@ -458,7 +463,6 @@ namespace AdminStore.Services.Workflow
 
                 if (project.Id.HasValue)
                 {
-
                     if (!hasDuplicateProjectIdError && projectIds.Contains(project.Id.Value))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
@@ -474,8 +478,8 @@ namespace AdminStore.Services.Workflow
                 else
                 {
                     if (!hasDuplicateProjectPathError
-                    && ValidatePropertyNotEmpty(project.Path)
-                    && projectPaths.Contains(project.Path))
+                        && ValidatePropertyNotEmpty(project.Path)
+                        && projectPaths.Contains(project.Path))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {
@@ -507,6 +511,7 @@ namespace AdminStore.Services.Workflow
                 }
 
                 var projectArtifactTypes = new HashSet<string>();
+
                 foreach (var artifactType in project.ArtifactTypes.FindAll(at => at != null))
                 {
                     if (!ValidatePropertyNotEmpty(artifactType.Name))
@@ -534,6 +539,7 @@ namespace AdminStore.Services.Workflow
                             });
                             hasDuplicateArtifactTypesInProjectError = true;
                         }
+
                         projectArtifactTypes.Add(artifactType.Name);
                     }
                 }
@@ -1208,6 +1214,38 @@ namespace AdminStore.Services.Workflow
         }
 
         #endregion
+
+        private static void ValidateWorkflowConnectivity(IeWorkflow workflow, WorkflowXmlValidationResult result)
+        {
+            var blockingErrors = new[]
+            {
+                WorkflowXmlValidationErrorCodes.WorkflowDoesNotContainAnyStates,
+                WorkflowXmlValidationErrorCodes.NoInitialState,
+                WorkflowXmlValidationErrorCodes.MultipleInitialStates,
+                WorkflowXmlValidationErrorCodes.InitialStateDoesNotHaveOutgoingTransition,
+                WorkflowXmlValidationErrorCodes.StateNameEmpty,
+                WorkflowXmlValidationErrorCodes.StateNameNotUnique,
+                WorkflowXmlValidationErrorCodes.StateDoesNotHaveAnyTransitions,
+                WorkflowXmlValidationErrorCodes.TransitionStartStateNotSpecified,
+                WorkflowXmlValidationErrorCodes.TransitionEndStateNotSpecified,
+                WorkflowXmlValidationErrorCodes.TransitionStateNotFound
+            };
+
+            if (result.Errors.Any(error => blockingErrors.Contains(error.ErrorCode)))
+            {
+                return;
+            }
+
+            var workflowGraph = new WorkflowGraph(workflow);
+            if (!workflowGraph.IsConnected())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = workflow,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.StatesNotConnectedToInitialState
+                });
+            }
+        }
 
         #endregion
     }

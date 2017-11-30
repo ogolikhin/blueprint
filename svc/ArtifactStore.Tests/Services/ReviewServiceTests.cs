@@ -30,9 +30,8 @@ namespace ArtifactStore.Services
         private Mock<ILockArtifactsRepository> _mockLockArtifactsRepository;
         private Mock<IItemInfoRepository> _mockItemInfoRepository;
 
-        private ReviewPackageRawData _reviewPackageRawData;
         private ArtifactBasicDetails _artifactDetails;
-        private ReviewData _reviewData;
+        private Review _review;
 
         private int _revisionId;
         private bool _hasReadPermissions;
@@ -52,17 +51,9 @@ namespace ArtifactStore.Services
                 PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage
             };
 
-            _reviewData = new ReviewData
-            {
-                ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>"
-            };
-            _reviewPackageRawData = _reviewData.ReviewPackageRawData;
+            _review = new Review(ReviewId);
 
             _mockReviewRepository = new Mock<IReviewsRepository>();
-
-            _mockReviewRepository
-                .Setup(m => m.GetReviewPackageRawDataAsync(ReviewId, UserId, It.IsAny<int>()))
-                .ReturnsAsync(_reviewPackageRawData);
 
             _mockReviewRepository
                 .Setup(m => m.GetPossibleMeaningOfSignaturesForParticipantsAsync(It.IsAny<IEnumerable<int>>()))
@@ -73,8 +64,8 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(() => _reviewType);
 
             _mockReviewRepository
-                .Setup(m => m.GetReviewDataAsync(ReviewId, UserId, It.IsAny<int>(), It.IsAny<bool>()))
-                .ReturnsAsync(() => _reviewData);
+                .Setup(m => m.GetReviewAsync(ReviewId, UserId, It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(() => _review);
 
             _mockArtifactRepository = new Mock<IArtifactRepository>();
             _mockArtifactRepository
@@ -105,7 +96,10 @@ namespace ArtifactStore.Services
 
             _mockItemInfoRepository = new Mock<IItemInfoRepository>();
             _mockItemInfoRepository
-                .Setup(m => m.GetRevisionId(ReviewId, UserId, It.IsAny<int?>(), It.IsAny<int?>()))
+                .Setup(m => m.GetRevisionId(ReviewId, UserId, null, It.IsAny<int?>()))
+                .ReturnsAsync(int.MaxValue);
+            _mockItemInfoRepository
+                .Setup(m => m.GetRevisionId(ReviewId, UserId, It.IsNotNull<int?>(), It.IsAny<int?>()))
                 .ReturnsAsync(_revisionId);
 
             _revisionId = int.MaxValue;
@@ -175,6 +169,109 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
+        public async Task GetReviewSettingsAsync_LatestVersion_ReviewDeletedInDraft_ThrowsResourceNotFoundException()
+        {
+            // Arrange
+            _artifactDetails = new ArtifactBasicDetails
+            {
+                ItemId = ReviewId,
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage,
+                DraftDeleted = true,
+                LatestDeleted = false
+            };
+
+            // Act
+            try
+            {
+                await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+                return;
+            }
+
+            Assert.Fail("Expected ResourceNotFoundException to have been thrown.");
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_LatestVersion_ReviewDeleted_ThrowsResourceNotFoundException()
+        {
+            // Arrange
+            _artifactDetails = new ArtifactBasicDetails
+            {
+                ItemId = ReviewId,
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage,
+                DraftDeleted = false,
+                LatestDeleted = true
+            };
+
+            // Act
+            try
+            {
+                await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+                return;
+            }
+
+            Assert.Fail("Expected ResourceNotFoundException to have been thrown.");
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_HistoricalVersion_ReviewDeletedInDraft_ReturnsHistoricalReviewSettings()
+        {
+            // Arrange
+            _revisionId = 1;
+            _artifactDetails = new ArtifactBasicDetails
+            {
+                ItemId = ReviewId,
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage,
+                DraftDeleted = true,
+                LatestDeleted = false
+            };
+            _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = true;
+            _review.ReviewPackageRawData.ShowOnlyDescription = true;
+
+            // Act
+            var settings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId, _revisionId);
+
+            // Assert
+            Assert.IsNotNull(settings);
+            Assert.IsNotNull(settings);
+            Assert.AreEqual(_review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, settings.CanMarkAsComplete);
+            Assert.AreEqual(_review.ReviewPackageRawData.ShowOnlyDescription, settings.ShowOnlyDescription);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_HistoricalVersion_ReviewDeleted_ReturnsHistoricalReviewSettings()
+        {
+            // Arrange
+            _revisionId = 1;
+            _artifactDetails = new ArtifactBasicDetails
+            {
+                ItemId = ReviewId,
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage,
+                DraftDeleted = false,
+                LatestDeleted = true
+            };
+            _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = true;
+            _review.ReviewPackageRawData.ShowOnlyDescription = true;
+
+            // Act
+            var settings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId, _revisionId);
+
+            // Assert
+            Assert.IsNotNull(settings);
+            Assert.AreEqual(_review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, settings.CanMarkAsComplete);
+            Assert.AreEqual(_review.ReviewPackageRawData.ShowOnlyDescription, settings.ShowOnlyDescription);
+        }
+
+        [TestMethod]
         public async Task GetReviewSettingsAsync_IdIsNotForReview_ThrowsBadRequestException()
         {
             // Arrange
@@ -221,104 +318,104 @@ namespace ArtifactStore.Services
         public async Task GetReviewSettingsAsync_ReviewPackageRawDataShowOnlyDescriptionIsFalse_ReviewSettingsShowOnlyDescriptionIsFalse()
         {
             // Arrange
-            _reviewPackageRawData.ShowOnlyDescription = false;
+            _review.ReviewPackageRawData.ShowOnlyDescription = false;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.ShowOnlyDescription, reviewSettings.ShowOnlyDescription);
+            Assert.AreEqual(_review.ReviewPackageRawData.ShowOnlyDescription, reviewSettings.ShowOnlyDescription);
         }
 
         [TestMethod]
         public async Task GetReviewSettingsAsync_ReviewPackageRawDataShowOnlyDescriptionIsTrue_ReviewSettingsShowOnlyDescriptionIsTrue()
         {
             // Arrange
-            _reviewPackageRawData.ShowOnlyDescription = true;
+            _review.ReviewPackageRawData.ShowOnlyDescription = true;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.ShowOnlyDescription, reviewSettings.ShowOnlyDescription);
+            Assert.AreEqual(_review.ReviewPackageRawData.ShowOnlyDescription, reviewSettings.ShowOnlyDescription);
         }
 
         [TestMethod]
         public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewedIsFalse_ReviewSettingsCanMarkAsCompleteIsFalse()
         {
             // Arrange
-            _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = false;
+            _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = false;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, reviewSettings.CanMarkAsComplete);
+            Assert.AreEqual(_review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, reviewSettings.CanMarkAsComplete);
         }
 
         [TestMethod]
         public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewedIsTrue_ReviewSettingsCanMarkAsCompleteIsTrue()
         {
             // Arrange
-            _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = true;
+            _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = true;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, reviewSettings.CanMarkAsComplete);
+            Assert.AreEqual(_review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, reviewSettings.CanMarkAsComplete);
         }
 
         [TestMethod]
         public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsESignatureEnabledIsFalse_ReviewSettingsRequireESignatureIsFalse()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.IsESignatureEnabled, reviewSettings.RequireESignature);
+            Assert.AreEqual(_review.ReviewPackageRawData.IsESignatureEnabled, reviewSettings.RequireESignature);
         }
 
         [TestMethod]
         public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsESignatureEnabledIsTrue_ReviewSettingsRequireESignatureIsTrue()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.IsESignatureEnabled, reviewSettings.RequireESignature);
+            Assert.AreEqual(_review.ReviewPackageRawData.IsESignatureEnabled, reviewSettings.RequireESignature);
         }
 
         [TestMethod]
         public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsMoSEnabledIsFalse_ReviewSettingsRequireMeaningOfSignatureIsFalse()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = false;
+            _review.ReviewPackageRawData.IsMoSEnabled = false;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.IsMoSEnabled, reviewSettings.RequireMeaningOfSignature);
+            Assert.AreEqual(_review.ReviewPackageRawData.IsMoSEnabled, reviewSettings.RequireMeaningOfSignature);
         }
 
         [TestMethod]
         public async Task GetReviewSettingsAsync_ReviewPackageRawDataIsMoSEnabledIsTrue_ReviewSettingsRequireMeaningOfSignatureIsTrue()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.IsMoSEnabled, reviewSettings.RequireMeaningOfSignature);
+            Assert.AreEqual(_review.ReviewPackageRawData.IsMoSEnabled, reviewSettings.RequireMeaningOfSignature);
         }
 
         [TestMethod]
@@ -326,7 +423,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
@@ -340,7 +437,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
@@ -354,7 +451,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Informal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
@@ -368,7 +465,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Informal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
@@ -382,7 +479,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
@@ -396,7 +493,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
@@ -410,7 +507,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
@@ -424,7 +521,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Informal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
@@ -438,7 +535,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
 
             // Act
             var reviewSettings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
@@ -452,7 +549,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
             _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
 
             // Act
@@ -467,7 +564,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
             _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
 
             // Act
@@ -482,7 +579,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Informal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
             _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
 
             // Act
@@ -497,7 +594,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
             _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
 
             // Act
@@ -512,7 +609,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             _projectPermissions = ProjectPermissions.None;
 
             // Act
@@ -527,7 +624,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
 
             // Act
@@ -542,7 +639,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             _projectPermissions = ProjectPermissions.None;
 
             // Act
@@ -557,7 +654,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
 
             // Act
@@ -642,7 +739,7 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_ReviewIsClosed_ThrowsConflictException()
         {
             // Arrange
-            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
 
             // Act
             try
@@ -687,7 +784,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _artifactDetails.LockedByUserId = UserId;
-            _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = false;
+            _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = false;
             var updatedSettings = new ReviewSettings { CanMarkAsComplete = true };
 
             // Act
@@ -695,7 +792,7 @@ namespace ArtifactStore.Services
 
             // Assert
             _mockLockArtifactsRepository.Verify(m => m.LockArtifactAsync(ReviewId, UserId), Times.Never);
-            Assert.AreEqual(true, _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed);
         }
 
         [TestMethod]
@@ -740,14 +837,14 @@ namespace ArtifactStore.Services
             // Arrange
             var updatedEndDate = new DateTime(2020, 11, 15);
             var updatedReviewSettings = new ReviewSettings { EndDate = updatedEndDate };
-            _reviewPackageRawData.EndDate = null;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.EndDate = null;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(updatedEndDate, _reviewPackageRawData.EndDate);
+            Assert.AreEqual(updatedEndDate, _review.ReviewPackageRawData.EndDate);
         }
 
         [TestMethod]
@@ -756,14 +853,14 @@ namespace ArtifactStore.Services
             // Arrange
             var updatedEndDate = new DateTime(2019, 10, 11, 5, 24, 0);
             var updatedReviewSettings = new ReviewSettings { EndDate = updatedEndDate };
-            _reviewPackageRawData.EndDate = null;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.EndDate = null;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(updatedEndDate, _reviewPackageRawData.EndDate);
+            Assert.AreEqual(updatedEndDate, _review.ReviewPackageRawData.EndDate);
         }
 
         [TestMethod]
@@ -772,14 +869,14 @@ namespace ArtifactStore.Services
             // Arrange
             var updatedEndDate = new DateTime(2017, 12, 24, 7, 0, 0);
             var updatedReviewSettings = new ReviewSettings { EndDate = updatedEndDate };
-            _reviewPackageRawData.EndDate = updatedEndDate;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.EndDate = updatedEndDate;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.EndDate, updatedReviewSettings.EndDate);
+            Assert.AreEqual(_review.ReviewPackageRawData.EndDate, updatedReviewSettings.EndDate);
         }
 
         [TestMethod]
@@ -787,14 +884,14 @@ namespace ArtifactStore.Services
         {
             // Arrange
             var updatedReviewSettings = new ReviewSettings { ShowOnlyDescription = true };
-            _reviewPackageRawData.ShowOnlyDescription = false;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.ShowOnlyDescription = false;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.ShowOnlyDescription);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.ShowOnlyDescription);
         }
 
         [TestMethod]
@@ -802,14 +899,14 @@ namespace ArtifactStore.Services
         {
             // Arrange
             var updatedReviewSettings = new ReviewSettings { ShowOnlyDescription = true };
-            _reviewPackageRawData.ShowOnlyDescription = false;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.ShowOnlyDescription = false;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.ShowOnlyDescription);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.ShowOnlyDescription);
         }
 
         [TestMethod]
@@ -817,52 +914,52 @@ namespace ArtifactStore.Services
         {
             // Arrange
             var updatedReviewSettings = new ReviewSettings { ShowOnlyDescription = true };
-            _reviewPackageRawData.ShowOnlyDescription = true;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.ShowOnlyDescription = true;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.ShowOnlyDescription, updatedReviewSettings.ShowOnlyDescription);
+            Assert.AreEqual(_review.ReviewPackageRawData.ShowOnlyDescription, updatedReviewSettings.ShowOnlyDescription);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_CanMarkAsCompleteChanged_ReviewIsDraft_UpdatesSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = false;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = false;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { CanMarkAsComplete = true };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_CanMarkAsCompleteNotChanged_ReviewIsActive_DoesNotUpdateSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = true;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = true;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
             var updatedReviewSettings = new ReviewSettings { CanMarkAsComplete = true };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(_reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, updatedReviewSettings.CanMarkAsComplete);
+            Assert.AreEqual(_review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, updatedReviewSettings.CanMarkAsComplete);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_CanMarkAsCompleteChanged_ReviewIsActive_ThrowsConflictException()
         {
             // Arrange
-            _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = false;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = false;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
             var updatedReviewSettings = new ReviewSettings { CanMarkAsComplete = true };
 
             // Act
@@ -875,7 +972,7 @@ namespace ArtifactStore.Services
                 // Assert
                 Assert.AreEqual(ErrorCodes.Conflict, ex.ErrorCode);
                 Assert.AreEqual(I18NHelper.FormatInvariant(ErrorMessages.ReviewIsNotDraft, ReviewId, UserId), ex.Message);
-                Assert.AreEqual(false, _reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed);
+                Assert.AreEqual(false, _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed);
                 return;
             }
 
@@ -886,185 +983,185 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireESignatureIsFalse_OriginalValueIsNull_DoesNotUpdateSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = false };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.IsNull(_reviewPackageRawData.IsESignatureEnabled);
+            Assert.IsNull(_review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureIsTrue_OriginalValueIsNull_UpdatesSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureIsFalse_OriginalValueIsFalse_DoesNotUpdateSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = false };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(false, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(false, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureIsTrue_OriginalValueIsFalse_UpdatesSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureIsFalse_OriginalValueIsTrue_UpdateSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = false };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(false, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(false, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureIsTrue_OriginalValueIsTrue_DoesNotUpdateSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_PublicDraftReview_UpdatesSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_PublicActiveReview_UpdatesSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
             _reviewType = ReviewType.Public;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_InformalDraftReview_UpdatesSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
             _reviewType = ReviewType.Informal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_InformalActiveReview_UpdatesSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
             _reviewType = ReviewType.Informal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_FormalDraftReview_UpdatesSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task UpdateReviewSettingsAsync_RequireESignatureChanged_FormalActiveReview_ThrowsConflictException()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true };
 
             // Act
@@ -1087,10 +1184,10 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureChanged_FormalActiveReview_ThrowsConflictException()
         {
             // Arrange
-            _reviewPackageRawData.IsESignatureEnabled = true;
-            _reviewPackageRawData.IsMoSEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.IsMoSEnabled = false;
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true, RequireMeaningOfSignature = true };
 
             // Act
@@ -1113,15 +1210,15 @@ namespace ArtifactStore.Services
         public async Task UpdateReviewSettingsAsync_RequireMeaningOfSignatureNotChanged_DoesNotUpdateSetting()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = false;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.IsMoSEnabled = false;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireMeaningOfSignature = false };
 
             // Act
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(false, _reviewPackageRawData.IsMoSEnabled);
+            Assert.AreEqual(false, _review.ReviewPackageRawData.IsMoSEnabled);
         }
 
         [TestMethod]
@@ -1129,9 +1226,9 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsMoSEnabled = false;
-            _reviewPackageRawData.IsESignatureEnabled = null;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.IsMoSEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireMeaningOfSignature = true };
 
             // Act
@@ -1156,9 +1253,9 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsMoSEnabled = false;
-            _reviewPackageRawData.IsESignatureEnabled = false;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.IsMoSEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireMeaningOfSignature = true };
 
             // Act
@@ -1183,9 +1280,9 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.IsESignatureEnabled = null;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireMeaningOfSignature = false };
 
             _mockArtifactPermissionsRepository
@@ -1209,9 +1306,9 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.IsESignatureEnabled = null;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireMeaningOfSignature = false };
 
             _mockArtifactPermissionsRepository
@@ -1235,10 +1332,10 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Informal;
-            _reviewPackageRawData.IsMoSEnabled = false;
-            _reviewPackageRawData.IsESignatureEnabled = true;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Active;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _review.ReviewPackageRawData.IsMoSEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
 
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true, RequireMeaningOfSignature = true };
 
@@ -1263,9 +1360,9 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.IsESignatureEnabled = true;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true, RequireMeaningOfSignature = false };
 
             _mockArtifactPermissionsRepository
@@ -1289,8 +1386,8 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsMoSEnabled = false;
-            _reviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.IsMoSEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
             _projectPermissions = ProjectPermissions.None;
             var updatedReviewSettings = new ReviewSettings { RequireESignature = true, RequireMeaningOfSignature = true };
 
@@ -1316,10 +1413,10 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.Status = ReviewPackageStatus.Draft;
-            _reviewPackageRawData.IsMoSEnabled = false;
-            _reviewPackageRawData.IsESignatureEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Draft;
+            _review.ReviewPackageRawData.IsMoSEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
             _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
 
             var updatedReviewSettings = new ReviewSettings
@@ -1332,7 +1429,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsMoSEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsMoSEnabled);
         }
 
         [TestMethod]
@@ -1340,9 +1437,9 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.IsESignatureEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -1382,8 +1479,8 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            var approver = _reviewPackageRawData.Reviewers.First(r => r.Permission == ReviewParticipantRole.Approver);
-            var reviewer = _reviewPackageRawData.Reviewers.First(r => r.Permission == ReviewParticipantRole.Reviewer);
+            var approver = _review.ReviewPackageRawData.Reviewers.First(r => r.Permission == ReviewParticipantRole.Approver);
+            var reviewer = _review.ReviewPackageRawData.Reviewers.First(r => r.Permission == ReviewParticipantRole.Reviewer);
 
             Assert.IsNull(reviewer.SelectedRoleMoSAssignments);
             Assert.IsNull(approver.SelectedRoleMoSAssignments);
@@ -1394,9 +1491,9 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsMoSEnabled = false;
-            _reviewPackageRawData.IsESignatureEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -1436,8 +1533,8 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, UserId);
 
             // Assert
-            var approver = _reviewPackageRawData.Reviewers.First(r => r.Permission == ReviewParticipantRole.Approver);
-            var reviewer = _reviewPackageRawData.Reviewers.First(r => r.Permission == ReviewParticipantRole.Reviewer);
+            var approver = _review.ReviewPackageRawData.Reviewers.First(r => r.Permission == ReviewParticipantRole.Approver);
+            var reviewer = _review.ReviewPackageRawData.Reviewers.First(r => r.Permission == ReviewParticipantRole.Reviewer);
 
             Assert.IsNull(reviewer.SelectedRoleMoSAssignments);
 
@@ -1516,7 +1613,7 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Review_Is_Closed()
         {
             // Arrange
-            _reviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
 
             // Act
             try
@@ -1536,9 +1633,6 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Meaning_Of_Signature_Is_Not_Enabled_Case_Empty_ReviewPackage()
         {
-            // Arrange
-            _reviewPackageRawData = null;
-
             // Act
             try
             {
@@ -1558,7 +1652,7 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Meaning_Of_Signature_Is_Not_Enabled()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = false;
+            _review.ReviewPackageRawData.IsMoSEnabled = false;
 
             // Act
             try
@@ -1579,7 +1673,7 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Review_Is_Locked_By_Other_User()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
             _artifactDetails.LockedByUserId = 50;
 
             // Act
@@ -1601,7 +1695,7 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Locking_Review_Fails()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
             _isLockSuccessful = false;
 
             // Act
@@ -1623,8 +1717,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Participant_Is_Not_In_Review_Case_Reviewers_Is_Null()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = null;
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = null;
 
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
@@ -1652,8 +1746,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Participant_Is_Not_In_Review()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>();
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
 
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
@@ -1681,8 +1775,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_Participant_Is_Not_An_Approver()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -1717,8 +1811,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_There_Are_No_Possible_Meaning_Of_Signatures_For_A_Participant()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -1754,8 +1848,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Throw_When_There_Are_No_Matching_Meaning_Of_Signatures_For_A_Participant()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -1794,8 +1888,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Add_New_Meaning_Of_Signature_To_Participant_When_SelectedMoS_Is_Null()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -1831,7 +1925,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, new[] { meaningOfSignatureParameter }, UserId);
 
             // Assert
-            var result = _reviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments.FirstOrDefault();
+            var result = _review.ReviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments.FirstOrDefault();
 
             Assert.IsNotNull(result, "A meaning of signature should have been added");
             Assert.AreEqual(meaningOfSignature.GroupId, result.GroupId);
@@ -1848,8 +1942,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Add_New_Meaning_Of_Signature_To_Participant_When_SelectedMoS_Is_Empty()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -1886,7 +1980,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, new[] { meaningOfSignatureParameter }, UserId);
 
             // Assert
-            var result = _reviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments.FirstOrDefault();
+            var result = _review.ReviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments.FirstOrDefault();
 
             Assert.IsNotNull(result, "A meaning of signature should have been added");
             Assert.AreEqual(meaningOfSignature.GroupId, result.GroupId);
@@ -1903,8 +1997,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Update_Existing_Meaning_Of_Signature_To_Participant()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -1946,7 +2040,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, new[] { meaningOfSignatureParameter }, UserId);
 
             // Assert
-            var selectedMos = _reviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments;
+            var selectedMos = _review.ReviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments;
             var result = selectedMos.FirstOrDefault();
 
             Assert.AreEqual(1, selectedMos.Count, "There should only be one meaning of signature");
@@ -1965,8 +2059,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Remove_Meaning_Of_Signature_When_Remove_Is_True()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -2008,7 +2102,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, new[] { meaningOfSignatureParameter }, UserId);
 
             // Assert
-            var selectedMos = _reviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments;
+            var selectedMos = _review.ReviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments;
 
             Assert.AreEqual(0, selectedMos.Count, "There should be one meaning of signature");
         }
@@ -2017,8 +2111,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Not_Remove_Meaning_Of_Signature_If_It_Doesnt_Already_Exist()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -2061,7 +2155,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, new[] { meaningOfSignatureParameter }, UserId);
 
             // Assert
-            var selectedMos = _reviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments;
+            var selectedMos = _review.ReviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments;
 
             Assert.AreEqual(1, selectedMos.Count, "There should be one meaning of signature");
         }
@@ -2070,8 +2164,8 @@ namespace ArtifactStore.Services
         public async Task UpdateMeaningOfSignaturesAsync_Should_Call_UpdateReviewPackage()
         {
             // Arrange
-            _reviewPackageRawData.IsMoSEnabled = true;
-            _reviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -2106,7 +2200,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateMeaningOfSignaturesAsync(ReviewId, new[] { meaningOfSignatureParameter }, UserId);
 
             // Assert
-            _mockReviewRepository.Verify(repo => repo.UpdateReviewPackageRawDataAsync(ReviewId, _reviewPackageRawData, 2));
+            _mockReviewRepository.Verify(repo => repo.UpdateReviewPackageRawDataAsync(ReviewId, _review.ReviewPackageRawData, 2));
         }
 
         #endregion
@@ -2129,8 +2223,8 @@ namespace ArtifactStore.Services
             };
 
             // Act
-                await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
-            }
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
+        }
 
         [TestMethod]
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_ReadOnly()
@@ -2142,7 +2236,7 @@ namespace ArtifactStore.Services
                 Role = ReviewParticipantRole.Approver
             };
             _artifactDetails.LockedByUserId = UserId;
-            _reviewData.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Closed;
 
             // Act
             try
@@ -2186,20 +2280,24 @@ namespace ArtifactStore.Services
             };
             _artifactDetails.LockedByUserId = UserId;
 
-            _reviewData.ReviewContents.Artifacts = new List<RDArtifact>();
-            _reviewData.ReviewContents.Artifacts.Add(new RDArtifact
+            _review.Contents.Artifacts = new List<RDArtifact>
             {
-                Id = 5,
-                ApprovalNotRequested = false
-            });
+                new RDArtifact
+                {
+                    Id = 5,
+                    ApprovalNotRequested = false
+                }
+            };
 
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
-            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
-                UserId = UserId,
-                Permission = ReviewParticipantRole.Reviewer
-            });
-            _reviewData.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
+                new ReviewerRawData
+                {
+                    UserId = UserId,
+                    Permission = ReviewParticipantRole.Reviewer
+                }
+            };
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
 
             // Act
             try
@@ -2277,11 +2375,7 @@ namespace ArtifactStore.Services
             _artifactDetails.LockedByUserId = UserId;
 
             var reviewerId = 3;
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
-            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
-            {
-                UserId = reviewerId
-            });
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData> { new ReviewerRawData { UserId = reviewerId } };
 
             var content = new AssignParticipantRoleParameter
             {
@@ -2303,12 +2397,8 @@ namespace ArtifactStore.Services
             _artifactDetails.LockedByUserId = UserId;
 
             var reviewerId = 3;
-            _reviewData.ReviewPackageRawData.IsMoSEnabled = true;
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
-            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
-            {
-                UserId = reviewerId
-            });
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData> { new ReviewerRawData { UserId = reviewerId } };
 
             var content = new AssignParticipantRoleParameter
             {
@@ -2345,12 +2435,8 @@ namespace ArtifactStore.Services
             // Arrange
             _artifactDetails.LockedByUserId = UserId;
             var reviewerId = 3;
-            _reviewData.ReviewPackageRawData.IsMoSEnabled = true;
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
-            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
-            {
-                UserId = reviewerId
-            });
+            _review.ReviewPackageRawData.IsMoSEnabled = true;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData> { new ReviewerRawData { UserId = reviewerId } };
 
             var content = new AssignParticipantRoleParameter
             {
@@ -2398,16 +2484,12 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
             _artifactDetails.LockedByUserId = UserId;
 
             var reviewerId = 3;
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
-            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
-            {
-                UserId = reviewerId
-            });
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData> { new ReviewerRawData { UserId = reviewerId } };
 
             var content = new AssignParticipantRoleParameter
             {
@@ -2435,7 +2517,7 @@ namespace ArtifactStore.Services
             await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.AreEqual(null, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(null, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
@@ -2443,192 +2525,12 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _reviewType = ReviewType.Informal;
-            _reviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
             _artifactDetails.LockedByUserId = UserId;
 
-            var reviewerId = 3;
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
-            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
-            {
-                UserId = reviewerId
-            });
-
-            var content = new AssignParticipantRoleParameter
-            {
-                ItemIds = new List<int> { reviewerId },
-                Role = ReviewParticipantRole.Approver
-            };
-
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
-            {
-                {
-                    1,
-                    new List<ParticipantMeaningOfSignatureResult>
-                    {
-                        new ParticipantMeaningOfSignatureResult
-                        {
-                            MeaningOfSignatureValue = "foo1",
-                            RoleAssignmentId = 2,
-                            RoleName = "bar1"
-                        }
-                    }
-                }
-            };
-
-            // Act
-            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
-
-            // Assert
-            Assert.AreEqual(null, _reviewPackageRawData.IsESignatureEnabled);
-        }
-
-        [TestMethod]
-        public async Task AssignRoleToParticipantAsync_Approver_ArtifactsRequiringApproval_RequireESignatureIsFalse_ESignatureIsEnabledInProject_DoesNotUpdateRequireESignature()
-        {
-            // Arrange
-            _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsESignatureEnabled = false;
-            _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
-            _artifactDetails.LockedByUserId = UserId;
-
-            var reviewerId = 3;
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
-            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
-            {
-                UserId = reviewerId
-            });
-
-            var content = new AssignParticipantRoleParameter
-            {
-                ItemIds = new List<int> { 3 },
-                Role = ReviewParticipantRole.Approver
-            };
-
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
-            {
-                {
-                    1,
-                    new List<ParticipantMeaningOfSignatureResult>
-                    {
-                        new ParticipantMeaningOfSignatureResult
-                        {
-                            MeaningOfSignatureValue = "foo1",
-                            RoleAssignmentId = 2,
-                            RoleName = "bar1"
-                        }
-                    }
-                }
-            };
-
-            // Act
-            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
-
-            // Assert
-            Assert.AreEqual(false, _reviewPackageRawData.IsESignatureEnabled);
-        }
-
-        [TestMethod]
-        public async Task AssignRoleToParticipantAsync_Approver_ArtifactsRequiringApproval_RequireESignatureIsTrue_ESignatureIsEnabledInProject_DoesNotUpdateRequireESignature()
-        {
-            // Arrange
-            _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsESignatureEnabled = true;
-            _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
-            _artifactDetails.LockedByUserId = UserId;
-
-            var reviewerId = 3;
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
-            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
-            {
-                UserId = reviewerId
-            });
-
-            var content = new AssignParticipantRoleParameter
-            {
-                ItemIds = new List<int> { reviewerId },
-                Role = ReviewParticipantRole.Approver
-            };
-
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
-            {
-                {
-                    1,
-                    new List<ParticipantMeaningOfSignatureResult>
-                    {
-                        new ParticipantMeaningOfSignatureResult
-                        {
-                            MeaningOfSignatureValue = "foo1",
-                            RoleAssignmentId = 2,
-                            RoleName = "bar1"
-                        }
-                    }
-                }
-            };
-
-            // Act
-            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
-
-            // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
-        }
-
-        [TestMethod]
-        public async Task AssignRoleToParticipantAsync_Approver_ArtifactsRequiringApproval_RequireESignatureIsNull_ESignatureIsDisabledInProject_DoesNotUpdateRequireESignature()
-        {
-            // Arrange
-            _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsESignatureEnabled = null;
-            _projectPermissions = ProjectPermissions.None;
-            _artifactDetails.LockedByUserId = UserId;
-
-            var reviewerId = 3;
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>();
-            _reviewData.ReviewPackageRawData.Reviewers.Add(new ReviewerRawData
-            {
-                UserId = reviewerId
-            });
-
-            var content = new AssignParticipantRoleParameter
-            {
-                ItemIds = new List<int> { reviewerId },
-                Role = ReviewParticipantRole.Approver
-            };
-
-            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
-            {
-                {
-                    1,
-                    new List<ParticipantMeaningOfSignatureResult>
-                    {
-                        new ParticipantMeaningOfSignatureResult
-                        {
-                            MeaningOfSignatureValue = "foo1",
-                            RoleAssignmentId = 2,
-                            RoleName = "bar1"
-                        }
-                    }
-                }
-            };
-
-
-            // Act
-            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
-
-            // Assert
-            Assert.AreEqual(null, _reviewPackageRawData.IsESignatureEnabled);
-        }
-
-        [TestMethod]
-        public async Task AssignRoleToParticipantAsync_Approver_ArtifactsRequiringApproval_RequireESignatureIsNull_ESignatureIsEnabledInProject_UpdatesRequireESignature()
-        {
-            // Arrange
-            _reviewType = ReviewType.Formal;
-            _reviewPackageRawData.IsESignatureEnabled = null;
-            _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
-            _artifactDetails.LockedByUserId = UserId;
             const int reviewerId = 3;
-            _reviewData.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
             {
                 new ReviewerRawData
                 {
@@ -2662,7 +2564,171 @@ namespace ArtifactStore.Services
             await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(null, _review.ReviewPackageRawData.IsESignatureEnabled);
+        }
+
+        [TestMethod]
+        public async Task AssignRoleToParticipantAsync_Approver_ArtifactsRequiringApproval_RequireESignatureIsFalse_ESignatureIsEnabledInProject_DoesNotUpdateRequireESignature()
+        {
+            // Arrange
+            _reviewType = ReviewType.Formal;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
+            _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
+
+            var reviewerId = 3;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData> { new ReviewerRawData { UserId = reviewerId } };
+
+            var content = new AssignParticipantRoleParameter
+            {
+                ItemIds = new List<int> { 3 },
+                Role = ReviewParticipantRole.Approver
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
+            {
+                {
+                    1,
+                    new List<ParticipantMeaningOfSignatureResult>
+                    {
+                        new ParticipantMeaningOfSignatureResult
+                        {
+                            MeaningOfSignatureValue = "foo1",
+                            RoleAssignmentId = 2,
+                            RoleName = "bar1"
+                        }
+                    }
+                }
+            };
+
+            // Act
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
+
+            // Assert
+            Assert.AreEqual(false, _review.ReviewPackageRawData.IsESignatureEnabled);
+        }
+
+        [TestMethod]
+        public async Task AssignRoleToParticipantAsync_Approver_ArtifactsRequiringApproval_RequireESignatureIsTrue_ESignatureIsEnabledInProject_DoesNotUpdateRequireESignature()
+        {
+            // Arrange
+            _reviewType = ReviewType.Formal;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
+            _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
+
+            var reviewerId = 3;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData> { new ReviewerRawData { UserId = reviewerId } };
+
+            var content = new AssignParticipantRoleParameter
+            {
+                ItemIds = new List<int> { reviewerId },
+                Role = ReviewParticipantRole.Approver
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
+            {
+                {
+                    1,
+                    new List<ParticipantMeaningOfSignatureResult>
+                    {
+                        new ParticipantMeaningOfSignatureResult
+                        {
+                            MeaningOfSignatureValue = "foo1",
+                            RoleAssignmentId = 2,
+                            RoleName = "bar1"
+                        }
+                    }
+                }
+            };
+
+            // Act
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
+
+            // Assert
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
+        }
+
+        [TestMethod]
+        public async Task AssignRoleToParticipantAsync_Approver_ArtifactsRequiringApproval_RequireESignatureIsNull_ESignatureIsDisabledInProject_DoesNotUpdateRequireESignature()
+        {
+            // Arrange
+            _reviewType = ReviewType.Formal;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
+            _projectPermissions = ProjectPermissions.None;
+            _artifactDetails.LockedByUserId = UserId;
+
+            var reviewerId = 3;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData> { new ReviewerRawData { UserId = reviewerId } };
+
+            var content = new AssignParticipantRoleParameter
+            {
+                ItemIds = new List<int> { reviewerId },
+                Role = ReviewParticipantRole.Approver
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
+            {
+                {
+                    1,
+                    new List<ParticipantMeaningOfSignatureResult>
+                    {
+                        new ParticipantMeaningOfSignatureResult
+                        {
+                            MeaningOfSignatureValue = "foo1",
+                            RoleAssignmentId = 2,
+                            RoleName = "bar1"
+                        }
+                    }
+                }
+            };
+
+
+            // Act
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
+
+            // Assert
+            Assert.AreEqual(null, _review.ReviewPackageRawData.IsESignatureEnabled);
+        }
+
+        [TestMethod]
+        public async Task AssignRoleToParticipantAsync_Approver_ArtifactsRequiringApproval_RequireESignatureIsNull_ESignatureIsEnabledInProject_UpdatesRequireESignature()
+        {
+            // Arrange
+            _reviewType = ReviewType.Formal;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
+            _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
+            _artifactDetails.LockedByUserId = UserId;
+            const int reviewerId = 3;
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData> { new ReviewerRawData { UserId = reviewerId } };
+
+            var content = new AssignParticipantRoleParameter
+            {
+                ItemIds = new List<int> { reviewerId },
+                Role = ReviewParticipantRole.Approver
+            };
+
+            _possibleMeaningOfSignatures = new Dictionary<int, List<ParticipantMeaningOfSignatureResult>>
+            {
+                {
+                    1,
+                    new List<ParticipantMeaningOfSignatureResult>
+                    {
+                        new ParticipantMeaningOfSignatureResult
+                        {
+                            MeaningOfSignatureValue = "foo1",
+                            RoleAssignmentId = 2,
+                            RoleName = "bar1"
+                        }
+                    }
+                }
+            };
+
+            // Act
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
+
+            // Assert
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         #endregion
@@ -2706,8 +2772,6 @@ namespace ArtifactStore.Services
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_ReadOnly_Should_Throw_ConflictException()
         {
-            // _reviewData.ReviewStatus = ReviewPackageStatus.Closed;
-
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2722,9 +2786,6 @@ namespace ArtifactStore.Services
         [ExpectedException(typeof(ConflictException))]
         public async Task AssignApprovalRequiredToArtifacts_Review_ActiveFormal_Throw_ConflictException()
         {
-            // _reviewData.ReviewStatus = ReviewPackageStatus.Active;
-            // _reviewData.ReviewType = ReviewType.Formal;
-
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = new List<int> { 1, 2, 3 },
@@ -2752,7 +2813,12 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_Review_Success()
         {
-            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact { Id = 1 },
+                new RDArtifact { Id = 2, ApprovalNotRequested = true },
+                new RDArtifact { Id = 3 }
+            };
             _artifactDetails.LockedByUserId = UserId;
 
             var artifactIds = new List<int> { 1, 2, 3 };
@@ -2786,6 +2852,12 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_SomeArtifactsDeletedFromReview()
         {
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact { Id = 1 },
+                new RDArtifact { Id = 2 },
+                new RDArtifact { Id = 3 }
+            };
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
             {
@@ -2825,6 +2897,12 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_SomeArtifactsAreNotInTheReview()
         {
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact { Id = 1 },
+                new RDArtifact { Id = 2 },
+                new RDArtifact { Id = 3 }
+            };
             var artifactIds = new List<int> { 1, 2, 3, 4, 5 };
             var content = new AssignArtifactsApprovalParameter
             {
@@ -2864,6 +2942,12 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_DeletedAndNoPermissions()
         {
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact { Id = 1 },
+                new RDArtifact { Id = 2 },
+                new RDArtifact { Id = 3 }
+            };
             _artifactDetails.LockedByUserId = UserId;
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -2907,12 +2991,17 @@ namespace ArtifactStore.Services
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_ArtifactsWithApproval_Approvers_RequireESignatureIsNull_ESignatureEnabledInProject_UpdatesRequireESignature()
         {
-            _reviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
             _reviewType = ReviewType.Formal;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
             _artifactDetails.LockedByUserId = UserId;
 
-            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact { Id = 1, ApprovalNotRequested = true },
+                new RDArtifact { Id = 2, ApprovalNotRequested = true },
+                new RDArtifact { Id = 3, ApprovalNotRequested = true }
+            };
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -2938,18 +3027,23 @@ namespace ArtifactStore.Services
             await _reviewService.AssignApprovalRequiredToArtifactsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_ArtifactsWithoutApproval_Approvers_RequireESignatureIsNull_ESignatureEnabledInProject_DoesNotUpdateRequireESignature()
         {
-            _reviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
             _reviewType = ReviewType.Formal;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
             _artifactDetails.LockedByUserId = UserId;
 
-            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact { Id = 1, ApprovalNotRequested = true },
+                new RDArtifact { Id = 2, ApprovalNotRequested = true },
+                new RDArtifact { Id = 3, ApprovalNotRequested = true }
+            };
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -2975,18 +3069,23 @@ namespace ArtifactStore.Services
             await _reviewService.AssignApprovalRequiredToArtifactsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.AreEqual(null, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(null, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_ArtifactsWithApproval_NoApprovers_RequireESignatureIsNull_ESignatureEnabledInProject_DoesNotUpdateRequireESignature()
         {
-            _reviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
             _reviewType = ReviewType.Informal;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
             _artifactDetails.LockedByUserId = UserId;
 
-            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact { Id = 1, ApprovalNotRequested = true },
+                new RDArtifact { Id = 2, ApprovalNotRequested = true },
+                new RDArtifact { Id = 3, ApprovalNotRequested = true }
+            };
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -3012,18 +3111,23 @@ namespace ArtifactStore.Services
             await _reviewService.AssignApprovalRequiredToArtifactsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.AreEqual(null, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(null, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_ArtifactsWithApproval_Approvers_RequireESignatureIsFalse_ESignatureEnabledInProject_DoesNotUpdateRequireESignature()
         {
-            _reviewPackageRawData.IsESignatureEnabled = false;
+            _review.ReviewPackageRawData.IsESignatureEnabled = false;
             _reviewType = ReviewType.Formal;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
             _artifactDetails.LockedByUserId = UserId;
 
-            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact { Id = 1, ApprovalNotRequested = true },
+                new RDArtifact { Id = 2, ApprovalNotRequested = true },
+                new RDArtifact { Id = 3, ApprovalNotRequested = true }
+            };
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -3049,18 +3153,23 @@ namespace ArtifactStore.Services
             await _reviewService.AssignApprovalRequiredToArtifactsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.AreEqual(false, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(false, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_ArtifactsWithApproval_Approvers_RequireESignatureIsTrue_ESignatureEnabledInProject_DoesNotUpdateRequireESignature()
         {
-            _reviewPackageRawData.IsESignatureEnabled = true;
+            _review.ReviewPackageRawData.IsESignatureEnabled = true;
             _reviewType = ReviewType.Formal;
             _projectPermissions = ProjectPermissions.IsReviewESignatureEnabled;
             _artifactDetails.LockedByUserId = UserId;
 
-            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact { Id = 1, ApprovalNotRequested = true },
+                new RDArtifact { Id = 2, ApprovalNotRequested = true },
+                new RDArtifact { Id = 3, ApprovalNotRequested = true }
+            };
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -3086,18 +3195,23 @@ namespace ArtifactStore.Services
             await _reviewService.AssignApprovalRequiredToArtifactsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.AreEqual(true, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(true, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_ArtifactsWithApproval_Approvers_RequireESignatureIsNull_ESignatureDisabledInProject_DoesNotUpdateRequireESignature()
         {
-            _reviewPackageRawData.IsESignatureEnabled = null;
+            _review.ReviewPackageRawData.IsESignatureEnabled = null;
             _reviewType = ReviewType.Formal;
             _projectPermissions = ProjectPermissions.None;
             _artifactDetails.LockedByUserId = UserId;
 
-            _reviewData.ReviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA><CA><ANR>true</ANR><Id>2</Id></CA><CA><ANR>true</ANR><Id>3</Id></CA></Artifacts></RDReviewContents>";
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact { Id = 1, ApprovalNotRequested = true },
+                new RDArtifact { Id = 2, ApprovalNotRequested = true },
+                new RDArtifact { Id = 3, ApprovalNotRequested = true }
+            };
 
             var artifactIds = new List<int> { 1, 2, 3 };
             var content = new AssignArtifactsApprovalParameter
@@ -3123,7 +3237,7 @@ namespace ArtifactStore.Services
             await _reviewService.AssignApprovalRequiredToArtifactsAsync(ReviewId, content, UserId);
 
             // Assert
-            Assert.AreEqual(null, _reviewPackageRawData.IsESignatureEnabled);
+            Assert.AreEqual(null, _review.ReviewPackageRawData.IsESignatureEnabled);
         }
 
         #endregion

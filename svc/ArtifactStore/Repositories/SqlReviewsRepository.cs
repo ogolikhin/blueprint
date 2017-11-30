@@ -1352,7 +1352,7 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Review status changed", ErrorCodes.ReviewStatusChanged);
             }
 
-            if (!reviewData.ReviewContents.Artifacts.Any())
+            if (reviewData.ReviewContents.Artifacts == null || !reviewData.ReviewContents.Artifacts.Any())
             {
                 throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }

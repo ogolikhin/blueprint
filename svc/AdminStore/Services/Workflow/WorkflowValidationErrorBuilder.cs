@@ -91,6 +91,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundByName = "<GenerateAction> elements: The name for artifact type '{0}' was not found.";
         private const string TemplateDataEmailNotificationActionPropertyTypeNotFoundByName = "<PropertyChange> elements: For name of property '{0}' that was defined as part of an <EmailNotificationAction> element was not found.";
         private const string TemplateDataEmailNotificationActionUnacceptablePropertyType = "Property Type '{0}' of an Email Notification Action is of an unacceptable Type. Only Text and User Properties can be used in an Email Notification Action.";
+        private const string TemplateDataEmailNotificationActionPropertyTypeNotAssociated = "Property Type '{0}' of an Email Notification Action is not associated to any of the artifact types defined in the workflow.";
         private const string TemplateDataPropertyChangeActionPropertyTypeNotFoundByName = "<Transition> elements: The name of property '{0}' that was defined as part of a <PropertyChangeAction> element was not found.";
         private const string TemplatePropertyChangeActionPropertyTypeNotAssociated = "<Transition> elements: The name of property '{0}' that was defined as part of a <PropertyChangeAction> element is not associated to any of the artifact types defined in the workflow.";
         private const string TemplateDataPropertyChangeActionRequiredPropertyValueEmpty = "<PropertyChangeAction> elements: There are no values defined for property '{0}.' ";
@@ -490,6 +491,10 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType:
                     template = TemplateDataEmailNotificationActionUnacceptablePropertyType;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated:
+                    template = TemplateDataEmailNotificationActionPropertyTypeNotAssociated;
                     errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundByName:

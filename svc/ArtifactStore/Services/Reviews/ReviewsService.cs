@@ -216,7 +216,7 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
             }
 
-            if (artifactInfo.LatestDeleted)
+            if (revisionId == int.MaxValue && (artifactInfo.DraftDeleted || artifactInfo.LatestDeleted))
             {
                 throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
             }

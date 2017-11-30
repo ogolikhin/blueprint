@@ -105,7 +105,10 @@ namespace ArtifactStore.Services
 
             _mockItemInfoRepository = new Mock<IItemInfoRepository>();
             _mockItemInfoRepository
-                .Setup(m => m.GetRevisionId(ReviewId, UserId, It.IsAny<int?>(), It.IsAny<int?>()))
+                .Setup(m => m.GetRevisionId(ReviewId, UserId, null, It.IsAny<int?>()))
+                .ReturnsAsync(int.MaxValue);
+            _mockItemInfoRepository
+                .Setup(m => m.GetRevisionId(ReviewId, UserId, It.IsNotNull<int?>(), It.IsAny<int?>()))
                 .ReturnsAsync(_revisionId);
 
             _revisionId = int.MaxValue;
@@ -172,6 +175,115 @@ namespace ArtifactStore.Services
             }
 
             Assert.Fail("Expected ResourceNotFoundException to have been thrown.");
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_LatestVersion_ReviewDeletedInDraft_ThrowsResourceNotFoundException()
+        {
+            // Arrange
+            _artifactDetails = new ArtifactBasicDetails
+            {
+                ItemId = ReviewId,
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage,
+                DraftDeleted = true,
+                LatestDeleted = false
+            };
+
+            // Act
+            try
+            {
+                await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+                return;
+            }
+
+            Assert.Fail("Expected ResourceNotFoundException to have been thrown.");
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_LatestVersion_ReviewDeleted_ThrowsResourceNotFoundException()
+        {
+            // Arrange
+            _artifactDetails = new ArtifactBasicDetails
+            {
+                ItemId = ReviewId,
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage,
+                DraftDeleted = false,
+                LatestDeleted = true
+            };
+
+            // Act
+            try
+            {
+                await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+                return;
+            }
+
+            Assert.Fail("Expected ResourceNotFoundException to have been thrown.");
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_HistoricalVersion_ReviewDeletedInDraft_ReturnsHistoricalReviewSettings()
+        {
+            // Arrange
+            _revisionId = 1;
+            _artifactDetails = new ArtifactBasicDetails
+            {
+                ItemId = ReviewId,
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage,
+                DraftDeleted = true,
+                LatestDeleted = false
+            };
+            _reviewPackageRawData = new ReviewPackageRawData
+            {
+                IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = true,
+                ShowOnlyDescription = true
+            };
+
+            // Act
+            var settings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId, _revisionId);
+
+            // Assert
+            Assert.IsNotNull(settings);
+            Assert.IsNotNull(settings);
+            Assert.AreEqual(_reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, settings.CanMarkAsComplete);
+            Assert.AreEqual(_reviewPackageRawData.ShowOnlyDescription, settings.ShowOnlyDescription);
+        }
+
+        [TestMethod]
+        public async Task GetReviewSettingsAsync_HistoricalVersion_ReviewDeleted_ReturnsHistoricalReviewSettings()
+        {
+            // Arrange
+            _revisionId = 1;
+            _artifactDetails = new ArtifactBasicDetails
+            {
+                ItemId = ReviewId,
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage,
+                DraftDeleted = false,
+                LatestDeleted = true
+            };
+            _reviewPackageRawData = new ReviewPackageRawData
+            {
+                IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed = true,
+                ShowOnlyDescription = true
+            };
+
+            // Act
+            var settings = await _reviewService.GetReviewSettingsAsync(ReviewId, UserId, _revisionId);
+
+            // Assert
+            Assert.IsNotNull(settings);
+            Assert.AreEqual(_reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed, settings.CanMarkAsComplete);
+            Assert.AreEqual(_reviewPackageRawData.ShowOnlyDescription, settings.ShowOnlyDescription);
         }
 
         [TestMethod]
@@ -2129,8 +2241,8 @@ namespace ArtifactStore.Services
             };
 
             // Act
-                await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
-            }
+            await _reviewService.AssignRoleToParticipantsAsync(ReviewId, content, UserId);
+        }
 
         [TestMethod]
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Is_ReadOnly()

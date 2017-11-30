@@ -93,7 +93,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataEmailNotificationActionUnacceptablePropertyType = "Property Type '{0}' of an Email Notification Action is of an unacceptable Type. Only Text and User Properties can be used in an Email Notification Action.";
         private const string TemplateDataEmailNotificationActionPropertyTypeNotAssociated = "Property Type '{0}' of an Email Notification Action is not associated to any of the artifact types defined in the workflow.";
         private const string TemplateDataPropertyChangeActionPropertyTypeNotFoundByName = "<Transition> elements: The name of property '{0}' that was defined as part of a <PropertyChangeAction> element was not found.";
-        private const string TemplatePropertyChangeActionPropertyTypeNotAssociated = "<Transition> elements: The name of property '{0}' that was defined as part of a <PropertyChangeAction> element is not associated to any of the artifact types defined in the workflow.";
+        private const string TemplateDataPropertyChangeActionPropertyTypeNotAssociated = "<Transition> elements: The name of property '{0}' that was defined as part of a <PropertyChangeAction> element is not associated to any of the artifact types defined in the workflow.";
         private const string TemplateDataPropertyChangeActionRequiredPropertyValueEmpty = "<PropertyChangeAction> elements: There are no values defined for property '{0}.' ";
         private const string TemplateDataPropertyChangeActionUserNotFoundByName = "<PropertyChangeAction> elements: The name of one or more users defined for property '{0}' were not found.";
         private const string TemplateDataPropertyChangeActionGroupNotFoundByName = "<PropertyChangeAction> elements: The name of one or more groups defined for property '{0}' were not found.";
@@ -596,7 +596,7 @@ namespace AdminStore.Services.Workflow
                     errParams = new object[] { (int)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotAssociated:
-                    template = TemplatePropertyChangeActionPropertyTypeNotAssociated;
+                    template = TemplateDataPropertyChangeActionPropertyTypeNotAssociated;
                     errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById:

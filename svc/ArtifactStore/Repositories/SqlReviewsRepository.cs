@@ -555,7 +555,7 @@ namespace ArtifactStore.Repositories
         {
             alreadyIncluded = 0;
 
-            var rdReviewContents = replaceAllArtifacts ? new RDReviewContents { Artifacts = new List<RDArtifact>() } : contents;
+            var rdReviewContents = replaceAllArtifacts || contents.Artifacts == null ? new RDReviewContents { Artifacts = new List<RDArtifact>() } : contents;
 
             var currentArtifactIds = rdReviewContents.Artifacts.Select(a => a.Id).ToList();
 
@@ -1183,7 +1183,8 @@ namespace ArtifactStore.Repositories
 
             var reviewedArtifacts = (await GetReviewArtifactsByParticipantAsync(toc.Items.Select(a => a.Id), userId, reviewId, revisionId)).ToList();
 
-            var reviewPackage = await GetReviewPackageRawDataAsync(reviewId, userId, revisionId);
+            var review = await GetReviewAsync(reviewId, userId, revisionId);
+            var reviewPackage = review.ReviewPackageRawData;
 
             // TODO: Update artifact statuses and permissions
             foreach (var tocItem in toc.Items)
@@ -1272,18 +1273,6 @@ namespace ArtifactStore.Repositories
             {
                 throw new BadRequestException("Cannot add participants as project or review couldn't be found", ErrorCodes.ResourceNotFound);
             }
-        }
-
-        public async Task<ReviewPackageRawData> GetReviewPackageRawDataAsync(int reviewId, int userId, int revisionId = int.MaxValue)
-        {
-            var review = await GetReviewAsync(reviewId, userId, revisionId);
-
-            if (review == null)
-            {
-                throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
-            }
-
-            return review.ReviewPackageRawData;
         }
 
         public async Task UpdateReviewPackageRawDataAsync(int reviewId, ReviewPackageRawData reviewPackageRawData, int userId)

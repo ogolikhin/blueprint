@@ -127,6 +127,33 @@ namespace ArtifactStore.Services
         #region GetReviewSettingsAsync
 
         [TestMethod]
+        public async Task GetReviewSettingsAsync_DeletedReviewNotFound_ThrowsResourceNotFoundException()
+        {
+            // Arrange
+            _artifactDetails = new ArtifactBasicDetails
+            {
+                ItemId = ReviewId,
+                ProjectId = ProjectId,
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactReviewPackage,
+                LatestDeleted = true
+            };
+
+            // Act
+            try
+            {
+                await _reviewService.GetReviewSettingsAsync(ReviewId, UserId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+                return;
+            }
+
+            Assert.Fail("Expected ResourceNotFoundException to have been thrown.");
+        }
+
+        [TestMethod]
         public async Task GetReviewSettingsAsync_ReviewNotFound_ThrowsResourceNotFoundException()
         {
             // Arrange

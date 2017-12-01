@@ -11,5 +11,6 @@ namespace AdminStore.Models.Workflow
         public string ArtifactTypeName { get; set; }
         public int ProjectId { get; set; }
         public string ProjectPath { get; set; }
+        public int? PredefinedType { get; set; }
     }
 }

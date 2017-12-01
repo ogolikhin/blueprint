@@ -8,7 +8,6 @@ using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
-using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
 
@@ -71,7 +70,6 @@ namespace AdminStore.Services.Workflow
         }
 
         #endregion
-
 
         #region Private methods
 
@@ -741,7 +739,7 @@ namespace AdminStore.Services.Workflow
 
         private static bool IsAssociatedWithWorkflowArtifactTypes(PropertyType propertyType, WorkflowDataValidationResult result)
         {
-            if (IsNameOrDescription(propertyType))
+            if (WorkflowHelper.IsNameOrDescriptionProperty(propertyType.Id))
             {
                 return result.AssociatedArtifactTypeIds.Any();
             }
@@ -750,12 +748,6 @@ namespace AdminStore.Services.Workflow
                 .Where(at => result.AssociatedArtifactTypeIds.Contains(at.Id))
                 .SelectMany(at => at.CustomPropertyTypeIds)
                 .Contains(propertyType.Id);
-        }
-
-        private static bool IsNameOrDescription(PropertyType propertyType)
-        {
-            return propertyType.Id == WorkflowConstants.PropertyTypeFakeIdName
-                || propertyType.Id == WorkflowConstants.PropertyTypeFakeIdDescription;
         }
     }
 

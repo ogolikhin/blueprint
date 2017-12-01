@@ -32,6 +32,9 @@ namespace AdminStore.Models.Workflow
             set { Id = value; }
         }
 
+        [XmlIgnore]
+        public bool IsContainsProcessArtifactType { get; set; }
+
         public bool ShouldSerializeIdSerializable()
         {
             return Id.HasValue;

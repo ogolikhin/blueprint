@@ -756,8 +756,8 @@ namespace AdminStore.Services.Workflow
                 VersionId = workflowDetails.VersionId,
                 LastModified = workflowDetails.LastModified,
                 LastModifiedBy = workflowDetails.LastModifiedBy,
-                States =
-                    workflowStates.Select(
+                IsContainsProcessArtifactType = workflowArtifactTypes.Any(q => q.PredefinedType == (int)ItemTypePredefined.Process),
+                States = workflowStates.Select(
                         e => new IeState
                         {
                             Id = e.WorkflowStateId,

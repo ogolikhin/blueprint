@@ -91,6 +91,5 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<WorkflowProjectSearch>> SearchProjectsByName(int workflowId, string search = null);
         Task<int> CopyWorkflowAsync(int workflowId, int userId, CopyWorkfloDto copyWorkfloDto);
-        Task<IEnumerable<PropertyType>> GetWorkflowArtifactStandardProperties(ISet<int> standardArtifactTypeIds);
     }
 }

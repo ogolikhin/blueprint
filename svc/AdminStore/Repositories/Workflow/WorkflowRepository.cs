@@ -1151,37 +1151,6 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactStandardProperties(ISet<int> standardArtifactTypeIds)
-        {
-            if (standardArtifactTypeIds == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(standardArtifactTypeIds));
-            }
-
-            var prm = new DynamicParameters();
-            // When the count of standardArtifactTypeIds is zero, you will receive all standard properties in system.
-            prm.Add("@standardArtifactTypeIds", SqlConnectionWrapper.ToDataTable(standardArtifactTypeIds, "Int32Collection", "Int32Value"));
-
-            var propertyTypeVersions = await _connectionWrapper.QueryAsync<SqlProjectMetaRepository.PropertyTypeVersion>("GetStandardProperties", prm, commandType: CommandType.StoredProcedure);
-
-            var propertyTypes = new List<PropertyType>();
-            foreach (var pv in propertyTypeVersions)
-            {
-                propertyTypes.Add(pv.ConvertToPropertyType());
-            }
-
-            PropertyType nameProperty;
-            WorkflowHelper.TryGetNameOrDescriptionPropertyType(WorkflowConstants.PropertyTypeFakeIdName, out nameProperty);
-            propertyTypes.Add(nameProperty);
-
-            PropertyType descriptionProperty;
-            WorkflowHelper.TryGetNameOrDescriptionPropertyType(WorkflowConstants.PropertyTypeFakeIdDescription, out descriptionProperty);
-
-            propertyTypes.Add(descriptionProperty);
-
-            return propertyTypes;
-        }
-
         #endregion
     }
 }

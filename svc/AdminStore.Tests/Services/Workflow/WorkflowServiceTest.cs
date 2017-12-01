@@ -31,6 +31,7 @@ namespace AdminStore.Services.Workflow
         private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder;
         private Mock<ITriggerConverter> _triggerConverter;
         private Mock<ISqlProjectMetaRepository> _projectMetaRepository;
+        private Mock<IArtifactRepository> _artifactRepository;
         private WorkflowService _service;
         private SqlWorkflow _workflow;
         private List<SqlWorkflowArtifactTypes> _workflowArtifactTypes;
@@ -54,6 +55,7 @@ namespace AdminStore.Services.Workflow
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             _triggerConverter = new Mock<ITriggerConverter>();
             _projectMetaRepository = new Mock<ISqlProjectMetaRepository>();
+            _artifactRepository = new Mock<IArtifactRepository>();
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
@@ -62,7 +64,8 @@ namespace AdminStore.Services.Workflow
                 _projectMetaRepository.Object,
                 _triggerConverter.Object,
                 null,
-                null);
+                null,
+                _artifactRepository.Object);
 
             _workflow = new SqlWorkflow();
             _workflowArtifactTypes = new List<SqlWorkflowArtifactTypes>();

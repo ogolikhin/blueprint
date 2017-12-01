@@ -24,6 +24,8 @@ using System.Web.Http.Results;
 using System.Xml.Schema;
 using AdminStore.Models.DiagramWorkflow;
 using AdminStore.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Controllers
 {
@@ -1693,6 +1695,108 @@ namespace AdminStore.Controllers
 
             // act
             await _controller.GetWorkflowDiagram(WorkflowId);
+
+            // assert
+            // exception
+        }
+
+        #endregion
+
+        #region GetWorkflowArtifactStandardProperties
+
+        [TestMethod]
+        public async Task GetWorkflowArtifactStandardProperties_AllParamsAreCorrectAndPermissionsOk_StandardPropertiesSuccessfullyReturned()
+        {
+            List<PropertyType> standardProperties = new List<PropertyType>()
+            {
+                new PropertyType()
+                {
+                    Id = 175,
+                    Name = "Std-Choice-Required-AllowMultiple-DefaultValue"
+                },
+                new PropertyType()
+                {
+                    Id = 171,
+                    Name = "Std-Date-Required-Validated-Min-Max-HasDefault"
+                },
+                new PropertyType()
+                {
+                    Id = WorkflowConstants.PropertyTypeFakeIdName,
+                    Name = WorkflowConstants.PropertyNameName
+                },
+                new PropertyType()
+                {
+                    Id = WorkflowConstants.PropertyTypeFakeIdDescription,
+                    Name = WorkflowConstants.PropertyNameDescription
+                },
+            };
+
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            ISet<int> standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
+
+            var result = await _controller.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds);
+
+            // assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(4, result.Count());
+
+            var choiceProperty = result.FirstOrDefault(x => x.Id == standardProperties[0].Id && x.Name == standardProperties[0].Name);
+            Assert.IsNotNull(choiceProperty);
+
+            var dateProperty = result.FirstOrDefault(x => x.Id == standardProperties[1].Id && x.Name == standardProperties[1].Name);
+            Assert.IsNotNull(dateProperty);
+
+            var nameProperty = result.FirstOrDefault(x => x.Id == standardProperties[2].Id && x.Name == standardProperties[2].Name);
+            Assert.IsNotNull(nameProperty);
+
+            var descriptionProperty = result.FirstOrDefault(x => x.Id == standardProperties[3].Id && x.Name == standardProperties[3].Name);
+            Assert.IsNotNull(descriptionProperty);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetWorkflowArtifactStandardProperties_InSufficientPermissions_ReturnAuthorizationException()
+        {
+            // arrange
+            ISet<int> standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+
+            _privilegesRepositoryMock
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
+
+            List<PropertyType> standardProperties = new List<PropertyType>();
+
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
+
+            // act
+            await _controller.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds);
+
+            // assert
+            // exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetWorkflowArtifactStandardProperties_StandardArtifactTypeIdsIsNull_ReturnAuthorizationException()
+        {
+            // arrange
+            ISet<int> standardArtifactTypeIds = null;
+
+            _privilegesRepositoryMock
+               .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+               .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+
+            List<PropertyType> standardProperties = new List<PropertyType>();
+
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
+
+            // act
+            await _controller.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds);
 
             // assert
             // exception

@@ -828,8 +828,7 @@ namespace AdminStore.Services.Workflow
                 }
             }
 
-            var validProperties = await _artifactRepository.GetStandardProperties(artifactTypesIds);
-            var propertyIds = validProperties.Select(q => q.Id);
+            var propertyIds = (await _artifactRepository.GetStandardProperties(artifactTypesIds)).Select(q => q.Id);
             DeleteInValidDataFromExportedWorkflow(ref ieWorkflow, dataValidationResult, propertyIds.ToList());
 
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
@@ -839,6 +838,15 @@ namespace AdminStore.Services.Workflow
         {
             if (workflow != null)
             {
+                if (!workflow.IsContainsProcessArtifactType)
+                {
+                    workflow.TransitionEvents?.ForEach(q => q.Triggers = DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
+
+                    workflow.NewArtifactEvents?.ForEach(q => q.Triggers = DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
+
+                    workflow.PropertyChangeEvents?.ForEach(q => q.Triggers = DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
+                }
+
                 workflow.PropertyChangeEvents?.RemoveAll(
                     q => !propertyIds.Contains(q.PropertyId.GetValueOrDefault()));
 
@@ -1023,18 +1031,31 @@ namespace AdminStore.Services.Workflow
                 }
         }
 
+        private List<IeTrigger> DeleteUserStoriesAndTestCasesFromGenerateTriggers(List<IeTrigger> triggers)
+        {
+            triggers?.RemoveAll(
+                queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
+                        (((IeGenerateAction)queq.Action).GenerateActionType ==
+                         GenerateActionTypes.UserStories));
+
+            triggers?.RemoveAll(
+                queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
+                        (((IeGenerateAction)queq.Action).GenerateActionType ==
+                         GenerateActionTypes.TestCases));
+
+            return triggers;
+        }
+
         private List<IeTrigger> DeleteInvalidPropertiesFromTriggers(List<IeTrigger> triggers, IEnumerable<int> propertyIds)
         {
-            if (triggers != null)
-            {
-                triggers.RemoveAll(q => (q.Action?.ActionType == ActionTypes.EmailNotification) && !propertyIds.Contains(
-                                            ((IeEmailNotificationAction)q.Action)
-                                            .PropertyId.GetValueOrDefault()));
+            triggers?.RemoveAll(q => (q.Action?.ActionType == ActionTypes.EmailNotification) && !propertyIds.Contains(
+                                         ((IeEmailNotificationAction)q.Action)
+                                         .PropertyId.GetValueOrDefault()));
 
-                triggers.RemoveAll(q => (q.Action?.ActionType == ActionTypes.PropertyChange) && !propertyIds.Contains(
-                                            ((IePropertyChangeAction)q.Action)
-                                            .PropertyId.GetValueOrDefault()));
-            }
+            triggers?.RemoveAll(q => (q.Action?.ActionType == ActionTypes.PropertyChange) && !propertyIds.Contains(
+                                         ((IePropertyChangeAction)q.Action)
+                                         .PropertyId.GetValueOrDefault()));
+
             return triggers;
         }
 

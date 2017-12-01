@@ -7,6 +7,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
 using AdminStore.Models.DiagramWorkflow;
+using AdminStore.Models.Enums;
 using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Helpers.Workflow
@@ -369,8 +370,8 @@ namespace AdminStore.Helpers.Workflow
                         PortPair = dTransitionEvent.PortPair != null
                             ? new IePortPair
                             {
-                                FromPort = dTransitionEvent.PortPair.FromPort,
-                                ToPort = dTransitionEvent.PortPair.ToPort
+                                FromPort = Enum.IsDefined(typeof(DiagramPort), dTransitionEvent.PortPair.FromPort) ? dTransitionEvent.PortPair.FromPort : DiagramPort.None,
+                                ToPort = Enum.IsDefined(typeof(DiagramPort), dTransitionEvent.PortPair.ToPort) ? dTransitionEvent.PortPair.ToPort : DiagramPort.None
                             }
                             : null,
                         Triggers = MapToIeTriggers(dTransitionEvent.Triggers),

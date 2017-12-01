@@ -815,7 +815,7 @@ namespace AdminStore.Services.Workflow
             ieWorkflow.PropertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
             ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
-            var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(ieWorkflow);
+            var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(ieWorkflow, standardTypes);
 
             var artifactTypesIds = new SortedSet<int>();
 

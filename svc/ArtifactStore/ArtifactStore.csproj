@@ -142,6 +142,7 @@
     <Compile Include="Models\Review\MeaningOfSignatureParameter.cs" />
     <Compile Include="Models\Review\ParticipantArtifactStats.cs" />
     <Compile Include="Helpers\ReuseSystemPropertiesMap.cs" />
+    <Compile Include="Models\Review\Review.cs" />
     <Compile Include="Models\Review\ReviewApprovalCheckArtifacts.cs" />
     <Compile Include="Models\Review\ReviewChangeItemsStatusResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactApprovalResult.cs" />

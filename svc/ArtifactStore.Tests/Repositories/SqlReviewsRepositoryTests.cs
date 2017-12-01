@@ -1590,22 +1590,20 @@ namespace ArtifactStore.Repositories
         {
             var queryParameters = new Dictionary<string, object>
             {
-                { "@reviewIds", SqlConnectionWrapper.ToDataTable(new int[] { reviewId }) },
+                { "@reviewIds", SqlConnectionWrapper.ToDataTable(new[] { reviewId }) },
                 { "@userId", userId },
                 { "@revisionId", int.MaxValue },
                 { "@addDrafts", true }
             };
 
-            var reviewsDataResult = new[]
+            var reviewData = new ReviewData
             {
-               new ReviewData
-               {
-                   Id = reviewId,
-                   ReviewContentsXml = reviewContentsXml,
-                   ReviewPackageRawDataXml = reviewPackageRawDataXml,
-                   BaselineId = baselineId
-               }
+                Id = reviewId,
+                ReviewContentsXml = reviewContentsXml,
+                ReviewPackageRawDataXml = reviewPackageRawDataXml,
+                BaselineId = baselineId
             };
+            var reviewsDataResult = new[] { reviewData };
             _cxn.SetupQueryAsync("GetReviewsData", queryParameters, reviewsDataResult);
         }
 
@@ -5495,7 +5493,6 @@ namespace ArtifactStore.Repositories
 
             // Act
             await _reviewsRepository.RemoveArtifactsFromReviewAsync(reviewId, prms, userId);
-
         }
 
         [TestMethod]
@@ -5734,54 +5731,6 @@ namespace ArtifactStore.Repositories
         }
 
         #endregion
-
-        #region GetReviewPackageRawDataAsync
-
-        [TestMethod]
-        public async Task GetReviewPackageRawDataAsync_ReviewXmlNotFound_ThrowsResourceNotFoundException()
-        {
-            // Arrange
-            SetupGetReviewDataQuery(0, UserId, string.Empty, null);
-            // Act
-            try
-            {
-                await _reviewsRepository.GetReviewPackageRawDataAsync(ReviewId, UserId);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                // Assert
-                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
-                return;
-            }
-
-            Assert.Fail("Expected ResourceNotFoundException to have been thrown.");
-        }
-
-        [TestMethod]
-        public async Task GetReviewPackageRawDataAsync_ReviewXmlFound_ReturnsReviewPackageRawData()
-        {
-            // Arrange
-            var reviewPackageRawDataXml = "<?xml version=\"1.0\" encoding=\"utf - 16\"?>" +
-                "<ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\">" +
-                    "<EndDate>2016-04-18T16:25:00</EndDate>" +
-                    "<IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed>true</IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed>" +
-                    "<IsESignatureEnabled>true</IsESignatureEnabled>" +
-                    "<IsMoSEnabled>true</IsMoSEnabled>" +
-                    "<ShowOnlyDescription>true</ShowOnlyDescription>" +
-                "</ReviewPackageRawData>";
-            SetupGetReviewDataQuery(ReviewId, UserId, null, reviewPackageRawDataXml);
-            // Act
-            var reviewPackageRawData = await _reviewsRepository.GetReviewPackageRawDataAsync(ReviewId, UserId);
-
-            // Assert
-            Assert.AreEqual(new DateTime(2016, 4, 18, 16, 25, 0), reviewPackageRawData.EndDate);
-            Assert.AreEqual(true, reviewPackageRawData.ShowOnlyDescription);
-            Assert.AreEqual(true, reviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed);
-            Assert.AreEqual(true, reviewPackageRawData.IsESignatureEnabled);
-            Assert.AreEqual(true, reviewPackageRawData.IsMoSEnabled);
-        }
-
-        #endregion GetReviewPackageRawDataAsync
 
         private void SetupArtifactPermissionsCheck(IEnumerable<int> artifactIds, int userId, Dictionary<int, RolePermissions> result)
         {

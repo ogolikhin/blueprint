@@ -113,6 +113,10 @@ namespace ArtifactStore.Models.Review
         public SimulationSettingsRawData Settings;
 
         public ExtensionDataObject ExtensionData { get; set; }
+        public bool ShouldSerializeApprovalNotRequested()
+        {
+            return ApprovalNotRequested.HasValue;
+        }
     }
 
     [DataContract(Namespace = "http://www.blueprintsys.com/raptor/reviews")]

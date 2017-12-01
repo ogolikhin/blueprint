@@ -81,7 +81,6 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlDuplicateWorkflowEventIds = "One or more Workflow Events have a duplicate ID. A Workflow Event ID must be unique.";
         private const string TemplateXmlDuplicateProjectIds = "One or more Projects have a duplicate ID. A Project ID must be unique.";
         private const string TemplateXmlDuplicateArtifactTypeIdsInProject = "One or more Projects contain duplicate artifact type IDs. Please ensure for each <Project> element, its <ArtifactType> child elements do not have identical 'Id' attribute values. If you are modifying an existing Workflow, try removing the 'Id' attribute from any newly added or changed <ArtifactType> elements.";
-
         // Messages for the Data validation.
         private const string TemplateDataWorkflowNameNotUnique = "Main <Workflow> element: The value of the <Name> child element already exists. Workflows must have unique names.";
         private const string TemplateDataProjectByPathNotFound = "<Project> elements: The project path '{0}' was not found.";
@@ -91,10 +90,13 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataStandardArtifactTypeNotFoundByName = "No standard artifact type named '{0}' was found.";
         private const string TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow = "Standard artifact type '{0}' is already assigned to a Workflow in project '{1}'.";
         private const string TemplateDataPropertyNotFoundByName = "<PropertyChange> elements: The Property '{0}' was not found.";
+        private const string TemplateDataPropertyNotAssociated = "<PropertyChange> elements: The Property '{0}' is not associated to any of the artifact types defined in the workflow.";
         private const string TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundByName = "<GenerateAction> elements: The name for artifact type '{0}' was not found.";
         private const string TemplateDataEmailNotificationActionPropertyTypeNotFoundByName = "<PropertyChange> elements: For name of property '{0}' that was defined as part of an <EmailNotificationAction> element was not found.";
         private const string TemplateDataEmailNotificationActionUnacceptablePropertyType = "Property Type '{0}' of an Email Notification Action is of an unacceptable Type. Only Text and User Properties can be used in an Email Notification Action.";
+        private const string TemplateDataEmailNotificationActionPropertyTypeNotAssociated = "Property Type '{0}' of an Email Notification Action is not associated to any of the artifact types defined in the workflow.";
         private const string TemplateDataPropertyChangeActionPropertyTypeNotFoundByName = "<Transition> elements: The name of property '{0}' that was defined as part of a <PropertyChangeAction> element was not found.";
+        private const string TemplateDataPropertyChangeActionPropertyTypeNotAssociated = "<Transition> elements: The name of property '{0}' that was defined as part of a <PropertyChangeAction> element is not associated to any of the artifact types defined in the workflow.";
         private const string TemplateDataPropertyChangeActionRequiredPropertyValueEmpty = "<PropertyChangeAction> elements: There are no values defined for property '{0}.' ";
         private const string TemplateDataPropertyChangeActionUserNotFoundByName = "<PropertyChangeAction> elements: The name of one or more users defined for property '{0}' were not found.";
         private const string TemplateDataPropertyChangeActionGroupNotFoundByName = "<PropertyChangeAction> elements: The name of one or more groups defined for property '{0}' were not found.";
@@ -512,6 +514,10 @@ namespace AdminStore.Services.Workflow
                     template = TemplateDataPropertyNotFoundByName;
                     errParams = new object[] { (string)error.Element };
                     break;
+                case WorkflowDataValidationErrorCodes.PropertyNotAssociated:
+                    template = TemplateDataPropertyNotAssociated;
+                    errParams = new object[] { (string)error.Element };
+                    break;
                 case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundByName:
                     template = TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundByName;
                     errParams = new object[] { (string)error.Element };
@@ -522,6 +528,10 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType:
                     template = TemplateDataEmailNotificationActionUnacceptablePropertyType;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated:
+                    template = TemplateDataEmailNotificationActionPropertyTypeNotAssociated;
                     errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundByName:
@@ -621,6 +631,10 @@ namespace AdminStore.Services.Workflow
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById:
                     template = TemplateDataPropertyChangeActionPropertyTypeNotFoundById;
                     errParams = new object[] { (int)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotAssociated:
+                    template = TemplateDataPropertyChangeActionPropertyTypeNotAssociated;
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById:
                     template = TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundById;

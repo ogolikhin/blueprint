@@ -664,6 +664,11 @@ namespace AdminStore.Services.Workflow
             return dWorkflow;
         }
 
+        public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactStandardProperties(ISet<int> standardArtifactTypeIds)
+        {
+            return await _workflowRepository.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds);
+        }
+
         public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, WorkflowMode mode)
         {
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();

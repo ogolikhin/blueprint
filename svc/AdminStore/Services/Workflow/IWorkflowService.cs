@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using AdminStore.Models.DiagramWorkflow;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories.Files;
 
 namespace AdminStore.Services.Workflow
@@ -30,5 +32,6 @@ namespace AdminStore.Services.Workflow
         Task<int> CreateWorkflow(string name, string description, int userId);
 
         Task<DWorkflow> GetWorkflowDiagramAsync(int workflowId);
+        Task<IEnumerable<PropertyType>> GetWorkflowArtifactStandardProperties(ISet<int> standardArtifactTypeIds);
     }
 }

@@ -13,7 +13,12 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Helpers.Workflow;
 using AdminStore.Models.DTO;
+using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.ProjectMeta.Sql;
+using ServiceLibrary.Repositories.ProjectMeta;
+using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Repositories.Workflow
 {
@@ -350,7 +355,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
+        public async Task<IEnumerable<Models.Workflow.SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<Models.Workflow.SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
         {
             if (workflowEvents == null)
             {
@@ -372,11 +377,11 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@publishRevision", publishRevision);
             parameters.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
 
-            IEnumerable<SqlWorkflowEvent> result;
+            IEnumerable<Models.Workflow.SqlWorkflowEvent> result;
 
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
+                result = await _connectionWrapper.QueryAsync<Models.Workflow.SqlWorkflowEvent>
                 (
                     "CreateWorkflowEvents",
                     parameters,
@@ -384,7 +389,7 @@ namespace AdminStore.Repositories.Workflow
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
+                result = await transaction.Connection.QueryAsync<Models.Workflow.SqlWorkflowEvent>
                 (
                     "CreateWorkflowEvents",
                     parameters,
@@ -395,7 +400,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<SqlWorkflowEvent>> UpdateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
+        public async Task<IEnumerable<Models.Workflow.SqlWorkflowEvent>> UpdateWorkflowEventsAsync(IEnumerable<Models.Workflow.SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
         {
             if (workflowEvents == null)
             {
@@ -417,11 +422,11 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@publishRevision", publishRevision);
             parameters.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
 
-            IEnumerable<SqlWorkflowEvent> result;
+            IEnumerable<Models.Workflow.SqlWorkflowEvent> result;
 
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
+                result = await _connectionWrapper.QueryAsync<Models.Workflow.SqlWorkflowEvent>
                 (
                     "UpdateWorkflowEvents",
                     parameters,
@@ -429,7 +434,7 @@ namespace AdminStore.Repositories.Workflow
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
+                result = await transaction.Connection.QueryAsync<Models.Workflow.SqlWorkflowEvent>
                 (
                     "UpdateWorkflowEvents",
                     parameters,
@@ -462,11 +467,11 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@publishRevision", publishRevision);
             parameters.Add("@workflowEventIds", SqlConnectionWrapper.ToDataTable(listWorkflowStateIds));
 
-            IEnumerable<SqlWorkflowEvent> result;
+            IEnumerable<Models.Workflow.SqlWorkflowEvent> result;
 
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
+                result = await _connectionWrapper.QueryAsync<Models.Workflow.SqlWorkflowEvent>
                 (
                     "DeleteWorkflowEvents",
                     parameters,
@@ -474,7 +479,7 @@ namespace AdminStore.Repositories.Workflow
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
+                result = await transaction.Connection.QueryAsync<Models.Workflow.SqlWorkflowEvent>
                 (
                     "DeleteWorkflowEvents",
                     parameters,
@@ -1009,7 +1014,7 @@ namespace AdminStore.Repositories.Workflow
             return table;
         }
 
-        private static DataTable ToWorkflowEventsCollectionDataTable(IEnumerable<SqlWorkflowEvent> workflowEvents)
+        private static DataTable ToWorkflowEventsCollectionDataTable(IEnumerable<Models.Workflow.SqlWorkflowEvent> workflowEvents)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WorkflowEventsCollection");
@@ -1144,6 +1149,37 @@ namespace AdminStore.Repositories.Workflow
             }
 
             return result;
+        }
+
+        public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactStandardProperties(ISet<int> standardArtifactTypeIds)
+        {
+            if (standardArtifactTypeIds == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(standardArtifactTypeIds));
+            }
+
+            var prm = new DynamicParameters();
+            // When the count of standardArtifactTypeIds is zero, you will receive all standard properties in system.
+            prm.Add("@standardArtifactTypeIds", SqlConnectionWrapper.ToDataTable(standardArtifactTypeIds, "Int32Collection", "Int32Value"));
+
+            var propertyTypeVersions = await _connectionWrapper.QueryAsync<SqlProjectMetaRepository.PropertyTypeVersion>("GetStandardProperties", prm, commandType: CommandType.StoredProcedure);
+
+            var propertyTypes = new List<PropertyType>();
+            foreach (var pv in propertyTypeVersions)
+            {
+                propertyTypes.Add(pv.ConvertToPropertyType());
+            }
+
+            PropertyType nameProperty;
+            WorkflowHelper.TryGetNameOrDescriptionPropertyType(WorkflowConstants.PropertyTypeFakeIdName, out nameProperty);
+            propertyTypes.Add(nameProperty);
+
+            PropertyType descriptionProperty;
+            WorkflowHelper.TryGetNameOrDescriptionPropertyType(WorkflowConstants.PropertyTypeFakeIdDescription, out descriptionProperty);
+
+            propertyTypes.Add(descriptionProperty);
+
+            return propertyTypes;
         }
 
         #endregion

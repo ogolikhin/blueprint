@@ -268,8 +268,7 @@ namespace AdminStore.Services.Workflow
 
             await ReplaceProjectPathsWithIdsAsync(workflow);
 
-            _workflowDataValidator.StandardTypes = standardTypes;
-            var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow);
+            var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow, standardTypes);
 
             var workflowDiffResult = _workflowDiff.DiffWorkflows(workflow, currentWorkflow);
 
@@ -756,8 +755,8 @@ namespace AdminStore.Services.Workflow
                 VersionId = workflowDetails.VersionId,
                 LastModified = workflowDetails.LastModified,
                 LastModifiedBy = workflowDetails.LastModifiedBy,
-                States =
-                    workflowStates.Select(
+                IsContainsProcessArtifactType = workflowArtifactTypes.Any(q => q.PredefinedType == (int)ItemTypePredefined.Process),
+                States = workflowStates.Select(
                         e => new IeState
                         {
                             Id = e.WorkflowStateId,

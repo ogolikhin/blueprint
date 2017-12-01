@@ -57,7 +57,7 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
             }
 
-            var reviewData = await _reviewsRepository.GetReviewDataAsync(reviewId, userId, revisionId);
+            var reviewData = await _reviewsRepository.GetReviewAsync(reviewId, userId, revisionId);
             var reviewSettings = new ReviewSettings(reviewData.ReviewPackageRawData);
 
             var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId, revisionId);
@@ -85,7 +85,7 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
-            var reviewData = await _reviewsRepository.GetReviewDataAsync(reviewId, userId);
+            var reviewData = await _reviewsRepository.GetReviewAsync(reviewId, userId);
 
             if (reviewData.ReviewStatus == ReviewPackageStatus.Closed)
             {
@@ -216,6 +216,11 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
             }
 
+            if (revisionId == int.MaxValue && (artifactInfo.DraftDeleted || artifactInfo.LatestDeleted))
+            {
+                throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId, revisionId);
+            }
+
             if (artifactInfo.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactReviewPackage)
             {
                 throw new BadRequestException(I18NHelper.FormatInvariant(ErrorMessages.ArtifactIsNotReview, reviewId), ErrorCodes.BadRequest);
@@ -233,7 +238,7 @@ namespace ArtifactStore.Services.Reviews
                 throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
-            var reviewData = await _reviewsRepository.GetReviewDataAsync(reviewId, userId);
+            var reviewData = await _reviewsRepository.GetReviewAsync(reviewId, userId);
 
             if (reviewData.ReviewStatus == ReviewPackageStatus.Closed)
             {
@@ -341,7 +346,7 @@ namespace ArtifactStore.Services.Reviews
                 throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
             }
 
-            var reviewData = await _reviewsRepository.GetReviewDataAsync(reviewId, userId);
+            var reviewData = await _reviewsRepository.GetReviewAsync(reviewId, userId);
             if (reviewData.ReviewStatus == ReviewPackageStatus.Closed)
             {
                 const string errorMessage = "The approval status could not be updated because another user has changed the Review status.";
@@ -353,6 +358,17 @@ namespace ArtifactStore.Services.Reviews
             {
                 throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
+
+            if (reviewData.ReviewStatus == ReviewPackageStatus.Active &&
+                content.Role == ReviewParticipantRole.Approver)
+            {
+                var artifactRequredApproval = reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested ?? true);
+                if (artifactRequredApproval != null)
+                {
+                    throw new ConflictException("Could not update review participants because review needs to be converted to Formal.", ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                }
+            }
+
             var resultErrors = new List<ReviewChangeItemsError>();
 
             UpdateParticipantRole(reviewData.ReviewPackageRawData, content, resultErrors);
@@ -361,8 +377,10 @@ namespace ArtifactStore.Services.Reviews
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewData.ReviewPackageRawData, userId);
 
-            var changeResult = new ReviewChangeParticipantsStatusResult();
-            changeResult.ReviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId);
+            var changeResult = new ReviewChangeParticipantsStatusResult
+            {
+                ReviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId)
+            };
 
             if (content.Role == ReviewParticipantRole.Approver)
             {
@@ -497,46 +515,44 @@ namespace ArtifactStore.Services.Reviews
                 throw ExceptionHelper.ArtifactNotLockedException(reviewId, userId);
             }
 
-            var reviewData = await _reviewsRepository.GetReviewDataAsync(reviewId, userId);
-            if (reviewData.ReviewStatus == ReviewPackageStatus.Closed)
+            var review = await _reviewsRepository.GetReviewAsync(reviewId, userId);
+            if (review.ReviewStatus == ReviewPackageStatus.Closed)
             {
                 throw ReviewsExceptionHelper.ReviewClosedException();
             }
 
-            if (reviewData.ReviewContents.Artifacts == null
-                || !reviewData.ReviewContents.Artifacts.Any())
+            if (review.Contents.Artifacts == null
+                || !review.Contents.Artifacts.Any())
             {
                 throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
 
             // If review is active and formal we throw conflict exception. No changes allowed
-            if (reviewData.ReviewStatus == ReviewPackageStatus.Active &&
-                reviewData.ReviewType == ReviewType.Formal)
+            if (review.ReviewStatus == ReviewPackageStatus.Active &&
+                review.ReviewType == ReviewType.Formal)
             {
                 throw ReviewsExceptionHelper.ReviewActiveFormalException();
             }
-
-            foreach (var artifact in reviewData.ReviewContents.Artifacts)
+            foreach (var artifact in review.Contents.Artifacts)
             {
                 if (artifact.ApprovalNotRequested == null)
                 {
-                    artifact.ApprovalNotRequested = (reviewData.BaselineId == null || reviewData.BaselineId.Value <= 0);
+                    artifact.ApprovalNotRequested = (review.BaselineId == null || review.BaselineId.Value <= 0);
                 }
             }
-
             var resultErrors = new List<ReviewChangeItemsError>();
 
-            var updatingArtifacts = GetReviewArtifacts(content, resultErrors, reviewData.ReviewContents);
+            var updatingArtifacts = GetReviewArtifacts(content, resultErrors, review.Contents);
 
 
             if (updatingArtifacts.Any())
             {
                 // For Informal review
-                await ExcludeDeletedAndNotInProjectArtifacts(content, reviewData, reviewInfo.ProjectId, resultErrors, updatingArtifacts);
+                await ExcludeDeletedAndNotInProjectArtifacts(content, review, reviewInfo.ProjectId, resultErrors, updatingArtifacts);
                 await ExcludeArtifactsWithoutReadPermissions(content, userId, resultErrors, updatingArtifacts);
 
-                var reviewRawData = reviewData.ReviewPackageRawData;
-                if (reviewData.ReviewStatus == ReviewPackageStatus.Active &&
+                var reviewRawData = review.ReviewPackageRawData;
+                if (review.ReviewStatus == ReviewPackageStatus.Active &&
                     updatingArtifacts.Any() &&
                     content.ApprovalRequired)
                 {
@@ -553,7 +569,7 @@ namespace ArtifactStore.Services.Reviews
                     updatingArtifact.ApprovalNotRequested = !content.ApprovalRequired;
                 }
 
-                var resultArtifactsXml = ReviewRawDataHelper.GetStoreData(reviewData.ReviewContents);
+                var resultArtifactsXml = ReviewRawDataHelper.GetStoreData(review.Contents);
 
                 await _reviewsRepository.UpdateReviewArtifactsAsync(reviewId, userId, resultArtifactsXml, null, false);
 
@@ -602,9 +618,9 @@ namespace ArtifactStore.Services.Reviews
             updatingArtifacts.RemoveAll(ua => !updatingArtifactIdsWithReadPermissions.Contains(ua.Id));
         }
 
-        private async Task ExcludeDeletedAndNotInProjectArtifacts(AssignArtifactsApprovalParameter content, ReviewData reviewData, int projectId, ICollection<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
+        private async Task ExcludeDeletedAndNotInProjectArtifacts(AssignArtifactsApprovalParameter content, Review review, int projectId, ICollection<ReviewChangeItemsError> resultErrors, List<RDArtifact> updatingArtifacts)
         {
-            if (reviewData.BaselineId == null || reviewData.BaselineId < 1)
+            if (review.BaselineId == null || review.BaselineId < 1)
             {
                 var updatingArtifactIdsOnly = updatingArtifacts.Select(ua => ua.Id);
                 var deletedAndNotInProjectItemIds = await _artifactVersionsRepository.GetDeletedAndNotInProjectItems(updatingArtifactIdsOnly, projectId);

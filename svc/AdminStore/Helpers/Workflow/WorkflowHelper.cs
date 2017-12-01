@@ -458,26 +458,28 @@ namespace AdminStore.Helpers.Workflow
                             PropertyName = dPropertyChangeAction.PropertyName,
                             PropertyId = dPropertyChangeAction.PropertyId,
                             PropertyValue = dPropertyChangeAction.PropertyValue,
-                            UsersGroups = new IeUsersGroups
-                            {
-                                IncludeCurrentUser = dPropertyChangeAction.UsersGroups?.IncludeCurrentUser,
-                                UsersGroups = dPropertyChangeAction.UsersGroups?.UsersGroups?.Select(
-                                                      dUserGroup => new IeUserGroup
-                                                      {
-                                                          Id = dUserGroup.Id,
-                                                          Name = dUserGroup.Name,
-                                                          GroupProjectId = dUserGroup.GroupProjectId,
-                                                          GroupProjectPath = dUserGroup.GroupProjectPath,
-                                                          IsGroup = dUserGroup.IsGroup
-                                                      })
-                                                  .ToList() ?? new List<IeUserGroup>()
-                            },
+                            UsersGroups = dPropertyChangeAction.UsersGroups != null
+                                ? new IeUsersGroups
+                                {
+                                    IncludeCurrentUser = dPropertyChangeAction.UsersGroups?.IncludeCurrentUser,
+                                    UsersGroups = dPropertyChangeAction.UsersGroups?.UsersGroups?.Select(
+                                                          dUserGroup => new IeUserGroup
+                                                          {
+                                                              Id = dUserGroup.Id,
+                                                              Name = dUserGroup.Name,
+                                                              GroupProjectId = dUserGroup.GroupProjectId,
+                                                              GroupProjectPath = dUserGroup.GroupProjectPath,
+                                                              IsGroup = dUserGroup.IsGroup
+                                                          })
+                                                      .ToList() ?? new List<IeUserGroup>()
+                                }
+                                : null,
                             ValidValues = dPropertyChangeAction.ValidValues?.Select(dValidValue => new IeValidValue
-                                              {
-                                                  Id = dValidValue.Id,
-                                                  Value = dValidValue.Value
-                                              })
-                                              .ToList() ?? new List<IeValidValue>()
+                                {
+                                    Id = dValidValue.Id,
+                                    Value = dValidValue.Value
+                                })
+                                .ToList()
                         };
                     break;
                 default:

@@ -66,7 +66,7 @@ namespace AdminStore.Services.Workflow
                 return false;
             }
 
-            if (action.UsersGroups?.UsersGroups?.Count > 0)
+            if (action.UsersGroups != null)
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
                 return false;
@@ -92,7 +92,7 @@ namespace AdminStore.Services.Workflow
                 return false;
             }
 
-            if (action.UsersGroups?.UsersGroups?.Count > 0)
+            if (action.UsersGroups != null)
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
                 return false;
@@ -149,7 +149,7 @@ namespace AdminStore.Services.Workflow
                 return false;
             }
 
-            if (action.UsersGroups?.UsersGroups?.Count > 0)
+            if (action.UsersGroups != null)
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
                 return false;
@@ -200,7 +200,7 @@ namespace AdminStore.Services.Workflow
         private static bool ValidateChoicePropertyValue(IePropertyChangeAction action, PropertyType propertyType,
             bool ignoreIds, out WorkflowDataValidationErrorCodes? errorCode)
         {
-            if (action.UsersGroups?.UsersGroups?.Count > 0)
+            if (action.UsersGroups != null)
             {
                 errorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable;
                 return false;

@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AdminStore.Helpers
 {
-    public class DBaseActionJsonConverter : JsonCreationConverter<DBaseAction>
+    public class DBaseActionJsonConverter : JsonTypeConverter<DBaseAction>
     {
         protected override DBaseAction Create(Type objectType, JObject jObject)
         {

@@ -768,7 +768,7 @@ namespace AdminStore.Services.Workflow
                 pvCount++;
             }
 
-            if (action.UsersGroups != null)
+            if (action.UsersGroups?.UsersGroups?.Count > 0)
             {
                 pvCount++;
 

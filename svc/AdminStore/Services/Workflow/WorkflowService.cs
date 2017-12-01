@@ -1001,13 +1001,13 @@ namespace AdminStore.Services.Workflow
         #endregion
 
 
-        private async Task<string> UploadErrorsToFileStoreAsync(string errors, string errorsFile = WorkflowImportErrorsFile)
+        private async Task<string> UploadErrorsToFileStoreAsync(string errors)
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(errors ?? string.Empty)))
             {
                 return
                     await
-                        FileRepository.UploadFileAsync(errorsFile, null, stream,
+                        FileRepository.UploadFileAsync(WorkflowImportErrorsFile, null, stream,
                             DateTime.UtcNow + TimeSpan.FromDays(1));
             }
         }

@@ -8,6 +8,7 @@ using AdminStore.Repositories.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
 
@@ -318,7 +319,7 @@ namespace AdminStore.Services.Workflow
                 }
                 else
                 {
-                    result.ValidArtifactTypeIds.Add(itemType.Id);
+                    result.AssociatedArtifactTypeIds.Add(itemType.Id);
                 }
             });
         }
@@ -441,8 +442,7 @@ namespace AdminStore.Services.Workflow
                     return;
                 }
 
-                var validPropertyTypeIds = result.StandardTypes.ArtifactTypes.Where(at => result.ValidArtifactTypeIds.Contains(at.Id)).SelectMany(at => at.CustomPropertyTypeIds);
-                if (!validPropertyTypeIds.Contains(propertyType.Id))
+                if (!IsAssociatedWithWorkflowArtifactTypes(propertyType, result))
                 {
                     result.Errors.Add(new WorkflowDataValidationError
                     {
@@ -602,8 +602,7 @@ namespace AdminStore.Services.Workflow
                     });
                 }
 
-                var validPropertyTypeIds = result.StandardTypes.ArtifactTypes.Where(at => result.ValidArtifactTypeIds.Contains(at.Id)).SelectMany(at => at.CustomPropertyTypeIds);
-                if (!validPropertyTypeIds.Contains(propertyType.Id))
+                if (!IsAssociatedWithWorkflowArtifactTypes(propertyType, result))
                 {
                     result.Errors.Add(new WorkflowDataValidationError
                     {
@@ -657,8 +656,7 @@ namespace AdminStore.Services.Workflow
                 return;
             }
 
-            var validPropertyTypeIds = result.StandardTypes.ArtifactTypes.Where(at => result.ValidArtifactTypeIds.Contains(at.Id)).SelectMany(at => at.CustomPropertyTypeIds);
-            if (!validPropertyTypeIds.Contains(propertyType.Id))
+            if (!IsAssociatedWithWorkflowArtifactTypes(propertyType, result))
             {
                 result.Errors.Add(new WorkflowDataValidationError
                 {
@@ -740,8 +738,26 @@ namespace AdminStore.Services.Workflow
                 });
             }
         }
+
+        private static bool IsAssociatedWithWorkflowArtifactTypes(PropertyType propertyType, WorkflowDataValidationResult result)
+        {
+            if (IsNameOrDescription(propertyType))
+            {
+                return result.AssociatedArtifactTypeIds.Any();
+            }
+
+            return result.StandardTypes.ArtifactTypes
+                .Where(at => result.AssociatedArtifactTypeIds.Contains(at.Id))
+                .SelectMany(at => at.CustomPropertyTypeIds)
+                .Contains(propertyType.Id);
+        }
+
+        private static bool IsNameOrDescription(PropertyType propertyType)
+        {
+            return propertyType.Id == WorkflowConstants.PropertyTypeFakeIdName
+                || propertyType.Id == WorkflowConstants.PropertyTypeFakeIdDescription;
+        }
     }
 
     #endregion
-
 }

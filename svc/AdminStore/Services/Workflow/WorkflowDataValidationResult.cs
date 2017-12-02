@@ -13,7 +13,7 @@ namespace AdminStore.Services.Workflow
         public List<WorkflowDataValidationError> Errors => _errors ?? (_errors = new List<WorkflowDataValidationError>());
 
         public HashSet<int> ValidProjectIds { get; } = new HashSet<int>();
-        public HashSet<int> ValidArtifactTypeIds { get; } = new HashSet<int>();
+        public HashSet<int> AssociatedArtifactTypeIds { get; } = new HashSet<int>();
 
         public ProjectTypes StandardTypes { get; set; }
         public Dictionary<string, ItemType> StandardArtifactTypeMapByName { get; } = new Dictionary<string, ItemType>();

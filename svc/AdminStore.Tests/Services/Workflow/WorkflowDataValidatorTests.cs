@@ -6,6 +6,7 @@ using Moq;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
+using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
 
@@ -110,6 +111,181 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void ValidatePropertyChangeActionData_CustomProperty_NoArtifactTypesAssociated_Error()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = 1, Name = "My Standard Property" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            var action = new IePropertyChangeAction { PropertyName = propertyType.Name };
+            WorkflowDataValidationErrorCodes? errorCode;
+            _propertyValueValidatorMock
+                .Setup(m => m.ValidatePropertyValue(action, propertyType, It.IsAny<IList<SqlUser>>(), It.IsAny<IList<SqlGroup>>(), true, out errorCode))
+                .Returns(true);
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeActionData_CustomProperty_NotAssociatedWithArtifactTypes_Error()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = 1, Name = "My Standard Property" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var action = new IePropertyChangeAction { PropertyName = propertyType.Name };
+            WorkflowDataValidationErrorCodes? errorCode;
+            _propertyValueValidatorMock
+                .Setup(m => m.ValidatePropertyValue(action, propertyType, It.IsAny<IList<SqlUser>>(), It.IsAny<IList<SqlGroup>>(), true, out errorCode))
+                .Returns(true);
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeActionData_CustomProperty_AssociatedWithArtifactTypes_NoError()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = 1, Name = "My Standard Property" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var action = new IePropertyChangeAction { PropertyName = propertyType.Name };
+            WorkflowDataValidationErrorCodes? errorCode;
+            _propertyValueValidatorMock
+                .Setup(m => m.ValidatePropertyValue(action, propertyType, It.IsAny<IList<SqlUser>>(), It.IsAny<IList<SqlGroup>>(), true, out errorCode))
+                .Returns(true);
+
+            artifactType.CustomPropertyTypeIds.Add(propertyType.Id);
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(false, result.HasErrors);
+            Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeActionData_Name_NoArtifactTypesAssociated_Error()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdName, Name = "Name" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            var action = new IePropertyChangeAction { PropertyName = propertyType.Name };
+            WorkflowDataValidationErrorCodes? errorCode;
+            _propertyValueValidatorMock
+                .Setup(m => m.ValidatePropertyValue(action, propertyType, It.IsAny<IList<SqlUser>>(), It.IsAny<IList<SqlGroup>>(), true, out errorCode))
+                .Returns(true);
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeActionData_Name_ArtifactTypesAssociated_NoError()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdName, Name = "Name" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var action = new IePropertyChangeAction { PropertyName = propertyType.Name };
+            WorkflowDataValidationErrorCodes? errorCode;
+            _propertyValueValidatorMock
+                .Setup(m => m.ValidatePropertyValue(action, propertyType, It.IsAny<IList<SqlUser>>(), It.IsAny<IList<SqlGroup>>(), true, out errorCode))
+                .Returns(true);
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(false, result.HasErrors);
+            Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeActionData_Description_NoArtifactTypesAssociated_Error()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdDescription, Name = "Description" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            var action = new IePropertyChangeAction { PropertyName = propertyType.Name };
+            WorkflowDataValidationErrorCodes? errorCode;
+            _propertyValueValidatorMock
+                .Setup(m => m.ValidatePropertyValue(action, propertyType, It.IsAny<IList<SqlUser>>(), It.IsAny<IList<SqlGroup>>(), true, out errorCode))
+                .Returns(true);
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeActionData_Description_ArtifactTypesAssociated_NoError()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdDescription, Name = "Description" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var action = new IePropertyChangeAction { PropertyName = propertyType.Name };
+            WorkflowDataValidationErrorCodes? errorCode;
+            _propertyValueValidatorMock
+                .Setup(m => m.ValidatePropertyValue(action, propertyType, It.IsAny<IList<SqlUser>>(), It.IsAny<IList<SqlGroup>>(), true, out errorCode))
+                .Returns(true);
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(false, result.HasErrors);
+            Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestMethod]
         public void ValidatePropertyChangeActionData_PropertyValueValidationSuccess_Success()
         {
             // Arrange
@@ -119,7 +295,7 @@ namespace AdminStore.Services.Workflow
             var itemType = new ItemType { Id = 1, CustomPropertyTypeIds = { propertyType.Id } };
             result.StandardPropertyTypeMapByName.Add(propertyName, propertyType);
             result.StandardTypes.ArtifactTypes.Add(itemType);
-            result.ValidArtifactTypeIds.Add(itemType.Id);
+            result.AssociatedArtifactTypeIds.Add(itemType.Id);
             var action = new IePropertyChangeAction { PropertyName = propertyName };
             WorkflowDataValidationErrorCodes? errorCode;
 
@@ -144,7 +320,7 @@ namespace AdminStore.Services.Workflow
             var itemType = new ItemType { Id = 1, CustomPropertyTypeIds = { propertyType.Id } };
             result.StandardPropertyTypeMapByName.Add(propertyName, propertyType);
             result.StandardTypes.ArtifactTypes.Add(itemType);
-            result.ValidArtifactTypeIds.Add(itemType.Id);
+            result.AssociatedArtifactTypeIds.Add(itemType.Id);
             var action = new IePropertyChangeAction { PropertyName = propertyName };
             WorkflowDataValidationErrorCodes? errorCode = WorkflowDataValidationErrorCodes.ProjectByIdNotFound;
 
@@ -235,40 +411,146 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
-        public void ValidateEmailNotificationActionData_PropertyTypeNotAssociated_Error()
+        public void ValidateEmailNotificationActionData_CustomProperty_NoArtifactTypesAssociated_Error()
         {
             // Arrange
-            var propertyName = "some";
-            var emailNotificationAction = new IeEmailNotificationAction { PropertyName = propertyName };
+            var propertyType = new PropertyType { Id = 1, Name = "My Standard Property", PrimitiveType = PropertyPrimitiveType.User };
+            var artifactType = new ItemType { Id = 1 };
             var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
-            var propertyType = new PropertyType { Id = 1, Name = propertyName, PrimitiveType = PropertyPrimitiveType.Text };
-            result.StandardPropertyTypeMapByName.Add(propertyName, propertyType);
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            var action = new IeEmailNotificationAction { PropertyName = propertyType.Name };
 
             // Act
-            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, emailNotificationAction, true);
+            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, action, true);
 
             // Assert
             Assert.AreEqual(true, result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated, result.Errors[0].ErrorCode);
-            Assert.AreEqual(propertyName, result.Errors[0].Element as string);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
         }
 
         [TestMethod]
-        public void ValidateEmailNotificationActionData_PropertyTypeAssociated_Success()
+        public void ValidateEmailNotificationActionData_CustomProperty_NotAssociatedWithArtifactTypes_Error()
         {
             // Arrange
-            var propertyName = "some";
-            var emailNotificationAction = new IeEmailNotificationAction { PropertyName = propertyName };
+            var propertyType = new PropertyType { Id = 1, Name = "My Standard Property", PrimitiveType = PropertyPrimitiveType.User };
+            var artifactType = new ItemType { Id = 1 };
             var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
-            var propertyType = new PropertyType { Id = 1, Name = propertyName, PrimitiveType = PropertyPrimitiveType.User };
-            var itemType = new ItemType { Id = 1, CustomPropertyTypeIds = { propertyType.Id } };
-            result.StandardPropertyTypeMapByName.Add(propertyName, propertyType);
-            result.StandardTypes.ArtifactTypes.Add(itemType);
-            result.ValidArtifactTypeIds.Add(itemType.Id);
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var action = new IeEmailNotificationAction { PropertyName = propertyType.Name };
 
             // Act
-            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, emailNotificationAction, true);
+            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidateEmailNotificationActionData_CustomProperty_AssociatedWithArtifactTypes_NoError()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = 1, Name = "My Standard Property", PrimitiveType = PropertyPrimitiveType.User };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var action = new IeEmailNotificationAction { PropertyName = propertyType.Name };
+
+            artifactType.CustomPropertyTypeIds.Add(propertyType.Id);
+
+            // Act
+            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(false, result.HasErrors);
+            Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestMethod]
+        public void ValidateEmailNotificationActionData_Name_NoArtifactTypesAssociated_Error()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdName, Name = "Name", PrimitiveType = PropertyPrimitiveType.Text };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            var action = new IeEmailNotificationAction { PropertyName = propertyType.Name };
+
+            // Act
+            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidateEmailNotificationActionData_Name_ArtifactTypesAssociated_NoError()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdName, Name = "Name", PrimitiveType = PropertyPrimitiveType.Text };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var action = new IeEmailNotificationAction { PropertyName = propertyType.Name };
+
+            // Act
+            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(false, result.HasErrors);
+            Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestMethod]
+        public void ValidateEmailNotificationActionData_Description_NoArtifactTypesAssociated_Error()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdDescription, Name = "Description", PrimitiveType = PropertyPrimitiveType.Text };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            var action = new IeEmailNotificationAction { PropertyName = propertyType.Name };
+
+            // Act
+            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, action, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidateEmailNotificationActionData_Description_ArtifactTypesAssociated_NoError()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdDescription, Name = "Description", PrimitiveType = PropertyPrimitiveType.Text };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var action = new IeEmailNotificationAction { PropertyName = propertyType.Name };
+
+            // Act
+            _dataValidatorMock.Object.ValidateEmailNotificationActionData(result, action, true);
 
             // Assert
             Assert.AreEqual(false, result.HasErrors);
@@ -280,14 +562,15 @@ namespace AdminStore.Services.Workflow
         #region Events
 
         [TestMethod]
-        public void ValidatePropertyChangeEvent_PropertyTypeNotAssociated_Error()
+        public void ValidatePropertyChangeEventData_CustomProperty_NoArtifactTypesAssociated_Error()
         {
             // Arrange
-            var propertyName = "some";
-            var propertyChangeEvent = new IePropertyChangeEvent { PropertyName = propertyName };
+            var propertyType = new PropertyType { Id = 1, Name = "My Standard Property" };
+            var artifactType = new ItemType { Id = 1 };
             var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
-            var propertyType = new PropertyType { Id = 1, Name = propertyName };
-            result.StandardPropertyTypeMapByName.Add(propertyName, propertyType);
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            var propertyChangeEvent = new IePropertyChangeEvent { PropertyName = propertyType.Name };
 
             // Act
             _dataValidatorMock.Object.ValidatePropertyChangeEventData(result, propertyChangeEvent, true);
@@ -296,21 +579,127 @@ namespace AdminStore.Services.Workflow
             Assert.AreEqual(true, result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyNotAssociated, result.Errors[0].ErrorCode);
-            Assert.AreEqual(propertyName, result.Errors[0].Element as string);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
         }
 
         [TestMethod]
-        public void ValidatePropertyChangeEvent_PropertyTypeAssociated_Success()
+        public void ValidatePropertyChangeEventData_CustomProperty_NotAssociatedWithArtifactTypes_Error()
         {
             // Arrange
-            var propertyName = "some";
-            var propertyChangeEvent = new IePropertyChangeEvent { PropertyName = propertyName };
+            var propertyType = new PropertyType { Id = 1, Name = "My Standard Property" };
+            var artifactType = new ItemType { Id = 1 };
             var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
-            var propertyType = new PropertyType { Id = 1, Name = propertyName };
-            var itemType = new ItemType { Id = 1, CustomPropertyTypeIds = { propertyType.Id } };
-            result.StandardPropertyTypeMapByName.Add(propertyName, propertyType);
-            result.StandardTypes.ArtifactTypes.Add(itemType);
-            result.ValidArtifactTypeIds.Add(itemType.Id);
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var propertyChangeEvent = new IePropertyChangeEvent { PropertyName = propertyType.Name };
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeEventData(result, propertyChangeEvent, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeEventData_CustomProperty_AssociatedWithArtifactTypes_NoError()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = 1, Name = "My Standard Property" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var propertyChangeEvent = new IePropertyChangeEvent { PropertyName = propertyType.Name };
+
+
+            artifactType.CustomPropertyTypeIds.Add(propertyType.Id);
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeEventData(result, propertyChangeEvent, true);
+
+            // Assert
+            Assert.AreEqual(false, result.HasErrors);
+            Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeEventData_Name_NoArtifactTypesAssociated_Error()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdName, Name = "Name" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            var propertyChangeEvent = new IePropertyChangeEvent { PropertyName = propertyType.Name };
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeEventData(result, propertyChangeEvent, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeEventData_Name_ArtifactTypesAssociated_NoError()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdName, Name = "Name" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var propertyChangeEvent = new IePropertyChangeEvent { PropertyName = propertyType.Name };
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeEventData(result, propertyChangeEvent, true);
+
+            // Assert
+            Assert.AreEqual(false, result.HasErrors);
+            Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeEventData_Description_NoArtifactTypesAssociated_Error()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdDescription, Name = "Description" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            var propertyChangeEvent = new IePropertyChangeEvent { PropertyName = propertyType.Name };
+
+            // Act
+            _dataValidatorMock.Object.ValidatePropertyChangeEventData(result, propertyChangeEvent, true);
+
+            // Assert
+            Assert.AreEqual(true, result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyNotAssociated, result.Errors[0].ErrorCode);
+            Assert.AreEqual(propertyType.Name, result.Errors[0].Element as string);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyChangeEventData_Description_ArtifactTypesAssociated_NoError()
+        {
+            // Arrange
+            var propertyType = new PropertyType { Id = WorkflowConstants.PropertyTypeFakeIdDescription, Name = "Description" };
+            var artifactType = new ItemType { Id = 1 };
+            var result = new WorkflowDataValidationResult { StandardTypes = new ProjectTypes() };
+            result.StandardPropertyTypeMapByName.Add(propertyType.Name, propertyType);
+            result.StandardTypes.ArtifactTypes.Add(artifactType);
+            result.AssociatedArtifactTypeIds.Add(artifactType.Id);
+            var propertyChangeEvent = new IePropertyChangeEvent { PropertyName = propertyType.Name };
 
             // Act
             _dataValidatorMock.Object.ValidatePropertyChangeEventData(result, propertyChangeEvent, true);

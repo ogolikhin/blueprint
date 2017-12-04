@@ -7,6 +7,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
 using AdminStore.Models.DiagramWorkflow;
+using AdminStore.Models.Enums;
 using ServiceLibrary.Models.Enums;
 
 namespace AdminStore.Helpers.Workflow
@@ -256,7 +257,6 @@ namespace AdminStore.Helpers.Workflow
             destinationWorkflow.Projects = sourceWorkflow.Projects?.Select(ieProject => new DProject
             {
                 Id = ieProject.Id,
-                Path = ieProject.Path,
                 ArtifactTypes = ieProject.ArtifactTypes?.Select(ieArtifactType => new DArtifactType
                 {
                     Id = ieArtifactType.Id,
@@ -320,13 +320,14 @@ namespace AdminStore.Helpers.Workflow
                 Name = sourceWorkflow.Name,
                 Description = sourceWorkflow.Description,
                 IsActive = sourceWorkflow.IsActive,
+                IsContainsProcessArtifactType = sourceWorkflow.IsContainsProcessArtifactType,
                 NewArtifactEvents = sourceWorkflow.NewArtifactEvents?.Select(dNewArtifactEvent => new IeNewArtifactEvent
                     {
                         Id = dNewArtifactEvent.Id,
                         Name = dNewArtifactEvent.Name,
-                        Triggers = MapToIeTriggers(dNewArtifactEvent.Triggers.ToList())
+                        Triggers = MapToIeTriggers(dNewArtifactEvent.Triggers)
                     })
-                    .ToList(),
+                    .ToList() ?? new List<IeNewArtifactEvent>(),
                 Projects = sourceWorkflow.Projects?.Select(dProject => new IeProject
                     {
                         Id = dProject.Id,
@@ -338,18 +339,18 @@ namespace AdminStore.Helpers.Workflow
                                     Id = dArtifactType.Id,
                                     Name = dArtifactType.Name
                                 })
-                            .ToList()
-                    })
-                    .ToList(),
+                            .ToList() ?? new List<IeArtifactType>()
+                })
+                    .ToList() ?? new List<IeProject>(),
                 PropertyChangeEvents = sourceWorkflow.PropertyChangeEvents?.Select(dPropertyChangeEvent => new IePropertyChangeEvent
                     {
                         Id = dPropertyChangeEvent.Id,
                         Name = dPropertyChangeEvent.Name,
                         PropertyId = dPropertyChangeEvent.PropertyId,
                         PropertyName = dPropertyChangeEvent.PropertyName,
-                        Triggers = MapToIeTriggers(dPropertyChangeEvent.Triggers.ToList())
+                        Triggers = MapToIeTriggers(dPropertyChangeEvent.Triggers)
                     })
-                    .ToList(),
+                    .ToList() ?? new List<IePropertyChangeEvent>(),
                 States = sourceWorkflow.States?.Select(dState => new IeState
                     {
                         Id = dState.Id,
@@ -357,7 +358,7 @@ namespace AdminStore.Helpers.Workflow
                         IsInitial = dState.IsInitial,
                         Location = dState.Location
                     })
-                    .ToList(),
+                    .ToList() ?? new List<IeState>(),
                 TransitionEvents = sourceWorkflow.TransitionEvents?.Select(dTransitionEvent => new IeTransitionEvent
                     {
                         Id = dTransitionEvent.Id,
@@ -370,25 +371,25 @@ namespace AdminStore.Helpers.Workflow
                         PortPair = dTransitionEvent.PortPair != null
                             ? new IePortPair
                             {
-                                FromPort = dTransitionEvent.PortPair.FromPort,
-                                ToPort = dTransitionEvent.PortPair.ToPort
+                                FromPort = Enum.IsDefined(typeof(DiagramPort), dTransitionEvent.PortPair.FromPort) ? dTransitionEvent.PortPair.FromPort : DiagramPort.None,
+                                ToPort = Enum.IsDefined(typeof(DiagramPort), dTransitionEvent.PortPair.ToPort) ? dTransitionEvent.PortPair.ToPort : DiagramPort.None
                             }
                             : null,
-                        Triggers = MapToIeTriggers(dTransitionEvent.Triggers.ToList()),
+                        Triggers = MapToIeTriggers(dTransitionEvent.Triggers),
                         PermissionGroups = dTransitionEvent.PermissionGroups?.Select(dGroup => new IeGroup
                             {
                                 Id = dGroup.Id,
                                 Name = dGroup.Name
                             })
-                            .ToList()
-                    })
-                    .ToList()
+                            .ToList() ?? new List<IeGroup>()
+                })
+                    .ToList() ?? new List<IeTransitionEvent>()
             };
 
             return destinationWorkflow;
         }
 
-        private static List<IeTrigger> MapToIeTriggers(List<DTrigger> dTriggers)
+        private static List<IeTrigger> MapToIeTriggers(IEnumerable<DTrigger> dTriggers)
         {
             return dTriggers?.Select(dTrigger => new IeTrigger
                 {
@@ -402,7 +403,7 @@ namespace AdminStore.Helpers.Workflow
                         }
                         : null
                 })
-                .ToList();
+                .ToList() ?? new List<IeTrigger>();
         }
 
         private static List<DTrigger> MapToDTriggers(List<IeTrigger> ieTriggers)
@@ -423,57 +424,69 @@ namespace AdminStore.Helpers.Workflow
 
         private static IeBaseAction MapToIeAction(DBaseAction dBaseAction)
         {
-            switch (dBaseAction.ActionType)
+            switch (dBaseAction?.ActionType)
             {
                 case ActionTypes.EmailNotification:
                     var dEmailNotificationAction = dBaseAction as DEmailNotificationAction;
-                    return new IeEmailNotificationAction
-                    {
-                        Name = dEmailNotificationAction.Name,
-                        Emails = dEmailNotificationAction.Emails.ToList(),
-                        Message = dEmailNotificationAction.Message,
-                        PropertyId = dEmailNotificationAction.PropertyId,
-                        PropertyName = dEmailNotificationAction.PropertyName
-                    };
+                    if (dEmailNotificationAction != null)
+                        return new IeEmailNotificationAction
+                        {
+                            Name = dEmailNotificationAction.Name,
+                            Emails = dEmailNotificationAction.Emails?.ToList(),
+                            Message = dEmailNotificationAction.Message,
+                            PropertyId = dEmailNotificationAction.PropertyId,
+                            PropertyName = dEmailNotificationAction.PropertyName
+                        };
+                    break;
                 case ActionTypes.Generate:
                     var dGenerateAction = dBaseAction as DGenerateAction;
-                    return new IeGenerateAction
-                    {
-                        Name = dGenerateAction.Name,
-                        ArtifactType = dGenerateAction.ArtifactType,
-                        ArtifactTypeId = dGenerateAction.ArtifactTypeId,
-                        ChildCount = dGenerateAction.ChildCount,
-                        GenerateActionType = dGenerateAction.GenerateActionType
-                    };
+                    if (dGenerateAction != null)
+                        return new IeGenerateAction
+                        {
+                            Name = dGenerateAction.Name,
+                            ArtifactType = dGenerateAction.ArtifactType,
+                            ArtifactTypeId = dGenerateAction.ArtifactTypeId,
+                            ChildCount = dGenerateAction.ChildCount,
+                            GenerateActionType = dGenerateAction.GenerateActionType
+                        };
+                    break;
                 case ActionTypes.PropertyChange:
                     var dPropertyChangeAction = dBaseAction as DPropertyChangeAction;
-                    return new IePropertyChangeAction
-                    {
-                        Name = dPropertyChangeAction.Name,
-                        PropertyName = dPropertyChangeAction.PropertyName,
-                        PropertyId = dPropertyChangeAction.PropertyId,
-                        PropertyValue = dPropertyChangeAction.PropertyValue,
-                        UsersGroups = new IeUsersGroups
+                    if (dPropertyChangeAction != null)
+                        return new IePropertyChangeAction
                         {
-                            IncludeCurrentUser = dPropertyChangeAction.UsersGroups?.IncludeCurrentUser,
-                            UsersGroups = dPropertyChangeAction.UsersGroups?.UsersGroups?.Select(dUserGroup => new IeUserGroup
-                            {
-                                Id = dUserGroup.Id,
-                                Name = dUserGroup.Name,
-                                GroupProjectId = dUserGroup.GroupProjectId,
-                                GroupProjectPath = dUserGroup.GroupProjectPath,
-                                IsGroup = dUserGroup.IsGroup
-                            }).ToList()
-                        },
-                        ValidValues = dPropertyChangeAction.ValidValues?.Select(dValidValue => new IeValidValue
-                        {
-                            Id = dValidValue.Id,
-                            Value = dValidValue.Value
-                        }).ToList()
-                    };
+                            Name = dPropertyChangeAction.Name,
+                            PropertyName = dPropertyChangeAction.PropertyName,
+                            PropertyId = dPropertyChangeAction.PropertyId,
+                            PropertyValue = dPropertyChangeAction.PropertyValue,
+                            UsersGroups = dPropertyChangeAction.UsersGroups != null
+                                ? new IeUsersGroups
+                                {
+                                    IncludeCurrentUser = dPropertyChangeAction.UsersGroups?.IncludeCurrentUser,
+                                    UsersGroups = dPropertyChangeAction.UsersGroups?.UsersGroups?.Select(
+                                                          dUserGroup => new IeUserGroup
+                                                          {
+                                                              Id = dUserGroup.Id,
+                                                              Name = dUserGroup.Name,
+                                                              GroupProjectId = dUserGroup.GroupProjectId,
+                                                              GroupProjectPath = dUserGroup.GroupProjectPath,
+                                                              IsGroup = dUserGroup.IsGroup
+                                                          })
+                                                      .ToList() ?? new List<IeUserGroup>()
+                                }
+                                : null,
+                            ValidValues = dPropertyChangeAction.ValidValues?.Select(dValidValue => new IeValidValue
+                                {
+                                    Id = dValidValue.Id,
+                                    Value = dValidValue.Value
+                                })
+                                .ToList()
+                        };
+                    break;
                 default:
                     return null;
             }
+            return null;
         }
 
         private static DBaseAction MapToDAction(IeBaseAction ieBaseAction)

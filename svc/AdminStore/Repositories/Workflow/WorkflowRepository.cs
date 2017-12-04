@@ -1003,7 +1003,7 @@ namespace AdminStore.Repositories.Workflow
             foreach (var workflowState in workflowStates)
             {
                 table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name,
-                  workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex, string.IsNullOrEmpty(workflowState.CanvasSettings) ? string.Empty : workflowState.CanvasSettings);
+                  workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex, workflowState.CanvasSettings);
             }
 
             return table;
@@ -1030,7 +1030,7 @@ namespace AdminStore.Repositories.Workflow
                 table.Rows.Add(workfloEvent.WorkflowEventId, workfloEvent.Name,
                     workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions,
                     workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id,
-                    workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId, string.IsNullOrEmpty(workfloEvent.CanvasSettings) ? string.Empty : workfloEvent.CanvasSettings);
+                    workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId, workfloEvent.CanvasSettings);
             }
 
             return table;

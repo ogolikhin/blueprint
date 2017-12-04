@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
@@ -75,5 +76,19 @@ namespace AdminStore.Models.Workflow
         }
 
         #endregion
+
+        public bool EqualsIncludingPortPair(IeTransitionEvent obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return base.Equals(obj) && string.Equals(FromState, obj.FromState) &&
+                   FromStateId.GetValueOrDefault() == obj.FromStateId.GetValueOrDefault() &&
+                   string.Equals(ToState, obj.ToState) &&
+                   ToStateId.GetValueOrDefault() == obj.ToStateId.GetValueOrDefault() &&
+                   WorkflowHelper.CollectionEquals(PermissionGroups, obj.PermissionGroups) &&
+                   SkipPermissionGroups.GetValueOrDefault() == obj.SkipPermissionGroups.GetValueOrDefault() &&
+                   Equals(PortPair, obj.PortPair);
+        }
     }
 }

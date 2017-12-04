@@ -296,7 +296,7 @@ namespace ArtifactStore.Services.Reviews
                 {
                     var meaningOfSignature = meaningOfSignatureUpdate.MeaningOfSignature;
 
-                    var participantMeaningOfSignature = participant.SelectedRoleMoSAssignments.FirstOrDefault(pmos => pmos.RoleAssignmentId == meaningOfSignature.RoleAssignmentId);
+                    var participantMeaningOfSignature = participant.SelectedRoleMoSAssignments.FirstOrDefault(pmos => pmos.RoleId == meaningOfSignature.RoleId);
 
                     if (participantMeaningOfSignature == null)
                     {
@@ -398,7 +398,7 @@ namespace ArtifactStore.Services.Reviews
                 {
                     changeResult.DropdownItems = reviewData.ReviewPackageRawData.Reviewers
                         .First(r => r.UserId == content.ItemIds.FirstOrDefault())
-                        .SelectedRoleMoSAssignments.Select(mos => new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
+                        .SelectedRoleMoSAssignments.Select(mos => new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleId));
                 }
             }
 

@@ -25,7 +25,7 @@ namespace ArtifactStore.Services.Reviews.MeaningOfSignature
                     throw ReviewsExceptionHelper.MeaningOfSignatureNotPossibleException();
                 }
 
-                var meaningOfSignature = possibleMeaningOfSignatures[participantId].FirstOrDefault(mos => mos.RoleAssignmentId == meaningOfSignatureParameter.RoleAssignmentId);
+                var meaningOfSignature = possibleMeaningOfSignatures[participantId].FirstOrDefault(mos => mos.RoleId == meaningOfSignatureParameter.RoleId);
 
                 if (meaningOfSignature == null)
                 {

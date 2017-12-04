@@ -1514,8 +1514,8 @@ namespace ArtifactStore.Services
                     2,
                     new List<ParticipantMeaningOfSignatureResult>
                     {
-                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 5 },
-                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 6 }
+                        new ParticipantMeaningOfSignatureResult { RoleId = 5 },
+                        new ParticipantMeaningOfSignatureResult { RoleId = 6 }
                     }
                 }
             };
@@ -1540,7 +1540,7 @@ namespace ArtifactStore.Services
             Assert.IsNull(reviewer.SelectedRoleMoSAssignments);
 
             Assert.AreEqual(2, approver.SelectedRoleMoSAssignments.Count);
-            Assert.IsTrue(approver.SelectedRoleMoSAssignments.All(mos => mos.RoleAssignmentId == 5 || mos.RoleAssignmentId == 6));
+            Assert.IsTrue(approver.SelectedRoleMoSAssignments.All(mos => mos.RoleId == 5 || mos.RoleId == 6));
         }
 
         #endregion UpdateReviewSettingsAsync
@@ -1724,7 +1724,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,
-                RoleAssignmentId = 3,
+                RoleId = 3,
                 ParticipantId = 4
             };
 
@@ -1753,7 +1753,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,
-                RoleAssignmentId = 3,
+                RoleId = 3,
                 ParticipantId = 4
             };
 
@@ -1789,7 +1789,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,
-                RoleAssignmentId = 3,
+                RoleId = 3,
                 ParticipantId = 4
             };
 
@@ -1826,7 +1826,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,
-                RoleAssignmentId = 3,
+                RoleId = 3,
                 ParticipantId = 4
             };
 
@@ -1866,7 +1866,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,
-                RoleAssignmentId = 3,
+                RoleId = 3,
                 ParticipantId = 4
             };
 
@@ -1918,7 +1918,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,
-                RoleAssignmentId = 7,
+                RoleId = 8,
                 ParticipantId = 4
             };
 
@@ -1973,7 +1973,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,
-                RoleAssignmentId = 7,
+                RoleId = 8,
                 ParticipantId = 4
             };
 
@@ -2009,7 +2009,7 @@ namespace ArtifactStore.Services
                     {
                         new ParticipantMeaningOfSignature
                         {
-                            RoleAssignmentId = 7
+                            RoleId = 8
                         }
                     }
                 }
@@ -2033,7 +2033,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,
-                RoleAssignmentId = 7,
+                RoleId = 8,
                 ParticipantId = 4
             };
 
@@ -2071,7 +2071,7 @@ namespace ArtifactStore.Services
                     {
                         new ParticipantMeaningOfSignature
                         {
-                            RoleAssignmentId = 7
+                            RoleId = 8
                         }
                     }
                 }
@@ -2095,7 +2095,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = false,
-                RoleAssignmentId = 7,
+                RoleId = 8,
                 ParticipantId = 4
             };
 
@@ -2105,7 +2105,7 @@ namespace ArtifactStore.Services
             // Assert
             var selectedMos = _review.ReviewPackageRawData.Reviewers.First().SelectedRoleMoSAssignments;
 
-            Assert.AreEqual(0, selectedMos.Count, "There should be one meaning of signature");
+            Assert.AreEqual(0, selectedMos.Count, "There should be no meaning of signature");
         }
 
         [TestMethod]
@@ -2148,7 +2148,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = false,
-                RoleAssignmentId = 7,
+                RoleId = 8,
                 ParticipantId = 4
             };
 
@@ -2193,7 +2193,7 @@ namespace ArtifactStore.Services
             var meaningOfSignatureParameter = new MeaningOfSignatureParameter
             {
                 Adding = true,
-                RoleAssignmentId = 7,
+                RoleId = 8,
                 ParticipantId = 4
             };
 
@@ -2479,8 +2479,8 @@ namespace ArtifactStore.Services
                     reviewerId,
                     new List<ParticipantMeaningOfSignatureResult>
                     {
-                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 2 },
-                        new ParticipantMeaningOfSignatureResult { RoleAssignmentId = 3 }
+                        new ParticipantMeaningOfSignatureResult { RoleId = 2 },
+                        new ParticipantMeaningOfSignatureResult { RoleId = 3 }
                     }
                 }
             };
@@ -2491,7 +2491,7 @@ namespace ArtifactStore.Services
             // Assert
             Expression<Func<ReviewPackageRawData, bool>> reviewRawDataCheck = reviewRawData =>
                 reviewRawData.Reviewers.First().SelectedRoleMoSAssignments.Count == 2
-                && reviewRawData.Reviewers.First().SelectedRoleMoSAssignments.All(mos => mos.RoleAssignmentId == 2 || mos.RoleAssignmentId == 3);
+                && reviewRawData.Reviewers.First().SelectedRoleMoSAssignments.All(mos => mos.RoleId == 2 || mos.RoleId == 3);
 
             _mockReviewRepository.Verify(repo => repo.UpdateReviewPackageRawDataAsync(ReviewId, It.Is(reviewRawDataCheck), UserId));
         }
@@ -2520,13 +2520,13 @@ namespace ArtifactStore.Services
                         new ParticipantMeaningOfSignatureResult
                         {
                             MeaningOfSignatureValue = "foo1",
-                            RoleAssignmentId = 2,
+                            RoleId = 2,
                             RoleName = "bar1"
                         },
                         new ParticipantMeaningOfSignatureResult
                         {
                             MeaningOfSignatureValue = "foo2",
-                            RoleAssignmentId = 3,
+                            RoleId = 3,
                             RoleName = "bar2"
                         }
                     }

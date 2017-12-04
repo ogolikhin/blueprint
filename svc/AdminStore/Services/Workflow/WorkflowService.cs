@@ -1344,7 +1344,7 @@ namespace AdminStore.Services.Workflow
 
         private static string DeserializeStateCanvasSettings(string settings)
         {
-            var result = string.Empty;
+            string result = null;
             if (!string.IsNullOrEmpty(settings))
             {
                 result = SerializationHelper.FromXml<XmlStateCanvasSettings>(settings).Location;

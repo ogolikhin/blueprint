@@ -256,7 +256,6 @@ namespace AdminStore.Helpers.Workflow
             destinationWorkflow.Projects = sourceWorkflow.Projects?.Select(ieProject => new DProject
             {
                 Id = ieProject.Id,
-                Path = ieProject.Path,
                 ArtifactTypes = ieProject.ArtifactTypes?.Select(ieArtifactType => new DArtifactType
                 {
                     Id = ieArtifactType.Id,

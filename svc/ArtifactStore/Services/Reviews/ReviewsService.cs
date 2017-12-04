@@ -362,7 +362,7 @@ namespace ArtifactStore.Services.Reviews
             if (reviewData.ReviewStatus == ReviewPackageStatus.Active &&
                 content.Role == ReviewParticipantRole.Approver)
             {
-                var artifactRequredApproval = reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested);
+                var artifactRequredApproval = reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested ?? true);
                 if (artifactRequredApproval != null)
                 {
                     throw new ConflictException("Could not update review participants because review needs to be converted to Formal.", ErrorCodes.ReviewNeedsToMoveBackToDraftState);
@@ -533,7 +533,13 @@ namespace ArtifactStore.Services.Reviews
             {
                 throw ReviewsExceptionHelper.ReviewActiveFormalException();
             }
-
+            foreach (var artifact in review.Contents.Artifacts)
+            {
+                if (artifact.ApprovalNotRequested == null)
+                {
+                    artifact.ApprovalNotRequested = (review.BaselineId == null);
+                }
+            }
             var resultErrors = new List<ReviewChangeItemsError>();
 
             var updatingArtifacts = GetReviewArtifacts(content, resultErrors, review.Contents);

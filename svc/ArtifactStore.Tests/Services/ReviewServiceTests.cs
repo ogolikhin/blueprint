@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ArtifactStore.Helpers;
 using ArtifactStore.Models.Review;
 using ArtifactStore.Repositories;
 using ArtifactStore.Services.Reviews;
@@ -2208,6 +2209,72 @@ namespace ArtifactStore.Services
         #region AssignRoleToParticipantAsync
 
         [TestMethod]
+        public void AssignApprovalRequiredToArtifacts_Should_Not_Serialize_ApprovalNotRequested_When_Value_Null()
+        {
+            var artifacts = new List<int> { 1 };
+            var expectedXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA></Artifacts></RDReviewContents>";
+
+            // Arrange
+            _artifactDetails.LockedByUserId = UserId;
+
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact
+                {
+                    Id = artifacts.First(),
+                    ApprovalNotRequested = null
+                }
+            };
+
+            _mockArtifactPermissionsRepository
+                .Setup(m => m.GetArtifactPermissions(artifacts, UserId, false, int.MaxValue, true))
+                .ReturnsAsync(new Dictionary<int, RolePermissions>
+                    {
+                        { artifacts[0], RolePermissions.Read }
+                    });
+
+            // Act
+
+                var resultArtifactsXml = ReviewRawDataHelper.GetStoreData(_review.Contents);
+
+           // Assert
+            Assert.AreEqual(resultArtifactsXml, expectedXml);
+        }
+
+        [TestMethod]
+        public void AssignApprovalRequiredToArtifacts_Should_Serialize_ApprovalNotRequested_When_Value_Is_Not_Null()
+        {
+            var artifacts = new List<int> { 1 };
+            var expectedXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><ANR>true</ANR><Id>1</Id></CA></Artifacts></RDReviewContents>";
+
+            // Arrange
+            _artifactDetails.LockedByUserId = UserId;
+
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact
+                {
+                    Id = artifacts.First(),
+                    ApprovalNotRequested = true
+                }
+            };
+
+            _mockArtifactPermissionsRepository
+                .Setup(m => m.GetArtifactPermissions(artifacts, UserId, false, int.MaxValue, true))
+                .ReturnsAsync(new Dictionary<int, RolePermissions>
+                    {
+                        { artifacts[0], RolePermissions.Read }
+                    });
+
+            // Act
+
+            var resultArtifactsXml = ReviewRawDataHelper.GetStoreData(_review.Contents);
+
+            // Assert
+            Assert.AreEqual(resultArtifactsXml, expectedXml);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Does_Not_Exist()
         {
@@ -2916,7 +2983,7 @@ namespace ArtifactStore.Services
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = artifactIds,
-                ApprovalRequired = false
+                ApprovalRequired = true
             };
             _artifactDetails.LockedByUserId = UserId;
 
@@ -3007,7 +3074,7 @@ namespace ArtifactStore.Services
             var content = new AssignArtifactsApprovalParameter
             {
                 ItemIds = artifactIds,
-                ApprovalRequired = false
+                ApprovalRequired = true
             };
 
             var requestedArtifactIds = new List<int> { 1, 2, 3 };

@@ -314,7 +314,7 @@ namespace AdminStore.Services.Workflow
         {
             var textErrors = workflowMode == WorkflowMode.Xml
                 ? _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors, fileName)
-                : _workflowValidationErrorBuilder.BuildTextXmlErrors(xmlValidationResult.Errors);
+                : _workflowValidationErrorBuilder.BuildTextDiagramErrors(xmlValidationResult.Errors);
             var guid = await UploadErrorsToFileStoreAsync(textErrors);
 
             importResult.ErrorsGuid = guid;

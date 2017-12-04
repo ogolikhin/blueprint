@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 
@@ -16,6 +17,12 @@ namespace AdminStore.Services.Workflow
         private const string TemplateWorkflowUpdateDiagramFailedPlural = "There were errors updating workflow's diagram.";
         private const string ReplacementNotSpecifiedFileName = "the XML";
         private const string XmlIsNotValid = "The supplied XML is not valid. Please edit your file and upload again.";
+
+        // Messages for the Diagram validation.
+        private const string TemplateDiagramWorkflowDoesNotContainAnyStates = "There are no States defined in this Workflow. Please ensure the model includes a <States> element, and two or more <State> child elements.";
+        private const string TemplateDiagramProjectNoSpecified = "There are no Projects defined in this Workflow. If the model includes a <Projects> element, ensure that there are one or more <Project> child elements.";
+        private const string TemplateDiagramWorkflowIdDoesNotMatchIdInUrl = "The Workflow Id attribute in the model does not match the Workflow have you chosen to update. Please ensure you are sending the correct Workflow model.";
+
 
         // Messages for the XML validation.
         private const string TemplateXmlWorkflowXmlSerializationError = "{0}";
@@ -142,14 +149,14 @@ namespace AdminStore.Services.Workflow
             return FormatXmlErrorListToString(templateText, errorList);
         }
 
-        public string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors)
+        public string BuildTextDiagramErrors(IEnumerable<WorkflowXmlValidationError> errors)
         {
             var errorList = errors.ToList();
             var templateText = errorList.Count > 1
                 ? TemplateWorkflowUpdateDiagramFailedPlural
                 : TemplateWorkflowUpdateDiagramFailedSingular;
 
-            return FormatXmlErrorListToString(templateText, errorList);
+            return FormatXmlErrorListToString(templateText, errorList, WorkflowMode.Canvas);
         }
 
         public string BuildTextDataErrors(IEnumerable<WorkflowDataValidationError> errors, string fileName, bool isEditFileMessage = true)
@@ -186,7 +193,7 @@ namespace AdminStore.Services.Workflow
 
         #region Private Methods
 
-        private static string FormatXmlErrorListToString(string templateText, List<WorkflowXmlValidationError> errorList)
+        private static string FormatXmlErrorListToString(string templateText, List<WorkflowXmlValidationError> errorList, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
             var sb = new StringBuilder();
             AppendLine(sb, templateText);
@@ -194,7 +201,9 @@ namespace AdminStore.Services.Workflow
             foreach (var error in errorList)
             {
                 string template;
-                var errParams = GetXmlErrorMessageTemaplateAndParams(error, out template);
+                var errParams = workflowMode == WorkflowMode.Xml
+                    ? GetXmlErrorMessageTemaplateAndParams(error, out template)
+                    : GetDiagramErrorMessageTemplateAndParams(error, out template);
                 Append(sb, "\t- ");
                 AppendLine(sb, template, errParams);
             }
@@ -217,6 +226,30 @@ namespace AdminStore.Services.Workflow
             }
 
             return sb.ToString();
+        }
+        private static object[] GetDiagramErrorMessageTemplateAndParams(WorkflowXmlValidationError error, out string template)
+        {
+            object[] errParams;
+
+            switch (error.ErrorCode)
+            {
+                case WorkflowXmlValidationErrorCodes.WorkflowDoesNotContainAnyStates:
+                    template = TemplateDiagramWorkflowDoesNotContainAnyStates;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.ProjectNoSpecified:
+                    template = TemplateDiagramProjectNoSpecified;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.WorkflowIdDoesNotMatchIdInUrl:
+                    template = TemplateDiagramWorkflowIdDoesNotMatchIdInUrl;
+                    errParams = new object[] { };
+                    break;
+                default:
+                    return GetXmlErrorMessageTemaplateAndParams(error, out template);
+            }
+
+            return errParams;
         }
 
         private static object[] GetXmlErrorMessageTemaplateAndParams(WorkflowXmlValidationError error, out string template)

@@ -10,6 +10,6 @@ namespace AdminStore.Services.Workflow
 
         string BuildTextDataErrors(IEnumerable<WorkflowDataValidationError> errors);
 
-        string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors);
+        string BuildTextDiagramErrors(IEnumerable<WorkflowXmlValidationError> errors);
     }
 }

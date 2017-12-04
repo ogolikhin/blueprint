@@ -104,6 +104,7 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("UpdateWorkflow", HttpMethod.Put, "workflow/1");
             config.AssertAction<WorkflowController>("GetWorkflowDiagram", HttpMethod.Get, "workflow/diagram/1");
             config.AssertAction<WorkflowController>("GetWorkflowArtifactTypesProperties", HttpMethod.Post, "workflow/artifacttypes/properties");
+            config.AssertAction<WorkflowController>("UpdateWorkflowDiagram", HttpMethod.Put, "workflow/diagram/1");
         }
 
         [TestMethod]

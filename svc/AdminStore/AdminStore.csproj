@@ -131,12 +131,14 @@
     <Compile Include="Models\AssignScope.cs" />
     <Compile Include="Models\CreateResult.cs" />
     <Compile Include="Models\DiagramWorkflow\DBaseAction.cs" />
+    <Compile Include="Helpers\DBaseActionJsonConverter.cs" />
     <Compile Include="Models\DiagramWorkflow\DEmailNotificationAction.cs" />
     <Compile Include="Models\DiagramWorkflow\DGenerateAction.cs" />
     <Compile Include="Models\DiagramWorkflow\DPropertyChangeAction.cs" />
     <Compile Include="Models\DiagramWorkflow\DUserGroup.cs" />
     <Compile Include="Models\DiagramWorkflow\DUsersGroups.cs" />
     <Compile Include="Models\DiagramWorkflow\DValidValue.cs" />
+    <Compile Include="Helpers\JsonTypeConverter.cs" />
     <Compile Include="Models\DTO\CopyWorkfloDto.cs" />
     <Compile Include="Models\DTO\CreateWorkflowDto.cs" />
     <Compile Include="Models\DTO\FolderDto.cs" />

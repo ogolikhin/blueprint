@@ -950,13 +950,10 @@ namespace AdminStore.Services.Workflow
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange:
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable:
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById:
-                            case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundByName:
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById:
-                            case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundByName:
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated:
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById:
-                            case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundByValue:
                                 workflow.TransitionEvents?.ForEach(q => q.Triggers
                                     .RemoveAll(que => (que.Action?.ActionType == ActionTypes.PropertyChange) &&
                                                       ((IePropertyChangeAction)que.Action).PropertyName ==

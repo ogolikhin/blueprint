@@ -407,7 +407,6 @@ namespace AdminStore.Helpers.Workflow
 
             Assert.AreEqual(1, mappedWorkflow.Projects.Count());
             Assert.AreEqual(sourceWF.Projects[0].Id, mappedWorkflow.Projects.ToList()[0].Id);
-            Assert.AreEqual(sourceWF.Projects[0].Path, mappedWorkflow.Projects.ToList()[0].Path);
             Assert.AreEqual(1, mappedWorkflow.Projects.ToList()[0].ArtifactTypes.ToList().Count);
             Assert.AreEqual(sourceWF.Projects[0].ArtifactTypes[0].Id, mappedWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Id);
             Assert.AreEqual(sourceWF.Projects[0].ArtifactTypes[0].Name, mappedWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Name);

@@ -537,13 +537,12 @@ namespace ArtifactStore.Services.Reviews
             {
                 if (artifact.ApprovalNotRequested == null)
                 {
-                    artifact.ApprovalNotRequested = (review.BaselineId == null || review.BaselineId.Value <= 0);
+                    artifact.ApprovalNotRequested = (review.BaselineId == null);
                 }
             }
             var resultErrors = new List<ReviewChangeItemsError>();
 
             var updatingArtifacts = GetReviewArtifacts(content, resultErrors, review.Contents);
-
 
             if (updatingArtifacts.Any())
             {

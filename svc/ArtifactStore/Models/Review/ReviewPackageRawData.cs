@@ -113,6 +113,8 @@ namespace ArtifactStore.Models.Review
         public SimulationSettingsRawData Settings;
 
         public ExtensionDataObject ExtensionData { get; set; }
+
+        // Uses by serialization. Allows to check if ApprovalNotRequested is not null otherwise doesn't write "ANR" tag to XML.
         public bool ShouldSerializeApprovalNotRequested()
         {
             return ApprovalNotRequested.HasValue;

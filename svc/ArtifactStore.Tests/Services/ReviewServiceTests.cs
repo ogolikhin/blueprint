@@ -2811,6 +2811,60 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
+        public async Task AssignApprovalRequiredToArtifacts_Review_Needs_To_Be_Deactivated_Should_Throw_ConflictException()
+        {
+            var artifacts = new List<int> { 1 };
+            // Arrange
+            var content = new AssignArtifactsApprovalParameter
+            {
+                ItemIds = artifacts,
+                ApprovalRequired = true
+            };
+            _artifactDetails.LockedByUserId = UserId;
+
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact
+                {
+                    Id = artifacts.First(),
+                    ApprovalNotRequested = true
+                }
+            };
+
+            _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            {
+                new ReviewerRawData
+                {
+                    UserId = UserId,
+                    Permission = ReviewParticipantRole.Approver
+                }
+            };
+            _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
+
+            _mockArtifactPermissionsRepository
+                .Setup(m => m.GetArtifactPermissions(artifacts, UserId, false, int.MaxValue, true))
+                .ReturnsAsync(new Dictionary<int, RolePermissions>
+                    {
+                        { artifacts[0], RolePermissions.Read }
+                    });
+
+            // Act
+            try
+            {
+                await _reviewService.AssignApprovalRequiredToArtifactsAsync(ReviewId, content, UserId);
+            }
+            catch (ConflictException ex)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ReviewNeedsToMoveBackToDraftState, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A Conflict Exception was not  thrown.");
+        }
+
+        [TestMethod]
         public async Task AssignApprovalRequiredToArtifacts_Review_Success()
         {
             _review.Contents.Artifacts = new List<RDArtifact>

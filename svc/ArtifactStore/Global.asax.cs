@@ -14,6 +14,7 @@ namespace ArtifactStore
 #if DEBUG
             GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "~/bin/ArtifactStore.XML", "ArtifactStore"));
 #endif
+            HttpsSecurity.Configure();
         }
 
         protected void Application_Error(object sender, EventArgs e)

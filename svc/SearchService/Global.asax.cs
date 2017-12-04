@@ -14,6 +14,7 @@ namespace SearchService
             GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "~/bin/SearchService.XML", "SearchService",
                 "SearchService is Web Service to perform searchs in Blueprint Web Application."));
 #endif
+            HttpsSecurity.Configure();
         }
 
         protected void Application_Error(object sender, EventArgs e)

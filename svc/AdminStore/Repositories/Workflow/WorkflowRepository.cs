@@ -350,7 +350,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<Models.Workflow.SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<Models.Workflow.SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlWorkflowEvent>> CreateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
         {
             if (workflowEvents == null)
             {
@@ -372,11 +372,11 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@publishRevision", publishRevision);
             parameters.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
 
-            IEnumerable<Models.Workflow.SqlWorkflowEvent> result;
+            IEnumerable<SqlWorkflowEvent> result;
 
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<Models.Workflow.SqlWorkflowEvent>
+                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
                 (
                     "CreateWorkflowEvents",
                     parameters,
@@ -384,7 +384,7 @@ namespace AdminStore.Repositories.Workflow
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<Models.Workflow.SqlWorkflowEvent>
+                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
                 (
                     "CreateWorkflowEvents",
                     parameters,
@@ -395,7 +395,7 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
-        public async Task<IEnumerable<Models.Workflow.SqlWorkflowEvent>> UpdateWorkflowEventsAsync(IEnumerable<Models.Workflow.SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlWorkflowEvent>> UpdateWorkflowEventsAsync(IEnumerable<SqlWorkflowEvent> workflowEvents, int publishRevision, IDbTransaction transaction = null)
         {
             if (workflowEvents == null)
             {
@@ -417,11 +417,11 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@publishRevision", publishRevision);
             parameters.Add("@workflowEvents", ToWorkflowEventsCollectionDataTable(dWorkflowEvents));
 
-            IEnumerable<Models.Workflow.SqlWorkflowEvent> result;
+            IEnumerable<SqlWorkflowEvent> result;
 
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<Models.Workflow.SqlWorkflowEvent>
+                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
                 (
                     "UpdateWorkflowEvents",
                     parameters,
@@ -429,7 +429,7 @@ namespace AdminStore.Repositories.Workflow
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<Models.Workflow.SqlWorkflowEvent>
+                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
                 (
                     "UpdateWorkflowEvents",
                     parameters,
@@ -462,11 +462,11 @@ namespace AdminStore.Repositories.Workflow
             parameters.Add("@publishRevision", publishRevision);
             parameters.Add("@workflowEventIds", SqlConnectionWrapper.ToDataTable(listWorkflowStateIds));
 
-            IEnumerable<Models.Workflow.SqlWorkflowEvent> result;
+            IEnumerable<SqlWorkflowEvent> result;
 
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<Models.Workflow.SqlWorkflowEvent>
+                result = await _connectionWrapper.QueryAsync<SqlWorkflowEvent>
                 (
                     "DeleteWorkflowEvents",
                     parameters,
@@ -474,7 +474,7 @@ namespace AdminStore.Repositories.Workflow
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<Models.Workflow.SqlWorkflowEvent>
+                result = await transaction.Connection.QueryAsync<SqlWorkflowEvent>
                 (
                     "DeleteWorkflowEvents",
                     parameters,
@@ -717,7 +717,8 @@ namespace AdminStore.Repositories.Workflow
 
                 var projectArtifacts = artifacts.Select(artifact => new WorkflowArtifactType()
                 {
-                    Id = artifact.ArtifactId, Name = artifact.ArtifactName
+                    Id = artifact.ArtifactId,
+                    Name = artifact.ArtifactName
                 }).ToList();
 
                 string projectName = artifacts[0].ProjectName;
@@ -927,15 +928,15 @@ namespace AdminStore.Repositories.Workflow
 
             if (transaction != null)
             {
-                    await
-                        transaction.Connection.ExecuteScalarAsync<int>("UpdateWorkflow", parameters, transaction,
-                            commandType: CommandType.StoredProcedure);
+                await
+                    transaction.Connection.ExecuteScalarAsync<int>("UpdateWorkflow", parameters, transaction,
+                        commandType: CommandType.StoredProcedure);
             }
             else
             {
-                    await
-                        _connectionWrapper.ExecuteScalarAsync<int>("UpdateWorkflow", parameters,
-                            commandType: CommandType.StoredProcedure);
+                await
+                    _connectionWrapper.ExecuteScalarAsync<int>("UpdateWorkflow", parameters,
+                        commandType: CommandType.StoredProcedure);
             }
 
             var errorCode = parameters.Get<int?>("ErrorCode");
@@ -1003,13 +1004,13 @@ namespace AdminStore.Repositories.Workflow
             foreach (var workflowState in workflowStates)
             {
                 table.Rows.Add(workflowState.WorkflowStateId, workflowState.Name,
-                  workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex, string.IsNullOrEmpty(workflowState.CanvasSettings) ? string.Empty : workflowState.CanvasSettings);
+                  workflowState.WorkflowId, workflowState.Default, workflowState.OrderIndex, workflowState.CanvasSettings);
             }
 
             return table;
         }
 
-        private static DataTable ToWorkflowEventsCollectionDataTable(IEnumerable<Models.Workflow.SqlWorkflowEvent> workflowEvents)
+        private static DataTable ToWorkflowEventsCollectionDataTable(IEnumerable<SqlWorkflowEvent> workflowEvents)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WorkflowEventsCollection");
@@ -1030,7 +1031,7 @@ namespace AdminStore.Repositories.Workflow
                 table.Rows.Add(workfloEvent.WorkflowEventId, workfloEvent.Name,
                     workfloEvent.WorkflowId, workfloEvent.Type, workfloEvent.Permissions,
                     workfloEvent.Validations, workfloEvent.Triggers, workfloEvent.WorkflowState1Id,
-                    workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId, string.IsNullOrEmpty(workfloEvent.CanvasSettings) ? string.Empty : workfloEvent.CanvasSettings);
+                    workfloEvent.WorkflowState2Id, workfloEvent.PropertyTypeId, workfloEvent.CanvasSettings);
             }
 
             return table;

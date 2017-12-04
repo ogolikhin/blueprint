@@ -187,7 +187,7 @@ namespace ArtifactStore.Repositories
             if (meaningOfSignaturesDictionary.ContainsKey(userId))
             {
                 return possibleMeaningOfSignaturesDictionary[userId]
-                    .Where(pmos => meaningOfSignaturesDictionary[userId].Contains(pmos.RoleAssignmentId));
+                    .Where(pmos => meaningOfSignaturesDictionary[userId].Contains(pmos.RoleId));
             }
 
             return new ParticipantMeaningOfSignatureResult[0];
@@ -900,7 +900,7 @@ namespace ArtifactStore.Repositories
                     if (possibleMeaningOfSignatures.ContainsKey(reviewer.UserId))
                     {
                         reviewer.PossibleMeaningOfSignatures =
-                            possibleMeaningOfSignatures[reviewer.UserId].Select(mos => new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
+                            possibleMeaningOfSignatures[reviewer.UserId].Select(mos => new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleId));
                     }
                     else
                     {
@@ -933,7 +933,7 @@ namespace ArtifactStore.Repositories
 
             var result = await _connectionWrapper.QueryAsync<ParticipantMeaningOfSignatureResult>("GetParticipantsMeaningOfSignatures", parameters, commandType: CommandType.StoredProcedure);
 
-            return result.GroupBy(mos => mos.ParticipantId, mos => mos.RoleAssignmentId).ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
+            return result.GroupBy(mos => mos.ParticipantId, mos => mos.RoleId).ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
         }
 
         public async Task<Dictionary<int, List<ParticipantMeaningOfSignatureResult>>> GetPossibleMeaningOfSignaturesForParticipantsAsync(IEnumerable<int> participantIds)
@@ -944,7 +944,9 @@ namespace ArtifactStore.Repositories
             var result = await _connectionWrapper.QueryAsync<ParticipantMeaningOfSignatureResult>("GetPossibleMeaningOfSignaturesForParticipants", parameters, commandType: CommandType.StoredProcedure);
 
             return result.GroupBy(mos => mos.ParticipantId)
-                         .ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
+                         .ToDictionary(grouping => grouping.Key, grouping => grouping.GroupBy(mos => mos.RoleId)
+                                                                                     .Select(g => g.First())
+                                                                                     .ToList());
         }
 
         public async Task<QueryResult<ReviewArtifactDetails>> GetReviewArtifactStatusesByParticipant(int artifactId, int reviewId, Pagination pagination, int userId, int? versionId = null, bool? addDrafts = true)

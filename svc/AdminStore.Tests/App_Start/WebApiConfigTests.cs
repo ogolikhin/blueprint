@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(81, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(82, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<ConfigController>("GetApplicationSettings", HttpMethod.Get, "config");
@@ -103,6 +103,7 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("AssignArtifactTypesToProjectInWorkflow", HttpMethod.Post, "workflow/1/project/1/assign");
             config.AssertAction<WorkflowController>("UpdateWorkflow", HttpMethod.Put, "workflow/1");
             config.AssertAction<WorkflowController>("GetWorkflowDiagram", HttpMethod.Get, "workflow/diagram/1");
+            config.AssertAction<WorkflowController>("UpdateWorkflowDiagram", HttpMethod.Put, "workflow/diagram/1");
         }
 
         [TestMethod]

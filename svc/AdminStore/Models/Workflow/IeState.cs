@@ -82,5 +82,15 @@ namespace AdminStore.Models.Workflow
         }
 
         #endregion
+
+        public bool EqualsIncludingLocation(IeState obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+
+            return Id.GetValueOrDefault() == obj.Id.GetValueOrDefault() && string.Equals(Name, obj.Name) &&
+                   IsInitial.GetValueOrDefault() == obj.IsInitial.GetValueOrDefault() && Equals(Location ?? string.Empty, obj.Location ?? string.Empty);
+        }
     }
 }

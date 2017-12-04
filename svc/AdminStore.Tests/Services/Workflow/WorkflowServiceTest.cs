@@ -269,7 +269,7 @@ namespace AdminStore.Services.Workflow
                 .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
 
             // Act
-            await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.XmlExport);
+            await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Xml);
 
             // Assert
             // Exception
@@ -336,7 +336,7 @@ namespace AdminStore.Services.Workflow
             _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(_projectTypes);
 
             // act
-            var workflowExport = await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.XmlExport);
+            var workflowExport = await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Xml);
 
             // assert
             Assert.IsNotNull(workflowExport);
@@ -354,7 +354,7 @@ namespace AdminStore.Services.Workflow
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
 
             // act
-            await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.XmlExport);
+            await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Xml);
 
         }
 
@@ -370,7 +370,7 @@ namespace AdminStore.Services.Workflow
             _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(_projectTypes);
 
             // act
-            var workflowExport = await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.XmlExport);
+            var workflowExport = await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Xml);
 
             // assert
             Assert.IsNotNull(workflowExport);

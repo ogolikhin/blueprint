@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using AdminStore.Helpers;
+using Newtonsoft.Json;
 
 namespace AdminStore.Models.DiagramWorkflow {
     public class DTrigger
@@ -6,6 +7,8 @@ namespace AdminStore.Models.DiagramWorkflow {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DBaseActionJsonConverter))]
         public DBaseAction Action { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

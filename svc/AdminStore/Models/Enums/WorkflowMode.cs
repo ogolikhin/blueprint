@@ -7,7 +7,7 @@ namespace AdminStore.Models.Enums
 {
     public enum WorkflowMode
     {
-        XmlExport,
+        Xml,
         Canvas
     }
 }

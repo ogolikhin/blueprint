@@ -367,14 +367,13 @@ namespace ArtifactStore.Services.Reviews
                 // If we have approvers before current action, it means that review already was converted to formal
                 if (!hasApproversAlready)
                 {
-                    var artifactRequredApproval =
-                        reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested);
-                    if (artifactRequredApproval != null)
-                    {
-                        throw new ConflictException(
-                            "Could not update review participants because review needs to be converted to Formal.",
-                            ErrorCodes.ReviewNeedsToMoveBackToDraftState);
-                    }
+                  var artifactRequredApproval = reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested ?? true);
+                  if (artifactRequredApproval != null)
+                  {                
+                    throw new ConflictException(
+                         "Could not update review participants because review needs to be converted to Formal.",
+                         ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                  }
                 }
             }
 
@@ -542,7 +541,13 @@ namespace ArtifactStore.Services.Reviews
             {
                 throw ReviewsExceptionHelper.ReviewActiveFormalException();
             }
-
+            foreach (var artifact in review.Contents.Artifacts)
+            {
+                if (artifact.ApprovalNotRequested == null)
+                {
+                    artifact.ApprovalNotRequested = (review.BaselineId == null);
+                }
+            }
             var resultErrors = new List<ReviewChangeItemsError>();
 
             var updatingArtifacts = GetReviewArtifacts(content, resultErrors, review.Contents);

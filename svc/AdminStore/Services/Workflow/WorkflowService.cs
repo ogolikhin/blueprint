@@ -68,7 +68,7 @@ namespace AdminStore.Services.Workflow
             ITriggerConverter triggerConverter,
             IWorkflowActionPropertyValueValidator propertyValueValidator,
             IWorkflowDiff workflowDiff,
-            IArtifactRepository instanceRepository)
+            IArtifactRepository artifactRepository)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
@@ -78,7 +78,7 @@ namespace AdminStore.Services.Workflow
             _triggerConverter = triggerConverter;
             _propertyValueValidator = propertyValueValidator;
             _workflowDiff = workflowDiff;
-            _artifactRepository = instanceRepository;
+            _artifactRepository = artifactRepository;
         }
 
         public IFileRepository FileRepository
@@ -668,7 +668,7 @@ namespace AdminStore.Services.Workflow
             return dWorkflow;
         }
 
-        public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactStandardProperties(ISet<int> standardArtifactTypeIds)
+        public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactTypesProperties(ISet<int> standardArtifactTypeIds)
         {
             List<PropertyType> standardProperties =
                 (await _artifactRepository.GetStandardProperties(standardArtifactTypeIds)).ToList();

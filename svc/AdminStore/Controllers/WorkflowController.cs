@@ -609,7 +609,7 @@ namespace AdminStore.Controllers
         /// Get a list of standard properties for certain artifact types or all standard properties in system + Name and Description.
         /// </summary>
         /// <remarks>
-        /// Return the list of standard properties.
+        /// Return the list of standard properties + Name and Description.
         /// </remarks>
         /// <param name="standardArtifactTypeIds">It is filter to receive only standard properties for certain artifact types or all standard properties in system if the parameter doesn't have any ids.</param>
         /// <response code="200">OK. The list of standard properties.</response>
@@ -618,8 +618,8 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard properties.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
-        [Route("artifacts/standardproperties"), SessionRequired]
-        public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactStandardProperties([FromBody] ISet<int> standardArtifactTypeIds)
+        [Route("artifacttypes/properties"), SessionRequired]
+        public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactTypesProperties([FromBody] ISet<int> standardArtifactTypeIds)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
@@ -628,7 +628,7 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.ModelIsEmpty);
             }
 
-            return await _workflowService.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds);
+            return await _workflowService.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds);
         }
 
         #region Private methods

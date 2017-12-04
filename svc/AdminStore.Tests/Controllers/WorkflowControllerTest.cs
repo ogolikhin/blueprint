@@ -1702,12 +1702,12 @@ namespace AdminStore.Controllers
 
         #endregion
 
-        #region GetWorkflowArtifactStandardProperties
+        #region GetWorkflowArtifactTypesProperties
 
         [TestMethod]
-        public async Task GetWorkflowArtifactStandardProperties_AllParamsAreCorrectAndPermissionsOk_StandardPropertiesSuccessfullyReturned()
+        public async Task GetWorkflowArtifactTypesProperties_AllParamsAreCorrectAndPermissionsOk_StandardPropertiesSuccessfullyReturned()
         {
-            List<PropertyType> standardProperties = new List<PropertyType>()
+            var standardProperties = new List<PropertyType>()
             {
                 new PropertyType()
                 {
@@ -1735,46 +1735,34 @@ namespace AdminStore.Controllers
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            ISet<int> standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+            var standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
 
-            _workflowServiceMock.Setup(repo => repo.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
+            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
 
-            var result = await _controller.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds);
+            var result = await _controller.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds);
 
             // assert
             Assert.IsNotNull(result);
             Assert.AreEqual(4, result.Count());
-
-            var choiceProperty = result.FirstOrDefault(x => x.Id == standardProperties[0].Id && x.Name == standardProperties[0].Name);
-            Assert.IsNotNull(choiceProperty);
-
-            var dateProperty = result.FirstOrDefault(x => x.Id == standardProperties[1].Id && x.Name == standardProperties[1].Name);
-            Assert.IsNotNull(dateProperty);
-
-            var nameProperty = result.FirstOrDefault(x => x.Id == standardProperties[2].Id && x.Name == standardProperties[2].Name);
-            Assert.IsNotNull(nameProperty);
-
-            var descriptionProperty = result.FirstOrDefault(x => x.Id == standardProperties[3].Id && x.Name == standardProperties[3].Name);
-            Assert.IsNotNull(descriptionProperty);
         }
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetWorkflowArtifactStandardProperties_InSufficientPermissions_ReturnAuthorizationException()
+        public async Task GetWorkflowArtifactTypesProperties_InSufficientPermissions_ReturnAuthorizationException()
         {
             // arrange
-            ISet<int> standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+            var standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
 
-            List<PropertyType> standardProperties = new List<PropertyType>();
+            var standardProperties = new List<PropertyType>();
 
-            _workflowServiceMock.Setup(repo => repo.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
+            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
 
             // act
-            await _controller.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds);
+            await _controller.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds);
 
             // assert
             // exception
@@ -1782,7 +1770,7 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
-        public async Task GetWorkflowArtifactStandardProperties_StandardArtifactTypeIdsIsNull_ReturnAuthorizationException()
+        public async Task GetWorkflowArtifactTypesProperties_StandardArtifactTypeIdsIsNull_ReturnAuthorizationException()
         {
             // arrange
             ISet<int> standardArtifactTypeIds = null;
@@ -1791,12 +1779,12 @@ namespace AdminStore.Controllers
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            List<PropertyType> standardProperties = new List<PropertyType>();
+            var standardProperties = new List<PropertyType>();
 
-            _workflowServiceMock.Setup(repo => repo.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
+            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
 
             // act
-            await _controller.GetWorkflowArtifactStandardProperties(standardArtifactTypeIds);
+            await _controller.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds);
 
             // assert
             // exception

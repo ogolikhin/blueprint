@@ -416,5 +416,44 @@ namespace AdminStore.Services.Workflow
             Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.ToPort, toPort);
         }
         #endregion
+
+        #region GetWorkflowArtifactTypesProperties
+
+        [TestMethod]
+        public async Task GetWorkflowArtifactTypesProperties_ParametersAreCorrect_ReturnProperties()
+        {
+            // arrange
+
+            var standardProperties = new List<PropertyType>()
+             {
+                new PropertyType()
+                {
+                    Id = 175,
+                    Name = "Std-Choice-Required-AllowMultiple-DefaultValue"
+                },
+                new PropertyType()
+                {
+                    Id = 171,
+                    Name = "Std-Date-Required-Validated-Min-Max-HasDefault"
+                }
+             };
+
+            var standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+            _artifactRepository.Setup(repo => repo.GetStandardProperties(standardArtifactTypeIds))
+                .ReturnsAsync(standardProperties);
+
+            var result = (await _service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ToList();
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(4, result.Count);
+
+            var nameProperty = result.FirstOrDefault(x => x.Name == WorkflowConstants.PropertyNameName);
+            Assert.IsNotNull(nameProperty);
+
+            var descriptionProperty = result.FirstOrDefault(x => x.Name == WorkflowConstants.PropertyNameDescription);
+            Assert.IsNotNull(descriptionProperty);
+        }
+
+        #endregion
     }
 }

@@ -103,7 +103,7 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("AssignArtifactTypesToProjectInWorkflow", HttpMethod.Post, "workflow/1/project/1/assign");
             config.AssertAction<WorkflowController>("UpdateWorkflow", HttpMethod.Put, "workflow/1");
             config.AssertAction<WorkflowController>("GetWorkflowDiagram", HttpMethod.Get, "workflow/diagram/1");
-            config.AssertAction<WorkflowController>("GetWorkflowArtifactStandardProperties", HttpMethod.Post, "workflow/artifacts/standardproperties");
+            config.AssertAction<WorkflowController>("GetWorkflowArtifactTypesProperties", HttpMethod.Post, "workflow/artifacttypes/properties");
         }
 
         [TestMethod]

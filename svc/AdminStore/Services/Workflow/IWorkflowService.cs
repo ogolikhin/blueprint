@@ -32,6 +32,7 @@ namespace AdminStore.Services.Workflow
         Task<int> CreateWorkflow(string name, string description, int userId);
 
         Task<DWorkflow> GetWorkflowDiagramAsync(int workflowId);
-        Task<IEnumerable<PropertyType>> GetWorkflowArtifactStandardProperties(ISet<int> standardArtifactTypeIds);
+
+        Task<IEnumerable<PropertyType>> GetWorkflowArtifactTypesProperties(ISet<int> standardArtifactTypeIds);
     }
 }

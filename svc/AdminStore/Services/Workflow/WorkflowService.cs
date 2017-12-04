@@ -874,9 +874,6 @@ namespace AdminStore.Services.Workflow
                     {
                         switch (error.ErrorCode)
                         {
-                            case WorkflowDataValidationErrorCodes.ProjectByPathNotFound:
-                                workflow.Projects?.RemoveAll(q => q.Path == (string)error.Element);
-                                break;
                             case WorkflowDataValidationErrorCodes.ProjectByIdNotFound:
                                 workflow.Projects?.RemoveAll(q => q.IdSerializable == (int)error.Element);
                                 break;
@@ -888,16 +885,9 @@ namespace AdminStore.Services.Workflow
                             case WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundById:
                                 workflow.Projects?.ForEach(q => q.ArtifactTypes?.RemoveAll(qu => qu.IdSerializable == (int)error.Element));
                                 break;
-                            case WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundByName:
-                                workflow.Projects?.ForEach(q => q.ArtifactTypes?.RemoveAll(qu => qu.Name == (string)error.Element));
-                                break;
                             case WorkflowDataValidationErrorCodes.InstanceGroupNotFoundById:
                                 workflow.TransitionEvents?.ForEach(
                                     q => q.PermissionGroups?.RemoveAll(qu => qu.Id == (int)error.Element));
-                                break;
-                            case WorkflowDataValidationErrorCodes.InstanceGroupNotFoundByName:
-                                workflow.TransitionEvents?.ForEach(
-                                    q => q.PermissionGroups?.RemoveAll(qu => qu.Name == (string)error.Element));
                                 break;
                             case WorkflowDataValidationErrorCodes.PropertyNotFoundById:
                                 workflow.PropertyChangeEvents?.RemoveAll(q => q.PropertyId == (int)error.Element);
@@ -919,21 +909,6 @@ namespace AdminStore.Services.Workflow
                                                  ((IeEmailNotificationAction)qu.Action).PropertyId.GetValueOrDefault() ==
                                                  (int)error.Element));
                                 break;
-                            case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundByName:
-                            case WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType:
-                                workflow.TransitionEvents?.ForEach(q => q.Triggers
-                                    .RemoveAll(qu => (qu.Action?.ActionType == ActionTypes.EmailNotification) &&
-                                                     ((IeEmailNotificationAction)qu.Action).PropertyName ==
-                                                     (string)error.Element));
-                                workflow.PropertyChangeEvents?.ForEach(q => q.Triggers
-                                    .RemoveAll(qu => (qu.Action?.ActionType == ActionTypes.EmailNotification) &&
-                                                     ((IeEmailNotificationAction)qu.Action).PropertyName ==
-                                                     (string)error.Element));
-                                workflow.NewArtifactEvents?.ForEach(q => q.Triggers
-                                    .RemoveAll(qu => (qu.Action?.ActionType == ActionTypes.EmailNotification) &&
-                                                     ((IeEmailNotificationAction)qu.Action).PropertyName ==
-                                                     (string)error.Element));
-                            break;
                             case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById:
                                 workflow.TransitionEvents?.ForEach(q => q.Triggers.RemoveAll(
                                     queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
@@ -950,22 +925,6 @@ namespace AdminStore.Services.Workflow
                                             (((IeGenerateAction)queq.Action).GenerateActionType == GenerateActionTypes.Children) &&
                                             ((IeGenerateAction)queq.Action).ArtifactTypeId == (int)error.Element));
                             break;
-                            case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundByName:
-                            workflow.TransitionEvents?.ForEach(q => q.Triggers.RemoveAll(
-                                    queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
-                                            (((IeGenerateAction)queq.Action).GenerateActionType == GenerateActionTypes.Children) &&
-                                            ((IeGenerateAction)queq.Action).ArtifactType == (string)error.Element));
-
-                                workflow.PropertyChangeEvents?.ForEach(q => q.Triggers.RemoveAll(
-                                    queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
-                                            (((IeGenerateAction)queq.Action).GenerateActionType == GenerateActionTypes.Children) &&
-                                            ((IeGenerateAction)queq.Action).ArtifactType == (string)error.Element));
-
-                                workflow.NewArtifactEvents?.ForEach(q => q.Triggers.RemoveAll(
-                                    queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
-                                            (((IeGenerateAction)queq.Action).GenerateActionType == GenerateActionTypes.Children) &&
-                                            ((IeGenerateAction)queq.Action).ArtifactType == (string)error.Element));
-                            break;
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById:
                                 workflow.TransitionEvents?.ForEach(q => q.Triggers
                                     .RemoveAll(que => (que.Action?.ActionType == ActionTypes.PropertyChange) &&
@@ -979,20 +938,6 @@ namespace AdminStore.Services.Workflow
                                     .RemoveAll(que => (que.Action?.ActionType == ActionTypes.PropertyChange) &&
                                                       ((IePropertyChangeAction)que.Action).PropertyId.GetValueOrDefault() ==
                                                       (int)error.Element));
-                            break;
-                            case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundByName:
-                                workflow.TransitionEvents?.ForEach(q => q.Triggers
-                                    .RemoveAll(que => (que.Action?.ActionType == ActionTypes.PropertyChange) &&
-                                                      ((IePropertyChangeAction)que.Action).PropertyName ==
-                                                      (string)error.Element));
-                                workflow.PropertyChangeEvents?.ForEach(q => q.Triggers
-                                    .RemoveAll(que => (que.Action?.ActionType == ActionTypes.PropertyChange) &&
-                                                      ((IePropertyChangeAction)que.Action).PropertyName ==
-                                                      (string)error.Element));
-                                workflow.NewArtifactEvents?.ForEach(q => q.Triggers
-                                    .RemoveAll(que => (que.Action?.ActionType == ActionTypes.PropertyChange) &&
-                                                      ((IePropertyChangeAction)que.Action).PropertyName ==
-                                                      (string)error.Element));
                             break;
                             // cases Validation Property value in PropertyChangeAction trigger
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:

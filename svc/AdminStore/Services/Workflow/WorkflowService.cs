@@ -669,7 +669,7 @@ namespace AdminStore.Services.Workflow
 
         public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactTypesProperties(ISet<int> standardArtifactTypeIds)
         {
-            List<PropertyType> standardProperties =
+            var standardProperties =
                 (await _artifactRepository.GetStandardProperties(standardArtifactTypeIds)).ToList();
 
             PropertyType nameProperty;

@@ -1705,9 +1705,9 @@ namespace AdminStore.Controllers
         #region GetWorkflowArtifactTypesProperties
 
         [TestMethod]
-        public async Task GetWorkflowArtifactTypesProperties_AllParamsAreCorrectAndPermissionsOk_StandardPropertiesSuccessfullyReturned()
+        public async Task GetWorkflowArtifactTypesProperties_AllParamsAreCorrectAndPermissionsOk_PropertiesSuccessfullyReturned()
         {
-            var standardProperties = new List<PropertyType>()
+            var properties = new List<PropertyType>()
             {
                 new PropertyType()
                 {
@@ -1737,7 +1737,7 @@ namespace AdminStore.Controllers
 
             var standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
 
-            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
+            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(properties);
 
             var result = await _controller.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds);
 
@@ -1757,9 +1757,9 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
 
-            var standardProperties = new List<PropertyType>();
+            var properties = new List<PropertyType>();
 
-            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
+            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(properties);
 
             // act
             await _controller.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds);
@@ -1779,9 +1779,9 @@ namespace AdminStore.Controllers
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            var standardProperties = new List<PropertyType>();
+            var properties = new List<PropertyType>();
 
-            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(standardProperties);
+            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(properties);
 
             // act
             await _controller.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds);

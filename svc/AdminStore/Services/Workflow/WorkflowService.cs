@@ -1281,7 +1281,7 @@ namespace AdminStore.Services.Workflow
             if (workflowDiffResult.AddedStates.Any())
             {
                 var newStates = await _workflowRepository.CreateWorkflowStatesAsync(workflowDiffResult.AddedStates.Select(s =>
-                    ToSqlState(s, workflowId)), publishRevision, transaction);
+                    ToSqlState(s, workflowId, workflowMode)), publishRevision, transaction);
                 stateMap.AddRange(newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
             }
 
@@ -1312,7 +1312,7 @@ namespace AdminStore.Services.Workflow
 
             if (workflowDiffResult.AddedEvents.Any())
             {
-                var eventParam = workflowDiffResult.AddedEvents.Select(e => ToSqlWorkflowEvent(e, workflowId, dataMaps));
+                var eventParam = workflowDiffResult.AddedEvents.Select(e => ToSqlWorkflowEvent(e, workflowId, dataMaps, workflowMode));
                 await _workflowRepository.CreateWorkflowEventsAsync(eventParam, publishRevision, transaction);
             }
 

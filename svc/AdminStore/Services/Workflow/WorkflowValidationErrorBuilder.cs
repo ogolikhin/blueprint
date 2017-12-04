@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 
@@ -15,6 +17,12 @@ namespace AdminStore.Services.Workflow
         private const string TemplateWorkflowUpdateDiagramFailedPlural = "There were errors updating workflow's diagram.";
         private const string ReplacementNotSpecifiedFileName = "the XML";
         private const string XmlIsNotValid = "The supplied XML is not valid. Please edit your file and upload again.";
+
+        // Messages for the Diagram validation.
+        private const string TemplateDiagramWorkflowDoesNotContainAnyStates = "There are no States defined in this Workflow. Please ensure the model includes a <States> element, and two or more <State> child elements.";
+        private const string TemplateDiagramProjectNoSpecified = "There are no Projects defined in this Workflow. If the model includes a <Projects> element, ensure that there are one or more <Project> child elements.";
+        private const string TemplateDiagramWorkflowIdDoesNotMatchIdInUrl = "The Workflow Id attribute in the model does not match the Workflow have you chosen to update. Please ensure you are sending the correct Workflow model.";
+
 
         // Messages for the XML validation.
         private const string TemplateXmlWorkflowXmlSerializationError = "{0}";
@@ -30,6 +38,7 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlInitialStateDoesNotHaveOutgoingTransition = "There is no Transition that originates from the initial State. Please ensure the <State> element that is set as the initial State is an outgoing component of at least one Transition--that is, the State name is a value for the Transition <FromState>. (The State ID and Transition <FromStateId> element could also be used.)";
         private const string TemplateXmlMultipleInitialStates = "More than one initial state has been defined; Workflows can have only one initial state. Please ensure only one of your <State> elements has the value 'true' for the IsInitial attribute.";
         private const string TemplateXmlStateDoesNotHaveAnyTransitions = "The State '{0}' is not connected to any other States by a Transition. Please ensure the State is an incoming or outgoing component of at least one Transition--that is, the State name is a value for the Transition <FromState>. (The State ID and Transition <FromStateId> could also be used.)";
+        private const string TemplateXmlStatesNotConnectedToInitialState = "Not all states are connected to the initial state.";
         private const string TemplateXmlTransitionEventNameEmpty = "<Transition> element: One or more <Name> child elements are missing, or do not have a value.";
         private const string TemplateXmlTransitionEventNameExceedsLimit24 = "Transition element '{0}': The value of the <Name> child element exceeds 24 characters.";
         private const string TemplateXmlPropertyChangeEventNameExceedsLimit24 = "Property Change element '{0}': The value of the <Name> child element exceeds 24 characters.";
@@ -79,7 +88,6 @@ namespace AdminStore.Services.Workflow
         private const string TemplateXmlDuplicateWorkflowEventIds = "One or more Workflow Events have a duplicate ID. A Workflow Event ID must be unique.";
         private const string TemplateXmlDuplicateProjectIds = "One or more Projects have a duplicate ID. A Project ID must be unique.";
         private const string TemplateXmlDuplicateArtifactTypeIdsInProject = "One or more Projects contain duplicate artifact type IDs. Please ensure for each <Project> element, its <ArtifactType> child elements do not have identical 'Id' attribute values. If you are modifying an existing Workflow, try removing the 'Id' attribute from any newly added or changed <ArtifactType> elements.";
-
         // Messages for the Data validation.
         private const string TemplateDataWorkflowNameNotUnique = "Main <Workflow> element: The value of the <Name> child element already exists. Workflows must have unique names.";
         private const string TemplateDataProjectByPathNotFound = "<Project> elements: The project path '{0}' was not found.";
@@ -89,10 +97,13 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataStandardArtifactTypeNotFoundByName = "No standard artifact type named '{0}' was found.";
         private const string TemplateDataArtifactTypeInProjectAlreadyAssociatedWithWorkflow = "Standard artifact type '{0}' is already assigned to a Workflow in project '{1}'.";
         private const string TemplateDataPropertyNotFoundByName = "<PropertyChange> elements: The Property '{0}' was not found.";
+        private const string TemplateDataPropertyNotAssociated = "<PropertyChange> elements: The Property '{0}' is not associated to any of the artifact types defined in the workflow.";
         private const string TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundByName = "<GenerateAction> elements: The name for artifact type '{0}' was not found.";
         private const string TemplateDataEmailNotificationActionPropertyTypeNotFoundByName = "<PropertyChange> elements: For name of property '{0}' that was defined as part of an <EmailNotificationAction> element was not found.";
         private const string TemplateDataEmailNotificationActionUnacceptablePropertyType = "Property Type '{0}' of an Email Notification Action is of an unacceptable Type. Only Text and User Properties can be used in an Email Notification Action.";
+        private const string TemplateDataEmailNotificationActionPropertyTypeNotAssociated = "Property Type '{0}' of an Email Notification Action is not associated to any of the artifact types defined in the workflow.";
         private const string TemplateDataPropertyChangeActionPropertyTypeNotFoundByName = "<Transition> elements: The name of property '{0}' that was defined as part of a <PropertyChangeAction> element was not found.";
+        private const string TemplateDataPropertyChangeActionPropertyTypeNotAssociated = "<Transition> elements: The name of property '{0}' that was defined as part of a <PropertyChangeAction> element is not associated to any of the artifact types defined in the workflow.";
         private const string TemplateDataPropertyChangeActionRequiredPropertyValueEmpty = "<PropertyChangeAction> elements: There are no values defined for property '{0}.' ";
         private const string TemplateDataPropertyChangeActionUserNotFoundByName = "<PropertyChangeAction> elements: The name of one or more users defined for property '{0}' were not found.";
         private const string TemplateDataPropertyChangeActionGroupNotFoundByName = "<PropertyChangeAction> elements: The name of one or more groups defined for property '{0}' were not found.";
@@ -130,76 +141,41 @@ namespace AdminStore.Services.Workflow
         public string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors, string fileName, bool isEditFileMessage = true)
         {
             var errorList = errors.ToList();
-            var sb = new StringBuilder();
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
-                string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName,
-                isEditFileMessage ? " " + XmlIsNotValid : string.Empty);
 
-            foreach (var error in errorList)
-            {
-                string template;
-                var errParams = GetXmlErrorMessageTemaplateAndParams(error, out template);
-                Append(sb, "\t- ");
-                AppendLine(sb, template, errParams);
-            }
+            var templateText = string.Format(CultureInfo.InvariantCulture, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
+            string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName,
+            isEditFileMessage ? " " + XmlIsNotValid : string.Empty);
 
-            return sb.ToString();
+            return FormatXmlErrorListToString(templateText, errorList);
         }
 
-        public string BuildTextXmlErrors(IEnumerable<WorkflowXmlValidationError> errors)
+        public string BuildTextDiagramErrors(IEnumerable<WorkflowXmlValidationError> errors)
         {
             var errorList = errors.ToList();
-            var sb = new StringBuilder();
+            var templateText = errorList.Count > 1
+                ? TemplateWorkflowUpdateDiagramFailedPlural
+                : TemplateWorkflowUpdateDiagramFailedSingular;
 
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowUpdateDiagramFailedPlural : TemplateWorkflowUpdateDiagramFailedSingular);
-
-            foreach (var error in errorList)
-            {
-                string template;
-                var errParams = GetXmlErrorMessageTemaplateAndParams(error, out template);
-                Append(sb, "\t- ");
-                AppendLine(sb, template, errParams);
-            }
-
-            return sb.ToString();
+            return FormatXmlErrorListToString(templateText, errorList, WorkflowMode.Canvas);
         }
 
         public string BuildTextDataErrors(IEnumerable<WorkflowDataValidationError> errors, string fileName, bool isEditFileMessage = true)
         {
             var errorList = errors.ToList();
-            var sb = new StringBuilder();
-
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
+            var templateText = string.Format(CultureInfo.InvariantCulture,
+                errorList.Count > 1 ? TemplateWorkflowImportFailedPlural : TemplateWorkflowImportFailedSingular,
                 string.IsNullOrWhiteSpace(fileName) ? ReplacementNotSpecifiedFileName : fileName,
                 isEditFileMessage ? " " + XmlIsNotValid : string.Empty);
 
-            foreach (var error in errorList)
-            {
-                string template;
-                var errParams = GetDataErrorMessageTemaplateAndParams(error, out template);
-                Append(sb, "\t- ");
-                AppendLine(sb, template, errParams);
-            }
-
-            return sb.ToString();
+            return FormatDataErrorListToString(templateText, errorList);
         }
 
         public string BuildTextDataErrors(IEnumerable<WorkflowDataValidationError> errors)
         {
             var errorList = errors.ToList();
-            var sb = new StringBuilder();
+            var templateText = string.Format(CultureInfo.InvariantCulture, errorList.Count > 1 ? TemplateWorkflowUpdateDiagramFailedPlural : TemplateWorkflowUpdateDiagramFailedSingular);
 
-            AppendLine(sb, errorList.Count > 1 ? TemplateWorkflowUpdateDiagramFailedPlural : TemplateWorkflowUpdateDiagramFailedSingular);
-
-            foreach (var error in errorList)
-            {
-                string template;
-                var errParams = GetDataErrorMessageTemaplateAndParams(error, out template);
-                Append(sb, "\t- ");
-                AppendLine(sb, template, errParams);
-            }
-
-            return sb.ToString();
+            return FormatDataErrorListToString(templateText, errorList);
         }
 
         #endregion
@@ -216,6 +192,65 @@ namespace AdminStore.Services.Workflow
         }
 
         #region Private Methods
+
+        private static string FormatXmlErrorListToString(string templateText, List<WorkflowXmlValidationError> errorList, WorkflowMode workflowMode = WorkflowMode.Xml)
+        {
+            var sb = new StringBuilder();
+            AppendLine(sb, templateText);
+
+            foreach (var error in errorList)
+            {
+                string template;
+                var errParams = workflowMode == WorkflowMode.Xml
+                    ? GetXmlErrorMessageTemaplateAndParams(error, out template)
+                    : GetDiagramErrorMessageTemplateAndParams(error, out template);
+                Append(sb, "\t- ");
+                AppendLine(sb, template, errParams);
+            }
+
+            return sb.ToString();
+        }
+
+        private static string FormatDataErrorListToString(string templateText, List<WorkflowDataValidationError> errorList)
+        {
+            var sb = new StringBuilder();
+
+            AppendLine(sb, templateText);
+
+            foreach (var error in errorList)
+            {
+                string template;
+                var errParams = GetDataErrorMessageTemaplateAndParams(error, out template);
+                Append(sb, "\t- ");
+                AppendLine(sb, template, errParams);
+            }
+
+            return sb.ToString();
+        }
+        private static object[] GetDiagramErrorMessageTemplateAndParams(WorkflowXmlValidationError error, out string template)
+        {
+            object[] errParams;
+
+            switch (error.ErrorCode)
+            {
+                case WorkflowXmlValidationErrorCodes.WorkflowDoesNotContainAnyStates:
+                    template = TemplateDiagramWorkflowDoesNotContainAnyStates;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.ProjectNoSpecified:
+                    template = TemplateDiagramProjectNoSpecified;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.WorkflowIdDoesNotMatchIdInUrl:
+                    template = TemplateDiagramWorkflowIdDoesNotMatchIdInUrl;
+                    errParams = new object[] { };
+                    break;
+                default:
+                    return GetXmlErrorMessageTemaplateAndParams(error, out template);
+            }
+
+            return errParams;
+        }
 
         private static object[] GetXmlErrorMessageTemaplateAndParams(WorkflowXmlValidationError error, out string template)
         {
@@ -274,6 +309,10 @@ namespace AdminStore.Services.Workflow
                 case WorkflowXmlValidationErrorCodes.StateDoesNotHaveAnyTransitions:
                     template = TemplateXmlStateDoesNotHaveAnyTransitions;
                     errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowXmlValidationErrorCodes.StatesNotConnectedToInitialState:
+                    template = TemplateXmlStatesNotConnectedToInitialState;
+                    errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.TransitionEventNameEmpty:
                     template = TemplateXmlTransitionEventNameEmpty;
@@ -508,6 +547,10 @@ namespace AdminStore.Services.Workflow
                     template = TemplateDataPropertyNotFoundByName;
                     errParams = new object[] { (string)error.Element };
                     break;
+                case WorkflowDataValidationErrorCodes.PropertyNotAssociated:
+                    template = TemplateDataPropertyNotAssociated;
+                    errParams = new object[] { (string)error.Element };
+                    break;
                 case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundByName:
                     template = TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundByName;
                     errParams = new object[] { (string)error.Element };
@@ -518,6 +561,10 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType:
                     template = TemplateDataEmailNotificationActionUnacceptablePropertyType;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated:
+                    template = TemplateDataEmailNotificationActionPropertyTypeNotAssociated;
                     errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundByName:
@@ -617,6 +664,10 @@ namespace AdminStore.Services.Workflow
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById:
                     template = TemplateDataPropertyChangeActionPropertyTypeNotFoundById;
                     errParams = new object[] { (int)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotAssociated:
+                    template = TemplateDataPropertyChangeActionPropertyTypeNotAssociated;
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById:
                     template = TemplateDataGenerateChildArtifactsActionArtifactTypeNotFoundById;

@@ -5,9 +5,12 @@ using System.Web;
 
 namespace AdminStore.Models.Enums
 {
-    public enum WorkflowMode
+    public enum DiagramPort
     {
-        Xml,
-        Canvas
+        None = 0,
+        Top = 1,
+        Left = 2,
+        Bottom = 3,
+        Right = 4
     }
 }

@@ -1,9 +1,16 @@
-﻿namespace AdminStore.Models.Workflow
+﻿using AdminStore.Models.Enums;
+
+namespace AdminStore.Models.Workflow
 {
     public class IePortPair
     {
-        public int FromPort { get; set; }
-        public int ToPort { get; set; }
+        public DiagramPort FromPort { get; set; }
+        public DiagramPort ToPort { get; set; }
+
+        protected bool Equals(IePortPair other)
+        {
+            return FromPort == other.FromPort && ToPort == other.ToPort;
+        }
 
         public override bool Equals(object obj)
         {
@@ -13,16 +20,11 @@
             return Equals((IePortPair)obj);
         }
 
-        protected bool Equals(IePortPair other)
-        {
-            return FromPort == other.FromPort && ToPort == other.ToPort;
-        }
-
         public override int GetHashCode()
         {
             unchecked
             {
-                return (FromPort * 397) ^ ToPort;
+                return ((int)FromPort * 397) ^ (int)ToPort;
             }
         }
     }

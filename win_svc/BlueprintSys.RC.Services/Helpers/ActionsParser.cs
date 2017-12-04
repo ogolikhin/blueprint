@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
 

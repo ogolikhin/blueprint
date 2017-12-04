@@ -21,17 +21,16 @@ namespace ArtifactStore.Repositories
         Task<ReviewArtifactIndex> GetReviewTableOfContentArtifactIndexAsync(int reviewId, int revisionId, int artifactId, int userId);
         Task<ReviewArtifactApprovalResult> UpdateReviewArtifactApprovalAsync(int reviewId, ReviewArtifactApprovalParameter reviewArtifactApproval, int userId);
         Task UpdateReviewArtifactsViewedAsync(int reviewId, ReviewArtifactViewedInput viewedInput, int userId);
-        Task UpdateReviewerStatusAsync(int reviewId, int revisionId, ReviewStatus status, int userId);
+        Task UpdateReviewerStatusAsync(int reviewId, int revisionId, ReviewerStatusParameter statusParameter, int userId);
         Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, int userId, Pagination pagination);
         Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId);
         Task RemoveParticipantsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId);
-        Task<ReviewPackageRawData> GetReviewPackageRawDataAsync(int reviewId, int userId, int revisionId = int.MaxValue);
         Task UpdateReviewPackageRawDataAsync(int reviewId, ReviewPackageRawData reviewPackageRawData, int userId);
         Task<IEnumerable<ReviewInfo>> GetReviewInfo(ISet<int> artifactIds, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
         Task<bool> IsMeaningOfSignatureEnabledAsync(int reviewId, int userId, bool addDrafts);
         Task<Dictionary<int, List<ParticipantMeaningOfSignatureResult>>> GetPossibleMeaningOfSignaturesForParticipantsAsync(IEnumerable<int> participantIds);
-        Task<PropertyValueString> GetReviewApprovalRolesInfoAsync(int reviewId, int userId);
-        Task<PropertyValueString> GetReviewPropertyStringAsync(int reviewId, int userId);
+        Task<Review> GetReviewAsync(int reviewId, int userId, int revisionId = int.MaxValue, bool? addDraft = true);
+        Task<IEnumerable<Review>> GetReviewsAsync(IEnumerable<int> reviewIds, int userId, int revisionId = int.MaxValue, bool? addDraft = true);
         Task<int> UpdateReviewArtifactsAsync(int reviewId, int userId, string xmlArtifacts, IDbTransaction transaction = null, bool addReviewSubArtifactIfNeeded = true);
         Task<ReviewType> GetReviewTypeAsync(int reviewId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true);
     }

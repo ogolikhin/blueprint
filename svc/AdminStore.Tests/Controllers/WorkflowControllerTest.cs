@@ -1656,22 +1656,22 @@ namespace AdminStore.Controllers
         public async Task GetWorkflowDiagram_AllParamsAreCorrectAndPermissionsOk_WorkflowSuccessfullyReceived()
         {
             // arrange
-            var workflow = new IeWorkflow
+            var workflow = new DWorkflow
             {
                 Name = "Workflow1",
                 Description = "DescriptionWorkflow1",
-                States = new List<IeState>(),
-                Projects = new List<IeProject>()
+                States = new List<DState>(),
+                Projects = new List<DProject>()
             };
 
             _privilegesRepositoryMock
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>(), It.IsAny<WorkflowMode>())).ReturnsAsync(workflow);
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowDiagramAsync(It.IsAny<int>())).ReturnsAsync(workflow);
 
             // act
-            var result = await _controller.GetWorkflowDiagram(WorkflowId) as OkNegotiatedContentResult<IeWorkflow>;
+            var result = await _controller.GetWorkflowDiagram(WorkflowId) as OkNegotiatedContentResult<DWorkflow>;
 
             // assert
             Assert.IsNotNull(result);
@@ -1683,13 +1683,13 @@ namespace AdminStore.Controllers
         public async Task GetWorkflowDiagram_InSufficientPermissions_ReturnAuthorizationException()
         {
             // arrange
-            var workflow = new IeWorkflow();
+            var workflow = new DWorkflow();
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
 
-            _workflowServiceMock.Setup(repo => repo.GetWorkflowExportAsync(It.IsAny<int>(), It.IsAny<WorkflowMode>())).ReturnsAsync(workflow);
+            _workflowServiceMock.Setup(repo => repo.GetWorkflowDiagramAsync(It.IsAny<int>())).ReturnsAsync(workflow);
 
             // act
             await _controller.GetWorkflowDiagram(WorkflowId);

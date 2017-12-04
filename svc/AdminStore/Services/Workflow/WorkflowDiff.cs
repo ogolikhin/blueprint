@@ -12,7 +12,7 @@ namespace AdminStore.Services.Workflow
         #region Interface Implementation
 
         // Id in IeProjects and GroupProjectId for groups in IeUserGroup should be filled in.
-        public WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow, WorkflowMode workflowMode = WorkflowMode.XmlExport)
+        public WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
             var result = new WorkflowDiffResult();
             if (workflow == null) throw new ArgumentNullException(nameof(workflow));
@@ -31,12 +31,12 @@ namespace AdminStore.Services.Workflow
             events = workflow.PropertyChangeEvents?.Select(te => te as IeEvent).ToList();
             currentEvents = currentWorkflow.PropertyChangeEvents?.Select(te => te as IeEvent).ToList();
             DiffWorkflowEntities(events, currentEvents, result.AddedEvents,
-                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents);
+                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents, workflowMode);
 
             events = workflow.NewArtifactEvents?.Select(te => te as IeEvent).ToList();
             currentEvents = currentWorkflow.NewArtifactEvents?.Select(te => te as IeEvent).ToList();
             DiffWorkflowEntities(events, currentEvents, result.AddedEvents,
-                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents);
+                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents, workflowMode);
 
             DiffProjectArtifactTypes(workflow.Projects, currentWorkflow.Projects, result);
             return result;
@@ -56,7 +56,7 @@ namespace AdminStore.Services.Workflow
 
         private static void DiffWorkflowEntities<T>(ICollection<T> entities, ICollection<T> currentEntities,
             ICollection<T> added, ICollection<T> deleted, ICollection<T> changed, ICollection<T> notFound,
-            ICollection<T> unchanged, WorkflowMode workflowMode = WorkflowMode.XmlExport)
+            ICollection<T> unchanged, WorkflowMode workflowMode)
             where T : IIeWorkflowEntityWithId
         {
             var stateIds = (entities?.Where(s => s.Id.HasValue).Select(s => s.Id.Value).ToHashSet()) ??
@@ -78,20 +78,27 @@ namespace AdminStore.Services.Workflow
                 else
                 {
                     var currentState = currentEntities.First(cs => cs.Id == s.Id);
-                    if (workflowMode == WorkflowMode.XmlExport)
+                    switch (workflowMode)
                     {
-                        colToAddTo = s.Equals(currentState) ? unchanged : changed;
-                    }
-                    else if (workflowMode == WorkflowMode.Canvas)
-                    {
-                        if (s is IeState && currentState is IeState)
-                        {
-                            colToAddTo = (s as IeState).EqualsIncludingLocation(currentState as IeState) ? unchanged : changed;
-                        }
-                        if (s is IeTransitionEvent && currentState is IeTransitionEvent)
-                        {
-                            colToAddTo = (s as IeTransitionEvent).EqualsIncludingPortPair(currentState as IeTransitionEvent) ? unchanged : changed;
-                        }
+                        case WorkflowMode.Xml:
+                            colToAddTo = s.Equals(currentState) ? unchanged : changed;
+                            break;
+                        case WorkflowMode.Canvas:
+                            if (s is IeState && currentState is IeState)
+                            {
+                                colToAddTo = (s as IeState).EqualsIncludingLocation(currentState as IeState) ? unchanged : changed;
+                            }
+                            else if (s is IeTransitionEvent && currentState is IeTransitionEvent)
+                            {
+                                colToAddTo = (s as IeTransitionEvent).EqualsIncludingPortPair(currentState as IeTransitionEvent) ? unchanged : changed;
+                            }
+                            else
+                            {
+                                colToAddTo = s.Equals(currentState) ? unchanged : changed;
+                            }
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(workflowMode));
                     }
                 }
 
@@ -116,7 +123,8 @@ namespace AdminStore.Services.Workflow
                     .ForEach(at => cpAtIds.Add(Tuple.Create(p.Id.Value, at.Id.Value)));
             });
 
-            var notSpecifiedAtIds = new HashSet<int>();
+            // Tuple - item1 is project id, item2 is artifact type id.
+            var notSpecifiedAtIds = new HashSet<Tuple<int, int>>();
             projects?.Where(p => p.Id.HasValue).ForEach(p => p.ArtifactTypes?.ForEach(at =>
             {
                 // I this case the workflow data validator logs an error.
@@ -131,7 +139,7 @@ namespace AdminStore.Services.Workflow
                 if (!isSpecifiedInXml)
                 {
                     at.Id *= -1;
-                    notSpecifiedAtIds.Add(at.Id.Value);
+                    notSpecifiedAtIds.Add(Tuple.Create(p.Id.Value, at.Id.Value));
                 }
 
                 var colToAddTo = cpAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
@@ -145,7 +153,7 @@ namespace AdminStore.Services.Workflow
 
             currentProjects?.Where(p => p.Id.HasValue).ForEach(p => p.ArtifactTypes?
                 .Where(at => at.Id.HasValue
-                    && !notSpecifiedAtIds.Contains(at.Id.Value)
+                    && !notSpecifiedAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value))
                     && !pAtIds.Contains(Tuple.Create(p.Id.Value, at.Id.Value)))
                 .ForEach(at => result.DeletedProjectArtifactTypes.Add(new KeyValuePair<int, IeArtifactType>(p.Id.Value, at))));
         }

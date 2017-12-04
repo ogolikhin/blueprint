@@ -1,8 +1,10 @@
-﻿namespace AdminStore.Models.DiagramWorkflow
+﻿using AdminStore.Models.Enums;
+
+namespace AdminStore.Models.DiagramWorkflow
 {
     public class DPortPair
     {
-        public int FromPort { get; set; }
-        public int ToPort { get; set; }
+        public DiagramPort FromPort { get; set; }
+        public DiagramPort ToPort { get; set; }
     }
 }

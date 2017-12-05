@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using AdminStore.Models.DiagramWorkflow;
+using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Models.Enums;
 
@@ -361,6 +363,247 @@ namespace AdminStore.Services.Workflow
                 });
 
                 return workflow;
+            }
+        }
+
+        public static DWorkflow TestDWorkflow
+        {
+            get
+            {
+                var dWorkflow = new DWorkflow
+                {
+                    Name = "sourceWFTestName",
+                    Description = "TestDescription",
+                    Id = 1,
+                    IsActive = true,
+                    NewArtifactEvents = new List<DNewArtifactEvent>
+                    {
+                        new DNewArtifactEvent
+                        {
+                            Id = 2,
+                            Name = "TestName3",
+                            Triggers = new List<DTrigger>
+                            {
+                                new DTrigger
+                                {
+                                    Name = "TestName4",
+                                    Condition = new DStateCondition
+                                    {
+                                        State = "State5",
+                                        StateId = 6
+                                    },
+                                    Action = new DGenerateAction
+                                    {
+                                        ArtifactType = "TestCasesArtifactType7",
+                                        ArtifactTypeId = 8,
+                                        ChildCount = 9,
+                                        GenerateActionType = GenerateActionTypes.TestCases
+                                    }
+                                },
+                                new DTrigger
+                                {
+                                    Name = "TestName10",
+                                    Condition = new DStateCondition
+                                    {
+                                        State = "State11",
+                                        StateId = 12
+                                    },
+                                    Action = new DGenerateAction
+                                    {
+                                        ArtifactType = "UserStoriesArtifactType13",
+                                        ArtifactTypeId = 14,
+                                        ChildCount = 15,
+                                        GenerateActionType = GenerateActionTypes.UserStories
+                                    }
+                                },
+                                new DTrigger
+                                {
+                                    Name = "TestName16",
+                                    Condition = new DStateCondition
+                                    {
+                                        State = "State17",
+                                        StateId = 18
+                                    },
+                                    Action = new DGenerateAction
+                                    {
+                                        ArtifactType = "ChildrenArtifactType19",
+                                        ArtifactTypeId = 20,
+                                        ChildCount = 21,
+                                        GenerateActionType = GenerateActionTypes.Children
+                                    }
+                                },
+                                new DTrigger
+                                {
+                                    Name = "TestName22",
+                                    Condition = new DStateCondition
+                                    {
+                                        State = "State23",
+                                        StateId = 24
+                                    },
+                                    Action = new DEmailNotificationAction
+                                    {
+                                        PropertyId = 5000,
+
+                                        Emails = new List<string>
+                                        {
+                                            "user1@company.com"
+                                        },
+                                        Message = "Message 1"
+                                    }
+                                },
+                                new DTrigger
+                                {
+                                    Name = "Date Property Change Trigger",
+                                    Action = new DPropertyChangeAction
+                                    {
+                                        PropertyName = "Date Property",
+                                        PropertyValue = "2017-07-21",
+                                        Name = "TestNameIETriggerDPropertyChangeAction",
+                                        PropertyId = 20
+                                    }
+                                },
+                                new DTrigger
+                                {
+                                    Name = "Choice Property Change Trigger",
+                                    Action = new DPropertyChangeAction
+                                    {
+                                        PropertyName = "Choice Property",
+                                        ValidValues = new List<DValidValue>
+                                        {
+                                            new DValidValue { Id = 111, Value = "Canada" },
+                                            new DValidValue { Id = 222, Value = "Russia" }
+                                        }
+                                    }
+                                },
+                                new DTrigger
+                                {
+                                    Name = "User Property Change Trigger",
+                                    Action = new DPropertyChangeAction
+                                    {
+                                        PropertyName = "User Property",
+                                        UsersGroups = new DUsersGroups
+                                        {
+                                            UsersGroups = new List<DUserGroup>
+                                            {
+                                                new DUserGroup
+                                                {
+                                                    Name = "user1",
+                                                    GroupProjectId = 11,
+                                                    GroupProjectPath = "TestGroupProjectPath",
+                                                    Id = 1000,
+                                                    IsGroup = true
+                                                },
+                                                new DUserGroup { Name = "group2", IsGroup = true }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    Projects = new List<DProject>
+                    {
+                        new DProject
+                        {
+                            Id = 26,
+                            Path = "Path27",
+                            ArtifactTypes = new List<DArtifactType>
+                            {
+                                new DArtifactType
+                                {
+                                    Id = 28,
+                                    Name = "TestName29"
+                                }
+                            }
+                        }
+                    },
+                    PropertyChangeEvents = new List<DPropertyChangeEvent>
+                    {
+                        new DPropertyChangeEvent
+                        {
+                            Id = 30,
+                            Name = "TestName31",
+                            PropertyId = 32,
+                            PropertyName = "TestName33",
+                            Triggers = new List<DTrigger>
+                            {
+                                new DTrigger
+                                {
+                                    Name = "TestName34",
+                                    Condition = new DStateCondition
+                                    {
+                                        State = "State35",
+                                        StateId = 36
+                                    },
+                                    Action = new DGenerateAction
+                                    {
+                                        ArtifactType = "ArtifactType37",
+                                        ArtifactTypeId = 38,
+                                        ChildCount = 39,
+                                        GenerateActionType = GenerateActionTypes.UserStories
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    States = new List<DState>
+                    {
+                        new DState
+                        {
+                            Id = 40,
+                            IsInitial = true,
+                            Location = "TestLocation41",
+                            Name = "TestName42"
+                        }
+                    },
+                    TransitionEvents = new List<DTransitionEvent>
+                    {
+                        new DTransitionEvent
+                        {
+                            FromState = "FromState43",
+                            FromStateId = 44,
+                            Id = 45,
+                            Name = "TestName46",
+                            ToState = "ToState47",
+                            ToStateId = 48,
+                            SkipPermissionGroups = true,
+                            PortPair = new DPortPair
+                            {
+                                FromPort = DiagramPort.Bottom,
+                                ToPort = DiagramPort.Left
+                            },
+                            Triggers = new List<DTrigger>
+                            {
+                                new DTrigger
+                                {
+                                    Name = "TestName49",
+                                    Condition = new DStateCondition
+                                    {
+                                        State = "State50",
+                                        StateId = 51
+                                    },
+                                    Action = new DGenerateAction
+                                    {
+                                        ArtifactType = "ArtifactType52",
+                                        ArtifactTypeId = 53,
+                                        ChildCount = 54,
+                                        GenerateActionType = GenerateActionTypes.UserStories
+                                    }
+                                }
+                            },
+                            PermissionGroups = new List<DGroup>
+                            {
+                                new DGroup
+                                {
+                                    Id = 55,
+                                    Name = "TestName56"
+                                }
+                            }
+                        }
+                    }
+                };
+
+                return dWorkflow;
             }
         }
     }

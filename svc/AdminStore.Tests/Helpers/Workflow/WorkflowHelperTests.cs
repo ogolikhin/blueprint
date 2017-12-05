@@ -489,19 +489,20 @@ namespace AdminStore.Helpers.Workflow
         public void MapDWorkflowToIeWorkflow_Map_Successfully()
         {
             // Arrange
+            var dWorkflow = WorkflowTestHelper.TestDWorkflow;
 
             // Act
-            var mappedIeWorkflow = WorkflowHelper.MapDWorkflowToIeWorkflow(WorkflowTestHelper.TestDWorkflow);
+            var mappedIeWorkflow = WorkflowHelper.MapDWorkflowToIeWorkflow(dWorkflow);
 
             // Assert
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.Name, mappedIeWorkflow.Name);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.Id, mappedIeWorkflow.Id);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.Description, mappedIeWorkflow.Description);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.IsActive, mappedIeWorkflow.IsActive);
+            Assert.AreEqual(dWorkflow.Name, mappedIeWorkflow.Name);
+            Assert.AreEqual(dWorkflow.Id, mappedIeWorkflow.Id);
+            Assert.AreEqual(dWorkflow.Description, mappedIeWorkflow.Description);
+            Assert.AreEqual(dWorkflow.IsActive, mappedIeWorkflow.IsActive);
 
             Assert.AreEqual(1, mappedIeWorkflow.NewArtifactEvents.Count());
 
-            var expectedNewArtifactEvent = WorkflowTestHelper.TestDWorkflow.NewArtifactEvents.ToList()[0];
+            var expectedNewArtifactEvent = dWorkflow.NewArtifactEvents.ToList()[0];
             var actualNewArtifactEvent = mappedIeWorkflow.NewArtifactEvents.ToList()[0];
             Assert.IsNotNull(expectedNewArtifactEvent);
             Assert.IsNotNull(actualNewArtifactEvent);
@@ -513,7 +514,7 @@ namespace AdminStore.Helpers.Workflow
 
             Assert.AreEqual(expectedNewArtifactEvent.Triggers.ToList()[0].Name, actualNewArtifactEvent.Triggers.ToList()[0].Name);
 
-            var expectedNewArtifactEventTriggerCondition = WorkflowTestHelper.TestDWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[0].Condition;
+            var expectedNewArtifactEventTriggerCondition = dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[0].Condition;
             var actualNewArtifactEventTriggerCondition = (IeStateCondition)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[0].Condition;
 
             Assert.IsNotNull(expectedNewArtifactEventTriggerCondition);
@@ -522,7 +523,7 @@ namespace AdminStore.Helpers.Workflow
             Assert.AreEqual(expectedNewArtifactEventTriggerCondition.StateId, actualNewArtifactEventTriggerCondition.StateId);
             Assert.AreEqual(expectedNewArtifactEventTriggerCondition.State, actualNewArtifactEventTriggerCondition.State);
 
-            var expectedNewArtifactEventTriggerActionTestCases = (DGenerateAction)WorkflowTestHelper.TestDWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[0].Action;
+            var expectedNewArtifactEventTriggerActionTestCases = (DGenerateAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[0].Action;
             var actualNewArtifactEventTriggerActionTestCases = (IeGenerateAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[0].Action;
 
             Assert.IsNotNull(expectedNewArtifactEventTriggerActionTestCases);
@@ -534,7 +535,7 @@ namespace AdminStore.Helpers.Workflow
             Assert.AreEqual(expectedNewArtifactEventTriggerActionTestCases.ChildCount, actualNewArtifactEventTriggerActionTestCases.ChildCount);
             Assert.AreEqual(expectedNewArtifactEventTriggerActionTestCases.GenerateActionType, actualNewArtifactEventTriggerActionTestCases.GenerateActionType);
 
-            var expectedNewArtifactEventTriggerActionUserStories = (DGenerateAction)WorkflowTestHelper.TestDWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[1].Action;
+            var expectedNewArtifactEventTriggerActionUserStories = (DGenerateAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[1].Action;
             var actualNewArtifactEventTriggerActionUserStories = (IeGenerateAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[1].Action;
 
             Assert.IsNotNull(expectedNewArtifactEventTriggerActionUserStories);
@@ -546,7 +547,7 @@ namespace AdminStore.Helpers.Workflow
             Assert.AreEqual(expectedNewArtifactEventTriggerActionUserStories.ChildCount, actualNewArtifactEventTriggerActionUserStories.ChildCount);
             Assert.AreEqual(expectedNewArtifactEventTriggerActionUserStories.GenerateActionType, actualNewArtifactEventTriggerActionUserStories.GenerateActionType);
 
-            var expectedNewArtifactEventTriggerActionChildren = (DGenerateAction)WorkflowTestHelper.TestDWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[2].Action;
+            var expectedNewArtifactEventTriggerActionChildren = (DGenerateAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[2].Action;
             var actualNewArtifactEventTriggerActionChildren = (IeGenerateAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[2].Action;
 
             Assert.IsNotNull(expectedNewArtifactEventTriggerActionChildren);
@@ -558,7 +559,7 @@ namespace AdminStore.Helpers.Workflow
             Assert.AreEqual(expectedNewArtifactEventTriggerActionChildren.ChildCount, actualNewArtifactEventTriggerActionChildren.ChildCount);
             Assert.AreEqual(expectedNewArtifactEventTriggerActionChildren.GenerateActionType, actualNewArtifactEventTriggerActionChildren.GenerateActionType);
 
-            var expectedNewArtifactEventTriggerEmailNotificationAction = (DEmailNotificationAction)WorkflowTestHelper.TestDWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[3].Action;
+            var expectedNewArtifactEventTriggerEmailNotificationAction = (DEmailNotificationAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[3].Action;
             var actualNewArtifactEventTriggerEmailNotification = (IeEmailNotificationAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[3].Action;
 
             Assert.IsNotNull(expectedNewArtifactEventTriggerEmailNotificationAction);
@@ -573,7 +574,7 @@ namespace AdminStore.Helpers.Workflow
             Assert.AreEqual(expectedNewArtifactEventTriggerEmailNotificationAction.PropertyName, actualNewArtifactEventTriggerEmailNotification.PropertyName);
 
 
-            var expectedNewArtifactEventTriggerPropertyChangeAction = (DPropertyChangeAction)WorkflowTestHelper.TestDWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[4].Action;
+            var expectedNewArtifactEventTriggerPropertyChangeAction = (DPropertyChangeAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[4].Action;
             var actualNewArtifactEventTriggerPropertyChangeAction = (IePropertyChangeAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[4].Action;
 
             Assert.IsNotNull(expectedNewArtifactEventTriggerPropertyChangeAction);
@@ -585,7 +586,7 @@ namespace AdminStore.Helpers.Workflow
             Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeAction.PropertyValue, actualNewArtifactEventTriggerPropertyChangeAction.PropertyValue);
             Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeAction.ActionType, actualNewArtifactEventTriggerPropertyChangeAction.ActionType);
 
-            var expectedNewArtifactEventTriggerPropertyChangeValidValuesAction = (DPropertyChangeAction)WorkflowTestHelper.TestDWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[5].Action;
+            var expectedNewArtifactEventTriggerPropertyChangeValidValuesAction = (DPropertyChangeAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[5].Action;
             var actualNewArtifactEventTriggerPropertyChangeValidValuesAction = (IePropertyChangeAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[5].Action;
 
             Assert.IsNotNull(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction);
@@ -602,7 +603,7 @@ namespace AdminStore.Helpers.Workflow
             Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[1].Id, actualNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[1].Id);
             Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[1].Value, actualNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[1].Value);
 
-            var expectedNewArtifactEventTriggerPropertyChangeGroupsAction = (DPropertyChangeAction)WorkflowTestHelper.TestDWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[6].Action;
+            var expectedNewArtifactEventTriggerPropertyChangeGroupsAction = (DPropertyChangeAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[6].Action;
             var actualNewArtifactEventTriggerPropertyChangeGroupsAction = (IePropertyChangeAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[6].Action;
 
             Assert.IsNotNull(expectedNewArtifactEventTriggerPropertyChangeGroupsAction);
@@ -623,26 +624,26 @@ namespace AdminStore.Helpers.Workflow
 
 
             Assert.AreEqual(1, mappedIeWorkflow.Projects.Count());
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.Projects.ToList()[0].Id, mappedIeWorkflow.Projects.ToList()[0].Id);
+            Assert.AreEqual(dWorkflow.Projects.ToList()[0].Id, mappedIeWorkflow.Projects.ToList()[0].Id);
             Assert.AreEqual(1, mappedIeWorkflow.Projects.ToList()[0].ArtifactTypes.ToList().Count);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Id, mappedIeWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Id);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Name, mappedIeWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Id, mappedIeWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Id);
+            Assert.AreEqual(dWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Name, mappedIeWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Name);
 
             Assert.AreEqual(1, mappedIeWorkflow.PropertyChangeEvents.Count());
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.PropertyChangeEvents.ToList()[0].Id, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Id);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.PropertyChangeEvents.ToList()[0].Name, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Name);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.PropertyChangeEvents.ToList()[0].PropertyId, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].PropertyId);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.PropertyChangeEvents.ToList()[0].PropertyName, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].PropertyName);
+            Assert.AreEqual(dWorkflow.PropertyChangeEvents.ToList()[0].Id, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Id);
+            Assert.AreEqual(dWorkflow.PropertyChangeEvents.ToList()[0].Name, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.PropertyChangeEvents.ToList()[0].PropertyId, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].PropertyId);
+            Assert.AreEqual(dWorkflow.PropertyChangeEvents.ToList()[0].PropertyName, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].PropertyName);
 
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Name, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Name, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Name);
 
-            var expectedPropertyChangeEventTriggerAction = ((DGenerateAction)(WorkflowTestHelper.TestDWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Action));
+            var expectedPropertyChangeEventTriggerAction = ((DGenerateAction)(dWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Action));
             var actualPropertyChangeEventTriggerAction = ((IeGenerateAction)mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Action);
 
             Assert.IsNotNull(expectedPropertyChangeEventTriggerAction);
             Assert.IsNotNull(actualPropertyChangeEventTriggerAction);
 
-            var expectedPropertyChangeEventTriggerCondition = WorkflowTestHelper.TestDWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Condition;
+            var expectedPropertyChangeEventTriggerCondition = dWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Condition;
             var actualPropertyChangeEventTriggerCondition = (IeStateCondition)mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Condition;
 
             Assert.IsNotNull(expectedPropertyChangeEventTriggerCondition);
@@ -657,36 +658,36 @@ namespace AdminStore.Helpers.Workflow
             Assert.AreEqual(expectedPropertyChangeEventTriggerAction.GenerateActionType, actualPropertyChangeEventTriggerAction.GenerateActionType);
 
             Assert.AreEqual(1, mappedIeWorkflow.States.Count());
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.States.ToList()[0].Id, mappedIeWorkflow.States.ToList()[0].Id);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.States.ToList()[0].Name, mappedIeWorkflow.States.ToList()[0].Name);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.States.ToList()[0].IsInitial, mappedIeWorkflow.States.ToList()[0].IsInitial);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.States.ToList()[0].Location, mappedIeWorkflow.States.ToList()[0].Location);
+            Assert.AreEqual(dWorkflow.States.ToList()[0].Id, mappedIeWorkflow.States.ToList()[0].Id);
+            Assert.AreEqual(dWorkflow.States.ToList()[0].Name, mappedIeWorkflow.States.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.States.ToList()[0].IsInitial, mappedIeWorkflow.States.ToList()[0].IsInitial);
+            Assert.AreEqual(dWorkflow.States.ToList()[0].Location, mappedIeWorkflow.States.ToList()[0].Location);
 
             Assert.AreEqual(1, mappedIeWorkflow.TransitionEvents.Count());
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].Id, mappedIeWorkflow.TransitionEvents.ToList()[0].Id);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].Name, mappedIeWorkflow.TransitionEvents.ToList()[0].Name);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].FromState, mappedIeWorkflow.TransitionEvents.ToList()[0].FromState);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].FromStateId, mappedIeWorkflow.TransitionEvents.ToList()[0].FromStateId);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].ToState, mappedIeWorkflow.TransitionEvents.ToList()[0].ToState);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].ToStateId, mappedIeWorkflow.TransitionEvents.ToList()[0].ToStateId);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].SkipPermissionGroups, mappedIeWorkflow.TransitionEvents.ToList()[0].SkipPermissionGroups);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].PortPair.FromPort, mappedIeWorkflow.TransitionEvents.ToList()[0].PortPair.FromPort);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].PortPair.ToPort, mappedIeWorkflow.TransitionEvents.ToList()[0].PortPair.ToPort);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].Id, mappedIeWorkflow.TransitionEvents.ToList()[0].Id);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].Name, mappedIeWorkflow.TransitionEvents.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].FromState, mappedIeWorkflow.TransitionEvents.ToList()[0].FromState);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].FromStateId, mappedIeWorkflow.TransitionEvents.ToList()[0].FromStateId);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].ToState, mappedIeWorkflow.TransitionEvents.ToList()[0].ToState);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].ToStateId, mappedIeWorkflow.TransitionEvents.ToList()[0].ToStateId);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].SkipPermissionGroups, mappedIeWorkflow.TransitionEvents.ToList()[0].SkipPermissionGroups);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].PortPair.FromPort, mappedIeWorkflow.TransitionEvents.ToList()[0].PortPair.FromPort);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].PortPair.ToPort, mappedIeWorkflow.TransitionEvents.ToList()[0].PortPair.ToPort);
 
 
-            var expectedTransitionEventTriggerAction = ((DGenerateAction)(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Action));
+            var expectedTransitionEventTriggerAction = ((DGenerateAction)(dWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Action));
             var actualTransitionEventTriggerAction = ((IeGenerateAction)mappedIeWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Action);
 
             Assert.IsNotNull(expectedTransitionEventTriggerAction);
             Assert.IsNotNull(actualTransitionEventTriggerAction);
 
-            var expectedTransitionEventTriggerCondition = WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Condition;
+            var expectedTransitionEventTriggerCondition = dWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Condition;
             var actualTransitionEventTriggerCondition = (IeStateCondition)mappedIeWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Condition;
 
             Assert.IsNotNull(expectedTransitionEventTriggerCondition);
             Assert.IsNotNull(actualTransitionEventTriggerCondition);
 
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Name, mappedIeWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Name, mappedIeWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Name);
             Assert.AreEqual(expectedTransitionEventTriggerCondition.StateId, actualTransitionEventTriggerCondition.StateId);
             Assert.AreEqual(expectedTransitionEventTriggerCondition.State, actualTransitionEventTriggerCondition.State);
             Assert.AreEqual(expectedTransitionEventTriggerAction.ActionType, actualTransitionEventTriggerAction.ActionType);
@@ -696,8 +697,8 @@ namespace AdminStore.Helpers.Workflow
             Assert.AreEqual(expectedTransitionEventTriggerAction.GenerateActionType, actualTransitionEventTriggerAction.GenerateActionType);
 
             Assert.AreEqual(1, mappedIeWorkflow.TransitionEvents.ToList()[0].PermissionGroups.Count());
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Name, mappedIeWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Name);
-            Assert.AreEqual(WorkflowTestHelper.TestDWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Id, mappedIeWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Id);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Name, mappedIeWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Id, mappedIeWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Id);
         }
 
         #endregion MapDWorkflowToIeWorkflow

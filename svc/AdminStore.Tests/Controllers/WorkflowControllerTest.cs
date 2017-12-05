@@ -230,6 +230,7 @@ namespace AdminStore.Controllers
         private List<WorkflowProjectSearch> _projects;
         private string _search = "Project";
         private OperationScope _scope;
+        private DWorkflow _dWorkflow;
 
         [TestInitialize]
         public void Initialize()
@@ -291,6 +292,8 @@ namespace AdminStore.Controllers
             _scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
 
             _copyWorkfloDto = new CopyWorkfloDto() { Name = "TestWorkflow" };
+
+            _dWorkflow = new DWorkflow();
         }
 
         #region AssignProjectsAndArtifactTypesToWorkflow
@@ -1802,7 +1805,6 @@ namespace AdminStore.Controllers
             {
                 ResultCode = ImportWorkflowResultCodes.Ok
             };
-            var workflow = new DWorkflow();
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -1814,7 +1816,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(expectedUpdateWorkflowDiagramResult);
 
             // act
-            var result = await _controller.UpdateWorkflowDiagram(WorkflowId, workflow) as OkNegotiatedContentResult<ImportWorkflowResult>;
+            var result = await _controller.UpdateWorkflowDiagram(WorkflowId, _dWorkflow) as OkNegotiatedContentResult<ImportWorkflowResult>;
 
             // assert
             Assert.IsNotNull(result);
@@ -1830,7 +1832,6 @@ namespace AdminStore.Controllers
             {
                 ResultCode = ImportWorkflowResultCodes.InvalidModel
             };
-            var workflow = new DWorkflow();
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -1842,7 +1843,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(expectedUpdateWorkflowDiagramResult);
 
             // act
-            var result = await _controller.UpdateWorkflowDiagram(WorkflowId, workflow) as ResponseMessageResult;
+            var result = await _controller.UpdateWorkflowDiagram(WorkflowId, _dWorkflow) as ResponseMessageResult;
 
             // assert
             Assert.IsNotNull(result);
@@ -1860,7 +1861,6 @@ namespace AdminStore.Controllers
             {
                 ResultCode = ImportWorkflowResultCodes.Conflict
             };
-            var workflow = new DWorkflow();
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -1872,7 +1872,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(expectedUpdateWorkflowDiagramResult);
 
             // act
-            var result = await _controller.UpdateWorkflowDiagram(WorkflowId, workflow) as ResponseMessageResult;
+            var result = await _controller.UpdateWorkflowDiagram(WorkflowId, _dWorkflow) as ResponseMessageResult;
 
             // assert
             Assert.IsNotNull(result);
@@ -1888,7 +1888,6 @@ namespace AdminStore.Controllers
         {
             // arrange
             var updateWorkflowDiagramResult = new ImportWorkflowResult();
-            var workflow = new DWorkflow();
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -1900,7 +1899,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(updateWorkflowDiagramResult);
 
             // act
-            await _controller.UpdateWorkflowDiagram(WorkflowId, workflow);
+            await _controller.UpdateWorkflowDiagram(WorkflowId, _dWorkflow);
 
             // assert
             // exception

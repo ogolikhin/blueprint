@@ -54,6 +54,8 @@ namespace AdminStore.Repositories
         private CopyWorkfloDto _copyWorkfloDto;
         private IEnumerable<int> _workflowStateIds;
         private IEnumerable<int> _workflowEventIds;
+        private const int PublishRevision = 12;
+        private const int IncorrectPublishRevision = 0;
 
         #region AssignProjectsAndArtifactTypesToWorkflow
         [TestMethod]
@@ -924,7 +926,6 @@ namespace AdminStore.Repositories
         public async Task DeleteWorkflowStatesAsync_DeleteWorkflowStatesInDb_QueryReturnWorkflowStateIds()
         {
             // arrange
-            const int publishRevision = 12;
             var resultSqlStates = new List<SqlState>(3);
             resultSqlStates.AddRange(_workflowStateIds.Select(
                 workflowStateId => new SqlState
@@ -934,7 +935,7 @@ namespace AdminStore.Repositories
             _sqlConnectionWrapperMock.SetupQueryAsync("DeleteWorkflowStates", It.IsAny<Dictionary<string, object>>(), resultSqlStates);
 
             // act
-            var deletedWorkflowStates = await _workflowRepository.DeleteWorkflowStatesAsync(_workflowStateIds, publishRevision);
+            var deletedWorkflowStates = await _workflowRepository.DeleteWorkflowStatesAsync(_workflowStateIds, PublishRevision);
 
             // assert
             Assert.IsNotNull(deletedWorkflowStates);
@@ -950,10 +951,9 @@ namespace AdminStore.Repositories
         public async Task DeleteWorkflowStatesAsync_EmptyWorkflowStateIdsList_ArgumentException()
         {
             // arrange
-            const int publishRevision = 12;
 
             // act
-            await _workflowRepository.DeleteWorkflowStatesAsync(new List<int>(), publishRevision);
+            await _workflowRepository.DeleteWorkflowStatesAsync(new List<int>(), PublishRevision);
 
             // assert
         }
@@ -963,10 +963,9 @@ namespace AdminStore.Repositories
         public async Task DeleteWorkflowStatesAsync_InvalidPublishRevision_ArgumentException()
         {
             // arrange
-            const int publishRevision = 0;
 
             // act
-            await _workflowRepository.DeleteWorkflowStatesAsync(_workflowStateIds, publishRevision);
+            await _workflowRepository.DeleteWorkflowStatesAsync(_workflowStateIds, IncorrectPublishRevision);
 
             // assert
         }
@@ -979,7 +978,6 @@ namespace AdminStore.Repositories
         public async Task CreateWorkflowStatesAsync_CreateWorkflowStatesInDb_QueryReturnWorkflowStates()
         {
             // arrange
-            const int publishRevision = 12;
             var workflowStates = new List<SqlState>(3);
             workflowStates.AddRange(_workflowStateIds.Select(
                 workflowStateId => new SqlState
@@ -989,7 +987,7 @@ namespace AdminStore.Repositories
             _sqlConnectionWrapperMock.SetupQueryAsync("CreateWorkflowStates", It.IsAny<Dictionary<string, object>>(), workflowStates);
 
             // act
-            var createdWorkflowStates = await _workflowRepository.CreateWorkflowStatesAsync(workflowStates, publishRevision);
+            var createdWorkflowStates = await _workflowRepository.CreateWorkflowStatesAsync(workflowStates, PublishRevision);
 
             // assert
             Assert.IsNotNull(createdWorkflowStates);
@@ -1005,10 +1003,9 @@ namespace AdminStore.Repositories
         public async Task CreateWorkflowStatesAsync_NullWorkflowStatesList_ArgumentNullException()
         {
             // arrange
-            const int publishRevision = 12;
 
             // act
-            await _workflowRepository.CreateWorkflowStatesAsync(null, publishRevision);
+            await _workflowRepository.CreateWorkflowStatesAsync(null, PublishRevision);
 
             // assert
         }
@@ -1018,10 +1015,9 @@ namespace AdminStore.Repositories
         public async Task CreateWorkflowStatesAsync_EmptyWorkflowStatesList_ArgumentException()
         {
             // arrange
-            const int publishRevision = 12;
 
             // act
-            await _workflowRepository.CreateWorkflowStatesAsync(new List<SqlState>(), publishRevision);
+            await _workflowRepository.CreateWorkflowStatesAsync(new List<SqlState>(), PublishRevision);
 
             // assert
         }
@@ -1031,7 +1027,6 @@ namespace AdminStore.Repositories
         public async Task CreateWorkflowStatesAsync_InvalidPublishRevision_ArgumentException()
         {
             // arrange
-            const int publishRevision = 0;
             var workflowStates = new List<SqlState>(3);
             workflowStates.AddRange(_workflowStateIds.Select(
                 workflowStateId => new SqlState
@@ -1040,7 +1035,7 @@ namespace AdminStore.Repositories
                 }));
 
             // act
-            await _workflowRepository.CreateWorkflowStatesAsync(workflowStates, publishRevision);
+            await _workflowRepository.CreateWorkflowStatesAsync(workflowStates, IncorrectPublishRevision);
 
             // assert
         }
@@ -1053,7 +1048,6 @@ namespace AdminStore.Repositories
         public async Task UpdateWorkflowStatesAsync_UpdateWorkflowStatesInDb_QueryReturnWorkflowStates()
         {
             // arrange
-            const int publishRevision = 12;
             var workflowStates = new List<SqlState>(3);
             workflowStates.AddRange(_workflowStateIds.Select(
                 workflowStateId => new SqlState
@@ -1063,7 +1057,7 @@ namespace AdminStore.Repositories
             _sqlConnectionWrapperMock.SetupQueryAsync("UpdateWorkflowStates", It.IsAny<Dictionary<string, object>>(), workflowStates);
 
             // act
-            var updatedWorkflowStates = await _workflowRepository.UpdateWorkflowStatesAsync(workflowStates, publishRevision);
+            var updatedWorkflowStates = await _workflowRepository.UpdateWorkflowStatesAsync(workflowStates, PublishRevision);
 
             // assert
             Assert.IsNotNull(updatedWorkflowStates);
@@ -1079,10 +1073,9 @@ namespace AdminStore.Repositories
         public async Task UpdateWorkflowStatesAsync_NullWorkflowStatesList_ArgumentNullException()
         {
             // arrange
-            const int publishRevision = 12;
 
             // act
-            await _workflowRepository.UpdateWorkflowStatesAsync(null, publishRevision);
+            await _workflowRepository.UpdateWorkflowStatesAsync(null, PublishRevision);
 
             // assert
         }
@@ -1092,10 +1085,9 @@ namespace AdminStore.Repositories
         public async Task UpdateWorkflowStatesAsync_EmptyWorkflowStatesList_ArgumentException()
         {
             // arrange
-            const int publishRevision = 12;
 
             // act
-            await _workflowRepository.UpdateWorkflowStatesAsync(new List<SqlState>(), publishRevision);
+            await _workflowRepository.UpdateWorkflowStatesAsync(new List<SqlState>(), PublishRevision);
 
             // assert
         }
@@ -1105,7 +1097,6 @@ namespace AdminStore.Repositories
         public async Task UpdateWorkflowStatesAsync_InvalidPublishRevision_ArgumentException()
         {
             // arrange
-            const int publishRevision = 0;
             var workflowStates = new List<SqlState>(3);
             workflowStates.AddRange(_workflowStateIds.Select(
                 workflowStateId => new SqlState
@@ -1114,7 +1105,7 @@ namespace AdminStore.Repositories
                 }));
 
             // act
-            await _workflowRepository.UpdateWorkflowStatesAsync(workflowStates, publishRevision);
+            await _workflowRepository.UpdateWorkflowStatesAsync(workflowStates, IncorrectPublishRevision);
 
             // assert
         }
@@ -1127,7 +1118,6 @@ namespace AdminStore.Repositories
         public async Task DeleteWorkflowEventsAsync_DeleteWorkflowEventsInDb_QueryReturnWorkflowEventIds()
         {
             // arrange
-            const int publishRevision = 12;
             var resultSqlEvents = new List<SqlWorkflowEvent>(3);
             resultSqlEvents.AddRange(_workflowEventIds.Select(
                 workflowEventId => new SqlWorkflowEvent
@@ -1137,7 +1127,7 @@ namespace AdminStore.Repositories
             _sqlConnectionWrapperMock.SetupQueryAsync("DeleteWorkflowEvents", It.IsAny<Dictionary<string, object>>(), resultSqlEvents);
 
             // act
-            var deletedWorkflowEvents = await _workflowRepository.DeleteWorkflowEventsAsync(_workflowEventIds, publishRevision);
+            var deletedWorkflowEvents = await _workflowRepository.DeleteWorkflowEventsAsync(_workflowEventIds, PublishRevision);
 
             // assert
             Assert.IsNotNull(deletedWorkflowEvents);
@@ -1153,10 +1143,9 @@ namespace AdminStore.Repositories
         public async Task DeleteWorkflowEventsAsync_EmptyWorkflowEventIdsList_ArgumentException()
         {
             // arrange
-            const int publishRevision = 12;
 
             // act
-            await _workflowRepository.DeleteWorkflowEventsAsync(new List<int>(), publishRevision);
+            await _workflowRepository.DeleteWorkflowEventsAsync(new List<int>(), PublishRevision);
 
             // assert
         }
@@ -1166,10 +1155,9 @@ namespace AdminStore.Repositories
         public async Task DeleteWorkflowEventsAsync_InvalidPublishRevision_ArgumentException()
         {
             // arrange
-            const int publishRevision = 0;
 
             // act
-            await _workflowRepository.DeleteWorkflowEventsAsync(_workflowEventIds, publishRevision);
+            await _workflowRepository.DeleteWorkflowEventsAsync(_workflowEventIds, IncorrectPublishRevision);
 
             // assert
         }
@@ -1182,7 +1170,6 @@ namespace AdminStore.Repositories
         public async Task CreateWorkflowEventsAsync_CreateWorkflowEventsInDb_QueryReturnWorkflowEvents()
         {
             // arrange
-            const int publishRevision = 12;
             var workflowEvents = new List<SqlWorkflowEvent>(3);
             workflowEvents.AddRange(_workflowEventIds.Select(
                 workflowEventId => new SqlWorkflowEvent
@@ -1192,7 +1179,7 @@ namespace AdminStore.Repositories
             _sqlConnectionWrapperMock.SetupQueryAsync("CreateWorkflowEvents", It.IsAny<Dictionary<string, object>>(), workflowEvents);
 
             // act
-            var createdWorkflowEvents = await _workflowRepository.CreateWorkflowEventsAsync(workflowEvents, publishRevision);
+            var createdWorkflowEvents = await _workflowRepository.CreateWorkflowEventsAsync(workflowEvents, PublishRevision);
 
             // assert
             Assert.IsNotNull(createdWorkflowEvents);
@@ -1208,10 +1195,9 @@ namespace AdminStore.Repositories
         public async Task CreateWorkflowEventsAsync_NullWorkflowEventsList_ArgumentNullException()
         {
             // arrange
-            const int publishRevision = 12;
 
             // act
-            await _workflowRepository.CreateWorkflowEventsAsync(null, publishRevision);
+            await _workflowRepository.CreateWorkflowEventsAsync(null, PublishRevision);
 
             // assert
         }
@@ -1221,10 +1207,9 @@ namespace AdminStore.Repositories
         public async Task CreateWorkflowEventsAsync_EmptyWorkflowEventsList_ArgumentException()
         {
             // arrange
-            const int publishRevision = 12;
 
             // act
-            await _workflowRepository.CreateWorkflowEventsAsync(new List<SqlWorkflowEvent>(), publishRevision);
+            await _workflowRepository.CreateWorkflowEventsAsync(new List<SqlWorkflowEvent>(), PublishRevision);
 
             // assert
         }
@@ -1234,7 +1219,6 @@ namespace AdminStore.Repositories
         public async Task CreateWorkflowEventsAsync_InvalidPublishRevision_ArgumentException()
         {
             // arrange
-            const int publishRevision = 0;
             var workflowEvents = new List<SqlWorkflowEvent>(3);
             workflowEvents.AddRange(_workflowEventIds.Select(
                 workflowEventId => new SqlWorkflowEvent
@@ -1243,7 +1227,7 @@ namespace AdminStore.Repositories
                 }));
 
             // act
-            await _workflowRepository.CreateWorkflowEventsAsync(workflowEvents, publishRevision);
+            await _workflowRepository.CreateWorkflowEventsAsync(workflowEvents, IncorrectPublishRevision);
 
             // assert
         }
@@ -1256,7 +1240,6 @@ namespace AdminStore.Repositories
         public async Task UpdateWorkflowEventsAsync_UpdateWorkflowEventsInDb_QueryReturnWorkflowEvents()
         {
             // arrange
-            const int publishRevision = 12;
             var workflowEvents = new List<SqlWorkflowEvent>(3);
             workflowEvents.AddRange(_workflowEventIds.Select(
                 workflowEventId => new SqlWorkflowEvent
@@ -1266,7 +1249,7 @@ namespace AdminStore.Repositories
             _sqlConnectionWrapperMock.SetupQueryAsync("UpdateWorkflowEvents", It.IsAny<Dictionary<string, object>>(), workflowEvents);
 
             // act
-            var updatedWorkflowEvents = await _workflowRepository.UpdateWorkflowEventsAsync(workflowEvents, publishRevision);
+            var updatedWorkflowEvents = await _workflowRepository.UpdateWorkflowEventsAsync(workflowEvents, PublishRevision);
 
             // assert
             Assert.IsNotNull(updatedWorkflowEvents);
@@ -1282,10 +1265,9 @@ namespace AdminStore.Repositories
         public async Task UpdateWorkflowEventsAsync_NullWorkflowEventsList_ArgumentNullException()
         {
             // arrange
-            const int publishRevision = 12;
 
             // act
-            await _workflowRepository.UpdateWorkflowEventsAsync(null, publishRevision);
+            await _workflowRepository.UpdateWorkflowEventsAsync(null, PublishRevision);
 
             // assert
         }
@@ -1295,10 +1277,9 @@ namespace AdminStore.Repositories
         public async Task UpdateWorkflowEventsAsync_EmptyWorkflowEventsList_ArgumentException()
         {
             // arrange
-            const int publishRevision = 12;
 
             // act
-            await _workflowRepository.UpdateWorkflowEventsAsync(new List<SqlWorkflowEvent>(), publishRevision);
+            await _workflowRepository.UpdateWorkflowEventsAsync(new List<SqlWorkflowEvent>(), PublishRevision);
 
             // assert
         }
@@ -1308,7 +1289,6 @@ namespace AdminStore.Repositories
         public async Task UpdateWorkflowEventsAsync_InvalidPublishRevision_ArgumentException()
         {
             // arrange
-            const int publishRevision = 0;
             var workflowEvents = new List<SqlWorkflowEvent>(3);
             workflowEvents.AddRange(_workflowEventIds.Select(
                 workflowEventId => new SqlWorkflowEvent
@@ -1317,7 +1297,7 @@ namespace AdminStore.Repositories
                 }));
 
             // act
-            await _workflowRepository.UpdateWorkflowEventsAsync(workflowEvents, publishRevision);
+            await _workflowRepository.UpdateWorkflowEventsAsync(workflowEvents, IncorrectPublishRevision);
 
             // assert
         }

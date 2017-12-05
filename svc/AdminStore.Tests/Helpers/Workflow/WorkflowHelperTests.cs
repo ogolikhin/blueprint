@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AdminStore.Models.DiagramWorkflow;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
-using AdminStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Models.Workflow;
 
 namespace AdminStore.Helpers.Workflow
 {
@@ -61,22 +58,22 @@ namespace AdminStore.Helpers.Workflow
             sourceWF.Description = "TestDescription";
             sourceWF.Id = 1;
             sourceWF.IsActive = true;
-            sourceWF.NewArtifactEvents = new List<IeNewArtifactEvent>()
-             {
-                new IeNewArtifactEvent()
+            sourceWF.NewArtifactEvents = new List<IeNewArtifactEvent>
+            {
+                new IeNewArtifactEvent
                 {
                     Id = 2,
                     Name = "TestName3",
-                    Triggers = new List<IeTrigger>()
+                    Triggers = new List<IeTrigger>
                     {
-                        new IeTrigger()
+                        new IeTrigger
                         {
                             Name = "TestName4",
-                            Condition = new IeStateCondition()
+                            Condition = new IeStateCondition
                             {
                                 State = "State5", StateId = 6
                             },
-                            Action = new IeGenerateAction()
+                            Action = new IeGenerateAction
                             {
                                 ArtifactType = "TestCasesArtifactType7",
                                 ArtifactTypeId = 8,
@@ -84,14 +81,14 @@ namespace AdminStore.Helpers.Workflow
                                 GenerateActionType = GenerateActionTypes.TestCases
                             }
                         },
-                        new IeTrigger()
+                        new IeTrigger
                         {
                             Name = "TestName10",
-                            Condition = new IeStateCondition()
+                            Condition = new IeStateCondition
                             {
                                 State = "State11", StateId = 12
                             },
-                            Action = new IeGenerateAction()
+                            Action = new IeGenerateAction
                             {
                                 ArtifactType = "UserStoriesArtifactType13",
                                 ArtifactTypeId = 14,
@@ -99,14 +96,14 @@ namespace AdminStore.Helpers.Workflow
                                 GenerateActionType = GenerateActionTypes.UserStories
                             }
                         },
-                        new IeTrigger()
+                        new IeTrigger
                         {
                             Name = "TestName16",
-                            Condition = new IeStateCondition()
+                            Condition = new IeStateCondition
                             {
                                 State = "State17", StateId = 18
                             },
-                            Action = new IeGenerateAction()
+                            Action = new IeGenerateAction
                             {
                                 ArtifactType = "ChildrenArtifactType19",
                                 ArtifactTypeId = 20,
@@ -114,10 +111,10 @@ namespace AdminStore.Helpers.Workflow
                                 GenerateActionType = GenerateActionTypes.Children
                             }
                         },
-                        new IeTrigger()
+                        new IeTrigger
                         {
                             Name = "TestName22",
-                            Condition = new IeStateCondition()
+                            Condition = new IeStateCondition
                             {
                                 State = "State23", StateId = 24
                             },
@@ -174,15 +171,15 @@ namespace AdminStore.Helpers.Workflow
                   }
                 }
              };
-            sourceWF.Projects = new List<IeProject>()
-             {
-                new IeProject()
+            sourceWF.Projects = new List<IeProject>
+            {
+                new IeProject
                 {
                     Id = 26,
                     Path = "Path27",
-                    ArtifactTypes = new List<IeArtifactType>()
+                    ArtifactTypes = new List<IeArtifactType>
                     {
-                        new IeArtifactType()
+                        new IeArtifactType
                         {
                             Id = 28,
                             Name = "TestName29"
@@ -190,24 +187,24 @@ namespace AdminStore.Helpers.Workflow
                     }
                 }
              };
-            sourceWF.PropertyChangeEvents = new List<IePropertyChangeEvent>()
-             {
-                new IePropertyChangeEvent()
+            sourceWF.PropertyChangeEvents = new List<IePropertyChangeEvent>
+            {
+                new IePropertyChangeEvent
                 {
                     Id = 30,
                     Name = "TestName31",
                     PropertyId = 32,
                     PropertyName = "TestName33",
-                    Triggers = new List<IeTrigger>()
+                    Triggers = new List<IeTrigger>
                     {
-                        new IeTrigger()
+                        new IeTrigger
                         {
                             Name = "TestName34",
-                            Condition = new IeStateCondition()
+                            Condition = new IeStateCondition
                             {
                                 State = "State35", StateId = 36
                             },
-                            Action = new IeGenerateAction()
+                            Action = new IeGenerateAction
                             {
                                 ArtifactType = "ArtifactType37",
                                 ArtifactTypeId = 38,
@@ -218,9 +215,9 @@ namespace AdminStore.Helpers.Workflow
                     }
                 }
              };
-            sourceWF.States = new List<IeState>()
-             {
-                new IeState()
+            sourceWF.States = new List<IeState>
+            {
+                new IeState
                 {
                     Id = 40,
                     IsInitial = true,
@@ -228,9 +225,9 @@ namespace AdminStore.Helpers.Workflow
                     Name = "TestName42"
                 }
              };
-            sourceWF.TransitionEvents = new List<IeTransitionEvent>()
-             {
-                new IeTransitionEvent()
+            sourceWF.TransitionEvents = new List<IeTransitionEvent>
+            {
+                new IeTransitionEvent
                 {
                     FromState = "FromState43",
                     FromStateId = 44,
@@ -239,21 +236,21 @@ namespace AdminStore.Helpers.Workflow
                     ToState = "ToState47",
                     ToStateId = 48,
                     SkipPermissionGroups = true,
-                    PortPair = new IePortPair()
+                    PortPair = new IePortPair
                     {
                         FromPort = DiagramPort.Bottom,
                         ToPort = DiagramPort.Left
                     },
-                    Triggers = new List<IeTrigger>()
+                    Triggers = new List<IeTrigger>
                     {
-                        new IeTrigger()
+                        new IeTrigger
                         {
                             Name = "TestName49",
-                            Condition = new IeStateCondition()
+                            Condition = new IeStateCondition
                             {
                                 State = "State50", StateId = 51
                             },
-                            Action = new IeGenerateAction()
+                            Action = new IeGenerateAction
                             {
                                 ArtifactType = "ArtifactType52",
                                 ArtifactTypeId = 53,
@@ -262,9 +259,9 @@ namespace AdminStore.Helpers.Workflow
                             }
                         }
                     },
-                    PermissionGroups = new List<IeGroup>()
+                    PermissionGroups = new List<IeGroup>
                     {
-                        new IeGroup()
+                        new IeGroup
                         {
                             Id = 55,
                             Name = "TestName56"
@@ -484,5 +481,457 @@ namespace AdminStore.Helpers.Workflow
         }
 
         #endregion MapIeWorkflowToDWorkflow
+
+        #region MapDWorkflowToIeWorkflow
+
+        [TestMethod]
+        public void MapDWorkflowToIeWorkflow_Map_Successfully()
+        {
+            // Arrange
+
+            var dWorkflow = new DWorkflow
+            {
+                Name = "sourceWFTestName",
+                Description = "TestDescription",
+                Id = 1,
+                IsActive = true,
+                NewArtifactEvents = new List<DNewArtifactEvent>
+                {
+                    new DNewArtifactEvent
+                    {
+                        Id = 2,
+                        Name = "TestName3",
+                        Triggers = new List<DTrigger>
+                        {
+                            new DTrigger
+                            {
+                                Name = "TestName4",
+                                Condition = new DStateCondition
+                                {
+                                    State = "State5",
+                                    StateId = 6
+                                },
+                                Action = new DGenerateAction
+                                {
+                                    ArtifactType = "TestCasesArtifactType7",
+                                    ArtifactTypeId = 8,
+                                    ChildCount = 9,
+                                    GenerateActionType = GenerateActionTypes.TestCases
+                                }
+                            },
+                            new DTrigger
+                            {
+                                Name = "TestName10",
+                                Condition = new DStateCondition
+                                {
+                                    State = "State11",
+                                    StateId = 12
+                                },
+                                Action = new DGenerateAction
+                                {
+                                    ArtifactType = "UserStoriesArtifactType13",
+                                    ArtifactTypeId = 14,
+                                    ChildCount = 15,
+                                    GenerateActionType = GenerateActionTypes.UserStories
+                                }
+                            },
+                            new DTrigger
+                            {
+                                Name = "TestName16",
+                                Condition = new DStateCondition
+                                {
+                                    State = "State17",
+                                    StateId = 18
+                                },
+                                Action = new DGenerateAction
+                                {
+                                    ArtifactType = "ChildrenArtifactType19",
+                                    ArtifactTypeId = 20,
+                                    ChildCount = 21,
+                                    GenerateActionType = GenerateActionTypes.Children
+                                }
+                            },
+                            new DTrigger
+                            {
+                                Name = "TestName22",
+                                Condition = new DStateCondition
+                                {
+                                    State = "State23",
+                                    StateId = 24
+                                },
+                                Action = new DEmailNotificationAction
+                                {
+                                    PropertyId = 5000,
+
+                                    Emails = new List<string>
+                                    {
+                                        "user1@company.com"
+                                    },
+                                    Message = "Message 1"
+                                }
+                            },
+                            new DTrigger
+                            {
+                                Name = "Date Property Change Trigger",
+                                Action = new DPropertyChangeAction
+                                {
+                                    PropertyName = "Date Property",
+                                    PropertyValue = "2017-07-21",
+                                    Name = "TestNameIETriggerDPropertyChangeAction",
+                                    PropertyId = 20
+                                }
+                            },
+                            new DTrigger
+                            {
+                                Name = "Choice Property Change Trigger",
+                                Action = new DPropertyChangeAction
+                                {
+                                    PropertyName = "Choice Property",
+                                    ValidValues = new List<DValidValue>
+                                    {
+                                        new DValidValue { Id = 111, Value = "Canada" },
+                                        new DValidValue { Id = 222, Value = "Russia" }
+                                    }
+                                }
+                            },
+                            new DTrigger
+                            {
+                                Name = "User Property Change Trigger",
+                                Action = new DPropertyChangeAction
+                                {
+                                    PropertyName = "User Property",
+                                    UsersGroups = new DUsersGroups
+                                    {
+                                        UsersGroups = new List<DUserGroup>
+                                        {
+                                            new DUserGroup
+                                            {
+                                                Name = "user1",
+                                                GroupProjectId = 11,
+                                                GroupProjectPath = "TestGroupProjectPath",
+                                                Id = 1000,
+                                                IsGroup = true
+                                            },
+                                            new DUserGroup { Name = "group2", IsGroup = true }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                Projects = new List<DProject>
+                {
+                    new DProject
+                    {
+                        Id = 26,
+                        Path = "Path27",
+                        ArtifactTypes = new List<DArtifactType>
+                        {
+                            new DArtifactType
+                            {
+                                Id = 28,
+                                Name = "TestName29"
+                            }
+                        }
+                    }
+                },
+                PropertyChangeEvents = new List<DPropertyChangeEvent>
+                {
+                    new DPropertyChangeEvent
+                    {
+                        Id = 30,
+                        Name = "TestName31",
+                        PropertyId = 32,
+                        PropertyName = "TestName33",
+                        Triggers = new List<DTrigger>
+                        {
+                            new DTrigger
+                            {
+                                Name = "TestName34",
+                                Condition = new DStateCondition
+                                {
+                                    State = "State35",
+                                    StateId = 36
+                                },
+                                Action = new DGenerateAction
+                                {
+                                    ArtifactType = "ArtifactType37",
+                                    ArtifactTypeId = 38,
+                                    ChildCount = 39,
+                                    GenerateActionType = GenerateActionTypes.UserStories
+                                }
+                            }
+                        }
+                    }
+                },
+                States = new List<DState>
+                {
+                    new DState
+                    {
+                        Id = 40,
+                        IsInitial = true,
+                        Location = "TestLocation41",
+                        Name = "TestName42"
+                    }
+                },
+                TransitionEvents = new List<DTransitionEvent>
+                {
+                    new DTransitionEvent
+                    {
+                        FromState = "FromState43",
+                        FromStateId = 44,
+                        Id = 45,
+                        Name = "TestName46",
+                        ToState = "ToState47",
+                        ToStateId = 48,
+                        SkipPermissionGroups = true,
+                        PortPair = new DPortPair
+                        {
+                            FromPort = DiagramPort.Bottom,
+                            ToPort = DiagramPort.Left
+                        },
+                        Triggers = new List<DTrigger>
+                        {
+                            new DTrigger
+                            {
+                                Name = "TestName49",
+                                Condition = new DStateCondition
+                                {
+                                    State = "State50",
+                                    StateId = 51
+                                },
+                                Action = new DGenerateAction
+                                {
+                                    ArtifactType = "ArtifactType52",
+                                    ArtifactTypeId = 53,
+                                    ChildCount = 54,
+                                    GenerateActionType = GenerateActionTypes.UserStories
+                                }
+                            }
+                        },
+                        PermissionGroups = new List<DGroup>
+                        {
+                            new DGroup
+                            {
+                                Id = 55,
+                                Name = "TestName56"
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Act
+            var mappedIeWorkflow = WorkflowHelper.MapDWorkflowToIeWorkflow(dWorkflow);
+
+            // Assert
+            Assert.AreEqual(dWorkflow.Name, mappedIeWorkflow.Name);
+            Assert.AreEqual(dWorkflow.Id, mappedIeWorkflow.Id);
+            Assert.AreEqual(dWorkflow.Description, mappedIeWorkflow.Description);
+            Assert.AreEqual(dWorkflow.IsActive, mappedIeWorkflow.IsActive);
+
+            Assert.AreEqual(1, mappedIeWorkflow.NewArtifactEvents.Count());
+
+            var expectedNewArtifactEvent = dWorkflow.NewArtifactEvents.ToList()[0];
+            var actualNewArtifactEvent = mappedIeWorkflow.NewArtifactEvents.ToList()[0];
+            Assert.IsNotNull(expectedNewArtifactEvent);
+            Assert.IsNotNull(actualNewArtifactEvent);
+
+            Assert.AreEqual(expectedNewArtifactEvent.Id, actualNewArtifactEvent.Id);
+            Assert.AreEqual(expectedNewArtifactEvent.Name, actualNewArtifactEvent.Name);
+
+            Assert.AreEqual(7, mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.Count());
+
+            Assert.AreEqual(expectedNewArtifactEvent.Triggers.ToList()[0].Name, actualNewArtifactEvent.Triggers.ToList()[0].Name);
+
+            var expectedNewArtifactEventTriggerCondition = dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[0].Condition;
+            var actualNewArtifactEventTriggerCondition = (IeStateCondition)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[0].Condition;
+
+            Assert.IsNotNull(expectedNewArtifactEventTriggerCondition);
+            Assert.IsNotNull(actualNewArtifactEventTriggerCondition);
+
+            Assert.AreEqual(expectedNewArtifactEventTriggerCondition.StateId, actualNewArtifactEventTriggerCondition.StateId);
+            Assert.AreEqual(expectedNewArtifactEventTriggerCondition.State, actualNewArtifactEventTriggerCondition.State);
+
+            var expectedNewArtifactEventTriggerActionTestCases = (DGenerateAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[0].Action;
+            var actualNewArtifactEventTriggerActionTestCases = (IeGenerateAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[0].Action;
+
+            Assert.IsNotNull(expectedNewArtifactEventTriggerActionTestCases);
+            Assert.IsNotNull(actualNewArtifactEventTriggerActionTestCases);
+
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionTestCases.ActionType, actualNewArtifactEventTriggerActionTestCases.ActionType);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionTestCases.ArtifactType, actualNewArtifactEventTriggerActionTestCases.ArtifactType);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionTestCases.ArtifactTypeId, actualNewArtifactEventTriggerActionTestCases.ArtifactTypeId);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionTestCases.ChildCount, actualNewArtifactEventTriggerActionTestCases.ChildCount);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionTestCases.GenerateActionType, actualNewArtifactEventTriggerActionTestCases.GenerateActionType);
+
+            var expectedNewArtifactEventTriggerActionUserStories = (DGenerateAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[1].Action;
+            var actualNewArtifactEventTriggerActionUserStories = (IeGenerateAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[1].Action;
+
+            Assert.IsNotNull(expectedNewArtifactEventTriggerActionUserStories);
+            Assert.IsNotNull(actualNewArtifactEventTriggerActionUserStories);
+
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionUserStories.ActionType, actualNewArtifactEventTriggerActionUserStories.ActionType);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionUserStories.ArtifactType, actualNewArtifactEventTriggerActionUserStories.ArtifactType);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionUserStories.ArtifactTypeId, actualNewArtifactEventTriggerActionUserStories.ArtifactTypeId);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionUserStories.ChildCount, actualNewArtifactEventTriggerActionUserStories.ChildCount);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionUserStories.GenerateActionType, actualNewArtifactEventTriggerActionUserStories.GenerateActionType);
+
+            var expectedNewArtifactEventTriggerActionChildren = (DGenerateAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[2].Action;
+            var actualNewArtifactEventTriggerActionChildren = (IeGenerateAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[2].Action;
+
+            Assert.IsNotNull(expectedNewArtifactEventTriggerActionChildren);
+            Assert.IsNotNull(actualNewArtifactEventTriggerActionChildren);
+
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionChildren.ActionType, actualNewArtifactEventTriggerActionChildren.ActionType);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionChildren.ArtifactType, actualNewArtifactEventTriggerActionChildren.ArtifactType);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionChildren.ArtifactTypeId, actualNewArtifactEventTriggerActionChildren.ArtifactTypeId);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionChildren.ChildCount, actualNewArtifactEventTriggerActionChildren.ChildCount);
+            Assert.AreEqual(expectedNewArtifactEventTriggerActionChildren.GenerateActionType, actualNewArtifactEventTriggerActionChildren.GenerateActionType);
+
+            var expectedNewArtifactEventTriggerEmailNotificationAction = (DEmailNotificationAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[3].Action;
+            var actualNewArtifactEventTriggerEmailNotification = (IeEmailNotificationAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[3].Action;
+
+            Assert.IsNotNull(expectedNewArtifactEventTriggerEmailNotificationAction);
+            Assert.IsNotNull(actualNewArtifactEventTriggerEmailNotification);
+
+            Assert.AreEqual(expectedNewArtifactEventTriggerEmailNotificationAction.ActionType, actualNewArtifactEventTriggerEmailNotification.ActionType);
+            Assert.AreEqual(1, actualNewArtifactEventTriggerEmailNotification.Emails.Count());
+
+            Assert.AreEqual(expectedNewArtifactEventTriggerEmailNotificationAction.Emails.ToList()[0], actualNewArtifactEventTriggerEmailNotification.Emails.ToList()[0]);
+            Assert.AreEqual(expectedNewArtifactEventTriggerEmailNotificationAction.Message, actualNewArtifactEventTriggerEmailNotification.Message);
+            Assert.AreEqual(expectedNewArtifactEventTriggerEmailNotificationAction.PropertyId, actualNewArtifactEventTriggerEmailNotification.PropertyId);
+            Assert.AreEqual(expectedNewArtifactEventTriggerEmailNotificationAction.PropertyName, actualNewArtifactEventTriggerEmailNotification.PropertyName);
+
+
+            var expectedNewArtifactEventTriggerPropertyChangeAction = (DPropertyChangeAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[4].Action;
+            var actualNewArtifactEventTriggerPropertyChangeAction = (IePropertyChangeAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[4].Action;
+
+            Assert.IsNotNull(expectedNewArtifactEventTriggerPropertyChangeAction);
+            Assert.IsNotNull(actualNewArtifactEventTriggerPropertyChangeAction);
+
+
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeAction.PropertyId, actualNewArtifactEventTriggerPropertyChangeAction.PropertyId);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeAction.PropertyName, actualNewArtifactEventTriggerPropertyChangeAction.PropertyName);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeAction.PropertyValue, actualNewArtifactEventTriggerPropertyChangeAction.PropertyValue);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeAction.ActionType, actualNewArtifactEventTriggerPropertyChangeAction.ActionType);
+
+            var expectedNewArtifactEventTriggerPropertyChangeValidValuesAction = (DPropertyChangeAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[5].Action;
+            var actualNewArtifactEventTriggerPropertyChangeValidValuesAction = (IePropertyChangeAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[5].Action;
+
+            Assert.IsNotNull(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction);
+            Assert.IsNotNull(actualNewArtifactEventTriggerPropertyChangeValidValuesAction);
+
+
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.PropertyId, actualNewArtifactEventTriggerPropertyChangeValidValuesAction.PropertyId);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.PropertyName, actualNewArtifactEventTriggerPropertyChangeValidValuesAction.PropertyName);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.PropertyValue, actualNewArtifactEventTriggerPropertyChangeValidValuesAction.PropertyValue);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.ActionType, actualNewArtifactEventTriggerPropertyChangeValidValuesAction.ActionType);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.Count(), actualNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.Count());
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[0].Id, actualNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[0].Id);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[0].Value, actualNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[0].Value);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[1].Id, actualNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[1].Id);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[1].Value, actualNewArtifactEventTriggerPropertyChangeValidValuesAction.ValidValues.ToList()[1].Value);
+
+            var expectedNewArtifactEventTriggerPropertyChangeGroupsAction = (DPropertyChangeAction)dWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[6].Action;
+            var actualNewArtifactEventTriggerPropertyChangeGroupsAction = (IePropertyChangeAction)mappedIeWorkflow.NewArtifactEvents.ToList()[0].Triggers.ToList()[6].Action;
+
+            Assert.IsNotNull(expectedNewArtifactEventTriggerPropertyChangeGroupsAction);
+            Assert.IsNotNull(actualNewArtifactEventTriggerPropertyChangeGroupsAction);
+
+
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeGroupsAction.PropertyId, actualNewArtifactEventTriggerPropertyChangeGroupsAction.PropertyId);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeGroupsAction.PropertyName, actualNewArtifactEventTriggerPropertyChangeGroupsAction.PropertyName);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeGroupsAction.PropertyValue, actualNewArtifactEventTriggerPropertyChangeGroupsAction.PropertyValue);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeGroupsAction.ActionType, actualNewArtifactEventTriggerPropertyChangeGroupsAction.ActionType);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList().Count, actualNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.Count());
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList()[0].Id, actualNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList()[0].Id);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList()[0].Name, actualNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList()[0].Name);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList()[0].IsGroup, actualNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList()[0].IsGroup);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList()[0].GroupProjectId, actualNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList()[0].GroupProjectId);
+            Assert.AreEqual(expectedNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList()[0].GroupProjectPath, actualNewArtifactEventTriggerPropertyChangeGroupsAction.UsersGroups.UsersGroups.ToList()[0].GroupProjectPath);
+
+
+
+            Assert.AreEqual(1, mappedIeWorkflow.Projects.Count());
+            Assert.AreEqual(dWorkflow.Projects.ToList()[0].Id, mappedIeWorkflow.Projects.ToList()[0].Id);
+            Assert.AreEqual(1, mappedIeWorkflow.Projects.ToList()[0].ArtifactTypes.ToList().Count);
+            Assert.AreEqual(dWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Id, mappedIeWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Id);
+            Assert.AreEqual(dWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Name, mappedIeWorkflow.Projects.ToList()[0].ArtifactTypes.ToList()[0].Name);
+
+            Assert.AreEqual(1, mappedIeWorkflow.PropertyChangeEvents.Count());
+            Assert.AreEqual(dWorkflow.PropertyChangeEvents.ToList()[0].Id, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Id);
+            Assert.AreEqual(dWorkflow.PropertyChangeEvents.ToList()[0].Name, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.PropertyChangeEvents.ToList()[0].PropertyId, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].PropertyId);
+            Assert.AreEqual(dWorkflow.PropertyChangeEvents.ToList()[0].PropertyName, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].PropertyName);
+
+            Assert.AreEqual(dWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Name, mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Name);
+
+            var expectedPropertyChangeEventTriggerAction = ((DGenerateAction)(dWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Action));
+            var actualPropertyChangeEventTriggerAction = ((IeGenerateAction)mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Action);
+
+            Assert.IsNotNull(expectedPropertyChangeEventTriggerAction);
+            Assert.IsNotNull(actualPropertyChangeEventTriggerAction);
+
+            var expectedPropertyChangeEventTriggerCondition = dWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Condition;
+            var actualPropertyChangeEventTriggerCondition = (IeStateCondition)mappedIeWorkflow.PropertyChangeEvents.ToList()[0].Triggers.ToList()[0].Condition;
+
+            Assert.IsNotNull(expectedPropertyChangeEventTriggerCondition);
+            Assert.IsNotNull(actualPropertyChangeEventTriggerCondition);
+
+            Assert.AreEqual(expectedPropertyChangeEventTriggerCondition.StateId, actualPropertyChangeEventTriggerCondition.StateId);
+            Assert.AreEqual(expectedPropertyChangeEventTriggerCondition.State, actualPropertyChangeEventTriggerCondition.State);
+            Assert.AreEqual(expectedPropertyChangeEventTriggerAction.ActionType, actualPropertyChangeEventTriggerAction.ActionType);
+            Assert.AreEqual(expectedPropertyChangeEventTriggerAction.ArtifactType, actualPropertyChangeEventTriggerAction.ArtifactType);
+            Assert.AreEqual(expectedPropertyChangeEventTriggerAction.ArtifactTypeId, actualPropertyChangeEventTriggerAction.ArtifactTypeId);
+            Assert.AreEqual(expectedPropertyChangeEventTriggerAction.ChildCount, actualPropertyChangeEventTriggerAction.ChildCount);
+            Assert.AreEqual(expectedPropertyChangeEventTriggerAction.GenerateActionType, actualPropertyChangeEventTriggerAction.GenerateActionType);
+
+            Assert.AreEqual(1, mappedIeWorkflow.States.Count());
+            Assert.AreEqual(dWorkflow.States.ToList()[0].Id, mappedIeWorkflow.States.ToList()[0].Id);
+            Assert.AreEqual(dWorkflow.States.ToList()[0].Name, mappedIeWorkflow.States.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.States.ToList()[0].IsInitial, mappedIeWorkflow.States.ToList()[0].IsInitial);
+            Assert.AreEqual(dWorkflow.States.ToList()[0].Location, mappedIeWorkflow.States.ToList()[0].Location);
+
+            Assert.AreEqual(1, mappedIeWorkflow.TransitionEvents.Count());
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].Id, mappedIeWorkflow.TransitionEvents.ToList()[0].Id);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].Name, mappedIeWorkflow.TransitionEvents.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].FromState, mappedIeWorkflow.TransitionEvents.ToList()[0].FromState);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].FromStateId, mappedIeWorkflow.TransitionEvents.ToList()[0].FromStateId);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].ToState, mappedIeWorkflow.TransitionEvents.ToList()[0].ToState);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].ToStateId, mappedIeWorkflow.TransitionEvents.ToList()[0].ToStateId);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].SkipPermissionGroups, mappedIeWorkflow.TransitionEvents.ToList()[0].SkipPermissionGroups);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].PortPair.FromPort, mappedIeWorkflow.TransitionEvents.ToList()[0].PortPair.FromPort);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].PortPair.ToPort, mappedIeWorkflow.TransitionEvents.ToList()[0].PortPair.ToPort);
+
+
+            var expectedTransitionEventTriggerAction = ((DGenerateAction)(dWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Action));
+            var actualTransitionEventTriggerAction = ((IeGenerateAction)mappedIeWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Action);
+
+            Assert.IsNotNull(expectedTransitionEventTriggerAction);
+            Assert.IsNotNull(actualTransitionEventTriggerAction);
+
+            var expectedTransitionEventTriggerCondition = dWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Condition;
+            var actualTransitionEventTriggerCondition = (IeStateCondition)mappedIeWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Condition;
+
+            Assert.IsNotNull(expectedTransitionEventTriggerCondition);
+            Assert.IsNotNull(actualTransitionEventTriggerCondition);
+
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Name, mappedIeWorkflow.TransitionEvents.ToList()[0].Triggers.ToList()[0].Name);
+            Assert.AreEqual(expectedTransitionEventTriggerCondition.StateId, actualTransitionEventTriggerCondition.StateId);
+            Assert.AreEqual(expectedTransitionEventTriggerCondition.State, actualTransitionEventTriggerCondition.State);
+            Assert.AreEqual(expectedTransitionEventTriggerAction.ActionType, actualTransitionEventTriggerAction.ActionType);
+            Assert.AreEqual(expectedTransitionEventTriggerAction.ArtifactType, actualTransitionEventTriggerAction.ArtifactType);
+            Assert.AreEqual(expectedTransitionEventTriggerAction.ArtifactTypeId, actualTransitionEventTriggerAction.ArtifactTypeId);
+            Assert.AreEqual(expectedTransitionEventTriggerAction.ChildCount, actualTransitionEventTriggerAction.ChildCount);
+            Assert.AreEqual(expectedTransitionEventTriggerAction.GenerateActionType, actualTransitionEventTriggerAction.GenerateActionType);
+
+            Assert.AreEqual(1, mappedIeWorkflow.TransitionEvents.ToList()[0].PermissionGroups.Count());
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Name, mappedIeWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Name);
+            Assert.AreEqual(dWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Id, mappedIeWorkflow.TransitionEvents.ToList()[0].PermissionGroups.ToList()[0].Id);
+        }
+
+        #endregion MapDWorkflowToIeWorkflow
     }
 }

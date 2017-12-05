@@ -131,7 +131,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            _workflow.Name = new string('a', 4);
+            _workflow.Name = new string('a', WorkflowXmlValidator.MinWorkflowNameLength);
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);
@@ -146,7 +146,7 @@ namespace AdminStore.Services.Workflow
         {
             // Arrange
             var workflowValidator = new WorkflowXmlValidator();
-            _workflow.Name = new string('a', 24);
+            _workflow.Name = new string('a', WorkflowXmlValidator.MaxWorkflowNameLength);
 
             // Act
             var result = workflowValidator.ValidateXml(_workflow);

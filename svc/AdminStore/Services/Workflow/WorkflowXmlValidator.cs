@@ -30,7 +30,7 @@ namespace AdminStore.Services.Workflow
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
                     Element = workflow,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowNameInvalid
+                    ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowNameMissingOrInvalid
                 });
             }
 

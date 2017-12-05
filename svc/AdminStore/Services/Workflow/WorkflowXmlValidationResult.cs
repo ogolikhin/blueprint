@@ -22,7 +22,7 @@ namespace AdminStore.Services.Workflow
     public enum WorkflowXmlValidationErrorCodes
     {
         WorkflowXmlSerializationError,
-        WorkflowNameInvalid,
+        WorkflowNameMissingOrInvalid,
         WorkflowDescriptionExceedsLimit4000,
         WorkflowDoesNotContainAnyStates,
         StatesCountExceedsLimit100,

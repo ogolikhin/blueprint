@@ -260,7 +260,7 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlWorkflowXmlSerializationError;
                     errParams = new object[] { (string)error.Element };
                     break;
-                case WorkflowXmlValidationErrorCodes.WorkflowNameInvalid:
+                case WorkflowXmlValidationErrorCodes.WorkflowNameMissingOrInvalid:
                     template = TemplateXmlWorkflowNameMissingOrInvalid;
                     errParams = new object[] { };
                     break;

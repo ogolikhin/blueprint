@@ -25,25 +25,16 @@ namespace AdminStore.Services.Workflow
 
             var result = new WorkflowXmlValidationResult();
 
-            if (!ValidatePropertyNotEmpty(workflow.Name))
+            if (!ValidateWorkflowName(workflow.Name))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
                     Element = workflow,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowNameEmpty
+                    ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowNameMissingOrInvalid
                 });
             }
 
-            if (!ValidatePropertyLimit(workflow.Name, 24))
-            {
-                result.Errors.Add(new WorkflowXmlValidationError
-                {
-                    Element = workflow,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.WorkflowNameExceedsLimit24
-                });
-            }
-
-            if (!ValidatePropertyLimit(workflow.Description, 4000))
+            if (!ValidatePropertyValueMaximumLength(workflow.Description, 4000))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
@@ -131,7 +122,7 @@ namespace AdminStore.Services.Workflow
                     }
                 }
 
-                if (!ValidatePropertyLimit(state.Name, 24))
+                if (!ValidatePropertyValueMaximumLength(state.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -192,7 +183,7 @@ namespace AdminStore.Services.Workflow
                     }
                 }
 
-                if (!ValidatePropertyLimit(transition.Name, 24))
+                if (!ValidatePropertyValueMaximumLength(transition.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -282,7 +273,7 @@ namespace AdminStore.Services.Workflow
 
             foreach (var pcEvent in workflow.PropertyChangeEvents.FindAll(s => s != null))
             {
-                if (!ValidatePropertyLimit(pcEvent.Name, 24))
+                if (!ValidatePropertyValueMaximumLength(pcEvent.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -348,7 +339,7 @@ namespace AdminStore.Services.Workflow
 
             foreach (var naEvent in workflow.NewArtifactEvents.FindAll(s => s != null))
             {
-                if (!ValidatePropertyLimit(naEvent.Name, 24))
+                if (!ValidatePropertyValueMaximumLength(naEvent.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -572,19 +563,31 @@ namespace AdminStore.Services.Workflow
 
         #region Private Methods
 
+        private static bool ValidateWorkflowName(string workflowName)
+        {
+            return ValidatePropertyNotEmpty(workflowName)
+                && ValidatePropertyValueMinimumLength(workflowName, 4)
+                && ValidatePropertyValueMaximumLength(workflowName, 24);
+        }
+
         private static bool ValidatePropertyNotEmpty(string property)
         {
             return !string.IsNullOrWhiteSpace(property);
         }
 
-        private static bool ValidatePropertyLimit(string property, int limit)
+        private static bool ValidatePropertyValueMinimumLength(string propertyValue, int minimumLength)
         {
-            if (property == null)
+            return propertyValue?.Length >= minimumLength;
+        }
+
+        private static bool ValidatePropertyValueMaximumLength(string propertyValue, int maximumLength)
+        {
+            if (propertyValue == null)
             {
                 return true;
             }
 
-            return !(property.Length > limit);
+            return !(propertyValue.Length > maximumLength);
         }
 
         private static bool ValidateWorkflowContainsStates(IEnumerable<IeState> states)

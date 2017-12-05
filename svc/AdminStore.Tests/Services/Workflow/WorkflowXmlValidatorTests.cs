@@ -71,7 +71,7 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WorkflowNameEmpty, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WorkflowNameInvalid, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow, result.Errors[0].Element);
         }
 
@@ -91,6 +91,23 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
+        public void Validate_WorkflowNameLessThanLimit_ReturnsWorkflowNameLessThanLimit4Error()
+        {
+            // Arrange
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.Name = new string('a', 3);
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WorkflowNameInvalid, result.Errors[0].ErrorCode);
+            Assert.AreSame(_workflow, result.Errors[0].Element);
+        }
+
+        [TestMethod]
         public void Validate_WorkflowNameExceedsLimit_ReturnsWorkflowNameExceedsLimit24Error()
         {
             // Arrange
@@ -103,7 +120,7 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WorkflowNameExceedsLimit24, result.Errors[0].ErrorCode);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WorkflowNameInvalid, result.Errors[0].ErrorCode);
             Assert.AreSame(_workflow, result.Errors[0].Element);
         }
 
@@ -993,9 +1010,8 @@ namespace AdminStore.Services.Workflow
             // Assert
             Assert.IsTrue(result.HasErrors);
             Assert.AreEqual(3, result.Errors.Count);
-            var error1 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.WorkflowNameEmpty);
+            var error1 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.WorkflowNameInvalid);
             Assert.AreSame(_workflow, error1.Element);
-            var error2 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.InvalidId);
             var error3 = result.Errors.First(e => e.ErrorCode == WorkflowXmlValidationErrorCodes.ArtifactTypeNoSpecified);
             Assert.AreSame(_workflow.Projects[0].ArtifactTypes[0], error3.Element);
         }
@@ -1087,7 +1103,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.EmailNotification)
                 {
-                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> { "user@comapany.com" }; ;
+                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> { "user@comapany.com" };
                     ((IeEmailNotificationAction)t.Action).PropertyName = "a";
                 }
             }));
@@ -1095,7 +1111,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (t?.Action?.ActionType == ActionTypes.EmailNotification)
                 {
-                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> { "user@comapany.com" };;
+                    ((IeEmailNotificationAction)t.Action).Emails = new List<string> { "user@comapany.com" };
                     ((IeEmailNotificationAction)t.Action).PropertyName = "a";
                 }
             }));

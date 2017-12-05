@@ -23,11 +23,9 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDiagramProjectNoSpecified = "There are no Projects defined in this Workflow. If the model includes a <Projects> element, ensure that there are one or more <Project> child elements.";
         private const string TemplateDiagramWorkflowIdDoesNotMatchIdInUrl = "The Workflow Id attribute in the model does not match the Workflow have you chosen to update. Please ensure you are sending the correct Workflow model.";
 
-
         // Messages for the XML validation.
         private const string TemplateXmlWorkflowXmlSerializationError = "{0}";
-        private const string TemplateXmlWorkflowNameEmpty = "The Workflow's <Name> element is missing, or has no value.";
-        private const string TemplateXmlWorkflowNameExceedsLimit24 = "The Workflow's <Name> element exceeds 24 characters.";
+        private const string TemplateXmlWorkflowNameMissingOrInvalid = "The Workflow's <Name> element is missing or does not contain between 4 and 24 characters.";
         private const string TemplateXmlWorkflowDescriptionExceedsLimit4000 = "The Workflow's <Description> element exceeds 4000 characters.";
         private const string TemplateXmlWorkflowDoesNotContainAnyStates = "There are no States defined in this Workflow. Please ensure the XML definition includes a <States> element, and two or more <State> child elements.";
         private const string TemplateXmlStatesCountExceedsLimit100 = "The maximum 100 States allowed in a Workflow has been exceeded.";
@@ -262,12 +260,8 @@ namespace AdminStore.Services.Workflow
                     template = TemplateXmlWorkflowXmlSerializationError;
                     errParams = new object[] { (string)error.Element };
                     break;
-                case WorkflowXmlValidationErrorCodes.WorkflowNameEmpty:
-                    template = TemplateXmlWorkflowNameEmpty;
-                    errParams = new object[] { };
-                    break;
-                case WorkflowXmlValidationErrorCodes.WorkflowNameExceedsLimit24:
-                    template = TemplateXmlWorkflowNameExceedsLimit24;
+                case WorkflowXmlValidationErrorCodes.WorkflowNameInvalid:
+                    template = TemplateXmlWorkflowNameMissingOrInvalid;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.WorkflowDescriptionExceedsLimit4000:

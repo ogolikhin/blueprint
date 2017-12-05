@@ -491,7 +491,7 @@ namespace AdminStore.Helpers.Workflow
 
         private static DBaseAction MapToDAction(IeBaseAction ieBaseAction)
         {
-            switch (ieBaseAction.ActionType)
+            switch (ieBaseAction?.ActionType)
             {
                 case ActionTypes.EmailNotification:
                     var ieEmailNotificationAction = ieBaseAction as IeEmailNotificationAction;

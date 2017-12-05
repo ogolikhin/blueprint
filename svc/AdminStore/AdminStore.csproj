@@ -151,6 +151,7 @@
     <Compile Include="Models\Enums\DiagramPort.cs" />
     <Compile Include="Models\Enums\EventTypes.cs" />
     <Compile Include="Models\Enums\WorkflowMode.cs" />
+    <Compile Include="Models\NumberOfStatesActions.cs" />
     <Compile Include="Models\SyncResult.cs" />
     <Compile Include="Models\WorkflowArtifactType.cs" />
     <Compile Include="Models\WorkflowProjectArtifactType.cs" />

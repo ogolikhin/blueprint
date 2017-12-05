@@ -123,7 +123,8 @@ namespace ArtifactStore.Repositories
             }
             else
             {
-                reviewType = await GetReviewTypeAsync(containerId, userId);
+                // we use it only for review experience. There is no draft data in review experience, only published
+                reviewType = await GetReviewTypeAsync(containerId, userId, includeDrafts: false);
             }
 
             var reviewSummary = new ReviewSummary()

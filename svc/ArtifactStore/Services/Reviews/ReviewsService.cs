@@ -296,7 +296,7 @@ namespace ArtifactStore.Services.Reviews
                 {
                     var meaningOfSignature = meaningOfSignatureUpdate.MeaningOfSignature;
 
-                    var participantMeaningOfSignature = participant.SelectedRoleMoSAssignments.FirstOrDefault(pmos => pmos.RoleAssignmentId == meaningOfSignature.RoleAssignmentId);
+                    var participantMeaningOfSignature = participant.SelectedRoleMoSAssignments.FirstOrDefault(pmos => pmos.RoleId == meaningOfSignature.RoleId);
 
                     if (participantMeaningOfSignature == null)
                     {
@@ -362,10 +362,18 @@ namespace ArtifactStore.Services.Reviews
             if (reviewData.ReviewStatus == ReviewPackageStatus.Active &&
                 content.Role == ReviewParticipantRole.Approver)
             {
-                var artifactRequredApproval = reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested);
-                if (artifactRequredApproval != null)
+                var hasApproversAlready = reviewData.ReviewPackageRawData.Reviewers.FirstOrDefault(
+                    r => r.Permission == ReviewParticipantRole.Approver) != null;
+                // If we have approvers before current action, it means that review already was converted to formal
+                if (!hasApproversAlready)
                 {
-                    throw new ConflictException("Could not update review participants because review needs to be converted to Formal.", ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                    var artifactRequredApproval = reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested ?? true);
+                    if (artifactRequredApproval != null)
+                    {
+                        throw new ConflictException(
+                            "Could not update review participants because review needs to be converted to Formal.",
+                            ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                    }
                 }
             }
 
@@ -390,7 +398,7 @@ namespace ArtifactStore.Services.Reviews
                 {
                     changeResult.DropdownItems = reviewData.ReviewPackageRawData.Reviewers
                         .First(r => r.UserId == content.ItemIds.FirstOrDefault())
-                        .SelectedRoleMoSAssignments.Select(mos => new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleAssignmentId));
+                        .SelectedRoleMoSAssignments.Select(mos => new DropdownItem(mos.GetMeaningOfSignatureDisplayValue(), mos.RoleId));
                 }
             }
 
@@ -533,7 +541,13 @@ namespace ArtifactStore.Services.Reviews
             {
                 throw ReviewsExceptionHelper.ReviewActiveFormalException();
             }
-
+            foreach (var artifact in review.Contents.Artifacts)
+            {
+                if (artifact.ApprovalNotRequested == null)
+                {
+                    artifact.ApprovalNotRequested = (review.BaselineId == null);
+                }
+            }
             var resultErrors = new List<ReviewChangeItemsError>();
 
             var updatingArtifacts = GetReviewArtifacts(content, resultErrors, review.Contents);
@@ -549,11 +563,18 @@ namespace ArtifactStore.Services.Reviews
                     updatingArtifacts.Any() &&
                     content.ApprovalRequired)
                 {
-                    var approver =
-                        reviewRawData.Reviewers?.FirstOrDefault(r => r.Permission == ReviewParticipantRole.Approver);
-                    if (approver != null)
+                    var hasArtifactsRequireApproval = review.Contents.Artifacts.FirstOrDefault(a => a.ApprovalNotRequested == false) != null;
+                    // if Review has already artifacts require approval before current action it means that it is already converted to formal
+                    if (!hasArtifactsRequireApproval)
                     {
-                        throw new ConflictException("Could not update review artifacts because review needs to be converted to Formal.", ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                        var approver =
+                            reviewRawData.Reviewers?.FirstOrDefault(r => r.Permission == ReviewParticipantRole.Approver);
+                        if (approver != null)
+                        {
+                            throw new ConflictException(
+                                "Could not update review artifacts because review needs to be converted to Formal.",
+                                ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                        }
                     }
                 }
 

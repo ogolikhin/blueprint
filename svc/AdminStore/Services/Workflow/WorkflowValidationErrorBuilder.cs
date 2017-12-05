@@ -25,7 +25,7 @@ namespace AdminStore.Services.Workflow
 
         // Messages for the XML validation.
         private const string TemplateXmlWorkflowXmlSerializationError = "{0}";
-        private const string TemplateXmlWorkflowNameMissingOrInvalid = "The Workflow's <Name> element is missing or does not contain between 4 and 24 characters.";
+        private const string TemplateXmlWorkflowNameMissingOrInvalid = "The Workflow's <Name> element is missing or does not contain between 1 and 24 characters.";
         private const string TemplateXmlWorkflowDescriptionExceedsLimit4000 = "The Workflow's <Description> element exceeds 4000 characters.";
         private const string TemplateXmlWorkflowDoesNotContainAnyStates = "There are no States defined in this Workflow. Please ensure the XML definition includes a <States> element, and two or more <State> child elements.";
         private const string TemplateXmlStatesCountExceedsLimit100 = "The maximum 100 States allowed in a Workflow has been exceeded.";

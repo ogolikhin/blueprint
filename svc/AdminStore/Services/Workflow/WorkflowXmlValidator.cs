@@ -12,6 +12,9 @@ namespace AdminStore.Services.Workflow
 {
     public class WorkflowXmlValidator : IWorkflowXmlValidator
     {
+        public const int MinWorkflowNameLength = 1;
+        public const int MaxWorkflowNameLength = 24;
+
         #region Interface Implementation
 
         public WorkflowXmlValidationResult ValidateXml(IeWorkflow workflow)
@@ -34,7 +37,7 @@ namespace AdminStore.Services.Workflow
                 });
             }
 
-            if (!ValidatePropertyValueMaximumLength(workflow.Description, 4000))
+            if (!ValidateMaximumLength(workflow.Description, 4000))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
@@ -88,7 +91,7 @@ namespace AdminStore.Services.Workflow
 
             foreach (var state in workflow.States.FindAll(s => s != null))
             {
-                if (!ValidatePropertyNotEmpty(state.Name))
+                if (!ValidateNotEmpty(state.Name))
                 {
                     // There should be only one such an error.
                     if (!hasStateNameEmptyError)
@@ -122,7 +125,7 @@ namespace AdminStore.Services.Workflow
                     }
                 }
 
-                if (!ValidatePropertyValueMaximumLength(state.Name, 24))
+                if (!ValidateMaximumLength(state.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -157,7 +160,7 @@ namespace AdminStore.Services.Workflow
             {
                 statesWithIncomingTransitions.Add(transition.ToState);
 
-                if (!ValidatePropertyNotEmpty(transition.Name))
+                if (!ValidateNotEmpty(transition.Name))
                 {
                     if (!hasTransitionNameEmptyError)
                     {
@@ -168,7 +171,7 @@ namespace AdminStore.Services.Workflow
                         hasTransitionNameEmptyError = true;
                     }
                 }
-                else if (ValidatePropertyNotEmpty(transition.FromState)
+                else if (ValidateNotEmpty(transition.FromState)
                     && !stateOutgoingTransitionSet.Add(Tuple.Create(transition.FromState, transition.Name)))
                 {
                     if (!statesWithDuplicateOutgoingTransitions.Contains(transition.FromState))
@@ -183,7 +186,7 @@ namespace AdminStore.Services.Workflow
                     }
                 }
 
-                if (!ValidatePropertyValueMaximumLength(transition.Name, 24))
+                if (!ValidateMaximumLength(transition.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -192,8 +195,8 @@ namespace AdminStore.Services.Workflow
                     });
                 }
 
-                var from = ValidatePropertyNotEmpty(transition.FromState) ? transition.FromState : string.Empty;
-                var to = ValidatePropertyNotEmpty(transition.ToState) ? transition.ToState : string.Empty;
+                var from = ValidateNotEmpty(transition.FromState) ? transition.FromState : string.Empty;
+                var to = ValidateNotEmpty(transition.ToState) ? transition.ToState : string.Empty;
 
                 if (!string.IsNullOrEmpty(from) && stateTransitions.ContainsKey(from))
                 {
@@ -273,7 +276,7 @@ namespace AdminStore.Services.Workflow
 
             foreach (var pcEvent in workflow.PropertyChangeEvents.FindAll(s => s != null))
             {
-                if (!ValidatePropertyValueMaximumLength(pcEvent.Name, 24))
+                if (!ValidateMaximumLength(pcEvent.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -282,7 +285,7 @@ namespace AdminStore.Services.Workflow
                     });
                 }
 
-                if (!ValidatePropertyNotEmpty(pcEvent.PropertyName))
+                if (!ValidateNotEmpty(pcEvent.PropertyName))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -339,7 +342,7 @@ namespace AdminStore.Services.Workflow
 
             foreach (var naEvent in workflow.NewArtifactEvents.FindAll(s => s != null))
             {
-                if (!ValidatePropertyValueMaximumLength(naEvent.Name, 24))
+                if (!ValidateMaximumLength(naEvent.Name, 24))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -423,7 +426,7 @@ namespace AdminStore.Services.Workflow
 
             foreach (var project in workflow.Projects.FindAll(p => p != null))
             {
-                if (!hasProjectNoSpecifieError && !project.Id.HasValue && !ValidatePropertyNotEmpty(project.Path))
+                if (!hasProjectNoSpecifieError && !project.Id.HasValue && !ValidateNotEmpty(project.Path))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -433,7 +436,7 @@ namespace AdminStore.Services.Workflow
                     hasProjectNoSpecifieError = true;
                 }
 
-                if (!hasAmbiguousProjectReference && project.Id.HasValue && ValidatePropertyNotEmpty(project.Path))
+                if (!hasAmbiguousProjectReference && project.Id.HasValue && ValidateNotEmpty(project.Path))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -469,7 +472,7 @@ namespace AdminStore.Services.Workflow
                 else
                 {
                     if (!hasDuplicateProjectPathError
-                        && ValidatePropertyNotEmpty(project.Path)
+                        && ValidateNotEmpty(project.Path)
                         && projectPaths.Contains(project.Path))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
@@ -480,7 +483,7 @@ namespace AdminStore.Services.Workflow
                         hasDuplicateProjectPathError = true;
                     }
 
-                    if (ValidatePropertyNotEmpty(project.Path))
+                    if (ValidateNotEmpty(project.Path))
                     {
                         projectPaths.Add(project.Path);
                     }
@@ -505,7 +508,7 @@ namespace AdminStore.Services.Workflow
 
                 foreach (var artifactType in project.ArtifactTypes.FindAll(at => at != null))
                 {
-                    if (!ValidatePropertyNotEmpty(artifactType.Name))
+                    if (!ValidateNotEmpty(artifactType.Name))
                     {
                         // There should be only one such an error.
                         if (!hasArtifactTypeNoSpecifiedError)
@@ -565,29 +568,29 @@ namespace AdminStore.Services.Workflow
 
         private static bool ValidateWorkflowName(string workflowName)
         {
-            return ValidatePropertyNotEmpty(workflowName)
-                && ValidatePropertyValueMinimumLength(workflowName, 4)
-                && ValidatePropertyValueMaximumLength(workflowName, 24);
+            return ValidateNotEmpty(workflowName)
+                && ValidateMinimumLength(workflowName, MinWorkflowNameLength)
+                && ValidateMaximumLength(workflowName, MaxWorkflowNameLength);
         }
 
-        private static bool ValidatePropertyNotEmpty(string property)
+        private static bool ValidateNotEmpty(string value)
         {
-            return !string.IsNullOrWhiteSpace(property);
+            return !string.IsNullOrWhiteSpace(value);
         }
 
-        private static bool ValidatePropertyValueMinimumLength(string propertyValue, int minimumLength)
+        private static bool ValidateMinimumLength(string value, int minimumLength)
         {
-            return propertyValue?.Length >= minimumLength;
+            return value?.Length >= minimumLength;
         }
 
-        private static bool ValidatePropertyValueMaximumLength(string propertyValue, int maximumLength)
+        private static bool ValidateMaximumLength(string value, int maximumLength)
         {
-            if (propertyValue == null)
+            if (value == null)
             {
                 return true;
             }
 
-            return !(propertyValue.Length > maximumLength);
+            return !(value.Length > maximumLength);
         }
 
         private static bool ValidateWorkflowContainsStates(IEnumerable<IeState> states)
@@ -737,7 +740,7 @@ namespace AdminStore.Services.Workflow
             });
 
             if (!_hasMessageEmailNotificationActionNotSpecifiedError
-                && !ValidatePropertyNotEmpty(action.Message))
+                && !ValidateNotEmpty(action.Message))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
@@ -751,7 +754,7 @@ namespace AdminStore.Services.Workflow
         private void ValidatePropertyChangeAction(IePropertyChangeAction action, WorkflowXmlValidationResult result)
         {
             if (!_hasPropertyNamePropertyChangeActionNotSpecifiedError
-                && !ValidatePropertyNotEmpty(action.PropertyName))
+                && !ValidateNotEmpty(action.PropertyName))
             {
                 result.Errors.Add(new WorkflowXmlValidationError
                 {
@@ -778,7 +781,7 @@ namespace AdminStore.Services.Workflow
                 action.UsersGroups?.UsersGroups?.ForEach(ug =>
                 {
                     if (!_hasPropertyChangeActionUserOrGroupNameNotSpecifiedError
-                        && !ValidatePropertyNotEmpty(ug.Name))
+                        && !ValidateNotEmpty(ug.Name))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {
@@ -798,7 +801,7 @@ namespace AdminStore.Services.Workflow
                     }
 
                     if (!_hasAmbiguousGroupProjectReference && ug.GroupProjectId.HasValue
-                        && ValidatePropertyNotEmpty(ug.GroupProjectPath))
+                        && ValidateNotEmpty(ug.GroupProjectPath))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {
@@ -837,7 +840,7 @@ namespace AdminStore.Services.Workflow
             if (action.GenerateActionType == GenerateActionTypes.Children)
             {
                 if (!_hasArtifactTypeGenerateChildrenActionNotSpecifiedError
-                    && !ValidatePropertyNotEmpty(action.ArtifactType))
+                    && !ValidateNotEmpty(action.ArtifactType))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -923,7 +926,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (!_hasStateStateConditionNotSpecifiedError
                 && wEvent.Triggers.Any(t => t?.Condition?.ConditionType == ConditionTypes.State
-                                        && !ValidatePropertyNotEmpty(((IeStateCondition)t.Condition).State)))
+                                        && !ValidateNotEmpty(((IeStateCondition)t.Condition).State)))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {
@@ -937,7 +940,7 @@ namespace AdminStore.Services.Workflow
                 foreach (var trigger in wEvent.Triggers.Where(t => t?.Condition?.ConditionType == ConditionTypes.State))
                 {
                     var stateCondition = (IeStateCondition)trigger.Condition;
-                    if (ValidatePropertyNotEmpty(stateCondition.State) && !states.Contains(stateCondition.State))
+                    if (ValidateNotEmpty(stateCondition.State) && !states.Contains(stateCondition.State))
                     {
                         result.Errors.Add(new WorkflowXmlValidationError
                         {

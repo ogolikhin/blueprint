@@ -1,6 +1,6 @@
 ﻿using System;
 using AdminStore.Helpers.Workflow;
-using AdminStore.Models.DTO;
+using AdminStore.Models.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -8,20 +8,19 @@ using ServiceLibrary.Helpers;
 namespace AdminStore.Extensions
 {
     [TestClass]
-    public class CreateWorkflowDtoExtensionTests
+    public class UpdateWorkflowDtoExtensionTests
     {
-
         [TestMethod]
         public void Validate_NameTooShort_BadRequest()
         {
             // arrange
             Exception exception = null;
-            var model = new CreateWorkflowDto() { Name = "a" };
+            var model = new UpdateWorkflowDto() { Name = "a" };
 
             // act
             try
             {
-               model.Validate();
+                model.Validate();
             }
             catch (Exception ex)
             {
@@ -39,7 +38,7 @@ namespace AdminStore.Extensions
         {
             // arrange
             Exception exception = null;
-            var model = new CreateWorkflowDto() { Name = "Lorem ipsum dolor sit ame" }; // 25 symbols - only max 24 is Ok
+            var model = new UpdateWorkflowDto() { Name = "Lorem ipsum dolor sit ame" }; // 25 symbols - only max 24 is Ok
 
             // act
             try
@@ -62,7 +61,7 @@ namespace AdminStore.Extensions
         {
             // arrange
             Exception exception = null;
-            var model = new CreateWorkflowDto()
+            var model = new UpdateWorkflowDto()
             {
                 Name = "aasdff",
                 Description =

@@ -7,6 +7,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models.DiagramWorkflow;
 using AdminStore.Models.Enums;
@@ -889,12 +891,6 @@ namespace AdminStore.Services.Workflow
                                 workflow.TransitionEvents?.ForEach(
                                     q => q.PermissionGroups?.RemoveAll(qu => qu.Id == (int)error.Element));
                                 break;
-                            case WorkflowDataValidationErrorCodes.PropertyNotFoundById:
-                                workflow.PropertyChangeEvents?.RemoveAll(q => q.PropertyId == (int)error.Element);
-                                break;
-                            case WorkflowDataValidationErrorCodes.PropertyNotFoundByName:
-                                workflow.PropertyChangeEvents?.RemoveAll(q => q.PropertyName == (string)error.Element);
-                                break;
                             case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundById:
                                 workflow.TransitionEvents?.ForEach(q => q.Triggers
                                     .RemoveAll(qu => (qu.Action?.ActionType == ActionTypes.EmailNotification) &&
@@ -924,20 +920,6 @@ namespace AdminStore.Services.Workflow
                                     queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
                                             (((IeGenerateAction)queq.Action).GenerateActionType == GenerateActionTypes.Children) &&
                                             ((IeGenerateAction)queq.Action).ArtifactTypeId == (int)error.Element));
-                            break;
-                            case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById:
-                                workflow.TransitionEvents?.ForEach(q => q.Triggers
-                                    .RemoveAll(que => (que.Action?.ActionType == ActionTypes.PropertyChange) &&
-                                                      ((IePropertyChangeAction)que.Action).PropertyId.GetValueOrDefault() ==
-                                                      (int)error.Element));
-                                workflow.PropertyChangeEvents?.ForEach(q => q.Triggers
-                                    .RemoveAll(que => (que.Action?.ActionType == ActionTypes.PropertyChange) &&
-                                                      ((IePropertyChangeAction)que.Action).PropertyId.GetValueOrDefault() ==
-                                                      (int)error.Element));
-                                workflow.NewArtifactEvents?.ForEach(q => q.Triggers
-                                    .RemoveAll(que => (que.Action?.ActionType == ActionTypes.PropertyChange) &&
-                                                      ((IePropertyChangeAction)que.Action).PropertyId.GetValueOrDefault() ==
-                                                      (int)error.Element));
                             break;
                             // cases Validation Property value in PropertyChangeAction trigger
                             case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:

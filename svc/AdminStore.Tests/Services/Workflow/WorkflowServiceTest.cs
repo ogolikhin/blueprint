@@ -60,7 +60,7 @@ namespace AdminStore.Services.Workflow
             _workflowDataValidatorMock = new Mock<IWorkflowDataValidator>();
             _artifactRepositoryMock = new Mock<IArtifactRepository>();
 
-            _workflowDataValidatorMock.Setup(q => q.ValidateDataAsync(It.IsAny<IeWorkflow>()))
+            _workflowDataValidatorMock.Setup(q => q.ValidateUpdateDataAsync(It.IsAny<IeWorkflow>(), It.IsAny<ProjectTypes>()))
                 .ReturnsAsync(new WorkflowDataValidationResult());
 
             _artifactRepositoryMock.Setup(q => q.GetStandardProperties(It.IsAny<ISet<int>>()))

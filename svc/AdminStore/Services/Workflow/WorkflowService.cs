@@ -53,7 +53,8 @@ namespace AdminStore.Services.Workflow
                   new SqlProjectMetaRepository(),
                   new TriggerConverter(),
                   new WorkflowActionPropertyValueValidator(),
-                  new WorkflowDiff())
+                  new WorkflowDiff(),
+                  new SqlArtifactRepository())
         {
             _workflowDataValidator = new WorkflowDataValidator(
                 _workflowRepository,
@@ -71,7 +72,8 @@ namespace AdminStore.Services.Workflow
             ISqlProjectMetaRepository projectMetaRepository,
             ITriggerConverter triggerConverter,
             IWorkflowActionPropertyValueValidator propertyValueValidator,
-            IWorkflowDiff workflowDiff)
+            IWorkflowDiff workflowDiff,
+            IArtifactRepository artifactRepository)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
@@ -81,6 +83,7 @@ namespace AdminStore.Services.Workflow
             _triggerConverter = triggerConverter;
             _propertyValueValidator = propertyValueValidator;
             _workflowDiff = workflowDiff;
+            _artifactRepository = artifactRepository;
         }
 
         public IFileRepository FileRepository
@@ -667,6 +670,23 @@ namespace AdminStore.Services.Workflow
             var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
             var dWorkflow = WorkflowHelper.MapIeWorkflowToDWorkflow(ieWorkflow);
             return dWorkflow;
+        }
+
+        public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactTypesProperties(ISet<int> standardArtifactTypeIds)
+        {
+            var standardProperties =
+                (await _artifactRepository.GetStandardProperties(standardArtifactTypeIds)).ToList();
+
+            PropertyType nameProperty;
+            WorkflowHelper.TryGetNameOrDescriptionPropertyType(WorkflowConstants.PropertyTypeFakeIdName, out nameProperty);
+            standardProperties.Add(nameProperty);
+
+            PropertyType descriptionProperty;
+            WorkflowHelper.TryGetNameOrDescriptionPropertyType(WorkflowConstants.PropertyTypeFakeIdDescription, out descriptionProperty);
+
+            standardProperties.Add(descriptionProperty);
+
+            return standardProperties.OrderBy(x => x.Name); // sort by name ASC as it is done in [dbo].GetStandardProperties
         }
 
         public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, WorkflowMode mode)

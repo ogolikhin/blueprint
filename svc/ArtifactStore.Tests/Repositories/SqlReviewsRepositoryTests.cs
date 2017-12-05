@@ -3190,7 +3190,7 @@ namespace ArtifactStore.Repositories
                 new ParticipantMeaningOfSignatureResult()
                 {
                     ParticipantId = UserId,
-                    RoleAssignmentId = 4
+                    RoleId = 6
                 }
             });
 

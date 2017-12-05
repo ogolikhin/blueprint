@@ -56,7 +56,7 @@ namespace ArtifactStore.Models.Review
 
                 if (ReviewPackageRawData.Reviewers.All(r => r.Permission == ReviewParticipantRole.Reviewer)
                     || Contents.Artifacts == null
-                    || Contents.Artifacts.All(a => a.ApprovalNotRequested))
+                    || Contents.Artifacts.All(a => a.ApprovalNotRequested ?? false))
                 {
                     return ReviewType.Informal;
                 }

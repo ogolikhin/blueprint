@@ -32,6 +32,7 @@ namespace AdminStore.Services.Workflow
         private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder;
         private Mock<ITriggerConverter> _triggerConverter;
         private Mock<ISqlProjectMetaRepository> _projectMetaRepository;
+        private Mock<IArtifactRepository> _artifactRepository;
         private WorkflowService _service;
         private SqlWorkflow _workflow;
         private List<SqlWorkflowArtifactTypes> _workflowArtifactTypes;
@@ -57,6 +58,7 @@ namespace AdminStore.Services.Workflow
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             _triggerConverter = new Mock<ITriggerConverter>();
             _projectMetaRepository = new Mock<ISqlProjectMetaRepository>();
+            _artifactRepository = new Mock<IArtifactRepository>();
             _workflowDataValidatorMock = new Mock<IWorkflowDataValidator>();
             _artifactRepositoryMock = new Mock<IArtifactRepository>();
 
@@ -73,7 +75,8 @@ namespace AdminStore.Services.Workflow
                 _projectMetaRepository.Object,
                 _triggerConverter.Object,
                 null,
-                null);
+                null,
+                _artifactRepository.Object);
 
             _workflow = new SqlWorkflow();
             _workflowArtifactTypes = new List<SqlWorkflowArtifactTypes>();
@@ -434,6 +437,43 @@ namespace AdminStore.Services.Workflow
             Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.FromPort, fromPort);
             Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.ToPort, toPort);
         }
+        #endregion
+
+        #region GetWorkflowArtifactTypesProperties
+
+        [TestMethod]
+        public async Task GetWorkflowArtifactTypesProperties_ParametersAreCorrect_ReturnProperties()
+        {
+            // arrange
+
+            var standardProperties = new List<PropertyType>()
+             {
+                new PropertyType()
+                {
+                    Id = 175,
+                    Name = "Std-Choice-Required-AllowMultiple-DefaultValue"
+                },
+                new PropertyType()
+                {
+                    Id = 171,
+                    Name = "Std-Date-Required-Validated-Min-Max-HasDefault"
+                }
+             };
+
+            var standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+
+            var result = (await _service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ToList();
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(standardProperties.Count, result.Count);
+
+            var nameProperty = result.FirstOrDefault(x => x.Name == WorkflowConstants.PropertyNameName);
+            Assert.IsNotNull(nameProperty);
+
+            var descriptionProperty = result.FirstOrDefault(x => x.Name == WorkflowConstants.PropertyNameDescription);
+            Assert.IsNotNull(descriptionProperty);
+        }
+
         #endregion
     }
 }

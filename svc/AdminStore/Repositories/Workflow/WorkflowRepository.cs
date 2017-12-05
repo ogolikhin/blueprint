@@ -717,7 +717,8 @@ namespace AdminStore.Repositories.Workflow
 
                 var projectArtifacts = artifacts.Select(artifact => new WorkflowArtifactType()
                 {
-                    Id = artifact.ArtifactId, Name = artifact.ArtifactName
+                    Id = artifact.ArtifactId,
+                    Name = artifact.ArtifactName
                 }).ToList();
 
                 string projectName = artifacts[0].ProjectName;
@@ -927,15 +928,15 @@ namespace AdminStore.Repositories.Workflow
 
             if (transaction != null)
             {
-                    await
-                        transaction.Connection.ExecuteScalarAsync<int>("UpdateWorkflow", parameters, transaction,
-                            commandType: CommandType.StoredProcedure);
+                await
+                    transaction.Connection.ExecuteScalarAsync<int>("UpdateWorkflow", parameters, transaction,
+                        commandType: CommandType.StoredProcedure);
             }
             else
             {
-                    await
-                        _connectionWrapper.ExecuteScalarAsync<int>("UpdateWorkflow", parameters,
-                            commandType: CommandType.StoredProcedure);
+                await
+                    _connectionWrapper.ExecuteScalarAsync<int>("UpdateWorkflow", parameters,
+                        commandType: CommandType.StoredProcedure);
             }
 
             var errorCode = parameters.Get<int?>("ErrorCode");

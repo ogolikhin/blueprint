@@ -107,12 +107,18 @@ namespace ArtifactStore.Models.Review
         public int Id;
 
         [DataMember(Name = "ANR", EmitDefaultValue = false)]
-        public bool ApprovalNotRequested;
+        public bool? ApprovalNotRequested;
 
         [DataMember(EmitDefaultValue = false)]
         public SimulationSettingsRawData Settings;
 
         public ExtensionDataObject ExtensionData { get; set; }
+
+        // Uses by serialization. Allows to check if ApprovalNotRequested is not null otherwise doesn't write "ANR" tag to XML.
+        public bool ShouldSerializeApprovalNotRequested()
+        {
+            return ApprovalNotRequested.HasValue;
+        }
     }
 
     [DataContract(Namespace = "http://www.blueprintsys.com/raptor/reviews")]

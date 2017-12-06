@@ -1495,11 +1495,6 @@ namespace ArtifactStore.Repositories
                 throw new BadRequestException("Not all parameters provided.", ErrorCodes.OutOfRangeParameter);
             }
 
-            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
-            {
-                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
-            }
-
             var artifactIds = new List<int>();
 
             if (reviewArtifactApprovalParameters.SelectionType == SelectionType.Excluded)

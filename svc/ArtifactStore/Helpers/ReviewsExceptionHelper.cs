@@ -1,4 +1,6 @@
-﻿using ServiceLibrary.Exceptions;
+﻿using System.Linq;
+using ArtifactStore.Models.Review;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.Helpers
@@ -81,6 +83,38 @@ namespace ArtifactStore.Helpers
         {
             var errorMessage = "Meaning of signature must be provided to change the approval status of an artifact.";
             return new BadRequestException(errorMessage, ErrorCodes.MeaningOfSignatureNotChosen);
+        }
+
+        public static void VerifyLastApproverInActiveReview(ReviewItemsRemovalParams content, ReviewPackageRawData reviewPackageRawData)
+        {
+            var approverIds =
+                reviewPackageRawData.Reviewers.Where(
+                    r => r.Permission == ReviewParticipantRole.Approver).Select(a => a.UserId).ToList();
+
+            if (approverIds.IsEmpty())
+            {
+                return;
+            }
+
+            if (content.SelectionType == SelectionType.Selected)
+            {
+                // If content.ItemIds containsAll approverIds
+                if (approverIds.Except(content.ItemIds).IsEmpty())
+                {
+                    throw new ConflictException(
+                        "Cannot remove last approver from active review. Not possible to convert Active Formal review back to Informal",
+                        ErrorCodes.LastApproverInActiveReview);
+                }
+            }
+            else
+            {
+                if (approverIds.Intersect(content.ItemIds).IsEmpty())
+                {
+                    throw new ConflictException(
+                        "Cannot remove last approver from active review. Not possible to convert Active Formal review back to Informal",
+                        ErrorCodes.LastApproverInActiveReview);
+                }
+            }
         }
     }
 }

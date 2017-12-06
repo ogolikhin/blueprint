@@ -97,6 +97,7 @@
         public const int LiveArtifactsReplacingWithBaseline = 10012;
         public const int MeaningOfSignatureNotChosen = 10013;
         public const int ReviewNeedsToMoveBackToDraftState = 10014;
+        public const int LastApproverInActiveReview = 10015;
 
         // User Review Errors
         public const int UserDisabled = 11001;

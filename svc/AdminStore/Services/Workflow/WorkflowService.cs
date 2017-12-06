@@ -850,14 +850,7 @@ namespace AdminStore.Services.Workflow
             {
                 if (!workflow.IsContainsProcessArtifactType)
                 {
-                    workflow.TransitionEvents?.ForEach(
-                        q => q.Triggers = DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
-
-                    workflow.NewArtifactEvents?.ForEach(
-                        q => q.Triggers = DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
-
-                    workflow.PropertyChangeEvents?.ForEach(
-                        q => q.Triggers = DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
+                    DeleteUserStoriesAndTestCasesFromWorkflow(workflow);
                 }
 
                 foreach (var error in validationResult.Errors)
@@ -882,42 +875,35 @@ namespace AdminStore.Services.Workflow
                             break;
                         // triggers GenerateAction
                         case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById:
-                            workflow.TransitionEvents?.ForEach(q => q.Triggers =
-                                DeleteInvalidArtifactTypeIdFromGenerateTriggers(q.Triggers, (int)error.Element));
-
-                            workflow.PropertyChangeEvents?.ForEach(q => q.Triggers =
-                                DeleteInvalidArtifactTypeIdFromGenerateTriggers(q.Triggers, (int)error.Element));
-
-                            workflow.NewArtifactEvents?.ForEach(q => q.Triggers =
-                                DeleteInvalidArtifactTypeIdFromGenerateTriggers(q.Triggers, (int)error.Element));
+                            DeleteInvalidArtifactTypeIdFromGenerateTriggersInWorkflow(workflow, (int)error.Element);
                             break;
                         // workflow.PropertyChangeEvents
                         case WorkflowDataValidationErrorCodes.PropertyNotFoundById:
-                            DeleteInvalidPropertiesFromWorkflow(ref workflow, (int)error.Element, null);
+                            DeleteInvalidPropertiesFromWorkflow(workflow, (int)error.Element, null);
                             break;
                         case WorkflowDataValidationErrorCodes.PropertyNotAssociated:
-                            DeleteInvalidPropertiesFromWorkflow(ref workflow, null, (string)error.Element);
+                            DeleteInvalidPropertiesFromWorkflow(workflow, null, (string)error.Element);
                             break;
                         // triggers EmailNotification
                         case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundById:
-                            DeleteInvalidPropertiesFromWorkflow(ref workflow, (int)error.Element, null,
+                            DeleteInvalidPropertiesFromWorkflow(workflow, (int)error.Element, null,
                                 ActionTypes.EmailNotification);
                             break;
                         case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated:
-                            DeleteInvalidPropertiesFromWorkflow(ref workflow, null, (string)error.Element,
+                            DeleteInvalidPropertiesFromWorkflow(workflow, null, (string)error.Element,
                                 ActionTypes.EmailNotification);
                             break;
                         case WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType:
-                            DeleteInvalidPropertiesFromWorkflow(ref workflow, null, (string)error.Element,
+                            DeleteInvalidPropertiesFromWorkflow(workflow, null, (string)error.Element,
                                 ActionTypes.EmailNotification);
                             break;
                         // triggers PropertyChange
                         case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById:
-                            DeleteInvalidPropertiesFromWorkflow(ref workflow, (int)error.Element, null,
+                            DeleteInvalidPropertiesFromWorkflow(workflow, (int)error.Element, null,
                                 ActionTypes.PropertyChange);
                             break;
                         case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotAssociated:
-                            DeleteInvalidPropertiesFromWorkflow(ref workflow, null, (string)error.Element,
+                            DeleteInvalidPropertiesFromWorkflow(workflow, null, (string)error.Element,
                                 ActionTypes.PropertyChange);
                             break;
                         // cases Validation Property value in trigger PropertyChangeAction
@@ -935,14 +921,32 @@ namespace AdminStore.Services.Workflow
                         case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
                         case WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated:
                         case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById:
-                            DeleteInvalidPropertiesFromWorkflow(ref workflow, null, (string)error.Element, ActionTypes.PropertyChange);
+                            DeleteInvalidPropertiesFromWorkflow(workflow, null, (string)error.Element, ActionTypes.PropertyChange);
                             break;
                     }
                 }
             }
         }
 
-        private List<IeTrigger> DeleteUserStoriesAndTestCasesFromGenerateTriggers(List<IeTrigger> triggers)
+        private void DeleteUserStoriesAndTestCasesFromWorkflow(IeWorkflow ieWorkflow)
+        {
+            ieWorkflow.TransitionEvents?.ForEach(q => DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
+
+            ieWorkflow.NewArtifactEvents?.ForEach(q => DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
+
+            ieWorkflow.PropertyChangeEvents?.ForEach(q => DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
+        }
+
+        private void DeleteInvalidArtifactTypeIdFromGenerateTriggersInWorkflow(IeWorkflow ieWorkflow, int element)
+        {
+            ieWorkflow.TransitionEvents?.ForEach(q => DeleteInvalidArtifactTypeIdFromGenerateTriggers(q.Triggers, element));
+
+            ieWorkflow.PropertyChangeEvents?.ForEach(q => DeleteInvalidArtifactTypeIdFromGenerateTriggers(q.Triggers, element));
+
+            ieWorkflow.NewArtifactEvents?.ForEach(q => DeleteInvalidArtifactTypeIdFromGenerateTriggers(q.Triggers, element));
+        }
+
+        private void DeleteUserStoriesAndTestCasesFromGenerateTriggers(List<IeTrigger> triggers)
         {
             triggers?.RemoveAll(
                 queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
@@ -953,22 +957,18 @@ namespace AdminStore.Services.Workflow
                 queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
                         (((IeGenerateAction)queq.Action).GenerateActionType ==
                          GenerateActionTypes.TestCases));
-
-            return triggers;
         }
 
-        private List<IeTrigger> DeleteInvalidArtifactTypeIdFromGenerateTriggers(List<IeTrigger> triggers, int? artifactTypeId)
+        private void DeleteInvalidArtifactTypeIdFromGenerateTriggers(List<IeTrigger> triggers, int? artifactTypeId)
         {
             triggers?.RemoveAll(
                 queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
                         (((IeGenerateAction)queq.Action).GenerateActionType ==
                          GenerateActionTypes.Children) &&
                         ((IeGenerateAction)queq.Action).ArtifactTypeId == artifactTypeId);
-
-            return triggers;
         }
 
-        private void DeleteInvalidPropertiesFromWorkflow(ref IeWorkflow workflow, int? propertyId, string propertyName,
+        private void DeleteInvalidPropertiesFromWorkflow(IeWorkflow workflow, int? propertyId, string propertyName,
             ActionTypes? actionTypes = null)
         {
             if (actionTypes == null)

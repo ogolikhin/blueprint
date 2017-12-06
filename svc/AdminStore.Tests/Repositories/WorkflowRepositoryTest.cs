@@ -33,6 +33,9 @@ namespace AdminStore.Repositories
 
             _scope = new OperationScope() { Ids = _listArtifactTypesIds, SelectAll = false };
             _copyWorkfloDto = new CopyWorkfloDto() { Name = "TestWorkflow" };
+
+            _workflowStateIds = new List<int> { 1, 2, 3 };
+            _workflowEventIds = new List<int> { 1, 2, 3 };
         }
 
         private SqlConnectionWrapperMock _sqlConnectionWrapperMock;
@@ -49,6 +52,10 @@ namespace AdminStore.Repositories
         private OperationScope _scope;
         private int _userId = 1;
         private CopyWorkfloDto _copyWorkfloDto;
+        private IEnumerable<int> _workflowStateIds;
+        private IEnumerable<int> _workflowEventIds;
+        private const int PublishRevision = 12;
+        private const int IncorrectPublishRevision = 0;
 
         #region AssignProjectsAndArtifactTypesToWorkflow
         [TestMethod]
@@ -909,6 +916,390 @@ namespace AdminStore.Repositories
                 _workflowRepository.CopyWorkflowAsync(_workflowId, _userId, _copyWorkfloDto);
 
             // Assert
+        }
+
+        #endregion
+
+        #region DeleteWorkflowStatesAsync
+
+        [TestMethod]
+        public async Task DeleteWorkflowStatesAsync_DeleteWorkflowStatesInDb_QueryReturnWorkflowStateIds()
+        {
+            // arrange
+            var resultSqlStates = new List<SqlState>(3);
+            resultSqlStates.AddRange(_workflowStateIds.Select(
+                workflowStateId => new SqlState
+                {
+                    WorkflowStateId = workflowStateId
+                }));
+            _sqlConnectionWrapperMock.SetupQueryAsync("DeleteWorkflowStates", It.IsAny<Dictionary<string, object>>(), resultSqlStates);
+
+            // act
+            var deletedWorkflowStates = await _workflowRepository.DeleteWorkflowStatesAsync(_workflowStateIds, PublishRevision);
+
+            // assert
+            Assert.IsNotNull(deletedWorkflowStates);
+            var deletedWorkflowStatesList = deletedWorkflowStates.ToList();
+            foreach (var workflowStateId in _workflowStateIds)
+            {
+                Assert.IsTrue(deletedWorkflowStatesList.Exists(x => x == workflowStateId));
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task DeleteWorkflowStatesAsync_EmptyWorkflowStateIdsList_ArgumentException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.DeleteWorkflowStatesAsync(new List<int>(), PublishRevision);
+
+            // assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task DeleteWorkflowStatesAsync_InvalidPublishRevision_ArgumentException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.DeleteWorkflowStatesAsync(_workflowStateIds, IncorrectPublishRevision);
+
+            // assert
+        }
+
+        #endregion
+
+        #region CreateWorkflowStatesAsync
+
+        [TestMethod]
+        public async Task CreateWorkflowStatesAsync_CreateWorkflowStatesInDb_QueryReturnWorkflowStates()
+        {
+            // arrange
+            var workflowStates = new List<SqlState>(3);
+            workflowStates.AddRange(_workflowStateIds.Select(
+                workflowStateId => new SqlState
+                {
+                    WorkflowStateId = workflowStateId
+                }));
+            _sqlConnectionWrapperMock.SetupQueryAsync("CreateWorkflowStates", It.IsAny<Dictionary<string, object>>(), workflowStates);
+
+            // act
+            var createdWorkflowStates = await _workflowRepository.CreateWorkflowStatesAsync(workflowStates, PublishRevision);
+
+            // assert
+            Assert.IsNotNull(createdWorkflowStates);
+            var createdWorkflowStatesList = createdWorkflowStates.ToList();
+            foreach (var workflowState in workflowStates)
+            {
+                Assert.IsTrue(createdWorkflowStatesList.Exists(x => x.WorkflowStateId == workflowState.WorkflowStateId));
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public async Task CreateWorkflowStatesAsync_NullWorkflowStatesList_ArgumentNullException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.CreateWorkflowStatesAsync(null, PublishRevision);
+
+            // assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task CreateWorkflowStatesAsync_EmptyWorkflowStatesList_ArgumentException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.CreateWorkflowStatesAsync(new List<SqlState>(), PublishRevision);
+
+            // assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task CreateWorkflowStatesAsync_InvalidPublishRevision_ArgumentException()
+        {
+            // arrange
+            var workflowStates = new List<SqlState>(3);
+            workflowStates.AddRange(_workflowStateIds.Select(
+                workflowStateId => new SqlState
+                {
+                    WorkflowStateId = workflowStateId
+                }));
+
+            // act
+            await _workflowRepository.CreateWorkflowStatesAsync(workflowStates, IncorrectPublishRevision);
+
+            // assert
+        }
+
+        #endregion
+
+        #region UpdateWorkflowStatesAsync
+
+        [TestMethod]
+        public async Task UpdateWorkflowStatesAsync_UpdateWorkflowStatesInDb_QueryReturnWorkflowStates()
+        {
+            // arrange
+            var workflowStates = new List<SqlState>(3);
+            workflowStates.AddRange(_workflowStateIds.Select(
+                workflowStateId => new SqlState
+                {
+                    WorkflowStateId = workflowStateId
+                }));
+            _sqlConnectionWrapperMock.SetupQueryAsync("UpdateWorkflowStates", It.IsAny<Dictionary<string, object>>(), workflowStates);
+
+            // act
+            var updatedWorkflowStates = await _workflowRepository.UpdateWorkflowStatesAsync(workflowStates, PublishRevision);
+
+            // assert
+            Assert.IsNotNull(updatedWorkflowStates);
+            var updatedWorkflowStatesList = updatedWorkflowStates.ToList();
+            foreach (var workflowState in workflowStates)
+            {
+                Assert.IsTrue(updatedWorkflowStatesList.Exists(x => x.WorkflowStateId == workflowState.WorkflowStateId));
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public async Task UpdateWorkflowStatesAsync_NullWorkflowStatesList_ArgumentNullException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.UpdateWorkflowStatesAsync(null, PublishRevision);
+
+            // assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task UpdateWorkflowStatesAsync_EmptyWorkflowStatesList_ArgumentException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.UpdateWorkflowStatesAsync(new List<SqlState>(), PublishRevision);
+
+            // assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task UpdateWorkflowStatesAsync_InvalidPublishRevision_ArgumentException()
+        {
+            // arrange
+            var workflowStates = new List<SqlState>(3);
+            workflowStates.AddRange(_workflowStateIds.Select(
+                workflowStateId => new SqlState
+                {
+                    WorkflowStateId = workflowStateId
+                }));
+
+            // act
+            await _workflowRepository.UpdateWorkflowStatesAsync(workflowStates, IncorrectPublishRevision);
+
+            // assert
+        }
+
+        #endregion
+
+        #region DeleteWorkflowEventsAsync
+
+        [TestMethod]
+        public async Task DeleteWorkflowEventsAsync_DeleteWorkflowEventsInDb_QueryReturnWorkflowEventIds()
+        {
+            // arrange
+            var resultSqlEvents = new List<SqlWorkflowEvent>(3);
+            resultSqlEvents.AddRange(_workflowEventIds.Select(
+                workflowEventId => new SqlWorkflowEvent
+                {
+                    WorkflowEventId = workflowEventId
+                }));
+            _sqlConnectionWrapperMock.SetupQueryAsync("DeleteWorkflowEvents", It.IsAny<Dictionary<string, object>>(), resultSqlEvents);
+
+            // act
+            var deletedWorkflowEvents = await _workflowRepository.DeleteWorkflowEventsAsync(_workflowEventIds, PublishRevision);
+
+            // assert
+            Assert.IsNotNull(deletedWorkflowEvents);
+            var deletedWorkflowEventsList = deletedWorkflowEvents.ToList();
+            foreach (var workflowEventId in _workflowEventIds)
+            {
+                Assert.IsTrue(deletedWorkflowEventsList.Exists(x => x == workflowEventId));
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task DeleteWorkflowEventsAsync_EmptyWorkflowEventIdsList_ArgumentException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.DeleteWorkflowEventsAsync(new List<int>(), PublishRevision);
+
+            // assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task DeleteWorkflowEventsAsync_InvalidPublishRevision_ArgumentException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.DeleteWorkflowEventsAsync(_workflowEventIds, IncorrectPublishRevision);
+
+            // assert
+        }
+
+        #endregion
+
+        #region CreateWorkflowEventsAsync
+
+        [TestMethod]
+        public async Task CreateWorkflowEventsAsync_CreateWorkflowEventsInDb_QueryReturnWorkflowEvents()
+        {
+            // arrange
+            var workflowEvents = new List<SqlWorkflowEvent>(3);
+            workflowEvents.AddRange(_workflowEventIds.Select(
+                workflowEventId => new SqlWorkflowEvent
+                {
+                    WorkflowEventId = workflowEventId
+                }));
+            _sqlConnectionWrapperMock.SetupQueryAsync("CreateWorkflowEvents", It.IsAny<Dictionary<string, object>>(), workflowEvents);
+
+            // act
+            var createdWorkflowEvents = await _workflowRepository.CreateWorkflowEventsAsync(workflowEvents, PublishRevision);
+
+            // assert
+            Assert.IsNotNull(createdWorkflowEvents);
+            var createdWorkflowEventsList = createdWorkflowEvents.ToList();
+            foreach (var workflowEvent in workflowEvents)
+            {
+                Assert.IsTrue(createdWorkflowEventsList.Exists(x => x.WorkflowEventId == workflowEvent.WorkflowEventId));
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public async Task CreateWorkflowEventsAsync_NullWorkflowEventsList_ArgumentNullException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.CreateWorkflowEventsAsync(null, PublishRevision);
+
+            // assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task CreateWorkflowEventsAsync_EmptyWorkflowEventsList_ArgumentException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.CreateWorkflowEventsAsync(new List<SqlWorkflowEvent>(), PublishRevision);
+
+            // assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task CreateWorkflowEventsAsync_InvalidPublishRevision_ArgumentException()
+        {
+            // arrange
+            var workflowEvents = new List<SqlWorkflowEvent>(3);
+            workflowEvents.AddRange(_workflowEventIds.Select(
+                workflowEventId => new SqlWorkflowEvent
+                {
+                    WorkflowEventId = workflowEventId
+                }));
+
+            // act
+            await _workflowRepository.CreateWorkflowEventsAsync(workflowEvents, IncorrectPublishRevision);
+
+            // assert
+        }
+
+        #endregion
+
+        #region UpdateWorkflowEventsAsync
+
+        [TestMethod]
+        public async Task UpdateWorkflowEventsAsync_UpdateWorkflowEventsInDb_QueryReturnWorkflowEvents()
+        {
+            // arrange
+            var workflowEvents = new List<SqlWorkflowEvent>(3);
+            workflowEvents.AddRange(_workflowEventIds.Select(
+                workflowEventId => new SqlWorkflowEvent
+                {
+                    WorkflowEventId = workflowEventId
+                }));
+            _sqlConnectionWrapperMock.SetupQueryAsync("UpdateWorkflowEvents", It.IsAny<Dictionary<string, object>>(), workflowEvents);
+
+            // act
+            var updatedWorkflowEvents = await _workflowRepository.UpdateWorkflowEventsAsync(workflowEvents, PublishRevision);
+
+            // assert
+            Assert.IsNotNull(updatedWorkflowEvents);
+            var updatedWorkflowEventsList = updatedWorkflowEvents.ToList();
+            foreach (var workflowEvent in workflowEvents)
+            {
+                Assert.IsTrue(updatedWorkflowEventsList.Exists(x => x.WorkflowEventId == workflowEvent.WorkflowEventId));
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public async Task UpdateWorkflowEventsAsync_NullWorkflowEventsList_ArgumentNullException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.UpdateWorkflowEventsAsync(null, PublishRevision);
+
+            // assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task UpdateWorkflowEventsAsync_EmptyWorkflowEventsList_ArgumentException()
+        {
+            // arrange
+
+            // act
+            await _workflowRepository.UpdateWorkflowEventsAsync(new List<SqlWorkflowEvent>(), PublishRevision);
+
+            // assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task UpdateWorkflowEventsAsync_InvalidPublishRevision_ArgumentException()
+        {
+            // arrange
+            var workflowEvents = new List<SqlWorkflowEvent>(3);
+            workflowEvents.AddRange(_workflowEventIds.Select(
+                workflowEventId => new SqlWorkflowEvent
+                {
+                    WorkflowEventId = workflowEventId
+                }));
+
+            // act
+            await _workflowRepository.UpdateWorkflowEventsAsync(workflowEvents, IncorrectPublishRevision);
+
+            // assert
         }
 
         #endregion

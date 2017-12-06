@@ -23,9 +23,19 @@ namespace ArtifactStore.Models.Review
         [DataMember]
         public ViewStateType ViewState { get; set; }
 
+        private DateTime? _eSignatureTimestamp;
         [DataMember]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime? ESignatureTimestamp { get; set; }
+        public DateTime? ESignatureTimestamp {
+            get
+            {
+                return _eSignatureTimestamp;
+            }
+            set
+            {
+                _eSignatureTimestamp = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : (DateTime?)null;
+            }
+        }
 
         [DataMember]
         public IEnumerable<string> MeaningOfSignature { get; set; }

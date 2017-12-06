@@ -1,9 +1,8 @@
 ﻿using System.Xml.Serialization;
+using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Models.Workflow
 {
-    public enum ActionTypes { EmailNotification, PropertyChange, Generate }
-
     [XmlType("A")]
     public abstract class XmlAction
     {

@@ -15,15 +15,12 @@ namespace AdminStore.Services.Workflow
     {
         public object Element { get; set; }
         public WorkflowXmlValidationErrorCodes ErrorCode { get; set; }
-
     }
-
 
     public enum WorkflowXmlValidationErrorCodes
     {
         WorkflowXmlSerializationError,
-        WorkflowNameEmpty,
-        WorkflowNameExceedsLimit24,
+        WorkflowNameMissingOrInvalid,
         WorkflowDescriptionExceedsLimit4000,
         WorkflowDoesNotContainAnyStates,
         StatesCountExceedsLimit100,

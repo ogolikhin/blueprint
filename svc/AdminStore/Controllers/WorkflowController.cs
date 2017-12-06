@@ -28,6 +28,9 @@ using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
+using AdminStore.Models.DiagramWorkflow;
+using ServiceLibrary.Models.ProjectMeta;
+
 
 namespace AdminStore.Controllers
 {
@@ -534,7 +537,7 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> ExportWorkflow(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, WorkflowMode.XmlExport);
+            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, WorkflowMode.Xml);
             var workflowXml = SerializationHelper.ToXml(ieWorkflow, true);
             var response = Request.CreateResponse(HttpStatusCode.OK);
 
@@ -594,17 +597,97 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [FeatureActivation(FeatureTypes.Workflow)]
         [Route("diagram/{workflowId:int:min(1)}")]
-        [ResponseType(typeof(IeWorkflow))]
+        [ResponseType(typeof(DWorkflow))]
         public async Task<IHttpActionResult> GetWorkflowDiagram(int workflowId)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-            var ieWorkflow = await _workflowService.GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
-            return Ok(ieWorkflow);
+            var dWorkflow = await _workflowService.GetWorkflowDiagramAsync(workflowId);
+            return Ok(dWorkflow);
+        }
+
+        /// <summary>
+        /// Update Workflow and canvas diagram
+        /// </summary>
+        /// <param name="workflowId">Workflow identity</param>
+        /// <param name="workflow">DWorkflow model</param>
+        /// <response code="204">NoContent. The workflow and canvas diagram are updated successfully.</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for updating the workflow.</response>
+        /// <response code="409">Conflict. The specified workflow conflicts with existing workflows or some specified elements,
+        ///   e.g. projects, artifact types etc., are not found.
+        ///   The errors can be retrieved with 'Get Import Workflow Errors' call
+        ///   by the GUID returned in the response of this call.
+        /// </response>
+        [SessionRequired]
+        [FeatureActivation(FeatureTypes.Workflow)]
+        [HttpPut]
+        [ResponseType(typeof(ImportWorkflowResult))]
+        [Route("diagram/{workflowId:int:min(1)}")]
+        public async Task<IHttpActionResult> UpdateWorkflowDiagram(int workflowId, [FromBody] DWorkflow workflow)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            if (workflow == null)
+            {
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.BadRequest,
+                    new ImportWorkflowResult
+                    {
+                        ErrorMessage = ErrorMessages.WorkflowModelIsEmpty,
+                        WorkflowId = workflowId,
+                        ResultCode = ImportWorkflowResultCodes.InvalidModel
+                    }));
+            }
+
+            var ieWorkflow = WorkflowHelper.MapDWorkflowToIeWorkflow(workflow);
+
+            _workflowService.FileRepository = GetFileRepository();
+
+            var result = await _workflowService.UpdateWorkflowViaImport(Session.UserId, workflowId, ieWorkflow, workflowMode: WorkflowMode.Canvas);
+
+            switch (result.ResultCode)
+            {
+                case ImportWorkflowResultCodes.Ok:
+                    return Ok(result);
+                case ImportWorkflowResultCodes.InvalidModel:
+                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.BadRequest, result));
+                case ImportWorkflowResultCodes.Conflict:
+                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict, result));
+                default:
+                    // Should never happen.
+                    return InternalServerError(new Exception("Unknown error."));
+            }
+        }
+
+        /// <summary>
+        /// Get a list of standard properties for certain artifact types or all standard properties in system + Name and Description.
+        /// </summary>
+        /// <remarks>
+        /// Return the list of standard properties + Name and Description.
+        /// </remarks>
+        /// <param name="standardArtifactTypeIds">It is filter to receive only standard properties for certain artifact types or all standard properties in system if the parameter doesn't have any ids + Name and Description.</param>
+        /// <response code="200">OK. The list of standard properties + Name and Description.</response>
+        /// <response code="400">Incorrect parameter.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard properties + Name and Description.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("artifacttypes/properties"), SessionRequired]
+        public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactTypesProperties([FromBody] ISet<int> standardArtifactTypeIds)
+        {
+            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            if (standardArtifactTypeIds == null)
+            {
+                throw new BadRequestException(ErrorMessages.ModelIsEmpty);
+            }
+
+            return await _workflowService.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds);
         }
 
         #region Private methods
 
-    // Upload means Import (Create) or Update
+        // Upload means Import (Create) or Update
         private async Task<IHttpActionResult> UploadWorkflowAsync(int? workflowId = null)
         {
             var session = Session;
@@ -636,8 +719,7 @@ namespace AdminStore.Controllers
 
                 var result = workflowId == null
                     ? await _workflowService.ImportWorkflowAsync(workflow, fileName, session.UserId, xmlSerError)
-                    : await _workflowService.UpdateWorkflowViaImport(workflowId.Value, workflow, fileName,
-                        session.UserId, xmlSerError);
+                    : await _workflowService.UpdateWorkflowViaImport(session.UserId, workflowId.Value, workflow, fileName, xmlSerError);
 
                 switch (result.ResultCode)
                 {

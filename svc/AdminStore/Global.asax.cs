@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Web.Http;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Swagger;
@@ -15,6 +14,7 @@ namespace AdminStore
             GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "~/bin/AdminStore.XML", "AdminStore",
                 "AdminStore is Web Service to facilitate application and project administration functionality, user authentication and authorization."));
 #endif
+            HttpsSecurity.Configure();
         }
 
         protected void Application_Error(object sender, EventArgs e)

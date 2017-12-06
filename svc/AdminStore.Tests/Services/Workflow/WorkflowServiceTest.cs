@@ -31,6 +31,7 @@ namespace AdminStore.Services.Workflow
         private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder;
         private Mock<ITriggerConverter> _triggerConverter;
         private Mock<ISqlProjectMetaRepository> _projectMetaRepository;
+        private Mock<IArtifactRepository> _artifactRepository;
         private WorkflowService _service;
         private SqlWorkflow _workflow;
         private List<SqlWorkflowArtifactTypes> _workflowArtifactTypes;
@@ -54,6 +55,7 @@ namespace AdminStore.Services.Workflow
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             _triggerConverter = new Mock<ITriggerConverter>();
             _projectMetaRepository = new Mock<ISqlProjectMetaRepository>();
+            _artifactRepository = new Mock<IArtifactRepository>();
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
@@ -62,7 +64,8 @@ namespace AdminStore.Services.Workflow
                 _projectMetaRepository.Object,
                 _triggerConverter.Object,
                 null,
-                null);
+                null,
+                _artifactRepository.Object);
 
             _workflow = new SqlWorkflow();
             _workflowArtifactTypes = new List<SqlWorkflowArtifactTypes>();
@@ -247,7 +250,7 @@ namespace AdminStore.Services.Workflow
                 .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
 
             // Act
-            await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.XmlExport);
+            await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Xml);
 
             // Assert
             // Exception
@@ -314,7 +317,7 @@ namespace AdminStore.Services.Workflow
             _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(_projectTypes);
 
             // act
-            var workflowExport = await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.XmlExport);
+            var workflowExport = await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Xml);
 
             // assert
             Assert.IsNotNull(workflowExport);
@@ -332,7 +335,7 @@ namespace AdminStore.Services.Workflow
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
 
             // act
-            await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.XmlExport);
+            await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Xml);
 
         }
 
@@ -348,7 +351,7 @@ namespace AdminStore.Services.Workflow
             _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(_projectTypes);
 
             // act
-            var workflowExport = await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.XmlExport);
+            var workflowExport = await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Xml);
 
             // assert
             Assert.IsNotNull(workflowExport);
@@ -371,8 +374,8 @@ namespace AdminStore.Services.Workflow
             _workflowStates.Add(workflowStateFrom);
             _workflowStates.Add(workflowStateTo);
 
-            var fromPort = 1;
-            var toPort = 2;
+            var fromPort = DiagramPort.Left;
+            var toPort = DiagramPort.Right;
             var eventData = new SqlWorkflowEventData
             {
                 WorkflowId = 10,
@@ -382,7 +385,7 @@ namespace AdminStore.Services.Workflow
                 FromStateId = 1,
                 ToStateId = 2,
                 Permissions = "<P S=\"0\"><G>1</G></P>",
-                CanvasSettings = $"<S><PRT><FR>{fromPort}</FR><TO>{toPort}</TO></PRT></S>",
+                CanvasSettings = $"<S><PRT><FR>{(int)fromPort}</FR><TO>{(int)toPort}</TO></PRT></S>",
                 Type = 0,
                 Triggers =
                     "<Triggers><Trigger><Name>Trigger 1</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
@@ -412,6 +415,45 @@ namespace AdminStore.Services.Workflow
             Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.FromPort, fromPort);
             Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.ToPort, toPort);
         }
+        #endregion
+
+        #region GetWorkflowArtifactTypesProperties
+
+        [TestMethod]
+        public async Task GetWorkflowArtifactTypesProperties_ParametersAreCorrect_ReturnProperties()
+        {
+            // arrange
+
+            var standardProperties = new List<PropertyType>()
+             {
+                new PropertyType()
+                {
+                    Id = 175,
+                    Name = "Std-Choice-Required-AllowMultiple-DefaultValue"
+                },
+                new PropertyType()
+                {
+                    Id = 171,
+                    Name = "Std-Date-Required-Validated-Min-Max-HasDefault"
+                }
+             };
+
+            var standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+            _artifactRepository.Setup(repo => repo.GetStandardProperties(standardArtifactTypeIds))
+                .ReturnsAsync(standardProperties);
+
+            var result = (await _service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ToList();
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(4, result.Count);
+
+            var nameProperty = result.FirstOrDefault(x => x.Name == WorkflowConstants.PropertyNameName);
+            Assert.IsNotNull(nameProperty);
+
+            var descriptionProperty = result.FirstOrDefault(x => x.Name == WorkflowConstants.PropertyNameDescription);
+            Assert.IsNotNull(descriptionProperty);
+        }
+
         #endregion
     }
 }

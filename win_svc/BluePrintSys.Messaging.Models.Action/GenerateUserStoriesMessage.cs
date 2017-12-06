@@ -5,9 +5,8 @@ namespace BluePrintSys.Messaging.Models.Actions
     public class GenerateUserStoriesMessage : ProjectContainerActionMessage
     {
         public override MessageActionType ActionType { get; } = MessageActionType.GenerateUserStories;
-        public int ArtifactId { get; set; }
 
-        public int RevisionId { get; set; }
+        public int ArtifactId { get; set; }
 
         public string ProjectName { get; set; }
 

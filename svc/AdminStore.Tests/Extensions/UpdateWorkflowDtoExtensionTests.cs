@@ -1,6 +1,6 @@
 ﻿using System;
 using AdminStore.Helpers.Workflow;
-using AdminStore.Models.DTO;
+using AdminStore.Models.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -8,38 +8,14 @@ using ServiceLibrary.Helpers;
 namespace AdminStore.Extensions
 {
     [TestClass]
-    public class CreateWorkflowDtoExtensionTests
+    public class UpdateWorkflowDtoExtensionTests
     {
-
         [TestMethod]
-        public void Validate_NameTooShort_BadRequest()
+        public void Validate_NameIsNull_BadRequest()
         {
             // arrange
             Exception exception = null;
-            var model = new CreateWorkflowDto() { Name = "a" };
-
-            // act
-            try
-            {
-               model.Validate();
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-
-            // assert
-            Assert.IsNotNull(exception);
-            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
-            Assert.AreEqual(ErrorMessages.WorkflowNameError, exception.Message);
-        }
-
-        [TestMethod]
-        public void Validate_NameToLoong_ReturnBadRequestException()
-        {
-            // arrange
-            Exception exception = null;
-            var model = new CreateWorkflowDto() { Name = "Lorem ipsum dolor sit ame" }; // 25 symbols - only max 24 is Ok
+            var model = new UpdateWorkflowDto { Name = null };
 
             // act
             try
@@ -58,11 +34,78 @@ namespace AdminStore.Extensions
         }
 
         [TestMethod]
+        public void Validate_NameIsEmptyString_BadRequest()
+        {
+            // arrange
+            Exception exception = null;
+            var model = new UpdateWorkflowDto { Name = string.Empty };
+
+            // act
+            try
+            {
+                model.Validate();
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(ErrorMessages.WorkflowNameError, exception.Message);
+        }
+
+        [TestMethod]
+        public void Validate_NameToLong_ReturnBadRequestException()
+        {
+            // arrange
+            Exception exception = null;
+            var model = new UpdateWorkflowDto { Name = "Lorem ipsum dolor sit ame" }; // 25 symbols - only max 24 is Ok
+
+            // act
+            try
+            {
+                model.Validate();
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(ErrorMessages.WorkflowNameError, exception.Message);
+        }
+
+        [TestMethod]
+        public void Validate_NameIsValid_NoException()
+        {
+            // arrange
+            Exception exception = null;
+            var model = new UpdateWorkflowDto { Name = "L" };
+
+            // act
+            try
+            {
+                model.Validate();
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // assert
+            Assert.IsNull(exception);
+        }
+
+        [TestMethod]
         public void Validate_DescriptionLimitReached_BadRequest()
         {
             // arrange
             Exception exception = null;
-            var model = new CreateWorkflowDto()
+            var model = new UpdateWorkflowDto
             {
                 Name = "aasdff",
                 Description =

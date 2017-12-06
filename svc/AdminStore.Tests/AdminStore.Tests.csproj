@@ -102,6 +102,7 @@
     <Compile Include="Controllers\UsersControllerTests.cs" />
     <Compile Include="Controllers\WorkflowControllerTest.cs" />
     <Compile Include="Extensions\CreateWorkflowDtoExtensionTests.cs" />
+    <Compile Include="Extensions\UpdateWorkflowDtoExtensionTests.cs" />
     <Compile Include="Helpers\EmailHelperTests.cs" />
     <Compile Include="Helpers\HashingUtilitiesTests.cs" />
     <Compile Include="Helpers\SearchFieldValidatorTest.cs" />

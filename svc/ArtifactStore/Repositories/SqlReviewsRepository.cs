@@ -1251,6 +1251,11 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewClosedException();
             }
 
+            if (review.ReviewStatus == ReviewPackageStatus.Active)
+            {
+                ReviewsExceptionHelper.VerifyLastApproverInActiveReview(removeParams, reviewPackageRawData);
+            }
+
             if (removeParams.SelectionType == SelectionType.Selected)
             {
                 reviewPackageRawData.Reviewers.RemoveAll(i => removeParams.ItemIds.Contains(i.UserId));

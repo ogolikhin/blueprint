@@ -359,23 +359,31 @@ namespace ArtifactStore.Services.Reviews
                 throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
 
-            if (reviewData.ReviewStatus == ReviewPackageStatus.Active &&
-                content.Role == ReviewParticipantRole.Approver)
+            if (reviewData.ReviewStatus == ReviewPackageStatus.Active)
             {
-                var hasApproversAlready = reviewData.ReviewPackageRawData.Reviewers.FirstOrDefault(
-                    r => r.Permission == ReviewParticipantRole.Approver) != null;
-                // If we have approvers before current action, it means that review already was converted to formal
-                if (!hasApproversAlready)
+                if (content.Role == ReviewParticipantRole.Approver)
                 {
-                    var artifactRequredApproval = reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested ?? true);
-                    if (artifactRequredApproval != null)
+                    var hasApproversAlready = reviewData.ReviewPackageRawData.Reviewers.FirstOrDefault(
+                        r => r.Permission == ReviewParticipantRole.Approver) != null;
+                    // If we have approvers before current action, it means that review already was converted to formal
+                    if (!hasApproversAlready)
                     {
-                        throw new ConflictException(
-                            "Could not update review participants because review needs to be converted to Formal.",
-                            ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                        var artifactRequredApproval =
+                            reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested ?? true);
+                        if (artifactRequredApproval != null)
+                        {
+                            throw new ConflictException(
+                                "Could not update review participants because review needs to be converted to Formal.",
+                                ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                        }
                     }
                 }
+                else // If new role is reviewer
+                {
+                    ReviewsExceptionHelper.VerifyLastApproverInActiveReview(content, reviewData.ReviewPackageRawData);
+                }
             }
+
 
             var resultErrors = new List<ReviewChangeItemsError>();
 

@@ -1685,6 +1685,55 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        public async Task AddArtifactsToReviewAsync_AddEmptySealedBaseline_Success()
+        {
+            // Arrange
+            var contentArtifactIds = new List<int> { 1 };
+            var content = new AddArtifactsParameter
+            {
+                ArtifactIds = contentArtifactIds, // baseline id
+                AddChildren = false
+            };
+
+            var reviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>";
+            SetupGetReviewDataQuery(ReviewId, UserId, reviewContentsXml, null);
+
+            IEnumerable<int> artifactIds = new List<int>();
+            IEnumerable<int> unpublished = new List<int> { 0 };
+            IEnumerable<int> nonexistent = new List<int> { 0 };
+            IEnumerable<bool> isBaselineAdded = new List<bool> { true };
+
+            var outParameters = new Dictionary<string, object>
+            {
+               { "ArtifactIds",  new int[0] },
+               { "Unpublished", 0 },
+               { "Nonexistent", 0 },
+               { "IsBaselineAdded", true }
+            };
+
+            var mockResult = new Tuple<IEnumerable<int>, IEnumerable<int>, IEnumerable<int>, IEnumerable<bool>>(artifactIds, unpublished, nonexistent, isBaselineAdded);
+
+            var effectiveArtifactIdsQueryParameters = new Dictionary<string, object>
+            {
+                { "@artifactIds",  SqlConnectionWrapper.ToDataTable(contentArtifactIds) },
+                { "@userId", UserId },
+                { "@projectId", ProjectId }
+            };
+
+            _cxn.SetupQueryMultipleAsync("GetEffectiveArtifactIds", effectiveArtifactIdsQueryParameters, mockResult, outParameters);
+
+            // Act
+            var result = await _reviewsRepository.AddArtifactsToReviewAsync(ReviewId, UserId, content);
+
+            // Assert
+            _cxn.Verify();
+
+            Assert.AreEqual(0, result.ArtifactCount);
+            Assert.AreEqual(0, result.AlreadyIncludedArtifactCount);
+            Assert.AreEqual(0, result.AddedArtifactIds.Count());
+        }
+
+        [TestMethod]
         public async Task AddArtifactsToReviewAsync_ShouldThrowBadRequestException()
         {
             // Arrange

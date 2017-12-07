@@ -44,7 +44,6 @@ namespace AdminStore.Services.Workflow
         private const int SessionUserId = 1;
         private const int WorkflowId = 1;
         private Mock<IWorkflowDataValidator> _workflowDataValidatorMock;
-        private Mock<IArtifactRepository> _artifactRepositoryMock;
 
         #endregion
 
@@ -60,13 +59,9 @@ namespace AdminStore.Services.Workflow
             _projectMetaRepository = new Mock<ISqlProjectMetaRepository>();
             _artifactRepository = new Mock<IArtifactRepository>();
             _workflowDataValidatorMock = new Mock<IWorkflowDataValidator>();
-            _artifactRepositoryMock = new Mock<IArtifactRepository>();
 
             _workflowDataValidatorMock.Setup(q => q.ValidateUpdateDataAsync(It.IsAny<IeWorkflow>(), It.IsAny<ProjectTypes>()))
                 .ReturnsAsync(new WorkflowDataValidationResult());
-
-            _artifactRepositoryMock.Setup(q => q.GetStandardProperties(It.IsAny<ISet<int>>()))
-                .ReturnsAsync(new List<PropertyType>());
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
@@ -89,10 +84,6 @@ namespace AdminStore.Services.Workflow
             typeof(WorkflowService)
                 .GetField("_workflowDataValidator", BindingFlags.Instance | BindingFlags.NonPublic)
                 .SetValue(_service, _workflowDataValidatorMock.Object);
-
-            typeof(WorkflowService)
-                .GetField("_artifactRepository", BindingFlags.Instance | BindingFlags.NonPublic)
-                .SetValue(_service, _artifactRepositoryMock.Object);
         }
 
         #region GetWorkflowDetailsAsync
@@ -199,9 +190,6 @@ namespace AdminStore.Services.Workflow
 
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>()))
                 .ReturnsAsync(workflowArtifactTypesAndProjects);
-
-            _artifactRepositoryMock.Setup(q => q.GetStandardProperties(It.IsAny<ISet<int>>()))
-                .ReturnsAsync(projectTypes.PropertyTypes);
 
             // act
             var workflowDetails = await _service.GetWorkflowDetailsAsync(workflowId);

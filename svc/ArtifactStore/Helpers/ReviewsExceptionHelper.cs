@@ -85,7 +85,7 @@ namespace ArtifactStore.Helpers
             return new BadRequestException(errorMessage, ErrorCodes.MeaningOfSignatureNotChosen);
         }
 
-        public static void VerifyLastApproverInActiveReview(ReviewItemsRemovalParams content, Review review)
+        public static void VerifyNotLastApproverInFormalReview(ReviewItemsRemovalParams content, Review review)
         {
             if (review.ReviewType != ReviewType.Formal)
             {

@@ -383,7 +383,7 @@ namespace ArtifactStore.Services.Reviews
                 }
                 else // If new role is reviewer
                 {
-                    ReviewsExceptionHelper.VerifyLastApproverInActiveReview(content, reviewData);
+                    ReviewsExceptionHelper.VerifyNotLastApproverInFormalReview(content, reviewData);
                 }
             }
 

@@ -62,6 +62,9 @@ namespace ArtifactStore.Services.Reviews
 
             var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId, revisionId);
 
+            // We never ignore folders for formal reviews - Jira Bug STOR-4636
+            reviewSettings.IgnoreFolders = reviewType == ReviewType.Formal ? false : reviewSettings.IgnoreFolders;
+
             reviewSettings.CanEditRequireESignature = reviewData.ReviewStatus == ReviewPackageStatus.Draft
                 || (reviewData.ReviewStatus == ReviewPackageStatus.Active && reviewType != ReviewType.Formal);
 

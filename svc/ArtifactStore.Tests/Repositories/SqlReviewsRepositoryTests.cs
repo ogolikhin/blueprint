@@ -5654,9 +5654,11 @@ namespace ArtifactStore.Repositories
             var reviewId = 1;
             var userId = 2;
             var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
+            var artifactsXml =
+                "<?xml version =\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>1</Id></CA></Artifacts></RDReviewContents>";
             _artifactDetails.LockedByUserId = userId;
 
-            SetupGetReviewDataQuery(reviewId, userId, null, xmlString);
+            SetupGetReviewDataQuery(reviewId, userId, artifactsXml, xmlString);
 
             var prms = new ReviewItemsRemovalParams
             {
@@ -5667,6 +5669,7 @@ namespace ArtifactStore.Repositories
             // Act
             await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
         }
+
 
         #endregion
 

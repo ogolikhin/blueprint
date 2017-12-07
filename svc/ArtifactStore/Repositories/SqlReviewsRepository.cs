@@ -1256,7 +1256,7 @@ namespace ArtifactStore.Repositories
 
             if (review.ReviewStatus == ReviewPackageStatus.Active)
             {
-                ReviewsExceptionHelper.VerifyLastApproverInActiveReview(removeParams, reviewPackageRawData);
+                ReviewsExceptionHelper.VerifyLastApproverInActiveReview(removeParams, review);
             }
 
             if (removeParams.SelectionType == SelectionType.Selected)

@@ -383,10 +383,9 @@ namespace ArtifactStore.Services.Reviews
                 }
                 else // If new role is reviewer
                 {
-                    ReviewsExceptionHelper.VerifyLastApproverInActiveReview(content, reviewData.ReviewPackageRawData);
+                    ReviewsExceptionHelper.VerifyNotLastApproverInFormalReview(content, reviewData);
                 }
             }
-
 
             var resultErrors = new List<ReviewChangeItemsError>();
 

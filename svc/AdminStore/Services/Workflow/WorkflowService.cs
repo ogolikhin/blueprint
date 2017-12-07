@@ -225,7 +225,7 @@ namespace AdminStore.Services.Workflow
             var dataValidationResult = new WorkflowDataValidationResult();
 
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, workflowMode);
+            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, WorkflowMode.Canvas);
             if (currentWorkflow.IsActive)
             {
                 dataValidationResult.Errors.Add(new WorkflowDataValidationError
@@ -248,7 +248,7 @@ namespace AdminStore.Services.Workflow
 
             dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow, standardTypes);
 
-            var workflowDiffResult = _workflowDiff.DiffWorkflows(workflow, currentWorkflow, workflowMode);
+            var workflowDiffResult = _workflowDiff.DiffWorkflows(workflow, currentWorkflow);
 
             // Even if the data validation has errors,
             // anyway we do the validation of not found by Id in current.
@@ -1293,19 +1293,6 @@ namespace AdminStore.Services.Workflow
         {
             var stateMap = new Dictionary<string, int>(workflowDiffResult.UnchangedStates.ToDictionary(s => s.Name, s => s.Id.Value));
 
-            if (workflowMode == WorkflowMode.Xml)
-            {
-                if (workflowDiffResult.UnchangedStates.Any())
-                {
-                    var unchangedStates = (await _workflowRepository.UpdateWorkflowStatesAsync(workflowDiffResult.UnchangedStates.Select(s =>
-                        ToSqlState(s, workflowId, workflowMode)), publishRevision, transaction)).ToList();
-
-                    Debug.Assert(workflowDiffResult.UnchangedStates.Select(s => s.Id.Value).ToHashSet()
-                            .SetEquals(unchangedStates.Select(s => s.WorkflowStateId).ToHashSet()),
-                        "Ids of unchanged Workflow States do not match Ids of the input Workflow States parameter.");
-                }
-            }
-
             if (workflowDiffResult.DeletedStates.Any())
             {
                 await _workflowRepository.DeleteWorkflowStatesAsync(workflowDiffResult.DeletedStates.Select(s => s.Id.Value),
@@ -1336,19 +1323,6 @@ namespace AdminStore.Services.Workflow
 
         private async Task UpdateWorkflowEventsAsync(int workflowId, WorkflowDiffResult workflowDiffResult, WorkflowDataMaps dataMaps, int publishRevision, IDbTransaction transaction, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
-            if (workflowMode == WorkflowMode.Xml)
-            {
-                if (workflowDiffResult.UnchangedEvents.Any())
-                {
-                    var eventParam = workflowDiffResult.UnchangedEvents.Select(e => ToSqlWorkflowEvent(e, workflowId, dataMaps, workflowMode));
-                    var unchangedEvents = await _workflowRepository.UpdateWorkflowEventsAsync(eventParam, publishRevision, transaction);
-
-                    Debug.Assert(workflowDiffResult.UnchangedEvents.Select(s => s.Id.Value).ToHashSet()
-                            .SetEquals(unchangedEvents.Select(s => s.WorkflowEventId).ToHashSet()),
-                        "Ids of unchanged Workflow Events do not match Ids of the input Workflow Events parameter.");
-                }
-            }
-
             if (workflowDiffResult.DeletedEvents.Any())
             {
                 await

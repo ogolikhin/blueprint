@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models;
@@ -38,10 +37,14 @@ namespace AdminStore.Services.Workflow
         private List<SqlState> _workflowStates;
         private List<SqlWorkflowEventData> _workflowEvents;
         private List<UserDto> _userItems;
+        private List<IeTrigger> _triggers;
         private QueryResult<UserDto> _userQueryResult;
         private ProjectTypes _projectTypes;
         private const int SessionUserId = 1;
-        private const int WorkflowId = 1;
+        private const int WorkflowId = 10;
+        private const string Location = "200 200";
+        private const DiagramPort FromPort = DiagramPort.Left;
+        private const DiagramPort ToPort = DiagramPort.Right;
 
         #endregion
 
@@ -67,24 +70,13 @@ namespace AdminStore.Services.Workflow
                 null,
                 _artifactRepository.Object);
 
-            _workflow = new SqlWorkflow();
-            _workflowArtifactTypes = new List<SqlWorkflowArtifactTypes>();
-            _workflowStates = new List<SqlState>();
-            _workflowEvents = new List<SqlWorkflowEventData>();
-            _userItems = new List<UserDto>();
-            _userQueryResult = new QueryResult<UserDto>();
-            _projectTypes = new ProjectTypes();
-        }
+            _workflow = new SqlWorkflow
+            {
+                Name = "Workflow1",
+                Description = "Workflow1Description"
+            };
 
-        #region GetWorkflowDetailsAsync
-
-        [TestMethod]
-        public async Task GetWorkflow_WorkflowExists_ReturnWorkflow()
-        {
-            // arrange
-            var workflowId = 10;
-            var workflow = new SqlWorkflow { Name = "Workflow1", Description = "Workflow1Description" };
-            var workflowArtifactTypesAndProjects = new List<SqlWorkflowArtifactTypes>
+            _workflowArtifactTypes = new List<SqlWorkflowArtifactTypes>
             {
                 new SqlWorkflowArtifactTypes
                 {
@@ -109,29 +101,46 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            var stateNew = new SqlState { Name = "New", Default = true, WorkflowStateId = 1 };
-            var stateActive = new SqlState { Name = "Active", Default = true, WorkflowStateId = 2 };
-            var states = new List<SqlState> { stateNew, stateActive };
+            _workflowStates = new List<SqlState>
+            {
+                new SqlState
+                {
+                    VersionId = 1,
+                    WorkflowStateId = 1,
+                    Name = "New",
+                    Default = true,
+                    CanvasSettings = I18NHelper.FormatInvariant("<S><LN>{0}</LN></S>", Location)
+                },
+                new SqlState
+                {
+                    VersionId = 2,
+                    WorkflowStateId = 2,
+                    Name = "Active",
+                    CanvasSettings = string.Empty
+                }
+            };
 
-            var workflowEvents = new List<SqlWorkflowEventData>
+            _workflowEvents = new List<SqlWorkflowEventData>
             {
                 new SqlWorkflowEventData
                 {
-                    Type = 0,
+                    WorkflowId = 10,
+                    Name = "Transition1",
                     FromState = "New",
-                    FromStateId = 1,
                     ToState = "Active",
-                    ToStateId = 2
+                    FromStateId = 1,
+                    ToStateId = 2,
+                    Permissions = "<P S=\"0\"><G>1</G></P>",
+                    CanvasSettings = I18NHelper.FormatInvariant("<S><PRT><FR>{0}</FR><TO>{1}</TO></PRT></S>",
+                        (int)FromPort, (int)ToPort),
+                    Type = 0,
+                    Triggers =
+                        "<TSR><TS><T><AEN><ES><E>test.com</E></ES><M>4QOTT0IR7W</M></AEN></T></TS></TSR>"
                 },
                 new SqlWorkflowEventData
                 {
                     WorkflowId = 10,
-                    Name = "First trigger",
-                    FromState = "New",
-                    FromStateId = 1,
-                    ToState = "Active",
-                    ToStateId = 2,
-                    Permissions = "<P S=\"0\"><G>1</G></P>",
+                    Name = "PropertyChange1",
                     Type = 1,
                     Triggers =
                         "<TSR><TS><T><AEN><ES><E>test.com</E></ES><M>4QOTT0IR7W</M></AEN></T></TS></TSR>",
@@ -140,12 +149,7 @@ namespace AdminStore.Services.Workflow
                 new SqlWorkflowEventData
                 {
                     WorkflowId = 10,
-                    Name = "Second Trigger",
-                    FromState = "New",
-                    FromStateId = 1,
-                    ToState = "Active",
-                    ToStateId = 2,
-                    Permissions = "<P S=\"0\"/>",
+                    Name = "PropertyChange2",
                     Type = 1,
                     Triggers =
                         "<TSR><TS><T><AEN><ES><E>test.com</E></ES><M>4QOTT0IR7W</M></AEN></T></TS></TSR>",
@@ -153,36 +157,49 @@ namespace AdminStore.Services.Workflow
                 },
                 new SqlWorkflowEventData
                 {
+                    WorkflowId = 10,
+                    Name = "NewArtifact1",
                     Type = 2,
                     Triggers =
                         "<TSR><TS><T><AEN><ES><E>test.com</E></ES><M>4QOTT0IR7W</M></AEN></T></TS></TSR>",
                 },
             };
 
-            var projectTypes = new ProjectTypes();
-            projectTypes.PropertyTypes.Add(new PropertyType { Name = "Property1", Id = 1 });
-            projectTypes.PropertyTypes.Add(new PropertyType { Name = "Property2", Id = 2 });
+            _userItems = new List<UserDto>();
+            _userQueryResult = new QueryResult<UserDto>();
 
-            var trigger = new IeTrigger();
-            var triggers = new List<IeTrigger> { trigger };
+            _projectTypes = new ProjectTypes();
+            _projectTypes.PropertyTypes.Add(new PropertyType { Name = "Property1", Id = 1 });
+            _projectTypes.PropertyTypes.Add(new PropertyType { Name = "Property2", Id = 2 });
 
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
-            _projectMetaRepository.Setup(metaRepo => metaRepo.GetStandardProjectTypesAsync()).ReturnsAsync(projectTypes);
+            _triggers = new List<IeTrigger> { new IeTrigger() };
+        }
 
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(states);
+        #region GetWorkflowDetailsAsync
+
+        [TestMethod]
+        public async Task GetWorkflow_WorkflowExists_ReturnWorkflow()
+        {
+            // arrange
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflow);
+            _projectMetaRepository.Setup(metaRepo => metaRepo.GetStandardProjectTypesAsync())
+                .ReturnsAsync(_projectTypes);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowStates);
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>()))
-                .ReturnsAsync(workflowEvents);
+                .ReturnsAsync(_workflowEvents);
 
             _triggerConverter.Setup(
                 converter =>
                     converter.FromXmlModel(It.IsAny<XmlWorkflowEventTriggers>(), It.IsAny<WorkflowDataNameMaps>(),
-                        It.IsAny<ISet<int>>(), It.IsAny<ISet<int>>())).Returns(triggers);
+                        It.IsAny<ISet<int>>(), It.IsAny<ISet<int>>())).Returns(_triggers);
 
             _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>()))
-                .ReturnsAsync(workflowArtifactTypesAndProjects);
+                .ReturnsAsync(_workflowArtifactTypes);
 
             // act
-            var workflowDetails = await _service.GetWorkflowDetailsAsync(workflowId);
+            var workflowDetails = await _service.GetWorkflowDetailsAsync(WorkflowId);
 
             // assert
             Assert.IsNotNull(workflowDetails);
@@ -197,12 +214,11 @@ namespace AdminStore.Services.Workflow
         public async Task GetWorkflow_ThereIsNoSuchWorkflow_NotFoundResult()
         {
             // arrange
-            var workflowId = 10;
-
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>()))
+                .ReturnsAsync((SqlWorkflow)null);
 
             // act
-            await _service.GetWorkflowDetailsAsync(workflowId);
+            await _service.GetWorkflowDetailsAsync(WorkflowId);
 
             // Exception
         }
@@ -220,10 +236,11 @@ namespace AdminStore.Services.Workflow
             _workflowRepositoryMock
                 .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
             // Act
-                await _service.UpdateWorkflowStatusAsync(updateSatus, WorkflowId, SessionUserId);
+            await _service.UpdateWorkflowStatusAsync(updateSatus, WorkflowId, SessionUserId);
             // Assert
             // Exception
         }
+
         [TestMethod]
         [ExpectedException(typeof(ConflictException))]
         public async Task UpdateWorkflowStatusAsync_WorkflowHasDifferentVersion_ReturnConflicErrorResult()
@@ -231,12 +248,14 @@ namespace AdminStore.Services.Workflow
             // Arrange
             var existingWorkflow = new SqlWorkflow { VersionId = 1, WorkflowId = 1 };
             var updateSatus = new StatusUpdate { VersionId = 2, Active = true };
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(existingWorkflow);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>()))
+                .ReturnsAsync(existingWorkflow);
             // Act
-                await _service.UpdateWorkflowStatusAsync(updateSatus, WorkflowId, SessionUserId);
+            await _service.UpdateWorkflowStatusAsync(updateSatus, WorkflowId, SessionUserId);
             // Assert
             // Exception
         }
+
         #endregion
 
         #region GetWorkflowExportAsync
@@ -257,97 +276,64 @@ namespace AdminStore.Services.Workflow
         }
 
         [TestMethod]
-        public async Task GetWorkflowExportAsync_WorkflowExists_ReturnWorkflow()
+        public async Task GetWorkflowExportAsync_WorkflowForXmlExists_ReturnWorkflow()
         {
             // arrange
-            _workflow.Name = "Workflow1";
-            _workflow.Description = "Workflow1Description";
-
-            _workflowArtifactTypes.Add(new SqlWorkflowArtifactTypes
-            {
-                ProjectId = 1,
-                ArtifactTypeId = 204,
-                ArtifactTypeName = "Artifact1"
-            });
-            _workflowArtifactTypes.Add(new SqlWorkflowArtifactTypes
-            {
-                ProjectId = 2,
-                ArtifactTypeId = 205,
-                ArtifactTypeName = "Artifact2"
-            });
-
-            var workflowState = new SqlState { Name = "new", Default = true };
-            _workflowStates.Add(workflowState);
-
-            _workflowEvents.Add(new SqlWorkflowEventData
-            {
-                WorkflowId = 10,
-                Name = "First Trigger",
-                FromState = "new",
-                ToState = "Active",
-                Permissions = "<P S=\"0\"><G>1</G></P>",
-                Type = 1,
-                Triggers = "<Triggers><Trigger><Name>Trigger 1</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
-            });
-
-            _workflowEvents.Add(new SqlWorkflowEventData
-            {
-                WorkflowId = 10,
-                Name = "Second Trigger",
-                FromState = "Active",
-                Permissions = "<P S=\"0\"/>",
-                Type = 1,
-                Triggers = "<Triggers><Trigger><Name>Trigger 2</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
-            });
-
             _userItems.Add(new UserDto { Id = 1, Login = "user" });
             _userQueryResult.Items = _userItems;
             _userQueryResult.Total = 1;
 
-            _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null)).ReturnsAsync(_userQueryResult);
-
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(_workflow);
-
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(_workflowStates);
-
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(_workflowArtifactTypes);
-
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(_workflowEvents);
-
+            _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null))
+                .ReturnsAsync(_userQueryResult);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflow);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowStates);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowArtifactTypes);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowEvents);
             _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(_projectTypes);
+
+            _triggerConverter.Setup(
+                converter =>
+                    converter.FromXmlModel(It.IsAny<XmlWorkflowEventTriggers>(), It.IsAny<WorkflowDataNameMaps>(),
+                        It.IsAny<ISet<int>>(), It.IsAny<ISet<int>>())).Returns(_triggers);
 
             // act
             var workflowExport = await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Xml);
 
             // assert
             Assert.IsNotNull(workflowExport);
-            Assert.AreEqual(2, workflowExport.Projects.Count);
-            Assert.AreEqual(1, workflowExport.States.Count);
+
+            Assert.IsNull(workflowExport.States[0].Location);
+            Assert.IsNull(workflowExport.TransitionEvents[0].PortPair);
+
+            Assert.AreEqual(3, workflowExport.Projects.Count);
+            Assert.AreEqual(2, workflowExport.States.Count);
+            Assert.AreEqual(1, workflowExport.TransitionEvents.Count);
+            Assert.AreEqual(2, workflowExport.PropertyChangeEvents.Count);
+            Assert.AreEqual(1, workflowExport.NewArtifactEvents.Count);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ResourceNotFoundException), "Workflow doesn't exist.")]
-        public async Task GetWorkflowExportAsync_WorkflowDetailsError()
+        public async Task GetWorkflowExportAsync_WorkflowForXmlExists_ReturnEmptyWorkflow()
         {
             // arrange
-            SqlWorkflow workflow = null;
-
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(workflow);
-
-            // act
-            await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Xml);
-
-        }
-
-        [TestMethod]
-        public async Task GetWorkflowExportAsync_EmptyWorkflow()
-        {
-            // arrange
-            _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null)).ReturnsAsync(_userQueryResult);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(_workflow);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(_workflowArtifactTypes);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(_workflowStates);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(_workflowEvents);
+            _workflow = new SqlWorkflow();
+            _workflowArtifactTypes = new List<SqlWorkflowArtifactTypes>();
+            _workflowStates = new List<SqlState>();
+            _workflowEvents = new List<SqlWorkflowEventData>();
+            _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null))
+                .ReturnsAsync(_userQueryResult);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflow);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowArtifactTypes);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowStates);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowEvents);
             _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(_projectTypes);
 
             // act
@@ -363,42 +349,26 @@ namespace AdminStore.Services.Workflow
             Assert.IsTrue(workflowExport.NewArtifactEvents.IsEmpty());
         }
 
-
         [TestMethod]
         public async Task GetWorkflowExportAsync_WorkflowForCanvasExists_ReturnWorkflow()
         {
             // arrange
-            var location = "200 200";
-            var workflowStateFrom = new SqlState { VersionId = 1, WorkflowStateId = 1, Name = "New", Default = true, CanvasSettings = $"<S><LN>{location}</LN></S>" };
-            var workflowStateTo = new SqlState { VersionId = 2, WorkflowStateId = 2, Name = "Active", Default = true, CanvasSettings = String.Empty };
-            _workflowStates.Add(workflowStateFrom);
-            _workflowStates.Add(workflowStateTo);
-
-            var fromPort = DiagramPort.Left;
-            var toPort = DiagramPort.Right;
-            var eventData = new SqlWorkflowEventData
-            {
-                WorkflowId = 10,
-                Name = "First Trigger",
-                FromState = "New",
-                ToState = "Active",
-                FromStateId = 1,
-                ToStateId = 2,
-                Permissions = "<P S=\"0\"><G>1</G></P>",
-                CanvasSettings = $"<S><PRT><FR>{(int)fromPort}</FR><TO>{(int)toPort}</TO></PRT></S>",
-                Type = 0,
-                Triggers =
-                    "<Triggers><Trigger><Name>Trigger 1</Name><EmailNotificationAction></EmailNotificationAction></Trigger></Triggers>"
-            };
-
-            _workflowEvents.Add(eventData);
-
-            _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null)).ReturnsAsync(_userQueryResult);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync(_workflow);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>())).ReturnsAsync(_workflowArtifactTypes);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>())).ReturnsAsync(_workflowStates);
-            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>())).ReturnsAsync(_workflowEvents);
+            _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null))
+                .ReturnsAsync(_userQueryResult);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflow);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowArtifactTypes);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowStates);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowEvents);
             _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(_projectTypes);
+
+            _triggerConverter.Setup(
+                converter =>
+                    converter.FromXmlModel(It.IsAny<XmlWorkflowEventTriggers>(), It.IsAny<WorkflowDataNameMaps>(),
+                        It.IsAny<ISet<int>>(), It.IsAny<ISet<int>>())).Returns(_triggers);
 
             // act
             var workflowForCanvas = await _service.GetWorkflowExportAsync(WorkflowId, WorkflowMode.Canvas);
@@ -406,15 +376,17 @@ namespace AdminStore.Services.Workflow
             // assert
             Assert.IsNotNull(workflowForCanvas);
 
-            Assert.IsNotNull(workflowForCanvas.States);
-            Assert.AreEqual(workflowForCanvas.States.Count, 2);
-            Assert.AreEqual(workflowForCanvas.States[0].Location, location);
+            Assert.AreEqual(workflowForCanvas.States[0].Location, Location);
+            Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.FromPort, FromPort);
+            Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.ToPort, ToPort);
 
-            Assert.IsNotNull(workflowForCanvas.TransitionEvents);
-            Assert.AreEqual(workflowForCanvas.TransitionEvents.Count, 1);
-            Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.FromPort, fromPort);
-            Assert.AreEqual(workflowForCanvas.TransitionEvents[0].PortPair.ToPort, toPort);
+            Assert.AreEqual(3, workflowForCanvas.Projects.Count);
+            Assert.AreEqual(2, workflowForCanvas.States.Count);
+            Assert.AreEqual(1, workflowForCanvas.TransitionEvents.Count);
+            Assert.AreEqual(2, workflowForCanvas.PropertyChangeEvents.Count);
+            Assert.AreEqual(1, workflowForCanvas.NewArtifactEvents.Count);
         }
+
         #endregion
 
         #region GetWorkflowArtifactTypesProperties
@@ -423,22 +395,21 @@ namespace AdminStore.Services.Workflow
         public async Task GetWorkflowArtifactTypesProperties_ParametersAreCorrect_ReturnProperties()
         {
             // arrange
-
-            var standardProperties = new List<PropertyType>()
-             {
-                new PropertyType()
+            var standardProperties = new List<PropertyType>
+            {
+                new PropertyType
                 {
                     Id = 175,
                     Name = "Std-Choice-Required-AllowMultiple-DefaultValue"
                 },
-                new PropertyType()
+                new PropertyType
                 {
                     Id = 171,
                     Name = "Std-Date-Required-Validated-Min-Max-HasDefault"
                 }
-             };
+            };
 
-            var standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+            var standardArtifactTypeIds = new HashSet<int> { 1, 2, 3 };
             _artifactRepository.Setup(repo => repo.GetStandardProperties(standardArtifactTypeIds))
                 .ReturnsAsync(standardProperties);
 
@@ -455,5 +426,47 @@ namespace AdminStore.Services.Workflow
         }
 
         #endregion
+
+        #region GetWorkflowDiagramAsync
+
+        [TestMethod]
+        public async Task GetWorkflowDiagramAsync_WorkflowExists_ReturnWorkflow()
+        {
+            // arrange
+            _userRepositoryMock.Setup(repo => repo.GetUsersAsync(It.IsAny<Pagination>(), null, null, null))
+                .ReturnsAsync(_userQueryResult);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflow);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowArtifactTypesAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowArtifactTypes);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowStatesAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowStates);
+            _workflowRepositoryMock.Setup(repo => repo.GetWorkflowEventsAsync(It.IsAny<int>()))
+                .ReturnsAsync(_workflowEvents);
+            _projectMetaRepository.Setup(repo => repo.GetStandardProjectTypesAsync()).ReturnsAsync(_projectTypes);
+
+            _triggerConverter.Setup(
+                converter =>
+                    converter.FromXmlModel(It.IsAny<XmlWorkflowEventTriggers>(), It.IsAny<WorkflowDataNameMaps>(),
+                        It.IsAny<ISet<int>>(), It.IsAny<ISet<int>>())).Returns(_triggers);
+
+            // act
+            var workflow = await _service.GetWorkflowDiagramAsync(WorkflowId);
+
+            // assert
+            Assert.IsNotNull(workflow);
+
+            Assert.AreEqual(workflow.NumberOfStates, 2);
+            Assert.AreEqual(workflow.NumberOfActions, 4);
+
+            Assert.AreEqual(3, workflow.Projects.Count());
+            Assert.AreEqual(2, workflow.States.Count());
+            Assert.AreEqual(1, workflow.TransitionEvents.Count());
+            Assert.AreEqual(2, workflow.PropertyChangeEvents.Count());
+            Assert.AreEqual(1, workflow.NewArtifactEvents.Count());
+        }
+
+        #endregion
+
     }
 }

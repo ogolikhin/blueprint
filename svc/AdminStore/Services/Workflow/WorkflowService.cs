@@ -336,11 +336,6 @@ namespace AdminStore.Services.Workflow
         {
             var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
 
-            if (ieWorkflow == null)
-            {
-                return null;
-            }
-
             var numberOfStatesAndActions = GetNumberOfStatesAndActions(ieWorkflow);
 
              var workflowDetailsDto = new WorkflowDetailsDto

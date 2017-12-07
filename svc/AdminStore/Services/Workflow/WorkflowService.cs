@@ -838,12 +838,12 @@ namespace AdminStore.Services.Workflow
             ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
             var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(ieWorkflow, standardTypes);
-            DeleteInValidDataFromExportedWorkflow(ref ieWorkflow, dataValidationResult);
+            DeleteInValidDataFromExportedWorkflow(ieWorkflow, dataValidationResult);
 
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
         }
 
-        private void DeleteInValidDataFromExportedWorkflow(ref IeWorkflow workflow,
+        private void DeleteInValidDataFromExportedWorkflow(IeWorkflow workflow,
             WorkflowDataValidationResult validationResult)
         {
             if (workflow != null)

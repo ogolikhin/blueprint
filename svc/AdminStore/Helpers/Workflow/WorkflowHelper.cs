@@ -531,7 +531,7 @@ namespace AdminStore.Helpers.Workflow
                             PropertyName = iePropertyChangeAction.PropertyName,
                             PropertyId = iePropertyChangeAction.PropertyId,
                             PropertyValue = iePropertyChangeAction.PropertyValue,
-                            UsersGroups = new DUsersGroups
+                            UsersGroups = iePropertyChangeAction.UsersGroups != null ? new DUsersGroups
                             {
                                 IncludeCurrentUser = iePropertyChangeAction.UsersGroups?.IncludeCurrentUser,
                                 UsersGroups = iePropertyChangeAction.UsersGroups?.UsersGroups?.Select(ieUserGroup =>
@@ -543,7 +543,7 @@ namespace AdminStore.Helpers.Workflow
                                         GroupProjectPath = ieUserGroup.GroupProjectPath,
                                         IsGroup = ieUserGroup.IsGroup
                                     }).ToList()
-                            },
+                            } : null,
                             ValidValues = iePropertyChangeAction.ValidValues?.Select(ieValidValue => new DValidValue
                             {
                                 Id = ieValidValue.Id,

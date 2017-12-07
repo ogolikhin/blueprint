@@ -2414,90 +2414,6 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task UpdateReviewArtifactApprovalAsync_ShouldThrowUserCannotModifyReviewException()
-        {
-            // Arrange
-            var reviewId = 1;
-            var userId = 2;
-            var isExceptionThrown = false;
-            _hasEditPermissions = false;
-            var approvalParameter = new ReviewArtifactApprovalParameter
-            {
-                Approval = "Disapproved",
-                ApprovalFlag = ApprovalType.Disapproved,
-                ArtifactIds = new List<int> { 3 },
-                SelectionType = SelectionType.Selected
-            };
-
-            var artifactIds = new[] { 3 };
-
-            SetupReviewArtifactsUserApprovalCheck(reviewId, userId, artifactIds);
-            SetupGetVersionNumber(reviewId, artifactIds);
-
-            SetupArtifactPermissionsCheck(new[] { artifactIds[0], reviewId }, userId, new Dictionary<int, RolePermissions>
-            {
-                { 1, RolePermissions.Read },
-                { 3, RolePermissions.Read }
-            });
-
-            var revApppCheck = new ReviewArtifactApprovalCheck
-            {
-                ReviewExists = true,
-                ReviewStatus = ReviewPackageStatus.Active,
-                ReviewDeleted = false,
-                AllArtifactsInReview = true,
-                AllArtifactsRequireApproval = true,
-                UserInReview = true,
-                ReviewerRole = ReviewParticipantRole.Approver,
-                ReviewType = ReviewType.Formal,
-                ReviewerStatus = ReviewStatus.InProgress
-            };
-
-            var getXmlParameters = new Dictionary<string, object>
-            {
-                { "reviewId", 1 },
-                { "userId", 2 }
-            };
-
-            _cxn.SetupQueryAsync("GetReviewUserStatsXml", getXmlParameters, new List<string>
-            {
-                "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Approved</A><AF>Approved</AF><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>"
-            });
-
-            var updateXmlParameters = new Dictionary<string, object>
-            {
-                { "reviewId", 1 },
-                { "userId", 2 },
-                { "updateReviewerStatus", false },
-                { "value", "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewedArtifacts xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><ReviewedArtifacts><RA><A>Disapproved</A><AF>Disapproved</AF><EO>2017-07-10T13:20:00</EO><Id>3</Id><V>1</V><VS>Viewed</VS></RA></ReviewedArtifacts></RDReviewedArtifacts>" }
-            };
-
-            _cxn.SetupExecuteAsync("UpdateReviewUserStats", updateXmlParameters, 1);
-
-            // Act
-            try
-            {
-                await _reviewsRepository.UpdateReviewArtifactApprovalAsync(reviewId, approvalParameter, userId);
-            }
-            catch (AuthorizationException ex)
-            {
-                isExceptionThrown = true;
-
-                // Assert
-                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, ex.ErrorCode);
-
-            }
-            finally
-            {
-                if (!isExceptionThrown)
-                {
-                    Assert.Fail();
-                }
-            }
-
-        }
-
-        [TestMethod]
         [Ignore]
         public async Task UpdateReviewArtifactApprovalAsync_Should_Not_Throw_When_User_Isnt_Approver()
         {
@@ -5568,8 +5484,8 @@ namespace ArtifactStore.Repositories
             var reviewId = 1;
             var userId = 2;
             _artifactDetails.LockedByUserId = userId;
-            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
-            var updatedXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers /><Status>Active</Status></ReviewPackageRawData>";
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>4</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
+            var updatedXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>4</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
 
             SetupGetReviewDataQuery(reviewId, userId, null, xmlString);
             SetupUpdateReviewXmlQuery(reviewId, userId, 1, updatedXml);
@@ -5713,12 +5629,34 @@ namespace ArtifactStore.Repositories
             // Arrange
             var reviewId = 1;
             var userId = 2;
-            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
-            var updatedXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers /><Status>Active</Status></ReviewPackageRawData>";
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>4</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
+            var updatedXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>4</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
             _artifactDetails.LockedByUserId = userId;
 
             SetupGetReviewDataQuery(reviewId, userId, null, xmlString);
             SetupUpdateReviewXmlQuery(reviewId, userId, -1, updatedXml);
+
+            var prms = new ReviewItemsRemovalParams
+            {
+                ItemIds = new List<int> { 1, 2, 3 },
+                SelectionType = SelectionType.Selected
+            };
+
+            // Act
+            await _reviewsRepository.RemoveParticipantsFromReviewAsync(reviewId, prms, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveParticipantsFromReviewAsync_ShouldThrow_ConflictException_WhenRemoveLastApprover()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><IsIgnoreFolder>true</IsIgnoreFolder><Reviwers><ReviewerRawData><Permission>Approver</Permission><UserId>1</UserId></ReviewerRawData><ReviewerRawData><Permission>Reviewer</Permission><UserId>2</UserId></ReviewerRawData><ReviewerRawData><Permission>Approver</Permission><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
+            _artifactDetails.LockedByUserId = userId;
+
+            SetupGetReviewDataQuery(reviewId, userId, null, xmlString);
 
             var prms = new ReviewItemsRemovalParams
             {

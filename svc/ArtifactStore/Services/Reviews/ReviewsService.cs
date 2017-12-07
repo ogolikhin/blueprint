@@ -101,7 +101,7 @@ namespace ArtifactStore.Services.Reviews
             var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId);
 
             UpdateRequireESignature(reviewType, updatedReviewSettings, reviewData.ReviewPackageRawData);
-            await UpdateRequireMeaningOfSignatureAsync(reviewInfo.ItemId, reviewInfo.ProjectId, reviewType, updatedReviewSettings, reviewData.ReviewPackageRawData);
+            await UpdateRequireMeaningOfSignatureAsync(reviewInfo.ItemId, userId, reviewInfo.ProjectId, reviewType, updatedReviewSettings, reviewData.ReviewPackageRawData);
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewData.ReviewPackageRawData, userId);
         }
@@ -171,7 +171,7 @@ namespace ArtifactStore.Services.Reviews
             reviewRawData.IsESignatureEnabled = updatedReviewSettings.RequireESignature;
         }
 
-        private async Task UpdateRequireMeaningOfSignatureAsync(int reviewId, int projectId, ReviewType reviewType, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
+        private async Task UpdateRequireMeaningOfSignatureAsync(int reviewId, int userId, int projectId, ReviewType reviewType, ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
         {
             var settingChanged = reviewRawData.IsMoSEnabled != updatedReviewSettings.RequireMeaningOfSignature;
 
@@ -204,7 +204,7 @@ namespace ArtifactStore.Services.Reviews
                     .Where(r => r.Permission == ReviewParticipantRole.Approver)
                     .Select(r => new MeaningOfSignatureParameter { ParticipantId = r.UserId });
 
-                await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSetDefaultsStrategy());
+                await UpdateMeaningOfSignaturesInternalAsync(reviewId, userId, reviewRawData, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSetDefaultsStrategy());
             }
         }
 
@@ -252,19 +252,19 @@ namespace ArtifactStore.Services.Reviews
 
             await LockReviewAsync(reviewId, userId, reviewInfo);
 
-            await UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewData.ReviewPackageRawData, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSpecificStrategy());
+            await UpdateMeaningOfSignaturesInternalAsync(reviewId, userId, reviewData.ReviewPackageRawData, meaningOfSignatureParameters, new MeaningOfSignatureUpdateSpecificStrategy());
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewData.ReviewPackageRawData, userId);
         }
 
-        private async Task UpdateMeaningOfSignaturesInternalAsync(int reviewId, ReviewPackageRawData reviewRawData,
+        private async Task UpdateMeaningOfSignaturesInternalAsync(int reviewId, int userId, ReviewPackageRawData reviewRawData,
             IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters, IMeaningOfSignatureUpdateStrategy updateStrategy)
         {
             var meaningOfSignatureParamList = meaningOfSignatureParameters.ToList();
 
             var participantIds = meaningOfSignatureParamList.Select(mos => mos.ParticipantId).ToList();
 
-            var possibleMeaningOfSignatures = await _reviewsRepository.GetPossibleMeaningOfSignaturesForParticipantsAsync(participantIds);
+            var possibleMeaningOfSignatures = await _reviewsRepository.GetPossibleMeaningOfSignaturesForParticipantsAsync(reviewId, userId, participantIds);
 
             if (reviewRawData.Reviewers == null)
             {
@@ -359,29 +359,37 @@ namespace ArtifactStore.Services.Reviews
                 throw ExceptionHelper.ArtifactDoesNotSupportOperation(reviewId);
             }
 
-            if (reviewData.ReviewStatus == ReviewPackageStatus.Active &&
-                content.Role == ReviewParticipantRole.Approver)
+            if (reviewData.ReviewStatus == ReviewPackageStatus.Active)
             {
-                var hasApproversAlready = reviewData.ReviewPackageRawData.Reviewers.FirstOrDefault(
-                    r => r.Permission == ReviewParticipantRole.Approver) != null;
-                // If we have approvers before current action, it means that review already was converted to formal
-                if (!hasApproversAlready)
+                if (content.Role == ReviewParticipantRole.Approver)
                 {
-                    var artifactRequredApproval = reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested ?? true);
-                    if (artifactRequredApproval != null)
+                    var hasApproversAlready = reviewData.ReviewPackageRawData.Reviewers.FirstOrDefault(
+                        r => r.Permission == ReviewParticipantRole.Approver) != null;
+                    // If we have approvers before current action, it means that review already was converted to formal
+                    if (!hasApproversAlready)
                     {
-                        throw new ConflictException(
-                            "Could not update review participants because review needs to be converted to Formal.",
-                            ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                        var artifactRequredApproval =
+                            reviewData.Contents.Artifacts?.FirstOrDefault(a => !a.ApprovalNotRequested ?? true);
+                        if (artifactRequredApproval != null)
+                        {
+                            throw new ConflictException(
+                                "Could not update review participants because review needs to be converted to Formal.",
+                                ErrorCodes.ReviewNeedsToMoveBackToDraftState);
+                        }
                     }
                 }
+                else // If new role is reviewer
+                {
+                    ReviewsExceptionHelper.VerifyLastApproverInActiveReview(content, reviewData.ReviewPackageRawData);
+                }
             }
+
 
             var resultErrors = new List<ReviewChangeItemsError>();
 
             UpdateParticipantRole(reviewData.ReviewPackageRawData, content, resultErrors);
 
-            await UpdateMeaningOfSignatureWhenAssignApprovalRoles(reviewId, content, reviewData.ReviewPackageRawData);
+            await UpdateMeaningOfSignatureWhenAssignApprovalRoles(reviewId, userId, content, reviewData.ReviewPackageRawData);
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewData.ReviewPackageRawData, userId);
 
@@ -410,7 +418,7 @@ namespace ArtifactStore.Services.Reviews
             return changeResult;
         }
 
-        private async Task UpdateMeaningOfSignatureWhenAssignApprovalRoles(int reviewId, AssignParticipantRoleParameter content,
+        private async Task UpdateMeaningOfSignatureWhenAssignApprovalRoles(int reviewId, int userId, AssignParticipantRoleParameter content,
             ReviewPackageRawData reviewRawData)
         {
             if (reviewRawData.IsMoSEnabled && content.Role == ReviewParticipantRole.Approver)
@@ -450,7 +458,7 @@ namespace ArtifactStore.Services.Reviews
                 }
 
                 await
-                    UpdateMeaningOfSignaturesInternalAsync(reviewId, reviewRawData, meaningOfSignatureParameter,
+                    UpdateMeaningOfSignaturesInternalAsync(reviewId, userId, reviewRawData, meaningOfSignatureParameter,
                         new MeaningOfSignatureUpdateSetDefaultsStrategy());
             }
         }

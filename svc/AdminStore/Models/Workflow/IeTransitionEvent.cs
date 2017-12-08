@@ -49,7 +49,13 @@ namespace AdminStore.Models.Workflow
 
         protected bool Equals(IeTransitionEvent other)
         {
-            return base.Equals(other) && string.Equals(FromState, other.FromState) && FromStateId.GetValueOrDefault() == other.FromStateId.GetValueOrDefault() && string.Equals(ToState, other.ToState) && ToStateId.GetValueOrDefault() == other.ToStateId.GetValueOrDefault() && WorkflowHelper.CollectionEquals(PermissionGroups, other.PermissionGroups) && SkipPermissionGroups.GetValueOrDefault() == other.SkipPermissionGroups.GetValueOrDefault();
+            return base.Equals(other) && string.Equals(FromState, other.FromState) &&
+                   FromStateId.GetValueOrDefault() == other.FromStateId.GetValueOrDefault() &&
+                   string.Equals(ToState, other.ToState) &&
+                   ToStateId.GetValueOrDefault() == other.ToStateId.GetValueOrDefault() &&
+                   WorkflowHelper.CollectionEquals(PermissionGroups, other.PermissionGroups) &&
+                   SkipPermissionGroups.GetValueOrDefault() == other.SkipPermissionGroups.GetValueOrDefault() &&
+                   Equals(PortPair, other.PortPair);
         }
 
         public override bool Equals(object obj)
@@ -76,19 +82,5 @@ namespace AdminStore.Models.Workflow
         }
 
         #endregion
-
-        public bool EqualsIncludingPortPair(IeTransitionEvent obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return base.Equals(obj) && string.Equals(FromState, obj.FromState) &&
-                   FromStateId.GetValueOrDefault() == obj.FromStateId.GetValueOrDefault() &&
-                   string.Equals(ToState, obj.ToState) &&
-                   ToStateId.GetValueOrDefault() == obj.ToStateId.GetValueOrDefault() &&
-                   WorkflowHelper.CollectionEquals(PermissionGroups, obj.PermissionGroups) &&
-                   SkipPermissionGroups.GetValueOrDefault() == obj.SkipPermissionGroups.GetValueOrDefault() &&
-                   Equals(PortPair, obj.PortPair);
-        }
     }
 }

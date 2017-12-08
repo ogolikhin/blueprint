@@ -12,7 +12,7 @@ namespace AdminStore.Services.Workflow
         #region Interface Implementation
 
         // Id in IeProjects and GroupProjectId for groups in IeUserGroup should be filled in.
-        public WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow, WorkflowMode workflowMode = WorkflowMode.Xml)
+        public WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow)
         {
             var result = new WorkflowDiffResult();
             if (workflow == null) throw new ArgumentNullException(nameof(workflow));
@@ -21,22 +21,22 @@ namespace AdminStore.Services.Workflow
             result.IsWorkflowPropertiesChanged = IsWorkflowPropertiesChanged(workflow, currentWorkflow);
 
             DiffWorkflowEntities(workflow.States, currentWorkflow.States, result.AddedStates,
-                result.DeletedStates, result.ChangedStates, result.NotFoundStates, result.UnchangedStates, workflowMode);
+                result.DeletedStates, result.ChangedStates, result.NotFoundStates, result.UnchangedStates);
 
             var events = workflow.TransitionEvents?.Select(e => e as IeEvent).ToList();
             var currentEvents = currentWorkflow.TransitionEvents?.Select(e => e as IeEvent).ToList();
             DiffWorkflowEntities(events, currentEvents, result.AddedEvents,
-                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents, workflowMode);
+                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents);
 
             events = workflow.PropertyChangeEvents?.Select(te => te as IeEvent).ToList();
             currentEvents = currentWorkflow.PropertyChangeEvents?.Select(te => te as IeEvent).ToList();
             DiffWorkflowEntities(events, currentEvents, result.AddedEvents,
-                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents, workflowMode);
+                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents);
 
             events = workflow.NewArtifactEvents?.Select(te => te as IeEvent).ToList();
             currentEvents = currentWorkflow.NewArtifactEvents?.Select(te => te as IeEvent).ToList();
             DiffWorkflowEntities(events, currentEvents, result.AddedEvents,
-                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents, workflowMode);
+                 result.DeletedEvents, result.ChangedEvents, result.NotFoundEvents, result.UnchangedEvents);
 
             DiffProjectArtifactTypes(workflow.Projects, currentWorkflow.Projects, result);
             return result;
@@ -56,7 +56,7 @@ namespace AdminStore.Services.Workflow
 
         private static void DiffWorkflowEntities<T>(ICollection<T> entities, ICollection<T> currentEntities,
             ICollection<T> added, ICollection<T> deleted, ICollection<T> changed, ICollection<T> notFound,
-            ICollection<T> unchanged, WorkflowMode workflowMode)
+            ICollection<T> unchanged)
             where T : IIeWorkflowEntityWithId
         {
             var stateIds = (entities?.Where(s => s.Id.HasValue).Select(s => s.Id.Value).ToHashSet()) ??
@@ -66,7 +66,7 @@ namespace AdminStore.Services.Workflow
 
             entities?.ForEach(s =>
             {
-                ICollection<T> colToAddTo = null;
+                ICollection<T> colToAddTo;
                 if (!s.Id.HasValue)
                 {
                     colToAddTo = added;
@@ -78,28 +78,7 @@ namespace AdminStore.Services.Workflow
                 else
                 {
                     var currentState = currentEntities.First(cs => cs.Id == s.Id);
-                    switch (workflowMode)
-                    {
-                        case WorkflowMode.Xml:
-                            colToAddTo = s.Equals(currentState) ? unchanged : changed;
-                            break;
-                        case WorkflowMode.Canvas:
-                            if (s is IeState && currentState is IeState)
-                            {
-                                colToAddTo = (s as IeState).EqualsIncludingLocation(currentState as IeState) ? unchanged : changed;
-                            }
-                            else if (s is IeTransitionEvent && currentState is IeTransitionEvent)
-                            {
-                                colToAddTo = (s as IeTransitionEvent).EqualsIncludingPortPair(currentState as IeTransitionEvent) ? unchanged : changed;
-                            }
-                            else
-                            {
-                                colToAddTo = s.Equals(currentState) ? unchanged : changed;
-                            }
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(workflowMode));
-                    }
+                    colToAddTo = s.Equals(currentState) ? unchanged : changed;
                 }
 
                 colToAddTo.Add(s);

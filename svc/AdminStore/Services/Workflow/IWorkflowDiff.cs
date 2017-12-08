@@ -8,7 +8,7 @@ namespace AdminStore.Services.Workflow
     public interface IWorkflowDiff
     {
         // Id in IeProjects and GroupProjectId for groups in IeUserGroup should be filled in.
-        WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow, WorkflowMode workflowMode = WorkflowMode.Xml);
+        WorkflowDiffResult DiffWorkflows(IeWorkflow workflow, IeWorkflow currentWorkflow);
     }
 
     public class WorkflowDiffResult

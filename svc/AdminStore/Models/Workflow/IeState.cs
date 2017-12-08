@@ -61,7 +61,7 @@ namespace AdminStore.Models.Workflow
         {
             return Id.GetValueOrDefault() == other.Id.GetValueOrDefault() && string.Equals(Name, other.Name) &&
                    IsInitial.GetValueOrDefault() == other.IsInitial.GetValueOrDefault() &&
-                   Equals(Location ?? string.Empty, other.Location ?? string.Empty);
+                   string.Equals(Location ?? string.Empty, other.Location ?? string.Empty);
         }
 
         public override bool Equals(object obj)

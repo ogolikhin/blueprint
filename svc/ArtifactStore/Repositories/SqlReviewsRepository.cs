@@ -123,7 +123,8 @@ namespace ArtifactStore.Repositories
             }
             else
             {
-                reviewType = await GetReviewTypeAsync(containerId, userId);
+                // we use it only for review experience. There is no draft data in review experience, only published
+                reviewType = await GetReviewTypeAsync(containerId, userId, includeDrafts: false);
             }
 
             var reviewSummary = new ReviewSummary()
@@ -175,7 +176,7 @@ namespace ArtifactStore.Repositories
 
         private async Task<IEnumerable<ParticipantMeaningOfSignatureResult>> GetAssignedMeaningOfSignatures(int reviewId, int userId)
         {
-            var possibleMeaningOfSignaturesDictionary = await GetPossibleMeaningOfSignaturesForParticipantsAsync(new[] { userId });
+            var possibleMeaningOfSignaturesDictionary = await GetPossibleMeaningOfSignaturesForParticipantsAsync(reviewId, userId, new[] { userId }, false);
 
             if (!possibleMeaningOfSignaturesDictionary.ContainsKey(userId))
             {
@@ -884,7 +885,7 @@ namespace ArtifactStore.Repositories
                 var approverIds = participantsContent.Items.Where(p => p.Role == ReviewParticipantRole.Approver).Select(r => r.UserId).ToList();
 
                 var meaningOfSignatures = await GetMeaningOfSignaturesForParticipantsAsync(reviewId, userId, approverIds);
-                var possibleMeaningOfSignatures = await GetPossibleMeaningOfSignaturesForParticipantsAsync(participantsContent.Items.Select(r => r.UserId));
+                var possibleMeaningOfSignatures = await GetPossibleMeaningOfSignaturesForParticipantsAsync(reviewId, userId, participantsContent.Items.Select(r => r.UserId));
 
                 foreach (var reviewer in participantsContent.Items)
                 {
@@ -936,10 +937,13 @@ namespace ArtifactStore.Repositories
             return result.GroupBy(mos => mos.ParticipantId, mos => mos.RoleId).ToDictionary(grouping => grouping.Key, grouping => grouping.ToList());
         }
 
-        public async Task<Dictionary<int, List<ParticipantMeaningOfSignatureResult>>> GetPossibleMeaningOfSignaturesForParticipantsAsync(IEnumerable<int> participantIds)
+        public async Task<Dictionary<int, List<ParticipantMeaningOfSignatureResult>>> GetPossibleMeaningOfSignaturesForParticipantsAsync(int reviewId, int userId, IEnumerable<int> participantIds, bool includeDrafts = true)
         {
             var parameters = new DynamicParameters();
             parameters.Add("participantIds", SqlConnectionWrapper.ToDataTable(participantIds));
+            parameters.Add("reviewId", reviewId);
+            parameters.Add("userId", userId);
+            parameters.Add("addDrafts", true);
 
             var result = await _connectionWrapper.QueryAsync<ParticipantMeaningOfSignatureResult>("GetPossibleMeaningOfSignaturesForParticipants", parameters, commandType: CommandType.StoredProcedure);
 
@@ -1250,6 +1254,11 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewClosedException();
             }
 
+            if (review.ReviewStatus == ReviewPackageStatus.Active)
+            {
+                ReviewsExceptionHelper.VerifyNotLastApproverInFormalReview(removeParams, review);
+            }
+
             if (removeParams.SelectionType == SelectionType.Selected)
             {
                 reviewPackageRawData.Reviewers.RemoveAll(i => removeParams.ItemIds.Contains(i.UserId));
@@ -1489,11 +1498,6 @@ namespace ArtifactStore.Repositories
             if (reviewArtifactApprovalParameters.SelectionType == SelectionType.Excluded && reviewArtifactApprovalParameters.RevisionId == null)
             {
                 throw new BadRequestException("Not all parameters provided.", ErrorCodes.OutOfRangeParameter);
-            }
-
-            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
-            {
-                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
             var artifactIds = new List<int>();

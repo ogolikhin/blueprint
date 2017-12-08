@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
@@ -45,6 +46,7 @@ namespace AdminStore.Services.Workflow
         private const string Location = "200 200";
         private const DiagramPort FromPort = DiagramPort.Left;
         private const DiagramPort ToPort = DiagramPort.Right;
+        private Mock<IWorkflowDataValidator> _workflowDataValidatorMock;
 
         #endregion
 
@@ -70,12 +72,19 @@ namespace AdminStore.Services.Workflow
                 null,
                 _artifactRepository.Object);
 
+            _workflowDataValidatorMock = new Mock<IWorkflowDataValidator>();
+            _workflowDataValidatorMock
+                .Setup(q => q.ValidateUpdateDataAsync(It.IsAny<IeWorkflow>(), It.IsAny<ProjectTypes>()))
+                .ReturnsAsync(new WorkflowDataValidationResult());
+            typeof(WorkflowService)
+                .GetField("_workflowDataValidator", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.SetValue(_service, _workflowDataValidatorMock.Object);
+
             _workflow = new SqlWorkflow
             {
                 Name = "Workflow1",
                 Description = "Workflow1Description"
             };
-
             _workflowArtifactTypes = new List<SqlWorkflowArtifactTypes>
             {
                 new SqlWorkflowArtifactTypes
@@ -100,7 +109,6 @@ namespace AdminStore.Services.Workflow
                     ArtifactTypeId = 206
                 }
             };
-
             _workflowStates = new List<SqlState>
             {
                 new SqlState
@@ -119,7 +127,6 @@ namespace AdminStore.Services.Workflow
                     CanvasSettings = string.Empty
                 }
             };
-
             _workflowEvents = new List<SqlWorkflowEventData>
             {
                 new SqlWorkflowEventData
@@ -164,14 +171,11 @@ namespace AdminStore.Services.Workflow
                         "<TSR><TS><T><AEN><ES><E>test.com</E></ES><M>4QOTT0IR7W</M></AEN></T></TS></TSR>",
                 },
             };
-
             _userItems = new List<UserDto>();
             _userQueryResult = new QueryResult<UserDto>();
-
             _projectTypes = new ProjectTypes();
             _projectTypes.PropertyTypes.Add(new PropertyType { Name = "Property1", Id = 1 });
             _projectTypes.PropertyTypes.Add(new PropertyType { Name = "Property2", Id = 2 });
-
             _triggers = new List<IeTrigger> { new IeTrigger() };
         }
 
@@ -409,14 +413,12 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            var standardArtifactTypeIds = new HashSet<int> { 1, 2, 3 };
-            _artifactRepository.Setup(repo => repo.GetStandardProperties(standardArtifactTypeIds))
-                .ReturnsAsync(standardProperties);
+            var standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
 
             var result = (await _service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ToList();
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(standardProperties.Count, result.Count);
 
             var nameProperty = result.FirstOrDefault(x => x.Name == WorkflowConstants.PropertyNameName);
             Assert.IsNotNull(nameProperty);

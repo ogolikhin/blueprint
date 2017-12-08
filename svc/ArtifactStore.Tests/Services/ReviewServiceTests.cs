@@ -57,7 +57,7 @@ namespace ArtifactStore.Services
             _mockReviewRepository = new Mock<IReviewsRepository>();
 
             _mockReviewRepository
-                .Setup(m => m.GetPossibleMeaningOfSignaturesForParticipantsAsync(It.IsAny<IEnumerable<int>>()))
+                .Setup(m => m.GetPossibleMeaningOfSignaturesForParticipantsAsync(ReviewId, UserId, It.IsAny<IEnumerable<int>>(), It.IsAny<bool>()))
                 .ReturnsAsync(() => _possibleMeaningOfSignatures);
 
             _mockReviewRepository

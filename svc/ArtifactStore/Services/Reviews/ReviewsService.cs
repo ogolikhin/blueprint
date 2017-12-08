@@ -9,6 +9,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Services;
 
 namespace ArtifactStore.Services.Reviews
 {
@@ -20,6 +21,7 @@ namespace ArtifactStore.Services.Reviews
         private readonly IArtifactVersionsRepository _artifactVersionsRepository;
         private readonly ILockArtifactsRepository _lockArtifactsRepository;
         private readonly IItemInfoRepository _itemInfoRepository;
+        private readonly ICurrentDateTimeService _currentDateTimeService;
 
         public ReviewsService() : this(
             new SqlReviewsRepository(),
@@ -27,7 +29,8 @@ namespace ArtifactStore.Services.Reviews
             new SqlArtifactPermissionsRepository(),
             new SqlArtifactVersionsRepository(),
             new SqlLockArtifactsRepository(),
-            new SqlItemInfoRepository())
+            new SqlItemInfoRepository(),
+            new CurrentDateTimeService())
         {
         }
 
@@ -37,7 +40,8 @@ namespace ArtifactStore.Services.Reviews
             IArtifactPermissionsRepository permissionsRepository,
             IArtifactVersionsRepository artifactVersionsRepository,
             ILockArtifactsRepository lockArtifactsRepository,
-            IItemInfoRepository itemInfoRepository)
+            IItemInfoRepository itemInfoRepository,
+            ICurrentDateTimeService currentDateTimeService)
         {
             _reviewsRepository = reviewsRepository;
             _artifactRepository = artifactRepository;
@@ -45,6 +49,7 @@ namespace ArtifactStore.Services.Reviews
             _artifactVersionsRepository = artifactVersionsRepository;
             _lockArtifactsRepository = lockArtifactsRepository;
             _itemInfoRepository = itemInfoRepository;
+            _currentDateTimeService = currentDateTimeService;
         }
 
         public async Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int? versionId = null)
@@ -127,8 +132,13 @@ namespace ArtifactStore.Services.Reviews
             }
         }
 
-        private static void UpdateEndDate(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
+        private void UpdateEndDate(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
         {
+            if (updatedReviewSettings.EndDate.HasValue && updatedReviewSettings.EndDate <= _currentDateTimeService.GetUtcNow())
+            {
+                throw ReviewsExceptionHelper.ReviewExpiredException();
+            }
+
             reviewRawData.EndDate = updatedReviewSettings.EndDate;
         }
 

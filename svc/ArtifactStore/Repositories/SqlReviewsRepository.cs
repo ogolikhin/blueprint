@@ -429,7 +429,14 @@ namespace ArtifactStore.Repositories
             {
                 if (effectiveIds.IsBaselineAdded)
                 {
-                    throw ReviewsExceptionHelper.BaselineNotSealedException();
+                    return new AddArtifactsResult
+                    {
+                        ArtifactCount = 0,
+                        AlreadyIncludedArtifactCount = 0,
+                        NonexistentArtifactCount = 0,
+                        UnpublishedArtifactCount = 0,
+                        AddedArtifactIds = new List<int>()
+                    };
                 }
             }
 

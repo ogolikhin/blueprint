@@ -16,6 +16,10 @@ namespace AdminStore.Models.DiagramWorkflow
 
         public bool IsActive { get; set; }
 
+        public int NumberOfStates { get; set; }
+
+        public int NumberOfActions { get; set; }
+
         public bool IsContainsProcessArtifactType { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
+using AdminStore.Models;
 using AdminStore.Models.DiagramWorkflow;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
@@ -340,44 +341,9 @@ namespace AdminStore.Services.Workflow
         {
             var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
 
-            if (ieWorkflow == null)
-            {
-                return null;
-            }
+            var numberOfStatesAndActions = GetNumberOfStatesAndActions(ieWorkflow);
 
-            var numberStates = ieWorkflow.States?.Count ?? 0;
-
-            var transitionEventTriggersCount = 0;
-            if (ieWorkflow.TransitionEvents != null)
-            {
-                foreach (var transition in ieWorkflow.TransitionEvents)
-                {
-                    if (transition.Triggers != null)
-                        transitionEventTriggersCount += transition.Triggers.Count;
-                }
-            }
-
-            var propertyChangeEventTriggersCount = 0;
-            if (ieWorkflow.PropertyChangeEvents != null)
-            {
-                foreach (var propertyChangeEvent in ieWorkflow.PropertyChangeEvents)
-                {
-                    if (propertyChangeEvent.Triggers != null)
-                        propertyChangeEventTriggersCount += propertyChangeEvent.Triggers.Count;
-                }
-            }
-
-            var newArtifactEventTriggersCount = 0;
-            if (ieWorkflow.NewArtifactEvents != null)
-            {
-                foreach (var newArtifactEvent in ieWorkflow.NewArtifactEvents)
-                {
-                    if (newArtifactEvent.Triggers != null)
-                        newArtifactEventTriggersCount += newArtifactEvent.Triggers.Count;
-                }
-            }
-
-            var workflowDetailsDto = new WorkflowDetailsDto
+             var workflowDetailsDto = new WorkflowDetailsDto
             {
                 Name = ieWorkflow.Name,
                 Description = ieWorkflow.Description,
@@ -386,8 +352,8 @@ namespace AdminStore.Services.Workflow
                 VersionId = ieWorkflow.VersionId,
                 LastModified = ieWorkflow.LastModified,
                 LastModifiedBy = ieWorkflow.LastModifiedBy,
-                NumberOfActions = transitionEventTriggersCount + propertyChangeEventTriggersCount + newArtifactEventTriggersCount,
-                NumberOfStates = numberStates,
+                NumberOfActions = numberOfStatesAndActions.NumberOfActions,
+                NumberOfStates = numberOfStatesAndActions.NumberOfStates,
                 Projects = ieWorkflow.Projects?.Select(e => new WorkflowProjectDto { Id = e.Id.GetValueOrDefault(), Name = e.Path ?? string.Empty }).Distinct().ToList(),
                 ArtifactTypes = ieWorkflow.Projects?.Where(p => p.ArtifactTypes != null).SelectMany(e => e.ArtifactTypes).Select(t => new WorkflowArtifactTypeDto { Name = t.Name ?? string.Empty }).Distinct().ToList()
             };
@@ -669,6 +635,11 @@ namespace AdminStore.Services.Workflow
         {
             var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
             var dWorkflow = WorkflowHelper.MapIeWorkflowToDWorkflow(ieWorkflow);
+
+            var numberOfStatesAndActions = GetNumberOfStatesAndActions(ieWorkflow);
+            dWorkflow.NumberOfActions = numberOfStatesAndActions.NumberOfActions;
+            dWorkflow.NumberOfStates = numberOfStatesAndActions.NumberOfStates;
+
             return dWorkflow;
         }
 
@@ -1474,6 +1445,48 @@ namespace AdminStore.Services.Workflow
 
             var i = 1;
             workflowDiffResult.AddedStates?.ForEach(s => s.OrderIndex = changedMaxIndexOrder + 10 * i++);
+        }
+
+        private NumberOfStatesActions GetNumberOfStatesAndActions(IeWorkflow workflow)
+        {
+            if (workflow == null)
+            {
+                return null;
+            }
+
+            var numberStates = workflow.States?.Count ?? 0;
+
+            var transitionEventTriggersCount = 0;
+            if (workflow.TransitionEvents != null)
+            {
+                foreach (var transition in workflow.TransitionEvents)
+                {
+                    if (transition.Triggers != null)
+                        transitionEventTriggersCount += transition.Triggers.Count;
+                }
+            }
+
+            var propertyChangeEventTriggersCount = 0;
+            if (workflow.PropertyChangeEvents != null)
+            {
+                foreach (var propertyChangeEvent in workflow.PropertyChangeEvents)
+                {
+                    if (propertyChangeEvent.Triggers != null)
+                        propertyChangeEventTriggersCount += propertyChangeEvent.Triggers.Count;
+                }
+            }
+
+            var newArtifactEventTriggersCount = 0;
+            if (workflow.NewArtifactEvents != null)
+            {
+                foreach (var newArtifactEvent in workflow.NewArtifactEvents)
+                {
+                    if (newArtifactEvent.Triggers != null)
+                        newArtifactEventTriggersCount += newArtifactEvent.Triggers.Count;
+                }
+            }
+
+            return new NumberOfStatesActions { NumberOfActions = transitionEventTriggersCount + propertyChangeEventTriggersCount + newArtifactEventTriggersCount, NumberOfStates = numberStates };
         }
 
         #region Update workflow entities for the workflow update via the import.

@@ -78,18 +78,7 @@ namespace AdminStore.Services.Workflow
                 else
                 {
                     var currentState = currentEntities.First(cs => cs.Id == s.Id);
-                    if (s is IeState && currentState is IeState)
-                    {
-                        colToAddTo = (s as IeState).EqualsIncludingLocation(currentState as IeState) ? unchanged : changed;
-                    }
-                    else if (s is IeTransitionEvent && currentState is IeTransitionEvent)
-                    {
-                        colToAddTo = (s as IeTransitionEvent).EqualsIncludingPortPair(currentState as IeTransitionEvent) ? unchanged : changed;
-                    }
-                    else
-                    {
-                        colToAddTo = s.Equals(currentState) ? unchanged : changed;
-                    }
+                    colToAddTo = s.Equals(currentState) ? unchanged : changed;
                 }
 
                 colToAddTo.Add(s);

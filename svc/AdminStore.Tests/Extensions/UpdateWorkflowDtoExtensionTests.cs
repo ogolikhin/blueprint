@@ -1,5 +1,6 @@
 ﻿using System;
 using AdminStore.Helpers.Workflow;
+using AdminStore.Models.DTO;
 using AdminStore.Models.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Exceptions;

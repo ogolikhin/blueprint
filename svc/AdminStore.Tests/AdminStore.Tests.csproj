@@ -101,6 +101,7 @@
     <Compile Include="Controllers\InstanceControllerTests.cs" />
     <Compile Include="Controllers\UsersControllerTests.cs" />
     <Compile Include="Controllers\WorkflowControllerTest.cs" />
+    <Compile Include="Extensions\CopyWorkflowDtoExtensionTests.cs" />
     <Compile Include="Extensions\CreateWorkflowDtoExtensionTests.cs" />
     <Compile Include="Extensions\UpdateWorkflowDtoExtensionTests.cs" />
     <Compile Include="Helpers\EmailHelperTests.cs" />

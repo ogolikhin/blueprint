@@ -1,8 +1,7 @@
 ﻿namespace AdminStore.Models.DTO
 {
-    public class CreateWorkflowDto
+    public class CopyWorkflowDto
     {
         public string Name { get; set; }
-        public string Description { get; set; }
     }
 }

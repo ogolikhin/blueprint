@@ -12,6 +12,7 @@ using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models;
 using AdminStore.Models.DiagramWorkflow;
+using AdminStore.Models.DTO;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;

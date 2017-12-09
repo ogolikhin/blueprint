@@ -139,7 +139,7 @@
     <Compile Include="Models\DiagramWorkflow\DUsersGroups.cs" />
     <Compile Include="Models\DiagramWorkflow\DValidValue.cs" />
     <Compile Include="Helpers\JsonTypeConverter.cs" />
-    <Compile Include="Models\DTO\CopyWorkfloDto.cs" />
+    <Compile Include="Models\DTO\CopyWorkflowDto.cs" />
     <Compile Include="Models\DTO\CreateWorkflowDto.cs" />
     <Compile Include="Models\DTO\FolderDto.cs" />
     <Compile Include="Models\DTO\ProjectFolderSearchDto.cs" />
@@ -175,7 +175,7 @@
     <Compile Include="Models\DiagramWorkflow\DWorkflow.cs" />
     <Compile Include="Models\Workflow\XmlPortPair.cs" />
     <Compile Include="Models\Workflow\WorkflowDetailsDto.cs" />
-    <Compile Include="Models\Workflow\UpdateWorkflowDto.cs" />
+    <Compile Include="Models\DTO\UpdateWorkflowDto.cs" />
     <Compile Include="Models\Workflow\XmlStateCanvasSettings.cs" />
     <Compile Include="Models\Workflow\XmlTransitionCanvasSettings.cs" />
     <Compile Include="Services\Email\EmailClientExceptionHandler.cs" />

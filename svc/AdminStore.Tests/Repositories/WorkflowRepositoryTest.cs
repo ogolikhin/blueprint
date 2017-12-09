@@ -32,7 +32,7 @@ namespace AdminStore.Repositories
             _pagination = new Pagination() { Limit = int.MaxValue, Offset = 0 };
 
             _scope = new OperationScope() { Ids = _listArtifactTypesIds, SelectAll = false };
-            _copyWorkfloDto = new CopyWorkfloDto() { Name = "TestWorkflow" };
+            _copyWorkfloDto = new CopyWorkflowDto() { Name = "TestWorkflow" };
 
             _workflowStateIds = new List<int> { 1, 2, 3 };
             _workflowEventIds = new List<int> { 1, 2, 3 };
@@ -51,7 +51,7 @@ namespace AdminStore.Repositories
         private string _projectSearch = "test";
         private OperationScope _scope;
         private int _userId = 1;
-        private CopyWorkfloDto _copyWorkfloDto;
+        private CopyWorkflowDto _copyWorkfloDto;
         private IEnumerable<int> _workflowStateIds;
         private IEnumerable<int> _workflowEventIds;
         private const int PublishRevision = 12;

@@ -1,4 +1,4 @@
-﻿namespace AdminStore.Models.Workflow
+﻿namespace AdminStore.Models.DTO
 {
     public class UpdateWorkflowDto
     {

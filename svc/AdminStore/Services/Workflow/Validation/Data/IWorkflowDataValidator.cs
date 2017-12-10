@@ -2,7 +2,7 @@
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Models.ProjectMeta;
 
-namespace AdminStore.Services.Workflow
+namespace AdminStore.Services.Workflow.Validation.Data
 {
     public interface IWorkflowDataValidator
     {

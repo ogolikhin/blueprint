@@ -127,6 +127,7 @@
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
     <Compile Include="Services\Email\IncomingEmailServiceTests.cs" />
     <Compile Include="Services\Instance\EmailSettingsServiceTests.cs" />
+    <Compile Include="Services\Workflow\TriggerConverterTests.cs" />
     <Compile Include="Services\Workflow\Validation\Data\PropertyValue\ChoicePropertyValueValidatorTests.cs" />
     <Compile Include="Services\Workflow\Validation\Data\PropertyValue\DatePropertyValueValidatorTests.cs" />
     <Compile Include="Services\Workflow\Validation\Data\PropertyValue\NumberPropertyValueValidatorTests.cs" />

@@ -512,15 +512,24 @@ namespace AdminStore.Services.Workflow
 
                 if (pt.PrimitiveType == PropertyPrimitiveType.Choice)
                 {
-                    var vvMap = new Dictionary<string, int>();
+                    var validValuesById = new Dictionary<int, string>();
+                    var validValuesByValue = new Dictionary<string, int>();
+
                     pt.ValidValues?.ForEach(vv =>
                     {
-                        if (!vvMap.ContainsKey(vv.Value))
+                        if (!validValuesByValue.ContainsKey(vv.Value))
                         {
-                            vvMap.Add(vv.Value, vv.Id.GetValueOrDefault());
+                            validValuesByValue.Add(vv.Value, vv.Id.GetValueOrDefault());
+                        }
+
+                        if (vv.Id.HasValue && !validValuesById.ContainsKey(vv.Id.Value))
+                        {
+                            validValuesById.Add(vv.Id.Value, vv.Value);
                         }
                     });
-                    dataMaps.ValidValueMap.Add(pt.Id, vvMap);
+
+                    dataMaps.ValidValuesByValue.Add(pt.Id, validValuesByValue);
+                    dataMaps.ValidValuesById.Add(pt.Id, validValuesById);
                 }
             });
 

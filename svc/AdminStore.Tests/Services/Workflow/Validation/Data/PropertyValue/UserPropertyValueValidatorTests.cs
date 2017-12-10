@@ -246,6 +246,335 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
             Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById, _result.Errors.Single().ErrorCode);
         }
 
+        [TestMethod]
+        public void ValidatePropertyValue_UniqueUsers_Success()
+        {
+            // Arrange
+            _users.Add(new SqlUser { Login = "value1", UserId = 1 });
+            _users.Add(new SqlUser { Login = "value2", UserId = 2 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Name = "value1" },
+                        new IeUserGroup { Name = "value2" }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, true);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_UniqueGroups_Success()
+        {
+            // Arrange
+            _groups.Add(new SqlGroup { Name = "value1", GroupId = 1 });
+            _groups.Add(new SqlGroup { Name = "value2", GroupId = 2 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Name = "value1", IsGroup = true },
+                        new IeUserGroup { Name = "value2", IsGroup = true }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, true);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_UniqueUsersAndGroups_Success()
+        {
+            // Arrange
+            _users.Add(new SqlUser { Login = "value1", UserId = 1 });
+            _groups.Add(new SqlGroup { Name = "value2", GroupId = 1 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Name = "value1" },
+                        new IeUserGroup { Name = "value2", IsGroup = true }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, true);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_DuplicateUsers_Failure()
+        {
+            // Arrange
+            _users.Add(new SqlUser { Login = "value1", UserId = 1 });
+            _users.Add(new SqlUser { Login = "value2", UserId = 2 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Name = "value1" },
+                        new IeUserGroup { Name = "value1" }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, true);
+
+            // Assert
+            Assert.IsTrue(_result.HasErrors);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateUserOrGroupFound, _result.Errors.Single().ErrorCode);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_DuplicateGroups_Failure()
+        {
+            // Arrange
+            _groups.Add(new SqlGroup { Name = "value1", GroupId = 1 });
+            _groups.Add(new SqlGroup { Name = "value2", GroupId = 2 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Name = "value1", IsGroup = true },
+                        new IeUserGroup { Name = "value1", IsGroup = true }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, true);
+
+            // Assert
+            Assert.IsTrue(_result.HasErrors);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateUserOrGroupFound, _result.Errors.Single().ErrorCode);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_DuplicateUsersAndGroups_Success()
+        {
+            // Arrange
+            _users.Add(new SqlUser { Login = "value1", UserId = 1 });
+            _groups.Add(new SqlGroup { Name = "value1", GroupId = 1 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Name = "value1" },
+                        new IeUserGroup { Name = "value1", IsGroup = true }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, true);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_WithIds_UniqueUsers_Success()
+        {
+            // Arrange
+            _users.Add(new SqlUser { Login = "value1", UserId = 1 });
+            _users.Add(new SqlUser { Login = "value2", UserId = 2 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Id = 1, Name = "value1" },
+                        new IeUserGroup { Id = 2, Name = "value2" }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, false);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_WithIds_UniqueGroups_Success()
+        {
+            // Arrange
+            _groups.Add(new SqlGroup { Name = "value1", GroupId = 1 });
+            _groups.Add(new SqlGroup { Name = "value2", GroupId = 2 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Id = 1, Name = "value1", IsGroup = true },
+                        new IeUserGroup { Id = 2, Name = "value2", IsGroup = true }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, false);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_WithIds_UniqueGroupsWithSameName_Success()
+        {
+            // Arrange
+            _groups.Add(new SqlGroup { Name = "value1", GroupId = 1 });
+            _groups.Add(new SqlGroup { Name = "value1", GroupId = 2 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Id = 1, Name = "value1", IsGroup = true },
+                        new IeUserGroup { Id = 2, Name = "value1", IsGroup = true }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, false);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_WithIds_UniqueUsersAndGroups_Success()
+        {
+            // Arrange
+            _users.Add(new SqlUser { Login = "value1", UserId = 1 });
+            _groups.Add(new SqlGroup { Name = "value2", GroupId = 2 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Id = 1, Name = "value1" },
+                        new IeUserGroup { Id = 2, Name = "value2", IsGroup = true }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, false);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_WithIds_DuplicateUsers_Failure()
+        {
+            // Arrange
+            _users.Add(new SqlUser { Login = "value1", UserId = 1 });
+            _users.Add(new SqlUser { Login = "value2", UserId = 2 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Id = 1, Name = "value1" },
+                        new IeUserGroup { Id = 1, Name = "value1" }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, false);
+
+            // Assert
+            Assert.IsTrue(_result.HasErrors);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateUserOrGroupFound, _result.Errors.Single().ErrorCode);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_WithIds_DuplicateGroups_Failure()
+        {
+            // Arrange
+            _groups.Add(new SqlGroup { Name = "value1", GroupId = 1 });
+            _groups.Add(new SqlGroup { Name = "value2", GroupId = 2 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Id = 1, Name = "value1", IsGroup = true },
+                        new IeUserGroup { Id = 1, Name = "value1", IsGroup = true }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, false);
+
+            // Assert
+            Assert.IsTrue(_result.HasErrors);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateUserOrGroupFound, _result.Errors.Single().ErrorCode);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_WithIds_DuplicateUsersAndGroups_Success()
+        {
+            // Arrange
+            _users.Add(new SqlUser { Login = "value1", UserId = 1 });
+            _groups.Add(new SqlGroup { Name = "value1", GroupId = 1 });
+            var action = new IePropertyChangeAction
+            {
+                UsersGroups = new IeUsersGroups
+                {
+                    UsersGroups = new List<IeUserGroup>
+                    {
+                        new IeUserGroup { Id = 1, Name = "value1" },
+                        new IeUserGroup { Id = 1, Name = "value1", IsGroup = true }
+                    }
+                }
+            };
+
+            // Act
+            Validate(action, false);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
         private void Validate(IePropertyChangeAction action, bool ignoreIds)
         {
             var factory = new PropertyValueValidatorFactory();

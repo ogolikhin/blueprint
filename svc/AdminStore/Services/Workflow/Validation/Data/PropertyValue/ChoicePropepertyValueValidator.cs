@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AdminStore.Models.Workflow;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
@@ -66,6 +67,9 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
             var validValuesMap = propertyType.ValidValues.ToDictionary(vv => vv.Id, vv => vv.Value);
             var validValueValues = validValuesMap.Values.ToHashSet();
 
+            var processedValidValueIds = new HashSet<int>();
+            var processedValidValueValues = new HashSet<string>();
+
             foreach (var validValue in action.ValidValues)
             {
                 // Update Name where Id is present (to null if Id is not found)
@@ -82,6 +86,18 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                         return;
                     }
 
+                    if (processedValidValueIds.Contains(validValue.Id.Value))
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = action.PropertyName,
+                            ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateValidValueFound
+                        });
+                        return;
+                    }
+
+                    processedValidValueIds.Add(validValue.Id.Value);
+
                     validValue.Value = value;
                 }
 
@@ -93,6 +109,21 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                         ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundByValue
                     });
                     return;
+                }
+
+                if (_ignoreIds)
+                {
+                    if (processedValidValueValues.Contains(validValue.Value))
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = action.PropertyName,
+                            ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateValidValueFound
+                        });
+                        return;
+                    }
+
+                    processedValidValueValues.Add(validValue.Value);
                 }
             }
         }

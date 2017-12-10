@@ -9,8 +9,8 @@ namespace AdminStore.Services.Workflow
     {
         XmlWorkflowEventTriggers ToXmlModel(IEnumerable<IeTrigger> ieTriggers, WorkflowDataMaps dataMaps);
 
-        IEnumerable<IeTrigger> FromXmlModel(XmlWorkflowEventTriggers xmlTriggers, WorkflowDataNameMaps dataMaps,
-            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect);
+        IEnumerable<IeTrigger> FromXmlModel(
+            XmlWorkflowEventTriggers xmlTriggers, WorkflowDataNameMaps dataMaps, ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect);
     }
 
     public class WorkflowDataMaps
@@ -31,9 +31,13 @@ namespace AdminStore.Services.Workflow
         private IDictionary<Tuple<string, int?>, int> _groupMap;
         public IDictionary<Tuple<string, int?>, int> GroupMap => _groupMap ?? (_groupMap = new Dictionary<Tuple<string, int?>, int>());
 
+        // Key - Choice Property Type Id, Value - (Key - Valid Value Id, Valid Value)
+        private IDictionary<int, IDictionary<int, string>> _validValuesById;
+        public IDictionary<int, IDictionary<int, string>> ValidValuesById => _validValuesById ?? (_validValuesById = new Dictionary<int, IDictionary<int, string>>());
+
         // Key - Choice Property Type Id, Value - (Key - Valid Value, Valid Value Id)
-        private IDictionary<int, IDictionary<string, int>> _validValueMap;
-        public IDictionary<int, IDictionary<string, int>> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, IDictionary<string, int>>());
+        private IDictionary<int, IDictionary<string, int>> _validValuesByValue;
+        public IDictionary<int, IDictionary<string, int>> ValidValuesByValue => _validValuesByValue ?? (_validValuesByValue = new Dictionary<int, IDictionary<string, int>>());
     }
 
     public class WorkflowDataNameMaps
@@ -47,10 +51,7 @@ namespace AdminStore.Services.Workflow
         private IDictionary<int, string> _stateMap;
         public IDictionary<int, string> StateMap => _stateMap ?? (_stateMap = new Dictionary<int, string>());
 
-        // private IDictionary<int, IDictionary<int, string>> _validValueMap;
-        // public IDictionary<int, IDictionary<int, string>> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, IDictionary<int, string>>());
         private IDictionary<int, string> _validValueMap;
         public IDictionary<int, string> ValidValueMap => _validValueMap ?? (_validValueMap = new Dictionary<int, string>());
-
     }
 }

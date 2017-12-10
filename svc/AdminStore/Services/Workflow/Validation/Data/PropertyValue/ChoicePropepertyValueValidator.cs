@@ -46,8 +46,8 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                 return;
             }
 
-            if (propertyType.IsValidated.GetValueOrDefault() 
-                && !string.IsNullOrEmpty(action.PropertyValue) 
+            if (propertyType.IsValidated.GetValueOrDefault()
+                && !string.IsNullOrEmpty(action.PropertyValue)
                 && action.ValidValues.IsEmpty())
             {
                 result.Errors.Add(new WorkflowDataValidationError

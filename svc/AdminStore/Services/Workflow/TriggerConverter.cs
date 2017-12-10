@@ -36,14 +36,14 @@ namespace AdminStore.Services.Workflow
 
             var triggers = new List<IeTrigger>();
 
-                xmlTriggers.Triggers?.ForEach(t =>
+            xmlTriggers.Triggers?.ForEach(t =>
+            {
+                var trigger = FromXmlModel(t, dataMaps, userIdsToCollect, groupIdsToCollect);
+                if (trigger != null)
                 {
-                    var trigger = FromXmlModel(t, dataMaps, userIdsToCollect, groupIdsToCollect);
-                    if (trigger != null)
-                    {
-                        triggers.Add(trigger);
-                    }
-                });
+                    triggers.Add(trigger);
+                }
+            });
 
             return triggers;
         }
@@ -154,8 +154,6 @@ namespace AdminStore.Services.Workflow
                             ArtifactType = name
                         }
                         : null;
-                    break;
-                default:
                     break;
             }
 
@@ -340,35 +338,79 @@ namespace AdminStore.Services.Workflow
             }
             xmlAction.PropertyTypeId = propertyTypeId;
 
-            IDictionary<string, int> vvMap = null;
-            ieAction.ValidValues?.ForEach(vv =>
+            ToXmlModel(ieAction.ValidValues, propertyTypeId, ieAction.PropertyName, dataMaps, xmlAction);
+
+            return xmlAction;
+        }
+
+        private static void ToXmlModel(List<IeValidValue> validValues, int propertyTypeId, string propertyName,
+            WorkflowDataMaps dataMaps, XmlPropertyChangeAction xmlAction)
+        {
+            if (validValues == null || !validValues.Any())
             {
-                if (vvMap == null)
+                return;
+            }
+
+            IDictionary<int, string> validValuesById = null;
+            IDictionary<string, int> validValuesByValue = null;
+
+            validValues.ForEach(validValue =>
+            {
+                int validValueId;
+
+                if (validValue.Id.HasValue)
                 {
-                    if (!dataMaps.ValidValueMap.TryGetValue(propertyTypeId, out vvMap))
+                    if (validValuesById == null)
+                    {
+                        if (!dataMaps.ValidValuesById.TryGetValue(propertyTypeId, out validValuesById))
+                        {
+                            throw new ExceptionWithErrorCode(
+                                I18NHelper.FormatInvariant(
+                                    "Valid Values of Choice Standard Property Type '{0}' are not found.",
+                                    propertyName),
+                                ErrorCodes.UnexpectedError);
+                        }
+                    }
+
+                    if (!validValuesById.ContainsKey(validValue.Id.Value))
                     {
                         throw new ExceptionWithErrorCode(
                             I18NHelper.FormatInvariant(
-                                "Valid Values of Choice Standard Property Type '{0}' are not found.",
-                                ieAction.PropertyName),
+                                "Valid Value with id '{0}' of Choice Standard Property Type '{1}' is not found.",
+                                validValue.Id.Value,
+                                propertyName),
+                            ErrorCodes.UnexpectedError);
+                    }
+
+                    validValueId = validValue.Id.Value;
+                }
+                else
+                {
+                    if (validValuesByValue == null)
+                    {
+                        if (!dataMaps.ValidValuesByValue.TryGetValue(propertyTypeId, out validValuesByValue))
+                        {
+                            throw new ExceptionWithErrorCode(
+                                I18NHelper.FormatInvariant(
+                                    "Valid Values of Choice Standard Property Type '{0}' are not found.",
+                                    propertyName),
+                                ErrorCodes.UnexpectedError);
+                        }
+                    }
+
+                    if (!validValuesByValue.TryGetValue(validValue.Value, out validValueId))
+                    {
+                        throw new ExceptionWithErrorCode(
+                            I18NHelper.FormatInvariant(
+                                "Valid Value '{0}' of Choice Standard Property Type '{1}' is not found.",
+                                validValue.Value,
+                                propertyName),
                             ErrorCodes.UnexpectedError);
                     }
                 }
 
-                int vvId;
-                if (!vvMap.TryGetValue(vv.Value, out vvId))
-                {
-                    throw new ExceptionWithErrorCode(
-                        I18NHelper.FormatInvariant(
-                            "Valid Value '{0}' of Choice Standard Property Type '{1}' is not found.",
-                            vv.Value, ieAction.PropertyName),
-                        ErrorCodes.UnexpectedError);
-                }
-
-                (xmlAction.ValidValues ?? (xmlAction.ValidValues = new List<int>())).Add(vvId);
+                (xmlAction.ValidValues ?? (xmlAction.ValidValues = new List<int>())).Add(validValueId);
             });
-
-            return xmlAction;
         }
 
         private static XmlUsersGroups ToXmlModel(IeUsersGroups ieUsersGroups, WorkflowDataMaps dataMaps)

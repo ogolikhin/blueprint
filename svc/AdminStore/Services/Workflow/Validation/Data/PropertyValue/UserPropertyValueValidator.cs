@@ -71,6 +71,11 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                 return;
             }
 
+            var processedUserIds = new HashSet<int>();
+            var processedUserNames = new HashSet<string>();
+            var processedGroupIds = new HashSet<int>();
+            var processedGroupNames = new HashSet<string>();
+
             foreach (var userGroup in usersGroups)
             {
                 if (userGroup.IsGroup.GetValueOrDefault())
@@ -89,6 +94,19 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                             return;
                         }
 
+                        if (processedGroupIds.Contains(userGroup.Id.Value))
+                        {
+                            result.Errors.Add(new WorkflowDataValidationError
+                            {
+                                Element = action.PropertyName,
+                                ErrorCode = WorkflowDataValidationErrorCodes
+                                    .PropertyChangeActionDuplicateUserOrGroupFound
+                            });
+                            return;
+                        }
+
+                        processedGroupIds.Add(userGroup.Id.Value);
+
                         userGroup.Name = nameProject.Item1;
                     }
 
@@ -100,6 +118,21 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                             ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundByName
                         });
                         return;
+                    }
+
+                    if (_ignoreIds)
+                    {
+                        if (processedGroupNames.Contains(userGroup.Name))
+                        {
+                            result.Errors.Add(new WorkflowDataValidationError
+                            {
+                                Element = action.PropertyName,
+                                ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateUserOrGroupFound
+                            });
+                            return;
+                        }
+
+                        processedGroupNames.Add(userGroup.Name);
                     }
                 }
                 else
@@ -118,6 +151,18 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                             return;
                         }
 
+                        if (processedUserIds.Contains(userGroup.Id.Value))
+                        {
+                            result.Errors.Add(new WorkflowDataValidationError
+                            {
+                                Element = action.PropertyName,
+                                ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateUserOrGroupFound
+                            });
+                            return;
+                        }
+
+                        processedUserIds.Add(userGroup.Id.Value);
+
                         userGroup.Name = name;
                     }
 
@@ -130,6 +175,18 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                         });
                         return;
                     }
+
+                    if (processedUserNames.Contains(userGroup.Name))
+                    {
+                        result.Errors.Add(new WorkflowDataValidationError
+                        {
+                            Element = action.PropertyName,
+                            ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateUserOrGroupFound
+                        });
+                        return;
+                    }
+
+                    processedUserNames.Add(userGroup.Name);
                 }
             }
         }

@@ -22,6 +22,8 @@
         PropertyChangeActionUserNotFoundByName,
         PropertyChangeActionGroupNotFoundByName,
         PropertyChangeActionChoiceValueSpecifiedAsNotValidated,
+        PropertyChangeActionDuplicateValidValueFound,
+        PropertyChangeActionDuplicateUserOrGroupFound,
         PropertyChangeActionValidValueNotFoundByValue,
         PropertyChangeActionInvalidNumberFormat,
         PropertyChangeActionInvalidNumberDecimalPlaces,
@@ -52,6 +54,5 @@
         PropertyChangeActionValidValueNotFoundById,
         PropertyChangeActionGroupNotFoundById,
         PropertyChangeActionUserNotFoundById
-
     }
 }

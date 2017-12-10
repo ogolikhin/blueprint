@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow.Validation.Data.PropertyValue;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Models;
@@ -18,6 +19,7 @@ namespace AdminStore.Services.Workflow.Validation.Data
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<ISqlProjectMetaRepository> _projectMetadataRepositoryMock;
+        private Mock<IPropertyValueValidatorFactory> _propertyValueValidatorFactoryMock;
         private Mock<IPropertyValueValidator> _propertyValueValidatorMock;
         private Mock<WorkflowDataValidator> _dataValidatorMock;
 
@@ -28,11 +30,16 @@ namespace AdminStore.Services.Workflow.Validation.Data
             _usersRepositoryMock = new Mock<IUsersRepository>();
             _projectMetadataRepositoryMock = new Mock<ISqlProjectMetaRepository>();
             _propertyValueValidatorMock = new Mock<IPropertyValueValidator>();
+            _propertyValueValidatorFactoryMock = new Mock<IPropertyValueValidatorFactory>();
+            _propertyValueValidatorFactoryMock
+                .Setup(m => m.Create(It.IsAny<PropertyType>(), It.IsAny<IList<SqlUser>>(), It.IsAny<IList<SqlGroup>>(), It.IsAny<bool>()))
+                .Returns(() => _propertyValueValidatorMock.Object);
+
             _dataValidatorMock = new Mock<WorkflowDataValidator>(
                 _workflowRepositoryMock.Object,
                 _usersRepositoryMock.Object,
                 _projectMetadataRepositoryMock.Object,
-                _propertyValueValidatorMock.Object)
+                _propertyValueValidatorFactoryMock.Object)
             {
                 CallBase = true
             };
@@ -289,10 +296,10 @@ namespace AdminStore.Services.Workflow.Validation.Data
             result.StandardTypes.ArtifactTypes.Add(itemType);
             result.AssociatedArtifactTypeIds.Add(itemType.Id);
             var action = new IePropertyChangeAction { PropertyName = propertyName };
-            var errorCode = WorkflowDataValidationErrorCodes.ProjectByIdNotFound;
+            const WorkflowDataValidationErrorCodes errorCode = WorkflowDataValidationErrorCodes.ProjectByIdNotFound;
             _propertyValueValidatorMock
-                .Setup(m => m.Validate(action, propertyType, It.IsAny<IList<SqlUser>>(), It.IsAny<IList<SqlGroup>>(), It.IsAny<bool>(), result))
-                .Callback(() => result.Errors.Add(new WorkflowDataValidationError { Element = action.PropertyName, ErrorCode = errorCode }));
+                .Setup(m => m.Validate(action, propertyType, result))
+                .Callback(() => result.Errors.Add(new WorkflowDataValidationError { Element = propertyName, ErrorCode = errorCode }));
 
             // Act
             _dataValidatorMock.Object.ValidatePropertyChangeActionData(result, action, true);

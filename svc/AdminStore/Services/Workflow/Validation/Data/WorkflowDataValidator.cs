@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow.Validation.Data.PropertyValue;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
@@ -18,18 +19,18 @@ namespace AdminStore.Services.Workflow.Validation.Data
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IUsersRepository _userRepository;
         private readonly ISqlProjectMetaRepository _projectMetaRepository;
-        private readonly IPropertyValueValidator _propertyValueValidator;
+        private readonly IPropertyValueValidatorFactory _propertyValueValidatorFactory;
 
         public WorkflowDataValidator(
             IWorkflowRepository workflowRepository,
             IUsersRepository userRepository,
             ISqlProjectMetaRepository projectMetaRepository,
-            IPropertyValueValidator propertyValueValidator)
+            IPropertyValueValidatorFactory propertyValueValidatorFactory)
         {
             _workflowRepository = workflowRepository;
             _userRepository = userRepository;
             _projectMetaRepository = projectMetaRepository;
-            _propertyValueValidator = propertyValueValidator;
+            _propertyValueValidatorFactory = propertyValueValidatorFactory;
         }
 
         #region Interface Implementation
@@ -665,11 +666,11 @@ namespace AdminStore.Services.Workflow.Validation.Data
                 return;
             }
 
-            _propertyValueValidator.Validate(action, propertyType, result.Users, result.Groups, ignoreIds, result);
+            var propertyValueValidator = _propertyValueValidatorFactory.Create(propertyType, result.Users, result.Groups, ignoreIds);
+            propertyValueValidator.Validate(action, propertyType, result);
         }
 
-        public virtual void ValidateGenerateActionData(WorkflowDataValidationResult result, IeGenerateAction action,
-            bool ignoreIds)
+        public virtual void ValidateGenerateActionData(WorkflowDataValidationResult result, IeGenerateAction action, bool ignoreIds)
         {
             if (action == null)
             {
@@ -685,6 +686,7 @@ namespace AdminStore.Services.Workflow.Validation.Data
                 case GenerateActionTypes.TestCases:
                     // No data validation is required.
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.GenerateActionType));
             }

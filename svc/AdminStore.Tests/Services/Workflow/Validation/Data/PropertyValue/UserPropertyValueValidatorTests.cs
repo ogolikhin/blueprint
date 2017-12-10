@@ -6,13 +6,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.ProjectMeta;
 
-namespace AdminStore.Services.Workflow.Validation.Data
+namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
 {
     [TestClass]
     public class UserPropertyValueValidatorTests
     {
         private WorkflowDataValidationResult _result;
-        private PropertyValueValidator _propertyValueValidator;
         private PropertyType _propertyType;
         private List<SqlUser> _users;
         private List<SqlGroup> _groups;
@@ -21,7 +20,6 @@ namespace AdminStore.Services.Workflow.Validation.Data
         public void Initialize()
         {
             _result = new WorkflowDataValidationResult();
-            _propertyValueValidator = new PropertyValueValidator();
             _propertyType = new PropertyType { PrimitiveType = PropertyPrimitiveType.User };
             _users = new List<SqlUser>();
             _groups = new List<SqlGroup>();
@@ -250,7 +248,9 @@ namespace AdminStore.Services.Workflow.Validation.Data
 
         private void Validate(IePropertyChangeAction action, bool ignoreIds)
         {
-            _propertyValueValidator.Validate(action, _propertyType, _users, _groups, ignoreIds, _result);
+            var factory = new PropertyValueValidatorFactory();
+            var validator = factory.Create(_propertyType, _users, _groups, ignoreIds);
+            validator.Validate(action, _propertyType, _result);
         }
     }
 }

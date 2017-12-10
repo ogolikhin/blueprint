@@ -127,11 +127,11 @@
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
     <Compile Include="Services\Email\IncomingEmailServiceTests.cs" />
     <Compile Include="Services\Instance\EmailSettingsServiceTests.cs" />
-    <Compile Include="Services\Workflow\Validation\Data\ChoicePropertyValueValidatorTests.cs" />
-    <Compile Include="Services\Workflow\Validation\Data\DatePropertyValueValidatorTests.cs" />
-    <Compile Include="Services\Workflow\Validation\Data\NumberPropertyValueValidatorTests.cs" />
-    <Compile Include="Services\Workflow\Validation\Data\TextPropertyValueValidatorTests.cs" />
-    <Compile Include="Services\Workflow\Validation\Data\UserPropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValue\ChoicePropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValue\DatePropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValue\NumberPropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValue\TextPropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValue\UserPropertyValueValidatorTests.cs" />
     <Compile Include="Services\Workflow\WorkflowDiffTests.cs" />
     <Compile Include="Services\Workflow\WorkflowServiceTest.cs" />
     <Compile Include="Services\Workflow\Validation\Data\WorkflowDataValidatorTests.cs" />

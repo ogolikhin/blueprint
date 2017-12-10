@@ -4,20 +4,18 @@ using AdminStore.Models.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models.ProjectMeta;
 
-namespace AdminStore.Services.Workflow.Validation.Data
+namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
 {
     [TestClass]
     public class NumberPropertyValueValidatorTests
     {
         private WorkflowDataValidationResult _result;
-        private PropertyValueValidator _propertyValueValidator;
         private PropertyType _propertyType;
 
         [TestInitialize]
         public void Initialize()
         {
             _result = new WorkflowDataValidationResult();
-            _propertyValueValidator = new PropertyValueValidator();
             _propertyType = new PropertyType { PrimitiveType = PropertyPrimitiveType.Number };
         }
 
@@ -195,7 +193,9 @@ namespace AdminStore.Services.Workflow.Validation.Data
 
         private void Validate(IePropertyChangeAction action, bool ignoreIds)
         {
-            _propertyValueValidator.Validate(action, _propertyType, null, null, ignoreIds, _result);
+            var factory = new PropertyValueValidatorFactory();
+            var validator = factory.Create(_propertyType, null, null, ignoreIds);
+            validator.Validate(action, _propertyType, _result);
         }
     }
 }

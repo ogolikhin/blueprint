@@ -127,12 +127,16 @@
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
     <Compile Include="Services\Email\IncomingEmailServiceTests.cs" />
     <Compile Include="Services\Instance\EmailSettingsServiceTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\ChoicePropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\DatePropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\NumberPropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\TextPropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\UserPropertyValueValidatorTests.cs" />
     <Compile Include="Services\Workflow\WorkflowDiffTests.cs" />
     <Compile Include="Services\Workflow\WorkflowServiceTest.cs" />
-    <Compile Include="Services\Workflow\WorkflowActionPropertyValueValidatorTests.cs" />
-    <Compile Include="Services\Workflow\WorkflowDataValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\WorkflowDataValidatorTests.cs" />
     <Compile Include="Services\Workflow\WorkflowTestHelper.cs" />
-    <Compile Include="Services\Workflow\WorkflowXmlValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Xml\WorkflowXmlValidatorTests.cs" />
     <Compile Include="Utilities\SamlUtilities.cs" />
   </ItemGroup>
   <ItemGroup>

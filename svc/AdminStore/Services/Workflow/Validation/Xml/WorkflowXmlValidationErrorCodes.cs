@@ -1,22 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace AdminStore.Services.Workflow
+﻿namespace AdminStore.Services.Workflow.Validation.Xml
 {
-    public class WorkflowXmlValidationResult
-    {
-        public bool HasErrors => Errors.Any();
-
-        private List<WorkflowXmlValidationError> _errors;
-        public List<WorkflowXmlValidationError> Errors => _errors ?? (_errors = new List<WorkflowXmlValidationError>());
-    }
-
-    public class WorkflowXmlValidationError
-    {
-        public object Element { get; set; }
-        public WorkflowXmlValidationErrorCodes ErrorCode { get; set; }
-    }
-
     public enum WorkflowXmlValidationErrorCodes
     {
         WorkflowXmlSerializationError,

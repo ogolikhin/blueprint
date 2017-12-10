@@ -4,11 +4,8 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models;
 using AdminStore.Models.DiagramWorkflow;
@@ -16,6 +13,9 @@ using AdminStore.Models.DTO;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow.Validation;
+using AdminStore.Services.Workflow.Validation.Data;
+using AdminStore.Services.Workflow.Validation.Xml;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -40,7 +40,7 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowValidationErrorBuilder _workflowValidationErrorBuilder;
         private readonly ISqlProjectMetaRepository _projectMetaRepository;
         private readonly ITriggerConverter _triggerConverter;
-        private readonly IWorkflowActionPropertyValueValidator _propertyValueValidator;
+        private readonly IPropertyValueValidator _propertyValueValidator;
         private readonly IWorkflowDiff _workflowDiff;
         private readonly IArtifactRepository _artifactRepository;
 
@@ -54,7 +54,7 @@ namespace AdminStore.Services.Workflow
                   new WorkflowValidationErrorBuilder(),
                   new SqlProjectMetaRepository(),
                   new TriggerConverter(),
-                  new WorkflowActionPropertyValueValidator(),
+                  new PropertyValueValidator(),
                   new WorkflowDiff(),
                   new SqlArtifactRepository())
         {
@@ -73,7 +73,7 @@ namespace AdminStore.Services.Workflow
             IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
             ISqlProjectMetaRepository projectMetaRepository,
             ITriggerConverter triggerConverter,
-            IWorkflowActionPropertyValueValidator propertyValueValidator,
+            IPropertyValueValidator propertyValueValidator,
             IWorkflowDiff workflowDiff,
             IArtifactRepository artifactRepository)
         {

@@ -11,20 +11,20 @@ using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
 
-namespace AdminStore.Services.Workflow
+namespace AdminStore.Services.Workflow.Validation.Data
 {
     public class WorkflowDataValidator : IWorkflowDataValidator
     {
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IUsersRepository _userRepository;
         private readonly ISqlProjectMetaRepository _projectMetaRepository;
-        private readonly IWorkflowActionPropertyValueValidator _propertyValueValidator;
+        private readonly IPropertyValueValidator _propertyValueValidator;
 
         public WorkflowDataValidator(
             IWorkflowRepository workflowRepository,
             IUsersRepository userRepository,
             ISqlProjectMetaRepository projectMetaRepository,
-            IWorkflowActionPropertyValueValidator propertyValueValidator)
+            IPropertyValueValidator propertyValueValidator)
         {
             _workflowRepository = workflowRepository;
             _userRepository = userRepository;
@@ -665,16 +665,7 @@ namespace AdminStore.Services.Workflow
                 return;
             }
 
-            WorkflowDataValidationErrorCodes? errorCode;
-            if (!_propertyValueValidator.ValidatePropertyValue(action, propertyType,
-                result.Users, result.Groups, ignoreIds, out errorCode))
-            {
-                result.Errors.Add(new WorkflowDataValidationError
-                {
-                    Element = action.PropertyName,
-                    ErrorCode = errorCode.Value
-                });
-            }
+            _propertyValueValidator.Validate(action, propertyType, result.Users, result.Groups, ignoreIds, result);
         }
 
         public virtual void ValidateGenerateActionData(WorkflowDataValidationResult result, IeGenerateAction action,

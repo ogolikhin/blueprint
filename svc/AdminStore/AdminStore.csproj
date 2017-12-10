@@ -294,21 +294,25 @@
     <Compile Include="Services\Instance\IInstanceService.cs" />
     <Compile Include="Services\Instance\InstanceService.cs" />
     <Compile Include="Services\Workflow\ITriggerConverter.cs" />
-    <Compile Include="Services\Workflow\IWorkflowActionPropertyValueValidator.cs" />
-    <Compile Include="Services\Workflow\IWorkflowDataValidator.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\IPropertyValueValidator.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\IWorkflowDataValidator.cs" />
     <Compile Include="Services\Workflow\IWorkflowDiff.cs" />
     <Compile Include="Services\Workflow\IWorkflowService.cs" />
-    <Compile Include="Services\Workflow\IWorkflowValidationErrorBuilder.cs" />
-    <Compile Include="Services\Workflow\IWorkflowXmlValidator.cs" />
+    <Compile Include="Services\Workflow\Validation\IWorkflowValidationErrorBuilder.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\WorkflowDataValidationError.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\WorkflowDataValidationErrorCodes.cs" />
+    <Compile Include="Services\Workflow\Validation\Xml\IWorkflowXmlValidator.cs" />
     <Compile Include="Services\Workflow\TriggerConverter.cs" />
-    <Compile Include="Services\Workflow\WorkflowActionPropertyValueValidator.cs" />
-    <Compile Include="Services\Workflow\WorkflowDataValidationResult.cs" />
-    <Compile Include="Services\Workflow\WorkflowDataValidator.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValueValidator.cs" />
+    <Compile Include="Services\Workflow\Validation\Xml\WorkflowXmlValidationError.cs" />
+    <Compile Include="Services\Workflow\Validation\Xml\WorkflowXmlValidationErrorCodes.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\WorkflowDataValidationResult.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\WorkflowDataValidator.cs" />
     <Compile Include="Services\Workflow\WorkflowDiff.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />
-    <Compile Include="Services\Workflow\WorkflowValidationErrorBuilder.cs" />
-    <Compile Include="Services\Workflow\WorkflowXmlValidationResult.cs" />
-    <Compile Include="Services\Workflow\WorkflowXmlValidator.cs" />
+    <Compile Include="Services\Workflow\Validation\WorkflowValidationErrorBuilder.cs" />
+    <Compile Include="Services\Workflow\Validation\Xml\WorkflowXmlValidationResult.cs" />
+    <Compile Include="Services\Workflow\Validation\Xml\WorkflowXmlValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">

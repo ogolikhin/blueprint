@@ -5,9 +5,11 @@ using System.Linq;
 using System.Text;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
+using AdminStore.Services.Workflow.Validation.Data;
+using AdminStore.Services.Workflow.Validation.Xml;
 using ServiceLibrary.Helpers;
 
-namespace AdminStore.Services.Workflow
+namespace AdminStore.Services.Workflow.Validation
 {
     public class WorkflowValidationErrorBuilder : IWorkflowValidationErrorBuilder
     {

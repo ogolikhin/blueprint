@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using AdminStore.Services.Workflow.Validation.Data;
+using AdminStore.Services.Workflow.Validation.Xml;
 
-namespace AdminStore.Services.Workflow
+namespace AdminStore.Services.Workflow.Validation
 {
     public interface IWorkflowValidationErrorBuilder
     {

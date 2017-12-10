@@ -8,7 +8,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 
-namespace AdminStore.Services.Workflow
+namespace AdminStore.Services.Workflow.Validation.Xml
 {
     public class WorkflowXmlValidator : IWorkflowXmlValidator
     {

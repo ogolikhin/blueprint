@@ -46,8 +46,8 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                 return;
             }
 
-            if (propertyType.IsValidated.GetValueOrDefault()
-                && !string.IsNullOrEmpty(action.PropertyValue)
+            if (propertyType.IsValidated.GetValueOrDefault() 
+                && !string.IsNullOrEmpty(action.PropertyValue) 
                 && action.ValidValues.IsEmpty())
             {
                 result.Errors.Add(new WorkflowDataValidationError
@@ -60,6 +60,18 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
 
             if (action.ValidValues == null || !action.ValidValues.Any())
             {
+                return;
+            }
+
+            var hasDuplicateValidValues = !_ignoreIds && action.ValidValues.GroupBy(vv => vv.Id.Value).Any(g => g.Count() > 1) ||
+                                           _ignoreIds && action.ValidValues.GroupBy(vv => vv.Value).Any(g => g.Count() > 1);
+            if (hasDuplicateValidValues)
+            {
+                result.Errors.Add(new WorkflowDataValidationError
+                {
+                    Element = action.PropertyName,
+                    ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateValidValueFound
+                });
                 return;
             }
 

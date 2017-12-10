@@ -108,6 +108,116 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
         }
 
         [TestMethod]
+        public void ValidatePropertyValue_Choice_UniqueValidValues_Success()
+        {
+            // Arrange
+            _propertyType.IsRequired = true;
+            _propertyType.IsMultipleAllowed = true;
+            _propertyType.ValidValues = new List<ValidValue>
+            {
+                new ValidValue { Id = 1, Value = "value1" },
+                new ValidValue { Id = 2, Value = "value2" }
+            };
+            var action = new IePropertyChangeAction
+            {
+                ValidValues = new List<IeValidValue>
+                {
+                    new IeValidValue { Value = "value1" },
+                    new IeValidValue { Value = "value2" }
+                }
+            };
+
+            // Act
+            Validate(action, true);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Choice_DuplicateValidValues_Success()
+        {
+            // Arrange
+            _propertyType.IsRequired = true;
+            _propertyType.IsMultipleAllowed = true;
+            _propertyType.ValidValues = new List<ValidValue>
+            {
+                new ValidValue { Id = 1, Value = "value1" },
+                new ValidValue { Id = 2, Value = "value2" }
+            };
+            var action = new IePropertyChangeAction
+            {
+                ValidValues = new List<IeValidValue>
+                {
+                    new IeValidValue { Value = "value2" },
+                    new IeValidValue { Value = "value2" }
+                }
+            };
+
+            // Act
+            Validate(action, true);
+
+            // Assert
+            Assert.IsTrue(_result.HasErrors);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateValidValueFound, _result.Errors.Single().ErrorCode);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Choice_WithIds_DuplicateValidValues_Failure()
+        {
+            // Arrange
+            _propertyType.IsRequired = true;
+            _propertyType.IsMultipleAllowed = true;
+            _propertyType.ValidValues = new List<ValidValue>
+            {
+                new ValidValue { Id = 1, Value = "value" },
+                new ValidValue { Id = 2, Value = "value" }
+            };
+            var action = new IePropertyChangeAction
+            {
+                ValidValues = new List<IeValidValue>
+                {
+                    new IeValidValue { Id = 1, Value = "value" },
+                    new IeValidValue { Id = 1, Value = "value" }
+                }
+            };
+
+            // Act
+            Validate(action, false);
+
+            // Assert
+            Assert.IsTrue(_result.HasErrors);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateValidValueFound, _result.Errors.Single().ErrorCode);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Choice_WithIds_UniqueValidValues_Success()
+        {
+            // Arrange
+            _propertyType.IsRequired = true;
+            _propertyType.IsMultipleAllowed = true;
+            _propertyType.ValidValues = new List<ValidValue>
+            {
+                new ValidValue { Id = 1, Value = "value" },
+                new ValidValue { Id = 2, Value = "value" }
+            };
+            var action = new IePropertyChangeAction
+            {
+                ValidValues = new List<IeValidValue>
+                {
+                    new IeValidValue { Id = 1, Value = "value" },
+                    new IeValidValue { Id = 2, Value = "value" }
+                }
+            };
+
+            // Act
+            Validate(action, false);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
+        }
+
+        [TestMethod]
         public void ValidatePropertyValue_Choice_ValidatedSpecifiedAsNotValidated_Failure()
         {
             // Arrange

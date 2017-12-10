@@ -23,6 +23,7 @@
         PropertyChangeActionGroupNotFoundByName,
         PropertyChangeActionChoiceValueSpecifiedAsNotValidated,
         PropertyChangeActionDuplicateValidValueFound,
+        PropertyChangeActionDuplicateUserOrGroupFound,
         PropertyChangeActionValidValueNotFoundByValue,
         PropertyChangeActionInvalidNumberFormat,
         PropertyChangeActionInvalidNumberDecimalPlaces,

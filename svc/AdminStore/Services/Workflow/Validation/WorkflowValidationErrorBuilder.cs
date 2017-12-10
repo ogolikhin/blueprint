@@ -109,6 +109,7 @@ namespace AdminStore.Services.Workflow.Validation
         private const string TemplateDataPropertyChangeActionGroupNotFoundByName = "<PropertyChangeAction> elements: The name of one or more groups defined for property '{0}' were not found.";
         private const string TemplateDataPropertyChangeActionChoiceValueSpecifiedAsNotValidated = "<PropertyChangeAction> element: The value of choice property '{0}' is not valid.";
         private const string TemplateDataPropertyChangeActionDuplicateValidValueFound = "<PropertyChangeAction> elements: One or more values of choice property '{0}' were duplicated.";
+        private const string TemplateDataPropertyChangeActionDuplicateUserOrGroupFound = "<PropertyChangeAction> elements: One or more values of user property '{0}' were duplicated.";
         private const string TemplateDataPropertyChangeActionValidValueNotFoundByValue = "<PropertyChangeAction> elements: One or more values of choice property ‘{0}’ were not found.";
         private const string TemplateDataPropertyChangeActionInvalidNumberFormat = "<PropertyChangeAction> element: The value for number property '{0}' is of an invalid number format.";
         private const string TemplateDataPropertyChangeActionInvalidNumberDecimalPlaces = "<PropertyChangeAction> element: The value for number property '{0}' has an invalid number of decimal places.";
@@ -586,6 +587,10 @@ namespace AdminStore.Services.Workflow.Validation
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateValidValueFound:
                     template = TemplateDataPropertyChangeActionDuplicateValidValueFound;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateUserOrGroupFound:
+                    template = TemplateDataPropertyChangeActionDuplicateUserOrGroupFound;
                     errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundByValue:

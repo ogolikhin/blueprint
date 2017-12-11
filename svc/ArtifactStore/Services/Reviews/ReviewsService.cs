@@ -63,28 +63,11 @@ namespace ArtifactStore.Services.Reviews
             }
 
             var reviewData = await _reviewsRepository.GetReviewAsync(reviewId, userId, revisionId);
-            var reviewSettings = new ReviewSettings(reviewData.ReviewPackageRawData);
 
-            var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId, revisionId);
-
-            // We never ignore folders for formal reviews - Jira Bug STOR-4636
-            reviewSettings.IgnoreFolders = reviewType == ReviewType.Formal ? false : reviewSettings.IgnoreFolders;
-
-            reviewSettings.CanEditRequireESignature = reviewData.ReviewStatus == ReviewPackageStatus.Draft
-                || (reviewData.ReviewStatus == ReviewPackageStatus.Active && reviewType != ReviewType.Formal);
-
-            var projectPermissions = await _permissionsRepository.GetProjectPermissions(reviewInfo.ProjectId);
-
-            reviewSettings.IsMeaningOfSignatureEnabledInProject =
-                projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
-
-            reviewSettings.CanEditRequireMeaningOfSignature = reviewSettings.CanEditRequireESignature
-                && reviewSettings.IsMeaningOfSignatureEnabledInProject;
-
-            return reviewSettings;
+            return await GetReviewSettingsFromReviewData(reviewData, reviewInfo);
         }
 
-        public async Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId)
+        public async Task<ReviewSettings> UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, bool autoSave, int userId)
         {
             var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
 
@@ -102,16 +85,39 @@ namespace ArtifactStore.Services.Reviews
 
             await LockReviewAsync(reviewId, userId, reviewInfo);
 
-            UpdateEndDate(updatedReviewSettings, reviewData.ReviewPackageRawData);
+            UpdateEndDate(updatedReviewSettings, autoSave, reviewData.ReviewPackageRawData);
             UpdateShowOnlyDescription(updatedReviewSettings, reviewData.ReviewPackageRawData);
             UpdateCanMarkAsComplete(reviewId, updatedReviewSettings, reviewData.ReviewPackageRawData);
 
-            var reviewType = await _reviewsRepository.GetReviewTypeAsync(reviewId, userId);
-
-            UpdateRequireESignature(reviewType, updatedReviewSettings, reviewData.ReviewPackageRawData);
-            await UpdateRequireMeaningOfSignatureAsync(reviewInfo.ItemId, userId, reviewInfo.ProjectId, reviewType, updatedReviewSettings, reviewData.ReviewPackageRawData);
+            UpdateRequireESignature(reviewData.ReviewType, updatedReviewSettings, reviewData.ReviewPackageRawData);
+            await UpdateRequireMeaningOfSignatureAsync(reviewInfo.ItemId, userId, reviewInfo.ProjectId, reviewData.ReviewType, updatedReviewSettings, reviewData.ReviewPackageRawData);
 
             await _reviewsRepository.UpdateReviewPackageRawDataAsync(reviewId, reviewData.ReviewPackageRawData, userId);
+
+            return await GetReviewSettingsFromReviewData(reviewData, reviewInfo);
+        }
+
+        private async Task<ReviewSettings> GetReviewSettingsFromReviewData(Review reviewData, ArtifactBasicDetails reviewInfo)
+        {
+            var reviewSettings = new ReviewSettings(reviewData.ReviewPackageRawData);
+
+            var reviewType = reviewData.ReviewType;
+
+            // We never ignore folders for formal reviews - Jira Bug STOR-4636
+            reviewSettings.IgnoreFolders = reviewType != ReviewType.Formal && reviewSettings.IgnoreFolders;
+
+            reviewSettings.CanEditRequireESignature = reviewData.ReviewStatus == ReviewPackageStatus.Draft
+                                                      || (reviewData.ReviewStatus == ReviewPackageStatus.Active && reviewType != ReviewType.Formal);
+
+            var projectPermissions = await _permissionsRepository.GetProjectPermissions(reviewInfo.ProjectId);
+
+            reviewSettings.IsMeaningOfSignatureEnabledInProject =
+                projectPermissions.HasFlag(ProjectPermissions.IsMeaningOfSignatureEnabled);
+
+            reviewSettings.CanEditRequireMeaningOfSignature = reviewSettings.CanEditRequireESignature
+                                                              && reviewSettings.IsMeaningOfSignatureEnabledInProject;
+
+            return reviewSettings;
         }
 
         private async Task LockReviewAsync(int reviewId, int userId, ArtifactBasicDetails reviewInfo)
@@ -132,10 +138,15 @@ namespace ArtifactStore.Services.Reviews
             }
         }
 
-        private void UpdateEndDate(ReviewSettings updatedReviewSettings, ReviewPackageRawData reviewRawData)
+        private void UpdateEndDate(ReviewSettings updatedReviewSettings, bool autoSave, ReviewPackageRawData reviewRawData)
         {
             if (updatedReviewSettings.EndDate.HasValue && updatedReviewSettings.EndDate <= _currentDateTimeService.GetUtcNow())
             {
+                if (autoSave)
+                {
+                    return;
+                }
+
                 throw ReviewsExceptionHelper.ReviewExpiredException();
             }
 

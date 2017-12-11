@@ -493,7 +493,24 @@ namespace ArtifactStore.Services
         public async Task GetReviewSettingsAsync_FormalActiveReview_CanEditRequireESignatureIsFalse()
         {
             // Arrange
-            _reviewType = ReviewType.Formal;
+            // Make formal review
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact
+                {
+                    Id = 1,
+                    ApprovalNotRequested = null
+                }
+            };
+            _review.ReviewPackageRawData.Reviewers = _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            {
+                new ReviewerRawData
+                {
+                    UserId = 2,
+                    Permission = ReviewParticipantRole.Approver
+                }
+            };
+
             _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
 
             // Act
@@ -594,7 +611,23 @@ namespace ArtifactStore.Services
         public async Task GetReviewSettingsAsync_ActiveFormalReview_CanEditRequireMeaningOfSignatureIsFalse()
         {
             // Arrange
-            _reviewType = ReviewType.Formal;
+            // Make formal review
+            _review.Contents.Artifacts = new List<RDArtifact>
+            {
+                new RDArtifact
+                {
+                    Id = 1,
+                    ApprovalNotRequested = null
+                }
+            };
+            _review.ReviewPackageRawData.Reviewers = _review.ReviewPackageRawData.Reviewers = new List<ReviewerRawData>
+            {
+                new ReviewerRawData
+                {
+                    UserId = 2,
+                    Permission = ReviewParticipantRole.Approver
+                }
+            };
             _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
             _projectPermissions = ProjectPermissions.IsMeaningOfSignatureEnabled;
 

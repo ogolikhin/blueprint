@@ -20,7 +20,7 @@ namespace AdminStore.Models.DiagramWorkflow
 
         public int NumberOfActions { get; set; }
 
-        public bool IsContainsProcessArtifactType { get; set; }
+        public bool HasProcessArtifactType { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<DState> States { get; set; }

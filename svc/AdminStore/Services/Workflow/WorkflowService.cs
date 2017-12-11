@@ -233,7 +233,7 @@ namespace AdminStore.Services.Workflow
             var dataValidationResult = new WorkflowDataValidationResult();
 
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, WorkflowMode.Canvas);
+            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, WorkflowMode.Canvas, false);
             if (currentWorkflow.IsActive)
             {
                 dataValidationResult.Errors.Add(new WorkflowDataValidationError
@@ -673,7 +673,7 @@ namespace AdminStore.Services.Workflow
         public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, WorkflowMode mode)
         {
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-            return await GetWorkflowExportAsync(workflowId, standardTypes, mode);
+            return await GetWorkflowExportAsync(workflowId, standardTypes, mode, true);
         }
 
         public async Task<int> CreateWorkflow(string name, string description, int userId)
@@ -737,7 +737,7 @@ namespace AdminStore.Services.Workflow
             return workflowId;
         }
 
-        private async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, ProjectTypes standardTypes, WorkflowMode mode)
+        private async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, ProjectTypes standardTypes, WorkflowMode mode, bool shouldDeleteInValidData)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (workflowDetails == null)
@@ -818,8 +818,12 @@ namespace AdminStore.Services.Workflow
             ieWorkflow.PropertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
             ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
-            var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(ieWorkflow, standardTypes);
-            DeleteInValidDataFromExportedWorkflow(ieWorkflow, dataValidationResult);
+            if (shouldDeleteInValidData)
+            {
+                var dataValidationResult =
+                    await _workflowDataValidator.ValidateUpdateDataAsync(ieWorkflow, standardTypes);
+                DeleteInValidDataFromExportedWorkflow(ieWorkflow, dataValidationResult);
+            }
 
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
         }

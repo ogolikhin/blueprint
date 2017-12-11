@@ -245,7 +245,7 @@ namespace AdminStore.Helpers.Workflow
             destinationWorkflow.Name = sourceWorkflow.Name;
             destinationWorkflow.Description = sourceWorkflow.Description;
             destinationWorkflow.IsActive = sourceWorkflow.IsActive;
-            destinationWorkflow.IsContainsProcessArtifactType = sourceWorkflow.IsContainsProcessArtifactType;
+            destinationWorkflow.HasProcessArtifactType = sourceWorkflow.HasProcessArtifactType;
             destinationWorkflow.NewArtifactEvents = sourceWorkflow.NewArtifactEvents?.Select(ieNewArtifactEvent =>
                 new DNewArtifactEvent
                 {
@@ -320,7 +320,7 @@ namespace AdminStore.Helpers.Workflow
                 Name = sourceWorkflow.Name,
                 Description = sourceWorkflow.Description,
                 IsActive = sourceWorkflow.IsActive,
-                IsContainsProcessArtifactType = sourceWorkflow.IsContainsProcessArtifactType,
+                HasProcessArtifactType = sourceWorkflow.HasProcessArtifactType,
                 NewArtifactEvents = sourceWorkflow.NewArtifactEvents?.Select(dNewArtifactEvent => new IeNewArtifactEvent
                     {
                         Id = dNewArtifactEvent.Id,

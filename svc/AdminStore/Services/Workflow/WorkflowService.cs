@@ -4,17 +4,19 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models;
 using AdminStore.Models.DiagramWorkflow;
+using AdminStore.Models.DTO;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow.Validation;
+using AdminStore.Services.Workflow.Validation.Data;
+using AdminStore.Services.Workflow.Validation.Data.PropertyValue;
+using AdminStore.Services.Workflow.Validation.Xml;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -39,7 +41,7 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowValidationErrorBuilder _workflowValidationErrorBuilder;
         private readonly ISqlProjectMetaRepository _projectMetaRepository;
         private readonly ITriggerConverter _triggerConverter;
-        private readonly IWorkflowActionPropertyValueValidator _propertyValueValidator;
+        private readonly IPropertyValueValidatorFactory _propertyValueValidatorFactory;
         private readonly IWorkflowDiff _workflowDiff;
         private readonly IArtifactRepository _artifactRepository;
 
@@ -53,7 +55,7 @@ namespace AdminStore.Services.Workflow
                   new WorkflowValidationErrorBuilder(),
                   new SqlProjectMetaRepository(),
                   new TriggerConverter(),
-                  new WorkflowActionPropertyValueValidator(),
+                  new PropertyValueValidatorFactory(),
                   new WorkflowDiff(),
                   new SqlArtifactRepository())
         {
@@ -61,7 +63,7 @@ namespace AdminStore.Services.Workflow
                 _workflowRepository,
                 _usersRepository,
                 _projectMetaRepository,
-                _propertyValueValidator);
+                _propertyValueValidatorFactory);
 
             _artifactRepository = new SqlArtifactRepository();
         }
@@ -72,7 +74,7 @@ namespace AdminStore.Services.Workflow
             IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
             ISqlProjectMetaRepository projectMetaRepository,
             ITriggerConverter triggerConverter,
-            IWorkflowActionPropertyValueValidator propertyValueValidator,
+            IPropertyValueValidatorFactory propertyValueValidatorFactory,
             IWorkflowDiff workflowDiff,
             IArtifactRepository artifactRepository)
         {
@@ -82,7 +84,7 @@ namespace AdminStore.Services.Workflow
             _workflowValidationErrorBuilder = workflowValidationErrorBuilder;
             _projectMetaRepository = projectMetaRepository;
             _triggerConverter = triggerConverter;
-            _propertyValueValidator = propertyValueValidator;
+            _propertyValueValidatorFactory = propertyValueValidatorFactory;
             _workflowDiff = workflowDiff;
             _artifactRepository = artifactRepository;
         }
@@ -190,7 +192,7 @@ namespace AdminStore.Services.Workflow
                 {
                     await
                         ImportWorkflowComponentsAsync(workflow, newWorkflow.WorkflowId, publishRevision, transaction,
-                            dataValidationResult, userId);
+                            dataValidationResult);
                     await
                         _workflowRepository.UpdateWorkflowsChangedWithRevisionsAsync(newWorkflow.WorkflowId, publishRevision,
                             transaction);
@@ -240,7 +242,7 @@ namespace AdminStore.Services.Workflow
                     ErrorCode = WorkflowDataValidationErrorCodes.WorkflowActive
                 });
 
-                return await FillingDataErrorsWorkflowResult(fileName, workflowMode, dataValidationResult, importResult, isEditFileMessage: false);
+                return await FillingDataErrorsWorkflowResult(fileName, workflowMode, dataValidationResult, importResult, false);
             }
 
             ReplaceNewLinesInNames(workflow);
@@ -467,7 +469,7 @@ namespace AdminStore.Services.Workflow
         }
 
         private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, int newWorkflowId, int publishRevision,
-            IDbTransaction transaction, WorkflowDataValidationResult dataValidationResult, int userId)
+            IDbTransaction transaction, WorkflowDataValidationResult dataValidationResult)
         {
             var i = 1;
             workflow.States.ForEach(s => s.OrderIndex = 10 * i++);
@@ -490,8 +492,7 @@ namespace AdminStore.Services.Workflow
 
             if (!kvPairs.IsEmpty())
             {
-                await _workflowRepository.UpdateWorkflowArtifactAssignmentsAsync(artifactTypeToAddKvPairs: kvPairs, artifactTypeToDeleteKvPairs: new List<KeyValuePair<int, string>>(),
-                    workflowId: newWorkflowId, transaction: transaction);
+                await _workflowRepository.UpdateWorkflowArtifactAssignmentsAsync(kvPairs, new List<KeyValuePair<int, string>>(), newWorkflowId, transaction);
             }
         }
 
@@ -511,15 +512,24 @@ namespace AdminStore.Services.Workflow
 
                 if (pt.PrimitiveType == PropertyPrimitiveType.Choice)
                 {
-                    var vvMap = new Dictionary<string, int>();
+                    var validValuesById = new Dictionary<int, string>();
+                    var validValuesByValue = new Dictionary<string, int>();
+
                     pt.ValidValues?.ForEach(vv =>
                     {
-                        if (!vvMap.ContainsKey(vv.Value))
+                        if (!validValuesByValue.ContainsKey(vv.Value))
                         {
-                            vvMap.Add(vv.Value, vv.Id.GetValueOrDefault());
+                            validValuesByValue.Add(vv.Value, vv.Id.GetValueOrDefault());
+                        }
+
+                        if (vv.Id.HasValue && !validValuesById.ContainsKey(vv.Id.Value))
+                        {
+                            validValuesById.Add(vv.Id.Value, vv.Value);
                         }
                     });
-                    dataMaps.ValidValueMap.Add(pt.Id, vvMap);
+
+                    dataMaps.ValidValuesByValue.Add(pt.Id, validValuesByValue);
+                    dataMaps.ValidValuesById.Add(pt.Id, validValuesById);
                 }
             });
 
@@ -562,7 +572,7 @@ namespace AdminStore.Services.Workflow
 
         private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, WorkflowDataMaps dataMaps, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
-            var sqlEvent = new Models.Workflow.SqlWorkflowEvent
+            var sqlEvent = new SqlWorkflowEvent
             {
                 WorkflowEventId = wEvent.Id.GetValueOrDefault(),
                 Name = wEvent.Name,
@@ -752,7 +762,7 @@ namespace AdminStore.Services.Workflow
                 VersionId = workflowDetails.VersionId,
                 LastModified = workflowDetails.LastModified,
                 LastModifiedBy = workflowDetails.LastModifiedBy,
-                IsContainsProcessArtifactType = workflowArtifactTypes.Any(q => q.PredefinedType == (int)ItemTypePredefined.Process),
+                HasProcessArtifactType = workflowArtifactTypes.Any(q => q.PredefinedType == (int)ItemTypePredefined.Process),
                 States = workflowStates.Select(
                         e => new IeState
                         {
@@ -819,7 +829,7 @@ namespace AdminStore.Services.Workflow
         {
             if (workflow != null)
             {
-                if (!workflow.IsContainsProcessArtifactType)
+                if (!workflow.HasProcessArtifactType)
                 {
                     DeleteUserStoriesAndTestCasesFromWorkflow(workflow);
                 }
@@ -1211,7 +1221,6 @@ namespace AdminStore.Services.Workflow
         }
 
         #endregion
-
 
         private async Task<string> UploadErrorsToFileStoreAsync(string errors)
         {

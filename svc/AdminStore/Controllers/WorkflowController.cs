@@ -435,7 +435,7 @@ namespace AdminStore.Controllers
         [SessionRequired]
         [Route("copy/{workflowId:int:min(1)}")]
         [ResponseType(typeof(int))]
-        public async Task<IHttpActionResult> CopyWorkflowAsync(int workflowId, [FromBody] CopyWorkfloDto copyWorkfloDto)
+        public async Task<IHttpActionResult> CopyWorkflowAsync(int workflowId, [FromBody] CopyWorkflowDto copyWorkfloDto)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 

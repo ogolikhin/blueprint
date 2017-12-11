@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 
-namespace AdminStore.Services.Workflow
+namespace AdminStore.Services.Workflow.Validation.Xml
 {
     [TestClass]
     public class WorkflowXmlValidatorTests

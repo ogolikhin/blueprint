@@ -1114,7 +1114,7 @@ namespace AdminStore.Repositories.Workflow
 
         }
 
-        public async Task<int> CopyWorkflowAsync(int workflowId, int userId, CopyWorkfloDto copyWorkfloDto)
+        public async Task<int> CopyWorkflowAsync(int workflowId, int userId, CopyWorkflowDto copyWorkfloDto)
         {
             if (workflowId < 1)
             {

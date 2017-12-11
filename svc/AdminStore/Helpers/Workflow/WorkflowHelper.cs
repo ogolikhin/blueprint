@@ -539,6 +539,7 @@ namespace AdminStore.Helpers.Workflow
                                     {
                                         Id = ieUserGroup.Id,
                                         Name = ieUserGroup.Name,
+                                        DisplayName = ieUserGroup.DisplayName,
                                         GroupProjectId = ieUserGroup.GroupProjectId,
                                         GroupProjectPath = ieUserGroup.GroupProjectPath,
                                         IsGroup = ieUserGroup.IsGroup

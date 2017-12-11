@@ -29,6 +29,9 @@ namespace AdminStore.Models.Workflow
         [XmlElement(IsNullable = false)]
         public string Name { get; set; }
 
+        [XmlIgnore]
+        public string DisplayName { get; set; }
+
         // ========================================================
         // To make xml attribute nullable.
         [XmlIgnore]

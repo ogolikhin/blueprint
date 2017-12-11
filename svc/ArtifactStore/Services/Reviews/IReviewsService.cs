@@ -9,7 +9,7 @@ namespace ArtifactStore.Services.Reviews
     {
         Task<ReviewSettings> GetReviewSettingsAsync(int reviewId, int userId, int? versionId = null);
 
-        Task UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, int userId);
+        Task<ReviewSettings> UpdateReviewSettingsAsync(int reviewId, ReviewSettings updatedReviewSettings, bool autoSave, int userId);
 
         Task UpdateMeaningOfSignaturesAsync(int reviewId, IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters, int userId);
 

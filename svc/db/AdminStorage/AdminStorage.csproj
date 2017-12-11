@@ -166,6 +166,15 @@
     </Content>
     <Content Include="Migration\8.1.0.0\CreatePasswordRecoveryTokens.sql" />
     <Content Include="Migration\8.2.0.0\RemoveDboAssociations.sql" />
+    <Content Include="Migration\9.0.0.0\9.0.0.0.sql">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>9.0.0.0.tt</DependentUpon>
+    </Content>
+    <Content Include="Migration\9.0.0.0\9.0.0.0.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>9.0.0.0.sql</LastGenOutput>
+    </Content>
     <Content Include="Procedures.sql">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

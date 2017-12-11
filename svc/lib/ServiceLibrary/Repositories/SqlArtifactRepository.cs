@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.ProjectMeta;
-using ServiceLibrary.Models.ProjectMeta.Sql;
 using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace ServiceLibrary.Repositories

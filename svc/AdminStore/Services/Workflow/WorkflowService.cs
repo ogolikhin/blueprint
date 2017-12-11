@@ -762,7 +762,7 @@ namespace AdminStore.Services.Workflow
                 VersionId = workflowDetails.VersionId,
                 LastModified = workflowDetails.LastModified,
                 LastModifiedBy = workflowDetails.LastModifiedBy,
-                IsContainsProcessArtifactType = workflowArtifactTypes.Any(q => q.PredefinedType == (int)ItemTypePredefined.Process),
+                HasProcessArtifactType = workflowArtifactTypes.Any(q => q.PredefinedType == (int)ItemTypePredefined.Process),
                 States = workflowStates.Select(
                         e => new IeState
                         {
@@ -829,7 +829,7 @@ namespace AdminStore.Services.Workflow
         {
             if (workflow != null)
             {
-                if (!workflow.IsContainsProcessArtifactType)
+                if (!workflow.HasProcessArtifactType)
                 {
                     DeleteUserStoriesAndTestCasesFromWorkflow(workflow);
                 }

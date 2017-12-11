@@ -10,7 +10,6 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.ProjectMeta;
-using ServiceLibrary.Models.ProjectMeta.Sql;
 using ServiceLibrary.Repositories.ProjectMeta.PropertyXml;
 using ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models;
 

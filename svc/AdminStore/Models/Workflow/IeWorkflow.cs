@@ -33,7 +33,7 @@ namespace AdminStore.Models.Workflow
         }
 
         [XmlIgnore]
-        public bool IsContainsProcessArtifactType { get; set; }
+        public bool HasProcessArtifactType { get; set; }
 
         public bool ShouldSerializeIdSerializable()
         {

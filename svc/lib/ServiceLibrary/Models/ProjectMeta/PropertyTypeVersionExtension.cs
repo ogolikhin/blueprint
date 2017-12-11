@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.ProjectMeta.PropertyXml;
 using ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models;
 
-namespace ServiceLibrary.Models.ProjectMeta.Sql
+namespace ServiceLibrary.Models.ProjectMeta
 {
     public static class PropertyTypeVersionExtension
     {

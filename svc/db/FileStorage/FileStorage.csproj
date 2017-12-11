@@ -75,6 +75,15 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>8.2.0.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Migration\9.0.0.0\9.0.0.0.sql">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>9.0.0.0.tt</DependentUpon>
+    </Content>
+    <Content Include="Migration\9.0.0.0\9.0.0.0.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>9.0.0.0.sql</LastGenOutput>
+    </Content>
     <Content Include="Procedures.sql">
       <DependentUpon>Procedures.tt</DependentUpon>
       <AutoGen>True</AutoGen>

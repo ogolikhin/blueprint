@@ -138,13 +138,8 @@ namespace ArtifactStore.Services.Reviews
 
         private void UpdateEndDate(ReviewSettings updatedReviewSettings, bool autoSave, ReviewPackageRawData reviewRawData)
         {
-            if (updatedReviewSettings.EndDate.HasValue && updatedReviewSettings.EndDate <= _currentDateTimeService.GetUtcNow())
+            if (!autoSave && updatedReviewSettings.EndDate.HasValue && updatedReviewSettings.EndDate <= _currentDateTimeService.GetUtcNow())
             {
-                if (autoSave)
-                {
-                    return;
-                }
-
                 throw ReviewsExceptionHelper.ReviewExpiredException();
             }
 

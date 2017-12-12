@@ -1577,7 +1577,7 @@ namespace ArtifactStore.Services
         }
 
         [TestMethod]
-        public async Task UpdateReviewSettingsAsync_Should_Not_Update_ExpiryDate_When_Autosave_Is_True_And_ExpiryDate_Is_Invalid()
+        public async Task UpdateReviewSettingsAsync_Should_Update_ExpiryDate_When_Autosave_Is_True_And_ExpiryDate_Is_Invalid()
         {
             // Arrange
             _currentUtcDateTime = new DateTime(2017, 12, 11, 10, 56, 07);
@@ -1595,7 +1595,7 @@ namespace ArtifactStore.Services
             var result = await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, true, UserId);
 
             // Assert
-            Assert.AreEqual(null, result.EndDate);
+            Assert.AreEqual(_currentUtcDateTime, result.EndDate);
         }
 
         [TestMethod]

@@ -681,15 +681,15 @@ namespace AdminStore.Services.Workflow.Validation
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById:
                     template = TemplateDataPropertyChangeActionValidValueNotFoundById;
-                    errParams = new object[] { (int)error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById:
                     template = TemplateDataPropertyChangeActionGroupNotFoundById;
-                    errParams = new object[] { (int)error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById:
                     template = TemplateDataPropertyChangeActionUserNotFoundById;
-                    errParams = new object[] { (int)error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:
                     template = TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable;

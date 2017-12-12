@@ -233,7 +233,7 @@ namespace AdminStore.Services.Workflow
             var dataValidationResult = new WorkflowDataValidationResult();
 
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, WorkflowMode.Canvas);
+            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, WorkflowMode.Canvas, false);
             if (currentWorkflow.IsActive)
             {
                 dataValidationResult.Errors.Add(new WorkflowDataValidationError
@@ -673,7 +673,7 @@ namespace AdminStore.Services.Workflow
         public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, WorkflowMode mode)
         {
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-            return await GetWorkflowExportAsync(workflowId, standardTypes, mode);
+            return await GetWorkflowExportAsync(workflowId, standardTypes, mode, true);
         }
 
         public async Task<int> CreateWorkflow(string name, string description, int userId)
@@ -737,7 +737,7 @@ namespace AdminStore.Services.Workflow
             return workflowId;
         }
 
-        private async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, ProjectTypes standardTypes, WorkflowMode mode)
+        private async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, ProjectTypes standardTypes, WorkflowMode mode, bool shouldDeleteInValidData)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (workflowDetails == null)
@@ -818,8 +818,12 @@ namespace AdminStore.Services.Workflow
             ieWorkflow.PropertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
             ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
-            var dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(ieWorkflow, standardTypes);
-            DeleteInValidDataFromExportedWorkflow(ieWorkflow, dataValidationResult);
+            if (shouldDeleteInValidData)
+            {
+                var dataValidationResult =
+                    await _workflowDataValidator.ValidateUpdateDataAsync(ieWorkflow, standardTypes);
+                DeleteInValidDataFromExportedWorkflow(ieWorkflow, dataValidationResult);
+            }
 
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
         }
@@ -1136,13 +1140,13 @@ namespace AdminStore.Services.Workflow
             // CollectUserAndGroupIds(workflow, out userIds, out groupIds);
 
             var userMap = (await _usersRepository.GetExistingUsersByIdsAsync(userIds))
-                .ToDictionary(u => u.UserId, u => u.Login);
+                .ToDictionary(u => u.UserId, u => Tuple.Create(u.Login, u.DisplayName));
             var groupMap = (await _usersRepository.GetExistingGroupsByIds(groupIds, false))
                 .ToDictionary(g => g.GroupId, g => Tuple.Create(g.Name, g.ProjectId));
             UpdateUserAndGroupInfo(workflow, userMap, groupMap);
         }
 
-        private static void UpdateUserAndGroupInfo(IeWorkflow workflow, IDictionary<int, string> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
+        private static void UpdateUserAndGroupInfo(IeWorkflow workflow, IDictionary<int, Tuple<string, string>> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
         {
             var notFoundIds = new HashSet<int>();
             workflow.TransitionEvents?.ForEach(t =>
@@ -1171,7 +1175,7 @@ namespace AdminStore.Services.Workflow
             workflow.NewArtifactEvents?.ForEach(nae => UpdateUserAndGroupInfo(nae, userMap, groupMap));
         }
 
-        private static void UpdateUserAndGroupInfo(IeEvent wEvent, IDictionary<int, string> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
+        private static void UpdateUserAndGroupInfo(IeEvent wEvent, IDictionary<int, Tuple<string, string>> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
         {
             var notFoundGroupIds = new HashSet<int>();
             var notFoundUserIds = new HashSet<int>();
@@ -1201,10 +1205,11 @@ namespace AdminStore.Services.Workflow
                         }
                         else
                         {
-                            string name;
-                            if (userMap.TryGetValue(ug.Id.Value, out name))
+                            Tuple<string, string> user;
+                            if (userMap.TryGetValue(ug.Id.Value, out user))
                             {
-                                ug.Name = name;
+                                ug.Name = user.Item1;
+                                ug.DisplayName = user.Item2;
                             }
                             else
                             {

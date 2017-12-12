@@ -11,6 +11,9 @@ namespace AdminStore.Models.DiagramWorkflow
         public string Name { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string DisplayName { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsGroup { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

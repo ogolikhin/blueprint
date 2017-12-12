@@ -5,5 +5,7 @@
         public int UserId { get; set; }
 
         public string Login { get; set; }
+
+        public string DisplayName { get; set; }
     }
 }

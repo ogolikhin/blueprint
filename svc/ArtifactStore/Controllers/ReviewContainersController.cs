@@ -430,6 +430,7 @@ namespace ArtifactStore.Controllers
         /// </summary>
         /// <param name="reviewId">The review id.</param>
         /// <param name="reviewSettings">The updated review settings.</param>
+        /// <param name="autoSave">Whether the settings are being autosaved or not.</param>
         /// <response code="204">No Content. The review settings were successfully updated.</response>
         /// <response code="400">Bad Request. The request parameters are invalid.</response>
         /// <response code="401">Unauthorized. The session token is invalid.</response>
@@ -438,14 +439,14 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPut, SessionRequired]
         [Route("containers/{reviewId:int:min(1)}/settings")]
-        public async Task UpdateReviewSettingsAsync(int reviewId, [FromBody] ReviewSettings reviewSettings)
+        public Task<ReviewSettings> UpdateReviewSettingsAsync(int reviewId, [FromBody] ReviewSettings reviewSettings, [FromUri] bool autoSave)
         {
             if (reviewSettings == null)
             {
                 throw new BadRequestException(ErrorMessages.ReviewSettingsAreRequired, ErrorCodes.BadRequest);
             }
 
-            await _reviewsService.UpdateReviewSettingsAsync(reviewId, reviewSettings, Session.UserId);
+            return _reviewsService.UpdateReviewSettingsAsync(reviewId, reviewSettings, autoSave, Session.UserId);
         }
 
         /// <summary>

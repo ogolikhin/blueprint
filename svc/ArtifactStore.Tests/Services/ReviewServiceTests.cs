@@ -1642,7 +1642,7 @@ namespace ArtifactStore.Services
             {
                 EndDate = new DateTime(2017, 12, 11, 10, 56, 08),
                 CanMarkAsComplete = true,
-                IgnoreFolders = false,
+                IgnoreFolders = true,
                 RequireESignature = true,
                 RequireMeaningOfSignature = false,
                 ShowOnlyDescription = true

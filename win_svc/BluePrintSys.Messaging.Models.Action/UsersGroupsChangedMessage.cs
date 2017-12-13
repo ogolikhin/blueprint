@@ -1,4 +1,5 @@
-﻿using ServiceLibrary.Models.Enums;
+﻿using System.Collections.Generic;
+using ServiceLibrary.Models.Enums;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
@@ -6,5 +7,8 @@ namespace BluePrintSys.Messaging.Models.Actions
     {
         public override MessageActionType ActionType { get; } = MessageActionType.UsersGroupsChanged;
 
+        public IEnumerable<int> UserIds { get; set; }
+
+        public IEnumerable<int> GroupIds { get; set; }
     }
 }

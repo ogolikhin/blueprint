@@ -359,6 +359,7 @@ namespace ArtifactStore.Controllers
         [Route("containers/{reviewId:int:min(1)}/participants/{participantId:int:min(1)}/artifactstats"), SessionRequired]
         public Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, [FromUri] Pagination pagination)
         {
+            pagination.Validate();
             return _sqlReviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, Session.UserId, pagination);
         }
 

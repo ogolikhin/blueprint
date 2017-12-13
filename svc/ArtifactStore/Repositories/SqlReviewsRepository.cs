@@ -2036,7 +2036,7 @@ namespace ArtifactStore.Repositories
         {
             var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
 
-            if (reviewInfo.VersionCount == 0 || reviewInfo.IsDeleted || reviewInfo.PredefinedType != ItemTypePredefined.ArtifactReviewPackage) // Review never published or deleted or not founded
+            if (reviewInfo.VersionCount == 0 || reviewInfo.IsDeleted || reviewInfo.PredefinedType != ItemTypePredefined.ArtifactReviewPackage)
             {
                 throw ReviewsExceptionHelper.ReviewNotFoundException(reviewId);
             }

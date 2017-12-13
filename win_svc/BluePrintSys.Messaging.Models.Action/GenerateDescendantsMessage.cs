@@ -11,8 +11,6 @@ namespace BluePrintSys.Messaging.Models.Actions
 
         public int? DesiredArtifactTypeId { get; set; }
 
-        public int RevisionId { get; set; }
-
         public int ArtifactId { get; set; }
 
         public IEnumerable<int> AncestorArtifactTypeIds { get; set; }

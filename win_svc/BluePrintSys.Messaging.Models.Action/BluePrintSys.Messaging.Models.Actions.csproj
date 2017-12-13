@@ -75,15 +75,20 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="ActionMessage.cs" />
+    <Compile Include="ArtifactsChangedMessage.cs" />
     <Compile Include="ArtifactsPublishedMessage.cs" />
     <Compile Include="GenerateDescendantsMessage.cs" />
     <Compile Include="GenerateTestsMessage.cs" />
     <Compile Include="GenerateUserStoriesMessage.cs" />
     <Compile Include="NotificationMessage.cs" />
+    <Compile Include="ProjectsChangedMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyItemTypesChangedMessage.cs" />
     <Compile Include="PublishedArtifactInformation.cs" />
     <Compile Include="PublishedPropertyInformation.cs" />
     <Compile Include="StateChangeMessage.cs" />
+    <Compile Include="UsersGroupsChangedMessage.cs" />
+    <Compile Include="WorkflowsChangedMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

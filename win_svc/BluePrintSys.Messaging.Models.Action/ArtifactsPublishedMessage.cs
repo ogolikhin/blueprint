@@ -7,8 +7,6 @@ namespace BluePrintSys.Messaging.Models.Actions
     {
         public override MessageActionType ActionType { get; } = MessageActionType.ArtifactsPublished;
 
-        public int RevisionId { get; set; }
-
         public string UserName { get; set; }
 
         public IEnumerable<PublishedArtifactInformation> Artifacts { get; set; }

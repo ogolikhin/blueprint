@@ -13,6 +13,11 @@ namespace ServiceLibrary.Models.Enums
         GenerateUserStories = 16,
         StateChange = 32,
         ArtifactsPublished = 64,
-        All = PropertyChange | Notification | GenerateChildren | GenerateTests | GenerateUserStories | StateChange | ArtifactsPublished
+        ArtifactsChanged = 128,
+        ProjectsChanged = 256,
+        UsersGroupsChanged = 512,
+        WorkflowsChanged = 1024,
+        PropertyItemTypesChanged = 2048,
+        All = PropertyChange | Notification | GenerateChildren | GenerateTests | GenerateUserStories | StateChange | ArtifactsPublished | ArtifactsChanged | ProjectsChanged | UsersGroupsChanged | WorkflowsChanged | PropertyItemTypesChanged
     }
 }

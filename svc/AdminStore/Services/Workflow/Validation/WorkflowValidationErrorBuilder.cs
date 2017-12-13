@@ -5,9 +5,11 @@ using System.Linq;
 using System.Text;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
+using AdminStore.Services.Workflow.Validation.Data;
+using AdminStore.Services.Workflow.Validation.Xml;
 using ServiceLibrary.Helpers;
 
-namespace AdminStore.Services.Workflow
+namespace AdminStore.Services.Workflow.Validation
 {
     public class WorkflowValidationErrorBuilder : IWorkflowValidationErrorBuilder
     {
@@ -106,6 +108,8 @@ namespace AdminStore.Services.Workflow
         private const string TemplateDataPropertyChangeActionUserNotFoundByName = "<PropertyChangeAction> elements: The name of one or more users defined for property '{0}' were not found.";
         private const string TemplateDataPropertyChangeActionGroupNotFoundByName = "<PropertyChangeAction> elements: The name of one or more groups defined for property '{0}' were not found.";
         private const string TemplateDataPropertyChangeActionChoiceValueSpecifiedAsNotValidated = "<PropertyChangeAction> element: The value of choice property '{0}' is not valid.";
+        private const string TemplateDataPropertyChangeActionDuplicateValidValueFound = "<PropertyChangeAction> elements: One or more values of choice property '{0}' were duplicated.";
+        private const string TemplateDataPropertyChangeActionDuplicateUserOrGroupFound = "<PropertyChangeAction> elements: One or more values of user property '{0}' were duplicated.";
         private const string TemplateDataPropertyChangeActionValidValueNotFoundByValue = "<PropertyChangeAction> elements: One or more values of choice property ‘{0}’ were not found.";
         private const string TemplateDataPropertyChangeActionInvalidNumberFormat = "<PropertyChangeAction> element: The value for number property '{0}' is of an invalid number format.";
         private const string TemplateDataPropertyChangeActionInvalidNumberDecimalPlaces = "<PropertyChangeAction> element: The value for number property '{0}' has an invalid number of decimal places.";
@@ -581,6 +585,14 @@ namespace AdminStore.Services.Workflow
                     template = TemplateDataPropertyChangeActionChoiceValueSpecifiedAsNotValidated;
                     errParams = new object[] { (string)error.Element };
                     break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateValidValueFound:
+                    template = TemplateDataPropertyChangeActionDuplicateValidValueFound;
+                    errParams = new object[] { (string)error.Element };
+                    break;
+                case WorkflowDataValidationErrorCodes.PropertyChangeActionDuplicateUserOrGroupFound:
+                    template = TemplateDataPropertyChangeActionDuplicateUserOrGroupFound;
+                    errParams = new object[] { (string)error.Element };
+                    break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundByValue:
                     template = TemplateDataPropertyChangeActionValidValueNotFoundByValue;
                     errParams = new object[] { (string)error.Element };
@@ -669,15 +681,15 @@ namespace AdminStore.Services.Workflow
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById:
                     template = TemplateDataPropertyChangeActionValidValueNotFoundById;
-                    errParams = new object[] { (int)error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById:
                     template = TemplateDataPropertyChangeActionGroupNotFoundById;
-                    errParams = new object[] { (int)error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById:
                     template = TemplateDataPropertyChangeActionUserNotFoundById;
-                    errParams = new object[] { (int)error.Element };
+                    errParams = new object[] { (string)error.Element };
                     break;
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:
                     template = TemplateDataPropertyChangeActionNotChoicePropertyValidValuesNotApplicable;

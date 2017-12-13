@@ -101,6 +101,7 @@
     <Compile Include="Controllers\InstanceControllerTests.cs" />
     <Compile Include="Controllers\UsersControllerTests.cs" />
     <Compile Include="Controllers\WorkflowControllerTest.cs" />
+    <Compile Include="Extensions\CopyWorkflowDtoExtensionTests.cs" />
     <Compile Include="Extensions\CreateWorkflowDtoExtensionTests.cs" />
     <Compile Include="Extensions\UpdateWorkflowDtoExtensionTests.cs" />
     <Compile Include="Helpers\EmailHelperTests.cs" />
@@ -126,12 +127,17 @@
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
     <Compile Include="Services\Email\IncomingEmailServiceTests.cs" />
     <Compile Include="Services\Instance\EmailSettingsServiceTests.cs" />
+    <Compile Include="Services\Workflow\TriggerConverterTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValue\ChoicePropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValue\DatePropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValue\NumberPropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValue\TextPropertyValueValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\PropertyValue\UserPropertyValueValidatorTests.cs" />
     <Compile Include="Services\Workflow\WorkflowDiffTests.cs" />
     <Compile Include="Services\Workflow\WorkflowServiceTest.cs" />
-    <Compile Include="Services\Workflow\WorkflowActionPropertyValueValidatorTests.cs" />
-    <Compile Include="Services\Workflow\WorkflowDataValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Data\WorkflowDataValidatorTests.cs" />
     <Compile Include="Services\Workflow\WorkflowTestHelper.cs" />
-    <Compile Include="Services\Workflow\WorkflowXmlValidatorTests.cs" />
+    <Compile Include="Services\Workflow\Validation\Xml\WorkflowXmlValidatorTests.cs" />
     <Compile Include="Utilities\SamlUtilities.cs" />
   </ItemGroup>
   <ItemGroup>

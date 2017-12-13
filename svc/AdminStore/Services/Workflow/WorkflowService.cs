@@ -7,10 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AdminStore.Helpers.Workflow;
+using AdminStore.Models;
 using AdminStore.Models.DiagramWorkflow;
+using AdminStore.Models.DTO;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow.Validation;
+using AdminStore.Services.Workflow.Validation.Data;
+using AdminStore.Services.Workflow.Validation.Data.PropertyValue;
+using AdminStore.Services.Workflow.Validation.Xml;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -35,7 +41,7 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowValidationErrorBuilder _workflowValidationErrorBuilder;
         private readonly ISqlProjectMetaRepository _projectMetaRepository;
         private readonly ITriggerConverter _triggerConverter;
-        private readonly IWorkflowActionPropertyValueValidator _propertyValueValidator;
+        private readonly IPropertyValueValidatorFactory _propertyValueValidatorFactory;
         private readonly IWorkflowDiff _workflowDiff;
         private readonly IArtifactRepository _artifactRepository;
 
@@ -49,7 +55,7 @@ namespace AdminStore.Services.Workflow
                   new WorkflowValidationErrorBuilder(),
                   new SqlProjectMetaRepository(),
                   new TriggerConverter(),
-                  new WorkflowActionPropertyValueValidator(),
+                  new PropertyValueValidatorFactory(),
                   new WorkflowDiff(),
                   new SqlArtifactRepository())
         {
@@ -57,7 +63,9 @@ namespace AdminStore.Services.Workflow
                 _workflowRepository,
                 _usersRepository,
                 _projectMetaRepository,
-                _propertyValueValidator);
+                _propertyValueValidatorFactory);
+
+            _artifactRepository = new SqlArtifactRepository();
         }
 
         public WorkflowService(IWorkflowRepository workflowRepository,
@@ -66,7 +74,7 @@ namespace AdminStore.Services.Workflow
             IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
             ISqlProjectMetaRepository projectMetaRepository,
             ITriggerConverter triggerConverter,
-            IWorkflowActionPropertyValueValidator propertyValueValidator,
+            IPropertyValueValidatorFactory propertyValueValidatorFactory,
             IWorkflowDiff workflowDiff,
             IArtifactRepository artifactRepository)
         {
@@ -76,7 +84,7 @@ namespace AdminStore.Services.Workflow
             _workflowValidationErrorBuilder = workflowValidationErrorBuilder;
             _projectMetaRepository = projectMetaRepository;
             _triggerConverter = triggerConverter;
-            _propertyValueValidator = propertyValueValidator;
+            _propertyValueValidatorFactory = propertyValueValidatorFactory;
             _workflowDiff = workflowDiff;
             _artifactRepository = artifactRepository;
         }
@@ -184,7 +192,7 @@ namespace AdminStore.Services.Workflow
                 {
                     await
                         ImportWorkflowComponentsAsync(workflow, newWorkflow.WorkflowId, publishRevision, transaction,
-                            dataValidationResult, userId);
+                            dataValidationResult);
                     await
                         _workflowRepository.UpdateWorkflowsChangedWithRevisionsAsync(newWorkflow.WorkflowId, publishRevision,
                             transaction);
@@ -225,7 +233,7 @@ namespace AdminStore.Services.Workflow
             var dataValidationResult = new WorkflowDataValidationResult();
 
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, workflowMode);
+            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, WorkflowMode.Canvas, false);
             if (currentWorkflow.IsActive)
             {
                 dataValidationResult.Errors.Add(new WorkflowDataValidationError
@@ -234,7 +242,7 @@ namespace AdminStore.Services.Workflow
                     ErrorCode = WorkflowDataValidationErrorCodes.WorkflowActive
                 });
 
-                return await FillingDataErrorsWorkflowResult(fileName, workflowMode, dataValidationResult, importResult, isEditFileMessage: false);
+                return await FillingDataErrorsWorkflowResult(fileName, workflowMode, dataValidationResult, importResult, false);
             }
 
             ReplaceNewLinesInNames(workflow);
@@ -248,7 +256,7 @@ namespace AdminStore.Services.Workflow
 
             dataValidationResult = await _workflowDataValidator.ValidateUpdateDataAsync(workflow, standardTypes);
 
-            var workflowDiffResult = _workflowDiff.DiffWorkflows(workflow, currentWorkflow, workflowMode);
+            var workflowDiffResult = _workflowDiff.DiffWorkflows(workflow, currentWorkflow);
 
             // Even if the data validation has errors,
             // anyway we do the validation of not found by Id in current.
@@ -335,44 +343,9 @@ namespace AdminStore.Services.Workflow
         {
             var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
 
-            if (ieWorkflow == null)
-            {
-                return null;
-            }
+            var numberOfStatesAndActions = GetNumberOfStatesAndActions(ieWorkflow);
 
-            var numberStates = ieWorkflow.States?.Count ?? 0;
-
-            var transitionEventTriggersCount = 0;
-            if (ieWorkflow.TransitionEvents != null)
-            {
-                foreach (var transition in ieWorkflow.TransitionEvents)
-                {
-                    if (transition.Triggers != null)
-                        transitionEventTriggersCount += transition.Triggers.Count;
-                }
-            }
-
-            var propertyChangeEventTriggersCount = 0;
-            if (ieWorkflow.PropertyChangeEvents != null)
-            {
-                foreach (var propertyChangeEvent in ieWorkflow.PropertyChangeEvents)
-                {
-                    if (propertyChangeEvent.Triggers != null)
-                        propertyChangeEventTriggersCount += propertyChangeEvent.Triggers.Count;
-                }
-            }
-
-            var newArtifactEventTriggersCount = 0;
-            if (ieWorkflow.NewArtifactEvents != null)
-            {
-                foreach (var newArtifactEvent in ieWorkflow.NewArtifactEvents)
-                {
-                    if (newArtifactEvent.Triggers != null)
-                        newArtifactEventTriggersCount += newArtifactEvent.Triggers.Count;
-                }
-            }
-
-            var workflowDetailsDto = new WorkflowDetailsDto
+             var workflowDetailsDto = new WorkflowDetailsDto
             {
                 Name = ieWorkflow.Name,
                 Description = ieWorkflow.Description,
@@ -381,8 +354,8 @@ namespace AdminStore.Services.Workflow
                 VersionId = ieWorkflow.VersionId,
                 LastModified = ieWorkflow.LastModified,
                 LastModifiedBy = ieWorkflow.LastModifiedBy,
-                NumberOfActions = transitionEventTriggersCount + propertyChangeEventTriggersCount + newArtifactEventTriggersCount,
-                NumberOfStates = numberStates,
+                NumberOfActions = numberOfStatesAndActions.NumberOfActions,
+                NumberOfStates = numberOfStatesAndActions.NumberOfStates,
                 Projects = ieWorkflow.Projects?.Select(e => new WorkflowProjectDto { Id = e.Id.GetValueOrDefault(), Name = e.Path ?? string.Empty }).Distinct().ToList(),
                 ArtifactTypes = ieWorkflow.Projects?.Where(p => p.ArtifactTypes != null).SelectMany(e => e.ArtifactTypes).Select(t => new WorkflowArtifactTypeDto { Name = t.Name ?? string.Empty }).Distinct().ToList()
             };
@@ -496,7 +469,7 @@ namespace AdminStore.Services.Workflow
         }
 
         private async Task ImportWorkflowComponentsAsync(IeWorkflow workflow, int newWorkflowId, int publishRevision,
-            IDbTransaction transaction, WorkflowDataValidationResult dataValidationResult, int userId)
+            IDbTransaction transaction, WorkflowDataValidationResult dataValidationResult)
         {
             var i = 1;
             workflow.States.ForEach(s => s.OrderIndex = 10 * i++);
@@ -519,8 +492,7 @@ namespace AdminStore.Services.Workflow
 
             if (!kvPairs.IsEmpty())
             {
-                await _workflowRepository.UpdateWorkflowArtifactAssignmentsAsync(artifactTypeToAddKvPairs: kvPairs, artifactTypeToDeleteKvPairs: new List<KeyValuePair<int, string>>(),
-                    workflowId: newWorkflowId, transaction: transaction);
+                await _workflowRepository.UpdateWorkflowArtifactAssignmentsAsync(kvPairs, new List<KeyValuePair<int, string>>(), newWorkflowId, transaction);
             }
         }
 
@@ -540,15 +512,24 @@ namespace AdminStore.Services.Workflow
 
                 if (pt.PrimitiveType == PropertyPrimitiveType.Choice)
                 {
-                    var vvMap = new Dictionary<string, int>();
+                    var validValuesById = new Dictionary<int, string>();
+                    var validValuesByValue = new Dictionary<string, int>();
+
                     pt.ValidValues?.ForEach(vv =>
                     {
-                        if (!vvMap.ContainsKey(vv.Value))
+                        if (!validValuesByValue.ContainsKey(vv.Value))
                         {
-                            vvMap.Add(vv.Value, vv.Id.GetValueOrDefault());
+                            validValuesByValue.Add(vv.Value, vv.Id.GetValueOrDefault());
+                        }
+
+                        if (vv.Id.HasValue && !validValuesById.ContainsKey(vv.Id.Value))
+                        {
+                            validValuesById.Add(vv.Id.Value, vv.Value);
                         }
                     });
-                    dataMaps.ValidValueMap.Add(pt.Id, vvMap);
+
+                    dataMaps.ValidValuesByValue.Add(pt.Id, validValuesByValue);
+                    dataMaps.ValidValuesById.Add(pt.Id, validValuesById);
                 }
             });
 
@@ -591,7 +572,7 @@ namespace AdminStore.Services.Workflow
 
         private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, WorkflowDataMaps dataMaps, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
-            var sqlEvent = new Models.Workflow.SqlWorkflowEvent
+            var sqlEvent = new SqlWorkflowEvent
             {
                 WorkflowEventId = wEvent.Id.GetValueOrDefault(),
                 Name = wEvent.Name,
@@ -664,6 +645,11 @@ namespace AdminStore.Services.Workflow
         {
             var ieWorkflow = await GetWorkflowExportAsync(workflowId, WorkflowMode.Canvas);
             var dWorkflow = WorkflowHelper.MapIeWorkflowToDWorkflow(ieWorkflow);
+
+            var numberOfStatesAndActions = GetNumberOfStatesAndActions(ieWorkflow);
+            dWorkflow.NumberOfActions = numberOfStatesAndActions.NumberOfActions;
+            dWorkflow.NumberOfStates = numberOfStatesAndActions.NumberOfStates;
+
             return dWorkflow;
         }
 
@@ -687,7 +673,7 @@ namespace AdminStore.Services.Workflow
         public async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, WorkflowMode mode)
         {
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-            return await GetWorkflowExportAsync(workflowId, standardTypes, mode);
+            return await GetWorkflowExportAsync(workflowId, standardTypes, mode, true);
         }
 
         public async Task<int> CreateWorkflow(string name, string description, int userId)
@@ -751,7 +737,7 @@ namespace AdminStore.Services.Workflow
             return workflowId;
         }
 
-        private async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, ProjectTypes standardTypes, WorkflowMode mode)
+        private async Task<IeWorkflow> GetWorkflowExportAsync(int workflowId, ProjectTypes standardTypes, WorkflowMode mode, bool shouldDeleteInValidData)
         {
             var workflowDetails = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
             if (workflowDetails == null)
@@ -776,7 +762,7 @@ namespace AdminStore.Services.Workflow
                 VersionId = workflowDetails.VersionId,
                 LastModified = workflowDetails.LastModified,
                 LastModifiedBy = workflowDetails.LastModifiedBy,
-                IsContainsProcessArtifactType = workflowArtifactTypes.Any(q => q.PredefinedType == (int)ItemTypePredefined.Process),
+                HasProcessArtifactType = workflowArtifactTypes.Any(q => q.PredefinedType == (int)ItemTypePredefined.Process),
                 States = workflowStates.Select(
                         e => new IeState
                         {
@@ -832,7 +818,227 @@ namespace AdminStore.Services.Workflow
             ieWorkflow.PropertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
             ieWorkflow.NewArtifactEvents.RemoveAll(e => e.Triggers.IsEmpty());
 
+            if (shouldDeleteInValidData)
+            {
+                var dataValidationResult =
+                    await _workflowDataValidator.ValidateUpdateDataAsync(ieWorkflow, standardTypes);
+                DeleteInValidDataFromExportedWorkflow(ieWorkflow, dataValidationResult);
+            }
+
             return WorkflowHelper.NormalizeWorkflow(ieWorkflow);
+        }
+
+        private void DeleteInValidDataFromExportedWorkflow(IeWorkflow workflow,
+            WorkflowDataValidationResult validationResult)
+        {
+            if (workflow != null)
+            {
+                if (!workflow.HasProcessArtifactType)
+                {
+                    DeleteUserStoriesAndTestCasesFromWorkflow(workflow);
+                }
+
+                foreach (var error in validationResult.Errors)
+                {
+                    switch (error.ErrorCode)
+                    {
+                        case WorkflowDataValidationErrorCodes.ProjectByIdNotFound:
+                            workflow.Projects?.RemoveAll(q => q.IdSerializable == (int)error.Element);
+                            break;
+                        case WorkflowDataValidationErrorCodes.ProjectDuplicate:
+                            workflow.Projects = workflow.Projects?.GroupBy(q => q.IdSerializable)
+                                .Select(q => q.First())
+                                .ToList();
+                            break;
+                        case WorkflowDataValidationErrorCodes.StandardArtifactTypeNotFoundById:
+                            workflow.Projects?.ForEach(
+                                q => q.ArtifactTypes?.RemoveAll(qu => qu.IdSerializable == (int)error.Element));
+                            break;
+                        case WorkflowDataValidationErrorCodes.InstanceGroupNotFoundById:
+                            workflow.TransitionEvents?.ForEach(
+                                q => q.PermissionGroups?.RemoveAll(qu => qu.Id == (int)error.Element));
+                            break;
+                        // triggers GenerateAction
+                        case WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundById:
+                            DeleteInvalidArtifactTypeIdFromGenerateTriggersInWorkflow(workflow, (int)error.Element);
+                            break;
+                        // workflow.PropertyChangeEvents
+                        case WorkflowDataValidationErrorCodes.PropertyNotFoundById:
+                            DeleteInvalidPropertiesFromWorkflow(workflow, (int)error.Element, null);
+                            break;
+                        case WorkflowDataValidationErrorCodes.PropertyNotAssociated:
+                            DeleteInvalidPropertiesFromWorkflow(workflow, null, (string)error.Element);
+                            break;
+                        // triggers EmailNotification
+                        case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotFoundById:
+                            DeleteInvalidPropertiesFromWorkflow(workflow, (int)error.Element, null,
+                                ActionTypes.EmailNotification);
+                            break;
+                        case WorkflowDataValidationErrorCodes.EmailNotificationActionPropertyTypeNotAssociated:
+                            DeleteInvalidPropertiesFromWorkflow(workflow, null, (string)error.Element,
+                                ActionTypes.EmailNotification);
+                            break;
+                        case WorkflowDataValidationErrorCodes.EmailNotificationActionUnacceptablePropertyType:
+                            DeleteInvalidPropertiesFromWorkflow(workflow, null, (string)error.Element,
+                                ActionTypes.EmailNotification);
+                            break;
+                        // triggers PropertyChange
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotFoundById:
+                            DeleteInvalidPropertiesFromWorkflow(workflow, (int)error.Element, null,
+                                ActionTypes.PropertyChange);
+                            break;
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionPropertyTypeNotAssociated:
+                            DeleteInvalidPropertiesFromWorkflow(workflow, null, (string)error.Element,
+                                ActionTypes.PropertyChange);
+                            break;
+                        // cases Validation Property value in trigger PropertyChangeAction
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberFormat:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidNumberDecimalPlaces:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionNumberOutOfRange:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionGroupNotFoundById:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionUserNotFoundById:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionChoiceValueSpecifiedAsNotValidated:
+                        case WorkflowDataValidationErrorCodes.PropertyChangeActionValidValueNotFoundById:
+                            DeleteInvalidPropertiesFromWorkflow(workflow, null, (string)error.Element, ActionTypes.PropertyChange);
+                            break;
+                    }
+                }
+            }
+        }
+
+        private void DeleteUserStoriesAndTestCasesFromWorkflow(IeWorkflow ieWorkflow)
+        {
+            ieWorkflow.TransitionEvents?.ForEach(q => DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
+
+            ieWorkflow.NewArtifactEvents?.ForEach(q => DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
+
+            ieWorkflow.PropertyChangeEvents?.ForEach(q => DeleteUserStoriesAndTestCasesFromGenerateTriggers(q.Triggers));
+        }
+
+        private void DeleteInvalidArtifactTypeIdFromGenerateTriggersInWorkflow(IeWorkflow ieWorkflow, int element)
+        {
+            ieWorkflow.TransitionEvents?.ForEach(q => DeleteInvalidArtifactTypeIdFromGenerateTriggers(q.Triggers, element));
+
+            ieWorkflow.PropertyChangeEvents?.ForEach(q => DeleteInvalidArtifactTypeIdFromGenerateTriggers(q.Triggers, element));
+
+            ieWorkflow.NewArtifactEvents?.ForEach(q => DeleteInvalidArtifactTypeIdFromGenerateTriggers(q.Triggers, element));
+        }
+
+        private void DeleteUserStoriesAndTestCasesFromGenerateTriggers(List<IeTrigger> triggers)
+        {
+            triggers?.RemoveAll(
+                queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
+                        (((IeGenerateAction)queq.Action).GenerateActionType ==
+                         GenerateActionTypes.UserStories));
+
+            triggers?.RemoveAll(
+                queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
+                        (((IeGenerateAction)queq.Action).GenerateActionType ==
+                         GenerateActionTypes.TestCases));
+        }
+
+        private void DeleteInvalidArtifactTypeIdFromGenerateTriggers(List<IeTrigger> triggers, int? artifactTypeId)
+        {
+            triggers?.RemoveAll(
+                queq => (queq.Action?.ActionType == ActionTypes.Generate) &&
+                        (((IeGenerateAction)queq.Action).GenerateActionType ==
+                         GenerateActionTypes.Children) &&
+                        ((IeGenerateAction)queq.Action).ArtifactTypeId == artifactTypeId);
+        }
+
+        private void DeleteInvalidPropertiesFromWorkflow(IeWorkflow workflow, int? propertyId, string propertyName,
+            ActionTypes? actionTypes = null)
+        {
+            if (actionTypes == null)
+            {
+                if (propertyId != null)
+                    workflow.PropertyChangeEvents?.RemoveAll(q => ((q.PropertyId == propertyId)));
+                else if (!string.IsNullOrEmpty(propertyName))
+                    workflow.PropertyChangeEvents?.RemoveAll(q => ((q.PropertyName == propertyName)));
+            }
+
+            if ((actionTypes == ActionTypes.EmailNotification))
+            {
+                if (propertyId != null)
+                {
+                    workflow.PropertyChangeEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.EmailNotification) &&
+                              ((IeEmailNotificationAction)qu.Action)
+                              .PropertyId.GetValueOrDefault() == propertyId));
+
+                    workflow.NewArtifactEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.EmailNotification) &&
+                              ((IeEmailNotificationAction)qu.Action)
+                              .PropertyId.GetValueOrDefault() == propertyId));
+
+                    workflow.TransitionEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.EmailNotification) &&
+                              ((IeEmailNotificationAction)qu.Action)
+                              .PropertyId.GetValueOrDefault() == propertyId));
+                }
+                else if (!string.IsNullOrEmpty(propertyName))
+                {
+                    workflow.PropertyChangeEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.EmailNotification) &&
+                              ((IeEmailNotificationAction)qu.Action)
+                              .PropertyName == propertyName));
+
+                    workflow.NewArtifactEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.EmailNotification) &&
+                              ((IeEmailNotificationAction)qu.Action)
+                              .PropertyName == propertyName));
+
+                    workflow.TransitionEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.EmailNotification) &&
+                              ((IeEmailNotificationAction)qu.Action)
+                              .PropertyName == propertyName));
+                }
+            }
+
+            if (actionTypes == ActionTypes.PropertyChange)
+            {
+                if (propertyId != null)
+                {
+                    workflow.PropertyChangeEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.PropertyChange) &&
+                              ((IePropertyChangeAction)qu.Action)
+                              .PropertyId.GetValueOrDefault() == propertyId));
+
+                    workflow.NewArtifactEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.PropertyChange) &&
+                              ((IePropertyChangeAction)qu.Action)
+                              .PropertyId.GetValueOrDefault() == propertyId));
+
+                    workflow.TransitionEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.PropertyChange) &&
+                              ((IePropertyChangeAction)qu.Action)
+                              .PropertyId.GetValueOrDefault() == propertyId));
+                }
+                else if (!string.IsNullOrEmpty(propertyName))
+                {
+                    workflow.PropertyChangeEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.PropertyChange) &&
+                              ((IePropertyChangeAction)qu.Action)
+                              .PropertyName == propertyName));
+
+                    workflow.NewArtifactEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.PropertyChange) &&
+                              ((IePropertyChangeAction)qu.Action)
+                              .PropertyName == propertyName));
+
+                    workflow.TransitionEvents?.ForEach(q => q.Triggers?.RemoveAll(
+                        qu => (qu.Action?.ActionType == ActionTypes.PropertyChange) &&
+                              ((IePropertyChangeAction)qu.Action)
+                              .PropertyName == propertyName));
+                }
+            }
         }
 
         private static string GetPropertyChangedName(int? propertyTypeId, WorkflowDataNameMaps dataMaps)
@@ -934,13 +1140,13 @@ namespace AdminStore.Services.Workflow
             // CollectUserAndGroupIds(workflow, out userIds, out groupIds);
 
             var userMap = (await _usersRepository.GetExistingUsersByIdsAsync(userIds))
-                .ToDictionary(u => u.UserId, u => u.Login);
+                .ToDictionary(u => u.UserId, u => Tuple.Create(u.Login, u.DisplayName));
             var groupMap = (await _usersRepository.GetExistingGroupsByIds(groupIds, false))
                 .ToDictionary(g => g.GroupId, g => Tuple.Create(g.Name, g.ProjectId));
             UpdateUserAndGroupInfo(workflow, userMap, groupMap);
         }
 
-        private static void UpdateUserAndGroupInfo(IeWorkflow workflow, IDictionary<int, string> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
+        private static void UpdateUserAndGroupInfo(IeWorkflow workflow, IDictionary<int, Tuple<string, string>> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
         {
             var notFoundIds = new HashSet<int>();
             workflow.TransitionEvents?.ForEach(t =>
@@ -969,7 +1175,7 @@ namespace AdminStore.Services.Workflow
             workflow.NewArtifactEvents?.ForEach(nae => UpdateUserAndGroupInfo(nae, userMap, groupMap));
         }
 
-        private static void UpdateUserAndGroupInfo(IeEvent wEvent, IDictionary<int, string> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
+        private static void UpdateUserAndGroupInfo(IeEvent wEvent, IDictionary<int, Tuple<string, string>> userMap, IDictionary<int, Tuple<string, int?>> groupMap)
         {
             var notFoundGroupIds = new HashSet<int>();
             var notFoundUserIds = new HashSet<int>();
@@ -999,10 +1205,11 @@ namespace AdminStore.Services.Workflow
                         }
                         else
                         {
-                            string name;
-                            if (userMap.TryGetValue(ug.Id.Value, out name))
+                            Tuple<string, string> user;
+                            if (userMap.TryGetValue(ug.Id.Value, out user))
                             {
-                                ug.Name = name;
+                                ug.Name = user.Item1;
+                                ug.DisplayName = user.Item2;
                             }
                             else
                             {
@@ -1019,7 +1226,6 @@ namespace AdminStore.Services.Workflow
         }
 
         #endregion
-
 
         private async Task<string> UploadErrorsToFileStoreAsync(string errors)
         {
@@ -1253,6 +1459,48 @@ namespace AdminStore.Services.Workflow
 
             var i = 1;
             workflowDiffResult.AddedStates?.ForEach(s => s.OrderIndex = changedMaxIndexOrder + 10 * i++);
+        }
+
+        private NumberOfStatesActions GetNumberOfStatesAndActions(IeWorkflow workflow)
+        {
+            if (workflow == null)
+            {
+                return null;
+            }
+
+            var numberStates = workflow.States?.Count ?? 0;
+
+            var transitionEventTriggersCount = 0;
+            if (workflow.TransitionEvents != null)
+            {
+                foreach (var transition in workflow.TransitionEvents)
+                {
+                    if (transition.Triggers != null)
+                        transitionEventTriggersCount += transition.Triggers.Count;
+                }
+            }
+
+            var propertyChangeEventTriggersCount = 0;
+            if (workflow.PropertyChangeEvents != null)
+            {
+                foreach (var propertyChangeEvent in workflow.PropertyChangeEvents)
+                {
+                    if (propertyChangeEvent.Triggers != null)
+                        propertyChangeEventTriggersCount += propertyChangeEvent.Triggers.Count;
+                }
+            }
+
+            var newArtifactEventTriggersCount = 0;
+            if (workflow.NewArtifactEvents != null)
+            {
+                foreach (var newArtifactEvent in workflow.NewArtifactEvents)
+                {
+                    if (newArtifactEvent.Triggers != null)
+                        newArtifactEventTriggersCount += newArtifactEvent.Triggers.Count;
+                }
+            }
+
+            return new NumberOfStatesActions { NumberOfActions = transitionEventTriggersCount + propertyChangeEventTriggersCount + newArtifactEventTriggersCount, NumberOfStates = numberStates };
         }
 
         #region Update workflow entities for the workflow update via the import.

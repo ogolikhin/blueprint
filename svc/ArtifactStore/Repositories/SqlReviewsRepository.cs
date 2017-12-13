@@ -429,7 +429,14 @@ namespace ArtifactStore.Repositories
             {
                 if (effectiveIds.IsBaselineAdded)
                 {
-                    throw ReviewsExceptionHelper.BaselineNotSealedException();
+                    return new AddArtifactsResult
+                    {
+                        ArtifactCount = 0,
+                        AlreadyIncludedArtifactCount = 0,
+                        NonexistentArtifactCount = 0,
+                        UnpublishedArtifactCount = 0,
+                        AddedArtifactIds = new List<int>()
+                    };
                 }
             }
 
@@ -1254,6 +1261,11 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewClosedException();
             }
 
+            if (review.ReviewStatus == ReviewPackageStatus.Active)
+            {
+                ReviewsExceptionHelper.VerifyNotLastApproverInFormalReview(removeParams, review);
+            }
+
             if (removeParams.SelectionType == SelectionType.Selected)
             {
                 reviewPackageRawData.Reviewers.RemoveAll(i => removeParams.ItemIds.Contains(i.UserId));
@@ -1493,11 +1505,6 @@ namespace ArtifactStore.Repositories
             if (reviewArtifactApprovalParameters.SelectionType == SelectionType.Excluded && reviewArtifactApprovalParameters.RevisionId == null)
             {
                 throw new BadRequestException("Not all parameters provided.", ErrorCodes.OutOfRangeParameter);
-            }
-
-            if (!await _artifactPermissionsRepository.HasEditPermissions(reviewId, userId))
-            {
-                throw ReviewsExceptionHelper.UserCannotModifyReviewException(reviewId);
             }
 
             var artifactIds = new List<int>();

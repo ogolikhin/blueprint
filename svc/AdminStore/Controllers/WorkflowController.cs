@@ -71,6 +71,7 @@ namespace AdminStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns></returns>
         [HttpPost]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("{workflowId:int:min(1)}/assign"), SessionRequired]
         [ResponseType(typeof(AssignProjectsResult))]
         public async Task<IHttpActionResult> AssignProjectsAndArtifactTypesToWorkflow(int workFlowid, [FromBody] WorkflowAssignScope workflowAssign)
@@ -108,6 +109,7 @@ namespace AdminStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns>Returns TotalAdded and TotalDeleted. TotalAdded is a quantity of added artifact types, TotalDeleted is a quantity of removed artifact types</returns>
         [HttpPost]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("{workflowId:int:min(1)}/project/{projectId:int:min(1)}/assign"), SessionRequired]
         [ResponseType(typeof(SyncResult))]
         public async Task<IHttpActionResult> AssignArtifactTypesToProjectInWorkflow(int workflowId, int projectId, [FromBody] OperationScope scope)
@@ -223,6 +225,7 @@ namespace AdminStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         ///
         [HttpGet, NoCache]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("{workflowId:int:min(1)}/folders/{folderId:int:min(1)}/availablechildren"), SessionRequired]
         [ResponseType(typeof(List<InstanceItem>))]
         public async Task<IHttpActionResult> GetWorkflowAvailableProjects(int workFlowId, int folderId)
@@ -247,6 +250,7 @@ namespace AdminStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         ///
         [HttpGet, NoCache]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("{workflowId:int:min(1)}/projects"), SessionRequired]
         [ResponseType(typeof(QueryResult<WorkflowProjectArtifactTypesDto>))]
         public async Task<IHttpActionResult> GetProjectArtifactTypesAssignedToWorkflowAsync(int workflowId, [FromUri] Pagination pagination, string search = null)
@@ -299,6 +303,7 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions to search projects</response>
         /// <response code="404">Not Found. Workflow with workflowId was not found.</response>
         [HttpGet, NoCache]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("{workflowId:int:min(1)}/projectsearch"), SessionRequired]
         [ResponseType(typeof(IEnumerable<WorkflowProjectSearch>))]
         public async Task<IHttpActionResult> SearchProjectsByName(int workflowId, string search = null)
@@ -390,6 +395,7 @@ namespace AdminStore.Controllers
         /// <response code="404">NotFound. if the workflow with workId doesn’t exists or removed from the system.</response>
         /// <response code="409">Conflict. The current workflow from the request is active (should not be active).</response>
         [HttpPost]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [SessionRequired]
         [Route("{workflowId:int:min(1)}/unassign")]
         [ResponseType(typeof(DeleteResult))]
@@ -425,10 +431,11 @@ namespace AdminStore.Controllers
         /// <response code="404">NotFound. if the workflow with workflowId doesn’t exists or removed from the system.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [SessionRequired]
         [Route("copy/{workflowId:int:min(1)}")]
         [ResponseType(typeof(int))]
-        public async Task<IHttpActionResult> CopyWorkflowAsync(int workflowId, [FromBody] CopyWorkfloDto copyWorkfloDto)
+        public async Task<IHttpActionResult> CopyWorkflowAsync(int workflowId, [FromBody] CopyWorkflowDto copyWorkfloDto)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
 
@@ -672,6 +679,7 @@ namespace AdminStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions for geting the list of standard properties + Name and Description.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
+        [FeatureActivation(FeatureTypes.Workflow)]
         [Route("artifacttypes/properties"), SessionRequired]
         public async Task<IEnumerable<PropertyType>> GetWorkflowArtifactTypesProperties([FromBody] ISet<int> standardArtifactTypeIds)
         {

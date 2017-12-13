@@ -1,4 +1,4 @@
-﻿using AdminStore.Models.Workflow;
+﻿using AdminStore.Models.DTO;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Workflow;

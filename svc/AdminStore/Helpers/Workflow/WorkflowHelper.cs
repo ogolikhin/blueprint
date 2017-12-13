@@ -245,7 +245,7 @@ namespace AdminStore.Helpers.Workflow
             destinationWorkflow.Name = sourceWorkflow.Name;
             destinationWorkflow.Description = sourceWorkflow.Description;
             destinationWorkflow.IsActive = sourceWorkflow.IsActive;
-            destinationWorkflow.IsContainsProcessArtifactType = sourceWorkflow.IsContainsProcessArtifactType;
+            destinationWorkflow.HasProcessArtifactType = sourceWorkflow.HasProcessArtifactType;
             destinationWorkflow.NewArtifactEvents = sourceWorkflow.NewArtifactEvents?.Select(ieNewArtifactEvent =>
                 new DNewArtifactEvent
                 {
@@ -320,7 +320,7 @@ namespace AdminStore.Helpers.Workflow
                 Name = sourceWorkflow.Name,
                 Description = sourceWorkflow.Description,
                 IsActive = sourceWorkflow.IsActive,
-                IsContainsProcessArtifactType = sourceWorkflow.IsContainsProcessArtifactType,
+                HasProcessArtifactType = sourceWorkflow.HasProcessArtifactType,
                 NewArtifactEvents = sourceWorkflow.NewArtifactEvents?.Select(dNewArtifactEvent => new IeNewArtifactEvent
                     {
                         Id = dNewArtifactEvent.Id,
@@ -491,7 +491,7 @@ namespace AdminStore.Helpers.Workflow
 
         private static DBaseAction MapToDAction(IeBaseAction ieBaseAction)
         {
-            switch (ieBaseAction.ActionType)
+            switch (ieBaseAction?.ActionType)
             {
                 case ActionTypes.EmailNotification:
                     var ieEmailNotificationAction = ieBaseAction as IeEmailNotificationAction;
@@ -531,7 +531,7 @@ namespace AdminStore.Helpers.Workflow
                             PropertyName = iePropertyChangeAction.PropertyName,
                             PropertyId = iePropertyChangeAction.PropertyId,
                             PropertyValue = iePropertyChangeAction.PropertyValue,
-                            UsersGroups = new DUsersGroups
+                            UsersGroups = iePropertyChangeAction.UsersGroups != null ? new DUsersGroups
                             {
                                 IncludeCurrentUser = iePropertyChangeAction.UsersGroups?.IncludeCurrentUser,
                                 UsersGroups = iePropertyChangeAction.UsersGroups?.UsersGroups?.Select(ieUserGroup =>
@@ -539,11 +539,12 @@ namespace AdminStore.Helpers.Workflow
                                     {
                                         Id = ieUserGroup.Id,
                                         Name = ieUserGroup.Name,
+                                        DisplayName = ieUserGroup.DisplayName,
                                         GroupProjectId = ieUserGroup.GroupProjectId,
                                         GroupProjectPath = ieUserGroup.GroupProjectPath,
                                         IsGroup = ieUserGroup.IsGroup
                                     }).ToList()
-                            },
+                            } : null,
                             ValidValues = iePropertyChangeAction.ValidValues?.Select(ieValidValue => new DValidValue
                             {
                                 Id = ieValidValue.Id,

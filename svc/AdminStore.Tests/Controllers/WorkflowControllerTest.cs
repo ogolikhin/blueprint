@@ -220,7 +220,7 @@ namespace AdminStore.Controllers
         private WorkflowController _controller;
         private const int SessionUserId = 1;
         private const int WorkflowId = 1;
-        private CopyWorkfloDto _copyWorkfloDto;
+        private CopyWorkflowDto _copyWorkfloDto;
         private const InstanceAdminPrivileges AllProjectDataPermissions = InstanceAdminPrivileges.AccessAllProjectData;
         private const int FolderId = 1;
         private const int ProjectId = 1;
@@ -291,7 +291,7 @@ namespace AdminStore.Controllers
 
             _scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
 
-            _copyWorkfloDto = new CopyWorkfloDto() { Name = "TestWorkflow" };
+            _copyWorkfloDto = new CopyWorkflowDto() { Name = "TestWorkflow" };
 
             _dWorkflow = new DWorkflow();
         }

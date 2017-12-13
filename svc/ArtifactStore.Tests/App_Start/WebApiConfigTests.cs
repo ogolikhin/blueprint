@@ -66,7 +66,7 @@ namespace ArtifactStore
             config.AssertAction<ArtifactController>("GetStandardArtifactTypes", HttpMethod.Get, "artifacts/standardartifacttypes?filter=1");
             config.AssertAction<ReviewContainersController>("RemoveParticipantsFromReviewAsync", HttpMethod.Post, "containers/1/participants/remove");
             config.AssertAction<ReviewContainersController>("GetReviewSettingsAsync", HttpMethod.Get, "containers/1/settings");
-            config.AssertAction<ReviewContainersController>("UpdateReviewSettingsAsync", HttpMethod.Put, "containers/1/settings");
+            config.AssertAction<ReviewContainersController>("UpdateReviewSettingsAsync", HttpMethod.Put, "containers/1/settings?autoSave=false");
             config.AssertAction<ReviewContainersController>("UpdateMeaningOfSignatureAsync", HttpMethod.Put, "containers/1/participants/meaningofsignatures");
             config.AssertAction<ArtifactController>("GetStandardProperties", HttpMethod.Post, "artifacts/standardproperties");
         }

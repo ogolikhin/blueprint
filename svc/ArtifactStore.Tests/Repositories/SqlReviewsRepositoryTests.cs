@@ -31,6 +31,7 @@ namespace ArtifactStore.Repositories
         private Mock<ILockArtifactsRepository> _lockArtifactsRepositoryMock;
         private bool _hasEditPermissions = true;
         private ArtifactBasicDetails _artifactDetails;
+        private VersionControlArtifactInfo _reviewInfo;
 
         public const int ReviewId = 1;
         public const int UserId = 2;
@@ -77,6 +78,16 @@ namespace ArtifactStore.Repositories
             _artifactRepositoryMock
                 .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
                 .ReturnsAsync(() => _artifactDetails);
+
+            _reviewInfo = new VersionControlArtifactInfo
+            {
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage,
+                IsDeleted = false,
+                VersionCount = 1
+            };
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId)).ReturnsAsync(() => _reviewInfo);
+
         }
 
         #region GetReviewSummary
@@ -662,6 +673,7 @@ namespace ArtifactStore.Repositories
                 Offset = 0,
                 Limit = 50
             };
+
             const int refreshInterval = 66;
 
             var appSettingsRepoMock = new Mock<IApplicationSettingsRepository>();
@@ -4742,6 +4754,20 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetReviewParticipantArtifactStatsAsync_Should_Throw_Not_Found_When_Artifact_Is_Not_Review()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+
+            _reviewInfo.PredefinedType = ItemTypePredefined.Actor;
+
+            // Act
+            await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, userId, userId, new Pagination());
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
         public async Task GetReviewParticipantArtifactStatsAsync_Should_Throw_Unauthorized_When_User_Does_Not_Have_Read_Permission_For_Review()
         {
@@ -4750,11 +4776,6 @@ namespace ArtifactStore.Repositories
             var userId = 2;
             var participantId = 3;
             var artifactId = 4;
-
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
-            {
-                VersionCount = 1
-            });
 
             SetupReviewArtifactsQuery(reviewId, userId, new ReviewedArtifact()
             {
@@ -4780,11 +4801,6 @@ namespace ArtifactStore.Repositories
             var userId = 2;
             var participantId = 3;
             var artifactId = 4;
-
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
-            {
-                VersionCount = 1
-            });
 
             SetupReviewArtifactsQuery(reviewId, userId, new ReviewedArtifact()
             {
@@ -4833,11 +4849,6 @@ namespace ArtifactStore.Repositories
                 Approval = "Approved"
             };
 
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo
-            {
-                VersionCount = 1
-            });
-
             SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact, true);
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -4883,11 +4894,6 @@ namespace ArtifactStore.Repositories
                 ViewState = ViewStateType.Viewed,
                 Approval = "Approved"
             };
-
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo
-            {
-                VersionCount = 1
-            });
 
             SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
 
@@ -4939,11 +4945,6 @@ namespace ArtifactStore.Repositories
                 ViewedArtifactVersion = null
             };
 
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
-            {
-                VersionCount = 1
-            });
-
             SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -4981,11 +4982,6 @@ namespace ArtifactStore.Repositories
             {
                 ViewState = ViewStateType.NotViewed
             };
-
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo
-            {
-                VersionCount = 1
-            });
 
             SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
 
@@ -5026,11 +5022,6 @@ namespace ArtifactStore.Repositories
                 ArtifactVersion = 3,
                 ViewedArtifactVersion = 1
             };
-
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo
-            {
-                VersionCount = 1
-            });
 
             SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
 
@@ -5089,6 +5080,15 @@ namespace ArtifactStore.Repositories
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
+            var reviewInfo = new VersionControlArtifactInfo
+            {
+                PredefinedType = ItemTypePredefined.ArtifactReviewPackage,
+                IsDeleted = false,
+                VersionCount = 1
+            };
+
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
@@ -5110,17 +5110,17 @@ namespace ArtifactStore.Repositories
                 Id = 4,
                 IsApprovalRequired = true
             };
+            var pagination = new Pagination
+            {
+                Offset = 0,
+                Limit = 50
+            };
 
             var participantReviewArtifact = new ReviewedArtifact
             {
                 ApprovalFlag = ApprovalType.NotSpecified,
                 Approval = ""
             };
-
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo
-            {
-                VersionCount = 1
-            });
 
             SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
 
@@ -5135,7 +5135,7 @@ namespace ArtifactStore.Repositories
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
             // Act
-            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, pagination);
 
             // Assert
             _cxn.Verify();
@@ -5161,11 +5161,6 @@ namespace ArtifactStore.Repositories
                 ApprovalFlag = ApprovalType.NotSpecified,
                 Approval = ""
             };
-
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo
-            {
-                VersionCount = 1
-            });
 
             SetupIsMeaningOfSignatureEnabledQuery(true, false);
 
@@ -5218,11 +5213,6 @@ namespace ArtifactStore.Repositories
                 Approval = ""
             };
 
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo
-            {
-                VersionCount = 1
-            });
-
             SetupIsMeaningOfSignatureEnabledQuery(true, true);
 
             SetupGetParticipantsMeaningOfSignatureValuesQuery(new[] { 4 }, participantId, reviewId, new ReviewMeaningOfSignatureValue[0]);
@@ -5266,11 +5256,6 @@ namespace ArtifactStore.Repositories
                 ApprovalFlag = ApprovalType.NotSpecified,
                 Approval = ""
             };
-
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo
-            {
-                VersionCount = 1
-            });
 
             SetupIsMeaningOfSignatureEnabledQuery(true, true);
 

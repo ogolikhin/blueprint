@@ -121,5 +121,17 @@ namespace ArtifactStore.Helpers
                 }
             }
         }
+
+        public static ConflictException ReviewInDraftStateException(int reviewId)
+        {
+            var errorMessage = "Review is in draft state. Cannot view artifactstats.";
+            return new ConflictException(errorMessage, ErrorCodes.ReviewDraft);
+        }
+
+        public static ResourceNotFoundException ParticipantNotFoundException(int participantId, int reviewId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("Participant (Id:{0}) is not found in Review (Id:{1}).", participantId, reviewId);
+            return new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+        }
     }
 }

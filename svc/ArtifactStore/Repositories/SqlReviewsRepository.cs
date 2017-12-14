@@ -2034,6 +2034,7 @@ namespace ArtifactStore.Repositories
 
         public async Task<QueryResult<ParticipantArtifactStats>> GetReviewParticipantArtifactStatsAsync(int reviewId, int participantId, int userId, Pagination pagination)
         {
+
             var reviewInfo = await _artifactVersionsRepository.GetVersionControlArtifactInfoAsync(reviewId, null, userId);
 
             if (reviewInfo.VersionCount == 0 || reviewInfo.IsDeleted || reviewInfo.PredefinedType != ItemTypePredefined.ArtifactReviewPackage)
@@ -2042,6 +2043,22 @@ namespace ArtifactStore.Repositories
             }
 
             pagination.SetDefaultValues(0, 50);
+
+
+            var review = await GetReviewAsync(reviewId, userId);
+            var reviewPackageRawData = review.ReviewPackageRawData;
+
+            if (reviewPackageRawData.Status == ReviewPackageStatus.Draft)
+            {
+                throw ReviewsExceptionHelper.ReviewInDraftStateException(reviewId);
+            }
+
+            var participant = reviewPackageRawData.Reviewers.FirstOrDefault(reviewer => reviewer.UserId == participantId);
+
+            if (participant == null)
+            {
+                throw ReviewsExceptionHelper.ParticipantNotFoundException(participantId, reviewId);
+            }
 
             var reviewedArtifactResult = await GetParticipantReviewedArtifactsAsync(reviewId, userId, participantId, pagination, addDrafts: true);
 

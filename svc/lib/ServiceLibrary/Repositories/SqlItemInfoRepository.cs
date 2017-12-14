@@ -89,16 +89,24 @@ namespace ServiceLibrary.Repositories
 
             if (versionId != null)
             {
+                if (versionId < 0)
+                {
+                    throw new BadRequestException($"Version Id out of range.", ErrorCodes.OutOfRangeParameter);
+                }
                 revisionId = await GetRevisionIdByVersionIndex(artifactId, versionId.Value);
             }
             else if (baselineId != null)
             {
+                if (baselineId < 0)
+                {
+                    throw new BadRequestException($"Baseline Id out of range.", ErrorCodes.OutOfRangeParameter);
+                }
                 revisionId = await GetRevisionIdFromBaselineId(baselineId.Value, userId);
             }
 
             if (revisionId <= 0)
             {
-                throw new BadRequestException($"Version Index or Baseline Timestamp is not found.", ErrorCodes.OutOfRangeParameter);
+                throw new ResourceNotFoundException($"Version Index or Baseline Timestamp is not found.", ErrorCodes.ResourceNotFound);
             }
 
             return revisionId;

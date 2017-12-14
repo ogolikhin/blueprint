@@ -39,7 +39,6 @@ namespace ArtifactStore.Repositories
         private const string _reviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>";
         private const string _reviewPackageRawDataXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
 
-
         [TestInitialize]
         public void Initialize()
         {
@@ -91,7 +90,6 @@ namespace ArtifactStore.Repositories
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId)).ReturnsAsync(() => _reviewInfo);
 
-            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
         }
 
         #region GetReviewSummary
@@ -4793,6 +4791,7 @@ namespace ArtifactStore.Repositories
                 { reviewId, RolePermissions.None }
             });
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
         }
@@ -4819,6 +4818,7 @@ namespace ArtifactStore.Repositories
                 { artifactId, RolePermissions.None }
             });
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
@@ -4864,6 +4864,7 @@ namespace ArtifactStore.Repositories
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
@@ -4911,6 +4912,7 @@ namespace ArtifactStore.Repositories
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
@@ -4961,6 +4963,7 @@ namespace ArtifactStore.Repositories
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
@@ -4999,6 +5002,7 @@ namespace ArtifactStore.Repositories
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
@@ -5009,41 +5013,41 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task GetReviewParticipantArtifactStatsAsync_ViewState_Should_Be_Not_Viewed_When_ViewState_Is_Not_Viewed()
+        [ExpectedException(typeof(ConflictException))]
+        public async Task GetReviewParticipantArtifactStatsAsync_Review_Status_Should_Not_Be_Draft()
         {
             // Arrange
             var reviewId = 1;
             var userId = 2;
             var participantId = 3;
-            var reviewArtifact = new ReviewedArtifact
-            {
-                Id = 4
-            };
 
-            var participantReviewArtifact = new ReviewedArtifact
-            {
-                ViewState = ViewStateType.NotViewed
-            };
 
-            SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
+            var reviewPackageRawDataXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Draft</Status></ReviewPackageRawData>";
 
-            _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
-
-            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>
-            {
-                { reviewId, RolePermissions.Read },
-                { reviewArtifact.Id, RolePermissions.Read }
-            });
-
-            SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, reviewPackageRawDataXml);
 
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
-            // Assert
-            _cxn.Verify();
-            Assert.AreEqual(artifactStatsResult.Total, 1);
-            Assert.AreEqual(ViewStateType.NotViewed, artifactStatsResult.Items.First().ViewState);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetReviewParticipantArtifactStatsAsync_Participant_Should_Be_In_The_Reviewer_List()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var participantId = 3;
+
+
+            var reviewPackageRawDataXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><UserId>2</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
+
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, reviewPackageRawDataXml);
+
+            // Act
+            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+
         }
 
         [TestMethod]
@@ -5077,6 +5081,7 @@ namespace ArtifactStore.Repositories
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
@@ -5131,6 +5136,7 @@ namespace ArtifactStore.Repositories
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
@@ -5176,6 +5182,7 @@ namespace ArtifactStore.Repositories
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, pagination);
 
@@ -5228,6 +5235,7 @@ namespace ArtifactStore.Repositories
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
@@ -5271,6 +5279,7 @@ namespace ArtifactStore.Repositories
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
@@ -5323,6 +5332,7 @@ namespace ArtifactStore.Repositories
 
             SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act
             var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 

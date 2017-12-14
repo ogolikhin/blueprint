@@ -132,7 +132,7 @@ namespace ArtifactStore.Repositories
                     // any user records. Thus we may have situations where the display name on the comment does not
                     // correspond to any user records within the database. In which case the user Id on the comment is the user id
                     // of the user who performed the project import and we should not be using this to determine the display name of
-                    // the author on the comment. The comment's user's display name is populated by the GetItemDiscussions SP. 
+                    // the author on the comment. The comment's user's display name is populated by the GetItemDiscussions SP.
                     // Here we just indicate if the user is a guest or not. STOR-5704
                     bool userDoesNotExist = userInfo.DisplayName != comment.DisplayName;
                     comment.IsGuest = userDoesNotExist || userInfo.IsGuest;

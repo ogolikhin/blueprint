@@ -36,6 +36,9 @@ namespace ArtifactStore.Repositories
         public const int ReviewId = 1;
         public const int UserId = 2;
         private const int ProjectId = 3;
+        private const string _reviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>";
+        private const string _reviewPackageRawDataXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Reviwers><ReviewerRawData><UserId>3</UserId></ReviewerRawData></Reviwers><Status>Active</Status></ReviewPackageRawData>";
+
 
         [TestInitialize]
         public void Initialize()
@@ -88,6 +91,7 @@ namespace ArtifactStore.Repositories
 
             _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId)).ReturnsAsync(() => _reviewInfo);
 
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
         }
 
         #region GetReviewSummary
@@ -4943,6 +4947,44 @@ namespace ArtifactStore.Repositories
                 ViewState = ViewStateType.Viewed,
                 ArtifactVersion = 3,
                 ViewedArtifactVersion = null
+            };
+
+            SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);
+
+            _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+
+            SetupArtifactPermissionsCheck(new[] { reviewArtifact.Id, reviewId }, userId, new Dictionary<int, RolePermissions>
+            {
+                { reviewId, RolePermissions.Read },
+                { reviewArtifact.Id, RolePermissions.Read }
+            });
+
+            SetupParticipantReviewArtifactsQuery(reviewId, participantId, reviewArtifact.Id, participantReviewArtifact);
+
+            // Act
+            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+
+            // Assert
+            _cxn.Verify();
+            Assert.AreEqual(artifactStatsResult.Total, 1);
+            Assert.AreEqual(ViewStateType.NotViewed, artifactStatsResult.Items.First().ViewState);
+        }
+
+        [TestMethod]
+        public async Task GetReviewParticipantArtifactStatsAsync_ViewState_Should_Be_Not_Viewed_When_ViewState_Is_Not_Viewed()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var participantId = 3;
+            var reviewArtifact = new ReviewedArtifact
+            {
+                Id = 4
+            };
+
+            var participantReviewArtifact = new ReviewedArtifact
+            {
+                ViewState = ViewStateType.NotViewed
             };
 
             SetupReviewArtifactsQuery(reviewId, userId, reviewArtifact);

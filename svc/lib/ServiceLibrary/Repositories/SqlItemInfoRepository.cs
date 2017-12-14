@@ -98,7 +98,7 @@ namespace ServiceLibrary.Repositories
 
             if (revisionId <= 0)
             {
-                throw new BadRequestException($"Version Index or Baseline Timestamp is not found.", ErrorCodes.OutOfRangeParameter);
+                throw new ResourceNotFoundException($"Version Index or Baseline Timestamp is not found.", ErrorCodes.ResourceNotFound);
             }
 
             return revisionId;

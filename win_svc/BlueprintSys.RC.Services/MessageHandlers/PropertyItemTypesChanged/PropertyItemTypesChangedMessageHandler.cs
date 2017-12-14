@@ -4,7 +4,7 @@ using BluePrintSys.Messaging.Models.Actions;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged
 {
-    public class PropertyItemTypesChangedMessageHandler : BaseMessageHandler<PropertyItemTypeChangedMessage>
+    public class PropertyItemTypesChangedMessageHandler : BaseMessageHandler<PropertyItemTypesChangedMessage>
     {
         public PropertyItemTypesChangedMessageHandler() : this(new PropertyItemTypesChangedActionHelper(), new TenantInfoRetriever(), new ConfigHelper())
         {

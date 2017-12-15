@@ -129,8 +129,10 @@ namespace ArtifactStore.Repositories
                 if (userInfos.TryGetValue(comment.UserId, out userInfo))
                 {
                     // STOR-5704
-                    if (comment.DisplayName == null)
+                    if (string.IsNullOrWhiteSpace(comment.DisplayName))
                     {
+                        // If, for whatever reason, the [dbo].[Threads] table does not contain the DisplayName of
+                        // the discussion/reply's author - look up the author's display name from [dbo].[Users]
                         comment.DisplayName = userInfo.DisplayName;
                     }
                     comment.IsGuest = userInfo.IsGuest;

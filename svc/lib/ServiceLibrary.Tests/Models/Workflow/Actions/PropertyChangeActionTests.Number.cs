@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models.ProjectMeta;
@@ -52,6 +48,38 @@ namespace ServiceLibrary.Models.Workflow.Actions
             // Assert
             Assert.IsNull(result);
             Assert.IsTrue(propertyLiteValue.NumberValue.HasValue);
+        }
+
+        [TestMethod]
+        public void ValidateAction_WhenValueIsCommaSeparated_NumberIsPopulated()
+        {
+            // Arrange
+            InitializeNumberPropertyChangeAction();
+            _propertyChangeAction.PropertyValue = "111,111";
+
+            // Act
+            var result = _propertyChangeAction.ValidateAction(_executionParameters);
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsNotNull(_propertyChangeAction.PropertyLiteValue.NumberValue);
+            Assert.AreEqual(_propertyChangeAction.PropertyLiteValue.NumberValue.Value, 111111);
+        }
+
+        [TestMethod]
+        public void ValidateAction_WhenValueStartsWithDecimal_NumberIsPopulated()
+        {
+            // Arrange
+            InitializeNumberPropertyChangeAction();
+            _propertyChangeAction.PropertyValue = ".123";
+
+            // Act
+            var result = _propertyChangeAction.ValidateAction(_executionParameters);
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsNotNull(_propertyChangeAction.PropertyLiteValue.NumberValue);
+            Assert.AreEqual(_propertyChangeAction.PropertyLiteValue.NumberValue.Value, 0.123M);
         }
 
         [TestMethod]

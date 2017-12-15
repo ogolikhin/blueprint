@@ -151,8 +151,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
             {
                 decimal value;
                 if (
-                    !Decimal.TryParse(PropertyValue, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, new NumberFormatInfo(),
-                        out value))
+                     !Decimal.TryParse(PropertyValue, NumberStyles.Number, CultureInfo.InvariantCulture, out value))
                 {
                     return new PropertySetResult(InstancePropertyTypeId, ErrorCodes.InvalidArtifactProperty,
                         "Property type is now number property. Property change action is currently invalid.");

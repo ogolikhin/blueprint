@@ -124,7 +124,7 @@ namespace ArtifactStore.Helpers
 
         public static ConflictException ReviewInDraftStateException(int reviewId)
         {
-            var errorMessage = "Review is in draft state. Cannot view artifactstats.";
+            var errorMessage = I18NHelper.FormatInvariant("Review (Id:{0}) is in draft state. Cannot view artifactstats.", reviewId);
             return new ConflictException(errorMessage, ErrorCodes.ReviewDraft);
         }
 

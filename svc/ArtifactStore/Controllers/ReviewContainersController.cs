@@ -432,7 +432,7 @@ namespace ArtifactStore.Controllers
         /// <param name="reviewId">The review id.</param>
         /// <param name="reviewSettings">The updated review settings.</param>
         /// <param name="autoSave">Whether the settings are being autosaved or not.</param>
-        /// <response code="204">No Content. The review settings were successfully updated.</response>
+        /// <response code="200">The updated review settings..</response>
         /// <response code="400">Bad Request. The request parameters are invalid.</response>
         /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="403">Forbidden. The user does not have permissions to access review.</response>

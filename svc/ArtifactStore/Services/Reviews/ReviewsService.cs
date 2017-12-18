@@ -140,7 +140,7 @@ namespace ArtifactStore.Services.Reviews
         {
             if (!autoSave && updatedReviewSettings.EndDate.HasValue && updatedReviewSettings.EndDate <= _currentDateTimeService.GetUtcNow())
             {
-                throw ReviewsExceptionHelper.ReviewExpiredException();
+                throw new BadRequestException("The settings could not be updated because the review has expired.", ErrorCodes.ReviewExpired);
             }
 
             reviewRawData.EndDate = updatedReviewSettings.EndDate;

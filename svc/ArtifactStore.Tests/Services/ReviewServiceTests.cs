@@ -1599,7 +1599,7 @@ namespace ArtifactStore.Services
             {
                 await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedReviewSettings, false, UserId);
             }
-            catch (ConflictException ex)
+            catch (BadRequestException ex)
             {
                 // Assert
                 Assert.AreEqual(ErrorCodes.ReviewExpired, ex.ErrorCode);
@@ -1607,7 +1607,7 @@ namespace ArtifactStore.Services
                 return;
             }
 
-            Assert.Fail("A ConflictException was not thrown.");
+            Assert.Fail("A BadRequestException was not thrown.");
         }
 
         [TestMethod]

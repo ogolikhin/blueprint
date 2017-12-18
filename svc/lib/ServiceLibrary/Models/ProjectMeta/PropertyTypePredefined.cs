@@ -40,6 +40,8 @@ namespace ServiceLibrary.Models.ProjectMeta
     /// CreatedOn               = 4125
     /// LastEditedBy            = 4126
     /// LastEditedOn            = 4127
+    /// ArtifactType            = 4148
+    /// WorkflowState           = 4149
     /// X                       = 8193
     /// Y                       = 8194
     /// Width                   = 8195
@@ -99,6 +101,8 @@ namespace ServiceLibrary.Models.ProjectMeta
         CreatedOn              = SystemGroup | 29,
         LastEditedBy           = SystemGroup | 30,
         LastEditedOn           = SystemGroup | 31,
+        ArtifactType           = SystemGroup | 52,
+        WorkflowState          = SystemGroup | 53,
 
         // Predefined visualization properties
         VisualizationGroup     = 0x2000,

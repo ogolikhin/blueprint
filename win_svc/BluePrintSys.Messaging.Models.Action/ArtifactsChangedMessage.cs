@@ -1,4 +1,5 @@
-﻿using ServiceLibrary.Models.Enums;
+﻿using System.Collections.Generic;
+using ServiceLibrary.Models.Enums;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
@@ -14,5 +15,7 @@ namespace BluePrintSys.Messaging.Models.Actions
         public override MessageActionType ActionType { get; } = MessageActionType.ArtifactsChanged;
 
         public ChangedType ChangeType { get; set; }
+
+        public IEnumerable<int> ArtifactIds { get; set; }
     }
 }

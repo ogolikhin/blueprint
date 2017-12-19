@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Executors;
+using ArtifactStore.Helpers;
 using ArtifactStore.Repositories;
 using ArtifactStore.Services.Workflow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,6 +34,7 @@ namespace ArtifactStore.Services
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
+        private Mock<IWorkflowEventsMessagesHelper> _workflowEventsMessagesHelperMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -47,6 +49,8 @@ namespace ArtifactStore.Services
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Loose);
             _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
             _usersRepositoryMock = new Mock<IUsersRepository>(MockBehavior.Loose);
+            _workflowEventsMessagesHelperMock = new Mock<IWorkflowEventsMessagesHelper>();
+            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<WorkflowEventTriggers>(), It.IsAny<IBaseArtifactVersionControlInfo>(), It.IsAny<string>(), It.IsAny<IDictionary<int, IList<Property>>>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IUsersRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<IDbTransaction>())).ReturnsAsync(new List<IWorkflowMessage>());
 
             _workflowServiceMock = new WorkflowService(_sqlHelperMock,
                 _itemInfoRepositoryMock.Object,
@@ -57,7 +61,8 @@ namespace ArtifactStore.Services
                 _saveArtifactRepositoryMock.Object,
                 _applicationSettingsRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
-                _usersRepositoryMock.Object));
+                _usersRepositoryMock.Object),
+                _workflowEventsMessagesHelperMock.Object);
         }
 
         [TestMethod]

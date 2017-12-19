@@ -17,11 +17,17 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Helpers
 {
-    public class WorkflowEventsMessagesHelper
+    public interface IWorkflowEventsMessagesHelper
+    {
+        Task<IList<IWorkflowMessage>> GenerateMessages(int userId, int revisionId, string userName, WorkflowEventTriggers postOpTriggers, IBaseArtifactVersionControlInfo artifactInfo, string projectName, IDictionary<int, IList<Property>> modifiedProperties, bool sendArtifactPublishedMessage, string artifactUrl, string baseUrl, IUsersRepository repository, IServiceLogRepository serviceLogRepository, IDbTransaction transaction = null);
+        Task ProcessMessages(string logSource, IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, IList<IWorkflowMessage> messages, string exceptionMessagePrepender, IDbTransaction transaction = null);
+    }
+
+    public class WorkflowEventsMessagesHelper : IWorkflowEventsMessagesHelper
     {
         private const string LogSource = "ArtifactStore.Helpers.WorkflowEventsMessagesHelper";
 
-        public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
+        public async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
             int revisionId,
             string userName,
             WorkflowEventTriggers postOpTriggers,
@@ -147,14 +153,14 @@ namespace ArtifactStore.Helpers
             {
                 UserId = userId,
                 RevisionId = revisionId,
-                ChangeType = ArtifactChangeType.Publish
+                ChangeType = ArtifactChangedType.Publish
             };
             resultMessages.Add(artifactsChangedMessage);
 
             return resultMessages;
         }
 
-        public static async Task ProcessMessages(string logSource,
+        public async Task ProcessMessages(string logSource,
             IApplicationSettingsRepository applicationSettingsRepository,
             IServiceLogRepository serviceLogRepository,
             IList<IWorkflowMessage> messages,

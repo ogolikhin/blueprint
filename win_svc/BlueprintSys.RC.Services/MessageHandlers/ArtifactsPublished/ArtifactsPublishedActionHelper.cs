@@ -1,16 +1,14 @@
 ﻿using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
 using ServiceLibrary.Repositories.ConfigControl;
 
-namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
+namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
-    public class ArtifactsPublishedActionHelper : MessageActionHandler
+    public class ArtifactsPublishedActionHelper : IActionHelper
     {
         private readonly IActionsParser _actionsParser;
 
@@ -19,12 +17,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
             _actionsParser = actionsParser ?? new ActionsParser();
         }
 
-        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
+        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (ArtifactsPublishedMessage)actionMessage;
             Logger.Log($"Handling started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
 
-            var repository = (IArtifactsPublishedRepository)actionHandlerServiceRepository;
+            var repository = (IArtifactsPublishedRepository)baseRepository;
 
             var serviceLogRepository = new ServiceLogRepository(new HttpClientProvider(),
                 new LocalFileLog(),

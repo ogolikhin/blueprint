@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.MessageHandlers;
-using BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished;
+using BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged;
+using BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished;
 using BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants;
 using BlueprintSys.RC.Services.MessageHandlers.GenerateTests;
 using BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories;
 using BlueprintSys.RC.Services.MessageHandlers.Notifications;
-using BlueprintSys.RC.Services.MessageHandlers.PropertyChange;
-using BlueprintSys.RC.Services.MessageHandlers.StateTransition;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
+using BlueprintSys.RC.Services.MessageHandlers.ProjectsChanged;
+using BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged;
+using BlueprintSys.RC.Services.MessageHandlers.UsersGroupsChanged;
+using BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.CrossCutting.Models.Exceptions;
@@ -32,7 +33,7 @@ namespace BlueprintSys.RC.Services.Tests
     public class HandlerTests
     {
         private Mock<IActionHelper> _actionHelperMock;
-        private Mock<IActionHandlerServiceRepository> _actionHandlerServiceRepositoryMock;
+        private Mock<IBaseRepository> _actionHandlerServiceRepositoryMock;
         private ISetup<IActionHelper, Task<bool>> _handleActionSetup;
         private TenantInfoRetriever _tenantInfoRetriever;
         private ConfigHelper _configHelper;
@@ -42,8 +43,8 @@ namespace BlueprintSys.RC.Services.Tests
         public void TestInitialize()
         {
             _actionHelperMock = new Mock<IActionHelper>();
-            _handleActionSetup = _actionHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>(), It.IsAny<ActionMessage>(), It.IsAny<ActionHandlerServiceRepository>()));
-            _actionHandlerServiceRepositoryMock = new Mock<IActionHandlerServiceRepository>();
+            _handleActionSetup = _actionHelperMock.Setup(m => m.HandleAction(It.IsAny<TenantInformation>(), It.IsAny<ActionMessage>(), It.IsAny<BaseRepository>()));
+            _actionHandlerServiceRepositoryMock = new Mock<IBaseRepository>();
             var tenants = new List<TenantInformation>
             {
                 new TenantInformation
@@ -79,7 +80,7 @@ namespace BlueprintSys.RC.Services.Tests
             var message = new NotificationMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(MessageHeaderValueNotFoundException))]
         public void BaseMessageHandler_ThrowsMessageHeaderValueNotFoundException_WhenHeaderValueIsNotFound()
@@ -91,7 +92,8 @@ namespace BlueprintSys.RC.Services.Tests
         }
 
         [TestMethod]
-        public void BaseMessageHandler_ReturnsWhenNoTenantsAreFound()
+        [ExpectedException(typeof(EntityNotFoundException))]
+        public void BaseMessageHandler_ThrowsException_WhenNoTenantsAreFound()
         {
             var noTenants = new List<TenantInformation>();
             _actionHandlerServiceRepositoryMock.Setup(a => a.GetTenantsFromTenantsDb()).ReturnsAsync(noTenants);
@@ -102,7 +104,8 @@ namespace BlueprintSys.RC.Services.Tests
         }
 
         [TestMethod]
-        public void BaseMessageHandler_ReturnsWhenTheRightTenantIsNotFound()
+        [ExpectedException(typeof(EntityNotFoundException))]
+        public void BaseMessageHandler_ThrowsException_WhenTheRightTenantIsNotFound()
         {
             var wrongTenant = new List<TenantInformation>
             {
@@ -249,72 +252,132 @@ namespace BlueprintSys.RC.Services.Tests
         }
 
         [TestMethod]
-        public void StateTransitionMessageHandler_InstantiatesSuccessfully()
+        public void ArtifactsChangedMessageHandler_InstantiatesSuccessfully()
         {
-            var handler = new StateTransitionMessageHandler();
+            var handler = new ArtifactsChangedMessageHandler();
             Assert.IsNotNull(handler);
         }
 
         [TestMethod]
-        public void StateTransitionMessageHandler_HandlesMessageSuccessfully()
+        public void ArtifactsChangedMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
-            var handler = new StateTransitionMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
-            var message = new StateChangeMessage();
+            var handler = new ArtifactsChangedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new ArtifactsChangedMessage();
             TestHandlerAndMessageWithHeader(handler, message);
-        }
-
-        [TestMethod]
-        public async Task StateTransitionActionHelper_ReturnsTrue()
-        {
-            var helper = new StateTransitionActionHelper();
-            //this should be updated when/if the logic is implemented
-            var result = await helper.HandleAction(new TenantInformation(), new StateChangeMessage(), _actionHandlerServiceRepositoryMock.Object);
-            Assert.IsTrue(result);
         }
 
         [TestMethod]
         [ExpectedException(typeof(TestException))]
-        public void StateTransitionMessageHandler_RethrowsException()
+        public void ArtifactsChangedMessageHandler_RethrowsException()
         {
             _handleActionSetup.Throws(new TestException());
-            var handler = new StateTransitionMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
-            var message = new StateChangeMessage();
+            var handler = new ArtifactsChangedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new ArtifactsChangedMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
 
         [TestMethod]
-        public void PropertyChangeMessageHandler_InstantiatesSuccessfully()
+        public void ProjectsChangedMessageHandler_InstantiatesSuccessfully()
         {
-            var handler = new PropertyChangeMessageHandler();
+            var handler = new ProjectsChangedMessageHandler();
             Assert.IsNotNull(handler);
         }
 
         [TestMethod]
-        public void PropertyChangeMessageHandler_HandlesMessageSuccessfully()
+        public void ProjectsChangedMessageHandler_HandlesMessageSuccessfully()
         {
             _handleActionSetup.Returns(Task.FromResult(true));
-            var handler = new PropertyChangeMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
-            var message = new GenerateUserStoriesMessage();
+            var handler = new ProjectsChangedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new ProjectsChangedMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
 
         [TestMethod]
-        public async Task PropertyChangeActionHelper_ReturnsTrue()
+        [ExpectedException(typeof(TestException))]
+        public void ProjectsChangedMessageHandler_RethrowsException()
         {
-            var helper = new PropertyChangeActionHelper();
-            //this should be updated when/if the logic is implemented
-            var result = await helper.HandleAction(new TenantInformation(), new GenerateUserStoriesMessage(), _actionHandlerServiceRepositoryMock.Object);
-            Assert.IsTrue(result);
+            _handleActionSetup.Throws(new TestException());
+            var handler = new ProjectsChangedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new ProjectsChangedMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        public void PropertyItemTypesChangedMessageHandler_InstantiatesSuccessfully()
+        {
+            var handler = new PropertyItemTypesChangedMessageHandler();
+            Assert.IsNotNull(handler);
+        }
+
+        [TestMethod]
+        public void PropertyItemTypesChangedMessageHandler_HandlesMessageSuccessfully()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new PropertyItemTypesChangedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new PropertyItemTypesChangedMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
         }
 
         [TestMethod]
         [ExpectedException(typeof(TestException))]
-        public void PropertyChangeMessageHandler_RethrowsException()
+        public void PropertyItemTypesChangedMessageHandler_RethrowsException()
         {
             _handleActionSetup.Throws(new TestException());
-            var handler = new PropertyChangeMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
-            var message = new GenerateUserStoriesMessage();
+            var handler = new PropertyItemTypesChangedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new PropertyItemTypesChangedMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        public void UsersGroupsChangedMessageHandler_InstantiatesSuccessfully()
+        {
+            var handler = new UsersGroupsChangedMessageHandler();
+            Assert.IsNotNull(handler);
+        }
+
+        [TestMethod]
+        public void UsersGroupsChangedMessageHandler_HandlesMessageSuccessfully()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new UsersGroupsChangedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new UsersGroupsChangedMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void UsersGroupsChangedMessageHandler_RethrowsException()
+        {
+            _handleActionSetup.Throws(new TestException());
+            var handler = new UsersGroupsChangedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new UsersGroupsChangedMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        public void WorkflowsChangedMessageHandler_InstantiatesSuccessfully()
+        {
+            var handler = new WorkflowsChangedMessageHandler();
+            Assert.IsNotNull(handler);
+        }
+
+        [TestMethod]
+        public void WorkflowsChangedMessageHandler_HandlesMessageSuccessfully()
+        {
+            _handleActionSetup.Returns(Task.FromResult(true));
+            var handler = new WorkflowsChangedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new WorkflowsChangedMessage();
+            TestHandlerAndMessageWithHeader(handler, message);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TestException))]
+        public void WorkflowsChangedMessageHandler_RethrowsException()
+        {
+            _handleActionSetup.Throws(new TestException());
+            var handler = new WorkflowsChangedMessageHandler(_actionHelperMock.Object, _tenantInfoRetriever, _configHelper);
+            var message = new WorkflowsChangedMessage();
             TestHandlerAndMessageWithHeader(handler, message);
         }
     }

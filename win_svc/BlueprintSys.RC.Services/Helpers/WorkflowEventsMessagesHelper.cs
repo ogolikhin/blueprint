@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -63,10 +64,7 @@ namespace BlueprintSys.RC.Services.Helpers
                         if (notificationMessage == null)
                         {
                             await serviceLogRepository.LogInformation(LogSource, $"Skipping Email notification action for artifact {artifactInfo.Id}");
-                            Logger.Log($"Skipping Email notification action for artifact {artifactInfo.Id}", 
-                                MessageActionType.Notification, 
-                                null, 
-                                LogLevel.Debug);
+                            Log.Debug($" Skipping Email notification action for artifact {artifactInfo.Id}. Message: Notification.");
                             continue;
                         }
                         resultMessages.Add(notificationMessage);
@@ -100,10 +98,7 @@ namespace BlueprintSys.RC.Services.Helpers
                         if (generateTestsAction == null || artifactInfo.PredefinedType != ItemTypePredefined.Process)
                         {
                             await serviceLogRepository.LogInformation(LogSource, $"Skipping GenerateTestCasesAction for artifact {artifactInfo.Id} as it is not a process");
-                            Logger.Log($"Skipping GenerateTestCasesAction for artifact {artifactInfo.Id} as it is not a process",
-                                MessageActionType.Notification,
-                                null,
-                                LogLevel.Debug);
+                            Log.Debug($"Skipping GenerateTestCasesAction for artifact {artifactInfo.Id} as it is not a process. Message: Notification.");
                             continue;
                         }
                         var generateTestsMessage = new GenerateTestsMessage
@@ -123,10 +118,7 @@ namespace BlueprintSys.RC.Services.Helpers
                         if (generateUserStories == null || artifactInfo.PredefinedType != ItemTypePredefined.Process)
                         {
                             await serviceLogRepository.LogInformation(LogSource, $"Skipping GenerateUserStories for artifact {artifactInfo.Id} as it is not a process");
-                            Logger.Log($"Skipping GenerateUserStories for artifact {artifactInfo.Id} as it is not a process",
-                                MessageActionType.Notification,
-                                null,
-                                LogLevel.Debug);
+                            Log.Debug($"Skipping GenerateUserStories for artifact {artifactInfo.Id} as it is not a process. Message: Notification.");
                             continue;
                         }
                         var generateUserStoriesMessage = new GenerateUserStoriesMessage

@@ -4,18 +4,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Models.Exceptions;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.ConfigControl;
 
-namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
+namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
     internal class CreatedArtifactsNotificationHandler
     {

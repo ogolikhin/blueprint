@@ -3,14 +3,14 @@ using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 
-namespace BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged
+namespace BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged
 {
-    public class PropertyItemTypesChangedActionHelper : IActionHelper
+    public class WorkflowsChangedActionHelper : IActionHelper
     {
         public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
-            var message = (PropertyItemTypesChangedMessage) actionMessage;
-            var repository = (PropertyItemTypesChangedRepository) baseRepository;
+            var message = (WorkflowsChangedMessage) actionMessage;
+            var repository = (WorkflowsChangedRepository) baseRepository;
 
             Logger.Log("Getting affected artifact IDs", message, tenant);
             var artifactIds = await repository.GetAffectedArtifactIds();

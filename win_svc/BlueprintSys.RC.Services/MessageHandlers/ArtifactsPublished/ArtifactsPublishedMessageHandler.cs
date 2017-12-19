@@ -2,7 +2,7 @@
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.Models.Actions;
 
-namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
+namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
     public class ArtifactsPublishedMessageHandler : BaseMessageHandler<ArtifactsPublishedMessage>
     {

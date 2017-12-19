@@ -1,29 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Logging;
+using BlueprintSys.RC.Services.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
-using ServiceLibrary.Models.Enums;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged
 {
-    public class ArtifactsChangedActionHelper : MessageActionHandler
+    public class ArtifactsChangedActionHelper : IActionHelper
     {
-        protected override Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage,
-            IActionHandlerServiceRepository actionHandlerServiceRepository)
+        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
-            if (!actionMessage.ActionType.HasFlag(MessageActionType.ArtifactsChanged))
+            var message = (ArtifactsChangedMessage) actionMessage;
+            var repository = (IArtifactsChangedRepository) baseRepository;
+            var artifactIds = message.ArtifactIds.ToList();
+
+            Logger.Log($"ArtifactsChanged message received for artifact ids {string.Join(", ", artifactIds)}.", message, tenant);
+
+            if (!artifactIds.Any())
             {
-                throw new NotSupportedException("Artifacts changed handler can only handle Artifacts Changed type");
+                Logger.Log("The message contains no artifact IDs", message, tenant);
+                return false;
             }
-            var artifactsChangedMessage = actionMessage as ArtifactsChangedMessage;
-            Log.DebugFormat("ArtifactsChanged message received for artifact ids {0}.", string.Join(",", artifactsChangedMessage.ArtifactIds.Select(a => a.ToString()).ToArray()));
-            // call service repostiory to execute stored procedure.
-            return Task.FromResult(true);
+
+            Logger.Log("Started repopulating search items", message, tenant);
+            await repository.RepopulateSearchItems(artifactIds);
+            Logger.Log("Finished repopulating search items", message, tenant);
+            return true;
         }
     }
 }

@@ -124,8 +124,6 @@
     <Compile Include="ConfigHelperTests.cs" />
     <Compile Include="MessageHandlers\ArtifactPublished\CreatedArtifactsNotificationHandlerTests.cs" />
     <Compile Include="MessageHandlers\ArtifactPublished\UpdatedArtifactsNotificationHandlerTests.cs" />
-    <Compile Include="PropertyChangeActionHelperTests.cs" />
-    <Compile Include="StateTransitionActionHelperTests.cs" />
     <Compile Include="NotificationsActionHelperTests.cs" />
     <Compile Include="MessageHandlers\GenerateUserStories\GenerateUserStoriesActionHelperTests.cs" />
     <Compile Include="MessageHandlers\GenerateTests\GenerateTestsActionHelperTests.cs" />
@@ -138,6 +136,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryTests.cs" />
     <Compile Include="SqlConnectionWrapperMock.cs" />
+    <Compile Include="ArtifactsChangedActionHelperTests.cs" />
     <Compile Include="WorkflowEventsMessagesHelperTests.cs" />
   </ItemGroup>
   <ItemGroup>

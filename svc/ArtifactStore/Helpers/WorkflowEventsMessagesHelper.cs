@@ -132,15 +132,25 @@ namespace ArtifactStore.Helpers
             // Add published artifact message
             if (sendArtifactPublishedMessage)
             {
-                var publishedMessage =
-                    GetPublishedMessage(userId, revisionId, artifactInfo, modifiedProperties) as
-                        ArtifactsPublishedMessage;
-
+                var publishedMessage = GetPublishedMessage(userId, revisionId, artifactInfo, modifiedProperties) as ArtifactsPublishedMessage;
                 if (publishedMessage != null && publishedMessage.Artifacts.Any())
                 {
                     resultMessages.Add(publishedMessage);
                 }
             }
+
+            var artifactIds = new List<int>
+            {
+                artifactInfo.Id
+            };
+            var artifactsChangedMessage = new ArtifactsChangedMessage(artifactIds)
+            {
+                UserId = userId,
+                RevisionId = revisionId,
+                ChangeType = ArtifactChangeType.Publish
+            };
+            resultMessages.Add(artifactsChangedMessage);
+
             return resultMessages;
         }
 

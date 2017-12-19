@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
+using BlueprintSys.RC.Services.MessageHandlers;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -22,7 +21,7 @@ namespace BlueprintSys.RC.Services.Tests
             //arrange
             var mockConfigHelper = new Mock<IConfigHelper>();
             mockConfigHelper.Setup(m => m.CacheExpirationMinutes).Returns(1);
-            var mockActionHandlerServiceRepository = new Mock<IActionHandlerServiceRepository>();
+            var mockActionHandlerServiceRepository = new Mock<IBaseRepository>();
             var sqlTenants = new List<TenantInformation>();
             for (int i = 0; i < 5; i++)
             {

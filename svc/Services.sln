@@ -61,6 +61,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluePrintSys.Messaging.Mode
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluePrintSys.Messaging.CrossCutting", "..\win_svc\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj", "{74353EB4-59E8-4F3E-A9E3-9927546970FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchEngineLibrary", "SearchEngineLibrary\SearchEngineLibrary.csproj", "{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchEngineLibrary.Tests", "SearchEngineLibrary.Tests\SearchEngineLibrary.Tests.csproj", "{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -425,6 +429,38 @@ Global
 		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|x64.Build.0 = Release|x64
 		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|x86.ActiveCfg = Release|Any CPU
 		{74353EB4-59E8-4F3E-A9E3-9927546970FD}.Release|x86.Build.0 = Release|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Debug|ARM.Build.0 = Debug|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Debug|x64.Build.0 = Debug|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Debug|x86.Build.0 = Debug|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Release|ARM.ActiveCfg = Release|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Release|ARM.Build.0 = Release|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Release|x64.ActiveCfg = Release|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Release|x64.Build.0 = Release|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Release|x86.ActiveCfg = Release|Any CPU
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}.Release|x86.Build.0 = Release|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Debug|ARM.Build.0 = Debug|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Debug|x64.Build.0 = Debug|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Debug|x86.Build.0 = Debug|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Release|ARM.ActiveCfg = Release|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Release|ARM.Build.0 = Release|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Release|x64.ActiveCfg = Release|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Release|x64.Build.0 = Release|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Release|x86.ActiveCfg = Release|Any CPU
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -440,6 +476,8 @@ Global
 		{5CB1CB3F-8E8E-44F6-80C8-AA6BBE6ECF31} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
 		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
 		{74353EB4-59E8-4F3E-A9E3-9927546970FD} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
+		{C4447978-10B7-44B8-91E3-8F0BF34CA5A9} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
+		{E8478FD0-0E37-4A12-982E-A5EF7894C6AA} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8;packages\EnterpriseLibrary.TransientFaultHandling.Data.6.0.1304.1\lib\NET45

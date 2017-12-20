@@ -7,9 +7,9 @@ using ServiceLibrary.Models.Jobs;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.GenerateTests
 {
-    public class GenerateTestsActionHelper : IActionHelper
+    public class GenerateTestsActionHelper : MessageActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (GenerateTestsMessage) actionMessage;
             if (message == null || message.ArtifactId <= 0 || message.ProjectId <= 0 || message.RevisionId <= 0 || message.UserId <= 0 || string.IsNullOrWhiteSpace(message.UserName) || tenant == null)

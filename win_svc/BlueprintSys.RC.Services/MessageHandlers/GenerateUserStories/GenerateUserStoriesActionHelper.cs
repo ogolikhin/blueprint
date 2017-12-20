@@ -13,9 +13,9 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories
         public int? TaskId { get; set; }
     }
 
-    public class GenerateUserStoriesActionHelper : IActionHelper
+    public class GenerateUserStoriesActionHelper : BoundaryReachedActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (GenerateUserStoriesMessage) actionMessage;
             if (message == null || message.ProjectId <= 0 || tenant == null)
@@ -27,13 +27,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories
             Logger.Log($"Handling of type: {message.ActionType} started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
 
             var repository = (IGenerateActionsRepository) baseRepository;
-            var isProjectMaxArtifactBoundaryReached = await repository.IsProjectMaxArtifactBoundaryReached(message.ProjectId);
-            if (isProjectMaxArtifactBoundaryReached)
-            {
-                Logger.Log($"Max artifact boundary for project {message.ProjectId} has been reached", actionMessage, tenant, LogLevel.Error);
-                return false;
-            }
-
             var user = await repository.GetUser(message.UserId);
             Logger.Log($"Retrieved user: {user?.Login}", message, tenant);
 

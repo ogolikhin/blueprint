@@ -11,9 +11,9 @@ using ServiceLibrary.Notification.Templates;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
 {
-    public class NotificationsActionHelper : IActionHelper
+    public class NotificationsActionHelper : MessageActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (NotificationMessage) actionMessage;
             var result = await SendNotificationEmail(tenant, message, (INotificationRepository) baseRepository);

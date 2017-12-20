@@ -9,9 +9,9 @@ using ServiceLibrary.Models.Jobs;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
 {
-    public class GenerateDescendantsActionHelper : IActionHelper
+    public class GenerateDescendantsActionHelper : BoundaryReachedActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (GenerateDescendantsMessage)actionMessage;
             if (message == null || message.ArtifactId <= 0 || message.ProjectId <= 0 || message.RevisionId <= 0 || message.UserId <= 0 || message.DesiredArtifactTypeId == null || string.IsNullOrWhiteSpace(message.UserName) || tenant == null)
@@ -22,14 +22,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
 
             Logger.Log($"Handling of type: {message.ActionType} started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
 
-            var repository = (IGenerateActionsRepository) baseRepository;
-            var isProjectMaxArtifactBoundaryReached = await repository.IsProjectMaxArtifactBoundaryReached(message.ProjectId);
-            if (isProjectMaxArtifactBoundaryReached)
-            {
-                Logger.Log($"Max artifact boundary for project {message.ProjectId} has been reached", actionMessage, tenant, LogLevel.Error);
-                return false;
-            }
-
             var ancestors = new List<int>(message.AncestorArtifactTypeIds ?? new int[0]);
             Logger.Log($"{ancestors.Count} ancestor artifact type IDs found: {string.Join(",", ancestors)}", message, tenant, LogLevel.Debug);
             var ancestorLoopExists = ancestors.GroupBy(i => i).Any(group => group.Count() > 1);
@@ -39,6 +31,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
                 return false;
             }
 
+            var repository = (IGenerateActionsRepository)baseRepository;
             var sqlItemTypeRepository = repository.ItemTypeRepository;
             var desiredItemType = await sqlItemTypeRepository.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(message.ProjectId, message.DesiredArtifactTypeId.GetValueOrDefault());
             if (desiredItemType == null || desiredItemType.ItemTypeId <= 0 || string.IsNullOrWhiteSpace(desiredItemType.Name))

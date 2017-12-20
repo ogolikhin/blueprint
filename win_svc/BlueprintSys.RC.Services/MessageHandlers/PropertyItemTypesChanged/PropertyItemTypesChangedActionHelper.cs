@@ -5,9 +5,9 @@ using BluePrintSys.Messaging.Models.Actions;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged
 {
-    public class PropertyItemTypesChangedActionHelper : IActionHelper
+    public class PropertyItemTypesChangedActionHelper : MessageActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (PropertyItemTypesChangedMessage) actionMessage;
             var repository = (PropertyItemTypesChangedRepository) baseRepository;

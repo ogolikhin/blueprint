@@ -8,7 +8,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
-    public class ArtifactsPublishedActionHelper : IActionHelper
+    public class ArtifactsPublishedActionHelper : MessageActionHandler
     {
         private readonly IActionsParser _actionsParser;
 
@@ -17,7 +17,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
             _actionsParser = actionsParser ?? new ActionsParser();
         }
 
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (ArtifactsPublishedMessage)actionMessage;
             Logger.Log($"Handling started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);

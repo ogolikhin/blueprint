@@ -5,9 +5,9 @@ using BluePrintSys.Messaging.Models.Actions;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged
 {
-    public class WorkflowsChangedActionHelper : IActionHelper
+    public class WorkflowsChangedActionHelper : MessageActionHandler
     {
-        public async Task<bool> HandleAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (WorkflowsChangedMessage) actionMessage;
             var repository = (WorkflowsChangedRepository) baseRepository;

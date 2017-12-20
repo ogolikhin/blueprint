@@ -128,7 +128,9 @@
     <Compile Include="MessageHandlers\ArtifactsPublished\UpdatedArtifactsNotificationHandler.cs" />
     <Compile Include="MessageHandlers\ArtifactsChanged\ArtifactsChangedActionHelper.cs" />
     <Compile Include="MessageHandlers\ArtifactsChanged\ArtifactsChangedMessageHandler.cs" />
+    <Compile Include="MessageHandlers\BoundaryReachedActionHandler.cs" />
     <Compile Include="MessageHandlers\IActionHelper.cs" />
+    <Compile Include="MessageHandlers\MessageActionHandler.cs" />
     <Compile Include="MessageHandlers\Notifications\LogoDataProvider.cs" />
     <Compile Include="MessageHandlers\Notifications\SmtpClient.cs" />
     <Compile Include="MessageHandlers\ProjectsChanged\ProjectsChangedActionHelper.cs" />

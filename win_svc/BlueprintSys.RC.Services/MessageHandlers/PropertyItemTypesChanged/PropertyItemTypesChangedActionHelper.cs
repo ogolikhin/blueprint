@@ -1,23 +1,27 @@
-﻿using System;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
+using BlueprintSys.RC.Services.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
-using ServiceLibrary.Models.Enums;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged
 {
     public class PropertyItemTypesChangedActionHelper : MessageActionHandler
     {
-        protected override Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage,
-            IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
-            if (!actionMessage.ActionType.HasFlag(MessageActionType.PropertyItemTypesChanged))
+            var message = (PropertyItemTypesChangedMessage) actionMessage;
+            var repository = (PropertyItemTypesChangedRepository) baseRepository;
+
+            Logger.Log("Getting affected artifact IDs", message, tenant);
+            var artifactIds = await repository.GetAffectedArtifactIds();
+            if (!artifactIds.Any())
             {
-                throw new NotSupportedException("Property/Itemtypes changed handler can only handle PropertyItemTypesChanged types");
+                Logger.Log("No artifact IDs found", message, tenant);
+                return false;
             }
-            // call service repostiory to execute stored procedure.
-            return Task.FromResult(true);
+            Logger.Log($"Found artifact IDs {string.Join(",", artifactIds)}", message, tenant);
+
+            return true;
         }
     }
 }

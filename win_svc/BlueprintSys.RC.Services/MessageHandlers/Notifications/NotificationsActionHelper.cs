@@ -2,8 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Security;
@@ -15,25 +13,26 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
 {
     public class NotificationsActionHelper : MessageActionHandler
     {
-        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (NotificationMessage) actionMessage;
-            var result = await SendNotificationEmail(tenant, message, (INotificationRepository) actionHandlerServiceRepository);
-            Logger.Log($"Finished processing message with result: {result}", message, tenant, LogLevel.Debug);
+            var result = await SendNotificationEmail(tenant, message, (INotificationRepository) baseRepository);
+            Logger.Log($"Finished processing message with result: {result}", message, tenant);
             return await Task.FromResult(result == SendEmailResult.Success);
         }
 
         private async Task<SendEmailResult> SendNotificationEmail(TenantInformation tenant, NotificationMessage message, INotificationRepository repository)
         {
-            Logger.Log($"Handling started for user ID {message.UserId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
-            //It should be responsibility of notification handler to recieve information about email settings
-            //Maybe this information can be cached for tenant ids???
-            var emailSettings = await new EmailSettingsRetriever().GetEmailSettings(repository);
+            Logger.Log($"Handling started for user ID {message.UserId} with message {message.ToJSON()}", message, tenant);
+
+            Logger.Log("Getting email settings", message, tenant);
+            var emailSettings = await repository.GetEmailSettings();
             if (emailSettings == null)
             {
-                Logger.Log($"No email settings provided for tenant {tenant.TenantId}", message, tenant, LogLevel.Error);
+                Logger.Log($"Failed to send email because no email settings were provided for tenant {tenant.TenantId}", message, tenant, LogLevel.Error);
                 return await Task.FromResult(SendEmailResult.Error);
             }
+            Logger.Log($"Email settings found. Host Name: {emailSettings.HostName}. Sender Email Address: {emailSettings.SenderEmailAddress}. User Name: {emailSettings.UserName}", message, tenant);
 
             //Get the logo
             byte[] logoImageArray = new LogoDataProvider().GetLogo();
@@ -86,13 +85,13 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
 
             if (string.IsNullOrWhiteSpace(smtpClientConfiguration.HostName))
             {
-                Logger.Log("No Host Name", message, tenant, LogLevel.Error);
+                Logger.Log("Sending email failed because no host name was found. Check your email settings", message, tenant, LogLevel.Error);
                 return await Task.FromResult(SendEmailResult.Error);
             }
 
-            Logger.Log("Sending Email", message, tenant, LogLevel.Debug);
-            InternalSendEmail(smtpClientConfiguration, emailMessage, repository);
-            Logger.Log("Email Sent", message, tenant, LogLevel.Debug);
+            Logger.Log($"Sending Email to {string.Join(",", emailMessage.To)}", message, tenant);
+            repository.SendEmail(smtpClientConfiguration, emailMessage);
+            Logger.Log("Email Sent Successfully", message, tenant);
             return await Task.FromResult(SendEmailResult.Success);
         }
 
@@ -107,12 +106,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                 return "data:image/png;base64," + Convert.ToBase64String(imageArray);
             }
             return "cid:" + attachmentContentId;
-        }
-
-        //for unit testing
-        private void InternalSendEmail(SMTPClientConfiguration smtpClientConfiguration, Message emailMessage, INotificationRepository repository)
-        {
-            repository.SendEmail(smtpClientConfiguration, emailMessage);
         }
     }
 }

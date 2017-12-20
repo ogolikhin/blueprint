@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using ArtifactStore.Helpers;
 using ArtifactStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -38,6 +40,7 @@ namespace ArtifactStore.Executors
         private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<IStateChangeExecutorHelper> _stateChangeHelperMock;
+        private Mock<IWorkflowEventsMessagesHelper> _workflowEventsMessagesHelperMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -59,6 +62,8 @@ namespace ArtifactStore.Executors
             _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
             _usersRepositoryMock = new Mock<IUsersRepository>(MockBehavior.Loose);
             _stateChangeHelperMock = new Mock<IStateChangeExecutorHelper>(MockBehavior.Loose);
+            _workflowEventsMessagesHelperMock = new Mock<IWorkflowEventsMessagesHelper>();
+            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<WorkflowEventTriggers>(), It.IsAny<IBaseArtifactVersionControlInfo>(), It.IsAny<string>(), It.IsAny<IDictionary<int, IList<Property>>>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IUsersRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<IDbTransaction>())).ReturnsAsync(new List<IWorkflowMessage>());
 
             _stateChangeExecutor = new StateChangeExecutor(UserId,
                 ex,
@@ -71,7 +76,8 @@ namespace ArtifactStore.Executors
                 _applicationSettingsRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _usersRepositoryMock.Object),
-                _stateChangeHelperMock.Object);
+                _stateChangeHelperMock.Object,
+                _workflowEventsMessagesHelperMock.Object);
         }
 
         [TestMethod]

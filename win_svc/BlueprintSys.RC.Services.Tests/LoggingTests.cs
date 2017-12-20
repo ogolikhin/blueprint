@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.Logging;
-using BlueprintSys.RC.Services.Models;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using log4net.Appender;

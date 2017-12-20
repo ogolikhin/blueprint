@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using BlueprintSys.RC.Services.Repositories;
+using BlueprintSys.RC.Services.MessageHandlers;
+using BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
@@ -9,64 +9,22 @@ using ServiceLibrary.Repositories;
 namespace BlueprintSys.RC.Services.Tests
 {
     /// <summary>
-    /// Tests for the Action Handler Service Repositories
+    /// Tests for the Repositories
     /// </summary>
     [TestClass]
     public class RepositoryTests
     {
         [TestMethod]
-        public void ActionHandlerServiceRepository_InstantiatesSuccessfully()
+        public void BaseRepository_InstantiatesSuccessfully()
         {
             //arrange
             var connectionString = string.Empty;
 
             //act
-            var repository = new ActionHandlerServiceRepository(connectionString);
+            var repository = new BaseRepository(connectionString);
 
             //assert
             Assert.IsNotNull(repository);
-        }
-
-        [TestMethod]
-        public async Task GetPropertyModificationsForRevisionIdAsync_CompletesSuccessfuly()
-        {
-            //arrange
-            var connectionMock = new SqlConnectionWrapperMock();
-            const string storedProcedure = "GetPropertyModificationsForRevisionId";
-            const int revisionId = 1;
-            var parameters = new Dictionary<string, object> {{nameof(revisionId), revisionId}};
-            var result = new List<SqlModifiedProperty>();
-            for (int i = 0; i < 5; i++)
-            {
-                result.Add(
-                    new SqlModifiedProperty
-                    {
-                        PropertyName = $"Property{i}",
-                        ArtifactId = 0,
-                        ItemId = 0,
-                        ProjectId = 0,
-                        Type = 0,
-                        TypeId = 0,
-                        VersionId = 0,
-                        StartRevision = 0,
-                        EndRevision = 0,
-                        NewPropertyValue = ""
-                    });
-            }
-            connectionMock.SetupQueryAsync(storedProcedure, parameters, result);
-
-            //act
-            var repository = new ArtifactsPublishedRepository(connectionMock.Object);
-            var repositoryResult = await repository.GetPropertyModificationsForRevisionIdAsync(revisionId);
-
-            //assert
-            Assert.AreEqual(result.Count, repositoryResult.Count);
-            var firstResult = result.First();
-            var matchFound = repositoryResult.Any(
-                r => firstResult.ArtifactId == r.ArtifactId && firstResult.EndRevision == r.EndRevision && firstResult.ItemId == r.ItemId && firstResult.NewPropertyValue == r.NewPropertyValue &&
-                     firstResult.ProjectId == r.ProjectId && firstResult.PropertyName == r.PropertyName && firstResult.StartRevision == r.StartRevision && firstResult.Type == r.Type &&
-                     firstResult.TypeId == r.TypeId && firstResult.VersionId == r.VersionId);
-            Assert.IsTrue(matchFound);
         }
 
         [TestMethod]

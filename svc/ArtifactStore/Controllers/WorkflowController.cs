@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using ArtifactStore.Executors;
+using ArtifactStore.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -40,7 +41,8 @@ namespace ArtifactStore.Controllers
                     new SqlSaveArtifactRepository(),
                     new ApplicationSettingsRepository(),
                     new ServiceLogRepository(),
-                    new SqlUsersRepository())))
+                    new SqlUsersRepository()),
+                new WorkflowEventsMessagesHelper()))
         {
         }
 

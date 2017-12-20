@@ -1,8 +1,5 @@
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Jobs;
@@ -18,40 +15,43 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateUserStories
 
     public class GenerateUserStoriesActionHelper : BoundaryReachedActionHandler
     {
-        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
-            var generateUserStoriesMessage = actionMessage as GenerateUserStoriesMessage;
-            if (generateUserStoriesMessage == null)
+            var message = (GenerateUserStoriesMessage) actionMessage;
+            if (message == null || message.ProjectId <= 0 || tenant == null)
             {
-                Log.Debug("Invalid GenerateTestsMessage received");
+                Logger.Log($"Invalid GenerateTestsMessage received: {message?.ToJSON()}", message, tenant, LogLevel.Error);
                 return false;
             }
 
-            Logger.Log($"Handling of type: {generateUserStoriesMessage.ActionType} started for user ID {generateUserStoriesMessage.UserId}, revision ID {generateUserStoriesMessage.RevisionId} with message {generateUserStoriesMessage.ToJSON()}", generateUserStoriesMessage, tenant, LogLevel.Debug);
+            Logger.Log($"Handling of type: {message.ActionType} started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
 
-            var payload = new GenerateUserStoryInfo { ProcessId = generateUserStoriesMessage.ArtifactId, TaskId = null };
+            var repository = (IGenerateActionsRepository) baseRepository;
+            var user = await repository.GetUser(message.UserId);
+            Logger.Log($"Retrieved user: {user?.Login}", message, tenant);
+
+            var payload = new GenerateUserStoryInfo { ProcessId = message.ArtifactId, TaskId = null };
             var parameters = SerializationHelper.ToXml(payload);
-            var generationUserStoriesActionRepo = (IGenerateActionsRepository) actionHandlerServiceRepository;
-            var jobsRepository = generationUserStoriesActionRepo.JobsRepository;
-            var user = await GetUserInfo(generateUserStoriesMessage, actionHandlerServiceRepository);
-
-            var jobId = await jobsRepository.AddJobMessage(JobType.GenerateUserStories,
+            var jobId = await repository.JobsRepository.AddJobMessage(JobType.GenerateUserStories,
                 false, 
                 parameters, 
                 null, 
-                generateUserStoriesMessage.ProjectId, 
-                generateUserStoriesMessage.ProjectName, 
-                generateUserStoriesMessage.UserId, 
+                message.ProjectId, 
+                message.ProjectName, 
+                message.UserId, 
                 user?.Login, 
-                generateUserStoriesMessage.BaseHostUri);
+                message.BaseHostUri);
 
             if (jobId.HasValue)
             {
-                Log.Debug($"Job scheduled for {generateUserStoriesMessage.ActionType} with id: {jobId.Value}");
+                Logger.Log($"Job scheduled for {message.ActionType} with id: {jobId.Value}", message, tenant);
+            }
+            else
+            {
+                Logger.Log("No jobId received", message, tenant);
             }
 
             return jobId.HasValue && jobId > 0;
-
         }
     }
 }

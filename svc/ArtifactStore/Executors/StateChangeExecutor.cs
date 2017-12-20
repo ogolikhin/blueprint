@@ -25,17 +25,21 @@ namespace ArtifactStore.Executors
         private readonly ISqlHelper _sqlHelper;
         private readonly IStateChangeExecutorRepositories _stateChangeExecutorRepositories;
         private readonly IStateChangeExecutorHelper _stateChangeExecutorHelper;
+        private readonly IWorkflowEventsMessagesHelper _workflowEventsMessagesHelper;
+
         public StateChangeExecutor(
             int userId, WorkflowStateChangeParameterEx input,
             ISqlHelper sqlHelper,
             IStateChangeExecutorRepositories stateChangeExecutorRepositories,
-            IStateChangeExecutorHelper stateChangeExecutorHelper)
+            IStateChangeExecutorHelper stateChangeExecutorHelper,
+            IWorkflowEventsMessagesHelper workflowEventsMessagesHelper)
         {
             _userId = userId;
             _input = input;
             _sqlHelper = sqlHelper;
             _stateChangeExecutorRepositories = stateChangeExecutorRepositories;
             _stateChangeExecutorHelper = stateChangeExecutorHelper;
+            _workflowEventsMessagesHelper = workflowEventsMessagesHelper;
         }
 
         public async Task<QuerySingleResult<WorkflowState>> Execute()
@@ -99,7 +103,7 @@ namespace ArtifactStore.Executors
                 };
 
             // Generate asynchronous messages for sending
-            result.ActionMessages.AddRange((await WorkflowEventsMessagesHelper.GenerateMessages(
+            result.ActionMessages.AddRange((await _workflowEventsMessagesHelper.GenerateMessages(
                     _userId,
                     publishRevision,
                     _input.UserName,
@@ -114,7 +118,7 @@ namespace ArtifactStore.Executors
                     _stateChangeExecutorRepositories.ServiceLogRepository,
                     transaction)));
 
-                await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
+                await _workflowEventsMessagesHelper.ProcessMessages(LogSource,
                     _stateChangeExecutorRepositories.ApplicationSettingsRepository,
                     _stateChangeExecutorRepositories.ServiceLogRepository,
                     result.ActionMessages,

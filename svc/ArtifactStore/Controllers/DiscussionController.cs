@@ -152,6 +152,10 @@ namespace ArtifactStore.Controllers
             }
 
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, Session.UserId, false, revisionId);
+            if (permissions.IsEmpty())
+            {
+                permissions = await _artifactPermissionsRepository.GetArtifactPermissionDirectly(itemId, Session.UserId, itemInfo.ProjectId);
+            }
             var projectPermissions = await _artifactPermissionsRepository.GetProjectPermissions(itemInfo.ProjectId);
 
             RolePermissions permission = RolePermissions.None;

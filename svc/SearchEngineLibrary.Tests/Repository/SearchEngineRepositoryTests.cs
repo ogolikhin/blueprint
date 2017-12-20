@@ -33,16 +33,16 @@ namespace SearchEngineLibrary.Tests.Repository
         public async Task GetCountArtifactIdsFromSearchItemsAsync_WeHaveAllSearchItem_QueryReturnListArtifactIds()
         {
             // arrange
-            var countArtifactIds = new List<int>() {1};
+            var listArtifactIds = new List<int>() {1, 2, 3};
             
-            _sqlConnectionWrapperMock.SetupQueryAsync(@"SELECT DISTINCT([ArtifactId]) FROM [dbo].[SearchItems]", null, countArtifactIds, commandType:CommandType.Text);
+            _sqlConnectionWrapperMock.SetupQueryAsync(@"SELECT DISTINCT([ArtifactId]) FROM [dbo].[SearchItems]", null, listArtifactIds, commandType:CommandType.Text);
 
             // act
             var result = await _searchEngineRepository.GetArtifactIdsFromSearchItems();
 
             // assert
             _sqlConnectionWrapperMock.Verify();
-            Assert.AreEqual(result, countArtifactIds);
+            Assert.AreEqual(result, listArtifactIds);
         }
     }
 }

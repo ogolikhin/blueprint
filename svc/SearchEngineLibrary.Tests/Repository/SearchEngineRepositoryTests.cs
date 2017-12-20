@@ -9,7 +9,6 @@ using SearchEngineLibrary.Repository;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using Moq;
-using SearchEngineLibrary.Model;
 
 namespace SearchEngineLibrary.Tests.Repository
 {
@@ -30,7 +29,7 @@ namespace SearchEngineLibrary.Tests.Repository
         }
 
         [TestMethod]
-        public async Task GetCountArtifactIdsFromSearchItemsAsync_WeHaveAllSearchItem_QueryReturnListArtifactIds()
+        public async Task GetListArtifactIdsFromSearchItemsAsync_WeHaveAllSearchItem_QueryReturnListArtifactIds()
         {
             // arrange
             var listArtifactIds = new List<int>() {1, 2, 3};

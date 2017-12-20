@@ -3,7 +3,6 @@ using ServiceLibrary.Repositories;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using SearchEngineLibrary.Model;
 using ServiceLibrary.Helpers;
 
 namespace SearchEngineLibrary.Repository

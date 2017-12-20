@@ -24,17 +24,17 @@ namespace SearchEngineLibrary.Tests.Service
         }
 
         [TestMethod]
-        public async Task GetCountArtifactIdsFromSearchItemsAsync_WeHaveAllSearchItem_QueryReturnListArtifactIds()
+        public async Task GetListArtifactIdsFromSearchItemsAsync_WeHaveAllSearchItem_QueryReturnListArtifactIds()
         {
             // arrange
-            var countArtifactIds = new List<int>() {1, 2, 3};
-            _searchEngineRepositoryMock.Setup(q => q.GetArtifactIdsFromSearchItems()).ReturnsAsync(countArtifactIds);
+            var listArtifactIds = new List<int>() {1, 2, 3};
+            _searchEngineRepositoryMock.Setup(q => q.GetArtifactIdsFromSearchItems()).ReturnsAsync(listArtifactIds);
 
             // act
             var result = await _searchEngineService.GetArtifactIdsFromSearchItems();
 
             // assert
-            Assert.AreEqual(countArtifactIds, result);
+            Assert.AreEqual(listArtifactIds, result);
         }
     }
 }

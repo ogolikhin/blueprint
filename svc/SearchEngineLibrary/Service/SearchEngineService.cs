@@ -22,9 +22,9 @@ namespace SearchEngineLibrary.Service
             _searchEngineRepository = searchEngineRepository;
         }
 
-        public async Task<int> GetCountArtifactIdsSearchItems()
+        public async Task<IEnumerable<int>> GetArtifactIdsFromSearchItems()
         {
-            return await _searchEngineRepository.GetCountArtifactIdsSearchItems();
+            return await _searchEngineRepository.GetArtifactIdsFromSearchItems();
         }
     }
 }

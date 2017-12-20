@@ -43,10 +43,10 @@ namespace ServiceLibrary.Repositories
             Setup(c => c.ExecuteScalarAsync<T>(It.Is(sqlMatcher), It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>()), result, outParameters);
         }
 
-        public void SetupQueryAsync<T>(string sql, Dictionary<string, object> param, IEnumerable<T> result, Dictionary<string, object> outParameters = null)
+        public void SetupQueryAsync<T>(string sql, Dictionary<string, object> param, IEnumerable<T> result, Dictionary<string, object> outParameters = null, CommandType commandType = CommandType.StoredProcedure)
         {
             Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
-            Setup(c => c.QueryAsync<T>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure), result, outParameters);
+            Setup(c => c.QueryAsync<T>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), commandType), result, outParameters);
         }
 
         public void SetupQueryMultipleAsync<T1, T2>(string sql, Dictionary<string, object> param, Tuple<IEnumerable<T1>, IEnumerable<T2>> result, Dictionary<string, object> outParameters = null)

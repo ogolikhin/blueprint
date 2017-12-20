@@ -24,10 +24,10 @@ namespace SearchEngineLibrary.Repository
             _sqlHelper = sqlHelper;
         }
 
-        public Task<int> GetCountArtifactIdsSearchItems()
+        public Task<IEnumerable<int>> GetArtifactIdsFromSearchItems()
         {
-            return _connectionWrapper.ExecuteScalarAsync<int>(
-                @"SELECT COUNT(DISTINCT([ArtifactId])) FROM [dbo].[SearchItems]");            
+            return _connectionWrapper.QueryAsync<int>(
+                @"SELECT DISTINCT([ArtifactId]) FROM [dbo].[SearchItems]", commandType:CommandType.Text);
         }
     }
 }

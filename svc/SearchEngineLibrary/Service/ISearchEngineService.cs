@@ -9,6 +9,6 @@ namespace SearchEngineLibrary.Service
 {
     interface ISearchEngineService
     {
-        Task<int> GetCountArtifactIdsSearchItems();
+        Task<IEnumerable<int>> GetArtifactIdsFromSearchItems();
     }
 }

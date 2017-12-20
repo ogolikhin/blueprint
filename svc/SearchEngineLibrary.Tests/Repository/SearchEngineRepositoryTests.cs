@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,15 +30,15 @@ namespace SearchEngineLibrary.Tests.Repository
         }
 
         [TestMethod]
-        public async Task GetCountArtifactIdsFromSearchItemsAsync_WeHaveAllSearchItem_QueryReturnCountArtifactIds()
+        public async Task GetCountArtifactIdsFromSearchItemsAsync_WeHaveAllSearchItem_QueryReturnListArtifactIds()
         {
             // arrange
-            var countArtifactIds = 5;
+            var countArtifactIds = new List<int>() {1};
             
-            _sqlConnectionWrapperMock.SetupExecuteScalarAsync(v => true, It.IsAny<Dictionary<string, object>>(), countArtifactIds);
+            _sqlConnectionWrapperMock.SetupQueryAsync(@"SELECT DISTINCT([ArtifactId]) FROM [dbo].[SearchItems]", null, countArtifactIds, commandType:CommandType.Text);
 
             // act
-            var result = await _searchEngineRepository.GetCountArtifactIdsSearchItems();
+            var result = await _searchEngineRepository.GetArtifactIdsFromSearchItems();
 
             // assert
             _sqlConnectionWrapperMock.Verify();

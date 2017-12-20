@@ -147,11 +147,15 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/toc"), SessionRequired]
-        public Task<QueryResult<ReviewTableOfContentItem>> GetTableOfContentAsync(int containerId, [FromUri] Pagination pagination, int revisionId = int.MaxValue)
+        public Task<QueryResult<ReviewTableOfContentItem>> GetTableOfContentAsync(int containerId, [FromUri] Pagination pagination, int? revisionId = int.MaxValue)
         {
             pagination.Validate();
             pagination.SetDefaultValues(0, 50);
-            return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId, Session.UserId, pagination);
+            if (revisionId == null)
+            {
+                throw new BadRequestException(nameof(revisionId) + " cannot be null.", ErrorCodes.InvalidParameter);
+            }
+            return _sqlReviewsRepository.GetReviewTableOfContent(containerId, revisionId.Value, Session.UserId, pagination);
         }
 
         /// <summary>

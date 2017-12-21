@@ -119,6 +119,7 @@
     <Compile Include="Controllers\ArtifactController.cs" />
     <Compile Include="Controllers\AttachmentsController.cs" />
     <Compile Include="Controllers\ArtifactVersionsController.cs" />
+    <Compile Include="Controllers\CollectionsController.cs" />
     <Compile Include="Controllers\DiscussionController.cs" />
     <Compile Include="Controllers\ProjectMetaController.cs" />
     <Compile Include="Controllers\RelationshipsController.cs" />

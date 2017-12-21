@@ -1,9 +1,16 @@
-﻿using BlueprintSys.RC.Services.Models;
-using BluePrintSys.Messaging.Models.Actions;
-using ServiceLibrary.Models.Enums;
+﻿using BluePrintSys.Messaging.Models.Actions;
 
 namespace BlueprintSys.RC.Services.Helpers
 {
+    public enum LogLevel
+    {
+        Debug,
+        Info,
+        Warn,
+        Error,
+        Fatal
+    }
+
     public static class Logger
     {
         /// <summary>
@@ -13,14 +20,9 @@ namespace BlueprintSys.RC.Services.Helpers
         /// <param name="message">The ActionMessage that spawned the log.</param>
         /// <param name="tenant">The tenant that spawned the log.</param>
         /// <param name="level">The level to log at.</param>
-        public static void Log(string text, ActionMessage message, TenantInformation tenant, LogLevel level)
+        public static void Log(string text, ActionMessage message, TenantInformation tenant, LogLevel level = LogLevel.Info)
         {
-            Log(text, message?.ActionType ?? MessageActionType.None, tenant?.TenantId, level);
-        }
-
-        public static void Log(string text, MessageActionType messageActionType, string tenantId, LogLevel level)
-        {
-            var logText = $" {text}. Message: {messageActionType}. Tenant ID: {tenantId}.";
+            var logText = $" {text}. Message: {message?.ActionType}. Tenant ID: {tenant?.TenantId}.";
             switch (level)
             {
                 case LogLevel.Debug:
@@ -40,14 +42,5 @@ namespace BlueprintSys.RC.Services.Helpers
                     break;
             }
         }
-    }
-
-    public enum LogLevel
-    {
-        Debug,
-        Info,
-        Warn,
-        Error,
-        Fatal
     }
 }

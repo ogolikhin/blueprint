@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
+using BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

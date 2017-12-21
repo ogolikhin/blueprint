@@ -2,9 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -14,18 +11,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
 {
     public class GenerateDescendantsActionHelper : BoundaryReachedActionHandler
     {
-        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (GenerateDescendantsMessage)actionMessage;
-            if (message == null
-                || message.ArtifactId <= 0
-                || message.ProjectId <= 0
-                || message.RevisionId <= 0
-                || message.UserId <= 0
-                || message.DesiredArtifactTypeId == null
-                || string.IsNullOrWhiteSpace(message.UserName))
+            if (message == null || message.ArtifactId <= 0 || message.ProjectId <= 0 || message.RevisionId <= 0 || message.UserId <= 0 || message.DesiredArtifactTypeId == null || string.IsNullOrWhiteSpace(message.UserName) || tenant == null)
             {
-                Log.Debug("Invalid GenerateDescendantsMessage received");
+                Logger.Log($"Invalid GenerateDescendantsMessage received: {message?.ToJSON()}", message, tenant, LogLevel.Error);
                 return false;
             }
 
@@ -40,15 +31,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
                 return false;
             }
 
-            var genDescendantsActionHelper = (IGenerateActionsRepository)actionHandlerServiceRepository;
-
-            var sqlItemTypeRepository = genDescendantsActionHelper.ItemTypeRepository;
-
-            var desiredItemType = await sqlItemTypeRepository.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(message.ProjectId,
-                message.DesiredArtifactTypeId.GetValueOrDefault());
+            var repository = (IGenerateActionsRepository)baseRepository;
+            var sqlItemTypeRepository = repository.ItemTypeRepository;
+            var desiredItemType = await sqlItemTypeRepository.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(message.ProjectId, message.DesiredArtifactTypeId.GetValueOrDefault());
             if (desiredItemType == null || desiredItemType.ItemTypeId <= 0 || string.IsNullOrWhiteSpace(desiredItemType.Name))
             {
-                Log.Debug($"No artifact type found with instance Id: {message.DesiredArtifactTypeId.GetValueOrDefault()} in Project: {message.ProjectId}");
+                Logger.Log($"No artifact type found with instance Id: {message.DesiredArtifactTypeId.GetValueOrDefault()} in Project: {message.ProjectId}", message, tenant);
                 return false;
             }
 
@@ -66,10 +54,11 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
             };
             
             var parameters = SerializationHelper.ToXml(generateDescendantsInfo);
-            
-            var user = await GetUserInfo(message, actionHandlerServiceRepository);
 
-            var jobId = await genDescendantsActionHelper.JobsRepository.AddJobMessage(JobType.GenerateDescendants,
+            var user = await repository.GetUser(message.UserId);
+            Logger.Log($"Retrieved user: {user?.Login}", message, tenant);
+
+            var jobId = await repository.JobsRepository.AddJobMessage(JobType.GenerateDescendants,
                 false,
                 parameters,
                 null,
@@ -81,7 +70,11 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
 
             if (jobId.HasValue)
             {
-                Log.Debug($"Job scheduled for {message.ActionType} with id: {jobId.Value}");
+                Logger.Log($"Job scheduled for {message.ActionType} with id: {jobId.Value}", message, tenant);
+            }
+            else
+            {
+                Logger.Log("No jobId received", message, tenant);
             }
 
             return jobId.HasValue && jobId > 0;

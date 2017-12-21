@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
+using BlueprintSys.RC.Services.MessageHandlers;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Helpers;
@@ -17,18 +16,18 @@ namespace BlueprintSys.RC.Services.Helpers
 
     public class TenantInfoRetriever : ITenantInfoRetriever
     {
-        public TenantInfoRetriever(IActionHandlerServiceRepository actionHandlerServiceRepository, IConfigHelper configHelper)
+        public TenantInfoRetriever(IBaseRepository baseRepository, IConfigHelper configHelper)
         {
             var expirationTime = TimeSpan.FromMinutes(configHelper.CacheExpirationMinutes);
             _tenantInfoCache = new CacheHelper<Task<Dictionary<string, TenantInformation>>>(expirationTime, GetTenantInfoForCache);
-            _actionHandlerServiceRepository = actionHandlerServiceRepository;
+            _baseRepository = baseRepository;
         }
 
-        public TenantInfoRetriever() : this(new ActionHandlerServiceRepository(new ConfigHelper().TenantsDatabase), new ConfigHelper())
+        public TenantInfoRetriever() : this(new BaseRepository(new ConfigHelper().TenantsDatabase), new ConfigHelper())
         {
         }
 
-        private readonly IActionHandlerServiceRepository _actionHandlerServiceRepository;
+        private readonly IBaseRepository _baseRepository;
         private readonly CacheHelper<Task<Dictionary<string, TenantInformation>>> _tenantInfoCache;
 
         public Task<Dictionary<string, TenantInformation>> GetTenants()
@@ -39,7 +38,7 @@ namespace BlueprintSys.RC.Services.Helpers
         private async Task<Dictionary<string, TenantInformation>> GetTenantInfoForCache()
         {
             Log.Debug("Retrieving tenants");
-            var sqlTenants = await _actionHandlerServiceRepository.GetTenantsFromTenantsDb();
+            var sqlTenants = await _baseRepository.GetTenantsFromTenantsDb();
             var tenants = sqlTenants.ToDictionary(tenant => tenant.TenantId);
             Log.Debug($"Retrieved {tenants.Count} tenants: {string.Join(", ", tenants.Select(p => p.Key))}");
             return tenants;

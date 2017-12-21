@@ -1,36 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Jobs;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.GenerateTests
 {
-    //We should be creating specific action handlers for different  message handlers. 
-    //These should be implemented when the actions are implemented
     public class GenerateTestsActionHelper : MessageActionHandler
     {
-        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (GenerateTestsMessage) actionMessage;
-            if (message == null 
-                || message.ArtifactId <= 0 
-                || message.ProjectId <= 0 
-                || message.RevisionId <= 0
-                || message.UserId <= 0
-                || string.IsNullOrWhiteSpace(message.UserName))
+            if (message == null || message.ArtifactId <= 0 || message.ProjectId <= 0 || message.RevisionId <= 0 || message.UserId <= 0 || string.IsNullOrWhiteSpace(message.UserName) || tenant == null)
             {
-                Log.Debug("Invalid GenerateTestsMessage received");
+                Logger.Log($"Invalid GenerateTestsMessage received: {message?.ToJSON()}", message, tenant, LogLevel.Error);
                 return false;
             }
 
             Logger.Log($"Handling of type: {message.ActionType} started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
 
-            var generationActionRepo = (IGenerateActionsRepository) actionHandlerServiceRepository;
+            var repository = (IGenerateActionsRepository) baseRepository;
 
             var generateProcessTestInfos = new List<GenerateProcessTestInfo>
             {
@@ -40,10 +30,11 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateTests
                 }
             };
             var parameters = SerializationHelper.ToXml(generateProcessTestInfos);
-            
-            var user = await GetUserInfo(message, actionHandlerServiceRepository);
 
-            var jobId = await generationActionRepo.JobsRepository.AddJobMessage(JobType.GenerateProcessTests,
+            var user = await repository.GetUser(message.UserId);
+            Logger.Log($"Retrieved user: {user?.Login}", message, tenant);
+
+            var jobId = await repository.JobsRepository.AddJobMessage(JobType.GenerateProcessTests,
                 false,
                 parameters,
                 null,
@@ -55,7 +46,11 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateTests
 
             if (jobId.HasValue)
             {
-                Log.Debug($"Job scheduled for {message.ActionType} with id: {jobId.Value}");
+                Logger.Log($"Job scheduled for {message.ActionType} with id: {jobId.Value}", message, tenant);
+            }
+            else
+            {
+                Logger.Log("No jobId received", message, tenant);
             }
 
             return jobId.HasValue && jobId > 0;

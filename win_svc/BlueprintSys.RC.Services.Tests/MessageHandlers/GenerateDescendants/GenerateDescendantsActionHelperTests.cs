@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BlueprintSys.RC.Services.Helpers;
+using BlueprintSys.RC.Services.MessageHandlers;
 using BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -66,7 +66,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
-            _actionHandMock.Setup(t => t.IsBoundaryReached(ProjectId)).ReturnsAsync(true);
+            _actionHandMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(true);
 
             //Act
             var result = await actionHelper.HandleAction(new TenantInformation
@@ -95,7 +95,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
-            _actionHandMock.Setup(t => t.IsBoundaryReached(ProjectId)).ReturnsAsync(false);
+            _actionHandMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
 
             //Act
             var result = await actionHelper.HandleAction(new TenantInformation
@@ -123,7 +123,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
-            _actionHandMock.Setup(t => t.IsBoundaryReached(ProjectId)).ReturnsAsync(false);
+            _actionHandMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
 
             //Act
             var result = await actionHelper.HandleAction(new TenantInformation
@@ -151,7 +151,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
-            _actionHandMock.Setup(t => t.IsBoundaryReached(ProjectId)).ReturnsAsync(false);
+            _actionHandMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
 
             //Act
             var result = await actionHelper.HandleAction(new TenantInformation
@@ -179,7 +179,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
-            _actionHandMock.Setup(t => t.IsBoundaryReached(ProjectId)).ReturnsAsync(false);
+            _actionHandMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
 
             //Act
             var result = await actionHelper.HandleAction(new TenantInformation
@@ -207,7 +207,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
-            _actionHandMock.Setup(t => t.IsBoundaryReached(ProjectId)).ReturnsAsync(false);
+            _actionHandMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
             _itemTypeRepoMock.Setup(
                 t => t.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(ProjectId, DesiredArtifactTypeId))
                 .ReturnsAsync((SqlItemType)null);
@@ -239,7 +239,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
-            _actionHandMock.Setup(t => t.IsBoundaryReached(ProjectId)).ReturnsAsync(false);
+            _actionHandMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
             _itemTypeRepoMock.Setup(
                 t => t.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(ProjectId, DesiredArtifactTypeId))
                 .ReturnsAsync(new SqlItemType
@@ -248,15 +248,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                     ItemTypeId = DesiredArtifactTypeId,
                     Name = "Test"
                 });
-
+            var sqlUser = new SqlUser
+            {
+                UserId = UserId,
+                Login = UserName
+            };
+            _actionHandMock.Setup(m => m.GetUser(It.IsAny<int>())).ReturnsAsync(sqlUser);
             _userRepoMock.Setup(t => t.GetExistingUsersByIdsAsync(It.IsAny<IEnumerable<int>>())).
                 ReturnsAsync(new List<SqlUser>
                 {
-                    new SqlUser
-                    {
-                        UserId = UserId,
-                        Login = UserName
-                    }
+                    sqlUser
                 });
 
             _jobsRepoMock.Setup(t => t.AddJobMessage(JobType.GenerateDescendants,
@@ -296,7 +297,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         {
             //Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
-            _actionHandMock.Setup(t => t.IsBoundaryReached(ProjectId)).ReturnsAsync(false);
+            _actionHandMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
             _itemTypeRepoMock.Setup(
                 t => t.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(ProjectId, DesiredArtifactTypeId))
                 .ReturnsAsync(new SqlItemType
@@ -305,15 +306,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                     ItemTypeId = DesiredArtifactTypeId,
                     Name = "Test"
                 });
-
+            var sqlUser = new SqlUser
+            {
+                UserId = UserId,
+                Login = UserName
+            };
+            _actionHandMock.Setup(m => m.GetUser(It.IsAny<int>())).ReturnsAsync(sqlUser);
             _userRepoMock.Setup(t => t.GetExistingUsersByIdsAsync(It.IsAny<IEnumerable<int>>())).
                 ReturnsAsync(new List<SqlUser>
                 {
-                    new SqlUser
-                    {
-                        UserId = UserId,
-                        Login = UserName
-                    }
+                    sqlUser
                 });
 
             _jobsRepoMock.Setup(t => t.AddJobMessage(JobType.GenerateDescendants,
@@ -375,7 +377,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 UserId = UserId,
                 UserName = UserName
             };
-            _actionHandMock.Setup(m => m.IsBoundaryReached(It.IsAny<int>())).ReturnsAsync(false);
+            _actionHandMock.Setup(m => m.IsProjectMaxArtifactBoundaryReached(It.IsAny<int>())).ReturnsAsync(false);
             var tenantInformation = new TenantInformation();
             var actionHelper = new GenerateDescendantsActionHelper();
 

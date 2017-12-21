@@ -1,28 +1,25 @@
 ﻿using System.Threading.Tasks;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
-using BluePrintSys.Messaging.CrossCutting.Logging;
+using BlueprintSys.RC.Services.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
-using ServiceLibrary.Exceptions;
 
 namespace BlueprintSys.RC.Services.MessageHandlers
 {
     public abstract class BoundaryReachedActionHandler : MessageActionHandler
     {
-        protected override async Task<bool> PreActionValidation(TenantInformation tenant, ActionMessage actionMessage,
-            IActionHandlerServiceRepository actionHandlerServiceRepository)
+        protected override async Task<bool> PreActionValidation(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var projectContainerActionMessage = actionMessage as ProjectContainerActionMessage;
             if (projectContainerActionMessage == null)
             {
+                Logger.Log("The message is not a projectContainerActionMessage", actionMessage, tenant, LogLevel.Error);
                 return false;
             }
-            var isBoundaryReached = await actionHandlerServiceRepository.IsBoundaryReached(projectContainerActionMessage.ProjectId);
-            if (isBoundaryReached)
+            var isProjectMaxArtifactBoundaryReached = await baseRepository.IsProjectMaxArtifactBoundaryReached(projectContainerActionMessage.ProjectId);
+            if (isProjectMaxArtifactBoundaryReached)
             {
-                Log.Error($"Boundary for project {projectContainerActionMessage.ProjectId} bas been reached");
+                Logger.Log($"Max artifact boundary for project {projectContainerActionMessage.ProjectId} has been reached", projectContainerActionMessage, tenant, LogLevel.Error);
             }
-            return !isBoundaryReached;
+            return !isProjectMaxArtifactBoundaryReached;
         }
     }
 }

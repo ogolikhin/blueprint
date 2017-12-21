@@ -240,7 +240,9 @@ namespace AdminStore.Services.Workflow.Validation.Data
                 }
 
                 var projectIds = projectPaths.Select(p => p.Key).ToHashSet();
-                var validProjectIds = (await _workflowRepository.GetExistingProjectsByIdsAsync(projectIds)).ToArray();
+                var validProjectIds = projectIds.Any()
+                    ? (await _workflowRepository.GetExistingProjectsByIdsAsync(projectIds)).ToArray()
+                    : new int[0];
                 if (validProjectIds.Length != projectIds.Count)
                 {
                     foreach (var invalidId in projectIds.Where(pid => !validProjectIds.Contains(pid)))

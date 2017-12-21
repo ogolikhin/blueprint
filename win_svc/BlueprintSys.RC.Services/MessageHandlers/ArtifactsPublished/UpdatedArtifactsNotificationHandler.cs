@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
@@ -13,7 +11,7 @@ using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
 using ServiceLibrary.Repositories.ConfigControl;
 
-namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactPublished
+namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
     internal class UpdatedArtifactsNotificationHandler
     {

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using ArtifactStore.Executors;
+using ArtifactStore.Helpers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -24,14 +25,17 @@ namespace ArtifactStore.Services.Workflow
         private readonly IItemInfoRepository _itemInfoRepository;
         private readonly ISqlHelper _sqlHelper;
         private readonly IStateChangeExecutorRepositories _stateChangeExecutorRepositories;
+        private readonly IWorkflowEventsMessagesHelper _workflowEventsMessagesHelper;
 
         public WorkflowService(ISqlHelper sqlHelper,
             IItemInfoRepository itemInfoRepository,
-            IStateChangeExecutorRepositories stateChangeExecutorRepositories)
+            IStateChangeExecutorRepositories stateChangeExecutorRepositories,
+            IWorkflowEventsMessagesHelper workflowEventsMessagesHelper)
         {
             _sqlHelper = sqlHelper;
             _itemInfoRepository = itemInfoRepository;
             _stateChangeExecutorRepositories = stateChangeExecutorRepositories;
+            _workflowEventsMessagesHelper = workflowEventsMessagesHelper;
 
         }
 
@@ -78,7 +82,8 @@ namespace ArtifactStore.Services.Workflow
                 },
                 _sqlHelper,
                 _stateChangeExecutorRepositories,
-                new StateChangeExecutorHelper(_stateChangeExecutorRepositories));
+                new StateChangeExecutorHelper(_stateChangeExecutorRepositories),
+                _workflowEventsMessagesHelper);
 
             return await stateChangeExecutor.Execute();
         }

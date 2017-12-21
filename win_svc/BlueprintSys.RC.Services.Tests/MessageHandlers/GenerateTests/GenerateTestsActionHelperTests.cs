@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BlueprintSys.RC.Services.Helpers;
+using BlueprintSys.RC.Services.MessageHandlers;
 using BlueprintSys.RC.Services.MessageHandlers.GenerateTests;
-using BlueprintSys.RC.Services.Models;
-using BlueprintSys.RC.Services.Repositories;
 using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -142,15 +142,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         {
             //Arrange
             var actionHelper = new GenerateTestsActionHelper();
-
+            var sqlUser = new SqlUser
+            {
+                UserId = UserId,
+                Login = UserName
+            };
+            _actionHandMock.Setup(m => m.GetUser(It.IsAny<int>())).ReturnsAsync(sqlUser);
             _userRepoMock.Setup(t => t.GetExistingUsersByIdsAsync(It.IsAny<IEnumerable<int>>())).
                 ReturnsAsync(new List<SqlUser>
                 {
-                    new SqlUser
-                    {
-                        UserId = UserId,
-                        Login = UserName
-                    }
+                    sqlUser
                 });
 
             _jobsRepoMock.Setup(t => t.AddJobMessage(JobType.GenerateProcessTests,
@@ -189,15 +190,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         {
             //Arrange
             var actionHelper = new GenerateTestsActionHelper();
-
+            var sqlUser = new SqlUser
+            {
+                UserId = UserId,
+                Login = UserName
+            };
+            _actionHandMock.Setup(m => m.GetUser(It.IsAny<int>())).ReturnsAsync(sqlUser);
             _userRepoMock.Setup(t => t.GetExistingUsersByIdsAsync(It.IsAny<IEnumerable<int>>())).
                 ReturnsAsync(new List<SqlUser>
                 {
-                    new SqlUser
-                    {
-                        UserId = UserId,
-                        Login = UserName
-                    }
+                    sqlUser
                 });
 
             _jobsRepoMock.Setup(t => t.AddJobMessage(JobType.GenerateProcessTests,

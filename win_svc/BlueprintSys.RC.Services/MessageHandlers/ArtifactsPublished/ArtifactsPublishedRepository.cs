@@ -7,9 +7,9 @@ using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Workflow;
 
-namespace BlueprintSys.RC.Services.Repositories
+namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
-    public interface IArtifactsPublishedRepository : IActionHandlerServiceRepository
+    public interface IArtifactsPublishedRepository : IBaseRepository
     {
         /// <summary>
         /// Calls the stored procedure GetWorkflowTriggersForArtifacts
@@ -31,15 +31,10 @@ namespace BlueprintSys.RC.Services.Repositories
         /// </summary>
         Task<List<SqlProject>> GetProjectNameByIdsAsync(IEnumerable<int> projectIds);
 
-        /// <summary>
-        /// Calls the stored procedure GetPropertyModificationsForRevisionId
-        /// </summary>
-        Task<List<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId);
-
         IWorkflowRepository WorkflowRepository { get; }
     }
 
-    public class ArtifactsPublishedRepository : ActionHandlerServiceRepository, IArtifactsPublishedRepository
+    public class ArtifactsPublishedRepository : BaseRepository, IArtifactsPublishedRepository
     {
         public IWorkflowRepository WorkflowRepository { get; }
 
@@ -47,24 +42,15 @@ namespace BlueprintSys.RC.Services.Repositories
         {
         }
 
-        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper) : 
-            this(connectionWrapper, 
-                new SqlArtifactPermissionsRepository(connectionWrapper))
+        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper) : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
         {
         }
 
-        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, 
-            IArtifactPermissionsRepository artifactPermissionsRepository) : 
-            this(connectionWrapper, 
-                artifactPermissionsRepository, 
-                new SqlUsersRepository(connectionWrapper))
+        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository) : this(connectionWrapper, artifactPermissionsRepository, new SqlUsersRepository(connectionWrapper))
         {
         }
 
-        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, 
-            IArtifactPermissionsRepository artifactPermissionsRepository,
-            IUsersRepository usersRepository) :
-            base(connectionWrapper, artifactPermissionsRepository, usersRepository)
+        public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository, IUsersRepository usersRepository) : base(connectionWrapper, artifactPermissionsRepository, usersRepository)
         {
             WorkflowRepository = new SqlWorkflowRepository(connectionWrapper, ArtifactPermissionsRepository);
         }
@@ -102,14 +88,6 @@ namespace BlueprintSys.RC.Services.Repositories
             var param = new DynamicParameters();
             param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(projectIds));
             return (await ConnectionWrapper.QueryAsync<SqlProject>("GetProjectNameByIds", param, commandType: CommandType.StoredProcedure)).ToList();
-        }
-
-        //TODO is this still needed?
-        public async Task<List<SqlModifiedProperty>> GetPropertyModificationsForRevisionIdAsync(int revisionId)
-        {
-            var param = new DynamicParameters();
-            param.Add("@revisionId", revisionId);
-            return (await ConnectionWrapper.QueryAsync<SqlModifiedProperty>("GetPropertyModificationsForRevisionId", param, commandType: CommandType.StoredProcedure)).ToList();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BlueprintSys.RC.Services.Models
+namespace BlueprintSys.RC.Services.Helpers
 {
     public class TenantInformation
     {

@@ -7,6 +7,12 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("SearchEngineLibrary.Tests")]
 [assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("SearchEngineLibrary.Tests")]
+[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -14,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("e8478fd0-0e37-4a12-982e-a5ef7894c6aa")]
+[assembly: Guid("240e66b5-4b36-40c9-a22c-106ed1e747f5")]
 
 // Version information for an assembly consists of the following four values:
 //

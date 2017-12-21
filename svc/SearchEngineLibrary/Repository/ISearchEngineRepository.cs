@@ -8,6 +8,6 @@ namespace SearchEngineLibrary.Repository
 {
     public interface ISearchEngineRepository
     {
-        Task<IEnumerable<int>> GetArtifactIdsFromSearchItems();
+        Task<IEnumerable<int>> GetArtifactIds();
     }
 }

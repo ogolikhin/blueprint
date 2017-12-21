@@ -17,14 +17,14 @@ namespace SearchEngineLibrary.Service
             
         }
 
-        public SearchEngineService(ISearchEngineRepository searchEngineRepository)
+        internal SearchEngineService(ISearchEngineRepository searchEngineRepository)
         {
             _searchEngineRepository = searchEngineRepository;
         }
 
-        public async Task<IEnumerable<int>> GetArtifactIdsFromSearchItems()
+        public async Task<IEnumerable<int>> GetArtifactIds()
         {
-            return await _searchEngineRepository.GetArtifactIdsFromSearchItems();
+            return await _searchEngineRepository.GetArtifactIds();
         }
     }
 }

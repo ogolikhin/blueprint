@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -24,14 +21,14 @@ namespace SearchEngineLibrary.Tests.Service
         }
 
         [TestMethod]
-        public async Task GetListArtifactIdsFromSearchItemsAsync_WeHaveAllSearchItem_QueryReturnListArtifactIds()
+        public async Task GetListArtifactIdsFromSearchItemsAsync_AllSearchItemsExists_QueryReturnListArtifactIds()
         {
             // arrange
-            var listArtifactIds = new List<int>() {1, 2, 3};
-            _searchEngineRepositoryMock.Setup(q => q.GetArtifactIdsFromSearchItems()).ReturnsAsync(listArtifactIds);
+            var listArtifactIds = new List<int> {1, 2, 3};
+            _searchEngineRepositoryMock.Setup(q => q.GetArtifactIds()).ReturnsAsync(listArtifactIds);
 
             // act
-            var result = await _searchEngineService.GetArtifactIdsFromSearchItems();
+            var result = await _searchEngineService.GetArtifactIds();
 
             // assert
             Assert.AreEqual(listArtifactIds, result);

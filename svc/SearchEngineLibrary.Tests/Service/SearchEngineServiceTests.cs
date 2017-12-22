@@ -21,7 +21,7 @@ namespace SearchEngineLibrary.Tests.Service
         }
 
         [TestMethod]
-        public async Task GetListArtifactIdsFromSearchItemsAsync_AllSearchItemsExists_QueryReturnListArtifactIds()
+        public async Task GetListArtifactIdsAsync_AllSearchItemsExists_QueryReturnListArtifactIds()
         {
             // arrange
             var listArtifactIds = new List<int> {1, 2, 3};

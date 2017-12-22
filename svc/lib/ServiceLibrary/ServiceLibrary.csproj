@@ -369,6 +369,7 @@
     <Compile Include="Repositories\ApplicationSettings\SqlFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\IFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
+    <Compile Include="Repositories\CollectionsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
@@ -376,6 +377,7 @@
     <Compile Include="Helpers\Files\FileHttpWebClient.cs" />
     <Compile Include="Repositories\IArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\Files\IFileRepository.cs" />
+    <Compile Include="Repositories\ICollectionsRepository.cs" />
     <Compile Include="Repositories\ILockArtifactsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\IInstanceSettingsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\SqlInstanceSettingsRepository.cs" />

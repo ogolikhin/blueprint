@@ -20,14 +20,14 @@ namespace ArtifactStore.Controllers
 
         private readonly PrivilegesManager _privilegesManager;
 
-        public CollectionsController() : this
+        internal CollectionsController() : this
             (
                 new CollectionsRepository(),
                 new SqlPrivilegesRepository())
         {
         }
 
-        public CollectionsController
+        internal CollectionsController
         (
             ICollectionsRepository collectionsRepository,
             IPrivilegesRepository privilegesRepository)

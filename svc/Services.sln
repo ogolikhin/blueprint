@@ -61,9 +61,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluePrintSys.Messaging.Mode
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluePrintSys.Messaging.CrossCutting", "..\win_svc\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj", "{74353EB4-59E8-4F3E-A9E3-9927546970FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchEngineLibrary", "SearchEngineLibrary\SearchEngineLibrary.csproj", "{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchEngineLibrary", "lib\SearchEngineLibrary\SearchEngineLibrary.csproj", "{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchEngineLibrary.Tests", "SearchEngineLibrary.Tests\SearchEngineLibrary.Tests.csproj", "{240E66B5-4B36-40C9-A22C-106ED1E747F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchEngineLibrary.Tests", "lib\SearchEngineLibrary.Tests\SearchEngineLibrary.Tests.csproj", "{240E66B5-4B36-40C9-A22C-106ED1E747F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

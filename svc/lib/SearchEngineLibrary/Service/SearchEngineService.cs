@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using SearchEngineLibrary.Repository;
@@ -14,7 +11,6 @@ namespace SearchEngineLibrary.Service
 
         public SearchEngineService() : this(new SearchEngineRepository())
         {
-            
         }
 
         internal SearchEngineService(ISearchEngineRepository searchEngineRepository)

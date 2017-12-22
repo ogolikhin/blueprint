@@ -12,8 +12,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged
             var message = (ArtifactsChangedMessage) actionMessage;
             var repository = (IArtifactsChangedRepository) baseRepository;
             var artifactIds = message.ArtifactIds.ToList();
-
-            Logger.Log($"ArtifactsChanged message received for artifact ids {string.Join(", ", artifactIds)}.", message, tenant);
+            Logger.Log($"Handling ArtifactsChanged message with change type {message.ChangeType} and artifact IDs: {string.Join(", ", artifactIds)}", message, tenant);
 
             if (!artifactIds.Any())
             {

@@ -79,6 +79,7 @@ namespace ArtifactStore.Controllers
         /// <param name="containerId">Id of the review container</param>
         /// <param name="pagination"></param>
         /// <param name="revisionId"></param>
+        /// <param name="filterParameters"></param>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
@@ -86,11 +87,11 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/artifacts"), SessionRequired]
-        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, int revisionId = int.MaxValue)
+        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, int revisionId = int.MaxValue, [FromUri] RevExpFilterParameters filterParameters = null)
         {
             pagination.Validate();
             pagination.SetDefaultValues(0, 10);
-            return _sqlReviewsRepository.GetReviewedArtifacts(containerId, Session.UserId, pagination, revisionId);
+            return _sqlReviewsRepository.GetReviewedArtifacts(containerId, Session.UserId, pagination, revisionId, filterParameters);
         }
 
         /// <summary>

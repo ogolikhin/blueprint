@@ -589,14 +589,14 @@ namespace ArtifactStore.Repositories
             return ReviewRawDataHelper.GetStoreData(rdReviewContents);
         }
 
-        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId)
+        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId, RevExpFilterParameters filterParameters = null)
         {
-            return GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, revisionId);
+            return GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, revisionId, false, filterParameters);
         }
 
-        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false)
+        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false, RevExpFilterParameters filterParameters = null)
         {
-            var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts);
+            var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts, filterParameters?.IsApprovalRequired);
 
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
 
@@ -744,7 +744,7 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<int>("GetReviewArtifactsForApprove", parameters, commandType: CommandType.StoredProcedure)).ToList();
         }
 
-        private async Task<QueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true)
+        private async Task<QueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true, bool? isApprovalRequired = null)
             where T : BaseReviewArtifact
         {
             var refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
@@ -756,6 +756,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
             parameters.Add("@userId", userId);
             parameters.Add("@refreshInterval", refreshInterval);
+            parameters.Add("@isSpecificApprovalRequired", isApprovalRequired);
             parameters.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
             parameters.Add("@isFormal", dbType: DbType.Boolean, direction: ParameterDirection.Output);
 

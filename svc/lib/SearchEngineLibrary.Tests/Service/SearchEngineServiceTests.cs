@@ -20,18 +20,18 @@ namespace SearchEngineLibrary.Tests.Service
             _searchEngineService = new SearchEngineService(_searchEngineRepositoryMock.Object);
         }
 
-        [TestMethod]
-        public async Task GetListArtifactIdsAsync_AllSearchItemsExists_QueryReturnListArtifactIds()
-        {
-            // arrange
-            var listArtifactIds = new List<int> {1, 2, 3};
-            _searchEngineRepositoryMock.Setup(q => q.GetArtifactIds()).ReturnsAsync(listArtifactIds);
+        //[TestMethod]
+        //public async Task GetListArtifactIdsAsync_AllSearchItemsExists_QueryReturnListArtifactIds()
+        //{
+        //    // arrange
+        //    var listArtifactIds = new List<int> {1, 2, 3};
+        //    _searchEngineRepositoryMock.Setup(q => q.GetArtifactIds()).ReturnsAsync(listArtifactIds);
 
-            // act
-            var result = await _searchEngineService.GetArtifactIds();
+        //    // act
+        //    var result = await _searchEngineService.GetArtifactIds();
 
-            // assert
-            Assert.AreEqual(listArtifactIds, result);
-        }
+        //    // assert
+        //    Assert.AreEqual(listArtifactIds, result);
+        //}
     }
 }

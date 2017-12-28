@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 
 using SearchEngineLibrary.Repository;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 
 namespace SearchEngineLibrary.Service
 {
@@ -18,9 +20,9 @@ namespace SearchEngineLibrary.Service
             _searchEngineRepository = searchEngineRepository;
         }
 
-        public async Task<IEnumerable<int>> GetArtifactIds()
+        public async Task<IEnumerable<int>> GetChildrenArtifactIdsByCollectionId(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDraft, int userId)
         {
-            return await _searchEngineRepository.GetArtifactIds();
+            return await _searchEngineRepository.GetChildrenArtifactIdsByCollectionId(scopeId, pagination, scopeType, includeDraft, userId);
         }
     }
 }

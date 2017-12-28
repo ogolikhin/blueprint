@@ -21,20 +21,20 @@ namespace SearchEngineLibrary.Tests.Repository
             _searchEngineRepository = new SearchEngineRepository(_sqlConnectionWrapperMock.Object);
         }
 
-        [TestMethod]
-        public async Task GetListArtifactIdsAsync_AllSearchItemsExists_QueryReturnListArtifactIds()
-        {
-            // arrange
-            var listArtifactIds = new List<int> {1, 2, 3};
-            
-            _sqlConnectionWrapperMock.SetupQueryAsync(@"SELECT DISTINCT([ArtifactId]) FROM [dbo].[SearchItems]", null, listArtifactIds, commandType:CommandType.Text);
+        //[TestMethod]
+        //public async Task GetListArtifactIdsAsync_AllSearchItemsExists_QueryReturnListArtifactIds()
+        //{
+        //    // arrange
+        //    var listArtifactIds = new List<int> { 1, 2, 3 };
 
-            // act
-            var result = await _searchEngineRepository.GetArtifactIds();
+        //    _sqlConnectionWrapperMock.SetupQueryAsync(@"SELECT DISTINCT([ArtifactId]) FROM [dbo].[SearchItems]", null, listArtifactIds, commandType: CommandType.Text);
 
-            // assert
-            _sqlConnectionWrapperMock.Verify();
-            Assert.AreEqual(result, listArtifactIds);
-        }
+        //    // act
+        //    var result = await _searchEngineRepository.GetArtifactIds();
+
+        //    // assert
+        //    _sqlConnectionWrapperMock.Verify();
+        //    Assert.AreEqual(result, listArtifactIds);
+        //}
     }
 }

@@ -87,7 +87,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/artifacts"), SessionRequired]
-        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, int revisionId = int.MaxValue, [FromUri] RevExpFilterParameters filterParameters = null)
+        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, [FromUri] RevExpFilterParameters filterParameters, int revisionId = int.MaxValue)
         {
             pagination.Validate();
             pagination.SetDefaultValues(0, 10);

@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 namespace ServiceLibrary.Models
 {
 
-   public class RevExpFilterParameters
-   {
-       public bool? IsApprovalRequired { get; set; }
+    public class RevExpFilterParameters
+    {
+        public IEnumerable<int> ApprStsIds { get; set; }
+
+        public bool? IsApprovalRequired { get; set; }
     }
 }

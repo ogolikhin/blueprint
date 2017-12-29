@@ -66,7 +66,7 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
-        /// Get child artifacts of the project. 
+        /// Get child artifacts of the project.
         /// </summary>
         /// <remarks>
         /// Returns child artifacts of the project with the specified id.

@@ -25,6 +25,7 @@ namespace SearchEngineLibrary.Repository
         {
             return _connectionWrapper.QueryAsync<int>(
                 @"SELECT DISTINCT([ArtifactId]) FROM [dbo].[SearchItems]", commandType:CommandType.Text);
+
         }
     }
 }

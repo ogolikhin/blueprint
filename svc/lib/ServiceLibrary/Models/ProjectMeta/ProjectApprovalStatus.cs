@@ -5,6 +5,6 @@
         public string StatusText { get; set; }
         public ApprovalType ApprovalType { get; set; }
         public bool IsPreset { get; set; }
-        public int ProjectSettingId { get; set; }
+        public int Id { get; set; }
     }
 }

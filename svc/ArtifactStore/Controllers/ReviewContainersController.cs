@@ -78,8 +78,8 @@ namespace ArtifactStore.Controllers
         /// </remarks>
         /// <param name="containerId">Id of the review container</param>
         /// <param name="pagination"></param>
-        /// <param name="revisionId"></param>
         /// <param name="filterParameters"></param>
+        /// <param name="revisionId"></param>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>

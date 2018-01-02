@@ -24,7 +24,7 @@ namespace SearchEngineLibrary.Tests.Service
         public async Task GetListArtifactIdsAsync_AllSearchItemsExists_QueryReturnListArtifactIds()
         {
             // arrange
-            var listArtifactIds = new List<int> {1, 2, 3};
+            var listArtifactIds = new List<int> { 1, 2, 3 };
             _searchEngineRepositoryMock.Setup(q => q.GetArtifactIds()).ReturnsAsync(listArtifactIds);
 
             // act

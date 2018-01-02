@@ -888,10 +888,8 @@ namespace AdminStore.Repositories.Workflow
 
             if (transaction != null)
             {
-                updatedWorkflows =
-                    await
-                        transaction.Connection.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm, transaction,
-                            commandType: CommandType.StoredProcedure);
+                updatedWorkflows = await transaction.Connection.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm, transaction, commandType: CommandType.StoredProcedure);
+
                 var sqlWorkflows = updatedWorkflows as IList<SqlWorkflow> ?? updatedWorkflows.ToList();
                 if (sqlWorkflows.Any())
                 {
@@ -900,10 +898,8 @@ namespace AdminStore.Repositories.Workflow
             }
             else
             {
-                updatedWorkflows =
-                    await
-                        _connectionWrapper.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm,
-                            commandType: CommandType.StoredProcedure);
+                updatedWorkflows = await _connectionWrapper.QueryAsync<SqlWorkflow>("UpdateWorkflows", prm, commandType: CommandType.StoredProcedure);
+
                 var sqlWorkflows = updatedWorkflows as IList<SqlWorkflow> ?? updatedWorkflows.ToList();
                 if (sqlWorkflows.Any())
                 {

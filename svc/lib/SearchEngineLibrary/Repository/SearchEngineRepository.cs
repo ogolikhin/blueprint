@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using ServiceLibrary.Repositories;
 using System.Data;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -14,9 +12,9 @@ using System;
 
 namespace SearchEngineLibrary.Repository
 {
-    public class SearchEngineRepository: ISearchEngineRepository
+    public class SearchEngineRepository : ISearchEngineRepository
     {
-        private readonly ISqlConnectionWrapper _connectionWrapper;        
+        private readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SearchEngineRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -25,7 +23,7 @@ namespace SearchEngineLibrary.Repository
 
         internal SearchEngineRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            _connectionWrapper = connectionWrapper;           
+            _connectionWrapper = connectionWrapper;
         }
 
         public async Task<IEnumerable<int>> GetChildrenArtifactIdsByCollectionId(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDraft, int userId)

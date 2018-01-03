@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-
 using SearchEngineLibrary.Repository;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;

@@ -300,7 +300,8 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             {
                 ApprovalType = approvalType,
                 StatusText = statusText,
-                IsPreset = projectSetting.ReadOnly
+                IsPreset = projectSetting.ReadOnly,
+                Id = projectSetting.ProjectSettingId
             };
         }
 

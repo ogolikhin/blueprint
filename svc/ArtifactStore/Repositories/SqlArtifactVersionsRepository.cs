@@ -16,6 +16,7 @@ namespace ArtifactStore.Repositories
     public class SqlArtifactVersionsRepository : IArtifactVersionsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly IArtifactRepository _artifactRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IItemInfoRepository _itemInfoRepository;
 
@@ -25,14 +26,22 @@ namespace ArtifactStore.Repositories
         }
 
         internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper)
-            : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper), new SqlItemInfoRepository(connectionWrapper))
+            : this(
+                connectionWrapper,
+                new SqlArtifactRepository(connectionWrapper),
+                new SqlArtifactPermissionsRepository(connectionWrapper),
+                new SqlItemInfoRepository(connectionWrapper))
         {
         }
 
-        internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper,
-                IArtifactPermissionsRepository artifactPermissionsRepository, IItemInfoRepository itemInfoRepository)
+        internal SqlArtifactVersionsRepository(
+            ISqlConnectionWrapper connectionWrapper,
+            IArtifactRepository artifactRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IItemInfoRepository itemInfoRepository)
         {
             _connectionWrapper = connectionWrapper;
+            _artifactRepository = artifactRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _itemInfoRepository = itemInfoRepository;
         }
@@ -228,11 +237,7 @@ namespace ArtifactStore.Repositories
 
         public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int? baselineId, int userId)
         {
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            dynamicParameters.Add("@userId", userId);
-            dynamicParameters.Add("@itemId", itemId);
-            ArtifactBasicDetails artifactBasicDetails = (await _connectionWrapper.QueryAsync<ArtifactBasicDetails>(
-                "GetArtifactBasicDetails", dynamicParameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            ArtifactBasicDetails artifactBasicDetails = await _artifactRepository.GetArtifactBasicDetails(itemId, userId);
             if (artifactBasicDetails == null)
             {
                 string errorMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", itemId);

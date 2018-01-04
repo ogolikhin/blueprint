@@ -10,5 +10,7 @@ namespace BluePrintSys.Messaging.Models.Actions
         public IEnumerable<int> PropertyTypeIds { get; set; }
 
         public IEnumerable<int> ItemTypeIds { get; set; }
+
+        public bool IsStandard { get; set; }
     }
 }

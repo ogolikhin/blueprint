@@ -7,6 +7,6 @@ namespace SearchEngineLibrary.Service
 {
     public interface ISearchEngineService
     {
-        Task<IEnumerable<int>> GetChildrenArtifactIdsByCollectionId(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDraft, int userId);
+        Task<IEnumerable<int>> SearchArtifactIds(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDraft, int userId);
     }
 }

@@ -136,8 +136,10 @@ namespace ServiceLibrary.Helpers
         // Artifacts
         public static readonly string ArtifactTypeIdsNotValid = "Please provide valid artifact type ids";
         public static readonly string ArtifactNotLockedByUser = "Artifact (Id:{0}) is not locked by user (Id:{1}).";
+        // Search artifacts
         public static readonly string NotImplementedForNotCollection = "Not implemented for not Collection artifact";
         public static readonly string NotImplementedForDescendantsScopeType = "Not implemented for Descendants scopeType";
+        public static readonly string ArtifactNotFound = "Item (Id:{0}) is not found.";
         // Reviews
         public static readonly string ReviewSettingsAreRequired = "Review settings must be provided.";
         public static readonly string ReviewNotFound = "Review (Id:{0}) is not found.";

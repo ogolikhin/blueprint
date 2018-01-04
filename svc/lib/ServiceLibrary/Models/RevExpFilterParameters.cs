@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ServiceLibrary.Models
 {
 
     public class RevExpFilterParameters
     {
-        public IEnumerable<int> ApprStsIds { get; set; } = new List<int>();
+        public IEnumerable<int> ApprStsIds { get; set; }
 
         public bool? IsApprovalRequired { get; set; }
     }

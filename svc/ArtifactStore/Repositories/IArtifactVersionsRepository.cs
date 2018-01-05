@@ -16,8 +16,6 @@ namespace ArtifactStore.Repositories
 
         Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int? baselineId, int userId);
 
-        Task<bool> LockArtifactAsync(int artifactId, int userId);
-
         Task<IEnumerable<int>> GetDeletedAndNotInProjectItems(IEnumerable<int> itemIds, int projectId);
     }
 }

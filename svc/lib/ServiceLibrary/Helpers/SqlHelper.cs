@@ -12,7 +12,7 @@ namespace ServiceLibrary.Helpers
         /// <summary>
         /// See http://msdn.microsoft.com/en-us/library/aa337376.aspx
         /// </summary>
-        private const int deadlockSqlExceptionErrorCode = 1205;
+        private const int DeadlockSqlExceptionErrorCode = 1205;
 
         public async Task RunInTransactionAsync(string connectionString, Func<IDbTransaction, Task> action)
         {
@@ -38,6 +38,7 @@ namespace ServiceLibrary.Helpers
                 {
                     var result = await action(transaction);
                     transaction.Commit();
+
                     return result;
                 }
             }
@@ -45,17 +46,18 @@ namespace ServiceLibrary.Helpers
 
         public async Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string comment)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@userId", userId);
-            prm.Add("@comment", comment);
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@comment", comment);
 
-            var revision = (await transaction.Connection.QueryAsync<int>("CreateRevision", prm, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            var revision = (await transaction.Connection.QueryAsync<int>("CreateRevision", parameters, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+
             return revision;
         }
 
-        public async Task<T> RetryOnSqlDealLockAsync<T>(Func<Task<T>> action, int retryCount, int delayAfterAttempt = 3, int millisecondsDelay = 2000)
+        public async Task<T> RetryOnSqlDeadlockAsync<T>(Func<Task<T>> action, int retryCount, int delayAfterAttempt = 3, int millisecondsDelay = 2000)
         {
-            for (int attempt = 0; ; attempt++)
+            for (var attempt = 0; ; attempt++)
             {
                 try
                 {
@@ -79,7 +81,7 @@ namespace ServiceLibrary.Helpers
 
         private static bool IsDeadlockException(SqlException sqlException)
         {
-            return sqlException != null && sqlException.Number == deadlockSqlExceptionErrorCode;
+            return sqlException != null && sqlException.Number == DeadlockSqlExceptionErrorCode;
         }
     }
 }

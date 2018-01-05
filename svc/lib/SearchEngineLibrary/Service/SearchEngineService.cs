@@ -42,7 +42,12 @@ namespace SearchEngineLibrary.Service
                 throw new NotImplementedException(ErrorMessages.NotImplementedForNotCollection);
             }
 
-            return await _searchEngineRepository.GetArtifactIds(scopeId, pagination, scopeType, includeDraft, userId);
+            if (scopeType == ScopeType.Descendants)
+            {
+                throw new NotImplementedException(ErrorMessages.NotImplementedForDescendantsScopeType);
+            }
+
+            return await _searchEngineRepository.GetArtifactIds(scopeId, pagination, includeDraft, userId);
         }
     }
 }

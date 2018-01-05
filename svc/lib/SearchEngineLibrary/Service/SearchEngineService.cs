@@ -7,6 +7,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Exceptions;
 using System;
+using SearchEngineLibrary.Model;
 
 namespace SearchEngineLibrary.Service
 {
@@ -26,7 +27,7 @@ namespace SearchEngineLibrary.Service
             _sqlArtifactRepository = sqlArtifactRepository;
         }
 
-        public async Task<IEnumerable<int>> SearchArtifactIds(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDraft, int userId)
+        public async Task<SearchArtifactsResult> SearchArtifactIds(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDraft, int userId)
         {           
             var artifactBasicDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(scopeId, userId);
                       

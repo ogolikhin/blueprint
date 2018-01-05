@@ -11,6 +11,7 @@ using System.Linq;
 using System;
 using ServiceLibrary.Repositories;
 using System.Text;
+using SearchEngineLibrary.Model;
 
 namespace SearchEngineLibrary.Repository
 {
@@ -28,12 +29,14 @@ namespace SearchEngineLibrary.Repository
             _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<IEnumerable<int>> GetArtifactIds(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDraft, int userId)
+        public async Task<SearchArtifactsResult> GetArtifactIds(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDraft, int userId)
         {
             if (scopeType == ScopeType.Descendants)
             {
                 throw new NotImplementedException(ErrorMessages.NotImplementedForDescendantsScopeType);
             }
+
+            var searchArtifactsResult = new SearchArtifactsResult();
 
             var query = new StringBuilder(I18NHelper.FormatInvariant("DECLARE @Offset INT = {0} DECLARE   @Limit INT = {1} DECLARE @includeDraft BIT = {2} DECLARE @scopeId INT = {3} DECLARE @infinityRevision INT = 2147483647 DECLARE @userId INT = {4} ", pagination.Offset, pagination.Limit, includeDraft ? 1 : 0, scopeId, userId));
             query.Insert(query.Length - 1, "CREATE TABLE #VersionArtifactId (id int identity(1,1), VersionArtifactId int) ");
@@ -47,11 +50,18 @@ namespace SearchEngineLibrary.Repository
             query.Insert(query.Length - 1, "AND col.VersionArtifactId IN (SELECT ArtifactId FROM [dbo].[SearchItems]) END ");
             query.Insert(query.Length - 1, "IF(@includeDraft = 0) BEGIN DELETE FROM #VersionArtifactId WHERE VersionArtifactId IN (SELECT iv.HolderId FROM [dbo].[ItemVersions] as iv WHERE (iv.StartRevision = 1 AND iv.EndRevision = 1 OR iv.EndRevision = -1) AND iv.VersionUserId = @userId) END ");
             query.Insert(query.Length - 1, "ELSE BEGIN DELETE FROM #VersionArtifactId WHERE VersionArtifactId IN (SELECT iv.HolderId FROM [dbo].[ItemVersions] as iv WHERE (iv.StartRevision = 1 AND iv.EndRevision = -1 AND iv.VersionUserId = @userId)) END ");
-            query.Insert(query.Length - 1, "SELECT [ArtifactId] FROM [dbo].[SearchItems] WHERE [ArtifactId] IN (SELECT [VersionArtifactId] FROM #VersionArtifactId) GROUP BY [ArtifactId] ORDER BY [ArtifactId] OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY ");
+            query.Insert(query.Length - 1, "DECLARE @outputList table (id int) INSERT INTO @outputList SELECT COUNT(VersionArtifactId) FROM #VersionArtifactId INSERT INTO @outputList SELECT DISTINCT(VersionArtifactId) FROM #VersionArtifactId ORDER BY [VersionArtifactId] OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY SELECT id FROM @outputList ");
             query.Insert(query.Length - 1, "DROP TABLE #VersionArtifactId "); 
 
-            return await _connectionWrapper.QueryAsync<int>(
-                @query.ToString(), commandType:CommandType.Text);
+            var result = await _connectionWrapper.QueryAsync<int>(@query.ToString(), commandType:CommandType.Text);
+
+            if (result.Count() > 0)
+            {
+                searchArtifactsResult.Total = result.ElementAt(0);
+                searchArtifactsResult.ArtifactIds = result.Except(new List<int>() { result.ElementAt(0) });
+            }
+
+            return searchArtifactsResult;
         }
     }
 }

@@ -47,7 +47,7 @@ namespace SearchEngineLibrary.Service
                 throw new NotImplementedException(ErrorMessages.NotImplementedForDescendantsScopeType);
             }
 
-            return await _searchEngineRepository.GetArtifactIds(scopeId, pagination, scopeType, includeDraft, userId);
+            return await _searchEngineRepository.GetArtifactIds(scopeId, pagination, includeDraft, userId);
         }
     }
 }

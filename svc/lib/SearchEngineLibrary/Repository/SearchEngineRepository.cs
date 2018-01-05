@@ -12,6 +12,7 @@ using System;
 using ServiceLibrary.Repositories;
 using System.Text;
 using SearchEngineLibrary.Model;
+using System.Data.SqlClient;
 
 namespace SearchEngineLibrary.Repository
 {
@@ -31,34 +32,32 @@ namespace SearchEngineLibrary.Repository
 
         public async Task<SearchArtifactsResult> GetArtifactIds(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDraft, int userId)
         {
-            if (scopeType == ScopeType.Descendants)
+            var searchArtifactsResult = new SearchArtifactsResult() { ArtifactIds = new List<int>() };
+
+            var query = new StringBuilder(I18NHelper.FormatInvariant("DECLARE @Offset INT = {0} DECLARE @Limit INT = {1} DECLARE @includeDraft BIT = {2} DECLARE @scopeId INT = {3} DECLARE @infinityRevision INT = 2147483647 DECLARE @userId INT = {4} ", pagination.Offset, pagination.Limit, includeDraft ? 1 : 0, scopeId, userId));
+            query.Append("CREATE TABLE #VersionArtifactId (id int identity(1,1), VersionArtifactId int) ");
+            query.Append("IF(@includeDraft = 0) BEGIN INSERT INTO #VersionArtifactId SELECT col.[VersionArtifactId] FROM [dbo].[CollectionAssignmentVersions] as col JOIN [dbo].[ItemVersions] as iv on iv.[HolderId] = col.[VersionArtifactId] ");
+            query.Append("WHERE [VersionCollectionId] = @scopeId AND col.VersionArtifactId IN (SELECT ArtifactId FROM [dbo].[SearchItems]) AND col.[EndRevision] = @infinityRevision AND iv.[EndRevision] = @infinityRevision ");
+            query.Append("END ELSE BEGIN INSERT INTO #VersionArtifactId SELECT col.[VersionArtifactId] FROM [dbo].[CollectionAssignmentVersions] as col JOIN [dbo].[ItemVersions] as iv ON iv.HolderId = col.VersionArtifactId ");
+            query.Append("WHERE col.[VersionCollectionId] = @scopeId AND (col.EndRevision = @infinityRevision OR (col.StartRevision = 1 AND col.EndRevision = 1 AND col.VersionUserId = @userId)) ");
+            query.Append("AND (iv.[EndRevision] = @infinityRevision OR (iv.[StartRevision] = 1 AND (iv.[EndRevision] = 1 OR iv.[EndRevision] = -1) AND iv.[VersionUserId] = @userId)) ");
+            query.Append("AND col.[VersionArtifactId] IN (SELECT [ArtifactId] FROM [dbo].[SearchItems]) GROUP BY col.[VersionArtifactId] HAVING MIN(col.[EndRevision]) > 0 AND MIN(iv.[EndRevision]) > 0 END ");
+            query.Append("SELECT COUNT(VersionArtifactId) as Total FROM #VersionArtifactId SELECT DISTINCT(VersionArtifactId) FROM #VersionArtifactId ORDER BY [VersionArtifactId] OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY ");
+            query.Append("DROP TABLE #VersionArtifactId "); 
+            
+            var dbConnection = _connectionWrapper.CreateConnection();
+            var reader = await dbConnection.ExecuteReaderAsync(query.ToString(), commandType: CommandType.Text);
+
+            while (reader.Read())
             {
-                throw new NotImplementedException(ErrorMessages.NotImplementedForDescendantsScopeType);
+                searchArtifactsResult.Total = (int)reader["Total"];
             }
 
-            var searchArtifactsResult = new SearchArtifactsResult();
+            reader.NextResult();
 
-            var query = new StringBuilder(I18NHelper.FormatInvariant("DECLARE @Offset INT = {0} DECLARE   @Limit INT = {1} DECLARE @includeDraft BIT = {2} DECLARE @scopeId INT = {3} DECLARE @infinityRevision INT = 2147483647 DECLARE @userId INT = {4} ", pagination.Offset, pagination.Limit, includeDraft ? 1 : 0, scopeId, userId));
-            query.Insert(query.Length - 1, "CREATE TABLE #VersionArtifactId (id int identity(1,1), VersionArtifactId int) ");
-            query.Insert(query.Length - 1, "IF(@includeDraft = 0) BEGIN INSERT INTO #VersionArtifactId SELECT [VersionArtifactId] FROM [dbo].[CollectionAssignmentVersions] as col  ");
-            query.Insert(query.Length - 1, "WHERE [VersionCollectionId] = @scopeId AND EndRevision = @infinityRevision AND col.VersionArtifactId IN (SELECT ArtifactId FROM [dbo].[SearchItems]) ");
-            query.Insert(query.Length - 1, "AND NOT EXISTS (SELECT VersionArtifactId FROM [dbo].[CollectionAssignmentVersions] WHERE StartRevision = 1 AND EndRevision = -1 AND VersionUserId = @userId) END ");
-            query.Insert(query.Length - 1, "ELSE BEGIN INSERT INTO #VersionArtifactId SELECT [VersionArtifactId] FROM [dbo].[CollectionAssignmentVersions] as col ");
-            query.Insert(query.Length - 1, "WHERE col.[VersionCollectionId] = @scopeId AND (col.EndRevision = @infinityRevision OR (col.StartRevision = 1 AND col.EndRevision = 1 AND col.VersionUserId = @userId)) ");
-            query.Insert(query.Length - 1, "AND NOT EXISTS (SELECT col2.VersionArtifactId FROM [dbo].[CollectionAssignmentVersions] as col2 ");
-            query.Insert(query.Length - 1, "WHERE col2.VersionArtifactId = col.VersionArtifactId AND col2.StartRevision = 1 AND col2.EndRevision = -1 AND col2.VersionUserId = @userId) ");
-            query.Insert(query.Length - 1, "AND col.VersionArtifactId IN (SELECT ArtifactId FROM [dbo].[SearchItems]) END ");
-            query.Insert(query.Length - 1, "IF(@includeDraft = 0) BEGIN DELETE FROM #VersionArtifactId WHERE VersionArtifactId IN (SELECT iv.HolderId FROM [dbo].[ItemVersions] as iv WHERE (iv.StartRevision = 1 AND iv.EndRevision = 1 OR iv.EndRevision = -1) AND iv.VersionUserId = @userId) END ");
-            query.Insert(query.Length - 1, "ELSE BEGIN DELETE FROM #VersionArtifactId WHERE VersionArtifactId IN (SELECT iv.HolderId FROM [dbo].[ItemVersions] as iv WHERE (iv.StartRevision = 1 AND iv.EndRevision = -1 AND iv.VersionUserId = @userId)) END ");
-            query.Insert(query.Length - 1, "DECLARE @outputList table (id int) INSERT INTO @outputList SELECT COUNT(VersionArtifactId) FROM #VersionArtifactId INSERT INTO @outputList SELECT DISTINCT(VersionArtifactId) FROM #VersionArtifactId ORDER BY [VersionArtifactId] OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY SELECT id FROM @outputList ");
-            query.Insert(query.Length - 1, "DROP TABLE #VersionArtifactId "); 
-
-            var result = await _connectionWrapper.QueryAsync<int>(@query.ToString(), commandType:CommandType.Text);
-
-            if (result.Count() > 0)
+            while (reader.Read())
             {
-                searchArtifactsResult.Total = result.ElementAt(0);
-                searchArtifactsResult.ArtifactIds = result.Except(new List<int>() { result.ElementAt(0) });
+                searchArtifactsResult.ArtifactIds = searchArtifactsResult.ArtifactIds.Union(Enumerable.Repeat((int)reader["VersionArtifactId"], 1));
             }
 
             return searchArtifactsResult;

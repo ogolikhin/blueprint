@@ -21,7 +21,7 @@ namespace ServiceLibrary.Helpers
             return await Task.FromResult(1);
         }
 
-        public Task<T> RetryOnSqlDealLockAsync<T>(Func<Task<T>> action, int retryCount, int delayAfterAttempt = 3, int millisecondsDelay = 2000)
+        public Task<T> RetryOnSqlDeadlockAsync<T>(Func<Task<T>> action, int retryCount, int delayAfterAttempt = 3, int millisecondsDelay = 2000)
         {
             return action();
         }

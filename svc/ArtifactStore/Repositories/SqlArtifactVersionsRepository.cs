@@ -93,17 +93,6 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<DeletedItemInfo>("GetDeletedItemInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        public async Task<bool> LockArtifactAsync(int artifactId, int userId)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@userId", userId);
-            parameters.Add("@artifactId", artifactId);
-
-            var result = (await _connectionWrapper.QueryAsync<int?>("LockArtifact", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
-
-            return result.HasValue && result.Value > 0;
-        }
-
         private async Task<ArtifactHistoryVersion> DeletedVersionInfo(int artifactId)
         {
             var parameters = new DynamicParameters();

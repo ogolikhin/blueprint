@@ -34,7 +34,7 @@ namespace SearchEngineLibrary.Tests.Service
         }
 
         [TestMethod]
-        public async Task SearchArtifactIds_AllSearchItemsExists_ReturnListArtifactIds()
+        public async Task SearchArtifactIds_AllSearchItemsExists_ReturnedSearchArtifactsResult()
         {
             // arrange           
             _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId)).ReturnsAsync(new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection });

@@ -47,7 +47,7 @@ namespace SearchEngineLibrary.Tests.Service
         }
 
         [TestMethod]
-        public async Task SearchArtifactIds_NotFoundArtifactByScopeId_ResourceNotFoundException()
+        public async Task SearchArtifactIds_NotFoundArtifact_ResourceNotFoundException()
         {
             // arrange
             IEnumerable<int> listArtifactIds = new List<int> { 1, 2, 3 };

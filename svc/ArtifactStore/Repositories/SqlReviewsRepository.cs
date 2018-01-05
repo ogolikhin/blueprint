@@ -757,7 +757,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@refreshInterval", refreshInterval);
             parameters.Add("@isSpecificApprovalRequired", filterParameters?.IsApprovalRequired);
-            parameters.Add("@apprStsIds", SqlConnectionWrapper.ToDataTable(filterParameters?.ApprStsIds ?? new int[0]));
+            parameters.Add("@approveStatusesIds", SqlConnectionWrapper.ToDataTable(filterParameters?.ApprStsIds ?? new int[0]));
             parameters.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
             parameters.Add("@isFormal", dbType: DbType.Boolean, direction: ParameterDirection.Output);
 

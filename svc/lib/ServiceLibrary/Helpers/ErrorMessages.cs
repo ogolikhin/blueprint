@@ -148,5 +148,9 @@ namespace ServiceLibrary.Helpers
         public static readonly string RequireESignatureDisabled = "Meaning of Signature setting cannot be updated. Electornic signatures are not enabled for Review (Id:{0}).";
         public static readonly string MeaningOfSignatureDisabledInProject = "Meaning of Signature is disabled for the current project.";
         public static readonly string InvalidStandardArtifactTypesFilterValue = "Invalid filter parameter value.";
+        // Collections
+        public static readonly string InvalidAddArtifactsParameters = "Invalid parameters to add artifact(s)";
+        public static readonly string GeneralErrorOfAddingArtifactsToCollection = "General error of adding artifacts to collection";
+        public static readonly string CollectionDoesNotExist = "Collection does not exist";
     }
 }

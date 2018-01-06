@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -11,6 +12,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Web.Http.Description;
 using ArtifactStore.Models;
+using ArtifactStore.Services.Workflow;
 using ServiceLibrary.Models;
 
 namespace ArtifactStore.Controllers
@@ -22,7 +24,7 @@ namespace ArtifactStore.Controllers
     {
         public override string LogSource { get; } = "ArtifactStore.Collections";
 
-        private readonly ICollectionsRepository _collectionsRepository;
+        private readonly ICollectionsService _collectionsService;
 
         private readonly PrivilegesManager _privilegesManager;
 
@@ -33,23 +35,17 @@ namespace ArtifactStore.Controllers
         {
         }
 
-        internal CollectionsController
+        public CollectionsController
         (
             ICollectionsRepository collectionsRepository,
             IPrivilegesRepository privilegesRepository)
         {
-            _collectionsRepository = collectionsRepository;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
-        public CollectionsController
-        (
-            ICollectionsRepository collectionsRepository,
-            IPrivilegesRepository privilegesRepository,
-            IServiceLogRepository log) : base(log)
+        public CollectionsController(ICollectionsService collectionsService)
         {
-            _collectionsRepository = collectionsRepository;
-            _privilegesManager = new PrivilegesManager(privilegesRepository);
+            _collectionsService = collectionsService;
         }
 
         /// <summary>
@@ -59,6 +55,7 @@ namespace ArtifactStore.Controllers
         /// Adds artifacts to the collection with specified id.
         /// </remarks>
         /// <param name="id"> Id of the collection</param>
+        /// <param name="add"> !!!!!!!!!!!!!!!!!!!!!! of the collection</param>
         /// <param name="scope">scope of artifacts to be added</param>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
@@ -66,18 +63,20 @@ namespace ArtifactStore.Controllers
         /// <response code="404">Not found. A collection for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
-        [Route("{id:int:min(1)}/artifacts?add"), SessionRequired]
+        [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(AssignArtifactsResult))]
-        public async Task<IHttpActionResult> AddArtifactsToCollectionAsync(int id, [FromBody] OperationScope scope)
+        public async Task<IHttpActionResult> AddArtifactsToCollectionAsync(int id, /*[FromUri]*/ string add, [FromBody] OperationScope scope)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+
+            var parameter = HttpContext.Current.Request.Url.Query.Split('?')[1];
 
             if (scope == null)
             {
                 return BadRequest(ErrorMessages.InvalidAddArtifactsParameters);
             }
 
-            var result = await _collectionsRepository.AddArtifactsToCollectionAsync(Session.UserId, id, scope);
+            var result = await _collectionsService.AddArtifactsToCollectionAsync(Session.UserId, id, scope);
             return Ok(result);
         }
     }

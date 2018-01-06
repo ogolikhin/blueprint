@@ -11,11 +11,6 @@ namespace ArtifactStore
         {
             // Web API configuration and services
 
-            RouteTable.Routes.MapHttpRoute(
-            name: "CollectionsApi",
-            defaults: new { controller = "Collections", action = "AddArtifactsToCollectionAsync" },
-            constraints: new { httpMethod = new HttpMethodConstraint("POST") },
-            routeTemplate: "svc/artifactstore/collections/{id}/artifacts?{operation}");
 
             // Web API routes
             config.MapHttpAttributeRoutes();

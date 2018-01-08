@@ -27,7 +27,7 @@ namespace SearchEngineLibrary.Service
             _sqlArtifactRepository = sqlArtifactRepository;
         }
 
-        public async Task<SearchArtifactsResult> SearchArtifactIds(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDraft, int userId)
+        public async Task<SearchArtifactsResult> SearchArtifactIds(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDrafts, int userId)
         {           
             var artifactBasicDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(scopeId, userId);
                       
@@ -47,7 +47,7 @@ namespace SearchEngineLibrary.Service
                 throw new NotImplementedException(ErrorMessages.NotImplementedForDescendantsScopeType);
             }
 
-            return await _searchEngineRepository.GetArtifactIds(scopeId, pagination, includeDraft, userId);
+            return await _searchEngineRepository.GetArtifactIds(scopeId, pagination, includeDrafts, userId);
         }
     }
 }

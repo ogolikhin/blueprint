@@ -7,6 +7,7 @@ using ServiceLibrary.Repositories;
 using SearchEngineLibrary.Model;
 using ServiceLibrary.Models;
 using SearchEngineLibrary.Helpers;
+using Moq;
 
 namespace SearchEngineLibrary.Tests.Repository
 {
@@ -30,11 +31,19 @@ namespace SearchEngineLibrary.Tests.Repository
 
 
         [TestMethod]
-        public async Task GetListArtifactIdsAsync_AllSearchItemsExists_ReturnedSearchArtifactsResult()
+        public async Task GetArtifactIds_AllSearchItemsExists_ReturnedSearchArtifactsResult()
         {
             // arrange           
             //_sqlConnectionWrapperMock.(@"SELECT DISTINCT([ArtifactId]) FROM [dbo].[SearchItems]", null, searchArtifactsResult, commandType: CommandType.Text);
-            var query = QueryStringBuilder.ReturnGetArtifactIdsQuery(ScopeId, pagination, true, UserId);
+            var query = QueryBuilder.GetArtifactIdsQuery(ScopeId, pagination, true, UserId);
+            var dbConnection = _sqlConnectionWrapperMock.Object.CreateConnection();
+            var readerMock = new Mock<IDataReader>(MockBehavior.Strict);
+            object[][] values =
+                {
+                new object[] { "Total", 2}
+            };
+
+
 
             // act
             var result = await _searchEngineRepository.GetArtifactIds(ScopeId, pagination, true, UserId);

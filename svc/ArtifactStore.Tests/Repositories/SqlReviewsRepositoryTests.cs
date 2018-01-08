@@ -1085,7 +1085,6 @@ namespace ArtifactStore.Repositories
             _itemInfoRepositoryMock.Setup(i => i.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(revisionId);
 
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
-
             var param = new Dictionary<string, object>
             {
                 { "reviewId", reviewId },

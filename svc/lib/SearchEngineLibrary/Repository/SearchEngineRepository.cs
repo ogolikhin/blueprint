@@ -37,7 +37,7 @@ namespace SearchEngineLibrary.Repository
             
             var dbConnection = _connectionWrapper.CreateConnection();
 
-            using (var sqlDataReader = await dbConnection.ExecuteReaderAsync(QueryStringBuilder.ReturnGetArtifactIdsQuery(scopeId, pagination, includeDraft, userId), commandType: CommandType.Text))
+            using (var sqlDataReader = await dbConnection.ExecuteReaderAsync(QueryBuilder.GetArtifactIdsQuery(scopeId, pagination, includeDraft, userId), commandType: CommandType.Text))
             {
                 while (sqlDataReader.Read())
                 {

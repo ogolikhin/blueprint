@@ -31,13 +31,13 @@ namespace SearchEngineLibrary.Repository
             _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<SearchArtifactsResult> GetArtifactIds(int scopeId, Pagination pagination, bool includeDraft, int userId)
+        public async Task<SearchArtifactsResult> GetArtifactIds(int scopeId, Pagination pagination, bool includeDrafts, int userId)
         {
             var searchArtifactsResult = new SearchArtifactsResult() { ArtifactIds = new List<int>() };                     
             
             var dbConnection = _connectionWrapper.CreateConnection();
 
-            using (var sqlDataReader = await dbConnection.ExecuteReaderAsync(QueryBuilder.GetArtifactIdsQuery(scopeId, pagination, includeDraft, userId), commandType: CommandType.Text))
+            using (var sqlDataReader = await dbConnection.ExecuteReaderAsync(QueryBuilder.GetArtifactIds(scopeId, pagination, includeDrafts, userId), commandType: CommandType.Text))
             {
                 while (sqlDataReader.Read())
                 {
@@ -50,7 +50,6 @@ namespace SearchEngineLibrary.Repository
                 {
                     searchArtifactsResult.ArtifactIds = searchArtifactsResult.ArtifactIds.Union(Enumerable.Repeat((int)sqlDataReader["VersionArtifactId"], 1));
                 }
-
             }
             return searchArtifactsResult;
         }

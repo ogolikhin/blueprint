@@ -596,6 +596,14 @@ namespace ArtifactStore.Repositories
 
         private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false, RevExpFilterParameters filterParameters = null)
         {
+            var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
+            var review = await GetReviewAsync(reviewId, userId);
+
+            if (review.ReviewStatus == ReviewPackageStatus.Draft)
+            {
+                throw new ConflictException(I18NHelper.FormatInvariant("Review (Id:{0}) is in draft state. Cannot view artifacts.", reviewId));
+            }
+
             var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts, filterParameters);
 
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();

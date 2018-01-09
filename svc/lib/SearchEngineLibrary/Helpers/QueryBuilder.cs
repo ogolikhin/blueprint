@@ -7,7 +7,7 @@ namespace SearchEngineLibrary.Helpers
 {
     public class QueryBuilder
     {
-        public static string GetCollectionArtifactIds(int scopeId, Pagination pagination, bool includeDraft, int userId)
+        public static string GetCollectionContentSearchArtifactResults(int scopeId, Pagination pagination, bool includeDraft, int userId)
         {
             var partwhereinquery = string.Empty;
             if (!includeDraft)

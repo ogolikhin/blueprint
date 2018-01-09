@@ -9,14 +9,14 @@ namespace SearchEngineLibrary.Helpers
     {
         public static string GetCollectionContentSearchArtifactResults(int scopeId, Pagination pagination, bool includeDraft, int userId)
         {
-            var partwhereinquery = string.Empty;
+            string partWhereInQuery;
             if (!includeDraft)
             {
-                partwhereinquery = @"AND col.[EndRevision] = @infinityRevision AND iv.[EndRevision] = @infinityRevision ";
+                partWhereInQuery = @"AND col.[EndRevision] = @infinityRevision AND iv.[EndRevision] = @infinityRevision ";
             }
             else
             {
-                partwhereinquery = @"AND (col.[EndRevision] = @infinityRevision OR (col.[StartRevision] = 1 AND (col.[EndRevision] = 1 OR col.[EndRevision] = -1) AND col.[VersionUserId] = @userId))
+                partWhereInQuery = @"AND (col.[EndRevision] = @infinityRevision OR (col.[StartRevision] = 1 AND (col.[EndRevision] = 1 OR col.[EndRevision] = -1) AND col.[VersionUserId] = @userId))
                                      AND (iv.[EndRevision] = @infinityRevision OR (iv.[StartRevision] = 1 AND (iv.[EndRevision] = 1 OR iv.[EndRevision] = -1) AND iv.[VersionUserId] = @userId)) 
                                      GROUP BY col.[VersionArtifactId] HAVING MIN(col.[EndRevision]) > 0 AND MIN(iv.[EndRevision]) > 0 ";
             }
@@ -36,7 +36,7 @@ namespace SearchEngineLibrary.Helpers
 
                             SELECT COUNT(VersionArtifactId) as Total FROM #VersionArtifactId 
                             SELECT DISTINCT(VersionArtifactId) FROM #VersionArtifactId ORDER BY [VersionArtifactId] OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY
-                            DROP TABLE #VersionArtifactId", pagination.Offset, pagination.Limit, scopeId, userId, partwhereinquery);
+                            DROP TABLE #VersionArtifactId", pagination.Offset, pagination.Limit, scopeId, userId, partWhereInQuery);
 
             return query;
         }

@@ -1070,6 +1070,107 @@ namespace ArtifactStore.Repositories
         #region GetReviewedArtifact
 
         [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task GetReviewedArtifacts_ConflictExceptionWhenReviewIsDraft()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = 999;
+            var pagination = new Pagination
+            {
+                Offset = 0,
+                Limit = 50
+            };
+
+            SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Draft</Status></ReviewPackageRawData>");
+            _itemInfoRepositoryMock.Setup(i => i.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(revisionId);
+
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+            var param = new Dictionary<string, object>
+            {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "addDrafts", false },
+                { "revisionId", revisionId },
+                { "offset", pagination.Offset },
+                { "limit", pagination.Limit },
+                { "refreshInterval", 20 }
+            };
+
+            var reviewArtifacts = new List<ReviewedArtifact>();
+            var artifact1 = new ReviewedArtifact { Id = 2 };
+            reviewArtifacts.Add(artifact1);
+            var artifact2 = new ReviewedArtifact { Id = 3 };
+            reviewArtifacts.Add(artifact2);
+
+            var outputParams = new Dictionary<string, object> {
+                { "numResult", 2 },
+                { "isFormal", false }
+            };
+            _cxn.SetupQueryAsync("GetReviewArtifacts", param, reviewArtifacts, outputParams);
+
+            SetupArtifactPermissionsCheck(new[] { artifact1.Id, artifact2.Id, reviewId }, userId, new Dictionary<int, RolePermissions>());
+
+            // Act
+
+            await _reviewsRepository.GetReviewedArtifacts(reviewId, userId, pagination, revisionId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetReviewedArtifactsResourceNotFoundExceptionWhenReviewDoesNotExist()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var revisionId = 999;
+            var pagination = new Pagination
+            {
+                Offset = 0,
+                Limit = 50
+            };
+
+            SetupGetReviewDataQuery(reviewId, userId, null, null);
+            _itemInfoRepositoryMock.Setup(i => i.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(revisionId);
+
+            _artifactRepositoryMock
+      .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+      .ReturnsAsync(() => null);
+
+            _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
+            var param = new Dictionary<string, object>
+            {
+                { "reviewId", reviewId },
+                { "userId", userId },
+                { "addDrafts", false },
+                { "revisionId", revisionId },
+                { "offset", pagination.Offset },
+                { "limit", pagination.Limit },
+                { "refreshInterval", 20 }
+            };
+
+            var reviewArtifacts = new List<ReviewedArtifact>();
+            var artifact1 = new ReviewedArtifact { Id = 2 };
+            reviewArtifacts.Add(artifact1);
+            var artifact2 = new ReviewedArtifact { Id = 3 };
+            reviewArtifacts.Add(artifact2);
+
+            var outputParams = new Dictionary<string, object> {
+                { "numResult", 2 },
+                { "isFormal", false }
+            };
+            _cxn.SetupQueryAsync("GetReviewArtifacts", param, reviewArtifacts, outputParams);
+
+            SetupArtifactPermissionsCheck(new[] { artifact1.Id, artifact2.Id, reviewId }, userId, new Dictionary<int, RolePermissions>());
+
+            // Act
+
+            await _reviewsRepository.GetReviewedArtifacts(reviewId, userId, pagination, revisionId);
+        }
+
+
+        [TestMethod]
         public async Task GetReviewedArtifacts_AuthorizationException()
         {
             // Arrange
@@ -1082,6 +1183,7 @@ namespace ArtifactStore.Repositories
                 Limit = 50
             };
 
+             SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
             _itemInfoRepositoryMock.Setup(i => i.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(revisionId);
 
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -1145,6 +1247,8 @@ namespace ArtifactStore.Repositories
                 Offset = 0,
                 Limit = 50
             };
+
+            SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
 
             _itemInfoRepositoryMock.Setup(i => i.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(revisionId);
 
@@ -4037,6 +4141,8 @@ namespace ArtifactStore.Repositories
                 Status = ReviewStatus.Completed
             };
 
+            SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
+
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
             SetupArtifactPermissionsCheck(new[] { reviewId }, userId, new Dictionary<int, RolePermissions>
@@ -4076,6 +4182,8 @@ namespace ArtifactStore.Repositories
                 { reviewId, RolePermissions.Read }
             });
 
+            SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
+
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
             SetupGetRequireAllArtifactsReviewedQuery(false, true);
@@ -4108,6 +4216,8 @@ namespace ArtifactStore.Repositories
                 { reviewId, RolePermissions.Read }
             });
 
+            SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
+
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
             SetupGetRequireAllArtifactsReviewedQuery(false, true);
@@ -4132,6 +4242,8 @@ namespace ArtifactStore.Repositories
             {
                 Status = ReviewStatus.Completed
             };
+
+            SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 
@@ -4172,6 +4284,8 @@ namespace ArtifactStore.Repositories
                 { reviewId, RolePermissions.Read }
             });
 
+            SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
+
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
             SetupGetRequireAllArtifactsReviewedQuery(false, true);
@@ -4208,6 +4322,8 @@ namespace ArtifactStore.Repositories
             {
                 { reviewId, RolePermissions.Read }
             });
+
+            SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
 
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
@@ -4253,6 +4369,8 @@ namespace ArtifactStore.Repositories
                 { reviewId, RolePermissions.Read }
             });
 
+            SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
+
             _applicationSettingsRepositoryMock.Setup(repo => repo.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
             SetupGetRequireAllArtifactsReviewedQuery(false, true);
@@ -4291,6 +4409,8 @@ namespace ArtifactStore.Repositories
             {
                 Status = ReviewStatus.Completed
             };
+
+            SetupGetReviewDataQuery(reviewId, userId, null, "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>");
 
             SetupArtifactApprovalCheck(reviewId, userId, new int[0]);
 

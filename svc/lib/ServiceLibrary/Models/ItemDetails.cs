@@ -9,6 +9,7 @@ namespace ServiceLibrary.Models
         public int PrimitiveItemTypePredefined;
         public string Prefix;
         public int ItemTypeId;
+        public int VersionProjectId;
     }
 
     public class ItemLabel

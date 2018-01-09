@@ -33,7 +33,7 @@ namespace SearchEngineLibrary.Tests.Repository
 
 
         [TestMethod]
-        public async Task GetCollectionArtifactIds_AllSearchItemsExists_ReturnedSearchArtifactsResult()
+        public async Task GetCollectionContentSearchArtifactResults_AllSearchItemsExists_ReturnedSearchArtifactsResult()
         {
             // arrange           
             var returnResult = new Tuple<IEnumerable<int>, IEnumerable<int>>(new int[] { _searchArtifactsResult.Total }, _searchArtifactsResult.ArtifactIds);

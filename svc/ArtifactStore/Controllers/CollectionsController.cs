@@ -55,7 +55,7 @@ namespace ArtifactStore.Controllers
         /// Adds artifacts to the collection with specified id.
         /// </remarks>
         /// <param name="id"> Id of the collection</param>
-        /// <param name="add"> !!!!!!!!!!!!!!!!!!!!!! of the collection</param>
+        /// <param name="add"> 'add' flag </param>
         /// <param name="scope">scope of artifacts to be added</param>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
@@ -65,11 +65,9 @@ namespace ArtifactStore.Controllers
         [HttpPost]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(AssignArtifactsResult))]
-        public async Task<IHttpActionResult> AddArtifactsToCollectionAsync(int id, /*[FromUri]*/ string add, [FromBody] OperationScope scope)
+        public async Task<IHttpActionResult> AddArtifactsToCollectionAsync(int id, string add, [FromBody] OperationScope scope)
         {
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-
-            var parameter = HttpContext.Current.Request.Url.Query.Split('?')[1];
 
             if (scope == null)
             {

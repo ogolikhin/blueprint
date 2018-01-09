@@ -8,6 +8,7 @@ using SearchEngineLibrary.Model;
 using ServiceLibrary.Models;
 using SearchEngineLibrary.Helpers;
 using Moq;
+using System;
 
 namespace SearchEngineLibrary.Tests.Repository
 {
@@ -34,23 +35,16 @@ namespace SearchEngineLibrary.Tests.Repository
         public async Task GetArtifactIds_AllSearchItemsExists_ReturnedSearchArtifactsResult()
         {
             // arrange           
-            //_sqlConnectionWrapperMock.(@"SELECT DISTINCT([ArtifactId]) FROM [dbo].[SearchItems]", null, searchArtifactsResult, commandType: CommandType.Text);
-            var query = QueryBuilder.GetArtifactIdsQuery(ScopeId, pagination, true, UserId);
-            var dbConnection = _sqlConnectionWrapperMock.Object.CreateConnection();
-            var readerMock = new Mock<IDataReader>(MockBehavior.Strict);
-            object[][] values =
-                {
-                new object[] { "Total", 2}
-            };
-
-
+            var returnResult = new Tuple<IEnumerable<int>, IEnumerable<int>>(new int[] { searchArtifactsResult.Total }, searchArtifactsResult.ArtifactIds);
+            _sqlConnectionWrapperMock.SetupQueryMultipleAsync(QueryBuilder.GetCollectionArtifactIds(ScopeId, pagination, true, UserId), null, returnResult, commandType: CommandType.Text);
 
             // act
-            var result = await _searchEngineRepository.GetArtifactIds(ScopeId, pagination, true, UserId);
+            var result = await _searchEngineRepository.GetCollectionArtifactIds(ScopeId, pagination, true, UserId);
 
             // assert
             _sqlConnectionWrapperMock.Verify();
-            Assert.AreEqual(searchArtifactsResult, result);
+            Assert.AreEqual(searchArtifactsResult.Total, result.Total);
+            Assert.AreEqual(searchArtifactsResult.ArtifactIds, result.ArtifactIds);
         }
     }
 }

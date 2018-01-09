@@ -38,7 +38,7 @@ namespace SearchEngineLibrary.Tests.Service
         {
             // arrange           
             _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId)).ReturnsAsync(new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection });
-            _searchEngineRepositoryMock.Setup(q => q.GetArtifactIds(ScopeId, pagination, true, UserId)).ReturnsAsync(searchArtifactsResult);
+            _searchEngineRepositoryMock.Setup(q => q.GetCollectionArtifactIds(ScopeId, pagination, true, UserId)).ReturnsAsync(searchArtifactsResult);
 
             // act
             var result = await _searchEngineService.SearchArtifactIds(ScopeId, pagination, ScopeType.Contents, true, UserId);
@@ -53,7 +53,7 @@ namespace SearchEngineLibrary.Tests.Service
             // arrange           
             ArtifactBasicDetails artifactBasicDetails = null;
             _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId)).ReturnsAsync(artifactBasicDetails);
-            _searchEngineRepositoryMock.Setup(q => q.GetArtifactIds(ScopeId, pagination, true, UserId)).ReturnsAsync(searchArtifactsResult);
+            _searchEngineRepositoryMock.Setup(q => q.GetCollectionArtifactIds(ScopeId, pagination, true, UserId)).ReturnsAsync(searchArtifactsResult);
             var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotFound, ScopeId);
             var excectedResult = new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             ResourceNotFoundException exception = null;
@@ -71,55 +71,6 @@ namespace SearchEngineLibrary.Tests.Service
             // assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(excectedResult.Message, exception.Message);
-        }
-
-        [TestMethod]
-        public async Task SearchArtifactIds_FoundArtifactIsNotCollection_NotImplementedException()
-        {
-            // arrange            
-            _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId)).ReturnsAsync(new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor });
-            _searchEngineRepositoryMock.Setup(q => q.GetArtifactIds(ScopeId, pagination, true, UserId)).ReturnsAsync(searchArtifactsResult);
-            var exceptedResult= new NotImplementedException(ErrorMessages.NotImplementedForNotCollection);
-            NotImplementedException exception = null;
-
-            // act
-            try
-            {
-                await _searchEngineService.SearchArtifactIds(ScopeId, pagination, ScopeType.Contents, true, UserId);
-            }
-            catch (NotImplementedException ex)
-            {
-                exception = ex;
-            }
-
-            // assert
-            Assert.IsNotNull(exception);
-            Assert.AreEqual(exceptedResult.Message, exception.Message);
-        }
-
-        [TestMethod]
-        public async Task SearchArtifactIds_ScopeTypeIsDescendants_NotImplementedException()
-        {
-            // arrange            
-            _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId)).ReturnsAsync(new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection });
-            _searchEngineRepositoryMock.Setup(q => q.GetArtifactIds(ScopeId, pagination, true, UserId)).ReturnsAsync(searchArtifactsResult);
-            var exceptedResult = new NotImplementedException(ErrorMessages.NotImplementedForDescendantsScopeType);
-            NotImplementedException exception = null;
-
-            // act
-            try
-            {
-                await _searchEngineService.SearchArtifactIds(ScopeId, pagination, ScopeType.Descendants, true, UserId);
-            }
-            catch (NotImplementedException ex)
-            {
-                exception = ex;
-            }
-
-            // assert
-            Assert.IsNotNull(exception);
-            Assert.AreEqual(exceptedResult.Message, exception.Message);
-        }
-
+        }       
     }
 }

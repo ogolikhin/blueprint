@@ -31,26 +31,18 @@ namespace SearchEngineLibrary.Repository
             _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<SearchArtifactsResult> GetArtifactIds(int scopeId, Pagination pagination, bool includeDrafts, int userId)
+        public async Task<SearchArtifactsResult> GetCollectionArtifactIds(int scopeId, Pagination pagination, bool includeDrafts, int userId)
         {
-            var searchArtifactsResult = new SearchArtifactsResult() { ArtifactIds = new List<int>() };                     
-            
-            var dbConnection = _connectionWrapper.CreateConnection();
+            var searchArtifactsResult = new SearchArtifactsResult() { ArtifactIds = new List<int>() };
 
-            using (var sqlDataReader = await dbConnection.ExecuteReaderAsync(QueryBuilder.GetArtifactIds(scopeId, pagination, includeDrafts, userId), commandType: CommandType.Text))
+            var result = await _connectionWrapper.QueryMultipleAsync<int, int>(QueryBuilder.GetCollectionArtifactIds(scopeId, pagination, includeDrafts, userId), commandType: CommandType.Text);
+
+            if (result.Item1 != null)
             {
-                while (sqlDataReader.Read())
-                {
-                    searchArtifactsResult.Total = (int)sqlDataReader["Total"];
-                }
-
-                sqlDataReader.NextResult();
-
-                while (sqlDataReader.Read())
-                {
-                    searchArtifactsResult.ArtifactIds = searchArtifactsResult.ArtifactIds.Union(Enumerable.Repeat((int)sqlDataReader["VersionArtifactId"], 1));
-                }
+                searchArtifactsResult.Total = result.Item1.FirstOrDefault();
             }
+            searchArtifactsResult.ArtifactIds = result.Item2;            
+
             return searchArtifactsResult;
         }
     }

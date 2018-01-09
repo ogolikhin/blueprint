@@ -39,7 +39,7 @@ namespace SearchEngineLibrary.Service
 
             if (artifactBasicDetails.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactCollection)
             {
-                throw new NotImplementedException(ErrorMessages.NotImplementedForNotCollection);
+                throw new NotImplementedException(ErrorMessages.NotImplementedForNonCollectionArtifact);
             }
 
             if (scopeType == ScopeType.Descendants)
@@ -47,7 +47,7 @@ namespace SearchEngineLibrary.Service
                 throw new NotImplementedException(ErrorMessages.NotImplementedForDescendantsScopeType);
             }
 
-            return await _searchEngineRepository.GetArtifactIds(scopeId, pagination, includeDrafts, userId);
+            return await _searchEngineRepository.GetCollectionArtifactIds(scopeId, pagination, includeDrafts, userId);
         }
     }
 }

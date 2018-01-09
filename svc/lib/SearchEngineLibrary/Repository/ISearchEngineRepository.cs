@@ -8,6 +8,6 @@ namespace SearchEngineLibrary.Repository
 {
     public interface ISearchEngineRepository
     {
-        Task<SearchArtifactsResult> GetArtifactIds(int scopeId, Pagination pagination, bool includeDrafts, int userId);
+        Task<SearchArtifactsResult> GetCollectionArtifactIds(int scopeId, Pagination pagination, bool includeDrafts, int userId);
     }
 }

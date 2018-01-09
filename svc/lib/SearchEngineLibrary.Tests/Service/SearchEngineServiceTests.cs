@@ -22,15 +22,17 @@ namespace SearchEngineLibrary.Tests.Service
         private Mock<IArtifactRepository> _sqlArtifactRepositoryMock;
         private const int ScopeId = 1;
         private const int UserId = 1;
-        private readonly Pagination pagination = new Pagination() { Limit = 10, Offset = 0 };
-        private readonly SearchArtifactsResult searchArtifactsResult = new SearchArtifactsResult() { Total = 3, ArtifactIds = new List<int> { 1, 2, 3 } };
+        private Pagination _pagination;
+        private SearchArtifactsResult _searchArtifactsResult;
 
         [TestInitialize]
         public void Init()
         {
             _searchEngineRepositoryMock = new Mock<ISearchEngineRepository>();
             _sqlArtifactRepositoryMock = new Mock<IArtifactRepository>();
-            _searchEngineService = new SearchEngineService(_searchEngineRepositoryMock.Object, _sqlArtifactRepositoryMock.Object);         
+            _searchEngineService = new SearchEngineService(_searchEngineRepositoryMock.Object, _sqlArtifactRepositoryMock.Object);
+            _pagination = new Pagination { Limit = 10, Offset = 0 };
+            _searchArtifactsResult = new SearchArtifactsResult { Total = 3, ArtifactIds = new List<int> {1, 2, 3} };
         }
 
         [TestMethod]
@@ -38,13 +40,13 @@ namespace SearchEngineLibrary.Tests.Service
         {
             // arrange           
             _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId)).ReturnsAsync(new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection });
-            _searchEngineRepositoryMock.Setup(q => q.GetCollectionArtifactIds(ScopeId, pagination, true, UserId)).ReturnsAsync(searchArtifactsResult);
+            _searchEngineRepositoryMock.Setup(q => q.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId)).ReturnsAsync(_searchArtifactsResult);
 
             // act
-            var result = await _searchEngineService.SearchArtifactIds(ScopeId, pagination, ScopeType.Contents, true, UserId);
+            var result = await _searchEngineService.Search(ScopeId, _pagination, ScopeType.Contents, true, UserId);
 
             // assert
-            Assert.AreEqual(searchArtifactsResult, result);
+            Assert.AreEqual(_searchArtifactsResult, result);
         }
 
         [TestMethod]
@@ -53,7 +55,7 @@ namespace SearchEngineLibrary.Tests.Service
             // arrange           
             ArtifactBasicDetails artifactBasicDetails = null;
             _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId)).ReturnsAsync(artifactBasicDetails);
-            _searchEngineRepositoryMock.Setup(q => q.GetCollectionArtifactIds(ScopeId, pagination, true, UserId)).ReturnsAsync(searchArtifactsResult);
+            _searchEngineRepositoryMock.Setup(q => q.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId)).ReturnsAsync(_searchArtifactsResult);
             var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotFound, ScopeId);
             var excectedResult = new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             ResourceNotFoundException exception = null;
@@ -61,7 +63,7 @@ namespace SearchEngineLibrary.Tests.Service
             // act
             try
             {
-                await _searchEngineService.SearchArtifactIds(ScopeId, pagination, ScopeType.Contents, true, UserId);
+                await _searchEngineService.Search(ScopeId, _pagination, ScopeType.Contents, true, UserId);
             }
             catch(ResourceNotFoundException ex)
             {

@@ -19,15 +19,16 @@ namespace SearchEngineLibrary.Tests.Repository
         private SqlConnectionWrapperMock _sqlConnectionWrapperMock;
         private const int ScopeId = 1;
         private const int UserId = 1;
-        private readonly Pagination pagination = new Pagination() { Limit = 10, Offset = 0 };
-        private readonly SearchArtifactsResult searchArtifactsResult = new SearchArtifactsResult() { Total = 3, ArtifactIds = new List<int> { 1, 2, 3 } };
+        private Pagination _pagination;
+        private SearchArtifactsResult _searchArtifactsResult;
 
         [TestInitialize]
         public void Init()
         {
             _sqlConnectionWrapperMock = new SqlConnectionWrapperMock();
-
             _searchEngineRepository = new SearchEngineRepository(_sqlConnectionWrapperMock.Object);
+            _pagination = new Pagination { Limit = 10, Offset = 0 };
+            _searchArtifactsResult = new SearchArtifactsResult { Total = 3, ArtifactIds = new List<int> {1, 2, 3} };
         }
 
 
@@ -35,16 +36,16 @@ namespace SearchEngineLibrary.Tests.Repository
         public async Task GetCollectionArtifactIds_AllSearchItemsExists_ReturnedSearchArtifactsResult()
         {
             // arrange           
-            var returnResult = new Tuple<IEnumerable<int>, IEnumerable<int>>(new int[] { searchArtifactsResult.Total }, searchArtifactsResult.ArtifactIds);
-            _sqlConnectionWrapperMock.SetupQueryMultipleAsync(QueryBuilder.GetCollectionArtifactIds(ScopeId, pagination, true, UserId), null, returnResult, commandType: CommandType.Text);
+            var returnResult = new Tuple<IEnumerable<int>, IEnumerable<int>>(new int[] { _searchArtifactsResult.Total }, _searchArtifactsResult.ArtifactIds);
+            _sqlConnectionWrapperMock.SetupQueryMultipleAsync(QueryBuilder.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId), null, returnResult, commandType: CommandType.Text);
 
             // act
-            var result = await _searchEngineRepository.GetCollectionArtifactIds(ScopeId, pagination, true, UserId);
+            var result = await _searchEngineRepository.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId);
 
             // assert
             _sqlConnectionWrapperMock.Verify();
-            Assert.AreEqual(searchArtifactsResult.Total, result.Total);
-            Assert.AreEqual(searchArtifactsResult.ArtifactIds, result.ArtifactIds);
+            Assert.AreEqual(_searchArtifactsResult.Total, result.Total);
+            Assert.AreEqual(_searchArtifactsResult.ArtifactIds, result.ArtifactIds);
         }
     }
 }

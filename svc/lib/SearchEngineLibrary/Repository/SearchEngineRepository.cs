@@ -33,7 +33,7 @@ namespace SearchEngineLibrary.Repository
 
         public async Task<SearchArtifactsResult> GetCollectionArtifactIds(int scopeId, Pagination pagination, bool includeDrafts, int userId)
         {
-            var searchArtifactsResult = new SearchArtifactsResult() { ArtifactIds = new List<int>() };
+            var searchArtifactsResult = new SearchArtifactsResult { ArtifactIds = new List<int>() };
 
             var result = await _connectionWrapper.QueryMultipleAsync<int, int>(QueryBuilder.GetCollectionArtifactIds(scopeId, pagination, includeDrafts, userId), commandType: CommandType.Text);
 

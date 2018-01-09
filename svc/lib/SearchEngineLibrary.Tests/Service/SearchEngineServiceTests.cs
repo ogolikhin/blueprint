@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchEngineLibrary.Repository;
 using SearchEngineLibrary.Service;
+using ServiceLibrary.Repositories;
 
 namespace SearchEngineLibrary.Tests.Service
 {
@@ -12,26 +13,14 @@ namespace SearchEngineLibrary.Tests.Service
     {
         private ISearchEngineService _searchEngineService;
         private Mock<ISearchEngineRepository> _searchEngineRepositoryMock;
+        private Mock<IArtifactRepository> _sqlArtifactRepositoryMock;
 
         [TestInitialize]
         public void Init()
         {
             _searchEngineRepositoryMock = new Mock<ISearchEngineRepository>();
-            _searchEngineService = new SearchEngineService(_searchEngineRepositoryMock.Object);
-        }
-
-        [TestMethod]
-        public async Task GetListArtifactIdsAsync_AllSearchItemsExists_QueryReturnListArtifactIds()
-        {
-            // arrange
-            var listArtifactIds = new List<int> { 1, 2, 3 };
-            _searchEngineRepositoryMock.Setup(q => q.GetArtifactIds()).ReturnsAsync(listArtifactIds);
-
-            // act
-            var result = await _searchEngineService.GetArtifactIds();
-
-            // assert
-            Assert.AreEqual(listArtifactIds, result);
-        }
+            _sqlArtifactRepositoryMock = new Mock<IArtifactRepository>();
+            _searchEngineService = new SearchEngineService(_searchEngineRepositoryMock.Object, _sqlArtifactRepositoryMock.Object);
+        }       
     }
 }

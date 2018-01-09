@@ -2,7 +2,18 @@
 using System.Data;
 using System.Threading.Tasks;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
+using System.Net;
+using ServiceLibrary.Exceptions;
+using Dapper;
+using System.Linq;
+using System;
 using ServiceLibrary.Repositories;
+using System.Text;
+using SearchEngineLibrary.Model;
+using System.Data.SqlClient;
+using SearchEngineLibrary.Helpers;
 
 namespace SearchEngineLibrary.Repository
 {
@@ -20,10 +31,19 @@ namespace SearchEngineLibrary.Repository
             _connectionWrapper = connectionWrapper;
         }
 
-        public Task<IEnumerable<int>> GetArtifactIds()
+        public async Task<SearchArtifactsResult> GetCollectionContentSearchArtifactResults(int scopeId, Pagination pagination, bool includeDrafts, int userId)
         {
-            return _connectionWrapper.QueryAsync<int>(@"SELECT DISTINCT([ArtifactId]) FROM [dbo].[SearchItems]", commandType: CommandType.Text);
+            var searchArtifactsResult = new SearchArtifactsResult { ArtifactIds = new List<int>() };
 
+            var result = await _connectionWrapper.QueryMultipleAsync<int, int>(QueryBuilder.GetCollectionContentSearchArtifactResults(scopeId, pagination, includeDrafts, userId), commandType: CommandType.Text);
+
+            if (result.Item1 != null)
+            {
+                searchArtifactsResult.Total = result.Item1.FirstOrDefault();
+            }
+            searchArtifactsResult.ArtifactIds = result.Item2;            
+
+            return searchArtifactsResult;
         }
     }
 }

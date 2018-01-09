@@ -35,7 +35,7 @@ namespace SearchEngineLibrary.Repository
         {
             var searchArtifactsResult = new SearchArtifactsResult { ArtifactIds = new List<int>() };
 
-            var result = await _connectionWrapper.QueryMultipleAsync<int, int>(QueryBuilder.GetCollectionArtifactIds(scopeId, pagination, includeDrafts, userId), commandType: CommandType.Text);
+            var result = await _connectionWrapper.QueryMultipleAsync<int, int>(QueryBuilder.GetCollectionContentSearchArtifactResults(scopeId, pagination, includeDrafts, userId), commandType: CommandType.Text);
 
             if (result.Item1 != null)
             {

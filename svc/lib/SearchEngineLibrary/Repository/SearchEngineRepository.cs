@@ -31,7 +31,7 @@ namespace SearchEngineLibrary.Repository
             _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<SearchArtifactsResult> GetCollectionArtifactIds(int scopeId, Pagination pagination, bool includeDrafts, int userId)
+        public async Task<SearchArtifactsResult> GetCollectionContentSearchArtifactResults(int scopeId, Pagination pagination, bool includeDrafts, int userId)
         {
             var searchArtifactsResult = new SearchArtifactsResult { ArtifactIds = new List<int>() };
 

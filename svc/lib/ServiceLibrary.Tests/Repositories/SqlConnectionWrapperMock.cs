@@ -49,10 +49,10 @@ namespace ServiceLibrary.Repositories
             Setup(c => c.QueryAsync<T>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), commandType), result, outParameters);
         }
 
-        public void SetupQueryMultipleAsync<T1, T2>(string sql, Dictionary<string, object> param, Tuple<IEnumerable<T1>, IEnumerable<T2>> result, Dictionary<string, object> outParameters = null)
+        public void SetupQueryMultipleAsync<T1, T2>(string sql, Dictionary<string, object> param, Tuple<IEnumerable<T1>, IEnumerable<T2>> result, Dictionary<string, object> outParameters = null, CommandType commandType = CommandType.StoredProcedure)
         {
             Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
-            Setup(c => c.QueryMultipleAsync<T1, T2>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure), result, outParameters);
+            Setup(c => c.QueryMultipleAsync<T1, T2>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), commandType), result, outParameters);
         }
 
         public void SetupQueryMultipleAsync<T1, T2, T3>(string sql, Dictionary<string, object> param, Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> result, Dictionary<string, object> outParameters = null)

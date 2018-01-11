@@ -87,7 +87,7 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/artifacts"), SessionRequired]
-        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, [FromUri] RevExpFilterParameters filterParameters, int revisionId = int.MaxValue)
+        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int containerId, [FromUri] Pagination pagination, [FromUri] ReviewFilterParameters filterParameters, int revisionId = int.MaxValue)
         {
             pagination.Validate();
             pagination.SetDefaultValues(0, 10);
@@ -164,6 +164,7 @@ namespace ArtifactStore.Controllers
         /// </summary>
         /// <param name="containerId"></param>
         /// <param name="pagination"></param>
+        /// <param name="filterParameters"></param>
         /// <param name="versionId"></param>
         /// <returns></returns>
         /// <response code="200">OK.</response>
@@ -173,11 +174,11 @@ namespace ArtifactStore.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("containers/{containerId:int:min(1)}/participants"), SessionRequired]
-        public Task<ReviewParticipantsContent> GetParticipantsAsync(int containerId, [FromUri] Pagination pagination, int? versionId = null)
+        public Task<ReviewParticipantsContent> GetParticipantsAsync(int containerId, [FromUri] Pagination pagination, [FromUri] ReviewFilterParameters filterParameters, int? versionId = null)
         {
             pagination.Validate();
             pagination.SetDefaultValues(0, 50);
-            return _sqlReviewsRepository.GetReviewParticipantsAsync(containerId, pagination, Session.UserId, versionId);
+            return _sqlReviewsRepository.GetReviewParticipantsAsync(containerId, pagination, Session.UserId, versionId, null, filterParameters);
         }
 
         /// <summary>

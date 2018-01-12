@@ -171,8 +171,10 @@
     <Compile Include="Models\DropdownItem.cs" />
     <Compile Include="Models\Email\DiscussionEmail.cs" />
     <Compile Include="Models\Enums\ActionTypes.cs" />
+    <Compile Include="Models\Enums\ScopeType.cs" />
     <Compile Include="Models\Enums\StandardArtifactTypes.cs" />
     <Compile Include="Models\ProjectMeta\PropertyTypeVersionExtension.cs" />
+    <Compile Include="Models\RevExpFilterParameters.cs" />
     <Compile Include="Models\StandardArtifactType.cs" />
     <Compile Include="Models\PropertyType\ChoicePropertyValidator.cs" />
     <Compile Include="Helpers\Validators\EmailValidator.cs" />

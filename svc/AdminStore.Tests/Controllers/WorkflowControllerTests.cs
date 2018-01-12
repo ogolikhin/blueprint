@@ -1,17 +1,4 @@
-﻿using AdminStore.Models;
-using AdminStore.Models.DTO;
-using AdminStore.Models.Workflow;
-using AdminStore.Repositories.Workflow;
-using AdminStore.Services.Workflow;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ConfigControl;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,10 +9,23 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using System.Xml.Schema;
+using AdminStore.Models;
 using AdminStore.Models.DiagramWorkflow;
+using AdminStore.Models.DTO;
 using AdminStore.Models.Enums;
+using AdminStore.Models.Workflow;
+using AdminStore.Repositories.Workflow;
+using AdminStore.Services.Workflow;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
@@ -39,7 +39,7 @@ namespace AdminStore.Controllers
         public void DeserializeActions()
         {
             // Import XML Actions content
-            string xml =
+            var xml =
                 "<Transition>" +
                     "<Triggers>" +
                         "<Trigger>" +
@@ -86,30 +86,28 @@ namespace AdminStore.Controllers
 
             // Test Deserialization of imported XML Actions
             IeTransitionEvent result = null;
+
             try
             {
                 result = SerializationHelper.FromXml<IeTransitionEvent>(xml);
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
-                result = null;
+                Assert.Fail(ex.Message);
             }
+
             Assert.IsTrue(result != null);
 
             // Test resulting Actions Serialization
             try
             {
-                string xmlActions = SerializationHelper.ToXml(result);
+                var xmlActions = SerializationHelper.ToXml(result);
                 Assert.IsNotNull(xmlActions);
             }
             catch (Exception ex)
             {
-                var msg = ex.Message;
-                result = null;
+                Assert.Fail(ex.Message);
             }
-
-            return;
         }
 
         /// <summary>
@@ -119,7 +117,7 @@ namespace AdminStore.Controllers
         public void DeserializeTransitions()
         {
             // Import XML Events
-            string xml =
+            var xml =
                 "<Workflow>" +
                     "<Transitions>" +
                         "<Transition>" +
@@ -136,27 +134,27 @@ namespace AdminStore.Controllers
 
             // Test Deserialization of imported XML Events
             IeWorkflow result = null;
+
             try
             {
                 result = SerializationHelper.FromXml<IeWorkflow>(xml);
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
-                result = null;
+                Assert.Fail(ex.Message);
             }
+
             Assert.IsTrue(result != null);
 
             // Test resulting Events Serialization
             try
             {
-                string xmlTriggers = SerializationHelper.ToXml(result);
+                var xmlTriggers = SerializationHelper.ToXml(result);
                 Assert.IsNotNull(xmlTriggers);
             }
             catch (Exception ex)
             {
-                var msg = ex.Message;
-                result = null;
+                Assert.Fail(ex.Message);
             }
         }
 
@@ -167,7 +165,7 @@ namespace AdminStore.Controllers
         public void DeserializePropertyChanges()
         {
             // Import XML Events
-            string xml =
+            var xml =
                 "<Workflow>" +
                     "<PropertyChanges>" +
                         "<PropertyChange>" +
@@ -184,33 +182,33 @@ namespace AdminStore.Controllers
 
             // Test Deserialization of imported XML Events
             IeWorkflow result = null;
+
             try
             {
                 result = SerializationHelper.FromXml<IeWorkflow>(xml);
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
-                result = null;
+                Assert.Fail(ex.Message);
             }
+
             Assert.IsTrue(result != null);
 
             // Test resulting Events Serialization
             try
             {
-                string xmlTriggers = SerializationHelper.ToXml(result);
+                var xmlTriggers = SerializationHelper.ToXml(result);
                 Assert.IsNotNull(xmlTriggers);
             }
             catch (Exception ex)
             {
-                var msg = ex.Message;
-                result = null;
+                Assert.Fail(ex.Message);
             }
         }
     }
 
     [TestClass]
-    public class WorkflowControllerTest
+    public class WorkflowControllerTests
     {
         private Mock<IWorkflowService> _workflowServiceMock;
         private Mock<IServiceLogRepository> _logMock;
@@ -252,15 +250,15 @@ namespace AdminStore.Controllers
 
             _expectedArtifacts = new QueryResult<WorkflowProjectArtifactTypesDto>
             {
-                Items = new List<WorkflowProjectArtifactTypesDto>()
+                Items = new List<WorkflowProjectArtifactTypesDto>
                 {
-                    new WorkflowProjectArtifactTypesDto()
+                    new WorkflowProjectArtifactTypesDto
                     {
                         ProjectId = 1,
                         ProjectName = "TestProject",
-                        Artifacts = new List<WorkflowArtifactType>()
+                        Artifacts = new List<WorkflowArtifactType>
                         {
-                            new WorkflowArtifactType()
+                            new WorkflowArtifactType
                             {
                                 Id = 1,
                                 Name = "TestArtifact"
@@ -271,17 +269,17 @@ namespace AdminStore.Controllers
                 Total = 1
             };
 
-            _pagination = new Pagination() { Limit = int.MaxValue, Offset = 0 };
+            _pagination = new Pagination { Limit = int.MaxValue, Offset = 0 };
 
-            _projects = new List<WorkflowProjectSearch>()
+            _projects = new List<WorkflowProjectSearch>
             {
-                new WorkflowProjectSearch()
+                new WorkflowProjectSearch
                 {
                     ItemId = 1,
                     Name = "Project1",
                     Path = "Path1"
                 },
-                new WorkflowProjectSearch()
+                new WorkflowProjectSearch
                 {
                     ItemId = 2,
                     Name = "Project2",
@@ -289,9 +287,9 @@ namespace AdminStore.Controllers
                 }
             };
 
-            _scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
+            _scope = new OperationScope { Ids = new List<int> { 1, 2, 3 }, SelectAll = false };
 
-            _copyWorkfloDto = new CopyWorkflowDto() { Name = "TestWorkflow" };
+            _copyWorkfloDto = new CopyWorkflowDto { Name = "TestWorkflow" };
 
             _dWorkflow = new DWorkflow();
         }
@@ -301,7 +299,7 @@ namespace AdminStore.Controllers
         public async Task AssignProjectsAndArtifactsToWorkflow_AllParamsAreCorrectAndPermissionsOk_ReturnListInstanceItem()
         {
             // arrange
-            var scope = new WorkflowAssignScope()
+            var scope = new WorkflowAssignScope
             {
                 AllArtifacts = true,
                 AllProjects = true,
@@ -313,7 +311,7 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            _workflowRepositoryMock.Setup(q => q.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, new WorkflowAssignScope())).ReturnsAsync(new AssignProjectsResult() { TotalAssigned = 2, AllProjectsAssignedToWorkflow = false });
+            _workflowRepositoryMock.Setup(q => q.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, new WorkflowAssignScope())).ReturnsAsync(new AssignProjectsResult { TotalAssigned = 2, AllProjectsAssignedToWorkflow = false });
 
             // act
             var result = await _controller.AssignProjectsAndArtifactTypesToWorkflow(WorkflowId, scope);
@@ -497,9 +495,9 @@ namespace AdminStore.Controllers
         public async Task GetWorkflows_AllParamsAreCorrectAndPermissionsOk_ReturnWorkflows()
         {
             // arrange
-            var workflows = new QueryResult<WorkflowDto>() { Total = 10, Items = new List<WorkflowDto>() { new WorkflowDto(), new WorkflowDto() } };
-            var pagination = new Pagination() { Limit = 10, Offset = 0 };
-            var sorting = new Sorting() { Order = SortOrder.Asc, Sort = "name" };
+            var workflows = new QueryResult<WorkflowDto> { Total = 10, Items = new List<WorkflowDto> { new WorkflowDto(), new WorkflowDto() } };
+            var pagination = new Pagination { Limit = 10, Offset = 0 };
+            var sorting = new Sorting { Order = SortOrder.Asc, Sort = "name" };
 
             _workflowRepositoryMock.Setup(w => w.GetWorkflows(It.IsAny<Pagination>(), It.IsAny<Sorting>(), It.IsAny<string>(), It.IsAny<Func<Sorting, string>>()))
                 .ReturnsAsync(workflows);
@@ -529,7 +527,7 @@ namespace AdminStore.Controllers
             // act
             try
             {
-                await _controller.GetWorkflows(new Pagination() { Limit = 10, Offset = 0 }, new Sorting());
+                await _controller.GetWorkflows(new Pagination { Limit = 10, Offset = 0 }, new Sorting());
             }
             catch (Exception ex)
             {
@@ -608,7 +606,7 @@ namespace AdminStore.Controllers
         {
             // arrange
             var response = 3;
-            var scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
+            var scope = new OperationScope { Ids = new List<int> { 1, 2, 3 }, SelectAll = false };
             var search = string.Empty;
 
             _privilegesRepositoryMock
@@ -630,7 +628,7 @@ namespace AdminStore.Controllers
         {
             // arrange
             var response = 0;
-            var scope = new OperationScope() { Ids = new List<int>(), SelectAll = false };
+            var scope = new OperationScope { Ids = new List<int>(), SelectAll = false };
             var search = string.Empty;
 
             _privilegesRepositoryMock
@@ -659,8 +657,6 @@ namespace AdminStore.Controllers
 
             // Act
             var result = await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search) as OkNegotiatedContentResult<DeleteResult>;
-
-            // Assert
         }
 
         [TestMethod]
@@ -669,14 +665,13 @@ namespace AdminStore.Controllers
         {
             // arrange
             var search = string.Empty;
-            var scope = new OperationScope() { SelectAll = false, Ids = new List<int>() { 2, 3 } };
+            var scope = new OperationScope { SelectAll = false, Ids = new List<int> { 2, 3 } };
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.None);
 
             // act
             await _controller.UnassignProjectsAndArtifactTypesFromWorkflowAsync(WorkflowId, scope, search);
-
         }
 
         #endregion
@@ -688,7 +683,7 @@ namespace AdminStore.Controllers
         {
             // arrange
             var response = 2;
-            var scope = new OperationScope() { Ids = new List<int>() { 1, 2, 3 }, SelectAll = false };
+            var scope = new OperationScope { Ids = new List<int> { 1, 2, 3 }, SelectAll = false };
             var search = string.Empty;
 
             _privilegesRepositoryMock
@@ -715,7 +710,6 @@ namespace AdminStore.Controllers
 
             // act
             var result = await _controller.DeleteWorkflows(null) as BadRequestErrorMessageResult;
-
 
             // assert
             Assert.IsNotNull(result);
@@ -747,7 +741,6 @@ namespace AdminStore.Controllers
         public async Task SearchProjectsByName_AllParamsAreCorrectAndPermissionsOk_ReturnProjects()
         {
             // arrange
-
             _privilegesRepositoryMock
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
@@ -758,8 +751,6 @@ namespace AdminStore.Controllers
             // act
             var result = await _controller.SearchProjectsByName(WorkflowId, _search) as
                     OkNegotiatedContentResult<IEnumerable<WorkflowProjectSearch>>;
-
-
 
             // assert
             Assert.IsNotNull(result);
@@ -873,8 +864,6 @@ namespace AdminStore.Controllers
 
             // Act
             WorkflowController.ValidateWorkflowXmlAgainstXsd(stream);
-
-            // Assert
         }
 
         [TestMethod]
@@ -890,10 +879,7 @@ namespace AdminStore.Controllers
 
             // Act
             WorkflowController.ValidateWorkflowXmlAgainstXsd(stream);
-
-            // Assert
         }
-
 
         private static IeWorkflow GetTestWorkflow()
         {
@@ -1134,7 +1120,7 @@ namespace AdminStore.Controllers
         {
             // arrange
 
-            var model = new CreateWorkflowDto() { Name = "some unique name", Description = "some description" };
+            var model = new CreateWorkflowDto { Name = "some unique name", Description = "some description" };
             var returnId = 1;
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
@@ -1236,19 +1222,16 @@ namespace AdminStore.Controllers
 
             _pagination = null;
 
-            _workflowRepositoryMock.Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
-                                   .ReturnsAsync(_expectedArtifacts);
+            _workflowRepositoryMock
+                .Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
+                .ReturnsAsync(_expectedArtifacts);
 
             BadRequestException exception = null;
 
             // Act
             try
             {
-                var actualResult =
-                await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
-                                                                            _pagination,
-                                                                            string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
+                var actualResult = await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId, _pagination, string.Empty) as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
             }
             catch (BadRequestException ex)
             {
@@ -1259,7 +1242,6 @@ namespace AdminStore.Controllers
             Assert.IsNotNull(exception);
             Assert.AreEqual(exception.Message, ErrorMessages.InvalidPagination);
             Assert.AreEqual(exception.ErrorCode, ErrorCodes.BadRequest);
-
         }
 
         [TestMethod]
@@ -1272,19 +1254,16 @@ namespace AdminStore.Controllers
 
             _pagination.Offset = null;
 
-            _workflowRepositoryMock.Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
-                                   .ReturnsAsync(_expectedArtifacts);
+            _workflowRepositoryMock
+                .Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
+                .ReturnsAsync(_expectedArtifacts);
 
             BadRequestException exception = null;
 
             // Act
             try
             {
-                var actualResult =
-                await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
-                                                                            _pagination,
-                                                                            string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
+                var actualResult = await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId, _pagination, string.Empty) as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
             }
             catch (BadRequestException ex)
             {
@@ -1307,19 +1286,16 @@ namespace AdminStore.Controllers
 
             _pagination.Limit = null;
 
-            _workflowRepositoryMock.Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
-                                   .ReturnsAsync(_expectedArtifacts);
+            _workflowRepositoryMock
+                .Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
+                .ReturnsAsync(_expectedArtifacts);
 
             BadRequestException exception = null;
 
             // Act
             try
             {
-                var actualResult =
-                await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
-                                                                            _pagination,
-                                                                            string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
+                var actualResult = await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId, _pagination, string.Empty) as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
             }
             catch (BadRequestException ex)
             {
@@ -1341,11 +1317,12 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             // should be <= 250
-            string search =
+            var search =
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium q";
 
-            _workflowRepositoryMock.Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, search))
-                                   .ReturnsAsync(_expectedArtifacts);
+            _workflowRepositoryMock
+                .Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, search))
+                 .ReturnsAsync(_expectedArtifacts);
 
 
             BadRequestException exception = null;
@@ -1353,11 +1330,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                var actualResult =
-                await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
-                                                                            _pagination,
-                                                                            search)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
+                var actualResult = await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId, _pagination, search) as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
             }
             catch (BadRequestException ex)
             {
@@ -1383,16 +1356,13 @@ namespace AdminStore.Controllers
 
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium.";
 
-            _workflowRepositoryMock.Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, search))
-                                   .ReturnsAsync(_expectedArtifacts);
-
+            _workflowRepositoryMock
+                .Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, search))
+                .ReturnsAsync(_expectedArtifacts);
 
             // Act
             var actualResult =
-                await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
-                                                                            _pagination,
-                                                                            search)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
+                await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId, _pagination, search) as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
 
             // Exception
 
@@ -1411,19 +1381,13 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
-            _workflowRepositoryMock.Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
-                                   .ReturnsAsync(_expectedArtifacts);
+            _workflowRepositoryMock
+                .Setup(q => q.GetProjectArtifactTypesAssignedtoWorkflowAsync(WorkflowId, _pagination, string.Empty))
+                .ReturnsAsync(_expectedArtifacts);
 
             // Act
-            var actualResult =
-                await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId,
-                                                                            _pagination,
-                                                                            string.Empty)
-                                                                            as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
-            // Exception
+            var actualResult = await _controller.GetProjectArtifactTypesAssignedToWorkflowAsync(WorkflowId, _pagination, string.Empty) as OkNegotiatedContentResult<QueryResult<WorkflowProjectArtifactTypesDto>>;
         }
-
-
 
         #endregion
 
@@ -1433,7 +1397,7 @@ namespace AdminStore.Controllers
         public async Task UpdateWorkflow_AllParametersAreFine_ReturnSuccessResult()
         {
             // arrange
-            var updateWorkflowDto = new UpdateWorkflowDto()
+            var updateWorkflowDto = new UpdateWorkflowDto
             {
                 Description = "Some text",
                 Name = "Some name",
@@ -1459,9 +1423,10 @@ namespace AdminStore.Controllers
         {
             // arrange
             Exception exception = null;
+
             _privilegesRepositoryMock
-              .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-              .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ViewProjects);
 
             // act
             try
@@ -1483,9 +1448,10 @@ namespace AdminStore.Controllers
         {
             // arrange
             Exception exception = null;
+
             _privilegesRepositoryMock
-              .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
-              .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             // act
             try
@@ -1522,6 +1488,7 @@ namespace AdminStore.Controllers
 
             // act
             var result = await _controller.CopyWorkflowAsync(WorkflowId, _copyWorkfloDto) as OkNegotiatedContentResult<int>;
+
             // assert
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Content);
@@ -1569,7 +1536,8 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            _workflowRepositoryMock.Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId, _copyWorkfloDto))
+            _workflowRepositoryMock
+                .Setup(w => w.CopyWorkflowAsync(WorkflowId, SessionUserId, _copyWorkfloDto))
                 .ReturnsAsync(updatedWorkflowId);
 
             // act
@@ -1633,9 +1601,6 @@ namespace AdminStore.Controllers
 
             // act
             await _controller.GetWorkflowDiagram(WorkflowId);
-
-            // assert
-            // exception
         }
 
         #endregion
@@ -1645,24 +1610,24 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetWorkflowArtifactTypesProperties_AllParamsAreCorrectAndPermissionsOk_PropertiesSuccessfullyReturned()
         {
-            var properties = new List<PropertyType>()
+            var properties = new List<PropertyType>
             {
-                new PropertyType()
+                new PropertyType
                 {
                     Id = 175,
                     Name = "Std-Choice-Required-AllowMultiple-DefaultValue"
                 },
-                new PropertyType()
+                new PropertyType
                 {
                     Id = 171,
                     Name = "Std-Date-Required-Validated-Min-Max-HasDefault"
                 },
-                new PropertyType()
+                new PropertyType
                 {
                     Id = WorkflowConstants.PropertyTypeFakeIdName,
                     Name = WorkflowConstants.PropertyNameName
                 },
-                new PropertyType()
+                new PropertyType
                 {
                     Id = WorkflowConstants.PropertyTypeFakeIdDescription,
                     Name = WorkflowConstants.PropertyNameDescription
@@ -1673,7 +1638,7 @@ namespace AdminStore.Controllers
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            var standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+            var standardArtifactTypeIds = new HashSet<int> { 1, 2, 3 };
 
             _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(properties);
 
@@ -1689,21 +1654,18 @@ namespace AdminStore.Controllers
         public async Task GetWorkflowArtifactTypesProperties_InSufficientPermissions_ReturnAuthorizationException()
         {
             // arrange
-            var standardArtifactTypeIds = new HashSet<int>() { 1, 2, 3 };
+            var standardArtifactTypeIds = new HashSet<int> { 1, 2, 3 };
 
             _privilegesRepositoryMock
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
 
-            var properties = new List<PropertyType>();
-
-            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(properties);
+            _workflowServiceMock
+                .Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds))
+                .ReturnsAsync(new List<PropertyType>());
 
             // act
             await _controller.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds);
-
-            // assert
-            // exception
         }
 
         [TestMethod]
@@ -1717,15 +1679,12 @@ namespace AdminStore.Controllers
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            var properties = new List<PropertyType>();
-
-            _workflowServiceMock.Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds)).ReturnsAsync(properties);
+            _workflowServiceMock
+                .Setup(service => service.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds))
+                .ReturnsAsync(new List<PropertyType>());
 
             // act
             await _controller.GetWorkflowArtifactTypesProperties(standardArtifactTypeIds);
-
-            // assert
-            // exception
         }
 
         #endregion
@@ -1745,7 +1704,8 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            _workflowServiceMock.Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
+            _workflowServiceMock
+                .Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
                     It.IsAny<int>(), It.IsAny<IeWorkflow>(),
                     It.IsAny<string>(), It.IsAny<string>(), It.Is<WorkflowMode>(mode => mode == WorkflowMode.Canvas)))
                 .ReturnsAsync(expectedUpdateWorkflowDiagramResult);
@@ -1772,7 +1732,8 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            _workflowServiceMock.Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
+            _workflowServiceMock
+                .Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
                     It.IsAny<int>(), It.IsAny<IeWorkflow>(),
                     It.IsAny<string>(), It.IsAny<string>(), It.Is<WorkflowMode>(mode => mode == WorkflowMode.Canvas)))
                 .ReturnsAsync(expectedUpdateWorkflowDiagramResult);
@@ -1801,7 +1762,8 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
-            _workflowServiceMock.Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
+            _workflowServiceMock
+                .Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
                     It.IsAny<int>(), It.IsAny<IeWorkflow>(),
                     It.IsAny<string>(), It.IsAny<string>(), It.Is<WorkflowMode>(mode => mode == WorkflowMode.Canvas)))
                 .ReturnsAsync(expectedUpdateWorkflowDiagramResult);
@@ -1828,16 +1790,14 @@ namespace AdminStore.Controllers
                 .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewGroups);
 
-            _workflowServiceMock.Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
+            _workflowServiceMock
+                .Setup(repo => repo.UpdateWorkflowViaImport(It.IsAny<int>(),
                     It.IsAny<int>(), It.IsAny<IeWorkflow>(),
                     It.IsAny<string>(), It.IsAny<string>(), It.Is<WorkflowMode>(mode => mode == WorkflowMode.Canvas)))
                 .ReturnsAsync(updateWorkflowDiagramResult);
 
             // act
             await _controller.UpdateWorkflowDiagram(WorkflowId, _dWorkflow);
-
-            // assert
-            // exception
         }
 
         #endregion

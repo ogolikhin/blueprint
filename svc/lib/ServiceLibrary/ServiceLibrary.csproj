@@ -70,6 +70,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
       <Private>True</Private>
@@ -172,6 +173,7 @@
     <Compile Include="Models\Enums\ActionTypes.cs" />
     <Compile Include="Models\Enums\ScopeType.cs" />
     <Compile Include="Models\Enums\StandardArtifactTypes.cs" />
+    <Compile Include="Models\ItemType\ItemTypeInfo.cs" />
     <Compile Include="Models\ProjectMeta\PropertyTypeVersionExtension.cs" />
     <Compile Include="Models\RevExpFilterParameters.cs" />
     <Compile Include="Models\StandardArtifactType.cs" />

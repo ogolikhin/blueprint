@@ -31,7 +31,7 @@ namespace AdminStore.Controllers
 
         [HttpGet]
         [Route("icons"), SessionRequired]
-        public async Task<HttpResponseMessage> GetIcons(string type, int? typeId, string color)
+        public async Task<HttpResponseMessage> GetIcons(string type, int? typeId)
         {
             ItemTypePredefined itemType;
             if (!string.IsNullOrEmpty(type) && !Enum.TryParse(type, true, out itemType))
@@ -42,7 +42,7 @@ namespace AdminStore.Controllers
             var result = await _metadataService.GetCustomItemTypeIcon(typeId.GetValueOrDefault());
 
             var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
-            // httpResponseMessage.Content;
+            httpResponseMessage.Content = result;
             return httpResponseMessage;
         }
     }

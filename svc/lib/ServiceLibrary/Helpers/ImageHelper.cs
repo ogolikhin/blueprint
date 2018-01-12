@@ -60,7 +60,7 @@ namespace ServiceLibrary.Helpers
             return byteArrayContent;
         }
 
-        public byte[] ConvertBitmapImageToPng(byte[] image, int width, int height)
+        public static byte[] ConvertBitmapImageToPng(byte[] image, int width, int height)
         {
             if (image == null)
             {
@@ -101,7 +101,6 @@ namespace ServiceLibrary.Helpers
                     bitmap.Save(memoryStream, ImageFormat.Png);
 
                     var buffer = memoryStream.GetBuffer();
-                    Log.Assert(buffer.Length > 0, "Wrong buffer length");
 
                     var target = new byte[buffer.Length];
 

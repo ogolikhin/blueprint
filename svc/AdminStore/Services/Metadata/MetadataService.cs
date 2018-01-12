@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AdminStore.Repositories.Metadata;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.ItemType;
 
 namespace ServiceLibrary.Repositories.Metadata
 {
@@ -80,17 +81,20 @@ namespace ServiceLibrary.Repositories.Metadata
             // { ItemTypePredefined.PROShape, "storyteller-sub.png"}
         };
 
-        public async Task<byte[]> GetCustomItemTypeIcon(int itemTypeId)
+        public async Task<ByteArrayContent> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue)
         {
-            int revisionId;
-            revisionId = int.MaxValue;
             var itemTypeInfo = await _sqlItemTypeRepository.GetItemTypeInfo(itemTypeId, revisionId);
 
             if (itemTypeInfo == null)
             {
                 throw new ResourceNotFoundException("Artifact type not found.");
             }
-            return itemTypeInfo.Icon;
+
+            byte[] data = null;
+
+            data = ImageHelper.ConvertBitmapImageToPng(itemTypeInfo.Icon.ToArray(), ItemTypeIconSize, ItemTypeIconSize);
+
+            return ImageHelper.CreateByteArrayContent(data);
         }
 
         public void GetItemTypeIcon(int? typeId)

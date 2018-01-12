@@ -1,4 +1,6 @@
-﻿namespace ServiceLibrary.Models.ItemType
+﻿using System.Collections.Generic;
+
+namespace ServiceLibrary.Models.ItemType
 {
     public class ItemTypeInfo
     {
@@ -6,6 +8,6 @@
         public string Prefix { get; set; }
         public ItemTypePredefined Predefined { get; set; }
         public bool HasCustomIcon { get; set; }
-        public byte[] Icon { get; set; }
+        public IEnumerable<byte> Icon { get; set; }
     }
 }

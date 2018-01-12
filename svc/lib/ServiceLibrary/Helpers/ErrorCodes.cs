@@ -155,6 +155,7 @@
 
         // Collection
         public const int CollectionDoesNotExist = 18001;
+        public const int IncorrectType = 18002;
 
     }
 }

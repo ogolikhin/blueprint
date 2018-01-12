@@ -30,22 +30,17 @@ namespace ArtifactStore.Controllers
 
         internal CollectionsController() : this
             (
-                new CollectionsRepository(),
+                new CollectionsService(new CollectionsRepository(),
+                                       new SqlArtifactRepository(),
+                                       new SqlLockArtifactsRepository()),
                 new SqlPrivilegesRepository())
         {
         }
 
-        public CollectionsController
-        (
-            ICollectionsRepository collectionsRepository,
-            IPrivilegesRepository privilegesRepository)
-        {
-            _privilegesManager = new PrivilegesManager(privilegesRepository);
-        }
-
-        public CollectionsController(ICollectionsService collectionsService)
+        public CollectionsController(ICollectionsService collectionsService, IPrivilegesRepository privilegesRepository)
         {
             _collectionsService = collectionsService;
+            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>

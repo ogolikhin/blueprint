@@ -264,6 +264,10 @@
       <Project>{fbb16370-f443-4e45-9c18-64d11239ae44}</Project>
       <Name>HtmlLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\lib\SearchEngineLibrary\SearchEngineLibrary.csproj">
+      <Project>{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}</Project>
+      <Name>SearchEngineLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lib\ServiceLibrary\ServiceLibrary.csproj">
       <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>
       <Name>ServiceLibrary</Name>

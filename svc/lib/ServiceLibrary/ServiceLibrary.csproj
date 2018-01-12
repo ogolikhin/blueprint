@@ -167,6 +167,13 @@
     <Compile Include="Helpers\I18NHelper.cs" />
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
+    <Compile Include="Models\Collection\ArtifactDto.cs" />
+    <Compile Include="Models\Collection\ArtifactsOfCollection.cs" />
+    <Compile Include="Models\Collection\ArtifactsOfCollectionDto.cs" />
+    <Compile Include="Models\Collection\ColumnDto.cs" />
+    <Compile Include="Models\Collection\FilterDto.cs" />
+    <Compile Include="Models\Collection\PropertyInfoDto.cs" />
+    <Compile Include="Models\Collection\SettingsDto.cs" />
     <Compile Include="Models\DropdownItem.cs" />
     <Compile Include="Models\Email\DiscussionEmail.cs" />
     <Compile Include="Models\Enums\ActionTypes.cs" />

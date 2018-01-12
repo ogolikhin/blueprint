@@ -178,7 +178,7 @@ namespace ArtifactStore.Controllers
         {
             pagination.Validate();
             pagination.SetDefaultValues(0, 50);
-            return _sqlReviewsRepository.GetReviewParticipantsAsync(containerId, pagination, Session.UserId, versionId, null, filterParameters);
+            return _sqlReviewsRepository.GetReviewParticipantsAsync(containerId, pagination, Session.UserId, versionId, filterParameters);
         }
 
         /// <summary>

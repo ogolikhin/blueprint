@@ -15,23 +15,43 @@ namespace ArtifactStore.Services.Workflow
     {
         private readonly ICollectionsRepository _collectionsRepository;
         private readonly ILockArtifactsRepository _lockArtifactsRepository;
+        private readonly IItemInfoRepository _itemInfoRepository;
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IArtifactRepository _artifactRepository;
 
         public CollectionsService(ICollectionsRepository collectionsRepository, IArtifactRepository artifactRepository,
-                                  ILockArtifactsRepository lockArtifactsRepository)
+                                  ILockArtifactsRepository lockArtifactsRepository, IItemInfoRepository itemInfoRepository,
+                                  IArtifactPermissionsRepository artifactPermissionsRepository)
         {
             _collectionsRepository = collectionsRepository;
             _artifactRepository = artifactRepository;
             _lockArtifactsRepository = lockArtifactsRepository;
+            _itemInfoRepository = itemInfoRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, OperationScope scope)
         {
+            if (userId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(userId));
+            }
+
+            if (collectionId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(collectionId));
+            }
+
             AssignArtifactsResult assignResult = null;
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
                 var collection = await _collectionsRepository.GetCollectionInfoAsync(userId, collectionId);
+
+                if (!(await _artifactPermissionsRepository.HasReadPermissions(collection.ArtifactId, userId)))
+                {
+                    throw ExceptionHelper.CollectionForbiddenException(collection.ArtifactId);
+                }
 
                 if (collection.LockedByUserId == null)
                 {
@@ -41,9 +61,11 @@ namespace ArtifactStore.Services.Workflow
                     }
                 }
 
+                await _collectionsRepository.RemoveDeletedArtifactsFromCollection(collection.ArtifactId, userId);
 
+                var validArtifacts = await _itemInfoRepository.GetItemsDetails(userId, scope.Ids.ToList());
 
-                assignResult = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collectionId, scope);
+                assignResult = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collection.ArtifactId, scope);
             };
 
             await _collectionsRepository.RunInTransactionAsync(action);

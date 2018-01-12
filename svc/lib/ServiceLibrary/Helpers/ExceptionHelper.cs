@@ -35,6 +35,12 @@ namespace ServiceLibrary.Helpers
             return new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
+        public static AuthorizationException CollectionForbiddenException(int collectionId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Collection (Id:{0}).", collectionId);
+            return new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+        }
+
         public static ConflictException ArtifactNotLockedException(int artifactId, int userId)
         {
             var errorMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) is not locked by user (Id:{1}).", artifactId, userId);

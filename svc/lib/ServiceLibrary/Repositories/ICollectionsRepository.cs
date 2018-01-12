@@ -13,6 +13,8 @@ namespace ServiceLibrary.Repositories
         Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, OperationScope scope);
         Task<ArtifactBasicDetails> GetCollectionInfoAsync(int userId, int collectionId);
 
+        Task RemoveDeletedArtifactsFromCollection(int collectionId, int userId);
+
         Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
     }
 }

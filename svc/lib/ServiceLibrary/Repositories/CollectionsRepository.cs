@@ -33,16 +33,6 @@ namespace ServiceLibrary.Repositories
 
         public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, OperationScope scope)
         {
-            if (userId < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(userId));
-            }
-
-            if (collectionId < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(collectionId));
-            }
-
             var parameters = new DynamicParameters();
 
             parameters.Add("@UserId", userId);
@@ -50,7 +40,7 @@ namespace ServiceLibrary.Repositories
             parameters.Add("@ArtifactsIds", SqlConnectionWrapper.ToDataTable(scope.Ids, "Int32Collection", "Int32Value"));
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            await _connectionWrapper.ExecuteAsync("RemoveDeletedArtifactsFromCollection", parameters, commandType: CommandType.StoredProcedure);
+            // await _connectionWrapper.ExecuteAsync("RemoveDeletedArtifactsFromCollection", parameters, commandType: CommandType.StoredProcedure);
 
             var result = await _connectionWrapper.QueryAsync<AssignArtifactsResult>("AddArtifactsToCollection", parameters, commandType: CommandType.StoredProcedure);
             var errorCode = parameters.Get<int?>("ErrorCode");
@@ -100,6 +90,16 @@ namespace ServiceLibrary.Repositories
             }
 
             return collectionDetails;
+        }
+
+        public async Task RemoveDeletedArtifactsFromCollection(int collectionId, int userId)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@UserId", userId);
+            parameters.Add("@CollectionId", collectionId);
+
+            await _connectionWrapper.ExecuteAsync("RemoveDeletedArtifactsFromCollection", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)

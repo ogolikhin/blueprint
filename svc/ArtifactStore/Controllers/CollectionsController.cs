@@ -32,7 +32,9 @@ namespace ArtifactStore.Controllers
             (
                 new CollectionsService(new CollectionsRepository(),
                                        new SqlArtifactRepository(),
-                                       new SqlLockArtifactsRepository()),
+                                       new SqlLockArtifactsRepository(),
+                                       new SqlItemInfoRepository(),
+                                       new SqlArtifactPermissionsRepository()),
                 new SqlPrivilegesRepository())
         {
         }

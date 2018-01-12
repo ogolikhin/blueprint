@@ -2063,6 +2063,11 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.ReviewInDraftStateException(reviewId);
             }
 
+            if (reviewPackageRawData.Reviewers == null)
+            {
+                throw ReviewsExceptionHelper.ParticipantNotFoundException(participantId, reviewId);
+            }
+
             var participant = reviewPackageRawData.Reviewers.FirstOrDefault(reviewer => reviewer.UserId == participantId);
 
             if (participant == null)

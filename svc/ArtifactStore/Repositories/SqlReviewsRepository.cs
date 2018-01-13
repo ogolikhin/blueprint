@@ -864,7 +864,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        public async Task<ReviewParticipantsContent> GetReviewParticipantsAsync(int reviewId, Pagination pagination, int userId, int? versionId = null, bool? addDrafts = true, ReviewFilterParameters filterParameters = null)
+        public async Task<ReviewParticipantsContent> GetReviewParticipantsAsync(int reviewId, Pagination pagination, int userId, int? versionId = null, ReviewFilterParameters filterParameters = null, bool? addDrafts = true)
         {
             if (versionId < 1)
             {

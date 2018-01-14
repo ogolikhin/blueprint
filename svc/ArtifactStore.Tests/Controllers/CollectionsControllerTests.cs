@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
@@ -16,29 +11,32 @@ namespace ArtifactStore.Controllers
     [TestClass]
     public class CollectionsControllerTests
     {
-        private Mock<ICollectionsRepository> mockCollectionsRepository;
-        private Mock<IServiceLogRepository> mockServiceLogRepository;
-        private Mock<IPrivilegesRepository> _mockSqlPrivilegesRepository;
-        private CollectionsController collectionsController;
+        private const int UserId = 1;
+        private Session _session;
 
-        private const int userId = 1;
-        private Session session;
+        private Mock<ICollectionsRepository> _mockCollectionsRepository;
+        private Mock<IServiceLogRepository> _mockServiceLogRepository;
+        private Mock<IPrivilegesRepository> _mockSqlPrivilegesRepository;
+        private CollectionsController _collectionsController;
 
         [TestInitialize]
         public void Initialize()
         {
-            session = new Session { UserId = userId };
+            _session = new Session { UserId = UserId };
 
-            mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            _mockServiceLogRepository = new Mock<IServiceLogRepository>();
             _mockSqlPrivilegesRepository = new Mock<IPrivilegesRepository>();
-            mockCollectionsRepository = new Mock<ICollectionsRepository>();
+            _mockCollectionsRepository = new Mock<ICollectionsRepository>();
 
-            collectionsController = new CollectionsController(mockCollectionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object)
+            _collectionsController = new CollectionsController(
+                _mockCollectionsRepository.Object,
+                _mockSqlPrivilegesRepository.Object,
+                _mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
 
-            collectionsController.Request.Properties[ServiceConstants.SessionProperty] = session;
+            _collectionsController.Request.Properties[ServiceConstants.SessionProperty] = _session;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace ArtifactStore.Controllers
 
         internal CollectionsController() : this
             (
-                new CollectionsRepository(),
+                new SqlCollectionsRepository(),
                 new SqlPrivilegesRepository())
         {
         }

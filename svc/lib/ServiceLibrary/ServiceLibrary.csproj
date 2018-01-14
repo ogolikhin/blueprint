@@ -373,7 +373,7 @@
     <Compile Include="Repositories\ApplicationSettings\SqlFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\IFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
-    <Compile Include="Repositories\CollectionsRepository.cs" />
+    <Compile Include="Repositories\SqlCollectionsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />

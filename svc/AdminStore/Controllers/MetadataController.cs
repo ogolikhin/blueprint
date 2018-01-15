@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
+using AdminStore.Services.Metadata;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Repositories.Metadata;
 
 namespace AdminStore.Controllers
 {
@@ -33,9 +33,9 @@ namespace AdminStore.Controllers
 
         [HttpGet, NoCache]
         [Route("icons"), SessionRequired]
-        public async Task<HttpResponseMessage> GetIcons(string type, int? typeId)
+        public async Task<HttpResponseMessage> GetIcons(string type, int? typeId = null, string color = null)
         {
-            ItemTypePredefined itemType = ItemTypePredefined.None;
+            var itemType = ItemTypePredefined.None;
             if (!string.IsNullOrEmpty(type) && !Enum.TryParse(type, true, out itemType))
             {
                 throw new BadRequestException("Unknown item type");
@@ -45,15 +45,14 @@ namespace AdminStore.Controllers
             var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
             if (typeId == null)
             {
-                var svgResult = _metadataService.GetItemTypeIcon(itemType);
-                Console.WriteLine(svgResult.FirstOrDefault().ToString());
-                httpResponseMessage.Content = new StringContent(svgResult.FirstOrDefault().ToString(), Encoding.UTF8, "application/xml");
+                var iconStream = _metadataService.GetItemTypeIcon(itemType, color);
+                httpResponseMessage.Content = new StreamContent(iconStream);
+                httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("image/svg+xml");
                 return httpResponseMessage;
             }
 
-            var result = await _metadataService.GetCustomItemTypeIcon(typeId.GetValueOrDefault());
-
-            httpResponseMessage.Content = result;
+            var customIcon = await _metadataService.GetCustomItemTypeIcon(typeId.GetValueOrDefault());
+            httpResponseMessage.Content = ImageHelper.CreateByteArrayContent(customIcon);
             return httpResponseMessage;
         }
     }

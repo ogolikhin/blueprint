@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Web;
+using System.IO;
 using System.Xml.Linq;
 using ServiceLibrary.Models;
-using System.Threading.Tasks;
 
 namespace AdminStore.Repositories.Metadata
 {
@@ -35,39 +33,32 @@ namespace AdminStore.Repositories.Metadata
              // folder open?
              // { ItemTypePredefined.PrimitiveFolder, "folder-open.svg" },
 
-             // { ItemTypePredefined.GenericDiagram, "generic-diagram.png"},
-             // { ItemTypePredefined.GDConnector, "generic-diagram-sub.png"},
-             // { ItemTypePredefined.GDShape, "generic-diagram-sub.png"},
+             { ItemTypePredefined.GenericDiagram, "generic-diagram.svg" },
 
-             // { ItemTypePredefined.Glossary, "glossary.png"},
-             // { ItemTypePredefined.Term, "glossary-sub.png"},
+             { ItemTypePredefined.Glossary, "glossary.svg" },
 
-             // { ItemTypePredefined.Process, "process.png"},
+             { ItemTypePredefined.Project, "project.svg" },
 
-             // { ItemTypePredefined.Storyboard, "storyboard.png"},
-             // { ItemTypePredefined.SBConnector, "storyboard-sub.png" },
-             // { ItemTypePredefined.SBShape, "storyboard-sub.png"},
+             { ItemTypePredefined.ArtifactReviewPackage, "review.svg" },
 
-             // { ItemTypePredefined.TextualRequirement, "textual-requirement.png"},
+             { ItemTypePredefined.Storyboard, "storyboard.svg" },
 
-             // { ItemTypePredefined.UIMockup, "ui-mockup.png"},
-             // { ItemTypePredefined.UIConnector, "ui-mockup-sub.png"},
-             // { ItemTypePredefined.UIShape, "ui-mockup-sub.png"},
+            // storyteller.svg??
+            { ItemTypePredefined.PROShape, "storyteller-sub.svg" },
 
-             // { ItemTypePredefined.UseCaseDiagram, "use-case-diagram.png"},
-             // { ItemTypePredefined.UCDConnector, "use-case-diagram-sub.png"},
-             // { ItemTypePredefined.UCDShape, "use-case-diagram-sub.png"},
+            { ItemTypePredefined.TextualRequirement, "textual.svg" },
 
-             // { ItemTypePredefined.UseCase, "use-case.png"},
-             // { ItemTypePredefined.PreCondition, "use-case-sub.png"},
-             // { ItemTypePredefined.PostCondition, "use-case-sub.png"},
-             // { ItemTypePredefined.Step, "use-case-sub.png"},
+            { ItemTypePredefined.UIMockup, "ui-mockup.svg" },
 
-             // { ItemTypePredefined.Project, "project.png"},
-             // { ItemTypePredefined.PROShape, "storyteller-sub.png"}
+            { ItemTypePredefined.UseCaseDiagram, "use-case-diagram.svg" },
+
+            { ItemTypePredefined.UseCase, "use-case.svg" },
+
+            // user story
+
         };
 
-        public List<XElement> getSvgXaml(ItemTypePredefined predefined)
+        public Stream GetSvgIcon(ItemTypePredefined predefined, string color = null)
         {
             string iconSvgFileName;
             if (!IconFileNames.TryGetValue(predefined, out iconSvgFileName))
@@ -75,11 +66,15 @@ namespace AdminStore.Repositories.Metadata
                 return null;
             }
 
-            var svgIcon = LoadSvgResourceImage(iconSvgFileName);
-            return svgIcon;
+            var resourceStream = LoadSvgResourceImage(iconSvgFileName);
+            if (string.IsNullOrEmpty(color))
+            {
+                return resourceStream;
+            }
+            return AddFillAttribute(resourceStream, color);
         }
 
-        private List<XElement> LoadSvgResourceImage(string iconSvgFileName)
+        private Stream LoadSvgResourceImage(string iconSvgFileName)
         {
             if (string.IsNullOrWhiteSpace(iconSvgFileName))
             {
@@ -87,19 +82,27 @@ namespace AdminStore.Repositories.Metadata
             }
 
             var assembly = typeof(MetadataRepository).Assembly;
-            var resourceName =
-                string.Format(CultureInfo.CurrentCulture, "{0}.Assets.Icons.ItemTypes.{1}", assembly.GetName().Name, iconSvgFileName);
-            // var resourceName = $"{assembly.GetName().Name}.Assets.Icons.ItemTypes.{iconSvgFileName}";
-            // var resourceName = "../Assets/Icons/ItemTypes/" + iconSvgFileName;
-            var mappedPath = System.Web.Hosting.HostingEnvironment.MapPath("~/Assets/Icons/ItemTypes/" + iconSvgFileName);
+            var resourceName = string.Format(CultureInfo.CurrentCulture, "{0}.Assets.Icons.ItemTypes.{1}",
+                assembly.GetName().Name, iconSvgFileName);
+            return assembly.GetManifestResourceStream(resourceName);
+        }
 
-            XDocument document = XDocument.Load(@mappedPath);
-            XElement svgElement = document.Root;
+        private Stream AddFillAttribute(Stream resourceStream, string color)
+        {
+            using (resourceStream)
+            {
+                var svgDocument = XDocument.Load(resourceStream);
+                var svgElement = svgDocument.Root;
 
-            var data = (from path in svgElement.Descendants("{http://www.w3.org/2000/svg}path")
-                select path).ToList();
-
-            return data;
+                foreach (var pathElement in svgElement.Descendants("{http://www.w3.org/2000/svg}path"))
+                {
+                    var fillAttribute = new XAttribute("fill", color);
+                    pathElement.Add(fillAttribute);
+                }
+                var memoryStream = new MemoryStream();
+                svgDocument.Save(memoryStream);
+                return memoryStream;
+            }
         }
     }
 }

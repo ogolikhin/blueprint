@@ -13,6 +13,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 using System.Web.Http.Description;
 using ArtifactStore.Models;
 using ArtifactStore.Services.Workflow;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 
 namespace ArtifactStore.Controllers
@@ -68,7 +69,7 @@ namespace ArtifactStore.Controllers
 
             if (scope == null)
             {
-                return BadRequest(ErrorMessages.InvalidAddArtifactsParameters);
+                throw new BadRequestException(ErrorMessages.InvalidAddArtifactsParameters, ErrorCodes.BadRequest);
             }
 
             var result = await _collectionsService.AddArtifactsToCollectionAsync(Session.UserId, id, scope);

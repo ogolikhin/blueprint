@@ -4,6 +4,7 @@ using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Models.Workflow;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace BluePrintSys.Messaging.CrossCutting.Helpers
 {
@@ -12,6 +13,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
     public interface IWorkflowMessagingProcessor
     {
         Task SendMessageAsync(string tenantId, IWorkflowMessage message);
+        Task CheckStatusAsync();
     }
 
     public class WorkflowMessagingProcessor : IWorkflowMessagingProcessor
@@ -34,6 +36,11 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
             Task.Factory.StartNew(async () => await _messageTransportHost.Start(true)).Unwrap().Wait();
 
             Log.Debug("Workflow Messaging: Finished opening the endpoint.");
+        }
+
+        public async Task CheckStatusAsync()
+        {
+            await _messageTransportHost.CheckStatusAsync();
         }
 
         public async Task SendMessageAsync(string tenantId, IWorkflowMessage message)

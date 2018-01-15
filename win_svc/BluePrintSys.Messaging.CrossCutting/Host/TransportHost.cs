@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Models.Workflow;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {
@@ -21,6 +22,12 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
         {
             Log.Info("Sending message to server.");
             await _nServiceBusServer.Send(tenantId, message);
+        }
+
+        public async Task CheckStatusAsync()
+        {
+            Log.Info("Sending Status message to server.");
+            await _nServiceBusServer.CheckStatus(new StatusCheckMessage());
         }
 
         public async Task Start(bool sendOnly, Func<bool> errorCallback = null)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.Workflow;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {
@@ -11,5 +12,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
         void Stop();
 
         Task SendAsync(string tenantId, IWorkflowMessage message);
+
+        Task CheckStatusAsync();
     }
 }

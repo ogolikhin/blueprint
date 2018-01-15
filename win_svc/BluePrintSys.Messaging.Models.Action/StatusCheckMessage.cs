@@ -4,9 +4,9 @@ using ServiceLibrary.Models.Workflow;
 
 namespace BluePrintSys.Messaging.Models.Actions
 {
-    public class StatusCheckMessage : ActionMessage
+    public class StatusCheckMessage : IMessage
     {
-        public override MessageActionType ActionType { get; } = MessageActionType.StatusCheck;
+        public MessageActionType ActionType { get; } = MessageActionType.StatusCheck;
     }
 
 }

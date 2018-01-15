@@ -24,7 +24,7 @@ namespace ArtifactStore.Controllers
                         new List<IStatusRepository> {
                             /* new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage"), //ArtifactStorage db is currently unused */
                             new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB"),
-                            new WorkflowMessagingStatusRepository(ServiceConstants.RaptorMain, "WorkflowMessenger")
+                            new WorkflowMessagingStatusRepository("WorkflowMessenger")
                         },
                         "ArtifactStore",
                         new ServiceLogRepository(),

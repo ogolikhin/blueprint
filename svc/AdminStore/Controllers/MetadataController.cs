@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using ServiceLibrary.Attributes;
@@ -33,15 +35,24 @@ namespace AdminStore.Controllers
         [Route("icons"), SessionRequired]
         public async Task<HttpResponseMessage> GetIcons(string type, int? typeId)
         {
-            ItemTypePredefined itemType;
+            ItemTypePredefined itemType = ItemTypePredefined.None;
             if (!string.IsNullOrEmpty(type) && !Enum.TryParse(type, true, out itemType))
             {
                 throw new BadRequestException("Unknown item type");
             }
 
-            var result = await _metadataService.GetCustomItemTypeIcon(typeId.GetValueOrDefault());
 
             var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
+            if (typeId == null)
+            {
+                var svgResult = _metadataService.GetItemTypeIcon(itemType);
+                Console.WriteLine(svgResult.FirstOrDefault().ToString());
+                httpResponseMessage.Content = new StringContent(svgResult.FirstOrDefault().ToString(), Encoding.UTF8, "application/xml");
+                return httpResponseMessage;
+            }
+
+            var result = await _metadataService.GetCustomItemTypeIcon(typeId.GetValueOrDefault());
+
             httpResponseMessage.Content = result;
             return httpResponseMessage;
         }

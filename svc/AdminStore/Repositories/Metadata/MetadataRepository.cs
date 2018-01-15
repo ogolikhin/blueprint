@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Xml.Linq;
@@ -86,9 +87,13 @@ namespace AdminStore.Repositories.Metadata
             }
 
             var assembly = typeof(MetadataRepository).Assembly;
-            var resourceName = $"{assembly.GetName().Name}.Assets.Icons.ItemTypes.{iconSvgFileName}";
+            var resourceName =
+                string.Format(CultureInfo.CurrentCulture, "{0}.Assets.Icons.ItemTypes.{1}", assembly.GetName().Name, iconSvgFileName);
+            // var resourceName = $"{assembly.GetName().Name}.Assets.Icons.ItemTypes.{iconSvgFileName}";
+            // var resourceName = "../Assets/Icons/ItemTypes/" + iconSvgFileName;
+            var mappedPath = System.Web.Hosting.HostingEnvironment.MapPath("~/Assets/Icons/ItemTypes/" + iconSvgFileName);
 
-            XDocument document = XDocument.Load(@resourceName);
+            XDocument document = XDocument.Load(@mappedPath);
             XElement svgElement = document.Root;
 
             var data = (from path in svgElement.Descendants("{http://www.w3.org/2000/svg}path")

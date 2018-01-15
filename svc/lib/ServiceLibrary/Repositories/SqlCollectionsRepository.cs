@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using ServiceLibrary.Exceptions;
@@ -11,20 +9,20 @@ using ServiceLibrary.Models;
 
 namespace ServiceLibrary.Repositories
 {
-    public class CollectionsRepository : ICollectionsRepository
+    public class SqlCollectionsRepository : ICollectionsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
         private readonly IArtifactRepository _artifactRepository;
         private readonly ISqlHelper _sqlHelper;
 
-        public CollectionsRepository()
+        public SqlCollectionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
                    new SqlArtifactRepository(),
                    new SqlHelper())
         {
         }
 
-        public CollectionsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactRepository artifactRepository, ISqlHelper sqlHelper)
+        public SqlCollectionsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactRepository artifactRepository, ISqlHelper sqlHelper)
         {
             _connectionWrapper = connectionWrapper;
             _artifactRepository = artifactRepository;

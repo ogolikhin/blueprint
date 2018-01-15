@@ -30,7 +30,7 @@ namespace ArtifactStore.Controllers
 
         internal CollectionsController() : this
             (
-                new CollectionsService(new CollectionsRepository(),
+                new CollectionsService(new SqlCollectionsRepository(),
                                        new SqlArtifactRepository(),
                                        new SqlLockArtifactsRepository(),
                                        new SqlItemInfoRepository(),

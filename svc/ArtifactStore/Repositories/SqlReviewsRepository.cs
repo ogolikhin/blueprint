@@ -864,7 +864,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        public async Task<ReviewParticipantsContent> GetReviewParticipantsAsync(int reviewId, Pagination pagination, int userId, int? versionId = null, bool? addDrafts = true, ReviewFilterParameters filterParameters = null)
+        public async Task<ReviewParticipantsContent> GetReviewParticipantsAsync(int reviewId, Pagination pagination, int userId, int? versionId = null, ReviewFilterParameters filterParameters = null, bool? addDrafts = true)
         {
             if (versionId < 1)
             {
@@ -2061,6 +2061,11 @@ namespace ArtifactStore.Repositories
             if (reviewPackageRawData.Status == ReviewPackageStatus.Draft)
             {
                 throw ReviewsExceptionHelper.ReviewInDraftStateException(reviewId);
+            }
+
+            if (reviewPackageRawData.Reviewers == null)
+            {
+                throw ReviewsExceptionHelper.ParticipantNotFoundException(participantId, reviewId);
             }
 
             var participant = reviewPackageRawData.Reviewers.FirstOrDefault(reviewer => reviewer.UserId == participantId);

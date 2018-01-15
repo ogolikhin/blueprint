@@ -117,5 +117,30 @@ namespace ArtifactStore.Controllers
             Assert.IsInstanceOfType(result, typeof(OkResult));
         }
         #endregion
+
+        #region Messenger Status
+        #pragma warning disable SA1028 // Code must not contain trailing whitespace
+        [TestMethod]
+        public async Task GetStatusCheck_Messenger()
+        {
+            // Arrange
+
+            string preauthorizedkey = null;
+
+            var controller = new StatusController()
+            {
+                Request = new HttpRequestMessage(),
+                Configuration = new HttpConfiguration()
+            };
+
+            // Act
+            ResponseMessageResult result = await controller.GetStatus(preauthorizedkey) as ResponseMessageResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            // Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
+        #endregion
     }
 }

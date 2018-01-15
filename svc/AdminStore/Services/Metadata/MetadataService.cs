@@ -10,28 +10,30 @@ using AdminStore.Services.Metadata;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using System.Xml.Linq;
 
 namespace ServiceLibrary.Repositories.Metadata
 {
     public class MetadataService : IMetadataService
     {
-        // private readonly IMetadataRepository _metadataRepository;
         private readonly ISqlItemTypeRepository _sqlItemTypeRepository;
+        private readonly IMetadataRepository _metadataRepository;
+
 
         private const int ItemTypeIconSize = 32;
 
         public MetadataService()
             : this(
-                new SqlItemTypeRepository())
-                // new MetadataRepository())
+                new SqlItemTypeRepository(),
+                 new MetadataRepository())
         {
         }
 
-        public MetadataService(ISqlItemTypeRepository sqlItemTypeRepository)
-            // IMetadataRepository metadataRepository)
+        public MetadataService(ISqlItemTypeRepository sqlItemTypeRepository,
+             IMetadataRepository metadataRepository)
         {
             _sqlItemTypeRepository = sqlItemTypeRepository;
-            // _metadataRepository = metadataRepository;
+            _metadataRepository = metadataRepository;
         }
 
         public async Task<ByteArrayContent> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue)
@@ -50,9 +52,10 @@ namespace ServiceLibrary.Repositories.Metadata
             return ImageHelper.CreateByteArrayContent(data);
         }
 
-        public void GetItemTypeIcon(int? typeId)
+        public List<XElement> GetItemTypeIcon(ItemTypePredefined predefined)
         {
-            throw new NotImplementedException();
+            var svgIcon = _metadataRepository.getSvgXaml(predefined);
+            return svgIcon;
         }
     }
 }

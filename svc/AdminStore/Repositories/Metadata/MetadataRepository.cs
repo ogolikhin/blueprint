@@ -4,10 +4,11 @@ using System.Linq;
 using System.Web;
 using System.Xml.Linq;
 using ServiceLibrary.Models;
+using System.Threading.Tasks;
 
 namespace AdminStore.Repositories.Metadata
 {
-    public class MetadataRepository
+    public class MetadataRepository : IMetadataRepository
     {
 
         private static readonly IDictionary<ItemTypePredefined, string> IconFileNames = new Dictionary<ItemTypePredefined, string>
@@ -65,21 +66,35 @@ namespace AdminStore.Repositories.Metadata
              // { ItemTypePredefined.PROShape, "storyteller-sub.png"}
         };
 
-        // public byte[] getSvgXaml(ItemTypePredefined predefined)
-        // {
-        //    string iconFileName;
-        //    if (!IconFileNames.TryGetValue(predefined, out iconFileName))
-        //    {
-        //        return null;
-        //    }
+        public List<XElement> getSvgXaml(ItemTypePredefined predefined)
+        {
+            string iconSvgFileName;
+            if (!IconFileNames.TryGetValue(predefined, out iconSvgFileName))
+            {
+                return null;
+            }
 
-        // var svgIcon = LoadResourceImage(iconFileName);
-        // }
+            var svgIcon = LoadSvgResourceImage(iconSvgFileName);
+            return svgIcon;
+        }
 
-        // private object LoadResourceImage(string iconFileName)
-        // {
-        //     if (string.IsNullOrWhiteSpace())
-        //    throw new NotImplementedException();
-        // }
+        private List<XElement> LoadSvgResourceImage(string iconSvgFileName)
+        {
+            if (string.IsNullOrWhiteSpace(iconSvgFileName))
+            {
+                throw new ArgumentNullException(nameof(iconSvgFileName));
+            }
+
+            var assembly = typeof(MetadataRepository).Assembly;
+            var resourceName = $"{assembly.GetName().Name}.Assets.Icons.ItemTypes.{iconSvgFileName}";
+
+            XDocument document = XDocument.Load(@resourceName);
+            XElement svgElement = document.Root;
+
+            var data = (from path in svgElement.Descendants("{http://www.w3.org/2000/svg}path")
+                select path).ToList();
+
+            return data;
+        }
     }
 }

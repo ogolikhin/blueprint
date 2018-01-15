@@ -48,7 +48,7 @@ namespace ArtifactStore.Services.Workflow
             {
                 var collection = await _collectionsRepository.GetCollectionInfoAsync(userId, collectionId);
 
-                if (!(await _artifactPermissionsRepository.HasReadPermissions(collection.ArtifactId, userId)))
+                if (!(await _artifactPermissionsRepository.HasEditPermissions(collection.ArtifactId, userId)))
                 {
                     throw ExceptionHelper.CollectionForbiddenException(collection.ArtifactId);
                 }
@@ -63,9 +63,21 @@ namespace ArtifactStore.Services.Workflow
 
                 await _collectionsRepository.RemoveDeletedArtifactsFromCollection(collection.ArtifactId, userId);
 
-                var validArtifacts = await _itemInfoRepository.GetItemsDetails(userId, scope.Ids.ToList());
+                var artifactDetails = await _itemInfoRepository.GetItemsDetails(userId, scope.Ids.ToList());
+                var validArtifacts =
+                    artifactDetails.Where(i => ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.PrimitiveArtifactGroup) != 0) &&
+                                                ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.BaselineArtifactGroup) == 0) &&
+                                                ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.CollectionArtifactGroup) == 0) &&
+                                                (i.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Project) &&
+                                                (i.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Baseline) &&
+                                                i.VersionProjectId == collection.ProjectId).ToList();
 
-                assignResult = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collection.ArtifactId, scope);
+                var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(validArtifacts.Select(i => i.HolderId), userId);
+                var artifactsWithReadPermissions = artifactPermissionsDictionary
+                    .Where(p => p.Value.HasFlag(RolePermissions.Read))
+                    .Select(p => p.Key).ToList();
+
+                assignResult = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collection.ArtifactId, artifactsWithReadPermissions);
             };
 
             await _collectionsRepository.RunInTransactionAsync(action);

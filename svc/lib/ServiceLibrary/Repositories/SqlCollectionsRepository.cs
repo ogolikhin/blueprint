@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,34 +30,14 @@ namespace ServiceLibrary.Repositories
             _sqlHelper = sqlHelper;
         }
 
-        public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, OperationScope scope)
+        public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, List<int> artifactIds)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("@UserId", userId);
             parameters.Add("@CollectionId", collectionId);
-            parameters.Add("@ArtifactsIds", SqlConnectionWrapper.ToDataTable(scope.Ids, "Int32Collection", "Int32Value"));
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            // await _connectionWrapper.ExecuteAsync("RemoveDeletedArtifactsFromCollection", parameters, commandType: CommandType.StoredProcedure);
-
+            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value"));
             var result = await _connectionWrapper.QueryAsync<AssignArtifactsResult>("AddArtifactsToCollection", parameters, commandType: CommandType.StoredProcedure);
-            var errorCode = parameters.Get<int?>("ErrorCode");
-
-            if (errorCode.HasValue)
-            {
-                switch (errorCode.Value)
-                {
-                    case (int)SqlErrorCodes.UserLoginNotExist:
-                        throw new ResourceNotFoundException(ErrorMessages.UserNotExist, ErrorCodes.ResourceNotFound);
-                    // case (int)SqlErrorCodes.CollectionDoesNotExist:
-                    //    throw new ResourceNotFoundException(ErrorMessages.CollectionDoesNotExist, ErrorCodes.ResourceNotFound);
-                    case (int)SqlErrorCodes.GeneralSqlError:
-                        throw new Exception(ErrorMessages.GeneralErrorOfAddingArtifactsToCollection);
-
-                }
-            }
-
             return result.FirstOrDefault();
         }
 

@@ -10,7 +10,7 @@ namespace ServiceLibrary.Repositories
 {
     public interface ICollectionsRepository
     {
-        Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, OperationScope scope);
+        Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, List<int> artifactIds);
         Task<ArtifactBasicDetails> GetCollectionInfoAsync(int userId, int collectionId);
 
         Task RemoveDeletedArtifactsFromCollection(int collectionId, int userId);

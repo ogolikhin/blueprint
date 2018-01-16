@@ -8,7 +8,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
     {
         Task Send(string tenantId, IWorkflowMessage message);
 
-        Task CheckStatus(StatusCheckMessage message);
+        Task GetStatus(StatusCheckMessage message);
         Task<string> Start(string connectionString, bool sendOnly);
         Task Stop();
     }

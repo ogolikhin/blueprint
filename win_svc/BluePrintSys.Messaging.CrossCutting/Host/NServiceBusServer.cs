@@ -158,7 +158,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             }
         }
 
-        public async Task CheckStatus(StatusCheckMessage message)
+        public async Task GetStatus(StatusCheckMessage message)
         {
             var options = new SendOptions();
             options.SetDestination(MessageQueue);

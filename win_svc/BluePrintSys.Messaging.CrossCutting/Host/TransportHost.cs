@@ -24,10 +24,22 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             await _nServiceBusServer.Send(tenantId, message);
         }
 
-        public async Task CheckStatusAsync()
+        public async Task GetStatusAsync(int timeout)
         {
             Log.Info("Sending Status message to server.");
-            await _nServiceBusServer.CheckStatus(new StatusCheckMessage());
+
+            var task = _nServiceBusServer.GetStatus(new StatusCheckMessage());
+
+            if (await Task.WhenAny(task, Task.Delay(timeout)) == task)
+            {
+                return;
+            }
+            else
+            {
+                string message = "Check Status Timeout.";
+                Log.Error(message);
+                throw new Exception(message);
+            }
         }
 
         public async Task Start(bool sendOnly, Func<bool> errorCallback = null)

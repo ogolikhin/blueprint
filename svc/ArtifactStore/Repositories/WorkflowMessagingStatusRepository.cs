@@ -25,24 +25,20 @@ namespace ServiceLibrary.Repositories
 
         private async Task<StatusResponse> GetStatus(int timeout)
         {
-            // No use of "Timeout" at this point!
-
             var status = new StatusResponse()
             {
                 Name = Name,
                 Result = "true",
                 NoErrors = true
             };
-            // Try to send a Message to get the Messenger Status
+
             try
             {
-                await WorkflowMessagingProcessor.Instance.CheckStatusAsync();
+                await WorkflowMessagingProcessor.Instance.GetStatusAsync(timeout);
             }
             catch (Exception ex)
             {
-                // Log the exception later if it wasn't already logged
-                string msg = ex.Message;
-                status.Result = "false";
+                status.Result = $"ERROR: {ex.ToString()}";
                 status.NoErrors = false;
             }
             return status;

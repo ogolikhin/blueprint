@@ -16,6 +16,9 @@ namespace ArtifactStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
+        private const string DatabaseName = "RaptorDB";
+        private const string MessengerName = "WorkflowMessenger";
+
         private readonly IStatusControllerHelper _statusControllerHelper;
         private readonly string _expectedPreAuthorizedKey;
 
@@ -23,8 +26,8 @@ namespace ArtifactStore.Controllers
             : this(new StatusControllerHelper(
                         new List<IStatusRepository> {
                             /* new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage"), //ArtifactStorage db is currently unused */
-                            new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB"),
-                            new WorkflowMessagingStatusRepository("WorkflowMessenger")
+                            new SqlStatusRepository(ServiceConstants.RaptorMain, DatabaseName),
+                            new WorkflowMessagingStatusRepository(MessengerName)
                         },
                         "ArtifactStore",
                         new ServiceLogRepository(),

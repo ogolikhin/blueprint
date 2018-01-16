@@ -30,7 +30,6 @@ namespace ServiceLibrary.Repositories
             var status = new StatusResponse()
             {
                 Name = Name,
-                AccessInfo = string.IsNullOrEmpty(AccessInfo) ? "false" : "true",
                 Result = "true",
                 NoErrors = true
             };

@@ -4,7 +4,6 @@ using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Models.Workflow;
-using BluePrintSys.Messaging.Models.Actions;
 
 namespace BluePrintSys.Messaging.CrossCutting.Helpers
 {

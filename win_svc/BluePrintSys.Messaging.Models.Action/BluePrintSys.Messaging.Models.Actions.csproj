@@ -86,7 +86,6 @@
     <Compile Include="PropertyItemTypesChangedMessage.cs" />
     <Compile Include="PublishedArtifactInformation.cs" />
     <Compile Include="PublishedPropertyInformation.cs" />
-    <Compile Include="StatusCheckMessage.cs" />
     <Compile Include="UsersGroupsChangedMessage.cs" />
     <Compile Include="WorkflowsChangedMessage.cs" />
   </ItemGroup>

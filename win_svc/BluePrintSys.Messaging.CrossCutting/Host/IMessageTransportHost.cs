@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.Workflow;
-using BluePrintSys.Messaging.Models.Actions;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {

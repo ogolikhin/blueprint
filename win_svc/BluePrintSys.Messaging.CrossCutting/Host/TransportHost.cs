@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Models.Workflow;
-using BluePrintSys.Messaging.Models.Actions;
+using BluePrintSys.Messaging.CrossCutting.Models;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Collection;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ServiceLibrary.Repositories
 {
@@ -24,6 +25,7 @@ namespace ServiceLibrary.Repositories
         }
 
         #endregion
+
 
         #region Interface implementation
 
@@ -53,49 +55,44 @@ namespace ServiceLibrary.Repositories
                 var artifactProperties = artifactsOfCollection.Where(x => x.ArtifactId == id).ToList();
 
                 var propertyInfos = artifactProperties.Select(artifactProperty => new PropertyInfoDto
-                {
-                    PropertyTypeId = artifactProperty.PropertyTypeId,
-                    Value = artifactProperty.PropertyValue
-                }).ToList();
+                    {
+                        PropertyTypeId = artifactProperty.PropertyName == "ArtifactType"
+                            ? PropertyTypePredefinedHelper.PropertyTypePredefineds()[
+                                PropertyTypePredefined.ArtifactType]
+                            : artifactProperty.PropertyTypeId,
+                        Value = artifactProperty.PropertyValue
+                    })
+                    .ToList();
 
-                // Add prefix property for Artifact
+                // Add ID property for Artifact
                 propertyInfos.Add(new PropertyInfoDto
                 {
-                    PropertyTypeId = null,
-                    Value = artifactProperties.First(x => !string.IsNullOrEmpty(x.Prefix)).Prefix
-                });
-
-                // Add ItemTypeId property for Artifact
-                propertyInfos.Add(new PropertyInfoDto
-                {
-                    PropertyTypeId = null,
-                    Value = artifactProperties.First(x => x.ItemTypeId != null).ItemTypeId.ToString()
+                    PropertyTypeId = PropertyTypePredefinedHelper.PropertyTypePredefineds()[PropertyTypePredefined.ID],
+                    Value =
+                        $"{artifactProperties.First(x => !string.IsNullOrEmpty(x.Prefix)).Prefix}{artifactProperties.First(x => !string.IsNullOrEmpty(x.Prefix)).ArtifactId}"
                 });
 
                 artifactDtos.Add(new ArtifactDto
                 {
                     ArtifactId = id,
+                    ItemTypeId = artifactProperties.First(x => x.ItemTypeId != null)?.ItemTypeId,
                     PropertyInfos = propertyInfos
                 });
 
                 settingsColumns = artifactProperties.Select(artifactProperty => new Column
                 {
-                    PropertyTypeId = artifactProperty.PropertyTypeId,
+                    PropertyTypeId = artifactProperty.PropertyName == "ArtifactType"
+                        ? PropertyTypePredefinedHelper.PropertyTypePredefineds()[
+                            PropertyTypePredefined.ArtifactType]
+                        : artifactProperty.PropertyTypeId,
                     PropertyName = artifactProperty.PropertyName
                 }).ToList();
 
-                // Add prefix column for Artifact
+                // Add ID column for Artifact
                 settingsColumns.Add(new Column
                 {
-                    PropertyTypeId = null,
-                    PropertyName = "Prefix"
-                });
-
-                // Add ItemTypeId column for Artifact
-                settingsColumns.Add(new Column
-                {
-                    PropertyTypeId = null,
-                    PropertyName = "ItemTypeId"
+                    PropertyTypeId = PropertyTypePredefinedHelper.PropertyTypePredefineds()[PropertyTypePredefined.ID],
+                    PropertyName = "ID"
                 });
             }
 

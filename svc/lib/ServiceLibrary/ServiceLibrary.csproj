@@ -105,6 +105,7 @@
     </Compile>
     <Compile Include="Attributes\ApiControllerConfigAttribute.cs" />
     <Compile Include="Attributes\BaseExceptionFilterAttribute.cs" />
+    <Compile Include="Attributes\CacheAttribute.cs" />
     <Compile Include="Attributes\FeatureActivationAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
     <Compile Include="Attributes\PreRequiredPrivilegeAttribute.cs" />

@@ -1,4 +1,6 @@
-﻿using System.Web.Http.Filters;
+﻿using System;
+using System.Globalization;
+using System.Web.Http.Filters;
 
 namespace ServiceLibrary.Attributes
 {
@@ -8,7 +10,7 @@ namespace ServiceLibrary.Attributes
 
         public CacheAttribute(string maxAge)
         {
-            _maxAge = $"max-age={maxAge}";
+            _maxAge = String.Format(CultureInfo.CurrentCulture, "max-age={0}", maxAge);
         }
         public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {

@@ -31,7 +31,7 @@ namespace AdminStore.Controllers
             _metadataService = metadataService;
         }
 
-        [HttpGet, NoCache]
+        [HttpGet, Cache("86400")]
         [Route("icons"), SessionRequired]
         public async Task<HttpResponseMessage> GetIcons(string type, int? typeId = null, string color = null)
         {

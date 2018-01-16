@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ArtifactStore.Helpers;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Collection;
@@ -26,8 +28,7 @@ namespace ArtifactStore.Controllers
 
         private readonly ICollectionsRepository _collectionsRepository;
         private readonly ISearchEngineService _searchServiceEngine;
-
-        private readonly PrivilegesManager _privilegesManager;
+        private readonly IArtifactPermissionsRepository _permissionsRepository;
 
         internal CollectionsController() : this
             (
@@ -37,32 +38,28 @@ namespace ArtifactStore.Controllers
 
         internal CollectionsController(ISearchEngineService searchServiceEngine) : this
             (
-                new CollectionsRepository(),
-                new SqlPrivilegesRepository(), searchServiceEngine)
+                new SqlArtifactPermissionsRepository(), new CollectionsRepository(), searchServiceEngine)
         {
         }
 
         internal CollectionsController
-        (
-            ICollectionsRepository collectionsRepository,
-            IPrivilegesRepository privilegesRepository,
-            ISearchEngineService searchServiceEngine)
+        (IArtifactPermissionsRepository permissionsRepository, ICollectionsRepository collectionsRepository, ISearchEngineService searchServiceEngine)
         {
+            _permissionsRepository = permissionsRepository;
             _collectionsRepository = collectionsRepository;
             _searchServiceEngine = searchServiceEngine;
-            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         public CollectionsController
         (
+            IArtifactPermissionsRepository permissionsRepository,
             ICollectionsRepository collectionsRepository,
-            IPrivilegesRepository privilegesRepository,
             IServiceLogRepository log,
             ISearchEngineService searchServiceEngine) : base(log)
         {
+            _permissionsRepository = permissionsRepository;
             _collectionsRepository = collectionsRepository;
             _searchServiceEngine = searchServiceEngine;
-            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -78,14 +75,18 @@ namespace ArtifactStore.Controllers
         ///
         [HttpGet, NoCache]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
-        [ResponseType(typeof(ArtifactsOfCollectionDto))]
+        [ResponseType(typeof(ArtifactsOfCollection))]
         public async Task<IHttpActionResult> GetArtifactsOfCollectionAsync(int id, [FromUri] Pagination pagination)
         {
             pagination.Validate();
 
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            if (!await _permissionsRepository.HasReadPermissions(id, Session.UserId))
+            {
+                var errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the collection (Id:{0}).", id);
+                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+            }
 
-            var searchArtifactsResult = await _searchServiceEngine.Search(scopeId: id, pagination: pagination, scopeType: ScopeType.Contents, includeDrafts: true, userId: Session.UserId);
+            var searchArtifactsResult = await _searchServiceEngine.Search(id, pagination, ScopeType.Contents, true, Session.UserId);
 
             var artifactsOfCollectionDto = await _collectionsRepository.GetArtifactsOfCollectionAsync(Session.UserId, searchArtifactsResult.ArtifactIds);
 

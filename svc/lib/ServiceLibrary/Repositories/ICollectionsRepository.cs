@@ -10,6 +10,6 @@ namespace ServiceLibrary.Repositories
 {
     public interface ICollectionsRepository
     {
-        Task<ArtifactsOfCollectionDto> GetArtifactsOfCollectionAsync(int userId, IEnumerable<int> artifactIds);
+        Task<ArtifactsOfCollection> GetArtifactsOfCollectionAsync(int userId, IEnumerable<int> artifactIds);
     }
 }

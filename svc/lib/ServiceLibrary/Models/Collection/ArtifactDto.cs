@@ -6,6 +6,8 @@ namespace ServiceLibrary.Models.Collection
     {
         public int ArtifactId { get; set; }
 
+        public int? ItemTypeId { get; set; }
+
         public IEnumerable<PropertyInfoDto> PropertyInfos { get; set; }
     }
 }

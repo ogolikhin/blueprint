@@ -19,7 +19,7 @@ namespace ArtifactStore.Controllers
     {
         private Mock<ICollectionsRepository> mockCollectionsRepository;
         private Mock<IServiceLogRepository> mockServiceLogRepository;
-        private Mock<IPrivilegesRepository> _mockSqlPrivilegesRepository;
+        private Mock<IArtifactPermissionsRepository> _mockArtifactPermissionsRepository;
         private Mock<ISearchEngineService> _mockSearchEngineService;
         private CollectionsController collectionsController;
 
@@ -32,11 +32,11 @@ namespace ArtifactStore.Controllers
             session = new Session { UserId = userId };
 
             mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            _mockSqlPrivilegesRepository = new Mock<IPrivilegesRepository>();
+            _mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockCollectionsRepository = new Mock<ICollectionsRepository>();
             _mockSearchEngineService = new Mock<ISearchEngineService>();
 
-            collectionsController = new CollectionsController(mockCollectionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object, _mockSearchEngineService.Object)
+            collectionsController = new CollectionsController(_mockArtifactPermissionsRepository.Object, mockCollectionsRepository.Object, mockServiceLogRepository.Object, _mockSearchEngineService.Object)
             {
                 Request = new HttpRequestMessage()
             };

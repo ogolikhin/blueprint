@@ -1,6 +1,6 @@
 ﻿namespace ServiceLibrary.Models.Collection
 {
-    public class FilterDto
+    public class Filter
     {
         public int PropertyTypeId { get; set; }
     }

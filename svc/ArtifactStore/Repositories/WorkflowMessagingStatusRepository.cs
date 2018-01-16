@@ -23,8 +23,9 @@ namespace ArtifactStore.Repositories
             return new List<StatusResponse> { await GetStatus(timeout) };
         }
 
-        private async Task<StatusResponse> GetStatus(int timeout)
+        private async Task<StatusResponse> GetStatus(int timeoutInSeconds)
         {
+            TimeSpan timeSpan = new TimeSpan(0, 0, timeoutInSeconds);
             var status = new StatusResponse()
             {
                 Name = Name,
@@ -34,7 +35,7 @@ namespace ArtifactStore.Repositories
 
             try
             {
-                await WorkflowMessagingProcessor.Instance.GetStatusAsync(timeout);
+                await WorkflowMessagingProcessor.Instance.GetStatusAsync(timeSpan);
             }
             catch (Exception ex)
             {

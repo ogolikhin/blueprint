@@ -24,7 +24,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             await _nServiceBusServer.Send(tenantId, message);
         }
 
-        public async Task GetStatusAsync(int timeout)
+        public async Task GetStatusAsync(TimeSpan timeout)
         {
             Log.Info("Sending Status message to server.");
 

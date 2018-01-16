@@ -3,7 +3,7 @@
 namespace ServiceLibrary.Models
 {
 
-    public class RevExpFilterParameters
+    public class ReviewFilterParameters
     {
         public IEnumerable<int> ApprStsIds { get; set; }
 

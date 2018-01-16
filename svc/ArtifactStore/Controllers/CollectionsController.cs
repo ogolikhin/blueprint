@@ -32,13 +32,15 @@ namespace ArtifactStore.Controllers
 
         internal CollectionsController() : this
             (
+                new SqlArtifactPermissionsRepository(),
+                new SqlCollectionsRepository(),
                 new SearchEngineService())
         {
         }
 
         internal CollectionsController(ISearchEngineService searchServiceEngine) : this
             (
-                new SqlArtifactPermissionsRepository(), new CollectionsRepository(), searchServiceEngine)
+                new SqlArtifactPermissionsRepository(), new SqlCollectionsRepository(), searchServiceEngine)
         {
         }
 

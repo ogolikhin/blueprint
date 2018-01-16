@@ -12,6 +12,8 @@ namespace ServiceLibrary.Repositories
     {
         Task<SqlItemType> GetCustomItemTypeForProvidedStandardItemTypeIdInProject(int projectId,
             int standardItemTypeId);
+
+        Task<ItemTypeInfo> GetItemTypeInfo(int itemTypeId, int revisionId, bool loadCustomIcon = true);
     }
 
     public class SqlItemTypeRepository : ISqlItemTypeRepository
@@ -35,7 +37,17 @@ namespace ServiceLibrary.Repositories
             parameters.Add("@projectId", projectId);
             parameters.Add("@standardItemTypeId", standardItemTypeId);
 
-            return (await _connectionWrapper.QueryAsync<SqlItemType>("GetCustomItemTypeForProvidedStandardItemType", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return (await _connectionWrapper.QueryAsync<SqlItemType>("GetCustomItemTypeInfo", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+        }
+
+        public async Task<ItemTypeInfo> GetItemTypeInfo(int itemTypeId, int revisionId, bool loadCustomIcon = true)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@itemTypeId", itemTypeId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@loadCustomIcon", loadCustomIcon);
+
+            return (await _connectionWrapper.QueryAsync<ItemTypeInfo>("GetCustomItemTypeInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
     }
 }

@@ -4876,7 +4876,7 @@ namespace ArtifactStore.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetReviewParticipantArtifactStatsAsync_Should_Throw_Not_Found_When_Artifact_Is_Not_Review()
+        public async Task GetReviewParticipantArtifactStatsAsync_Should_Throw_Not_Found_When_Artifact_Is_Not_A_Review_Artifact()
         {
             // Arrange
             var reviewId = 1;
@@ -5146,13 +5146,13 @@ namespace ArtifactStore.Repositories
             SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, reviewPackageRawDataXml);
 
             // Act
-            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+            await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
 
         }
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetReviewParticipantArtifactStatsAsync_Participant_Should_Be_In_The_Reviewer_List()
+        public async Task GetReviewParticipantArtifactStatsAsync_Participant_Should_Throw_When_User_Is_Not_A_Review_Participant()
         {
             // Arrange
             var reviewId = 1;
@@ -5165,8 +5165,35 @@ namespace ArtifactStore.Repositories
             SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, reviewPackageRawDataXml);
 
             // Act
-            var artifactStatsResult = await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+            await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+        }
 
+        [TestMethod]
+        public async Task GetReviewParticipantArtifactStatsAsync_Participant_Should_Throw_When_There_Are_No_Participants()
+        {
+            // Arrange
+            var reviewId = 1;
+            var userId = 2;
+            var participantId = 3;
+
+
+            var reviewPackageRawDataXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Active</Status></ReviewPackageRawData>";
+
+            SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, reviewPackageRawDataXml);
+
+            // Act
+            try
+            {
+                await _reviewsRepository.GetReviewParticipantArtifactStatsAsync(reviewId, participantId, userId, new Pagination());
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
+
+                return;
+            }
+
+            Assert.Fail("A ResourceNotFoundException was not thrown.");
         }
 
         [TestMethod]

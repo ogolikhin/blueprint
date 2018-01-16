@@ -128,6 +128,7 @@
     <Compile Include="Repositories\FileRepositoryTests.cs" />
     <Compile Include="Repositories\ProjectMeta\SqlProjectMetaRepositoryTests.cs" />
     <Compile Include="Repositories\SqlArtifactRepositoryTests.cs" />
+    <Compile Include="Repositories\SqlCollectionsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlConnectionWrapperMock.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepositoryTests.cs" />
     <Compile Include="Repositories\SqlInstanceSettingsRepositoryMock.cs" />

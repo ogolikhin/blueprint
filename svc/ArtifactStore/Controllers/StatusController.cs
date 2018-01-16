@@ -1,4 +1,5 @@
-﻿using ServiceLibrary.Attributes;
+﻿using ArtifactStore.Repositories;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;

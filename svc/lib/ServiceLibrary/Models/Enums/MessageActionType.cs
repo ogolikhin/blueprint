@@ -18,7 +18,6 @@ namespace ServiceLibrary.Models.Enums
         UsersGroupsChanged = 512,
         WorkflowsChanged = 1024,
         PropertyItemTypesChanged = 2048,
-        StatusCheck = 4096,
-        All = PropertyChange | Notification | GenerateChildren | GenerateTests | GenerateUserStories | StateChange | ArtifactsPublished | ArtifactsChanged | ProjectsChanged | UsersGroupsChanged | WorkflowsChanged | PropertyItemTypesChanged | StatusCheck
+        All = PropertyChange | Notification | GenerateChildren | GenerateTests | GenerateUserStories | StateChange | ArtifactsPublished | ArtifactsChanged | ProjectsChanged | UsersGroupsChanged | WorkflowsChanged | PropertyItemTypesChanged
     }
 }

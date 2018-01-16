@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using ServiceLibrary.Helpers;
 using System.Collections.Generic;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
+using ServiceLibrary.Repositories;
 
-
-namespace ServiceLibrary.Repositories
+namespace ArtifactStore.Repositories
 {
     public class WorkflowMessagingStatusRepository : IStatusRepository
     {
@@ -38,7 +38,7 @@ namespace ServiceLibrary.Repositories
             }
             catch (Exception ex)
             {
-                status.Result = $"ERROR: {ex.ToString()}";
+                status.Result = $"ERROR: {ex.Message}";
                 status.NoErrors = false;
             }
             return status;

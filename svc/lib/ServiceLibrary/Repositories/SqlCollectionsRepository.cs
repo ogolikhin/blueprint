@@ -32,7 +32,7 @@ namespace ServiceLibrary.Repositories
         public async Task<ArtifactsOfCollection> GetArtifactsOfCollectionAsync(int userId, IEnumerable<int> artifactIds)
         {
             var propertyTypePredefineds = new List<int> { 4148 }; // ArtifactType = 4148
-            var propertyTypeIds = new List<int> { 4098, 4099 }; // Name = 4098, Description = 4099
+            var propertyTypeIds = new List<int>();
 
             var prm = new DynamicParameters();
             prm.Add("@UserId", userId, DbType.Int32);

@@ -38,12 +38,6 @@ namespace ArtifactStore.Controllers
         {
         }
 
-        internal CollectionsController(ISearchEngineService searchServiceEngine) : this
-            (
-                new SqlArtifactPermissionsRepository(), new SqlCollectionsRepository(), searchServiceEngine)
-        {
-        }
-
         internal CollectionsController
         (IArtifactPermissionsRepository permissionsRepository, ICollectionsRepository collectionsRepository, ISearchEngineService searchServiceEngine)
         {
@@ -80,13 +74,13 @@ namespace ArtifactStore.Controllers
         [ResponseType(typeof(ArtifactsOfCollection))]
         public async Task<IHttpActionResult> GetArtifactsOfCollectionAsync(int id, [FromUri] Pagination pagination)
         {
-            pagination.Validate();
-
             if (!await _permissionsRepository.HasReadPermissions(id, Session.UserId))
             {
                 var errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the collection (Id:{0}).", id);
                 throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
             }
+
+            pagination.Validate();
 
             var searchArtifactsResult = await _searchServiceEngine.Search(id, pagination, ScopeType.Contents, true, Session.UserId);
 

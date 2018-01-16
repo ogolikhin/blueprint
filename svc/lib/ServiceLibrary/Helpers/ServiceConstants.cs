@@ -1,4 +1,6 @@
-﻿using System.Configuration;
+﻿using System.Collections.Generic;
+using System.Configuration;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ServiceLibrary.Helpers
 {
@@ -67,5 +69,11 @@ namespace ServiceLibrary.Helpers
         public const string ExpiredUserKey = "Raptor_RC_ExpiredUser";
         public const string UserLogout = "Raptor_RC_UserLogout";
         public const string InvalidUserKey = "Raptor_RC_InvalidUser";
+
+        public static Dictionary<PropertyTypePredefined, int> PropertyTypePredefineds => new Dictionary<PropertyTypePredefined, int>
+        {
+            { PropertyTypePredefined.ArtifactType, -1 },
+            { PropertyTypePredefined.ID, -2 }
+        };
     }
 }

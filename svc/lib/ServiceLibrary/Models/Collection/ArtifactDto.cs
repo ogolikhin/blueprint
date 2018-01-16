@@ -8,6 +8,6 @@ namespace ServiceLibrary.Models.Collection
 
         public int? ItemTypeId { get; set; }
 
-        public IEnumerable<PropertyInfoDto> PropertyInfos { get; set; }
+        public IEnumerable<PropertyInfo> PropertyInfos { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace ServiceLibrary.Models.Collection
 {
-    public class PropertyInfoDto
+    public class PropertyInfo
     {
         public int? PropertyTypeId { get; set; }
         public string Value { get; set; }

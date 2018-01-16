@@ -31,8 +31,8 @@ namespace ServiceLibrary.Repositories
 
         public async Task<ArtifactsOfCollection> GetArtifactsOfCollectionAsync(int userId, IEnumerable<int> artifactIds)
         {
-            var propertyTypePredefineds = new List<int> { 4148 }; // ArtifactType = 4148
-            var propertyTypeIds = new List<int>();
+            var propertyTypePredefineds = new List<int> { (int)PropertyTypePredefined.ArtifactType }; // ArtifactType = 4148
+            var propertyTypeIds = new List<int>(); // TODO: should be filled with real data after implementation of getting list of propertyType ids.
 
             var prm = new DynamicParameters();
             prm.Add("@UserId", userId, DbType.Int32);
@@ -50,26 +50,76 @@ namespace ServiceLibrary.Repositories
             var artifactDtos = new List<ArtifactDto>();
             var settingsColumns = new List<Column>();
 
+            if (artifactIdsResult.Any())
+            {
+                var propertiesOfTheFirstArtifact = artifactsOfCollection.Where(x => x.ArtifactId == artifactIdsResult[0]).ToList();
+
+                foreach (var artifactProperty in propertiesOfTheFirstArtifact)
+                {
+                    int fakeId;
+                    if (artifactProperty.PropertyTypeId == null && ServiceConstants
+                            .PropertyTypePredefineds
+                            .TryGetValue((PropertyTypePredefined)artifactProperty.PropertyTypePredefined, out fakeId))
+                    {
+                        settingsColumns.Add(new Column
+                        {
+                            PropertyTypeId = fakeId,
+                            PropertyName = artifactProperty.PropertyName
+                        });
+                    }
+                    else
+                    {
+                        settingsColumns.Add(new Column
+                        {
+                            PropertyTypeId = artifactProperty.PropertyTypeId,
+                            PropertyName = artifactProperty.PropertyName
+                        });
+                    }
+                }
+
+                // Add ID column for Artifact
+                settingsColumns.Add(new Column
+                {
+                    PropertyTypeId = ServiceConstants.PropertyTypePredefineds[PropertyTypePredefined.ID],
+                    PropertyName = "ID"
+                });
+            }
+
             foreach (var id in artifactIdsResult)
             {
                 var artifactProperties = artifactsOfCollection.Where(x => x.ArtifactId == id).ToList();
 
-                var propertyInfos = artifactProperties.Select(artifactProperty => new PropertyInfoDto
+                var propertyInfos = new List<PropertyInfo>();
+
+                foreach (var artifactProperty in artifactProperties)
+                {
+                    int fakeId;
+                    if (artifactProperty.PropertyTypeId == null && ServiceConstants
+                            .PropertyTypePredefineds
+                            .TryGetValue((PropertyTypePredefined)artifactProperty.PropertyTypePredefined, out fakeId) && settingsColumns.Any(x => x.PropertyTypeId == fakeId))
                     {
-                        PropertyTypeId = artifactProperty.PropertyName == "ArtifactType"
-                            ? PropertyTypePredefinedHelper.PropertyTypePredefineds()[
-                                PropertyTypePredefined.ArtifactType]
-                            : artifactProperty.PropertyTypeId,
-                        Value = artifactProperty.PropertyValue
-                    })
-                    .ToList();
+                        propertyInfos.Add(new PropertyInfo
+                        {
+                            PropertyTypeId = fakeId,
+                            Value = artifactProperty.PropertyValue
+                        });
+                    }
+                    else if (settingsColumns.Any(x => x.PropertyTypeId == artifactProperty.PropertyTypeId))
+                    {
+                        propertyInfos.Add(new PropertyInfo
+                        {
+                            PropertyTypeId = artifactProperty.PropertyTypeId,
+                            Value = artifactProperty.PropertyValue
+                        });
+                    }
+                }
 
                 // Add ID property for Artifact
-                propertyInfos.Add(new PropertyInfoDto
+                propertyInfos.Add(new PropertyInfo
                 {
-                    PropertyTypeId = PropertyTypePredefinedHelper.PropertyTypePredefineds()[PropertyTypePredefined.ID],
+                    PropertyTypeId = ServiceConstants.PropertyTypePredefineds[PropertyTypePredefined.ID],
                     Value =
-                        $"{artifactProperties.First(x => !string.IsNullOrEmpty(x.Prefix)).Prefix}{artifactProperties.First(x => !string.IsNullOrEmpty(x.Prefix)).ArtifactId}"
+                        $"{artifactProperties.FirstOrDefault(x => !string.IsNullOrEmpty(x.Prefix))?.Prefix}{artifactProperties.FirstOrDefault(x => !string.IsNullOrEmpty(x.Prefix))?.ArtifactId}"
                 });
 
                 artifactDtos.Add(new ArtifactDto
@@ -77,22 +127,6 @@ namespace ServiceLibrary.Repositories
                     ArtifactId = id,
                     ItemTypeId = artifactProperties.First(x => x.ItemTypeId != null)?.ItemTypeId,
                     PropertyInfos = propertyInfos
-                });
-
-                settingsColumns = artifactProperties.Select(artifactProperty => new Column
-                {
-                    PropertyTypeId = artifactProperty.PropertyName == "ArtifactType"
-                        ? PropertyTypePredefinedHelper.PropertyTypePredefineds()[
-                            PropertyTypePredefined.ArtifactType]
-                        : artifactProperty.PropertyTypeId,
-                    PropertyName = artifactProperty.PropertyName
-                }).ToList();
-
-                // Add ID column for Artifact
-                settingsColumns.Add(new Column
-                {
-                    PropertyTypeId = PropertyTypePredefinedHelper.PropertyTypePredefineds()[PropertyTypePredefined.ID],
-                    PropertyName = "ID"
                 });
             }
 

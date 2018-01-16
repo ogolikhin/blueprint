@@ -84,11 +84,11 @@ namespace ArtifactStore.Controllers
 
             var searchArtifactsResult = await _searchServiceEngine.Search(id, pagination, ScopeType.Contents, true, Session.UserId);
 
-            var artifactsOfCollectionDto = await _collectionsRepository.GetArtifactsOfCollectionAsync(Session.UserId, searchArtifactsResult.ArtifactIds);
+            var artifactsOfCollection = await _collectionsRepository.GetArtifactsOfCollectionAsync(Session.UserId, searchArtifactsResult.ArtifactIds);
 
-            artifactsOfCollectionDto.ItemsCount = searchArtifactsResult.Total;
+            artifactsOfCollection.ItemsCount = searchArtifactsResult.Total;
 
-            return Ok(artifactsOfCollectionDto);
+            return Ok(artifactsOfCollection);
         }
     }
 }

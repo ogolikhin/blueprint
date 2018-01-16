@@ -10,24 +10,24 @@ namespace SearchEngineLibrary.Helpers
         /// <param name="id">Collection Id.</param>
         /// <param name="pagination">Used to specify pagination settings. If pagintaion is not needed, than null value should be passed.</param>
         /// <param name="includeDraft">Specifies whether draft versions should be included into search results.</param>
-        /// <param name="userId">userId is required for permissions check.</param>
+        /// <param name="userId">userId is required for permissions check and getting of draft.</param>
         public static string GetCollectionContentSearchArtifactResults(int id, Pagination pagination, bool includeDraft, int userId)
         {
-            string partWhereInQuery = (includeDraft) ?
+            string partWhereInQuery = includeDraft ?
                 @"AND (col.[EndRevision] = @infinityRevision OR (col.[StartRevision] = 1 AND (col.[EndRevision] = 1 OR col.[EndRevision] = -1) AND col.[VersionUserId] = @userId))
                     AND (iv.[EndRevision] = @infinityRevision OR (iv.[StartRevision] = 1 AND (iv.[EndRevision] = 1 OR iv.[EndRevision] = -1) AND iv.[VersionUserId] = @userId)) 
                     GROUP BY col.[VersionArtifactId] HAVING MIN(col.[EndRevision]) > 0 AND MIN(iv.[EndRevision]) > 0 "
                 :
                 @"AND col.[EndRevision] = @infinityRevision AND iv.[EndRevision] = @infinityRevision ";
 
-            string paginationParams = (pagination != null) ? 
+            string paginationParams = pagination != null ? 
                 I18NHelper.FormatInvariant(@"
                     DECLARE @Offset INT = {0} 
                     DECLARE @Limit INT = {1}", 
                     pagination.Offset, pagination.Limit) 
-                : String.Empty;
+                : string.Empty;
 
-            string paginationOffset = (pagination != null) ? "OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY" : String.Empty;
+            string paginationOffset = pagination != null ? "OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY" : string.Empty;
 
             var query = I18NHelper.FormatInvariant(@"
                             DECLARE @scopeId INT = {0} 

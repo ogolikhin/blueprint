@@ -89,6 +89,7 @@ namespace AdminStore.Repositories.Metadata
 
         private Stream AddFillAttribute(Stream resourceStream, string color)
         {
+            string hexColor = string.Format(CultureInfo.CurrentCulture, "#{0}", color);
             using (resourceStream)
             {
                 var svgDocument = XDocument.Load(resourceStream);
@@ -96,7 +97,7 @@ namespace AdminStore.Repositories.Metadata
 
                 foreach (var pathElement in svgElement.Descendants("{http://www.w3.org/2000/svg}path"))
                 {
-                    var fillAttribute = new XAttribute("fill", color);
+                    var fillAttribute = new XAttribute("fill", hexColor);
                     pathElement.Add(fillAttribute);
                 }
                 var memoryStream = new MemoryStream();

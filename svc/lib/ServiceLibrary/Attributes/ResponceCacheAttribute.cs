@@ -4,11 +4,11 @@ using System.Web.Http.Filters;
 
 namespace ServiceLibrary.Attributes
 {
-    public class CacheAttribute : ActionFilterAttribute
+    public class ResponceCacheAttribute : ActionFilterAttribute
     {
         private readonly string _maxAge;
 
-        public CacheAttribute(string maxAge)
+        public ResponceCacheAttribute(string maxAge)
         {
             _maxAge = String.Format(CultureInfo.CurrentCulture, "max-age={0}", maxAge);
         }

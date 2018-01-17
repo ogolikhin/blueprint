@@ -13,6 +13,9 @@ namespace ServiceLibrary.Repositories
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
 
+        internal const string GetArtifactIdsInCollectionQuery =
+            "SELECT * FROM [dbo].[GetArtifactIdsInCollection](@userId, @collectionId, @addDrafts)";
+
         #region Constructors
 
         public SqlCollectionsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -131,6 +134,22 @@ namespace ServiceLibrary.Repositories
             }
 
             return new ArtifactsOfCollection { Items = artifactDtos, Settings = new Settings { Columns = settingsColumns } };
+        }
+
+
+        public async Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(int collectionId, int userId, bool addDrafts = true)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@collectionId", collectionId);
+            parameters.Add("@addDrafts", addDrafts);
+
+            var result = await _connectionWrapper.QueryAsync<int>(
+                GetArtifactIdsInCollectionQuery,
+                parameters,
+                commandType: CommandType.Text);
+
+            return result.ToList();
         }
 
         #endregion

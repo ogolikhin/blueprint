@@ -12,6 +12,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
     public interface IWorkflowMessagingProcessor
     {
         Task SendMessageAsync(string tenantId, IWorkflowMessage message);
+        Task GetStatusAsync(TimeSpan timeout);
     }
 
     public class WorkflowMessagingProcessor : IWorkflowMessagingProcessor
@@ -34,6 +35,11 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
             Task.Factory.StartNew(async () => await _messageTransportHost.Start(true)).Unwrap().Wait();
 
             Log.Debug("Workflow Messaging: Finished opening the endpoint.");
+        }
+
+        public async Task GetStatusAsync(TimeSpan timeout)
+        {
+            await _messageTransportHost.GetStatusAsync(timeout);
         }
 
         public async Task SendMessageAsync(string tenantId, IWorkflowMessage message)

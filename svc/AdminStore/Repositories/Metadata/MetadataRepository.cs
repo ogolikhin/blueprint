@@ -102,6 +102,7 @@ namespace AdminStore.Repositories.Metadata
                 }
                 var memoryStream = new MemoryStream();
                 svgDocument.Save(memoryStream);
+                memoryStream.Position = 0;
                 return memoryStream;
             }
         }

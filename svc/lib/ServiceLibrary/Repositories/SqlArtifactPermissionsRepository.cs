@@ -120,8 +120,6 @@ namespace ServiceLibrary.Repositories
             }
             else
             {
-                // return (await _connectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
-
                 using (var command = await transaction.Connection.QueryMultipleAsync("GetArtifactsProjects", prm, transaction, commandType: CommandType.StoredProcedure))
                 {
                     var projectsAtifacts = command.Read<ProjectsArtifactsItem>().ToList();

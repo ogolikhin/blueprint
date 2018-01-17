@@ -40,7 +40,7 @@ namespace SearchService.Repositories
             };
             var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true, null)).ReturnsAsync(permissionsDictionary);
 
             Exception sqlException = SqlExceptionCreator.NewSqlException(ErrorCodes.SqlTimeoutNumber);
 
@@ -76,7 +76,7 @@ namespace SearchService.Repositories
 
             var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true, null)).ReturnsAsync(permissionsDictionary);
 
             Exception sqlException = SqlExceptionCreator.NewSqlException(-4);
 
@@ -115,7 +115,7 @@ namespace SearchService.Repositories
             };
             var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true, null)).ReturnsAsync(permissionsDictionary);
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, null);
 
             // Act
@@ -143,7 +143,7 @@ namespace SearchService.Repositories
             };
             var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true, null)).ReturnsAsync(permissionsDictionary);
 
             var artifactInfo = new Artifact()
             {
@@ -183,7 +183,7 @@ namespace SearchService.Repositories
             };
             var permissionsDictionary = new Dictionary<int, RolePermissions>();
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true, null)).ReturnsAsync(permissionsDictionary);
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, null);
 
             // Act
@@ -208,7 +208,7 @@ namespace SearchService.Repositories
             };
             var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(new List<int> { 0 }, UserId, false, int.MaxValue, true, null)).ReturnsAsync(permissionsDictionary);
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, null);
 
             // Act

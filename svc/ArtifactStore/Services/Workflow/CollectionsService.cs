@@ -18,19 +18,26 @@ namespace ArtifactStore.Services.Workflow
         private readonly IItemInfoRepository _itemInfoRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IArtifactRepository _artifactRepository;
+        private readonly ISqlHelper _sqlHelper;
 
         public CollectionsService(ICollectionsRepository collectionsRepository, IArtifactRepository artifactRepository,
                                   ILockArtifactsRepository lockArtifactsRepository, IItemInfoRepository itemInfoRepository,
-                                  IArtifactPermissionsRepository artifactPermissionsRepository)
+                                  IArtifactPermissionsRepository artifactPermissionsRepository, ISqlHelper sqlHelper)
         {
             _collectionsRepository = collectionsRepository;
             _artifactRepository = artifactRepository;
             _lockArtifactsRepository = lockArtifactsRepository;
             _itemInfoRepository = itemInfoRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
+            _sqlHelper = sqlHelper;
+    }
+
+        public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
+        {
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
         }
 
-        public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, OperationScope scope)
+        public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, ISet<int> ids)
         {
             if (userId < 1)
             {
@@ -46,24 +53,24 @@ namespace ArtifactStore.Services.Workflow
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
-                var collection = await _collectionsRepository.GetCollectionInfoAsync(userId, collectionId);
+                var collection = await _artifactRepository.GetCollectionInfoAsync(userId, collectionId, transaction);
 
-                if (!(await _artifactPermissionsRepository.HasEditPermissions(collection.ArtifactId, userId)))
+                if (!(await _artifactPermissionsRepository.HasEditPermissions(collection.ArtifactId, userId, false, int.MaxValue, true, transaction)))
                 {
                     throw ExceptionHelper.CollectionForbiddenException(collection.ArtifactId);
                 }
 
                 if (collection.LockedByUserId == null)
                 {
-                    if (!await _lockArtifactsRepository.LockArtifactAsync(collection.ArtifactId, userId))
+                    if (!await _lockArtifactsRepository.LockArtifactAsync(collection.ArtifactId, userId, transaction))
                     {
                         throw ExceptionHelper.ArtifactNotLockedException(collection.ArtifactId, userId);
                     }
                 }
 
-                await _collectionsRepository.RemoveDeletedArtifactsFromCollection(collection.ArtifactId, userId);
+                await _collectionsRepository.RemoveDeletedArtifactsFromCollection(collection.ArtifactId, userId, transaction);
 
-                var artifactDetails = await _itemInfoRepository.GetItemsDetails(userId, scope.Ids.ToList());
+                var artifactDetails = await _itemInfoRepository.GetItemsDetails(userId, ids, true, int.MaxValue, transaction);
                 var validArtifacts =
                     artifactDetails.Where(i => ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.PrimitiveArtifactGroup) != 0) &&
                                                 ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.BaselineArtifactGroup) == 0) &&
@@ -72,15 +79,15 @@ namespace ArtifactStore.Services.Workflow
                                                 (i.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Baseline) &&
                                                 i.VersionProjectId == collection.ProjectId).ToList();
 
-                var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(validArtifacts.Select(i => i.HolderId), userId);
+                var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(validArtifacts.Select(i => i.HolderId), userId, false, int.MaxValue, true, transaction);
                 var artifactsWithReadPermissions = artifactPermissionsDictionary
                     .Where(p => p.Value.HasFlag(RolePermissions.Read))
                     .Select(p => p.Key).ToList();
 
-                assignResult = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collection.ArtifactId, artifactsWithReadPermissions);
+                assignResult = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collection.ArtifactId, artifactsWithReadPermissions, transaction);
             };
 
-            await _collectionsRepository.RunInTransactionAsync(action);
+            await RunInTransactionAsync(action);
 
             return assignResult;
         }

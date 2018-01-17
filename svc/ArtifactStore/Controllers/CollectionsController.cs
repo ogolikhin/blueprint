@@ -26,24 +26,20 @@ namespace ArtifactStore.Controllers
         public override string LogSource { get; } = "ArtifactStore.Collections";
 
         private readonly ICollectionsService _collectionsService;
-
-        private readonly PrivilegesManager _privilegesManager;
-
         internal CollectionsController() : this
             (
                 new CollectionsService(new SqlCollectionsRepository(),
                                        new SqlArtifactRepository(),
                                        new SqlLockArtifactsRepository(),
                                        new SqlItemInfoRepository(),
-                                       new SqlArtifactPermissionsRepository()),
-                new SqlPrivilegesRepository())
+                                       new SqlArtifactPermissionsRepository(),
+                                       new SqlHelper()))
         {
         }
 
-        public CollectionsController(ICollectionsService collectionsService, IPrivilegesRepository privilegesRepository)
+        public CollectionsController(ICollectionsService collectionsService)
         {
             _collectionsService = collectionsService;
-            _privilegesManager = new PrivilegesManager(privilegesRepository);
         }
 
         /// <summary>
@@ -54,7 +50,7 @@ namespace ArtifactStore.Controllers
         /// </remarks>
         /// <param name="id"> Id of the collection</param>
         /// <param name="add"> 'add' flag </param>
-        /// <param name="scope">scope of artifacts to be added</param>
+        /// <param name="ids"> ids of artifacts to be added</param>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the collection.</response>
@@ -63,16 +59,14 @@ namespace ArtifactStore.Controllers
         [HttpPost]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(AssignArtifactsResult))]
-        public async Task<IHttpActionResult> AddArtifactsToCollectionAsync(int id, string add, [FromBody] OperationScope scope)
+        public async Task<IHttpActionResult> AddArtifactsToCollectionAsync(int id, string add, [FromBody] ISet<int> ids)
         {
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
-
-            if (scope == null)
+            if (ids == null)
             {
                 throw new BadRequestException(ErrorMessages.InvalidAddArtifactsParameters, ErrorCodes.BadRequest);
             }
 
-            var result = await _collectionsService.AddArtifactsToCollectionAsync(Session.UserId, id, scope);
+            var result = await _collectionsService.AddArtifactsToCollectionAsync(Session.UserId, id, ids);
             return Ok(result);
         }
     }

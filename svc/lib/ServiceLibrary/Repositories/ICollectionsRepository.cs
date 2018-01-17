@@ -10,11 +10,8 @@ namespace ServiceLibrary.Repositories
 {
     public interface ICollectionsRepository
     {
-        Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, List<int> artifactIds);
-        Task<ArtifactBasicDetails> GetCollectionInfoAsync(int userId, int collectionId);
+        Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, List<int> artifactIds, IDbTransaction transaction = null);
 
-        Task RemoveDeletedArtifactsFromCollection(int collectionId, int userId);
-
-        Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
+        Task RemoveDeletedArtifactsFromCollection(int collectionId, int userId, IDbTransaction transaction = null);
     }
 }

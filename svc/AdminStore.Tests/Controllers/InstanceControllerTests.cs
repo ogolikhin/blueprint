@@ -216,7 +216,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetProjectNavigationPathAsync(projectId, UserId, includeProjectItself))
                 .ReturnsAsync(repositoryResult);
             _artifactPermissionsRepositoryMock
-                .Setup(r => r.GetArtifactPermissions(new List<int> { projectId }, UserId, false, int.MaxValue, true))
+                .Setup(r => r.GetArtifactPermissions(new List<int> { projectId }, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>());
 
             // Act
@@ -234,7 +234,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetProjectNavigationPathAsync(projectId, UserId, includeProjectItself))
                 .ReturnsAsync(repositoryResult);
             _artifactPermissionsRepositoryMock
-                .Setup(r => r.GetArtifactPermissions(new List<int> { projectId }, UserId, false, int.MaxValue, true))
+                .Setup(r => r.GetArtifactPermissions(new List<int> { projectId }, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { 99, RolePermissions.Read } });
 
             // Act

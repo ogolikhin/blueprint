@@ -13,77 +13,51 @@ namespace ServiceLibrary.Repositories
     public class SqlCollectionsRepository : ICollectionsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
-        private readonly IArtifactRepository _artifactRepository;
-        private readonly ISqlHelper _sqlHelper;
 
         public SqlCollectionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
-                   new SqlArtifactRepository(),
-                   new SqlHelper())
+                   new SqlArtifactRepository())
         {
         }
 
-        public SqlCollectionsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactRepository artifactRepository, ISqlHelper sqlHelper)
+        public SqlCollectionsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactRepository artifactRepository)
         {
             _connectionWrapper = connectionWrapper;
-            _artifactRepository = artifactRepository;
-            _sqlHelper = sqlHelper;
         }
 
-        public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, List<int> artifactIds)
+        public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, List<int> artifactIds, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("@UserId", userId);
             parameters.Add("@CollectionId", collectionId);
             parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value"));
-            var result = await _connectionWrapper.QueryAsync<AssignArtifactsResult>("AddArtifactsToCollection", parameters, commandType: CommandType.StoredProcedure);
-            return result.FirstOrDefault();
+
+            if (transaction == null)
+            {
+                return (await _connectionWrapper.QueryAsync<AssignArtifactsResult>("AddArtifactsToCollection", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            }
+            else
+            {
+                return (await transaction.Connection.QueryAsync<AssignArtifactsResult>("AddArtifactsToCollection", parameters, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            }
         }
 
-        public async Task<ArtifactBasicDetails> GetCollectionInfoAsync(int userId, int collectionId)
-        {
-            var collectionDetails = await _artifactRepository.GetArtifactBasicDetails(collectionId, userId);
-
-            if (collectionDetails == null)
-            {
-                throw new ResourceNotFoundException(ErrorMessages.CollectionDoesNotExist, ErrorCodes.ResourceNotFound);
-            }
-
-            if (collectionDetails.RevisionId != int.MaxValue)
-            {
-                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.CollectionInRevisionDoesNotExist, int.MaxValue);
-                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
-            }
-
-            if (collectionDetails.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactCollection)
-            {
-                throw new ResourceNotFoundException(ErrorMessages.CollectionDoesNotExist, ErrorCodes.IncorrectType);
-            }
-
-            if (collectionDetails.LockedByUserId != null // this clause is missing in Raptor - this means collection is not published
-                && collectionDetails.LockedByUserId != userId)
-            {
-                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.CollectionIsLockedByAnotherUser, collectionId, collectionDetails.LockedByUserId);
-                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
-            }
-
-            return collectionDetails;
-        }
-
-        public async Task RemoveDeletedArtifactsFromCollection(int collectionId, int userId)
+        public async Task RemoveDeletedArtifactsFromCollection(int collectionId, int userId, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("@UserId", userId);
             parameters.Add("@CollectionId", collectionId);
 
-            await _connectionWrapper.ExecuteAsync("RemoveDeletedArtifactsFromCollection", parameters, commandType: CommandType.StoredProcedure);
-        }
-
-        public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
-        {
-            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
+            if (transaction == null)
+            {
+                await _connectionWrapper.ExecuteAsync("RemoveDeletedArtifactsFromCollection", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await transaction.Connection.ExecuteAsync("RemoveDeletedArtifactsFromCollection", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
         }
     }
 }

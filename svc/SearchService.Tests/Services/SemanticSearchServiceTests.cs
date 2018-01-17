@@ -47,7 +47,7 @@ namespace SearchService.Services
             // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
-            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new ArtifactBasicDetails()
                 {
                     PrimitiveItemTypePredefined = (int)itemTypePredefined
@@ -100,7 +100,7 @@ namespace SearchService.Services
             // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
-            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new ArtifactBasicDetails()
                 {
                     PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
@@ -108,7 +108,7 @@ namespace SearchService.Services
             _artifactPermissionsRepository.Setup(
                 a =>
                     a.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(),
-                        It.IsAny<int>(), It.IsAny<bool>()))
+                        It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>() { { 1, RolePermissions.None } });
 
             // act
@@ -122,7 +122,7 @@ namespace SearchService.Services
             // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
-            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync((ArtifactBasicDetails)null);
 
             // act
@@ -136,7 +136,7 @@ namespace SearchService.Services
             // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
-            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new ArtifactBasicDetails() { LatestDeleted = true });
 
             // act
@@ -149,7 +149,7 @@ namespace SearchService.Services
             // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
-            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new ArtifactBasicDetails() { DraftDeleted = true });
 
             // act
@@ -165,7 +165,7 @@ namespace SearchService.Services
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
 
-            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new ArtifactBasicDetails()
                 {
                     PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor,
@@ -185,7 +185,7 @@ namespace SearchService.Services
             // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
-            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new ArtifactBasicDetails()
                 {
                     PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
@@ -193,7 +193,7 @@ namespace SearchService.Services
             _artifactPermissionsRepository.Setup(
                 a =>
                     a.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(),
-                        It.IsAny<int>(), It.IsAny<bool>()))
+                        It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>() { { 1, RolePermissions.Read } });
 
             _usersRepository.Setup(u => u.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(true);
@@ -213,7 +213,7 @@ namespace SearchService.Services
             // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
-            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new ArtifactBasicDetails()
                 {
                     PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
@@ -221,7 +221,7 @@ namespace SearchService.Services
             _artifactPermissionsRepository.Setup(
                 a =>
                     a.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(),
-                        It.IsAny<int>(), It.IsAny<bool>()))
+                        It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>() { { 1, RolePermissions.Read } });
 
             _usersRepository.Setup(u => u.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(false);
@@ -245,7 +245,7 @@ namespace SearchService.Services
             var artifactIdWithPermissions = 2;
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
-            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new ArtifactBasicDetails()
                 {
                     PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
@@ -253,7 +253,7 @@ namespace SearchService.Services
             _artifactPermissionsRepository.Setup(
                 a =>
                     a.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(),
-                        It.IsAny<int>(), It.IsAny<bool>()))
+                        It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>() { { 1, RolePermissions.Read } });
 
             _usersRepository.Setup(u => u.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(false);
@@ -264,7 +264,7 @@ namespace SearchService.Services
             _artifactPermissionsRepository.Setup(
                 s =>
                     s.GetArtifactPermissions(It.Is<IEnumerable<int>>(a => a.FirstOrDefault() == artifactIdWithPermissions), It.IsAny<int>(), It.IsAny<bool>(),
-                        It.IsAny<int>(), It.IsAny<bool>()))
+                        It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>() { { 2, RolePermissions.Read } });
 
             GetSemanticSearchSuggestionsAsyncDelegate searchDelegate = async (searchEngineParameters) => await Task.FromResult(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = artifactIdWithPermissions } });
@@ -283,7 +283,7 @@ namespace SearchService.Services
             // arrange
             var parameters = new SemanticSearchSuggestionParameters(1, 1);
 
-            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>()))
+            _artifactRepository.Setup(a => a.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new ArtifactBasicDetails()
                 {
                     PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
@@ -291,7 +291,7 @@ namespace SearchService.Services
             _artifactPermissionsRepository.Setup(
                 a =>
                     a.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(),
-                        It.IsAny<int>(), It.IsAny<bool>()))
+                        It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>() { { 1, RolePermissions.Read } });
 
             _usersRepository.Setup(u => u.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(false);
@@ -302,7 +302,7 @@ namespace SearchService.Services
             _artifactPermissionsRepository.Setup(
                 s =>
                     s.GetArtifactPermissions(It.IsIn(new List<int>() { 2 }), It.IsAny<int>(), It.IsAny<bool>(),
-                        It.IsAny<int>(), It.IsAny<bool>()))
+                        It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>() { { 2, RolePermissions.None } });
 
             GetSemanticSearchSuggestionsAsyncDelegate searchDelegate = async (searchEngineParameters) => await Task.FromResult(new List<ArtifactSearchResult>() { new ArtifactSearchResult() { ItemId = 2 } });

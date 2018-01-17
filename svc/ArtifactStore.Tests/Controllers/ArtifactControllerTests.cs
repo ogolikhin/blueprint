@@ -182,7 +182,7 @@ namespace ArtifactStore.Controllers
             permissionsDictionary.Add(artifactId, RolePermissions.None);
             var mockArtifactRepository = new Mock<IArtifactRepository>();
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true, null)).ReturnsAsync(permissionsDictionary);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
 
             var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object) { Request = new HttpRequestMessage() };
@@ -215,7 +215,7 @@ namespace ArtifactStore.Controllers
             var mockArtifactRepository = new Mock<IArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetSubArtifactTreeAsync(artifactId, userId, int.MaxValue, true)).ReturnsAsync(subArtifacts);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true, null)).ReturnsAsync(permissionsDictionary);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
 
             var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object) { Request = new HttpRequestMessage() };

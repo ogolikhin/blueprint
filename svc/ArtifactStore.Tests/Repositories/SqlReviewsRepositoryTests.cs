@@ -54,7 +54,7 @@ namespace ArtifactStore.Repositories
 
             _artifactRepositoryMock.SetReturnsDefault(Task.FromResult(true));
             _currentDateTimeServiceMock.Setup(service => service.GetUtcNow()).Returns(new DateTime(2017, 07, 10, 13, 20, 0));
-            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(It.IsAny<int>(), It.IsAny<int>(), false, int.MaxValue, true)).ReturnsAsync(() => _hasEditPermissions);
+            _artifactPermissionsRepositoryMock.Setup(r => r.HasEditPermissions(It.IsAny<int>(), It.IsAny<int>(), false, int.MaxValue, true, null)).ReturnsAsync(() => _hasEditPermissions);
 
 
             _reviewsRepository = new SqlReviewsRepository
@@ -78,7 +78,7 @@ namespace ArtifactStore.Repositories
             };
 
             _artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId, null))
                 .ReturnsAsync(() => _artifactDetails);
 
             _reviewInfo = new VersionControlArtifactInfo
@@ -1135,7 +1135,7 @@ namespace ArtifactStore.Repositories
             _itemInfoRepositoryMock.Setup(i => i.GetRevisionId(reviewId, userId, null, null)).ReturnsAsync(revisionId);
 
             _artifactRepositoryMock
-      .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+      .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId, null))
       .ReturnsAsync(() => null);
 
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
@@ -1338,7 +1338,7 @@ namespace ArtifactStore.Repositories
             var userId = 2;
 
             _artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId, null))
                 .ReturnsAsync(() => null);
 
             var addParticipantsParameter = new AddParticipantsParameter
@@ -1895,7 +1895,7 @@ namespace ArtifactStore.Repositories
             var userId = 2;
 
             _artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId, null))
                 .ReturnsAsync(() => null);
 
             var isExceptionThrown = false;
@@ -5649,7 +5649,7 @@ namespace ArtifactStore.Repositories
         {
             // Arrange
             _artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId, null))
                 .ReturnsAsync(() => null);
 
             var prms = new ReviewItemsRemovalParams
@@ -5907,7 +5907,7 @@ namespace ArtifactStore.Repositories
 
         private void SetupArtifactPermissionsCheck(IEnumerable<int> artifactIds, int userId, Dictionary<int, RolePermissions> result)
         {
-            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true)).ReturnsAsync(result);
+            _artifactPermissionsRepositoryMock.Setup(repo => repo.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true, null)).ReturnsAsync(result);
         }
     }
 }

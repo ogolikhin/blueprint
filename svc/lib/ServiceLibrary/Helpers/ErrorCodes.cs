@@ -154,7 +154,6 @@
         public const int ElasticsearchQueryError = 17003;
 
         // Collection
-        public const int CollectionDoesNotExist = 18001;
         public const int IncorrectType = 18002;
 
     }

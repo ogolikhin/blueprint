@@ -34,7 +34,6 @@
         WorkflowHasSameProjectArtifactTypeAssignedToAnotherActiveWorkflow = 50028,
         WorkflowProjectHasNoLiveArtifactTypes = 50029,
         WorkflowProjectHasNoLiveArtifactTypesAmongChecked = 50030,
-        WorkflowVersionsNotEqual = 50031,
-        CollectionDoesNotExist = 50032
+        WorkflowVersionsNotEqual = 50031
     }
 }

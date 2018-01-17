@@ -63,12 +63,22 @@ namespace ServiceLibrary.Repositories
             return allPermissions;
         }
 
-        private async Task GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int revisionId = int.MaxValue, bool addDrafts = true)
+        private async Task GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null)
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", sessionUserId);
             prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(projectArtifactIds, "Int32Collection", "Int32Value"));
-            var openArtifactPermissions = (await _connectionWrapper.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, commandType: CommandType.StoredProcedure)).ToList();
+
+            List<OpenArtifactPermission> openArtifactPermissions = null;
+
+            if (transaction == null)
+            {
+                openArtifactPermissions = (await _connectionWrapper.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, commandType: CommandType.StoredProcedure)).ToList();
+            }
+            else
+            {
+                openArtifactPermissions = (await transaction.Connection.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, transaction, commandType: CommandType.StoredProcedure)).ToList();
+            }
 
             foreach (var openArtifactPermission in openArtifactPermissions)
             {
@@ -82,25 +92,47 @@ namespace ServiceLibrary.Repositories
             }
         }
 
-        private async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId)
+        private async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId, IDbTransaction transaction = null)
         {
             var prm = new DynamicParameters();
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
 
-            return (await _connectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            if (transaction == null)
+            {
+                return (await _connectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            }
+            else
+            {
+                return (await transaction.Connection.QueryAsync<bool>("IsInstanceAdmin", prm, transaction, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            }
         }
 
-        private async Task<Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, int revisionId, bool addDrafts)
+        private async Task<Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, int revisionId, bool addDrafts, IDbTransaction transaction = null)
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", sessionUserId);
             prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
 
-            return (await _connectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
+            if (transaction == null)
+            {
+                return (await _connectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
+            }
+            else
+            {
+                // return (await _connectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
+
+                using (var command = await transaction.Connection.QueryMultipleAsync("GetArtifactsProjects", prm, transaction, commandType: CommandType.StoredProcedure))
+                {
+                    var projectsAtifacts = command.Read<ProjectsArtifactsItem>().ToList();
+                    var versionProjects = command.Read<VersionProjectInfo>().ToList();
+
+                    return new Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>(projectsAtifacts, versionProjects);
+                }
+            }
         }
 
-        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
+        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null)
         {
             var itemIdsList = itemIds is List<int> ? (List<int>)itemIds : itemIds.ToList();
             var dictionary = new Dictionary<int, RolePermissions>();
@@ -115,7 +147,7 @@ namespace ServiceLibrary.Repositories
                 }
 
                 var chunk = itemIdsList.GetRange(index, chunkSize);
-                var localResult = await GetArtifactPermissionsInternal(chunk, sessionUserId, contextUser, revisionId, addDrafts);
+                var localResult = await GetArtifactPermissionsInternal(chunk, sessionUserId, contextUser, revisionId, addDrafts, transaction);
                 dictionary = dictionary.Union(localResult).ToDictionary(k => k.Key, v => v.Value);
                 index += chunkSize;
             }
@@ -131,29 +163,29 @@ namespace ServiceLibrary.Repositories
             return result.TryGetValue(artifactId, out permission) && permission.HasFlag(RolePermissions.Read);
         }
 
-        public async Task<bool> HasEditPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
+        public async Task<bool> HasEditPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null)
         {
-            var result = await GetArtifactPermissions(new[] { artifactId }, sessionUserId, contextUser, revisionId, addDrafts);
+            var result = await GetArtifactPermissions(new[] { artifactId }, sessionUserId, contextUser, revisionId, addDrafts, transaction);
             RolePermissions permission;
 
             return result.TryGetValue(artifactId, out permission) && permission.HasFlag(RolePermissions.Edit);
         }
 
-        private async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInternal(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
+        private async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInternal(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null)
         {
             if (itemIds.Count() > 50)
             {
                 throw new ArgumentOutOfRangeException("Cannot get artifact permissions for this many artifacts");
             }
 
-            var isInstanceAdmin = await IsInstanceAdmin(contextUser, sessionUserId);
+            var isInstanceAdmin = await IsInstanceAdmin(contextUser, sessionUserId, transaction);
             if (isInstanceAdmin)
             {
                 var allPermissions = GetAllPermissions();
                 return itemIds.ToDictionary(itemId => itemId, itemId => allPermissions); // RolePermissions.All
             }
 
-            var multipleResult = await GetArtifactsProjects(itemIds, sessionUserId, revisionId, addDrafts);
+            var multipleResult = await GetArtifactsProjects(itemIds, sessionUserId, revisionId, addDrafts, transaction);
             var projectsArtifactsItems = multipleResult.Item1.ToList(); // ???Do we need always do it
             var versionProjectInfos = multipleResult.Item2;
 
@@ -205,7 +237,7 @@ namespace ServiceLibrary.Repositories
 
                 try
                 {
-                    await GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId, addDrafts);
+                    await GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId, addDrafts, transaction);
                 }
                 catch (SqlException sqle)
                 {

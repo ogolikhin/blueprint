@@ -382,7 +382,7 @@ namespace ArtifactStore.Repositories.Workflow
             var permissions = artifactIds.ToDictionary(id => id, id => rolePermissions);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(
-                m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
+                m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true, null))
                 .ReturnsAsync(permissions);
             return mockArtifactPermissionsRepository;
         }

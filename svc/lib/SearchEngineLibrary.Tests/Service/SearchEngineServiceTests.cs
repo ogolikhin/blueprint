@@ -39,7 +39,7 @@ namespace SearchEngineLibrary.Tests.Service
         public async Task Search_AllSearchItemsExists_ReturnedSearchArtifactsResult()
         {
             // arrange           
-            _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId)).ReturnsAsync(new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection });
+            _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId, null)).ReturnsAsync(new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection });
             _searchEngineRepositoryMock.Setup(q => q.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId)).ReturnsAsync(_searchArtifactsResult);
 
             // act
@@ -54,7 +54,7 @@ namespace SearchEngineLibrary.Tests.Service
         {
             // arrange           
             ArtifactBasicDetails artifactBasicDetails = null;
-            _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId)).ReturnsAsync(artifactBasicDetails);
+            _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId, null)).ReturnsAsync(artifactBasicDetails);
             _searchEngineRepositoryMock.Setup(q => q.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId)).ReturnsAsync(_searchArtifactsResult);
             var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotFound, ScopeId);
             var excectedResult = new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);

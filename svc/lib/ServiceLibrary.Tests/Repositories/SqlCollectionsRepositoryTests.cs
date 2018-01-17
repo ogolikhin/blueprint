@@ -20,7 +20,7 @@ namespace ServiceLibrary.Repositories
         {
             _collectionsRepositoryMock = new Mock<ICollectionsRepository>();
             _cxn = new SqlConnectionWrapperMock();
-            _repository = new SqlCollectionsRepository(_cxn.Object, new SqlArtifactRepository(), new SqlHelper());
+            _repository = new SqlCollectionsRepository(_cxn.Object, new SqlArtifactRepository());
             _session = new Session { UserId = UserId };
         }
     }

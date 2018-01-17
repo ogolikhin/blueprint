@@ -21,10 +21,26 @@ namespace ServiceLibrary.Repositories
         {
         }
 
-        public SqlCollectionsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactRepository artifactRepository)
+        public SqlCollectionsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }
+
+        public async Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(int collectionId, int userId, bool addDrafts = true)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@collectionId", collectionId);
+            parameters.Add("@addDrafts", addDrafts);
+
+            var result = await _connectionWrapper.QueryAsync<int>(
+                GetArtifactIdsInCollectionQuery,
+                parameters,
+                commandType: CommandType.Text);
+
+            return result.ToList();
+        }
+
 
         public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, List<int> artifactIds, IDbTransaction transaction = null)
         {

@@ -12,7 +12,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
     {
         public async Task Handle(StatusCheckMessage message, IMessageHandlerContext context)
         {
-            return;
+            await Task.FromResult(true);
         }
     }
 }

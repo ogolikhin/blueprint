@@ -59,7 +59,7 @@ namespace ArtifactStore.Controllers
         }
 
         /// <summary>
-        /// Get list of artifacts of a collection
+        /// Get list artifacts of a collection
         /// </summary>
         /// <param name="id"></param>
         /// <param name="pagination">Limit and offset values to query artifacts</param>
@@ -76,7 +76,7 @@ namespace ArtifactStore.Controllers
         {
             if (!await _permissionsRepository.HasReadPermissions(id, Session.UserId))
             {
-                var errorMessage = I18NHelper.FormatInvariant("User does not have permissions to access the collection (Id:{0}).", id);
+                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.NoAcessForCollection, id);
                 throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
             }
 
@@ -84,8 +84,7 @@ namespace ArtifactStore.Controllers
 
             var searchArtifactsResult = await _searchServiceEngine.Search(id, pagination, ScopeType.Contents, true, Session.UserId);
 
-            var artifactsOfCollection = await _collectionsRepository.GetArtifactsOfCollectionAsync(Session.UserId, searchArtifactsResult.ArtifactIds);
-
+            var artifactsOfCollection = await _collectionsRepository.GetArtifactsWithPropertyValues(Session.UserId, searchArtifactsResult.ArtifactIds);
             artifactsOfCollection.ItemsCount = searchArtifactsResult.Total;
 
             return Ok(artifactsOfCollection);

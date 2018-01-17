@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Collection
 {
@@ -6,8 +7,10 @@ namespace ServiceLibrary.Models.Collection
     {
         public int ArtifactId { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? ItemTypeId { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<PropertyInfo> PropertyInfos { get; set; }
     }
 }

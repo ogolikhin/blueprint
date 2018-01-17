@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -13,5 +12,6 @@ namespace ServiceLibrary.Repositories
         Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, List<int> artifactIds, IDbTransaction transaction = null);
 
         Task RemoveDeletedArtifactsFromCollection(int collectionId, int userId, IDbTransaction transaction = null);
+        Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(int collectionId, int userId, bool addDrafts = true);
     }
 }

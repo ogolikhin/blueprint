@@ -203,6 +203,7 @@
     <Compile Include="Repositories\IDiscussionsRepository.cs" />
     <Compile Include="Repositories\IArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\IReviewsRepository.cs" />
+    <Compile Include="Repositories\WorkflowMessagingStatusRepository.cs" />
     <Compile Include="Repositories\Revisions\SqlRevisionRepository.cs" />
     <Compile Include="Repositories\SqlAttachmentsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactVersionsRepository.cs" />

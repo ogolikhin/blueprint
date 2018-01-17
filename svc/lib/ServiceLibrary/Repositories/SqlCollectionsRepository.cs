@@ -14,9 +14,10 @@ namespace ServiceLibrary.Repositories
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
 
-        public SqlCollectionsRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain),
-                   new SqlArtifactRepository())
+        internal const string GetArtifactIdsInCollectionQuery =
+            "SELECT * FROM [dbo].[GetArtifactIdsInCollection](@userId, @collectionId, @addDrafts)";
+
+        public SqlCollectionsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 

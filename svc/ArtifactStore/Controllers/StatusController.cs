@@ -1,4 +1,5 @@
-﻿using ServiceLibrary.Attributes;
+﻿using ArtifactStore.Repositories;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -16,17 +17,23 @@ namespace ArtifactStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
+        private const string DatabaseName = "RaptorDB";
+        private const string MessengerName = "WorkflowMessenger";
+
         private readonly IStatusControllerHelper _statusControllerHelper;
         private readonly string _expectedPreAuthorizedKey;
 
         public StatusController()
             : this(new StatusControllerHelper(
-                        new List<IStatusRepository> { /* new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage"), //ArtifactStorage db is currently unused */
-                                                        new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB") },
+                        new List<IStatusRepository> {
+                            /* new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage"), //ArtifactStorage db is currently unused */
+                            new SqlStatusRepository(ServiceConstants.RaptorMain, DatabaseName),
+                            new WorkflowMessagingStatusRepository(MessengerName)
+                        },
                         "ArtifactStore",
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus),
-                    WebApiConfig.StatusCheckPreauthorizedKey)
+                        WebApiConfig.StatusCheckPreauthorizedKey)
         {
         }
 

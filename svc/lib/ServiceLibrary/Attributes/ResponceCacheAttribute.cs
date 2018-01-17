@@ -1,21 +1,29 @@
 ﻿using System;
 using System.Globalization;
+using System.Net.Http.Headers;
 using System.Web.Http.Filters;
 
 namespace ServiceLibrary.Attributes
 {
+
     public class ResponceCacheAttribute : ActionFilterAttribute
     {
-        private readonly string _maxAge;
+        // <summary>
+        // Specifies the maximum amount of time in seconds a resource will be considered fresh.
+        // </summary>
+        private readonly int _duration;
 
-        public ResponceCacheAttribute(string maxAge)
+        public ResponceCacheAttribute(int duration)
         {
-            _maxAge = String.Format(CultureInfo.CurrentCulture, "max-age={0}", maxAge);
+            _duration = duration;
         }
         public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {
             base.OnActionExecuted(actionExecutedContext);
-            actionExecutedContext.Response?.Headers?.Add("Cache-Control", _maxAge); // HTTP 1.1.
+            actionExecutedContext.Response.Headers.CacheControl = new CacheControlHeaderValue
+            {
+                MaxAge = TimeSpan.FromSeconds(_duration)
+            };
         }
     }
 }

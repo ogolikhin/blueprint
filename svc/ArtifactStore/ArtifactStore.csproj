@@ -138,6 +138,8 @@
     <Compile Include="Helpers\ReviewsExceptionHelper.cs" />
     <Compile Include="Helpers\SensitivityCommonHelper.cs" />
     <Compile Include="Helpers\WorkflowEventsMessagesHelper.cs" />
+    <Compile Include="Models\ArtifactListSettings\ArtifactListSettings.cs" />
+    <Compile Include="Models\ArtifactListSettings\Column.cs" />
     <Compile Include="Models\Review\ChildArtifactsResult.cs" />
     <Compile Include="Models\Review\IMeaningOfSignatureValue.cs" />
     <Compile Include="Models\Review\MeaningOfSignatureParameter.cs" />

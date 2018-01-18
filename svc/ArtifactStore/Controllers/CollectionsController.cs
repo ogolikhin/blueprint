@@ -7,8 +7,6 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Collection;
-using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Controllers
 {
@@ -17,31 +15,30 @@ namespace ArtifactStore.Controllers
     [RoutePrefix("collections")]
     public class CollectionsController : LoggableApiController
     {
-        public override string LogSource { get; } = "ArtifactStore.Collections";
-
         private readonly ISearchEngineService _searchServiceEngine;
         private readonly ICollectionsService _collectionsService;
 
-        internal CollectionsController() : this
-            (
-                new CollectionsService(new SqlCollectionsRepository(),
-                    new SqlArtifactPermissionsRepository()),
-                new SearchEngineService())
+        public override string LogSource => "ArtifactStore.Collections";
+
+        internal CollectionsController() : this(
+            new CollectionsService(),
+            new SearchEngineService())
         {
         }
 
-        public CollectionsController(ICollectionsService collectionsService, ISearchEngineService searchServiceEngine)
+        public CollectionsController(
+            ICollectionsService collectionsService,
+            ISearchEngineService searchServiceEngine)
         {
             _collectionsService = collectionsService;
             _searchServiceEngine = searchServiceEngine;
-
         }
 
         /// <summary>
-        /// Get list artifacts of a collection
+        /// Gets the artifacts in a specified collection
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="pagination">Limit and offset values to query artifacts</param>
+        /// <param name="id">Collection id.</param>
+        /// <param name="pagination">Limit and offset values to query artifacts.</param>
         /// <response code="200">OK. List of artifacts in collection</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">User doesn’t have permission to access list of artifacts in collection.</response>
@@ -51,16 +48,13 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(CollectionArtifacts))]
-        public async Task<IHttpActionResult> GetArtifactsOfCollectionAsync(int id, [FromUri] Pagination pagination)
+        public async Task<IHttpActionResult> GetArtifactsInCollectionAsync(int id, [FromUri] Pagination pagination)
         {
             pagination.Validate();
 
-            var searchArtifactsResult = await _searchServiceEngine.Search(id, pagination, ScopeType.Contents, true, Session.UserId);
+            var artifacts = await _collectionsService.GetArtifactsInCollectionAsync(id, pagination, Session.UserId);
 
-            var artifactsOfCollection = await _collectionsService.GetArtifactsWithPropertyValues(Session.UserId, id, searchArtifactsResult.ArtifactIds);
-            artifactsOfCollection.ItemsCount = searchArtifactsResult.Total;
-
-            return Ok(artifactsOfCollection);
+            return Ok(artifacts);
         }
     }
 }

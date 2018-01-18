@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
+﻿using System.Threading.Tasks;
+using ArtifactStore.Helpers;
+using SearchEngineLibrary.Service;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.Collection;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Services.Collections
@@ -11,24 +12,39 @@ namespace ArtifactStore.Services.Collections
     {
         private readonly ICollectionsRepository _collectionsRepository;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        private readonly ISearchEngineService _searchEngineService;
 
-        public CollectionsService(ICollectionsRepository collectionsRepository,
-            IArtifactPermissionsRepository artifactPermissionsRepository)
+        public CollectionsService() : this(
+            new SqlCollectionsRepository(),
+            new SqlArtifactPermissionsRepository(),
+            new SearchEngineService())
+        {
+        }
+
+        public CollectionsService(
+            ICollectionsRepository collectionsRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            ISearchEngineService searchEngineService)
         {
             _collectionsRepository = collectionsRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
+            _searchEngineService = searchEngineService;
         }
 
-        public async Task<CollectionArtifacts> GetArtifactsWithPropertyValues(int userId, int collectionId,
-            IEnumerable<int> artifactIds)
+        public async Task<CollectionArtifacts> GetArtifactsInCollectionAsync(
+            int collectionId, Pagination pagination, int userId)
         {
             if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId))
             {
-                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.NoAcessForCollection, collectionId);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+                throw CollectionsExceptionHelper.NoAccessException(collectionId);
             }
 
-            return await _collectionsRepository.GetArtifactsWithPropertyValues(userId, artifactIds);
+            var searchArtifactsResult = await _searchEngineService.Search(collectionId, pagination, ScopeType.Contents, true, userId);
+
+            var artifacts = await _collectionsRepository.GetArtifactsWithPropertyValues(userId, searchArtifactsResult.ArtifactIds);
+            artifacts.ItemsCount = searchArtifactsResult.Total;
+
+            return artifacts;
         }
     }
 }

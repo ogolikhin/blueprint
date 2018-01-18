@@ -133,6 +133,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CollectionsExceptionHelper.cs" />
     <Compile Include="Helpers\IMeaningOfSignatureValueExtensions.cs" />
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\ReviewsExceptionHelper.cs" />

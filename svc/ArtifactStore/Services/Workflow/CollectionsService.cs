@@ -77,7 +77,8 @@ namespace ArtifactStore.Services.Workflow
                                                 ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.CollectionArtifactGroup) == 0) &&
                                                 (i.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Project) &&
                                                 (i.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Baseline) &&
-                                                i.VersionProjectId == collection.ProjectId).ToList();
+                                                i.VersionProjectId == collection.ProjectId &&
+                                                (i.EndRevision == int.MaxValue || i.EndRevision == 1)).ToList();
 
                 var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(validArtifacts.Select(i => i.HolderId), userId, false, int.MaxValue, true, transaction);
                 var artifactsWithReadPermissions = artifactPermissionsDictionary

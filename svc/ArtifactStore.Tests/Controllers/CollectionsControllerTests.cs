@@ -1,10 +1,10 @@
 ﻿using System.Net.Http;
+using ArtifactStore.Services.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using SearchEngineLibrary.Service;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Controllers
 {
@@ -14,9 +14,8 @@ namespace ArtifactStore.Controllers
         private const int UserId = 1;
         private Session _session;
 
-        private Mock<ICollectionsRepository> _mockCollectionsRepository;
-        private Mock<IServiceLogRepository> _mockServiceLogRepository;
-        private Mock<IPrivilegesRepository> _mockSqlPrivilegesRepository;
+        private Mock<ICollectionsService> _collectionsServiceMock;
+        private Mock<ISearchEngineService> _mockSearchEngineService;
         private CollectionsController _collectionsController;
 
         [TestInitialize]
@@ -24,14 +23,10 @@ namespace ArtifactStore.Controllers
         {
             _session = new Session { UserId = UserId };
 
-            _mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            _mockSqlPrivilegesRepository = new Mock<IPrivilegesRepository>();
-            _mockCollectionsRepository = new Mock<ICollectionsRepository>();
+            _collectionsServiceMock = new Mock<ICollectionsService>();
+            _mockSearchEngineService = new Mock<ISearchEngineService>();
 
-            _collectionsController = new CollectionsController(
-                _mockCollectionsRepository.Object,
-                _mockSqlPrivilegesRepository.Object,
-                _mockServiceLogRepository.Object)
+            _collectionsController = new CollectionsController(_collectionsServiceMock.Object, _mockSearchEngineService.Object)
             {
                 Request = new HttpRequestMessage()
             };

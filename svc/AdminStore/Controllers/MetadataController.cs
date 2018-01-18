@@ -11,6 +11,8 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Services;
+using ServiceLibrary.Services.Image;
 
 namespace AdminStore.Controllers
 {
@@ -18,25 +20,27 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class MetadataController : LoggableApiController
     {
-        private readonly MetadataService _metadataService;
+        private readonly IMetadataService _metadataService;
+        private readonly IImageService _imageService;
         public override string LogSource => "AdminStore.Metadata";
 
-        public MetadataController() : this(new MetadataService(), new ServiceLogRepository())
+        public MetadataController() : this(new MetadataService(), new ServiceLogRepository(), new ImageService())
         {
         }
 
-        public MetadataController(MetadataService metadataService,
-            IServiceLogRepository log) : base(log)
+        public MetadataController(IMetadataService metadataService,
+            IServiceLogRepository log, IImageService imageService) : base(log)
         {
             _metadataService = metadataService;
+            _imageService = imageService;
         }
 
-        [HttpGet, ResponceCache(86400)]
+        [HttpGet, ResponseCache(Duration = 86400)]
         [Route("icons"), SessionRequired]
         public async Task<HttpResponseMessage> GetIcons(string type, int? typeId = null, string color = null)
         {
             var itemType = ItemTypePredefined.None;
-            if (!string.IsNullOrEmpty(type) && !Enum.TryParse(type, true, out itemType))
+            if (string.IsNullOrEmpty(type) || !Enum.TryParse(type, true, out itemType))
             {
                 throw new BadRequestException("Unknown item type");
             }
@@ -52,7 +56,7 @@ namespace AdminStore.Controllers
             }
 
             var customIcon = await _metadataService.GetCustomItemTypeIcon(typeId.GetValueOrDefault());
-            httpResponseMessage.Content = ImageHelper.CreateByteArrayContent(customIcon);
+            httpResponseMessage.Content = _imageService.CreateByteArrayContent(customIcon);
             return httpResponseMessage;
         }
     }

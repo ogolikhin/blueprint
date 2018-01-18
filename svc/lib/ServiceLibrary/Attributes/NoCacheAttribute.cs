@@ -1,14 +1,18 @@
-﻿using System.Web.Http.Filters;
+﻿using System.Net.Http.Headers;
 
 namespace ServiceLibrary.Attributes
 {
-    public class NoCacheAttribute : ActionFilterAttribute
+    public class NoCacheAttribute : ResponseCacheAttribute
     {
-        public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
+        protected override void CustomizeHttpResponseHeaders(HttpResponseHeaders responseHeaders)
         {
-            base.OnActionExecuted(actionExecutedContext);
-            actionExecutedContext.Response?.Headers?.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-            actionExecutedContext.Response?.Headers?.Add("Pragma", "no-cache"); // HTTP 1.0.
+            base.CustomizeHttpResponseHeaders(responseHeaders);
+            // HTTP 1.1.
+            responseHeaders.CacheControl.NoCache = true;
+            responseHeaders.CacheControl.NoStore = true;
+            responseHeaders.CacheControl.MustRevalidate = true;
+            // HTTP 1.0.
+            responseHeaders.Add("Pragma", "no-cache"); // HTTP 1.0.
         }
     }
 }

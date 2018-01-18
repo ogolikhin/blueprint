@@ -99,6 +99,7 @@
     <Compile Include="Controllers\StatusControllerTests.cs" />
     <Compile Include="Controllers\ConfigControllerTests.cs" />
     <Compile Include="Controllers\InstanceControllerTests.cs" />
+    <Compile Include="Controllers\MetadataControllerTests.cs" />
     <Compile Include="Controllers\UsersControllerTests.cs" />
     <Compile Include="Controllers\WorkflowControllerTests.cs" />
     <Compile Include="Extensions\CopyWorkflowDtoExtensionTests.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
     <Compile Include="Services\Email\IncomingEmailServiceTests.cs" />
     <Compile Include="Services\Instance\EmailSettingsServiceTests.cs" />
+    <Compile Include="Services\Metadata\MetadataServiceTests.cs" />
     <Compile Include="Services\Workflow\TriggerConverterTests.cs" />
     <Compile Include="Services\Workflow\Validation\Data\PropertyValue\ChoicePropertyValueValidatorTests.cs" />
     <Compile Include="Services\Workflow\Validation\Data\PropertyValue\DatePropertyValueValidatorTests.cs" />

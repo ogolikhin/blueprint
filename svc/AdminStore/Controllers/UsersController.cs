@@ -20,6 +20,8 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Services.Email;
 using ServiceLibrary.Repositories.ApplicationSettings;
+using ServiceLibrary.Services;
+using ServiceLibrary.Services.Image;
 
 namespace AdminStore.Controllers
 {
@@ -40,13 +42,14 @@ namespace AdminStore.Controllers
         private readonly IServiceLogRepository _log;
         private readonly IHttpClientProvider _httpClientProvider;
         private readonly PrivilegesManager _privilegesManager;
+        private readonly IImageService _imageService;
 
         public UsersController()
             : this
             (
                 new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(),
                 new EmailHelper(), new ApplicationSettingsRepository(), new ServiceLogRepository(),
-                new HttpClientProvider(), new SqlPrivilegesRepository())
+                new HttpClientProvider(), new SqlPrivilegesRepository(), new ImageService())
         {
         }
 
@@ -55,7 +58,7 @@ namespace AdminStore.Controllers
             IAuthenticationRepository authenticationRepository, IUserRepository userRepository,
             ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper,
             IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log,
-            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository)
+            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository, IImageService imageService)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -65,6 +68,7 @@ namespace AdminStore.Controllers
             _log = log;
             _httpClientProvider = httpClientProvider;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
+            _imageService = imageService;
         }
 
         /// <summary>
@@ -222,7 +226,7 @@ namespace AdminStore.Controllers
                 }
 
                 var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
-                httpResponseMessage.Content = ImageHelper.CreateByteArrayContent(imageContent.Content);
+                httpResponseMessage.Content = _imageService.CreateByteArrayContent(imageContent.Content);
 
                 return httpResponseMessage;
             }

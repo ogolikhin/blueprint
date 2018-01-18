@@ -7,10 +7,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
 
-namespace ServiceLibrary.Helpers
+namespace ServiceLibrary.Services.Image
 {
     // Copied with small modifications from Raptor solution
-    public class ImageHelper
+    public class ImageService : IImageService
     {
         // http://www.w3.org/TR/PNG/#5PNG-file-signature
         // The first eight bytes of a PNG datastream always contain the following (decimal) values:
@@ -18,7 +18,7 @@ namespace ServiceLibrary.Helpers
         private static readonly byte[] PNG_SIGNATURE = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
         private static readonly byte[] JPG_SIGNATURE = { 0xff, 0xd8 };
 
-        public static ImageType GetImageType(byte[] image)
+        public ImageType GetImageType(byte[] image)
         {
             if (JPG_SIGNATURE.SequenceEqual(image.Take(JPG_SIGNATURE.Length)))
             {
@@ -38,7 +38,7 @@ namespace ServiceLibrary.Helpers
         /// </summary>
         /// <param name="image"></param>
         /// <returns></returns>
-        public static ByteArrayContent CreateByteArrayContent(byte[] image)
+        public ByteArrayContent CreateByteArrayContent(byte[] image)
         {
             var byteArrayContent = new ByteArrayContent(image);
             var fileExtension = default(string);
@@ -60,7 +60,7 @@ namespace ServiceLibrary.Helpers
             return byteArrayContent;
         }
 
-        public static byte[] ConvertBitmapImageToPng(byte[] image, int width, int height)
+        public byte[] ConvertBitmapImageToPng(byte[] image, int width, int height)
         {
             if (image == null)
             {

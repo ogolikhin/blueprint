@@ -109,7 +109,7 @@ namespace AdminStore
         }
 
         [TestMethod]
-        public void Register_GetAndHeadMethods_HaveNoCacheAttribute()
+        public void Register_GetAndHeadMethods_HaveResponseCacheAttribute()
         {
             // Arrange
             var config = new HttpConfiguration();
@@ -119,8 +119,8 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertMethodAttributes(attr => attr.Any(a => a is HttpGetAttribute || a is HttpHeadAttribute) == attr.Any(a => a is NoCacheAttribute),
-                "{0} is missing NoCacheAttribute.");
+            config.AssertMethodAttributes(attr => attr.Any(a => a is HttpGetAttribute || a is HttpHeadAttribute) == attr.Any(a => a is ResponseCacheAttribute),
+                "{0} is missing ResponseCacheAttribute.");
         }
 
         [TestMethod]

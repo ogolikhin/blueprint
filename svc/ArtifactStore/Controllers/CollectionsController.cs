@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
+﻿using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ArtifactStore.Helpers;
+using ArtifactStore.Services.Collections;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Collection;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Controllers
 {
@@ -26,36 +19,22 @@ namespace ArtifactStore.Controllers
     {
         public override string LogSource { get; } = "ArtifactStore.Collections";
 
-        private readonly ICollectionsRepository _collectionsRepository;
         private readonly ISearchEngineService _searchServiceEngine;
-        private readonly IArtifactPermissionsRepository _permissionsRepository;
+        private readonly ICollectionsService _collectionsService;
 
         internal CollectionsController() : this
             (
-                new SqlArtifactPermissionsRepository(),
-                new SqlCollectionsRepository(),
+                new CollectionsService(new SqlCollectionsRepository(),
+                    new SqlArtifactPermissionsRepository()),
                 new SearchEngineService())
         {
         }
 
-        internal CollectionsController
-        (IArtifactPermissionsRepository permissionsRepository, ICollectionsRepository collectionsRepository, ISearchEngineService searchServiceEngine)
+        public CollectionsController(ICollectionsService collectionsService, ISearchEngineService searchServiceEngine)
         {
-            _permissionsRepository = permissionsRepository;
-            _collectionsRepository = collectionsRepository;
+            _collectionsService = collectionsService;
             _searchServiceEngine = searchServiceEngine;
-        }
 
-        public CollectionsController
-        (
-            IArtifactPermissionsRepository permissionsRepository,
-            ICollectionsRepository collectionsRepository,
-            IServiceLogRepository log,
-            ISearchEngineService searchServiceEngine) : base(log)
-        {
-            _permissionsRepository = permissionsRepository;
-            _collectionsRepository = collectionsRepository;
-            _searchServiceEngine = searchServiceEngine;
         }
 
         /// <summary>
@@ -74,17 +53,11 @@ namespace ArtifactStore.Controllers
         [ResponseType(typeof(CollectionArtifacts))]
         public async Task<IHttpActionResult> GetArtifactsOfCollectionAsync(int id, [FromUri] Pagination pagination)
         {
-            if (!await _permissionsRepository.HasReadPermissions(id, Session.UserId))
-            {
-                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.NoAcessForCollection, id);
-                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
-            }
-
             pagination.Validate();
 
             var searchArtifactsResult = await _searchServiceEngine.Search(id, pagination, ScopeType.Contents, true, Session.UserId);
 
-            var artifactsOfCollection = await _collectionsRepository.GetArtifactsWithPropertyValues(Session.UserId, searchArtifactsResult.ArtifactIds);
+            var artifactsOfCollection = await _collectionsService.GetArtifactsWithPropertyValues(Session.UserId, id, searchArtifactsResult.ArtifactIds);
             artifactsOfCollection.ItemsCount = searchArtifactsResult.Total;
 
             return Ok(artifactsOfCollection);

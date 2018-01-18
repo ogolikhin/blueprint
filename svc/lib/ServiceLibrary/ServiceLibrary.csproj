@@ -169,12 +169,12 @@
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
     <Compile Include="Models\Collection\ArtifactDto.cs" />
-    <Compile Include="Models\Collection\ArtifactOfCollection.cs" />
-    <Compile Include="Models\Collection\ArtifactsOfCollection.cs" />
-    <Compile Include="Models\Collection\Column.cs" />
-    <Compile Include="Models\Collection\Filter.cs" />
+    <Compile Include="Models\Collection\CollectionArtifact.cs" />
+    <Compile Include="Models\Collection\CollectionArtifacts.cs" />
+    <Compile Include="Models\Collection\ArtifactListColumn.cs" />
+    <Compile Include="Models\Collection\ArtifactListFilter.cs" />
     <Compile Include="Models\Collection\PropertyInfo.cs" />
-    <Compile Include="Models\Collection\Settings.cs" />
+    <Compile Include="Models\Collection\ArtifactListSettings.cs" />
     <Compile Include="Models\DropdownItem.cs" />
     <Compile Include="Models\Email\DiscussionEmail.cs" />
     <Compile Include="Models\Enums\ActionTypes.cs" />

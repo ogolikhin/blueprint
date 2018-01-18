@@ -71,7 +71,7 @@ namespace ArtifactStore.Controllers
         ///
         [HttpGet, NoCache]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
-        [ResponseType(typeof(ArtifactsOfCollection))]
+        [ResponseType(typeof(CollectionArtifacts))]
         public async Task<IHttpActionResult> GetArtifactsOfCollectionAsync(int id, [FromUri] Pagination pagination)
         {
             if (!await _permissionsRepository.HasReadPermissions(id, Session.UserId))

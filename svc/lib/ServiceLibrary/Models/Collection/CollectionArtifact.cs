@@ -1,6 +1,6 @@
 namespace ServiceLibrary.Models.Collection
 {
-    public class ArtifactOfCollection
+    public class CollectionArtifact
     {
         public int ArtifactId { get; set; }
 

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Collection
 {
-    public class ArtifactsOfCollection
+    public class CollectionArtifacts
     {
         public int ItemsCount { get; set; }
 
@@ -11,6 +11,6 @@ namespace ServiceLibrary.Models.Collection
         public IEnumerable<ArtifactDto> Items { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public Settings Settings { get; set; }
+        public ArtifactListSettings ArtifactListSettings { get; set; }
     }
 }

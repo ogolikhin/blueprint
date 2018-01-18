@@ -1,6 +1,6 @@
 ﻿namespace ServiceLibrary.Models.Collection
 {
-    public class Filter
+    public class ArtifactListFilter
     {
         public int PropertyTypeId { get; set; }
     }

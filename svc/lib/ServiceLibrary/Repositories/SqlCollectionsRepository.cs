@@ -32,7 +32,7 @@ namespace ServiceLibrary.Repositories
 
         #region Interface implementation
 
-        public async Task<ArtifactsOfCollection> GetArtifactsWithPropertyValues(int userId,
+        public async Task<CollectionArtifacts> GetArtifactsWithPropertyValues(int userId,
             IEnumerable<int> artifactIds)
         {
             var propertyTypePredefineds =
@@ -52,7 +52,7 @@ namespace ServiceLibrary.Repositories
             prm.Add("@PropertyTypePredefineds", SqlConnectionWrapper.ToDataTable(propertyTypePredefineds));
             prm.Add("@PropertyTypeIds", SqlConnectionWrapper.ToDataTable(propertyTypeIds));
 
-            var artifacts = (await _connectionWrapper.QueryAsync<ArtifactOfCollection>(
+            var artifacts = (await _connectionWrapper.QueryAsync<CollectionArtifact>(
                 "GetPropertyValuesForArtifacts", prm, commandType: CommandType.StoredProcedure)).ToList();
 
             var populatedArtifacts = PopulateArtifactsProperties(artifacts);
@@ -75,12 +75,12 @@ namespace ServiceLibrary.Repositories
             return result.ToList();
         }
 
-        private ArtifactsOfCollection PopulateArtifactsProperties(List<ArtifactOfCollection> artifacts)
+        private CollectionArtifacts PopulateArtifactsProperties(List<CollectionArtifact> artifacts)
         {
             var artifactIdsResult = artifacts.Select(x => x.ArtifactId).Distinct().ToList();
 
             var artifactDtos = new List<ArtifactDto>();
-            var settingsColumns = new List<Column>();
+            var settingsColumns = new List<ArtifactListColumn>();
             var areColumnsPopulated = false;
 
             foreach (var id in artifactIdsResult)
@@ -92,12 +92,12 @@ namespace ServiceLibrary.Repositories
 
                 foreach (var artifactProperty in artifactProperties)
                 {
-                    Column column = null;
+                    ArtifactListColumn artifactListColumn = null;
                     var propertyInfo = new PropertyInfo();
 
                     if (!areColumnsPopulated)
                     {
-                        column = new Column { PropertyName = artifactProperty.PropertyName };
+                        artifactListColumn = new ArtifactListColumn { PropertyName = artifactProperty.PropertyName };
                     }
 
                     if (artifactProperty.PropertyTypeId == null)
@@ -112,7 +112,7 @@ namespace ServiceLibrary.Repositories
 
                         if (!areColumnsPopulated)
                         {
-                            column.PropertyTypeId = fakeId;
+                            artifactListColumn.PropertyTypeId = fakeId;
                         }
 
                         propertyInfo.PropertyTypeId = fakeId;
@@ -133,7 +133,7 @@ namespace ServiceLibrary.Repositories
                     {
                         if (!areColumnsPopulated)
                         {
-                            column.PropertyTypeId = artifactProperty.PropertyTypeId;
+                            artifactListColumn.PropertyTypeId = artifactProperty.PropertyTypeId;
                         }
 
                         propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
@@ -142,7 +142,7 @@ namespace ServiceLibrary.Repositories
 
                     if (!areColumnsPopulated)
                     {
-                        settingsColumns.Add(column);
+                        settingsColumns.Add(artifactListColumn);
                     }
 
                     propertyInfos.Add(propertyInfo);
@@ -158,10 +158,10 @@ namespace ServiceLibrary.Repositories
                 });
             }
 
-            return new ArtifactsOfCollection
+            return new CollectionArtifacts
             {
                 Items = artifactDtos,
-                Settings = new Settings { Columns = settingsColumns }
+                ArtifactListSettings = new ArtifactListSettings { Columns = settingsColumns }
             };
         }
 

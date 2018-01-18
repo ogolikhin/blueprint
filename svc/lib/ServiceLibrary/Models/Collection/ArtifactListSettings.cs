@@ -3,12 +3,12 @@ using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Collection
 {
-    public class Settings
+    public class ArtifactListSettings
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<Filter> Filters { get; set; }
+        public IEnumerable<ArtifactListFilter> Filters { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<Column> Columns { get; set; }
+        public IEnumerable<ArtifactListColumn> Columns { get; set; }
     }
 }

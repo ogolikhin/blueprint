@@ -1,19 +1,16 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using ArtifactStore.Services.Collections;
 using SearchEngineLibrary.Service;
-using System.Web.Http;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Web.Http.Description;
-using ArtifactStore.Models;
-using ArtifactStore.Services.Workflow;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Collection;
 
 namespace ArtifactStore.Controllers
 {
@@ -22,24 +19,29 @@ namespace ArtifactStore.Controllers
     [RoutePrefix("collections")]
     public class CollectionsController : LoggableApiController
     {
-        private readonly ISearchEngineService _searchServiceEngine;
-        private readonly ICollectionsService _collectionsService;
+        public override string LogSource { get; } = "ArtifactStore.Collections";
 
-        private readonly ICollectionsService _collectionsService;
+        private readonly ISearchEngineService _searchServiceEngine;
+
+        private readonly Services.Collections.ICollectionsService _collectionsService;
         internal CollectionsController() : this
             (
-                new CollectionsService(new SqlCollectionsRepository(),
+                new CollectionsService(
+                                       new SqlCollectionsRepository(),
                                        new SqlArtifactRepository(),
                                        new SqlLockArtifactsRepository(),
                                        new SqlItemInfoRepository(),
                                        new SqlArtifactPermissionsRepository(),
-                                       new SqlHelper()))
+                                       new SqlHelper(),
+                                       new SearchEngineService()),
+                                       new SearchEngineService())
         {
         }
 
-        public CollectionsController(ICollectionsService collectionsService)
+        public CollectionsController(ICollectionsService collectionsService, ISearchEngineService searchServiceEngine)
         {
             _collectionsService = collectionsService;
+            _searchServiceEngine = searchServiceEngine;
         }
 
         /// <summary>
@@ -68,6 +70,9 @@ namespace ArtifactStore.Controllers
 
             var result = await _collectionsService.AddArtifactsToCollectionAsync(Session.UserId, id, ids);
             return Ok(result);
+
+        }
+
         /// <summary>
         /// Gets the artifacts in a specified collection
         /// </summary>

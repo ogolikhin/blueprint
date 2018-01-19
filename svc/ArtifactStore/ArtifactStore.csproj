@@ -235,8 +235,6 @@
     <Compile Include="Services\Reviews\MeaningOfSignature\MeaningOfSignatureUpdateSpecificStrategy.cs" />
     <Compile Include="Services\Reviews\ReviewsService.cs" />
     <Compile Include="Services\VersionControl\VersionControlService.cs" />
-    <Compile Include="Services\Workflow\CollectionsService.cs" />
-    <Compile Include="Services\Workflow\ICollectionsService.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />
   </ItemGroup>
   <ItemGroup>

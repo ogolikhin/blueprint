@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Collection;
 
 namespace ServiceLibrary.Repositories
 {

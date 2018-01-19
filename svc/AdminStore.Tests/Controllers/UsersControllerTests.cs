@@ -36,6 +36,7 @@ namespace AdminStore.Controllers
         private Mock<IImageService> _imageServiceMock;
         private UsersController _controller;
         private UserDto _user;
+        byte[] _icon = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 
         private const InstanceAdminPrivileges FullPermissions = InstanceAdminPrivileges.AssignAdminRoles;
         private const InstanceAdminPrivileges NoManageUsersPermissions = InstanceAdminPrivileges.ViewUsers;
@@ -112,11 +113,14 @@ namespace AdminStore.Controllers
         public async Task GetUserIcon_RepositoryReturnsIcon_ReturnsIcon()
         {
             var userId = 1;
-            var content = new byte[] { 0x20, 0x20, 0x20, 0x20 };
-            var userIcon = new UserIcon { UserId = userId, Content = content };
+            var userIcon = new UserIcon { UserId = userId, Content = _icon };
             _usersRepoMock
                 .Setup(repo => repo.GetUserIconByUserIdAsync(It.IsAny<int>()))
                 .ReturnsAsync(userIcon);
+            _imageServiceMock
+                .Setup(m => m.CreateByteArrayContent(_icon))
+                .Returns(new ByteArrayContent(_icon))
+                .Verifiable();
 
             // Act
             var result = await _controller.GetUserIcon(userId);
@@ -125,7 +129,7 @@ namespace AdminStore.Controllers
             var actualContent = await result.Content.ReadAsByteArrayAsync();
             Assert.IsNotNull(result);
             Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-            Assert.IsTrue(content.SequenceEqual(actualContent));
+            Assert.IsTrue(_icon.SequenceEqual(actualContent));
         }
 
         [TestMethod]

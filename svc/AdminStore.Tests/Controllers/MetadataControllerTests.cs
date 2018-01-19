@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -29,6 +31,8 @@ namespace AdminStore.Controllers
         private const int _typeId = 128;
         private const string _color = "ffffff";
         private const int _sessionUserId = 1;
+        private const int ItemTypeIconSize = 32;
+        byte[] _icon = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 
         #endregion
 
@@ -51,7 +55,15 @@ namespace AdminStore.Controllers
             _metadataServiceMock.Setup(service => service.GetItemTypeIcon(ItemTypePredefined.Actor, _color))
                 .Returns(new MemoryStream());
             _metadataServiceMock.Setup(service => service.GetCustomItemTypeIcon(_typeId, int.MaxValue))
-                .ReturnsAsync(new byte[8]);
+                .ReturnsAsync(_icon);
+            _imageServiceMock
+                .Setup(m => m.CreateByteArrayContent(_icon))
+                .Returns(new ByteArrayContent(_icon))
+                .Verifiable();
+            _imageServiceMock
+                .Setup(m => m.ConvertBitmapImageToPng(_icon, ItemTypeIconSize, ItemTypeIconSize))
+                .Returns(_icon)
+                .Verifiable();
         }
 
         #region GetIcons
@@ -59,34 +71,38 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetIcons_AllParamsAreCorrect_ReturnSvgStream()
         {
-            // arrange
+            // Arrange
 
-            // act
+            // Act
             var result = await _controller.GetIcons(_type, null, _color);
 
-            // assert
+            // Assert
             Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         }
 
         [TestMethod]
         public async Task GetIcons_AllParamsAreCorrect_ReturnByteArray()
         {
-            // arramge
+            // Arramge
 
-            // act
+            // Act
             var result = await _controller.GetIcons(_type, _typeId, _color);
 
-            // assert
+            // Assert
+            var actualContent = await result.Content.ReadAsByteArrayAsync();
             Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            Assert.IsTrue(_icon.SequenceEqual(actualContent));
         }
 
         [TestMethod]
         public async Task GetIcons_TypeIsNull_ThrowBadRequestException()
         {
-            // arramge
+            // Arrange
             Exception exception = null;
 
-            // act
+            // Act
             try
             {
                 var result = await _controller.GetIcons(null, _typeId, _color);
@@ -96,7 +112,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            // assert
+            // Assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
         }
@@ -104,10 +120,10 @@ namespace AdminStore.Controllers
         [TestMethod]
         public async Task GetIcons_TypeCanNotParsed_ThrowBadRequestException()
         {
-            // arramge
+            // Arrange
             Exception exception = null;
 
-            // act
+            // Act
             try
             {
                 var result = await _controller.GetIcons("aactor", _typeId, _color);
@@ -117,7 +133,7 @@ namespace AdminStore.Controllers
                 exception = ex;
             }
 
-            // assert
+            // Assert
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
         }

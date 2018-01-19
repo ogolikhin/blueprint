@@ -4,7 +4,6 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ArtifactListSetting;
 using ServiceLibrary.Models.Collection;
-using System.Linq;
 
 namespace ServiceLibrary.Services.ArtifactListSetting
 {
@@ -13,18 +12,22 @@ namespace ServiceLibrary.Services.ArtifactListSetting
         private readonly IArtifactListSettingsRepository _artifactListSettingsRepository;
         private readonly IArtifactRepository _sqlArtifactRepository;
 
-        public ArtifactListSettingsService() : this(new ArtifactListSettingsRepository(), new SqlArtifactRepository())
+        public ArtifactListSettingsService() : this(
+            new ArtifactListSettingsRepository(),
+            new SqlArtifactRepository())
         {
-
         }
 
-        internal ArtifactListSettingsService(IArtifactListSettingsRepository artifactListSettingsRepository, IArtifactRepository sqlArtifactRepository)
+        internal ArtifactListSettingsService(
+            IArtifactListSettingsRepository artifactListSettingsRepository,
+            IArtifactRepository sqlArtifactRepository)
         {
             _artifactListSettingsRepository = artifactListSettingsRepository;
             _sqlArtifactRepository = sqlArtifactRepository;
         }
 
-        public async Task<int> SaveArtifactColumnsSettings(int itemId, int userId, ArtifactListSettings artifactListSettings)
+        public async Task<int> SaveArtifactColumnsSettings(
+            int itemId, int userId, ArtifactListSettings artifactListSettings)
         {
             var artifactBasicDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(itemId, userId);
 
@@ -34,17 +37,16 @@ namespace ServiceLibrary.Services.ArtifactListSetting
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
 
-            var isExistPrimaryKeyInTable = true; // TODO There must be call of method checking of existing PK (itemId, userId) in ArtifactListSettings table
-            var settings = SerializationHelper.ToXml(ArtifactListSettingsXml.ConvertFromJsonModel(artifactListSettings));
+            var settings =
+                SerializationHelper.ToXml(ArtifactListSettingsXml.ConvertFromJsonModel(artifactListSettings));
+            var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
-            if (isExistPrimaryKeyInTable)
+            if (string.IsNullOrWhiteSpace(existingSettings))
             {
-                return await _artifactListSettingsRepository.UpdateArtifactListSettingsAsync(itemId, userId, settings);
+                return await _artifactListSettingsRepository.UpdateSettingsAsync(itemId, userId, settings);
             }
-            else
-            {
-                return await _artifactListSettingsRepository.CreateArtifactListSettingsAsync(itemId, userId, settings);
-            }
+
+            return await _artifactListSettingsRepository.CreateSettingsAsync(itemId, userId, settings);
         }
     }
 }

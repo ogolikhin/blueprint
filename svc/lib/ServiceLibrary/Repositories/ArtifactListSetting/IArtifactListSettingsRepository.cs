@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories.ArtifactListSetting
 {
     public interface IArtifactListSettingsRepository
     {
-        Task<int> CreateArtifactListSettingsAsync(int collectionId, int userId, string settings);
-        Task<int> UpdateArtifactListSettingsAsync(int collectionId, int userId, string settings);
+        Task<string> GetSettingsAsync(int itemId, int userId);
+        Task<int> CreateSettingsAsync(int itemId, int userId, string settings);
+        Task<int> UpdateSettingsAsync(int itemId, int userId, string settings);
     }
 }

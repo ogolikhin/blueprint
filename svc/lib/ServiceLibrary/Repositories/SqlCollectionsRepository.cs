@@ -166,25 +166,5 @@ namespace ServiceLibrary.Repositories
         }
 
         #endregion
-
-        public async Task<int> CreateArtifactListSettingsAsync(int itemId, int userId, string settings)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@userId", userId);
-            parameters.Add("@itemId", itemId);
-            parameters.Add("@settings", settings);
-
-            return await _connectionWrapper.ExecuteScalarAsync<int>("CreateArtifactListSettings", parameters, commandType: CommandType.StoredProcedure);
-        }
-
-        public async Task<int> UpdateArtifactListSettingsAsync(int itemId, int userId, string settings)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@userId", userId);
-            parameters.Add("@itemId", itemId);
-            parameters.Add("@settings", settings);
-
-            return await _connectionWrapper.ExecuteScalarAsync<int>("UpdateArtifactListSettings", parameters, commandType: CommandType.StoredProcedure);
-        }
     }
 }

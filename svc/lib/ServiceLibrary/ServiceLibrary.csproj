@@ -380,6 +380,8 @@
     <Compile Include="Repositories\ApplicationSettings\SqlFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\IFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
+    <Compile Include="Repositories\ArtifactListSetting\ArtifactListSettingsRepository.cs" />
+    <Compile Include="Repositories\ArtifactListSetting\IArtifactListSettingsRepository.cs" />
     <Compile Include="Repositories\SqlCollectionsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
@@ -432,9 +434,9 @@
     <Compile Include="Services\FeaturesService.cs" />
     <Compile Include="Services\ICurrentDateTimeService.cs" />
     <Compile Include="Services\IFeaturesService.cs" />
-    <Compile Include="Services\ICollectionService.cs" />
+    <Compile Include="Services\ArtifactListSetting\IArtifactListSettingsService.cs" />
     <Compile Include="Services\IWebsiteAddressService.cs" />
-    <Compile Include="Services\SqlCollectionService.cs" />
+    <Compile Include="Services\ArtifactListSetting\ArtifactListSettingsService.cs" />
     <Compile Include="Services\WebsiteAddressService.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
@@ -469,6 +471,7 @@
     <Analyzer Include="..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

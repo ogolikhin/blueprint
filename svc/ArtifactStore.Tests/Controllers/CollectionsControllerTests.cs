@@ -5,6 +5,8 @@ using Moq;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Services.ArtifactListSetting;
 
 namespace ArtifactStore.Controllers
 {
@@ -16,6 +18,7 @@ namespace ArtifactStore.Controllers
 
         private Mock<ICollectionsService> _collectionsServiceMock;
         private Mock<ISearchEngineService> _mockSearchEngineService;
+        private Mock<IArtifactListSettingsService> _mockArtifactListSettingsService;
         private CollectionsController _collectionsController;
 
         [TestInitialize]
@@ -25,8 +28,9 @@ namespace ArtifactStore.Controllers
 
             _collectionsServiceMock = new Mock<ICollectionsService>();
             _mockSearchEngineService = new Mock<ISearchEngineService>();
+            _mockArtifactListSettingsService = new Mock<IArtifactListSettingsService>();
 
-            _collectionsController = new CollectionsController(_collectionsServiceMock.Object, _mockSearchEngineService.Object)
+            _collectionsController = new CollectionsController(_collectionsServiceMock.Object, _mockArtifactListSettingsService.Object, _mockSearchEngineService.Object)
             {
                 Request = new HttpRequestMessage()
             };

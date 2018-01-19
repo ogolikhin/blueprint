@@ -1,20 +1,21 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Xml.Serialization;
 using ArtifactStore.Services.Collections;
+using Newtonsoft.Json;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Web.Http;
-using System.Threading.Tasks;
-using System.Web.Http.Description;
-using AdminStore.Models;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Services;
+using ServiceLibrary.Models.Collection;
+using ServiceLibrary.Services.ArtifactListSetting;
+using ICollectionsService = ArtifactStore.Services.Collections.ICollectionsService;
+using System.IO;
+using System.Net;
+using System.Net.Http;
 
 namespace ArtifactStore.Controllers
 {
@@ -25,26 +26,24 @@ namespace ArtifactStore.Controllers
     {
         private readonly ISearchEngineService _searchServiceEngine;
         private readonly ICollectionsService _collectionsService;
+        private readonly IArtifactListSettingsService _artifactListSettingsService;
 
-        private readonly ICollectionsRepository _collectionsRepository;
-        private readonly ICollectionsService _collectionsService;
+        public override string LogSource => "ArtifactStore.Collections";
 
         internal CollectionsController() : this(
             new CollectionsService(),
+            new ArtifactListSettingsService(),
             new SearchEngineService())
         {
         }
 
         public CollectionsController(
             ICollectionsService collectionsService,
+            IArtifactListSettingsService artifactListSettingsService,
             ISearchEngineService searchServiceEngine)
-        internal CollectionsController
-        (
-            ICollectionsRepository collectionsRepository,
-            IPrivilegesRepository privilegesRepository,
-            ICollectionsService collectionsService)
         {
             _collectionsService = collectionsService;
+            _artifactListSettingsService = artifactListSettingsService;
             _searchServiceEngine = searchServiceEngine;
         }
 
@@ -74,25 +73,22 @@ namespace ArtifactStore.Controllers
         /// <summary>
         /// Save Artifact Columns Settings
         /// </summary>
-        /// <param name="collectionId"></param>
-        /// <response code="200">OK. Artifact Columns Settings were saved.</response>
-        /// <response code="400">BadRequest. Parameters are invalid. </response>
+        /// <param name="id">Artifact id.</param>
+        /// <param name="artifactListSettings">ArtifactListSettings model.</param>
+        /// <response code="204">NoContent. Artifact Columns Settings were saved.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
-        /// <response code="403">Forbidden. The user does not have permissions to save Artifact Columns Settings</response>
+        /// <response code="403">Forbidden. The user does not have permissions to save artifact columns Settings</response>
         /// <response code="404">Not Found. The artifact with current id were not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns></returns>
         [HttpPost]
-        [FeatureActivation(FeatureTypes.Storyteller)]
-        [Route("artifactstore/collections/{id:int:min(1)}/artifacts/settings/columns"), SessionRequired]
-        [ResponseType(typeof(int))]
-        public async Task<IHttpActionResult> SaveArtifactColumnsSettings(int collectionId)
+        [Route("{id:int:min(1)}/artifacts/settings/columns"), SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<HttpResponseMessage> SaveArtifactColumnsSettings(int id, [FromBody] ArtifactListSettings artifactListSettings)
         {
-            await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.AccessAllProjectData);
+            await _artifactListSettingsService.SaveArtifactColumnsSettings(id, Session.UserId, artifactListSettings);
 
-            var result = await _collectionsService.SaveArtifactColumnsSettings(collectionId, Session.UserId, "123");
-
-            return Ok(result);
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
     }
 }

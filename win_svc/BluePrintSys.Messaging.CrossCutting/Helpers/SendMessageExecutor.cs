@@ -1,41 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using BluePrintSys.Messaging.CrossCutting.Logging;
+using BluePrintSys.Messaging.Models.Actions;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace BluePrintSys.Messaging.CrossCutting.Helpers
 {
-
     public interface ISendMessageExecutor
     {
-        Task Execute(IWorkflowMessage message, SendMessageAsyncDelegate action, string actionMessage, string tenantId);
+        Task Execute(IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, ActionMessage message);
     }
 
     public class SendMessageExecutor : ISendMessageExecutor
     {
-        private readonly IServiceLogRepository _serviceLogRepository;
-        private readonly string _logSource;
-        public SendMessageExecutor(IServiceLogRepository serviceLogRepository, string logSource)
+        public async Task Execute(IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, ActionMessage message)
         {
-            _serviceLogRepository = serviceLogRepository;
-            _logSource = logSource;
-        }
-        public async Task Execute(IWorkflowMessage workflowMessage, SendMessageAsyncDelegate action, string actionMessage, string tenantId)
-        {
+            var tenantInfo = await applicationSettingsRepository.GetTenantInfo();
+            var tenantId = tenantInfo?.TenantId;
             try
             {
-                await action(tenantId, workflowMessage);
-                string message = $"Sent {workflowMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenantId} to the Message queue";
-                await _serviceLogRepository.LogInformation(_logSource, message);
+                if (string.IsNullOrWhiteSpace(tenantId))
+                {
+                    throw new TenantInfoNotFoundException("No tenant information found. Please contact your administrator.");
+                }
+                await WorkflowMessagingProcessor.Instance.SendMessageAsync(tenantId, message);
+                await serviceLogRepository.LogInformation("SendMessageExecutor", $"Sent {message.ActionType} message for tenant {tenantId}: {message.ToJSON()}");
             }
             catch (Exception ex)
             {
-                await _serviceLogRepository.LogError(_logSource, $"Workflow messaging failed to send message with following exception: {ex}.");
+                await serviceLogRepository.LogError("SendMessageExecutor", $"Failed to send {message.ActionType} message for tenant {tenantId}: {message.ToJSON()}. Exception: {ex.Message}");
                 throw;
             }
         }

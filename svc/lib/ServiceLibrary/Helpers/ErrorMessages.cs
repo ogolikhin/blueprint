@@ -136,6 +136,10 @@ namespace ServiceLibrary.Helpers
         // Artifacts
         public static readonly string ArtifactTypeIdsNotValid = "Please provide valid artifact type ids";
         public static readonly string ArtifactNotLockedByUser = "Artifact (Id:{0}) is not locked by user (Id:{1}).";
+        // Search artifacts
+        public static readonly string NotImplementedForNonCollectionArtifact = "Not implemented for non-Collection artifact";
+        public static readonly string NotImplementedForDescendantsScopeType = "Not implemented for Descendants scopeType";
+        public static readonly string ArtifactNotFound = "Item (Id:{0}) is not found.";
         // Reviews
         public static readonly string ReviewSettingsAreRequired = "Review settings must be provided.";
         public static readonly string ReviewNotFound = "Review (Id:{0}) is not found.";
@@ -148,5 +152,7 @@ namespace ServiceLibrary.Helpers
         public static readonly string RequireESignatureDisabled = "Meaning of Signature setting cannot be updated. Electornic signatures are not enabled for Review (Id:{0}).";
         public static readonly string MeaningOfSignatureDisabledInProject = "Meaning of Signature is disabled for the current project.";
         public static readonly string InvalidStandardArtifactTypesFilterValue = "Invalid filter parameter value.";
+        // Collections
+        public static readonly string NoAcessForCollection = "User does not have permissions to access the collection (Id:{0}).";
     }
 }

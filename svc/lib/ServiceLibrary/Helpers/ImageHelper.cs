@@ -1,4 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
@@ -54,6 +58,57 @@ namespace ServiceLibrary.Helpers
                 byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
             }
             return byteArrayContent;
+        }
+
+        public static byte[] ConvertBitmapImageToPng(byte[] image, int width, int height)
+        {
+            if (image == null)
+            {
+                throw new ArgumentNullException(nameof(image));
+            }
+
+            if (image.Length <= 0)
+            {
+                throw new ArgumentException(@"Wrong image array specified", nameof(image));
+            }
+
+            if (width <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(width));
+            }
+
+            if (height <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(height));
+            }
+
+            using (var bitmap = new Bitmap(width, height))
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    for (var x = 0; x < width; x++)
+                    {
+                        var offset = (y * height + x) * 4;
+                        var value = BitConverter.ToInt32(image, offset);
+                        var color = Color.FromArgb(value);
+
+                        bitmap.SetPixel(x, y, color);
+                    }
+                }
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    bitmap.Save(memoryStream, ImageFormat.Png);
+
+                    var buffer = memoryStream.GetBuffer();
+
+                    var target = new byte[buffer.Length];
+
+                    Array.Copy(buffer, target, buffer.Length);
+
+                    return target;
+                }
+            }
         }
     }
 

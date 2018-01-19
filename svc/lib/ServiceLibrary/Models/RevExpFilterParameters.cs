@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ServiceLibrary.Models
 {
 
-    public class RevExpFilterParameters
+    public class ReviewFilterParameters
     {
         public IEnumerable<int> ApprStsIds { get; set; }
 

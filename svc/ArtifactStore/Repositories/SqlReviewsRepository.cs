@@ -589,14 +589,22 @@ namespace ArtifactStore.Repositories
             return ReviewRawDataHelper.GetStoreData(rdReviewContents);
         }
 
-        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId, RevExpFilterParameters filterParameters = null)
+        public Task<QueryResult<ReviewedArtifact>> GetReviewedArtifacts(int reviewId, int userId, Pagination pagination, int revisionId, ReviewFilterParameters filterParameters = null)
         {
             return GetParticipantReviewedArtifactsAsync(reviewId, userId, userId, pagination, revisionId, false, filterParameters);
         }
 
-        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false, RevExpFilterParameters filterParameters = null)
+        private async Task<QueryResult<ReviewedArtifact>> GetParticipantReviewedArtifactsAsync(int reviewId, int userId, int participantId, Pagination pagination, int revisionId = int.MaxValue, bool addDrafts = false, ReviewFilterParameters filterParameters = null)
         {
-            var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts, filterParameters?.IsApprovalRequired);
+            var reviewInfo = await GetReviewInfoAsync(reviewId, userId);
+            var review = await GetReviewAsync(reviewId, userId);
+
+            if (review.ReviewStatus == ReviewPackageStatus.Draft)
+            {
+                throw new ConflictException(I18NHelper.FormatInvariant("Review (Id:{0}) is in draft state. Cannot view artifacts.", reviewId));
+            }
+
+            var reviewArtifacts = await GetReviewArtifactsAsync<ReviewedArtifact>(reviewId, userId, pagination, revisionId, addDrafts, filterParameters);
 
             var reviewArtifactIds = reviewArtifacts.Items.Select(a => a.Id).ToList();
 
@@ -744,7 +752,7 @@ namespace ArtifactStore.Repositories
             return (await _connectionWrapper.QueryAsync<int>("GetReviewArtifactsForApprove", parameters, commandType: CommandType.StoredProcedure)).ToList();
         }
 
-        private async Task<QueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true, bool? isApprovalRequired = null)
+        private async Task<QueryResult<T>> GetReviewArtifactsAsync<T>(int reviewId, int userId, Pagination pagination, int? revisionId = null, bool? addDrafts = true, ReviewFilterParameters filterParameters = null)
             where T : BaseReviewArtifact
         {
             var refreshInterval = await GetRebuildReviewArtifactHierarchyInterval();
@@ -756,7 +764,8 @@ namespace ArtifactStore.Repositories
             parameters.Add("@addDrafts", revisionId < int.MaxValue ? false : addDrafts);
             parameters.Add("@userId", userId);
             parameters.Add("@refreshInterval", refreshInterval);
-            parameters.Add("@isSpecificApprovalRequired", isApprovalRequired);
+            parameters.Add("@isSpecificApprovalRequired", filterParameters?.IsApprovalRequired);
+            parameters.Add("@approveStatusesIds", SqlConnectionWrapper.ToDataTable(filterParameters?.ApprStsIds ?? new int[0]));
             parameters.Add("@numResult", dbType: DbType.Int32, direction: ParameterDirection.Output);
             parameters.Add("@isFormal", dbType: DbType.Boolean, direction: ParameterDirection.Output);
 
@@ -855,7 +864,7 @@ namespace ArtifactStore.Repositories
             };
         }
 
-        public async Task<ReviewParticipantsContent> GetReviewParticipantsAsync(int reviewId, Pagination pagination, int userId, int? versionId = null, bool? addDrafts = true)
+        public async Task<ReviewParticipantsContent> GetReviewParticipantsAsync(int reviewId, Pagination pagination, int userId, int? versionId = null, ReviewFilterParameters filterParameters = null, bool? addDrafts = true)
         {
             if (versionId < 1)
             {
@@ -869,6 +878,18 @@ namespace ArtifactStore.Repositories
                 addDrafts = false;
             }
 
+            int[] reviewArtifactIds =
+            {
+                reviewId
+            };
+
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(reviewArtifactIds, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
+            }
+
             var parameters = new DynamicParameters();
 
             parameters.Add("@reviewId", reviewId);
@@ -877,6 +898,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@revisionId", revisionId);
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
+            parameters.Add("@approveStatusesIds", SqlConnectionWrapper.ToDataTable(filterParameters?.ApprStsIds ?? new int[0]));
 
             var participants = await _connectionWrapper.QueryMultipleAsync<ReviewParticipant, int, int, int>("GetReviewParticipants", parameters, commandType: CommandType.StoredProcedure);
 
@@ -2051,6 +2073,11 @@ namespace ArtifactStore.Repositories
             if (reviewPackageRawData.Status == ReviewPackageStatus.Draft)
             {
                 throw ReviewsExceptionHelper.ReviewInDraftStateException(reviewId);
+            }
+
+            if (reviewPackageRawData.Reviewers == null)
+            {
+                throw ReviewsExceptionHelper.ParticipantNotFoundException(participantId, reviewId);
             }
 
             var participant = reviewPackageRawData.Reviewers.FirstOrDefault(reviewer => reviewer.UserId == participantId);

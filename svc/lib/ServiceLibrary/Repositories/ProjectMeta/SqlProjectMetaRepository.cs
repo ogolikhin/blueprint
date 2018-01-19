@@ -10,14 +10,13 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.ProjectMeta;
-using ServiceLibrary.Repositories.ProjectMeta.PropertyXml;
-using ServiceLibrary.Repositories.ProjectMeta.PropertyXml.Models;
 
 namespace ServiceLibrary.Repositories.ProjectMeta
 {
-    public class SqlProjectMetaRepository : ISqlProjectMetaRepository
+    public class SqlProjectMetaRepository : IProjectMetaRepository
     {
-        private readonly static ISet<ItemTypePredefined> HiddenSubartifactTypes = new HashSet<ItemTypePredefined> {
+        private static readonly ISet<ItemTypePredefined> HiddenSubartifactTypes = new HashSet<ItemTypePredefined>
+        {
             ItemTypePredefined.Content,
             ItemTypePredefined.BaselinedArtifactSubscribe,
             ItemTypePredefined.Extension,
@@ -26,8 +25,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
 
         private readonly ISqlConnectionWrapper _connectionWrapper;
 
-        public SqlProjectMetaRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+        public SqlProjectMetaRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 
@@ -39,27 +37,32 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         public async Task<ProjectTypes> GetCustomProjectTypesAsync(int projectId, int userId)
         {
             if (projectId < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
+
             if (userId < 1)
+            {
                 throw new ArgumentOutOfRangeException(nameof(userId));
+            }
 
             if (projectId > 0)
             {
                 await CheckProjectIsAccessible(projectId, userId);
             }
 
-            var prm = new DynamicParameters();
-            prm.Add("@projectId", projectId);
-            prm.Add("@revisionId", ServiceConstants.VersionHead);
+            var parameters = new DynamicParameters();
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@revisionId", ServiceConstants.VersionHead);
 
-            var typeGrid =
-                (await
-                    _connectionWrapper.QueryMultipleAsync<PropertyTypeVersion, ItemTypeVersion, ItemTypePropertyTypeMapRecord>("GetProjectCustomTypes", prm,
-                    commandType: CommandType.StoredProcedure));
+            var typeGrid = await _connectionWrapper
+                .QueryMultipleAsync<PropertyTypeVersion, ItemTypeVersion, ItemTypePropertyTypeMapRecord>(
+                    "GetProjectCustomTypes", parameters, commandType: CommandType.StoredProcedure);
 
             var ptVersions = typeGrid.Item1.ToList();
             var ptIdMap = new HashSet<int>(ptVersions.Select(p => p.PropertyTypeId));
-            var itVersions = typeGrid.Item2.Where(i => !HiddenSubartifactTypes.Contains(i.Predefined.GetValueOrDefault()));
+            var itVersions =
+                typeGrid.Item2.Where(i => !HiddenSubartifactTypes.Contains(i.Predefined.GetValueOrDefault()));
             var itPtMap = typeGrid.Item3.Where(r => ptIdMap.Contains(r.PropertyTypeId))
                 .GroupBy(r => r.ItemTypeId).ToDictionary(r => r.Key, r => r.ToList().Select(mr => mr.PropertyTypeId));
 
@@ -81,9 +84,13 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                 var at = ConvertItemTypeVersion(itv, ptIds, projectId);
 
                 if (itv.Predefined != null && itv.Predefined.Value.HasFlag(ItemTypePredefined.CustomArtifactGroup))
+                {
                     projectTypes.ArtifactTypes.Add(at);
+                }
                 else if (itv.Predefined != null && itv.Predefined.Value.HasFlag(ItemTypePredefined.SubArtifactGroup))
+                {
                     projectTypes.SubArtifactTypes.Add(at);
+                }
             }
 
             return projectTypes;
@@ -95,27 +102,23 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             return await GetCustomProjectTypesAsync(0, 1);
         }
 
-        public async Task<IEnumerable<PropertyType>> GetStandardProjectPropertyTypesAsync(IEnumerable<int> predefinedTypeIds)
+        public async Task<IEnumerable<PropertyType>> GetStandardProjectPropertyTypesAsync(
+            IEnumerable<int> predefinedTypeIds)
         {
             return await GetProjectPropertyTypesAsync(0, predefinedTypeIds);
         }
 
-        public async Task<IEnumerable<PropertyType>> GetProjectPropertyTypesAsync(int projectId, IEnumerable<int> predefinedTypeIds)
+        public async Task<IEnumerable<PropertyType>> GetProjectPropertyTypesAsync(
+            int projectId, IEnumerable<int> predefinedTypeIds)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@projectId", projectId);
-            prm.Add("@predefinedPropertyTypes", SqlConnectionWrapper.ToDataTable(predefinedTypeIds, "Int32Collection", "Int32Value"));
+            var parameters = new DynamicParameters();
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@predefinedPropertyTypes", SqlConnectionWrapper.ToDataTable(predefinedTypeIds));
 
             var ptVersions = await _connectionWrapper.QueryAsync<PropertyTypeVersion>(
-                "GetProjectPropertyTypes", prm, commandType: CommandType.StoredProcedure);
+                "GetProjectPropertyTypes", parameters, commandType: CommandType.StoredProcedure);
 
-            var propTypes = new List<PropertyType>();
-            foreach (var pv in ptVersions)
-            {
-                propTypes.Add(pv.ConvertToPropertyType());
-            }
-
-            return propTypes;
+            return ptVersions.Select(pv => pv.ConvertToPropertyType()).ToList();
         }
 
         private async Task CheckProjectIsAccessible(int projectId, int userId)
@@ -124,33 +127,41 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             parameters.Add("@projectId", projectId);
             parameters.Add("@userId", userId);
 
-            var project = (await _connectionWrapper.QueryAsync<ProjectVersion>("GetInstanceProjectById", parameters, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var project = (await _connectionWrapper.QueryAsync<ProjectVersion>("GetInstanceProjectById", parameters,
+                commandType: CommandType.StoredProcedure))?.FirstOrDefault();
 
             if (project == null)
             {
-                throw new ResourceNotFoundException(string.Format("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", projectId), ErrorCodes.ResourceNotFound);
+                var errorMessage =
+                    $"The project (Id:{projectId}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.";
+                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
 
             if (!project.IsAccesible.GetValueOrDefault())
             {
-                throw new AuthorizationException(string.Format("The user does not have permissions for Project (Id:{0}).", projectId), ErrorCodes.UnauthorizedAccess);
+                var errorMessage = $"The user does not have permissions for Project (Id:{projectId}).";
+                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
             }
         }
 
-
         #region Ordering properties
 
-        private static List<int> OrderProperties(List<int> itPtIds, List<PropertyType> propertyTypes, string xmlAdvancedSettings)
+        private static IEnumerable<int> OrderProperties(
+            List<int> itPtIds, IEnumerable<PropertyType> propertyTypes, string xmlAdvancedSettings)
         {
             if (itPtIds == null || !itPtIds.Any())
+            {
                 return itPtIds;
+            }
 
             var advancedSettings = SerializationHelper.FromXml<AdvancedSettings>(xmlAdvancedSettings);
+
             return OrderProperties(itPtIds, propertyTypes, advancedSettings);
         }
 
-        internal static List<int> OrderProperties(IEnumerable<int> propertyValueIds,
-            IEnumerable<PropertyType> propertyTypes, AdvancedSettings advancedSettings)
+        internal static List<int> OrderProperties(
+            IEnumerable<int> propertyValueIds, IEnumerable<PropertyType> propertyTypes,
+            AdvancedSettings advancedSettings)
         {
             var mapPropertyTypes = propertyTypes.ToDictionary(t => t.Id);
             var mapGeneralGroup = GetLayoutGroupMap(advancedSettings, GroupType.General);
@@ -164,9 +175,11 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             // isStandard - bool, standard properties come after project ones
             // propertyTypeId - finally sorted by the property type Id
             var sortedDic = new SortedDictionary<Tuple<bool, bool, bool, int, bool, int>, int>();
+
             foreach (var pvId in propertyValueIds)
             {
                 PropertyType pt;
+
                 if (!mapPropertyTypes.TryGetValue(pvId, out pt))
                 {
                     Debug.Assert(false);
@@ -188,6 +201,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
                     isNotInGneralGroup && isNotInDetailsGroup ? int.MaxValue : orderIndex,
                     pt.InstancePropertyTypeId.HasValue,
                     pvId);
+
                 sortedDic.Add(key, pvId);
             }
 
@@ -198,13 +212,13 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         private static IDictionary<int, int> GetLayoutGroupMap(AdvancedSettings advancedSettings, GroupType groupType)
         {
             return advancedSettings?.LayoutGroups?.FirstOrDefault(g => g.Type == groupType)?
-                .Properties?.ToDictionary(pl => pl.PropertyTypeId, pl => pl.OrderIndex)
-                ?? new Dictionary<int, int>();
+                       .Properties?.ToDictionary(pl => pl.PropertyTypeId, pl => pl.OrderIndex)
+                   ?? new Dictionary<int, int>();
         }
 
         #endregion Ordering properties
 
-        private ItemType ConvertItemTypeVersion(ItemTypeVersion itv, IEnumerable<int> ptIds, int projectId)
+        private static ItemType ConvertItemTypeVersion(ItemTypeVersion itv, IEnumerable<int> ptIds, int projectId)
         {
             var it = new ItemType
             {
@@ -220,7 +234,9 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             };
 
             if (ptIds != null)
+            {
                 it.CustomPropertyTypeIds.AddRange(ptIds);
+            }
 
             return it;
         }
@@ -239,7 +255,8 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             return projectSettings.Select(MapApprovalStatus);
         }
 
-        private Task<IEnumerable<ProjectSetting>> GetProjectSettingsAsync(int projectId, PropertyTypePredefined? propertyType = null, bool includeDeleted = false)
+        private Task<IEnumerable<ProjectSetting>> GetProjectSettingsAsync(
+            int projectId, PropertyTypePredefined? propertyType = null, bool includeDeleted = false)
         {
             var parameters = new DynamicParameters();
 
@@ -247,10 +264,11 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             parameters.Add("@propertyType", propertyType);
             parameters.Add("@includeDeleted", includeDeleted);
 
-            return _connectionWrapper.QueryAsync<ProjectSetting>("GetProjectSettings", parameters, commandType: CommandType.StoredProcedure);
+            return _connectionWrapper.QueryAsync<ProjectSetting>(
+                "GetProjectSettings", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private ProjectApprovalStatus MapApprovalStatus(ProjectSetting projectSetting)
+        private static ProjectApprovalStatus MapApprovalStatus(ProjectSetting projectSetting)
         {
             var values = projectSetting.Setting.Split(';');
 
@@ -264,7 +282,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
 
             ApprovalType approvalType;
 
-            if (String.IsNullOrEmpty(approvalTypeString))
+            if (string.IsNullOrEmpty(approvalTypeString))
             {
                 approvalType = ApprovalType.NotSpecified;
             }
@@ -272,31 +290,25 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             {
                 bool isApproved;
 
-                bool parsed = Boolean.TryParse(approvalTypeString, out isApproved);
+                var parsed = bool.TryParse(approvalTypeString, out isApproved);
 
                 if (!parsed)
                 {
                     throw new ArgumentException("Unexpected Approval Status setting format: " + projectSetting.Setting);
                 }
 
-                if (isApproved)
-                {
-                    approvalType = ApprovalType.Approved;
-                }
-                else
-                {
-                    approvalType = ApprovalType.Disapproved;
-                }
+                approvalType = isApproved ? ApprovalType.Approved : ApprovalType.Disapproved;
             }
 
             // For the default not specified approval status, we want to display Pending to be consistent with SilverLight
             if (approvalType == ApprovalType.NotSpecified && projectSetting.ReadOnly
-               && statusText.Equals("Not Specified", StringComparison.OrdinalIgnoreCase))
+                                                          && statusText.Equals("Not Specified",
+                                                              StringComparison.OrdinalIgnoreCase))
             {
                 statusText = "Pending";
             }
 
-            return new ProjectApprovalStatus()
+            return new ProjectApprovalStatus
             {
                 ApprovalType = approvalType,
                 StatusText = statusText,
@@ -354,7 +366,6 @@ namespace ServiceLibrary.Repositories.ProjectMeta
             internal int PropertyTypeId { get; set; }
         }
 
-
         // Lightweight Advanced Settings object model for ordering properties in Nova
         [XmlRoot("AdvancedSettings", Namespace = "http://www.blueprintsys.com/RC2011", IsNullable = false)]
         public class AdvancedSettings
@@ -368,6 +379,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         {
             [XmlAttribute]
             public GroupType Type { get; set; }
+
             [XmlArray]
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:For unit tests.")]
             public List<PropertyLayout> Properties { get; set; }
@@ -375,13 +387,16 @@ namespace ServiceLibrary.Repositories.ProjectMeta
 
         public enum GroupType
         {
-            General, Details, Custom
+            General,
+            Details,
+            Custom
         }
 
         public class PropertyLayout
         {
             [XmlAttribute]
             public int PropertyTypeId { get; set; }
+
             [XmlAttribute]
             public int OrderIndex { get; set; }
         }

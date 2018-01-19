@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
+using SearchEngineLibrary.Model;
 
 namespace SearchEngineLibrary.Service
 {
     public interface ISearchEngineService
     {
-        Task<IEnumerable<int>> GetArtifactIds();
+        Task<SearchArtifactsResult> Search(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDrafts, int userId);
     }
 }

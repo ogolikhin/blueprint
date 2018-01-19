@@ -11,6 +11,7 @@ using RabbitMQ.Client.Exceptions;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
+using BluePrintSys.Messaging.CrossCutting.Models;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {
@@ -155,6 +156,14 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                     }
                 }
             }
+        }
+
+        public async Task GetStatus(StatusCheckMessage message)
+        {
+            var options = new SendOptions();
+            options.SetDestination(MessageQueue);
+
+            await EndpointInstance.Send(message, options);
         }
 
         public async Task Send(string tenantId, IWorkflowMessage message)

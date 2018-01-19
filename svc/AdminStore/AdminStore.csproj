@@ -96,6 +96,27 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\actor.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\baseline.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\business-process.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\collection.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\collections.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\document.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\domain-diagram.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\folder-open.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\folder.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\generic-diagram.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\glossary.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\project.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\review.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\storyboard.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\storyteller.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\subartifact.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\textual.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\ui-mockup.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\use-case-diagram.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\use-case.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\user-story.svg" />
     <Content Include="Global.asax" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -114,6 +135,7 @@
     <Compile Include="Controllers\InstanceEmailSettingsController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Controllers\MetadataController.cs" />
     <Compile Include="Helpers\EmailTemplateHelper.cs" />
     <Compile Include="Helpers\FolderValidator.cs" />
     <Compile Include="Helpers\GroupMapper.cs" />
@@ -182,6 +204,8 @@
     <Compile Include="Models\DTO\UpdateWorkflowDto.cs" />
     <Compile Include="Models\Workflow\XmlStateCanvasSettings.cs" />
     <Compile Include="Models\Workflow\XmlTransitionCanvasSettings.cs" />
+    <Compile Include="Repositories\Metadata\IMetadataRepository.cs" />
+    <Compile Include="Repositories\Metadata\MetadataRepository.cs" />
     <Compile Include="Services\Email\EmailClientExceptionHandler.cs" />
     <Compile Include="Services\Email\EmailClientType.cs" />
     <Compile Include="Models\Emails\TestEmailConfigInstanceSettings.cs" />
@@ -297,6 +321,8 @@
     <Compile Include="Services\Instance\IEmailSettingsService.cs" />
     <Compile Include="Services\Instance\IInstanceService.cs" />
     <Compile Include="Services\Instance\InstanceService.cs" />
+    <Compile Include="Services\Metadata\IMetadataService.cs" />
+    <Compile Include="Services\Metadata\MetadataService.cs" />
     <Compile Include="Services\Workflow\ITriggerConverter.cs" />
     <Compile Include="Services\Workflow\Validation\Data\PropertyValue\PropertyValueValidator.cs" />
     <Compile Include="Services\Workflow\Validation\Data\PropertyValue\ChoicePropepertyValueValidator.cs" />

@@ -807,8 +807,15 @@ namespace ServiceLibrary.Repositories
                 throw new ResourceNotFoundException(ErrorMessages.CollectionDoesNotExist, ErrorCodes.ResourceNotFound);
             }
 
+            if (collectionDetails.DraftDeleted)
+            {
+                // deleted, but changes are not published
+                throw new ResourceNotFoundException(ErrorMessages.CollectionDoesNotExist, ErrorCodes.ResourceNotFound);
+            }
+
             if (collectionDetails.RevisionId != int.MaxValue)
             {
+                // deleted, and changes are published
                 var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.CollectionInRevisionDoesNotExist, int.MaxValue);
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }

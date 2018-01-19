@@ -92,9 +92,9 @@ namespace ArtifactStore.Services.Collections
 
                 await _collectionsRepository.RemoveDeletedArtifactsFromCollection(collection.ArtifactId, userId, transaction);
 
-                var artifactDetails = await _itemInfoRepository.GetItemsDetails(userId, ids, true, int.MaxValue, transaction);
+                var artifactsDetails = await _itemInfoRepository.GetItemsDetails(userId, ids, true, int.MaxValue, transaction);
                 var validArtifacts =
-                    artifactDetails.Where(i => ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.PrimitiveArtifactGroup) != 0) &&
+                    artifactsDetails.Where(i => ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.PrimitiveArtifactGroup) != 0) &&
                                                 ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.BaselineArtifactGroup) == 0) &&
                                                 ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.CollectionArtifactGroup) == 0) &&
                                                 (i.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Project) &&

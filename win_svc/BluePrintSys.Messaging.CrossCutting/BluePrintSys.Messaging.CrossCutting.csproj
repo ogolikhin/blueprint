@@ -111,6 +111,7 @@
     <Compile Include="Host\NServiceBusServer.cs" />
     <Compile Include="Host\NServiceBusTransportType.cs" />
     <Compile Include="Host\NServiceBusValidator.cs" />
+    <Compile Include="Host\StatusCheckMessageHandler.cs" />
     <Compile Include="Host\TransportHost.cs" />
     <Compile Include="Logging\IFileLogListener.cs" />
     <Compile Include="Logging\ILogEntry.cs" />

@@ -39,7 +39,7 @@ namespace AdminStore.Services.Workflow
         private readonly IWorkflowXmlValidator _workflowXmlValidator;
         private readonly IWorkflowDataValidator _workflowDataValidator;
         private readonly IWorkflowValidationErrorBuilder _workflowValidationErrorBuilder;
-        private readonly ISqlProjectMetaRepository _projectMetaRepository;
+        private readonly IProjectMetaRepository _projectMetaRepository;
         private readonly ITriggerConverter _triggerConverter;
         private readonly IPropertyValueValidatorFactory _propertyValueValidatorFactory;
         private readonly IWorkflowDiff _workflowDiff;
@@ -72,7 +72,7 @@ namespace AdminStore.Services.Workflow
             IWorkflowXmlValidator workflowXmlValidator,
             IUsersRepository usersRepository,
             IWorkflowValidationErrorBuilder workflowValidationErrorBuilder,
-            ISqlProjectMetaRepository projectMetaRepository,
+            IProjectMetaRepository projectMetaRepository,
             ITriggerConverter triggerConverter,
             IPropertyValueValidatorFactory propertyValueValidatorFactory,
             IWorkflowDiff workflowDiff,

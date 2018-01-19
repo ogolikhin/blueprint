@@ -18,7 +18,7 @@ namespace AdminStore.Services.Workflow.Validation.Data
     {
         private Mock<IWorkflowRepository> _workflowRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
-        private Mock<ISqlProjectMetaRepository> _projectMetadataRepositoryMock;
+        private Mock<IProjectMetaRepository> _projectMetadataRepositoryMock;
         private Mock<IPropertyValueValidatorFactory> _propertyValueValidatorFactoryMock;
         private Mock<IPropertyValueValidator> _propertyValueValidatorMock;
         private Mock<WorkflowDataValidator> _dataValidatorMock;
@@ -28,7 +28,7 @@ namespace AdminStore.Services.Workflow.Validation.Data
         {
             _workflowRepositoryMock = new Mock<IWorkflowRepository>();
             _usersRepositoryMock = new Mock<IUsersRepository>();
-            _projectMetadataRepositoryMock = new Mock<ISqlProjectMetaRepository>();
+            _projectMetadataRepositoryMock = new Mock<IProjectMetaRepository>();
             _propertyValueValidatorMock = new Mock<IPropertyValueValidator>();
             _propertyValueValidatorFactoryMock = new Mock<IPropertyValueValidatorFactory>();
             _propertyValueValidatorFactoryMock

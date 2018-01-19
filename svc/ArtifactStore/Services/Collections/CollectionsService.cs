@@ -23,13 +23,6 @@ namespace ArtifactStore.Services.Collections
         private readonly ISqlHelper _sqlHelper;
         private readonly ISearchEngineService _searchEngineService;
 
-        // public CollectionsService() : this(
-        //    new SqlCollectionsRepository(),
-        //    new SqlArtifactPermissionsRepository(),
-        //    new SearchEngineService())
-        // {
-        // }
-
         public CollectionsService(
             ICollectionsRepository collectionsRepository, IArtifactRepository artifactRepository,
             ILockArtifactsRepository lockArtifactsRepository, IItemInfoRepository itemInfoRepository,

@@ -17,27 +17,29 @@ namespace AdminStore.Services.Instance
 {
     public class InstanceService : IInstanceService
     {
-        private static readonly string logSource = "InstanceService";
-
         private readonly IInstanceRepository _instanceRepository;
         private readonly IApplicationSettingsRepository _applicationSettingsRepository;
+        private readonly IServiceLogRepository _serviceLogRepository;
         private readonly ISendMessageExecutor _sendMessageExecutor;
 
         public InstanceService() : this(
             new SqlInstanceRepository(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlHelper()),
             new ApplicationSettingsRepository(new SqlConnectionWrapper(ServiceConstants.RaptorMain)),
-            new SendMessageExecutor(new ServiceLogRepository(), logSource))
+            new ServiceLogRepository(),
+            new SendMessageExecutor())
         {
 
         }
         public InstanceService(
             IInstanceRepository instanceRepository,
             IApplicationSettingsRepository applicationSettingsRepository,
+            IServiceLogRepository serviceLogRepository,
             ISendMessageExecutor sendMessageExecutor)
         {
             _instanceRepository = instanceRepository;
             _applicationSettingsRepository = applicationSettingsRepository;
             _sendMessageExecutor = sendMessageExecutor;
+            _serviceLogRepository = serviceLogRepository;
         }
 
         public async Task<IEnumerable<InstanceItem>> GetFoldersByName(string name)
@@ -78,12 +80,6 @@ namespace AdminStore.Services.Instance
 
         private async Task PostOperation(IEnumerable<int> artifactIds, int revisionId, int userId, IDbTransaction transaction = null)
         {
-            if (artifactIds.IsEmpty())
-            {
-                return;
-            }
-            var tenantInfo = await _applicationSettingsRepository.GetTenantInfo(transaction);
-
             var message = new ArtifactsChangedMessage(artifactIds)
             {
                 RevisionId = revisionId,
@@ -91,9 +87,7 @@ namespace AdminStore.Services.Instance
                 ChangeType = ArtifactChangedType.Publish
             };
 
-            await
-                _sendMessageExecutor.Execute(message, WorkflowMessagingProcessor.SendMessageAsyncDelegate,
-                    "Adminstore - Remove Project", tenantInfo.TenantId);
+            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
         }
 
         #region private methods

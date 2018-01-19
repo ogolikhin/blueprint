@@ -1,15 +1,17 @@
-﻿using System;
+﻿using System.Threading.Tasks;
+using ArtifactStore.Helpers;
+using SearchEngineLibrary.Service;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Collection;
+using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Helpers;
 
-namespace ArtifactStore.Services.Workflow
+namespace ArtifactStore.Services.Collections
 {
     public class CollectionsService : ICollectionsService
     {
@@ -19,10 +21,13 @@ namespace ArtifactStore.Services.Workflow
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IArtifactRepository _artifactRepository;
         private readonly ISqlHelper _sqlHelper;
+        private readonly ISearchEngineService _searchEngineService;
 
-        public CollectionsService(ICollectionsRepository collectionsRepository, IArtifactRepository artifactRepository,
-                                  ILockArtifactsRepository lockArtifactsRepository, IItemInfoRepository itemInfoRepository,
-                                  IArtifactPermissionsRepository artifactPermissionsRepository, ISqlHelper sqlHelper)
+        public CollectionsService(
+            ICollectionsRepository collectionsRepository, IArtifactRepository artifactRepository,
+            ILockArtifactsRepository lockArtifactsRepository, IItemInfoRepository itemInfoRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository, ISqlHelper sqlHelper,
+            ISearchEngineService searchEngineService)
         {
             _collectionsRepository = collectionsRepository;
             _artifactRepository = artifactRepository;
@@ -30,7 +35,24 @@ namespace ArtifactStore.Services.Workflow
             _itemInfoRepository = itemInfoRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _sqlHelper = sqlHelper;
-    }
+            _searchEngineService = searchEngineService;
+        }
+
+        public async Task<CollectionArtifacts> GetArtifactsInCollectionAsync(
+            int collectionId, Pagination pagination, int userId)
+        {
+            if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId))
+            {
+                throw CollectionsExceptionHelper.NoAccessException(collectionId);
+            }
+
+            var searchArtifactsResult = await _searchEngineService.Search(collectionId, pagination, ScopeType.Contents, true, userId);
+
+            var artifacts = await _collectionsRepository.GetArtifactsWithPropertyValues(userId, searchArtifactsResult.ArtifactIds);
+            artifacts.ItemsCount = searchArtifactsResult.Total;
+
+            return artifacts;
+        }
 
         public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
         {

@@ -16,8 +16,11 @@ namespace ArtifactStore.Controllers
     [TestClass]
     public class CollectionsControllerTests
     {
-        private CollectionsController _controller;
-        private Mock<ICollectionsService> _collectionsServiceMock;
+        private Mock<Services.Collections.ICollectionsService> _collectionsServiceMock;
+        private Mock<ISearchEngineService> _mockSearchEngineService;
+        private CollectionsController _collectionsController;
+        private Session _session;
+        private int UserId = 1;
         private int SessionUserId = 1;
         private ISet<int> artifactIds;
         private int CollectionId;

@@ -133,6 +133,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CollectionsExceptionHelper.cs" />
     <Compile Include="Helpers\IMeaningOfSignatureValueExtensions.cs" />
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\ReviewsExceptionHelper.cs" />
@@ -225,6 +226,8 @@
     <Compile Include="Repositories\VersionControl\SqlPublishReuseProcessingRepository.cs" />
     <Compile Include="Repositories\VersionControl\SqlVersionControlRepository.cs" />
     <Compile Include="Executors\StateChangeExecutor.cs" />
+    <Compile Include="Services\Collections\CollectionsService.cs" />
+    <Compile Include="Services\Collections\ICollectionsService.cs" />
     <Compile Include="Services\Reviews\IReviewsService.cs" />
     <Compile Include="Services\Reviews\MeaningOfSignature\IMeaningOfSignatureUpdateStrategy.cs" />
     <Compile Include="Services\Reviews\MeaningOfSignature\MeaningOfSignatureUpdate.cs" />
@@ -232,8 +235,6 @@
     <Compile Include="Services\Reviews\MeaningOfSignature\MeaningOfSignatureUpdateSpecificStrategy.cs" />
     <Compile Include="Services\Reviews\ReviewsService.cs" />
     <Compile Include="Services\VersionControl\VersionControlService.cs" />
-    <Compile Include="Services\Workflow\CollectionsService.cs" />
-    <Compile Include="Services\Workflow\ICollectionsService.cs" />
     <Compile Include="Services\Workflow\WorkflowService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -266,6 +267,10 @@
     <ProjectReference Include="..\lib\HtmlLibrary\HtmlLibrary.csproj">
       <Project>{fbb16370-f443-4e45-9c18-64d11239ae44}</Project>
       <Name>HtmlLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\lib\SearchEngineLibrary\SearchEngineLibrary.csproj">
+      <Project>{C4447978-10B7-44B8-91E3-8F0BF34CA5A9}</Project>
+      <Name>SearchEngineLibrary</Name>
     </ProjectReference>
     <ProjectReference Include="..\lib\ServiceLibrary\ServiceLibrary.csproj">
       <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>

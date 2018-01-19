@@ -169,6 +169,7 @@
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
     <Compile Include="Models\Collection\ArtifactDto.cs" />
+    <Compile Include="Models\Collection\ArtifactListSettingsXml.cs" />
     <Compile Include="Models\Collection\CollectionArtifact.cs" />
     <Compile Include="Models\Collection\CollectionArtifacts.cs" />
     <Compile Include="Models\Collection\ArtifactListColumn.cs" />

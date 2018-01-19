@@ -34,23 +34,17 @@ namespace ServiceLibrary.Services.ArtifactListSetting
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
 
-            var isExistPrimaryKeyInTable = false; // TODO There must be call of method checking of existing PK (itemId, userId) in ArtifactListSettings table
+            var isExistPrimaryKeyInTable = true; // TODO There must be call of method checking of existing PK (itemId, userId) in ArtifactListSettings table
+            var settings = SerializationHelper.ToXml(ArtifactListSettingsXml.ConvertFromJsonModel(artifactListSettings));
 
             if (isExistPrimaryKeyInTable)
             {
-                return await _artifactListSettingsRepository.UpdateArtifactListSettingsAsync(itemId, userId, ArtifactListSettingsToXml(artifactListSettings));
+                return await _artifactListSettingsRepository.UpdateArtifactListSettingsAsync(itemId, userId, settings);
             }
             else
             {
-                return await _artifactListSettingsRepository.CreateArtifactListSettingsAsync(itemId, userId, ArtifactListSettingsToXml(artifactListSettings));
+                return await _artifactListSettingsRepository.CreateArtifactListSettingsAsync(itemId, userId, settings);
             }
-        }
-
-        private string ArtifactListSettingsToXml(ArtifactListSettings artifactListSettings)
-        {
-            artifactListSettings.Columns = artifactListSettings.Columns.ToList();
-            artifactListSettings.Filters = artifactListSettings.Filters.ToList();
-            return SerializationHelper.ToXml(artifactListSettings);
         }
     }
 }

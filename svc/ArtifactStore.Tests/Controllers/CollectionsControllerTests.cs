@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using ArtifactStore.Services.Workflow;
+using ArtifactStore.Services.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using SearchEngineLibrary.Service;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Controllers
 {
@@ -19,8 +19,6 @@ namespace ArtifactStore.Controllers
         private Mock<Services.Collections.ICollectionsService> _collectionsServiceMock;
         private Mock<ISearchEngineService> _mockSearchEngineService;
         private CollectionsController _collectionsController;
-        private Session _session;
-        private int UserId = 1;
         private int SessionUserId = 1;
         private ISet<int> artifactIds;
         private int CollectionId;
@@ -30,15 +28,16 @@ namespace ArtifactStore.Controllers
         public void Initialize()
         {
             _collectionsServiceMock = new Mock<ICollectionsService>();
+            _mockSearchEngineService = new Mock<ISearchEngineService>();
 
             var session = new Session { UserId = SessionUserId };
-            _controller = new CollectionsController(_collectionsServiceMock.Object)
+            _collectionsController = new CollectionsController(_collectionsServiceMock.Object, _mockSearchEngineService.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
             };
-            _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
-            _controller.Request.RequestUri = new Uri("http://localhost");
+            _collectionsController.Request.Properties[ServiceConstants.SessionProperty] = session;
+            _collectionsController.Request.RequestUri = new Uri("http://localhost");
 
             artifactIds = new HashSet<int>() { 1, 2, 3 };
 
@@ -59,7 +58,7 @@ namespace ArtifactStore.Controllers
 
             artifactIds = null;
 
-            await _controller.AddArtifactsToCollectionAsync(CollectionId, "add", artifactIds);
+            await _collectionsController.AddArtifactsToCollectionAsync(CollectionId, "add", artifactIds);
         }
     }
 }

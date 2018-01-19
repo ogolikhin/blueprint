@@ -39,24 +39,15 @@ namespace AdminStore.Controllers
         [Route("icons"), SessionRequired]
         public async Task<HttpResponseMessage> GetIcons(string type, int? typeId = null, string color = null)
         {
-            var itemType = ItemTypePredefined.None;
-            if (string.IsNullOrEmpty(type) || !Enum.TryParse(type, true, out itemType))
-            {
-                throw new BadRequestException("Unknown item type");
-            }
-
 
             var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
+
+            var customIcon = await _metadataService.GetIcon(type, typeId, color);
+            httpResponseMessage.Content = _imageService.CreateByteArrayContent(customIcon);
             if (typeId == null)
             {
-                var iconStream = _metadataService.GetItemTypeIcon(itemType, color);
-                httpResponseMessage.Content = new StreamContent(iconStream);
                 httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("image/svg+xml");
-                return httpResponseMessage;
             }
-
-            var customIcon = await _metadataService.GetCustomItemTypeIcon(typeId.GetValueOrDefault());
-            httpResponseMessage.Content = _imageService.CreateByteArrayContent(customIcon);
             return httpResponseMessage;
         }
     }

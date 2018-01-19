@@ -75,7 +75,7 @@ namespace AdminStore.Repositories.Metadata
 
         };
 
-        public Stream GetSvgIcon(ItemTypePredefined predefined, string color = null)
+        public XDocument GetSvgIcon(ItemTypePredefined predefined, string color = null)
         {
             string iconSvgFileName;
             if (!IconFileNames.TryGetValue(predefined, out iconSvgFileName))
@@ -84,11 +84,15 @@ namespace AdminStore.Repositories.Metadata
             }
 
             var resourceStream = LoadSvgResourceImage(iconSvgFileName);
-            if (string.IsNullOrEmpty(color))
+            using (resourceStream)
             {
-                return resourceStream;
+                var svgDocument = XDocument.Load(resourceStream);
+                if (string.IsNullOrEmpty(color))
+                {
+                    return svgDocument;
+                }
+                return AddFillAttribute(svgDocument, color);
             }
-            return AddFillAttribute(resourceStream, color);
         }
 
         private Stream LoadSvgResourceImage(string iconSvgFileName)
@@ -104,24 +108,18 @@ namespace AdminStore.Repositories.Metadata
             return assembly.GetManifestResourceStream(resourceName);
         }
 
-        private Stream AddFillAttribute(Stream resourceStream, string color)
+        private XDocument AddFillAttribute(XDocument svgDocument, string color)
         {
             string hexColor = string.Format(CultureInfo.CurrentCulture, "#{0}", color);
-            using (resourceStream)
-            {
-                var svgDocument = XDocument.Load(resourceStream);
-                var svgElement = svgDocument.Root;
+            var svgElement = svgDocument.Root;
 
-                foreach (var pathElement in svgElement.Descendants("{http://www.w3.org/2000/svg}path"))
-                {
-                    var fillAttribute = new XAttribute("fill", hexColor);
-                    pathElement.Add(fillAttribute);
-                }
-                var memoryStream = new MemoryStream();
-                svgDocument.Save(memoryStream);
-                memoryStream.Position = 0;
-                return memoryStream;
+            foreach (var pathElement in svgElement.Descendants("{http://www.w3.org/2000/svg}path"))
+            {
+                var fillAttribute = new XAttribute("fill", hexColor);
+                pathElement.Add(fillAttribute);
             }
+
+            return svgDocument;
         }
     }
 }

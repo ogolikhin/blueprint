@@ -52,79 +52,7 @@ namespace AdminStore.Services.Metadata
                 .Setup(m => m.ConvertBitmapImageToPng(_icon, ItemTypeIconSize, ItemTypeIconSize))
                 .Returns(_icon)
                 .Verifiable();
-            _metadataRepositoryMock.Setup(repo => repo.GetSvgIcon(_itemTypePredefined, _color))
-                .Returns(new MemoryStream());
         }
-
-
-        #region GetCustomItemTypeIcon
-
-        [TestMethod]
-        public async Task GetCustomItemTypeIcon_CustomIconExist_ReturnByteArray()
-        {
-            // arrange
-
-            // act
-            var result = await _service.GetCustomItemTypeIcon(_typeId);
-
-            // assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(_icon.SequenceEqual(result));
-        }
-
-        [TestMethod]
-        public async Task GetCustomItemTypeIcon_CustomIconNotExist_ThrowResourceNotFound()
-        {
-            // arrange
-            int typeId = 8;
-            Exception exception = null;
-
-            // act
-            try
-            {
-                var result = await _service.GetCustomItemTypeIcon(typeId);
-
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-
-            // assert
-            Assert.IsNotNull(exception);
-            Assert.IsInstanceOfType(exception, typeof(ResourceNotFoundException));
-        }
-
-        #endregion
-
-        #region GetItemTypeIcon
-
-        [TestMethod]
-        public void GetItemTypeIcon_CustomIconExist_ReturnStream()
-        {
-            // arrange
-
-            // act
-            var result = _service.GetItemTypeIcon(_itemTypePredefined, _color);
-
-            // assert
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
-        public void GetItemTypeIcon_CustomIconNotExist_ReturnNull()
-        {
-            // arrange
-            ItemTypePredefined itemTypePredefined = ItemTypePredefined.None;
-
-            // act
-            var result = _service.GetItemTypeIcon(itemTypePredefined, _color);
-
-            // assert
-            Assert.IsNull(result);
-        }
-
-        #endregion
 
     }
 }

@@ -1,10 +1,10 @@
-﻿using System.IO;
+﻿using System.Xml.Linq;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories.Metadata
 {
     public interface IMetadataRepository
     {
-        Stream GetSvgIcon(ItemTypePredefined predefined, string color);
+        XDocument GetSvgIcon(ItemTypePredefined predefined, string color);
     }
 }

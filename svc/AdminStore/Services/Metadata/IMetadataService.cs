@@ -6,8 +6,7 @@ namespace AdminStore.Services.Metadata
 {
     public interface IMetadataService
     {
-        Task<byte[]> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue);
 
-        Stream GetItemTypeIcon(ItemTypePredefined predefined, string color);
+        Task<byte[]> GetIcon(string type, int? typeId = null, string color = null);
     }
 }

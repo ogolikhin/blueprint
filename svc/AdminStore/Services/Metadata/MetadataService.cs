@@ -1,11 +1,12 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Repositories.Metadata;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Services.Image;
+using System;
+using System.Text;
 
 namespace AdminStore.Services.Metadata
 {
@@ -34,7 +35,7 @@ namespace AdminStore.Services.Metadata
             _imageService = imageService;
         }
 
-        public async Task<byte[]> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue)
+        private async Task<byte[]> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue)
         {
             var itemTypeInfo = await _sqlItemTypeRepository.GetItemTypeInfo(itemTypeId, revisionId);
 
@@ -42,12 +43,35 @@ namespace AdminStore.Services.Metadata
             {
                 throw new ResourceNotFoundException("Artifact type not found.");
             }
-            return _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon.ToArray(), ItemTypeIconSize, ItemTypeIconSize);
+
+            var customIcon = _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon.ToArray(), ItemTypeIconSize, ItemTypeIconSize);
+
+            return customIcon;
         }
 
-        public Stream GetItemTypeIcon(ItemTypePredefined predefined, string color)
+        private byte[] GetItemTypeIcon(ItemTypePredefined predefined, string color)
         {
-            return _metadataRepository.GetSvgIcon(predefined, color);
+            var resourceDocument = _metadataRepository.GetSvgIcon(predefined, color);
+            byte[] toBytes = Encoding.ASCII.GetBytes(resourceDocument.ToString());
+
+            return toBytes;
+        }
+
+        public async Task<byte[]> GetIcon(string type, int? typeId = null, string color = null)
+        {
+            var itemType = ItemTypePredefined.None;
+            if (string.IsNullOrEmpty(type) || !Enum.TryParse(type, true, out itemType))
+            {
+                throw new BadRequestException("Unknown item type");
+            }
+
+            if (typeId == null)
+            {
+                var defaultIcon = GetItemTypeIcon(itemType, color);
+                return defaultIcon;
+            }
+            var customIcon = await GetCustomItemTypeIcon(typeId.GetValueOrDefault());
+            return customIcon;
         }
     }
 }

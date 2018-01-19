@@ -52,10 +52,6 @@ namespace AdminStore.Controllers
 
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
-            _metadataServiceMock.Setup(service => service.GetItemTypeIcon(ItemTypePredefined.Actor, _color))
-                .Returns(new MemoryStream());
-            _metadataServiceMock.Setup(service => service.GetCustomItemTypeIcon(_typeId, int.MaxValue))
-                .ReturnsAsync(_icon);
             _imageServiceMock
                 .Setup(m => m.CreateByteArrayContent(_icon))
                 .Returns(new ByteArrayContent(_icon))
@@ -137,8 +133,6 @@ namespace AdminStore.Controllers
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(BadRequestException));
         }
-
-
 
         #endregion
 

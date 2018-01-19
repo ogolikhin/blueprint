@@ -401,7 +401,7 @@
     <Compile Include="Repositories\Jobs\JobsRepository.cs" />
     <Compile Include="Repositories\Licenses\ILicenseRepository.cs" />
     <Compile Include="Repositories\Licenses\LicenseRepository.cs" />
-    <Compile Include="Repositories\ProjectMeta\ISqlProjectMetaRepository.cs" />
+    <Compile Include="Repositories\ProjectMeta\IProjectMetaRepository.cs" />
     <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomProperties.cs" />
     <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomProperty.cs" />
     <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomPropertyValidValue.cs" />

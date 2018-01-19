@@ -4,7 +4,7 @@ using ServiceLibrary.Models.ProjectMeta;
 
 namespace ServiceLibrary.Repositories.ProjectMeta
 {
-    public interface ISqlProjectMetaRepository
+    public interface IProjectMetaRepository
     {
         Task<ProjectTypes> GetCustomProjectTypesAsync(int projectId, int userId);
 

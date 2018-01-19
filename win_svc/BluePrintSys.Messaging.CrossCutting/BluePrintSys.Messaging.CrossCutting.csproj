@@ -104,6 +104,7 @@
     <Compile Include="Collections\Semaphore.cs" />
     <Compile Include="Configuration\ConfigHelper.cs" />
     <Compile Include="Configuration\IConfigHelper.cs" />
+    <Compile Include="Helpers\SendMessageExecutor.cs" />
     <Compile Include="Helpers\WorkflowMessaging.cs" />
     <Compile Include="Host\ActionMessageHeaders.cs" />
     <Compile Include="Host\IMessageTransportHost.cs" />
@@ -157,6 +158,10 @@
     <ProjectReference Include="..\..\svc\lib\ServiceLibrary\ServiceLibrary.csproj">
       <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>
       <Name>ServiceLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BluePrintSys.Messaging.Models.Action\BluePrintSys.Messaging.Models.Actions.csproj">
+      <Project>{03BD78CA-0BB7-4488-A0B3-4E07CE05391F}</Project>
+      <Name>BluePrintSys.Messaging.Models.Actions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

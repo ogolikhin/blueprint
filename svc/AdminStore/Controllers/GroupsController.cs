@@ -13,6 +13,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
+using BluePrintSys.Messaging.Models.Actions;
+using ServiceLibrary.Repositories.ApplicationSettings;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
@@ -23,15 +27,23 @@ namespace AdminStore.Controllers
     {
         private readonly IGroupRepository _groupRepository;
         private readonly PrivilegesManager _privilegesManager;
+        private readonly IApplicationSettingsRepository _applicationSettingsRepository;
+        private readonly IServiceLogRepository _serviceLogRepository;
+        private readonly IItemInfoRepository _itemInfoRepository;
+        private readonly ISendMessageExecutor _sendMessageExecutor;
 
-        public GroupsController() : this(new SqlGroupRepository(), new SqlPrivilegesRepository())
+        public GroupsController() : this(new SqlGroupRepository(), new SqlPrivilegesRepository(), new ApplicationSettingsRepository(), new ServiceLogRepository(), new SqlItemInfoRepository(), new SendMessageExecutor())
         {
         }
 
-        internal GroupsController(IGroupRepository groupRepository, IPrivilegesRepository privilegesRepository)
+        internal GroupsController(IGroupRepository groupRepository, IPrivilegesRepository privilegesRepository, IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, IItemInfoRepository itemInfoRepository, ISendMessageExecutor sendMessageExecutor)
         {
             _groupRepository = groupRepository;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
+            _applicationSettingsRepository = applicationSettingsRepository;
+            _serviceLogRepository = serviceLogRepository;
+            _itemInfoRepository = itemInfoRepository;
+            _sendMessageExecutor = sendMessageExecutor;
         }
 
         /// <summary>
@@ -121,9 +133,17 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
 
-            var result = await _groupRepository.DeleteGroupsAsync(scope, search);
+            var deletedGroupIds = await _groupRepository.DeleteGroupsAsync(scope, search);
 
-            return Ok(new DeleteResult { TotalDeleted = result });
+            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+            var message = new UsersGroupsChangedMessage(new int[0], deletedGroupIds)
+            {
+                RevisionId = topRevisionId,
+                ChangeType = UsersGroupsChangedType.Delete
+            };
+            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
+
+            return Ok(new DeleteResult { TotalDeleted = deletedGroupIds.Count });
         }
 
         /// <summary>
@@ -152,6 +172,18 @@ namespace AdminStore.Controllers
             GroupValidator.ValidateModel(group, OperationMode.Create);
 
             var groupId = await _groupRepository.AddGroupAsync(group);
+
+            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+            var groupIds = new[]
+            {
+                groupId
+            };
+            var message = new UsersGroupsChangedMessage(new int[0], groupIds)
+            {
+                RevisionId = topRevisionId,
+                ChangeType = UsersGroupsChangedType.Create
+            };
+            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
 
             return Request.CreateResponse(HttpStatusCode.Created, groupId);
         }
@@ -218,6 +250,18 @@ namespace AdminStore.Controllers
             GroupValidator.ValidateModel(group, OperationMode.Edit, existingGroup.ProjectId);
 
             await _groupRepository.UpdateGroupAsync(groupId, group);
+
+            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+            var groupIds = new[]
+            {
+                groupId
+            };
+            var message = new UsersGroupsChangedMessage(new int[0], groupIds)
+            {
+                RevisionId = topRevisionId,
+                ChangeType = UsersGroupsChangedType.Update
+            };
+            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
 
             return Ok();
         }

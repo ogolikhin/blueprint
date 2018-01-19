@@ -46,7 +46,7 @@ namespace AdminStore.Repositories
 
         Task UpdateUserAsync(User loginUser);
 
-        Task<int> DeleteUsersAsync(OperationScope body, string search, int sessionUserId);
+        Task<List<int>> DeleteUsersAsync(OperationScope body, string search, int sessionUserId);
 
         Task UpdateUserPasswordAsync(string login, string password);
 

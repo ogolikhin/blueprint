@@ -397,9 +397,9 @@ namespace AdminStore.Repositories
             };
 
             var userIdTable = SqlConnectionWrapper.ToDataTable(operationScope.Ids);
-            var returntResult = 3;
+            var returntResult = new List<int>(userIds);
 
-            cxn.SetupExecuteScalarAsync("DeleteUsers",
+            cxn.SetupQueryAsync("DeleteUsers",
                 new Dictionary<string, object>
                 {
                     { "UserIds", userIdTable },
@@ -414,7 +414,7 @@ namespace AdminStore.Repositories
 
             // assert
             cxn.Verify();
-            Assert.AreEqual(result, returntResult);
+            Assert.AreEqual(result.Count, returntResult.Count);
         }
 
         [TestMethod]
@@ -431,9 +431,9 @@ namespace AdminStore.Repositories
             };
 
             var userIdTable = SqlConnectionWrapper.ToDataTable(operationScope.Ids);
-            var returntResult = 0;
+            var returntResult = new List<int>();
 
-            cxn.SetupExecuteScalarAsync("DeleteUsers",
+            cxn.SetupQueryAsync("DeleteUsers",
                 new Dictionary<string, object>
                 {
                     { "UserIds", userIdTable },
@@ -448,7 +448,7 @@ namespace AdminStore.Repositories
 
             // assert
             cxn.Verify();
-            Assert.AreEqual(result, returntResult);
+            Assert.AreEqual(result.Count, returntResult.Count);
         }
 
         #endregion

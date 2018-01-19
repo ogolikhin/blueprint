@@ -191,7 +191,7 @@ namespace AdminStore.Repositories
 
         #region projects
 
-        public async Task DeactivateWorkflowsWithLastAssignmentForDeletedProject(int projectId)
+        public async Task DeactivateWorkflowsWithLastAssignmentForDeletedProject(int projectId, IDbTransaction transaction = null)
         {
             if (projectId < 1)
             {
@@ -201,7 +201,20 @@ namespace AdminStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@ProjectId", projectId);
 
-            await _connectionWrapper.ExecuteScalarAsync<int>("DeactivateWorkflowsWithLastAssignmentForDeletedProject", prm, commandType: CommandType.StoredProcedure);
+            if (transaction == null)
+            {
+                await
+                    _connectionWrapper.ExecuteScalarAsync<int>(
+                        "DeactivateWorkflowsWithLastAssignmentForDeletedProject", prm,
+                        commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await
+                    transaction.Connection.ExecuteScalarAsync<int>(
+                        "DeactivateWorkflowsWithLastAssignmentForDeletedProject", prm, transaction,
+                        commandType: CommandType.StoredProcedure);
+            }
         }
 
         public async Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId, bool fromAdminPortal = false)
@@ -266,14 +279,21 @@ namespace AdminStore.Repositories
             return projectPaths.OrderByDescending(p => p.Level).Select(p => p.Name).ToList();
         }
 
-        public async Task RemoveProject(int userId, int projectId)
+        public async Task<int> RemoveProject(int userId, int projectId, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
             parameters.Add("@projectId", projectId);
 
-            await _connectionWrapper.ExecuteAsync("RemoveProject", parameters,
-                commandType: CommandType.StoredProcedure);
+            if (transaction == null)
+            {
+                return await _connectionWrapper.ExecuteScalarAsync<int>("RemoveProject", parameters,
+                    commandType: CommandType.StoredProcedure);
+            }
+            return
+                await
+                    transaction.Connection.ExecuteScalarAsync<int>("RemoveProject", parameters, transaction,
+                        commandType: CommandType.StoredProcedure);
 
         }
 
@@ -566,5 +586,23 @@ namespace AdminStore.Repositories
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
         }
 
+        public async Task<IEnumerable<int>> GetProjectArtifactIds(int projectId, int revisionId, int userId,
+            bool? addDrafts = false, IDbTransaction transaction = null)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@revisionId", revisionId);
+            parameters.Add("@addDrafts", addDrafts ?? false);
+
+            if (transaction == null)
+            {
+                return await _connectionWrapper.QueryAsync<int>("GetProjectArtifactIds", parameters,
+                    commandType: CommandType.StoredProcedure);
             }
+            return await transaction.Connection.QueryAsync<int>("GetProjectArtifactIds", parameters, transaction,
+                    commandType: CommandType.StoredProcedure);
+        }
+
+    }
 }

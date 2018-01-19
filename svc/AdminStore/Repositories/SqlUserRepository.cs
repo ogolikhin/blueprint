@@ -259,7 +259,7 @@ namespace AdminStore.Repositories
             return userId;
         }
 
-        public async Task<int> DeleteUsersAsync(OperationScope scope, string search, int sessionUserId)
+        public async Task<List<int>> DeleteUsersAsync(OperationScope scope, string search, int sessionUserId)
         {
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -272,7 +272,7 @@ namespace AdminStore.Repositories
             parameters.Add("@SelectAll", scope.SelectAll);
             parameters.Add("@SessionUserId", sessionUserId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure);
+            var result = (await _connectionWrapper.QueryAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)
             {

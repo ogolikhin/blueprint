@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.Net.Http;
 
 namespace ServiceLibrary.Services.Image
 {
@@ -6,7 +7,7 @@ namespace ServiceLibrary.Services.Image
     {
         ImageType GetImageType(byte[] image);
 
-        ByteArrayContent CreateByteArrayContent(byte[] image);
+        ByteArrayContent CreateByteArrayContent(IEnumerable<byte> image, bool isSvg);
 
         byte[] ConvertBitmapImageToPng(byte[] image, int width, int height);
     }

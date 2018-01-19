@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using ServiceLibrary.Services.Image;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 
 namespace AdminStore.Controllers
 {
@@ -34,6 +35,7 @@ namespace AdminStore.Controllers
         private Mock<IHttpClientProvider> _httpClientProviderMock;
         private Mock<IPrivilegesRepository> _privilegesRepository;
         private Mock<IImageService> _imageServiceMock;
+        private Mock<ISendMessageExecutor> _sendMessageExecutor;
         private UsersController _controller;
         private UserDto _user;
         byte[] _icon = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
@@ -48,6 +50,7 @@ namespace AdminStore.Controllers
         private Pagination _userGroupsTabularPagination;
         private Sorting _userGroupsSorting;
         private OperationScope _operationScope;
+        private Mock<IItemInfoRepository> _itemInfoRepository;
 
         [TestInitialize]
         public void Initialize()
@@ -62,11 +65,14 @@ namespace AdminStore.Controllers
             _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
             _privilegesRepository = new Mock<IPrivilegesRepository>();
             _imageServiceMock = new Mock<IImageService>();
+            _sendMessageExecutor = new Mock<ISendMessageExecutor>();
+            _itemInfoRepository = new Mock<IItemInfoRepository>();
 
             _controller = new UsersController(
                 _authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
                 _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object,
-                _httpClientProviderMock.Object, _privilegesRepository.Object, _imageServiceMock.Object)
+                _httpClientProviderMock.Object, _privilegesRepository.Object,
+                _itemInfoRepository.Object, _sendMessageExecutor.Object, _imageServiceMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -745,7 +751,8 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(24);
 
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider, _privilegesRepository.Object, _imageServiceMock.Object)
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider,
+                _privilegesRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object, _imageServiceMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()

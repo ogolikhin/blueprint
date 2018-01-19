@@ -171,7 +171,7 @@ namespace ServiceLibrary.Repositories
             return (await _connectionWrapper.QueryAsync<ItemRawData>("GetItemsRawDataCreatedDate", prm, commandType: CommandType.StoredProcedure));
         }
 
-        public async Task<int> GetTopRevisionId(int userId)
+        public async Task<int> GetTopRevisionId()
         {
             var queryText = "SELECT MAX([RevisionId]) FROM [dbo].[Revisions];";
 

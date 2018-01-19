@@ -18,13 +18,13 @@ namespace AdminStore.Services.Workflow.Validation.Data
     {
         private readonly IWorkflowRepository _workflowRepository;
         private readonly IUsersRepository _userRepository;
-        private readonly ISqlProjectMetaRepository _projectMetaRepository;
+        private readonly IProjectMetaRepository _projectMetaRepository;
         private readonly IPropertyValueValidatorFactory _propertyValueValidatorFactory;
 
         public WorkflowDataValidator(
             IWorkflowRepository workflowRepository,
             IUsersRepository userRepository,
-            ISqlProjectMetaRepository projectMetaRepository,
+            IProjectMetaRepository projectMetaRepository,
             IPropertyValueValidatorFactory propertyValueValidatorFactory)
         {
             _workflowRepository = workflowRepository;

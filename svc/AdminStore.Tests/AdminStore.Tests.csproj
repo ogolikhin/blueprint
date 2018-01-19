@@ -143,6 +143,10 @@
     <Compile Include="Utilities\SamlUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\win_svc\BluePrintSys.Messaging.CrossCutting\BluePrintSys.Messaging.CrossCutting.csproj">
+      <Project>{74353EB4-59E8-4F3E-A9E3-9927546970FD}</Project>
+      <Name>BluePrintSys.Messaging.CrossCutting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AdminStore\AdminStore.csproj">
       <Project>{AA349995-9A2A-45C5-9EC1-19908667BD4E}</Project>
       <Name>AdminStore</Name>

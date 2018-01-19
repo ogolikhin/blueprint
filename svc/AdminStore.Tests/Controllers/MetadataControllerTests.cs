@@ -77,63 +77,6 @@ namespace AdminStore.Controllers
             Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         }
 
-        [TestMethod]
-        public async Task GetIcons_AllParamsAreCorrect_ReturnByteArray()
-        {
-            // Arramge
-
-            // Act
-            var result = await _controller.GetIcons(_type, _typeId, _color);
-
-            // Assert
-            var actualContent = await result.Content.ReadAsByteArrayAsync();
-            Assert.IsNotNull(result);
-            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-            Assert.IsTrue(_icon.SequenceEqual(actualContent));
-        }
-
-        [TestMethod]
-        public async Task GetIcons_TypeIsNull_ThrowBadRequestException()
-        {
-            // Arrange
-            Exception exception = null;
-
-            // Act
-            try
-            {
-                var result = await _controller.GetIcons(null, _typeId, _color);
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-
-            // Assert
-            Assert.IsNotNull(exception);
-            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
-        }
-
-        [TestMethod]
-        public async Task GetIcons_TypeCanNotParsed_ThrowBadRequestException()
-        {
-            // Arrange
-            Exception exception = null;
-
-            // Act
-            try
-            {
-                var result = await _controller.GetIcons("aactor", _typeId, _color);
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-
-            // Assert
-            Assert.IsNotNull(exception);
-            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
-        }
-
         #endregion
 
     }

@@ -37,11 +37,26 @@ namespace ServiceLibrary.Services.Image
         /// http://tools.ietf.org/html/rfc7231#section-3.1.1.5
         /// </summary>
         /// <param name="image"></param>
+        /// <param name="isSvg"></param>
         /// <returns></returns>
-        public ByteArrayContent CreateByteArrayContent(byte[] image)
+        public ByteArrayContent CreateByteArrayContent(byte[] image, bool isSvg)
         {
             var byteArrayContent = new ByteArrayContent(image);
-            var fileExtension = default(string);
+            var contentType = GetMediaTypeHeaderValue(image, isSvg);
+            if (contentType != null)
+            {
+                byteArrayContent.Headers.ContentType = contentType;
+            }
+            return byteArrayContent;
+        }
+
+        private MediaTypeHeaderValue GetMediaTypeHeaderValue(byte[] image, bool isSvg)
+        {
+            if (isSvg)
+            {
+                return new MediaTypeHeaderValue("image/svg+xml");
+            }
+            string fileExtension = null;
             var imageType = GetImageType(image);
             switch (imageType)
             {
@@ -54,10 +69,9 @@ namespace ServiceLibrary.Services.Image
             }
             if (fileExtension != null)
             {
-                var mimeType = MimeMapping.GetMimeMapping(fileExtension);
-                byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
+                return new MediaTypeHeaderValue(MimeMapping.GetMimeMapping(fileExtension));
             }
-            return byteArrayContent;
+            return null;
         }
 
         public byte[] ConvertBitmapImageToPng(byte[] image, int width, int height)

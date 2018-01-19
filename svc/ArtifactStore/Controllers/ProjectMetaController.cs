@@ -15,7 +15,7 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ProjectMetaController : LoggableApiController
     {
-        private readonly ISqlProjectMetaRepository ProjectMetaRepository;
+        private readonly IProjectMetaRepository ProjectMetaRepository;
 
         public override string LogSource { get; } = "ArtifactStore.ProjectMeta";
 
@@ -23,12 +23,12 @@ namespace ArtifactStore.Controllers
         {
         }
 
-        public ProjectMetaController(ISqlProjectMetaRepository projectMetaRepository) : base()
+        public ProjectMetaController(IProjectMetaRepository projectMetaRepository) : base()
         {
             ProjectMetaRepository = projectMetaRepository;
         }
 
-        public ProjectMetaController(ISqlProjectMetaRepository projectMetaRepository, IServiceLogRepository log) : base(log)
+        public ProjectMetaController(IProjectMetaRepository projectMetaRepository, IServiceLogRepository log) : base(log)
         {
             ProjectMetaRepository = projectMetaRepository;
         }

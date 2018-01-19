@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Services.Email;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
+using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Services;
 using ServiceLibrary.Services.Image;
@@ -42,6 +44,8 @@ namespace AdminStore.Controllers
         private readonly IServiceLogRepository _log;
         private readonly IHttpClientProvider _httpClientProvider;
         private readonly PrivilegesManager _privilegesManager;
+        private readonly IItemInfoRepository _itemInfoRepository;
+        private readonly ISendMessageExecutor _sendMessageExecutor;
         private readonly IImageService _imageService;
 
         public UsersController()
@@ -49,7 +53,8 @@ namespace AdminStore.Controllers
             (
                 new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(),
                 new EmailHelper(), new ApplicationSettingsRepository(), new ServiceLogRepository(),
-                new HttpClientProvider(), new SqlPrivilegesRepository(), new ImageService())
+                new HttpClientProvider(), new SqlPrivilegesRepository(), new SqlItemInfoRepository(),
+                new SendMessageExecutor(), new ImageService())
         {
         }
 
@@ -58,7 +63,8 @@ namespace AdminStore.Controllers
             IAuthenticationRepository authenticationRepository, IUserRepository userRepository,
             ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper,
             IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log,
-            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository, IImageService imageService)
+            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository,
+            IItemInfoRepository itemInfoRepository, ISendMessageExecutor sendMessageExecutor, IImageService imageService)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -68,7 +74,10 @@ namespace AdminStore.Controllers
             _log = log;
             _httpClientProvider = httpClientProvider;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
+            _itemInfoRepository = itemInfoRepository;
+            _sendMessageExecutor = sendMessageExecutor;
             _imageService = imageService;
+
         }
 
         /// <summary>
@@ -165,9 +174,17 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
-            var result = await _userRepository.DeleteUsersAsync(scope, search, Session.UserId);
+            var deletedUserIds = await _userRepository.DeleteUsersAsync(scope, search, Session.UserId);
 
-            return Ok(new DeleteResult { TotalDeleted = result });
+            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+            var message = new UsersGroupsChangedMessage(deletedUserIds, new int[0])
+            {
+                RevisionId = topRevisionId,
+                ChangeType = UsersGroupsChangedType.Delete
+            };
+            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
+
+            return Ok(new DeleteResult { TotalDeleted = deletedUserIds.Count });
         }
 
         /// <summary>
@@ -555,6 +572,18 @@ namespace AdminStore.Controllers
 
             var userId = await _userRepository.AddUserAsync(databaseUser);
 
+            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+            var userIds = new[]
+            {
+                userId
+            };
+            var message = new UsersGroupsChangedMessage(userIds, new int[0])
+            {
+                RevisionId = topRevisionId,
+                ChangeType = UsersGroupsChangedType.Create
+            };
+            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
+
             return Request.CreateResponse(HttpStatusCode.Created, userId);
         }
 
@@ -598,6 +627,18 @@ namespace AdminStore.Controllers
 
             var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Edit, _settingsRepository, userId);
             await _userRepository.UpdateUserAsync(databaseUser);
+
+            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+            var userIds = new[]
+            {
+                userId
+            };
+            var message = new UsersGroupsChangedMessage(userIds, new int[0])
+            {
+                RevisionId = topRevisionId,
+                ChangeType = UsersGroupsChangedType.Update
+            };
+            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
 
             return Ok();
         }

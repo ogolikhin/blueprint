@@ -67,11 +67,9 @@ namespace AdminStore.Services.Metadata
 
             if (typeId == null)
             {
-                var defaultIcon = GetItemTypeIcon(itemType, color);
-                return defaultIcon;
+                return GetItemTypeIcon(itemType, color);
             }
-            var customIcon = await GetCustomItemTypeIcon(typeId.GetValueOrDefault());
-            return customIcon;
+            return await GetCustomItemTypeIcon(typeId.GetValueOrDefault());
         }
     }
 }

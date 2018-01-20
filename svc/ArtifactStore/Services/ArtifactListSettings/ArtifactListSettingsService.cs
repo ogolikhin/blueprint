@@ -1,34 +1,44 @@
 ﻿using System.Threading.Tasks;
+using ArtifactStore.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.Collection;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ArtifactListSetting;
-using ServiceLibrary.Models.Collection;
 
-namespace ServiceLibrary.Services.ArtifactListSetting
+namespace ArtifactStore.Services.ArtifactListSettings
 {
     public class ArtifactListSettingsService : IArtifactListSettingsService
     {
         private readonly IArtifactListSettingsRepository _artifactListSettingsRepository;
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         private readonly IArtifactRepository _sqlArtifactRepository;
 
         public ArtifactListSettingsService() : this(
             new ArtifactListSettingsRepository(),
+            new SqlArtifactPermissionsRepository(),
             new SqlArtifactRepository())
         {
         }
 
         internal ArtifactListSettingsService(
             IArtifactListSettingsRepository artifactListSettingsRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
             IArtifactRepository sqlArtifactRepository)
         {
             _artifactListSettingsRepository = artifactListSettingsRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
             _sqlArtifactRepository = sqlArtifactRepository;
         }
 
-        public async Task<int> SaveArtifactColumnsSettings(
-            int itemId, int userId, ArtifactListSettings artifactListSettings)
+        public async Task<int> SaveArtifactListColumnsSettings(
+            int itemId, int userId, ArtifactListColumnsSettings artifactListColumnsSettings)
         {
+            if (!await _artifactPermissionsRepository.HasReadPermissions(itemId, userId))
+            {
+                throw CollectionsExceptionHelper.NoAccessException(itemId);
+            }
+
             var artifactBasicDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(itemId, userId);
 
             if (artifactBasicDetails == null)
@@ -38,15 +48,16 @@ namespace ServiceLibrary.Services.ArtifactListSetting
             }
 
             var settings =
-                SerializationHelper.ToXml(ArtifactListSettingsXml.ConvertFromJsonModel(artifactListSettings));
+                SerializationHelper.ToXml(artifactListColumnsSettings.ConvertToArtifactListColumnsSettingsXmlModel());
+
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
             if (string.IsNullOrWhiteSpace(existingSettings))
             {
-                return await _artifactListSettingsRepository.UpdateSettingsAsync(itemId, userId, settings);
+                return await _artifactListSettingsRepository.CreateSettingsAsync(itemId, userId, settings);
             }
 
-            return await _artifactListSettingsRepository.CreateSettingsAsync(itemId, userId, settings);
+            return await _artifactListSettingsRepository.UpdateSettingsAsync(itemId, userId, settings);
         }
     }
 }

@@ -169,11 +169,14 @@
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
     <Compile Include="Models\Collection\ArtifactDto.cs" />
+    <Compile Include="Models\Collection\ArtifactListColumnsStettins.cs" />
+    <Compile Include="Models\Collection\ArtifactListColumnSettingsExtension.cs" />
     <Compile Include="Models\Collection\ArtifactListSettingsXml.cs" />
     <Compile Include="Models\Collection\CollectionArtifact.cs" />
     <Compile Include="Models\Collection\CollectionArtifacts.cs" />
     <Compile Include="Models\Collection\ArtifactListColumn.cs" />
     <Compile Include="Models\Collection\ArtifactListFilter.cs" />
+    <Compile Include="Models\Collection\ProfileColumn.cs" />
     <Compile Include="Models\Collection\PropertyInfo.cs" />
     <Compile Include="Models\Collection\ArtifactListSettings.cs" />
     <Compile Include="Models\DropdownItem.cs" />
@@ -435,9 +438,7 @@
     <Compile Include="Services\FeaturesService.cs" />
     <Compile Include="Services\ICurrentDateTimeService.cs" />
     <Compile Include="Services\IFeaturesService.cs" />
-    <Compile Include="Services\ArtifactListSetting\IArtifactListSettingsService.cs" />
     <Compile Include="Services\IWebsiteAddressService.cs" />
-    <Compile Include="Services\ArtifactListSetting\ArtifactListSettingsService.cs" />
     <Compile Include="Services\WebsiteAddressService.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />

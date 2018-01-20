@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using ArtifactStore.Services.ArtifactListSettings;
 using ArtifactStore.Services.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -6,7 +7,6 @@ using SearchEngineLibrary.Service;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
-using ServiceLibrary.Services.ArtifactListSetting;
 
 namespace ArtifactStore.Controllers
 {

@@ -18,6 +18,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 
 namespace AdminStore.Controllers
 {
@@ -32,6 +33,7 @@ namespace AdminStore.Controllers
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
         private Mock<IHttpClientProvider> _httpClientProviderMock;
         private Mock<IPrivilegesRepository> _privilegesRepository;
+        private Mock<ISendMessageExecutor> _sendMessageExecutor;
         private UsersController _controller;
         private UserDto _user;
 
@@ -45,6 +47,7 @@ namespace AdminStore.Controllers
         private Pagination _userGroupsTabularPagination;
         private Sorting _userGroupsSorting;
         private OperationScope _operationScope;
+        private Mock<IItemInfoRepository> _itemInfoRepository;
 
         [TestInitialize]
         public void Initialize()
@@ -58,11 +61,13 @@ namespace AdminStore.Controllers
             _httpClientProviderMock = new Mock<IHttpClientProvider>();
             _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
             _privilegesRepository = new Mock<IPrivilegesRepository>();
+            _sendMessageExecutor = new Mock<ISendMessageExecutor>();
+            _itemInfoRepository = new Mock<IItemInfoRepository>();
 
             _controller = new UsersController(
                 _authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
                 _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object,
-                _httpClientProviderMock.Object, _privilegesRepository.Object)
+                _httpClientProviderMock.Object, _privilegesRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -738,7 +743,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(24);
 
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider, _privilegesRepository.Object)
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider, _privilegesRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()

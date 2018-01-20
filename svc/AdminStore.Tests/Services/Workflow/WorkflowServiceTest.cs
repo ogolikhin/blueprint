@@ -33,7 +33,7 @@ namespace AdminStore.Services.Workflow
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<IWorkflowValidationErrorBuilder> _workflowValidationErrorBuilder;
         private Mock<ITriggerConverter> _triggerConverter;
-        private Mock<ISqlProjectMetaRepository> _projectMetaRepository;
+        private Mock<IProjectMetaRepository> _projectMetaRepository;
         private Mock<IArtifactRepository> _artifactRepository;
         private WorkflowService _service;
         private SqlWorkflow _workflow;
@@ -62,7 +62,7 @@ namespace AdminStore.Services.Workflow
             _usersRepositoryMock = new Mock<IUsersRepository>();
             _workflowValidationErrorBuilder = new Mock<IWorkflowValidationErrorBuilder>();
             _triggerConverter = new Mock<ITriggerConverter>();
-            _projectMetaRepository = new Mock<ISqlProjectMetaRepository>();
+            _projectMetaRepository = new Mock<IProjectMetaRepository>();
             _artifactRepository = new Mock<IArtifactRepository>();
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,

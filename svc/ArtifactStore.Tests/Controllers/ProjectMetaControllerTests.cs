@@ -21,7 +21,7 @@ namespace ArtifactStore.Controllers
             var session = new Session { UserId = userId };
             var projectId = 10;
             var types = new ProjectTypes();
-            var mockProjectMetaRepository = new Mock<ISqlProjectMetaRepository>();
+            var mockProjectMetaRepository = new Mock<IProjectMetaRepository>();
             mockProjectMetaRepository.Setup(r => r.GetCustomProjectTypesAsync(projectId, userId)).ReturnsAsync(types);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
             var projectMetaController = new ProjectMetaController(mockProjectMetaRepository.Object, mockServiceLogRepository.Object)

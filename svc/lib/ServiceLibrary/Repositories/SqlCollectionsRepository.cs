@@ -171,7 +171,7 @@ namespace ServiceLibrary.Repositories
         #endregion
 
 
-        public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, List<int> artifactIds, IDbTransaction transaction = null)
+        public async Task<int> AddArtifactsToCollectionAsync(int userId, int collectionId, List<int> artifactIds, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
 
@@ -181,11 +181,11 @@ namespace ServiceLibrary.Repositories
 
             if (transaction == null)
             {
-                return (await _connectionWrapper.QueryAsync<AssignArtifactsResult>("AddArtifactsToCollection", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                return (await _connectionWrapper.QueryAsync<int>("AddArtifactsToCollection", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             }
             else
             {
-                return (await transaction.Connection.QueryAsync<AssignArtifactsResult>("AddArtifactsToCollection", parameters, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                return (await transaction.Connection.QueryAsync<int>("AddArtifactsToCollection", parameters, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             }
         }
 

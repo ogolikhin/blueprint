@@ -7,21 +7,39 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using AdminStore.Models.Enums;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
+using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Repositories.ApplicationSettings;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Services.Instance
 {
     public class InstanceService : IInstanceService
     {
         private readonly IInstanceRepository _instanceRepository;
+        private readonly IApplicationSettingsRepository _applicationSettingsRepository;
+        private readonly IServiceLogRepository _serviceLogRepository;
+        private readonly ISendMessageExecutor _sendMessageExecutor;
 
-        public InstanceService() : this(new SqlInstanceRepository(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlHelper()))
+        public InstanceService() : this(
+            new SqlInstanceRepository(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlHelper()),
+            new ApplicationSettingsRepository(new SqlConnectionWrapper(ServiceConstants.RaptorMain)),
+            new ServiceLogRepository(),
+            new SendMessageExecutor())
         {
 
         }
-        public InstanceService(IInstanceRepository instanceRepository)
+        public InstanceService(
+            IInstanceRepository instanceRepository,
+            IApplicationSettingsRepository applicationSettingsRepository,
+            IServiceLogRepository serviceLogRepository,
+            ISendMessageExecutor sendMessageExecutor)
         {
             _instanceRepository = instanceRepository;
+            _applicationSettingsRepository = applicationSettingsRepository;
+            _sendMessageExecutor = sendMessageExecutor;
+            _serviceLogRepository = serviceLogRepository;
         }
 
         public async Task<IEnumerable<InstanceItem>> GetFoldersByName(string name)
@@ -46,8 +64,10 @@ namespace AdminStore.Services.Instance
             {
                 Func<IDbTransaction, Task> action = async transaction =>
                 {
-                    await _instanceRepository.RemoveProject(userId, projectId);
-                    await _instanceRepository.DeactivateWorkflowsWithLastAssignmentForDeletedProject(projectId);
+                    var revisionId = await _instanceRepository.RemoveProject(userId, projectId, transaction);
+                    await _instanceRepository.DeactivateWorkflowsWithLastAssignmentForDeletedProject(projectId, transaction);
+                    var artifactIds = await _instanceRepository.GetProjectArtifactIds(projectId, revisionId - 1, userId, transaction: transaction);
+                    await PostOperation(artifactIds, revisionId, userId, transaction);
                 };
 
                 await _instanceRepository.RunInTransactionAsync(action);
@@ -56,6 +76,18 @@ namespace AdminStore.Services.Instance
             {
                 await _instanceRepository.PurgeProject(projectId, project);
             }
+        }
+
+        private async Task PostOperation(IEnumerable<int> artifactIds, int revisionId, int userId, IDbTransaction transaction = null)
+        {
+            var message = new ArtifactsChangedMessage(artifactIds)
+            {
+                RevisionId = revisionId,
+                UserId = userId,
+                ChangeType = ArtifactChangedType.Publish
+            };
+
+            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
         }
 
         #region private methods

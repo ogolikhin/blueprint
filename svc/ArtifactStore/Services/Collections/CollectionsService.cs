@@ -38,17 +38,38 @@ namespace ArtifactStore.Services.Collections
             _searchEngineService = searchEngineService;
         }
 
-        public async Task<CollectionArtifacts> GetArtifactsInCollectionAsync(
-            int collectionId, Pagination pagination, int userId)
+        private async Task<ArtifactBasicDetails> GetCollectionBasicDetailsAsync(int collectionId, int userId)
         {
+            var collection = await _artifactRepository.GetArtifactBasicDetails(collectionId, userId);
+
+            if (collection == null || collection.DraftDeleted || collection.LatestDeleted)
+            {
+                throw CollectionsExceptionHelper.NotFoundException(collectionId);
+            }
+
+            if (collection.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactCollection)
+            {
+                throw CollectionsExceptionHelper.InvalidTypeException(collectionId);
+            }
+
             if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId))
             {
                 throw CollectionsExceptionHelper.NoAccessException(collectionId);
             }
 
-            var searchArtifactsResult = await _searchEngineService.Search(collectionId, pagination, ScopeType.Contents, true, userId);
+            return collection;
+        }
 
-            var artifacts = await _collectionsRepository.GetArtifactsWithPropertyValues(userId, searchArtifactsResult.ArtifactIds);
+        public async Task<CollectionArtifacts> GetArtifactsInCollectionAsync(
+            int collectionId, Pagination pagination, int userId)
+        {
+            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
+
+            var searchArtifactsResult =
+                await _searchEngineService.Search(collection.ArtifactId, pagination, ScopeType.Contents, true, userId);
+
+            var artifacts =
+                await _collectionsRepository.GetArtifactsWithPropertyValues(userId, searchArtifactsResult.ArtifactIds);
             artifacts.ItemsCount = searchArtifactsResult.Total;
 
             return artifacts;
@@ -92,9 +113,9 @@ namespace ArtifactStore.Services.Collections
 
                 await _collectionsRepository.RemoveDeletedArtifactsFromCollection(collection.ArtifactId, userId, transaction);
 
-                var artifactDetails = await _itemInfoRepository.GetItemsDetails(userId, ids, true, int.MaxValue, transaction);
+                var artifactsDetails = await _itemInfoRepository.GetItemsDetails(userId, ids, true, int.MaxValue, transaction);
                 var validArtifacts =
-                    artifactDetails.Where(i => ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.PrimitiveArtifactGroup) != 0) &&
+                    artifactsDetails.Where(i => ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.PrimitiveArtifactGroup) != 0) &&
                                                 ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.BaselineArtifactGroup) == 0) &&
                                                 ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.CollectionArtifactGroup) == 0) &&
                                                 (i.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Project) &&
@@ -107,7 +128,9 @@ namespace ArtifactStore.Services.Collections
                     .Where(p => p.Value.HasFlag(RolePermissions.Read))
                     .Select(p => p.Key).ToList();
 
-                assignResult = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collection.ArtifactId, artifactsWithReadPermissions, transaction);
+                assignResult = new AssignArtifactsResult();
+                assignResult.AddedCount = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collection.ArtifactId, artifactsWithReadPermissions, transaction);
+                assignResult.Total = ids.Count;
             };
 
             await RunInTransactionAsync(action);

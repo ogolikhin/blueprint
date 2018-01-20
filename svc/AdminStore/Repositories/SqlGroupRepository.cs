@@ -72,7 +72,7 @@ namespace AdminStore.Repositories
             return queryDataResult;
         }
 
-        public async Task<int> DeleteGroupsAsync(OperationScope body, string search)
+        public async Task<List<int>> DeleteGroupsAsync(OperationScope body, string search)
         {
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -83,7 +83,7 @@ namespace AdminStore.Repositories
             parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(body.Ids));
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
-            var result = await _connectionWrapper.ExecuteScalarAsync<int>("DeleteGroups", parameters, commandType: CommandType.StoredProcedure);
+            var result = (await _connectionWrapper.QueryAsync<int>("DeleteGroups", parameters, commandType: CommandType.StoredProcedure)).ToList();
 
             return result;
         }

@@ -128,7 +128,9 @@ namespace ArtifactStore.Services.Collections
                     .Where(p => p.Value.HasFlag(RolePermissions.Read))
                     .Select(p => p.Key).ToList();
 
-                assignResult = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collection.ArtifactId, artifactsWithReadPermissions, transaction);
+                assignResult = new AssignArtifactsResult();
+                assignResult.AddedCount = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collection.ArtifactId, artifactsWithReadPermissions, transaction);
+                assignResult.Total = ids.Count;
             };
 
             await RunInTransactionAsync(action);

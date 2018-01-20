@@ -11,7 +11,7 @@ namespace ServiceLibrary.Helpers
     {
         public static XmlProfileSettings ConvertProfileColumnsSettingsToXmlProfileSettings(ProfileColumnsSettings profileColumnsSettings)
         {
-            return new XmlProfileSettings { Columns = profileColumnsSettings.Columns.ToList() };
+            return new XmlProfileSettings { Columns = profileColumnsSettings.Items.ToList() };
         }
     }
 }

@@ -179,6 +179,7 @@
     <Compile Include="Models\Collection\ProfileColumn.cs" />
     <Compile Include="Models\Collection\PropertyInfo.cs" />
     <Compile Include="Models\Collection\ArtifactListSettings.cs" />
+    <Compile Include="Models\AssignArtifactsResult.cs" />
     <Compile Include="Models\DropdownItem.cs" />
     <Compile Include="Models\Email\DiscussionEmail.cs" />
     <Compile Include="Models\Enums\ActionTypes.cs" />
@@ -407,7 +408,7 @@
     <Compile Include="Repositories\Jobs\JobsRepository.cs" />
     <Compile Include="Repositories\Licenses\ILicenseRepository.cs" />
     <Compile Include="Repositories\Licenses\LicenseRepository.cs" />
-    <Compile Include="Repositories\ProjectMeta\ISqlProjectMetaRepository.cs" />
+    <Compile Include="Repositories\ProjectMeta\IProjectMetaRepository.cs" />
     <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomProperties.cs" />
     <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomProperty.cs" />
     <Compile Include="Repositories\ProjectMeta\PropertyXml\Models\XmlCustomPropertyValidValue.cs" />

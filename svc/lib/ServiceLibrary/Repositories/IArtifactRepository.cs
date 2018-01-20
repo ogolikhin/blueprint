@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -37,8 +38,9 @@ namespace ServiceLibrary.Repositories
 
         Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes(StandardArtifactTypes filter = StandardArtifactTypes.All);
 
-        Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId);
+        Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId, IDbTransaction transaction = null);
 
         Task<IEnumerable<PropertyType>> GetStandardProperties(ISet<int> standardArtifactTypeIds);
+        Task<ArtifactBasicDetails> GetCollectionInfoAsync(int userId, int collectionId, IDbTransaction transaction = null);
     }
 }

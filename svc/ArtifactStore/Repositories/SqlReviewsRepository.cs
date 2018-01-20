@@ -878,6 +878,18 @@ namespace ArtifactStore.Repositories
                 addDrafts = false;
             }
 
+            int[] reviewArtifactIds =
+            {
+                reviewId
+            };
+
+            var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(reviewArtifactIds, userId);
+
+            if (!SqlArtifactPermissionsRepository.HasPermissions(reviewId, artifactPermissionsDictionary, RolePermissions.Read))
+            {
+                throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
+            }
+
             var parameters = new DynamicParameters();
 
             parameters.Add("@reviewId", reviewId);

@@ -72,7 +72,7 @@ namespace ArtifactStore.Services
 
             _mockArtifactRepository = new Mock<IArtifactRepository>();
             _mockArtifactRepository
-                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId, null))
                 .ReturnsAsync(() => _artifactDetails);
 
             _mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
@@ -82,7 +82,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(() => _hasReadPermissions);
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.HasEditPermissions(ReviewId, UserId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .Setup(m => m.HasEditPermissions(ReviewId, UserId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(() => _hasEditPermissions);
 
             _mockArtifactPermissionsRepository
@@ -94,7 +94,7 @@ namespace ArtifactStore.Services
             _mockLockArtifactsRepository = new Mock<ILockArtifactsRepository>();
 
             _mockLockArtifactsRepository
-                .Setup(m => m.LockArtifactAsync(ReviewId, UserId))
+                .Setup(m => m.LockArtifactAsync(ReviewId, UserId, null))
                 .ReturnsAsync(() => _isLockSuccessful);
 
             _mockItemInfoRepository = new Mock<IItemInfoRepository>();
@@ -717,7 +717,7 @@ namespace ArtifactStore.Services
         {
             // Arrange
             _mockArtifactRepository
-                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId, null))
                 .ReturnsAsync((ArtifactBasicDetails)null);
 
             // Act
@@ -835,7 +835,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, updatedSettings, false, UserId);
 
             // Assert
-            _mockLockArtifactsRepository.Verify(m => m.LockArtifactAsync(ReviewId, UserId), Times.Never);
+            _mockLockArtifactsRepository.Verify(m => m.LockArtifactAsync(ReviewId, UserId, null), Times.Never);
             Assert.AreEqual(true, _review.ReviewPackageRawData.IsAllowToMarkReviewAsCompleteWhenAllArtifactsReviewed);
         }
 
@@ -871,7 +871,7 @@ namespace ArtifactStore.Services
             await _reviewService.UpdateReviewSettingsAsync(ReviewId, new ReviewSettings(), false, UserId);
 
             // Assert
-            _mockLockArtifactsRepository.Verify(m => m.LockArtifactAsync(ReviewId, UserId));
+            _mockLockArtifactsRepository.Verify(m => m.LockArtifactAsync(ReviewId, UserId, null));
         }
 
         [TestMethod]
@@ -2348,7 +2348,7 @@ namespace ArtifactStore.Services
             };
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(artifacts, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(artifacts, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>
                     {
                         { artifacts[0], RolePermissions.Read }
@@ -2381,7 +2381,7 @@ namespace ArtifactStore.Services
             };
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(artifacts, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(artifacts, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>
                     {
                         { artifacts[0], RolePermissions.Read }
@@ -2400,7 +2400,7 @@ namespace ArtifactStore.Services
         public async Task AssignRoleToParticipantAsync_Should_Throw_When_Review_Does_Not_Exist()
         {
             _mockArtifactRepository
-                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId, null))
                 .ReturnsAsync(() => null);
 
             var content = new AssignParticipantRoleParameter
@@ -2970,7 +2970,7 @@ namespace ArtifactStore.Services
         public async Task AssignApprovalRequiredToArtifacts_ReviewIsDeleted_Should_Throw_ResourceNotFoundException()
         {
             _mockArtifactRepository
-                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId))
+                .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId, null))
                 .ReturnsAsync((ArtifactBasicDetails)null);
 
             var content = new AssignArtifactsApprovalParameter
@@ -3057,7 +3057,7 @@ namespace ArtifactStore.Services
             _review.ReviewPackageRawData.Status = ReviewPackageStatus.Active;
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(artifacts, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(artifacts, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>
                     {
                         { artifacts[0], RolePermissions.Read }
@@ -3104,7 +3104,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(new List<int>());
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(requestedArtifactIds, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(requestedArtifactIds, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions>
                     {
                         { requestedArtifactIds[0], RolePermissions.Read },
@@ -3144,7 +3144,7 @@ namespace ArtifactStore.Services
             var permissionsArtifactIds = new List<int> { 3 };
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(permissionsArtifactIds, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(permissionsArtifactIds, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(() => new Dictionary<int, RolePermissions>
                     {
                         { permissionsArtifactIds[0], RolePermissions.Read }
@@ -3187,7 +3187,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(new List<int>());
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(requestedArtifactIds, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(requestedArtifactIds, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(() => new Dictionary<int, RolePermissions>
                     {
                         { requestedArtifactIds[0], RolePermissions.Read },
@@ -3234,7 +3234,7 @@ namespace ArtifactStore.Services
             var permissionsArtifactIds = new List<int> { 2, 3 };
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(permissionsArtifactIds, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(permissionsArtifactIds, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(() => new Dictionary<int, RolePermissions>
                     {
                         { permissionsArtifactIds[0], RolePermissions.Read }
@@ -3284,7 +3284,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(new List<int>());
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(() => new Dictionary<int, RolePermissions>
                     {
                         { 1, RolePermissions.Read },
@@ -3326,7 +3326,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(new List<int>());
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(() => new Dictionary<int, RolePermissions>
                     {
                         { 1, RolePermissions.Read },
@@ -3368,7 +3368,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(new List<int>());
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(() => new Dictionary<int, RolePermissions>
                     {
                         { 1, RolePermissions.Read },
@@ -3410,7 +3410,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(new List<int>());
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(() => new Dictionary<int, RolePermissions>
                     {
                         { 1, RolePermissions.Read },
@@ -3452,7 +3452,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(new List<int>());
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(() => new Dictionary<int, RolePermissions>
                     {
                         { 1, RolePermissions.Read },
@@ -3494,7 +3494,7 @@ namespace ArtifactStore.Services
                 .ReturnsAsync(new List<int>());
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true))
+                .Setup(m => m.GetArtifactPermissions(artifactIds, UserId, false, int.MaxValue, true, null))
                 .ReturnsAsync(() => new Dictionary<int, RolePermissions>
                     {
                         { 1, RolePermissions.Read },

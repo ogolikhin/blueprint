@@ -10,6 +10,7 @@ namespace ServiceLibrary.Models
         public string Prefix;
         public int ItemTypeId;
         public int VersionProjectId;
+        public int EndRevision;
     }
 
     public class ItemLabel

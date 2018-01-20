@@ -318,12 +318,12 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync((ArtifactBasicDetails)null);
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync((Dictionary<int, RolePermissions>)null);
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -343,7 +343,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = itemId,
@@ -352,7 +352,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -372,7 +372,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = itemId,
@@ -381,7 +381,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { itemId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -401,7 +401,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = itemId,
@@ -410,7 +410,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { itemId, RolePermissions.Read }, { artifactId, RolePermissions.None } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -429,7 +429,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = artifactId,
@@ -438,7 +438,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -461,7 +461,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = itemId,
@@ -470,7 +470,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -493,7 +493,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = itemId,
@@ -507,7 +507,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -530,7 +530,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = itemId,
@@ -544,7 +544,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -569,7 +569,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = itemId,
@@ -583,7 +583,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -608,7 +608,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = itemId,
@@ -620,7 +620,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -643,7 +643,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = itemId,
@@ -655,7 +655,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -678,7 +678,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(itemId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(itemId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = itemId,
@@ -690,7 +690,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
@@ -710,7 +710,7 @@ namespace ArtifactStore.Repositories
             SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
             Mock<IArtifactRepository> artifactRepositoryMock = new Mock<IArtifactRepository>();
             artifactRepositoryMock
-                .Setup(m => m.GetArtifactBasicDetails(artifactId, userId))
+                .Setup(m => m.GetArtifactBasicDetails(artifactId, userId, null))
                 .ReturnsAsync(new ArtifactBasicDetails
                 {
                     ItemId = artifactId,
@@ -719,7 +719,7 @@ namespace ArtifactStore.Repositories
 
             Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
-                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             _itemInfoRepositoryMock.Setup(iir => iir.GetRevisionId(

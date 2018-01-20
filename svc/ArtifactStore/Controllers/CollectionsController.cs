@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Xml.Serialization;
@@ -9,6 +10,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Collection;
 using ICollectionsService = ArtifactStore.Services.Collections.ICollectionsService;
@@ -24,6 +26,8 @@ namespace ArtifactStore.Controllers
     [RoutePrefix("collections")]
     public class CollectionsController : LoggableApiController
     {
+        public override string LogSource { get; } = "ArtifactStore.Collections";
+
         private readonly ISearchEngineService _searchServiceEngine;
         private readonly ICollectionsService _collectionsService;
         private readonly IArtifactListSettingsService _artifactListSettingsService;
@@ -34,6 +38,18 @@ namespace ArtifactStore.Controllers
             new CollectionsService(),
             new ArtifactListSettingsService(),
             new SearchEngineService())
+        private readonly Services.Collections.ICollectionsService _collectionsService;
+        internal CollectionsController() : this
+            (
+                new CollectionsService(
+                                       new SqlCollectionsRepository(),
+                                       new SqlArtifactRepository(),
+                                       new SqlLockArtifactsRepository(),
+                                       new SqlItemInfoRepository(),
+                                       new SqlArtifactPermissionsRepository(),
+                                       new SqlHelper(),
+                                       new SearchEngineService()),
+                                       new SearchEngineService())
         {
         }
 
@@ -45,6 +61,35 @@ namespace ArtifactStore.Controllers
             _collectionsService = collectionsService;
             _artifactListSettingsService = artifactListSettingsService;
             _searchServiceEngine = searchServiceEngine;
+        }
+
+        /// <summary>
+        /// Add artifacts to collection.
+        /// </summary>
+        /// <remarks>
+        /// Adds artifacts to the collection with specified id.
+        /// </remarks>
+        /// <param name="id"> Id of the collection</param>
+        /// <param name="add"> 'add' flag </param>
+        /// <param name="ids"> ids of artifacts to be added</param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the collection.</response>
+        /// <response code="404">Not found. A collection for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("{id:int:min(1)}/artifacts"), SessionRequired]
+        [ResponseType(typeof(AssignArtifactsResult))]
+        public async Task<IHttpActionResult> AddArtifactsToCollectionAsync(int id, string add, [FromBody] ISet<int> ids)
+        {
+            if (ids == null)
+            {
+                throw new BadRequestException(ErrorMessages.InvalidAddArtifactsParameters, ErrorCodes.BadRequest);
+            }
+
+            var result = await _collectionsService.AddArtifactsToCollectionAsync(Session.UserId, id, ids);
+            return Ok(result);
+
         }
 
         /// <summary>

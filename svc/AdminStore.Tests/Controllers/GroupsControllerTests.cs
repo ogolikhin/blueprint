@@ -15,6 +15,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
@@ -23,6 +25,10 @@ namespace AdminStore.Controllers
     {
         private Mock<IGroupRepository> _sqlGroupRepositoryMock;
         private Mock<IPrivilegesRepository> _privilegesRepository;
+        private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
+        private Mock<IServiceLogRepository> _serviceLogRepository;
+        private Mock<IItemInfoRepository> _itemInfoRepository;
+        private Mock<ISendMessageExecutor> _sendMessageExecutor;
         private QueryResult<GroupDto> _groupsQueryDataResult;
         private GroupsController _controller;
 
@@ -41,8 +47,12 @@ namespace AdminStore.Controllers
 
             _sqlGroupRepositoryMock = new Mock<IGroupRepository>();
             _privilegesRepository = new Mock<IPrivilegesRepository>();
+            _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
+            _serviceLogRepository = new Mock<IServiceLogRepository>();
+            _itemInfoRepository = new Mock<IItemInfoRepository>();
+            _sendMessageExecutor = new Mock<ISendMessageExecutor>();
 
-            _controller = new GroupsController(_sqlGroupRepositoryMock.Object, _privilegesRepository.Object)
+            _controller = new GroupsController(_sqlGroupRepositoryMock.Object, _privilegesRepository.Object, _applicationSettingsRepository.Object, _serviceLogRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -153,7 +163,12 @@ namespace AdminStore.Controllers
                .Setup(t => t.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             var scope = new OperationScope() { SelectAll = false, Ids = new List<int>() { 2, 3 } };
-            var returnResult = 3;
+            var returnResult = new List<int>
+            {
+                1,
+                2,
+                3
+            };
             _sqlGroupRepositoryMock.Setup(repo => repo.DeleteGroupsAsync(It.Is<OperationScope>(a => a.Ids != null), It.IsAny<string>())).ReturnsAsync(returnResult);
 
             // act

@@ -53,7 +53,7 @@ namespace ArtifactStore.Repositories
             var permissionDict = new Dictionary<int, RolePermissions>() { };
             permissionDict.Add(key: 1, value: RolePermissions.Read);
 
-            _artifactPermissionsRepository.Setup(q => q.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), session.UserId, false, Int32.MaxValue, true)).ReturnsAsync(permissionDict);
+            _artifactPermissionsRepository.Setup(q => q.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), session.UserId, false, Int32.MaxValue, true, null)).ReturnsAsync(permissionDict);
 
             _artifactRepositoryMock.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId)).ReturnsAsync(processInfos);
 

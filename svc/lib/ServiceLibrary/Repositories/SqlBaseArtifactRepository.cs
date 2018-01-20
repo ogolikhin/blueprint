@@ -20,13 +20,22 @@ namespace ServiceLibrary.Repositories
             ArtifactPermissionsRepository = artifactPermissionsRepository;
         }
 
-        protected async Task<ArtifactBasicDetails> GetArtifactBasicDetails(ISqlConnectionWrapper connectionWrapper, int artifactId, int userId)
+        protected async Task<ArtifactBasicDetails> GetArtifactBasicDetails(ISqlConnectionWrapper connectionWrapper, int artifactId, int userId, IDbTransaction transaction = null)
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", userId);
             prm.Add("@itemId", artifactId);
-            return (await connectionWrapper.QueryAsync<ArtifactBasicDetails>(
-                "GetArtifactBasicDetails", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+
+            if (transaction == null)
+            {
+                return (await connectionWrapper.QueryAsync<ArtifactBasicDetails>(
+                    "GetArtifactBasicDetails", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            }
+            else
+            {
+                return (await transaction.Connection.QueryAsync<ArtifactBasicDetails>(
+                    "GetArtifactBasicDetails", prm, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            }
         }
 
         /// <summary>

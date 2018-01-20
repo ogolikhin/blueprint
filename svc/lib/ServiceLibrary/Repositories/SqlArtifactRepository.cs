@@ -771,9 +771,9 @@ namespace ServiceLibrary.Repositories
             return ProcessInfoMapper.Map(artifacts);
         }
 
-        public async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId)
+        public async Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId, IDbTransaction transaction = null)
         {
-            return await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId);
+            return await GetArtifactBasicDetails(ConnectionWrapper, artifactId, userId, transaction);
         }
 
         public async Task<IEnumerable<PropertyType>> GetStandardProperties(ISet<int> standardArtifactTypeIds)
@@ -796,6 +796,43 @@ namespace ServiceLibrary.Repositories
             }
 
             return propertyTypes;
+        }
+
+        public async Task<ArtifactBasicDetails> GetCollectionInfoAsync(int userId, int collectionId, IDbTransaction transaction = null)
+        {
+            var collectionDetails = await GetArtifactBasicDetails(collectionId, userId, transaction);
+
+            if (collectionDetails == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.CollectionDoesNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            if (collectionDetails.DraftDeleted)
+            {
+                // deleted, but changes are not published
+                throw new ResourceNotFoundException(ErrorMessages.CollectionDoesNotExist, ErrorCodes.ResourceNotFound);
+            }
+
+            if (collectionDetails.RevisionId != int.MaxValue)
+            {
+                // deleted, and changes are published
+                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.CollectionInRevisionDoesNotExist, int.MaxValue);
+                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+            }
+
+            if (collectionDetails.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactCollection)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.CollectionDoesNotExist, ErrorCodes.IncorrectType);
+            }
+
+            if (collectionDetails.LockedByUserId != null // this clause is missing in Raptor - this means collection is not published
+                && collectionDetails.LockedByUserId != userId)
+            {
+                var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.CollectionIsLockedByAnotherUser, collectionId, collectionDetails.LockedByUserId);
+                throw new ConflictException(errorMessage, ErrorCodes.Conflict);
+            }
+
+            return collectionDetails;
         }
     }
 }

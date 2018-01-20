@@ -132,6 +132,7 @@
     <Compile Include="Exceptions\SqlServerSendException.cs" />
     <Compile Include="Exceptions\TenantInfoNotFoundException.cs" />
     <Compile Include="Helpers\AppSettingsHelper.cs" />
+    <Compile Include="Helpers\ArtifactListHelper.cs" />
     <Compile Include="Helpers\CollectionHelper.cs" />
     <Compile Include="Helpers\FeatureLicenseHelper.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />
@@ -169,10 +170,13 @@
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
     <Compile Include="Models\Collection\ArtifactDto.cs" />
+    <Compile Include="Models\Collection\ProfileColumnsSettings.cs" />
+    <Compile Include="Models\Collection\ArtifactListSettingsXml.cs" />
     <Compile Include="Models\Collection\CollectionArtifact.cs" />
     <Compile Include="Models\Collection\CollectionArtifacts.cs" />
     <Compile Include="Models\Collection\ArtifactListColumn.cs" />
     <Compile Include="Models\Collection\ArtifactListFilter.cs" />
+    <Compile Include="Models\Collection\ProfileColumn.cs" />
     <Compile Include="Models\Collection\PropertyInfo.cs" />
     <Compile Include="Models\Collection\ArtifactListSettings.cs" />
     <Compile Include="Models\AssignArtifactsResult.cs" />
@@ -381,6 +385,8 @@
     <Compile Include="Repositories\ApplicationSettings\SqlFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\IFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
+    <Compile Include="Repositories\ArtifactListSetting\ArtifactListSettingsRepository.cs" />
+    <Compile Include="Repositories\ArtifactListSetting\IArtifactListSettingsRepository.cs" />
     <Compile Include="Repositories\SqlCollectionsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
@@ -468,6 +474,7 @@
     <Analyzer Include="..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -2,7 +2,9 @@
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Xml.Serialization;
 using ArtifactStore.Services.Collections;
+using Newtonsoft.Json;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
@@ -11,6 +13,11 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Collection;
+using ICollectionsService = ArtifactStore.Services.Collections.ICollectionsService;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using ArtifactStore.Services.ArtifactListSettings;
 
 namespace ArtifactStore.Controllers
 {
@@ -22,25 +29,38 @@ namespace ArtifactStore.Controllers
         public override string LogSource { get; } = "ArtifactStore.Collections";
 
         private readonly ISearchEngineService _searchServiceEngine;
+        private readonly ICollectionsService _collectionsService;
+        private readonly IArtifactListSettingsService _artifactListSettingsService;
 
-        private readonly Services.Collections.ICollectionsService _collectionsService;
         internal CollectionsController() : this
             (
                 new CollectionsService(
-                                       new SqlCollectionsRepository(),
-                                       new SqlArtifactRepository(),
-                                       new SqlLockArtifactsRepository(),
-                                       new SqlItemInfoRepository(),
-                                       new SqlArtifactPermissionsRepository(),
-                                       new SqlHelper(),
-                                       new SearchEngineService()),
-                                       new SearchEngineService())
+                    new SqlCollectionsRepository(),
+                    new SqlArtifactRepository(),
+                    new SqlLockArtifactsRepository(),
+                    new SqlItemInfoRepository(),
+                    new SqlArtifactPermissionsRepository(),
+                    new SqlHelper(),
+                    new SearchEngineService()),
+                new SearchEngineService(),
+                new ArtifactListSettingsService())
         {
         }
 
-        public CollectionsController(ICollectionsService collectionsService, ISearchEngineService searchServiceEngine)
+        public CollectionsController(ICollectionsService collectionsService, ISearchEngineService searchServiceEngine, IArtifactListSettingsService artifactListSettingsService)
         {
             _collectionsService = collectionsService;
+            _searchServiceEngine = searchServiceEngine;
+            _artifactListSettingsService = artifactListSettingsService;
+        }
+
+        public CollectionsController(
+            ICollectionsService collectionsService,
+            IArtifactListSettingsService artifactListSettingsService,
+            ISearchEngineService searchServiceEngine)
+        {
+            _collectionsService = collectionsService;
+            _artifactListSettingsService = artifactListSettingsService;
             _searchServiceEngine = searchServiceEngine;
         }
 
@@ -94,6 +114,27 @@ namespace ArtifactStore.Controllers
             var artifacts = await _collectionsService.GetArtifactsInCollectionAsync(id, pagination, Session.UserId);
 
             return Ok(artifacts);
+        }
+
+        /// <summary>
+        /// Save artifact list columns settings
+        /// </summary>
+        /// <param name="id">Collection id.</param>
+        /// <param name="profileColumnSettings">Model with columns settings.</param>
+        /// <response code="204">NoContent. Artifact list columns settings were saved.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions to save artifact list columns settings</response>
+        /// <response code="404">Not Found. The collection with current id was not found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("{id:int:min(1)}/artifacts/settings/columns"), SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<HttpResponseMessage> SaveArtifactListColumnsSettings(int id, [FromBody] ProfileColumnsSettings profileColumnSettings)
+        {
+            await _artifactListSettingsService.SaveArtifactListColumnsSettings(id, Session.UserId, profileColumnSettings);
+
+            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
     }
 }

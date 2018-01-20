@@ -226,6 +226,8 @@
     <Compile Include="Repositories\VersionControl\SqlPublishReuseProcessingRepository.cs" />
     <Compile Include="Repositories\VersionControl\SqlVersionControlRepository.cs" />
     <Compile Include="Executors\StateChangeExecutor.cs" />
+    <Compile Include="Services\ArtifactListSettings\ArtifactListSettingsService.cs" />
+    <Compile Include="Services\ArtifactListSettings\IArtifactListSettingsService.cs" />
     <Compile Include="Services\Collections\CollectionsService.cs" />
     <Compile Include="Services\Collections\ICollectionsService.cs" />
     <Compile Include="Services\Reviews\IReviewsService.cs" />

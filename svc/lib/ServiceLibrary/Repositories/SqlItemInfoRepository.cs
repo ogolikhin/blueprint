@@ -40,7 +40,7 @@ namespace ServiceLibrary.Repositories
             return (await _connectionWrapper.QueryAsync<ItemLabel>("GetItemsLabels", parameters, commandType: CommandType.StoredProcedure));
         }
 
-        public async Task<IEnumerable<ItemDetails>> GetItemsDetails(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
+        public async Task<IEnumerable<ItemDetails>> GetItemsDetails(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
@@ -48,7 +48,14 @@ namespace ServiceLibrary.Repositories
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
 
-            return await _connectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
+            if (transaction == null)
+            {
+                return await _connectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                return await transaction.Connection.QueryAsync<ItemDetails>("GetItemsDetails", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
         }
 
         public async Task<string> GetItemDescription(int itemId, int userId, bool? addDrafts = true, int? revisionId = int.MaxValue)

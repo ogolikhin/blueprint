@@ -288,7 +288,7 @@ namespace ArtifactStore.Repositories
                     }
                 });
 
-            _itemInfoRepositoryMock.Setup(a => a.GetItemsDetails(userId, It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()))
+            _itemInfoRepositoryMock.Setup(a => a.GetItemsDetails(userId, It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new List<ItemDetails> {
                     new ItemDetails {
                         HolderId = 2,
@@ -298,7 +298,7 @@ namespace ArtifactStore.Repositories
                 });
             var permisionDictionary = new Dictionary<int, RolePermissions>();
             permisionDictionary.Add(2, RolePermissions.Read);
-            _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), userId, false, int.MaxValue, true, null)).ReturnsAsync(permisionDictionary);
 
             // Act
             var result = await _relationshipsRepository.GetReviewRelationships(itemId, userId, addDrafts);

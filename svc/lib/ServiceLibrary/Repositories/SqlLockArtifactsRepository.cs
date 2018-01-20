@@ -31,16 +31,17 @@ namespace ServiceLibrary.Repositories
         /// </summary>
         /// <param name="artifactId"></param>
         /// <param name="userId"></param>
+        /// <param name="transaction"></param>
         /// <returns>
         /// Returns True if artifact has been successfully locked
         /// Returns False if artifact has already been locked by specified user
         /// </returns>
-        public Task<bool> LockArtifactAsync(int artifactId, int userId)
+        public Task<bool> LockArtifactAsync(int artifactId, int userId, IDbTransaction transaction = null)
         {
-            return _sqlHelper.RetryOnSqlDeadlockAsync(async () => await LockArtifactInternalAsync(artifactId, userId), 10);
+            return _sqlHelper.RetryOnSqlDeadlockAsync(async () => await LockArtifactInternalAsync(artifactId, userId, transaction), 10);
         }
 
-        private async Task<bool> LockArtifactInternalAsync(int artifactId, int userId)
+        private async Task<bool> LockArtifactInternalAsync(int artifactId, int userId, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
@@ -48,7 +49,14 @@ namespace ServiceLibrary.Repositories
 
             try
             {
-                await _connectionWrapper.ExecuteAsync("LockArtifact", parameters, commandType: CommandType.StoredProcedure);
+                if (transaction == null)
+                {
+                    await _connectionWrapper.ExecuteAsync("LockArtifact", parameters, commandType: CommandType.StoredProcedure);
+                }
+                else
+                {
+                    await transaction.Connection.ExecuteAsync("LockArtifact", parameters, transaction, commandType: CommandType.StoredProcedure);
+                }
             }
             catch (SqlException e)
             {

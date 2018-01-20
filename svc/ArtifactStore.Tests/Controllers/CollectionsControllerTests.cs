@@ -1,5 +1,4 @@
 ﻿using System.Net.Http;
-using ArtifactStore.Services.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchEngineLibrary.Service;
@@ -11,19 +10,18 @@ namespace ArtifactStore.Controllers
     [TestClass]
     public class CollectionsControllerTests
     {
-        private const int UserId = 1;
-        private Session _session;
-
-        private Mock<ICollectionsService> _collectionsServiceMock;
+        private Mock<Services.Collections.ICollectionsService> _collectionsServiceMock;
         private Mock<ISearchEngineService> _mockSearchEngineService;
         private CollectionsController _collectionsController;
+        private Session _session;
+        private int UserId = 1;
 
         [TestInitialize]
         public void Initialize()
         {
             _session = new Session { UserId = UserId };
 
-            _collectionsServiceMock = new Mock<ICollectionsService>();
+            _collectionsServiceMock = new Mock<Services.Collections.ICollectionsService>();
             _mockSearchEngineService = new Mock<ISearchEngineService>();
 
             _collectionsController = new CollectionsController(_collectionsServiceMock.Object, _mockSearchEngineService.Object)

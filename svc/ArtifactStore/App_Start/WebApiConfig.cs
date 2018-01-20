@@ -1,5 +1,7 @@
 ﻿using System.Configuration;
+using System.Net.Http;
 using System.Web.Http;
+using System.Web.Routing;
 
 namespace ArtifactStore
 {
@@ -9,8 +11,10 @@ namespace ArtifactStore
         {
             // Web API configuration and services
 
+
             // Web API routes
             config.MapHttpAttributeRoutes();
+
         }
 
         public static string ArtifactStorage = ConfigurationManager.ConnectionStrings["ArtifactStorage"].ConnectionString;

@@ -32,25 +32,26 @@ namespace ArtifactStore.Controllers
         private readonly ICollectionsService _collectionsService;
         private readonly IArtifactListSettingsService _artifactListSettingsService;
 
-        public override string LogSource => "ArtifactStore.Collections";
-
-        internal CollectionsController() : this(
-            new CollectionsService(),
-            new ArtifactListSettingsService(),
-            new SearchEngineService())
-        private readonly Services.Collections.ICollectionsService _collectionsService;
         internal CollectionsController() : this
             (
                 new CollectionsService(
-                                       new SqlCollectionsRepository(),
-                                       new SqlArtifactRepository(),
-                                       new SqlLockArtifactsRepository(),
-                                       new SqlItemInfoRepository(),
-                                       new SqlArtifactPermissionsRepository(),
-                                       new SqlHelper(),
-                                       new SearchEngineService()),
-                                       new SearchEngineService())
+                    new SqlCollectionsRepository(),
+                    new SqlArtifactRepository(),
+                    new SqlLockArtifactsRepository(),
+                    new SqlItemInfoRepository(),
+                    new SqlArtifactPermissionsRepository(),
+                    new SqlHelper(),
+                    new SearchEngineService()),
+                new SearchEngineService(),
+                new ArtifactListSettingsService())
         {
+        }
+
+        public CollectionsController(ICollectionsService collectionsService, ISearchEngineService searchServiceEngine, IArtifactListSettingsService artifactListSettingsService)
+        {
+            _collectionsService = collectionsService;
+            _searchServiceEngine = searchServiceEngine;
+            _artifactListSettingsService = artifactListSettingsService;
         }
 
         public CollectionsController(

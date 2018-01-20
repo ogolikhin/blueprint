@@ -32,7 +32,7 @@ namespace ArtifactStore.Services.ArtifactListSettings
         }
 
         public async Task<int> SaveArtifactListColumnsSettings(
-            int itemId, int userId, ArtifactListColumnsSettings artifactListColumnsSettings)
+            int itemId, int userId, ProfileColumnsSettings profileColumnsSettings)
         {
             if (!await _artifactPermissionsRepository.HasReadPermissions(itemId, userId))
             {
@@ -48,7 +48,7 @@ namespace ArtifactStore.Services.ArtifactListSettings
             }
 
             var settings =
-                SerializationHelper.ToXml(artifactListColumnsSettings.ConvertToArtifactListColumnsSettingsXmlModel());
+                SerializationHelper.ToXml(ArtifactListHelper.ConvertProfileColumnsSettingsToXmlProfileSettings(profileColumnsSettings));
 
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 

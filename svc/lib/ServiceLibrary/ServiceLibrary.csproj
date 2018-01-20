@@ -132,6 +132,7 @@
     <Compile Include="Exceptions\SqlServerSendException.cs" />
     <Compile Include="Exceptions\TenantInfoNotFoundException.cs" />
     <Compile Include="Helpers\AppSettingsHelper.cs" />
+    <Compile Include="Helpers\ArtifactListHelper.cs" />
     <Compile Include="Helpers\CollectionHelper.cs" />
     <Compile Include="Helpers\FeatureLicenseHelper.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />
@@ -169,8 +170,7 @@
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
     <Compile Include="Models\Collection\ArtifactDto.cs" />
-    <Compile Include="Models\Collection\ArtifactListColumnsSettings.cs" />
-    <Compile Include="Models\Collection\ArtifactListColumnSettingsExtension.cs" />
+    <Compile Include="Models\Collection\ProfileColumnsSettings.cs" />
     <Compile Include="Models\Collection\ArtifactListSettingsXml.cs" />
     <Compile Include="Models\Collection\CollectionArtifact.cs" />
     <Compile Include="Models\Collection\CollectionArtifacts.cs" />

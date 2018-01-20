@@ -2,7 +2,7 @@
 
 namespace ServiceLibrary.Models.Collection
 {
-    public class ArtifactListColumnsSettings
+    public class ProfileColumnsSettings
     {
         public IEnumerable<ProfileColumn> Columns { get; set; }
     }

@@ -74,7 +74,7 @@ namespace ArtifactStore.Controllers
         /// Save artifact list columns settings
         /// </summary>
         /// <param name="id">Collection id.</param>
-        /// <param name="columnSettings">Model with columns settings.</param>
+        /// <param name="profileColumnSettings">Model with columns settings.</param>
         /// <response code="204">NoContent. Artifact list columns settings were saved.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions to save artifact list columns settings</response>
@@ -84,9 +84,9 @@ namespace ArtifactStore.Controllers
         [HttpPost]
         [Route("{id:int:min(1)}/artifacts/settings/columns"), SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<HttpResponseMessage> SaveArtifactListColumnsSettings(int id, [FromBody] ArtifactListColumnsSettings columnSettings)
+        public async Task<HttpResponseMessage> SaveArtifactListColumnsSettings(int id, [FromBody] ProfileColumnsSettings profileColumnSettings)
         {
-            await _artifactListSettingsService.SaveArtifactListColumnsSettings(id, Session.UserId, columnSettings);
+            await _artifactListSettingsService.SaveArtifactListColumnsSettings(id, Session.UserId, profileColumnSettings);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }

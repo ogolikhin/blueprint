@@ -13,6 +13,6 @@ namespace ServiceLibrary.Models.Collection
 
         public int? PropertyTypeId { get; set; }
 
-        public PropertyTypePredefined Predefined { get; set; }
+        public int Predefined { get; set; }
     }
 }

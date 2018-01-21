@@ -31,8 +31,8 @@ namespace ArtifactStore.Services.ArtifactListSettings
             _sqlArtifactRepository = sqlArtifactRepository;
         }
 
-        public async Task<int> SaveArtifactListColumnsSettings(
-            int itemId, int userId, ProfileColumnsSettings profileColumnsSettings)
+        public async Task<int> SaveArtifactListColumnsSettingsAsync(int itemId,
+            ProfileColumnsSettings profileColumnsSettings, int userId)
         {
             if (!await _artifactPermissionsRepository.HasReadPermissions(itemId, userId))
             {

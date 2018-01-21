@@ -13,6 +13,7 @@ using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Services;
+using AddArtifactsResult = ArtifactStore.Models.Review.AddArtifactsResult;
 
 namespace ArtifactStore.Repositories
 {

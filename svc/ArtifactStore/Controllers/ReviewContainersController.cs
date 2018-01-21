@@ -10,6 +10,7 @@ using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using AddArtifactsResult = ArtifactStore.Models.Review.AddArtifactsResult;
 
 namespace ArtifactStore.Controllers
 {

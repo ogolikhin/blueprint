@@ -179,7 +179,7 @@
     <Compile Include="Models\Collection\ProfileColumn.cs" />
     <Compile Include="Models\Collection\PropertyInfo.cs" />
     <Compile Include="Models\Collection\ArtifactListSettings.cs" />
-    <Compile Include="Models\AssignArtifactsResult.cs" />
+    <Compile Include="Models\AddArtifactsResult.cs" />
     <Compile Include="Models\DropdownItem.cs" />
     <Compile Include="Models\Email\DiscussionEmail.cs" />
     <Compile Include="Models\Enums\ActionTypes.cs" />

@@ -1,4 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 using ArtifactStore.Helpers;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Helpers;
@@ -6,10 +10,6 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Models.Collection;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 
 namespace ArtifactStore.Services.Collections
 {
@@ -23,10 +23,24 @@ namespace ArtifactStore.Services.Collections
         private readonly ISqlHelper _sqlHelper;
         private readonly ISearchEngineService _searchEngineService;
 
-        public CollectionsService(
-            ICollectionsRepository collectionsRepository, IArtifactRepository artifactRepository,
-            ILockArtifactsRepository lockArtifactsRepository, IItemInfoRepository itemInfoRepository,
-            IArtifactPermissionsRepository artifactPermissionsRepository, ISqlHelper sqlHelper,
+        public CollectionsService() : this(
+            new SqlCollectionsRepository(),
+            new SqlArtifactRepository(),
+            new SqlLockArtifactsRepository(),
+            new SqlItemInfoRepository(),
+            new SqlArtifactPermissionsRepository(),
+            new SqlHelper(),
+            new SearchEngineService())
+        {
+        }
+
+        private CollectionsService(
+            ICollectionsRepository collectionsRepository,
+            IArtifactRepository artifactRepository,
+            ILockArtifactsRepository lockArtifactsRepository,
+            IItemInfoRepository itemInfoRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            ISqlHelper sqlHelper,
             ISearchEngineService searchEngineService)
         {
             _collectionsRepository = collectionsRepository;
@@ -75,12 +89,8 @@ namespace ArtifactStore.Services.Collections
             return artifacts;
         }
 
-        public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
-        {
-            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
-        }
-
-        public async Task<AssignArtifactsResult> AddArtifactsToCollectionAsync(int userId, int collectionId, ISet<int> ids)
+        public async Task<AddArtifactsResult> AddArtifactsToCollectionAsync(
+            int collectionId, ISet<int> artifactIds, int userId)
         {
             if (userId < 1)
             {
@@ -92,13 +102,14 @@ namespace ArtifactStore.Services.Collections
                 throw new ArgumentOutOfRangeException(nameof(collectionId));
             }
 
-            AssignArtifactsResult assignResult = null;
+            AddArtifactsResult result = null;
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
                 var collection = await _artifactRepository.GetCollectionInfoAsync(userId, collectionId, transaction);
 
-                if (!(await _artifactPermissionsRepository.HasEditPermissions(collection.ArtifactId, userId, false, int.MaxValue, true, transaction)))
+                if (!await _artifactPermissionsRepository.HasEditPermissions(
+                    collection.ArtifactId, userId, transaction: transaction))
                 {
                     throw ExceptionHelper.CollectionForbiddenException(collection.ArtifactId);
                 }
@@ -111,31 +122,43 @@ namespace ArtifactStore.Services.Collections
                     }
                 }
 
-                await _collectionsRepository.RemoveDeletedArtifactsFromCollection(collection.ArtifactId, userId, transaction);
+                await _collectionsRepository.RemoveDeletedArtifactsFromCollectionAsync(
+                    collection.ArtifactId, userId, transaction);
 
-                var artifactsDetails = await _itemInfoRepository.GetItemsDetails(userId, ids, true, int.MaxValue, transaction);
-                var validArtifacts =
-                    artifactsDetails.Where(i => ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.PrimitiveArtifactGroup) != 0) &&
-                                                ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.BaselineArtifactGroup) == 0) &&
-                                                ((i.PrimitiveItemTypePredefined & (int)ItemTypePredefined.CollectionArtifactGroup) == 0) &&
-                                                (i.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Project) &&
-                                                (i.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Baseline) &&
-                                                i.VersionProjectId == collection.ProjectId &&
-                                                (i.EndRevision == int.MaxValue || i.EndRevision == 1)).ToList();
+                var artifactsDetails = await _itemInfoRepository.GetItemsDetails(
+                    userId, artifactIds, transaction: transaction);
+                var validArtifacts = artifactsDetails
+                    .Where(i => CanAddArtifactToCollection(i, collection))
+                    .ToList();
 
-                var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(validArtifacts.Select(i => i.HolderId), userId, false, int.MaxValue, true, transaction);
+                var artifactPermissionsDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(
+                    validArtifacts.Select(i => i.HolderId), userId, transaction: transaction);
                 var artifactsWithReadPermissions = artifactPermissionsDictionary
                     .Where(p => p.Value.HasFlag(RolePermissions.Read))
                     .Select(p => p.Key).ToList();
 
-                assignResult = new AssignArtifactsResult();
-                assignResult.AddedCount = await _collectionsRepository.AddArtifactsToCollectionAsync(userId, collection.ArtifactId, artifactsWithReadPermissions, transaction);
-                assignResult.Total = ids.Count;
+                result = new AddArtifactsResult
+                {
+                    AddedCount = await _collectionsRepository.AddArtifactsToCollectionAsync(
+                        userId, collection.ArtifactId, artifactsWithReadPermissions, transaction),
+                    Total = artifactIds.Count
+                };
             };
 
-            await RunInTransactionAsync(action);
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
 
-            return assignResult;
+            return result;
+        }
+
+        private static bool CanAddArtifactToCollection(ItemDetails artifact, ArtifactBasicDetails collection)
+        {
+            return (artifact.PrimitiveItemTypePredefined & (int)ItemTypePredefined.PrimitiveArtifactGroup) != 0 &&
+                   (artifact.PrimitiveItemTypePredefined & (int)ItemTypePredefined.BaselineArtifactGroup) == 0 &&
+                   (artifact.PrimitiveItemTypePredefined & (int)ItemTypePredefined.CollectionArtifactGroup) == 0 &&
+                   artifact.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Project &&
+                   artifact.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Baseline &&
+                   artifact.VersionProjectId == collection.ProjectId &&
+                   (artifact.EndRevision == int.MaxValue || artifact.EndRevision == 1);
         }
     }
 }

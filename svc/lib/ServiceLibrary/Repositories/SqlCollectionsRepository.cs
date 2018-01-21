@@ -189,7 +189,7 @@ namespace ServiceLibrary.Repositories
             }
         }
 
-        public async Task RemoveDeletedArtifactsFromCollection(int collectionId, int userId, IDbTransaction transaction = null)
+        public async Task RemoveDeletedArtifactsFromCollectionAsync(int collectionId, int userId, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
 

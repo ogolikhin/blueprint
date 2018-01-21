@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using ArtifactStore.Collections.Models;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.Collection;
 
-namespace ArtifactStore.Services.Collections
+namespace ArtifactStore.Collections
 {
     public interface ICollectionsService
     {

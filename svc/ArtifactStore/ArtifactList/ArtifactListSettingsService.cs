@@ -1,12 +1,13 @@
 ﻿using System.Threading.Tasks;
-using ArtifactStore.Helpers;
+using ArtifactStore.ArtifactList.Helpers;
+using ArtifactStore.ArtifactList.Models;
+using ArtifactStore.Collections.Helpers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Models.Collection;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ArtifactListSetting;
 
-namespace ArtifactStore.Services.ArtifactListSettings
+namespace ArtifactStore.ArtifactList
 {
     public class ArtifactListSettingsService : IArtifactListSettingsService
     {

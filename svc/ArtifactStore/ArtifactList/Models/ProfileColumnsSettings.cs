@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ServiceLibrary.Models.Collection
+namespace ArtifactStore.ArtifactList.Models
 {
     public class ProfileColumnsSettings
     {

@@ -41,6 +41,5 @@ namespace ServiceLibrary.Repositories
         Task<ArtifactBasicDetails> GetArtifactBasicDetails(int artifactId, int userId, IDbTransaction transaction = null);
 
         Task<IEnumerable<PropertyType>> GetStandardProperties(ISet<int> standardArtifactTypeIds);
-        Task<ArtifactBasicDetails> GetCollectionInfoAsync(int userId, int collectionId, IDbTransaction transaction = null);
     }
 }

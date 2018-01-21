@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
-using ServiceLibrary.Models.Collection;
+using ArtifactStore.ArtifactList.Models;
+using ArtifactStore.Collections.Models;
 
-namespace ArtifactStore.Services.ArtifactListSettings
+namespace ArtifactStore.ArtifactList
 {
     public interface IArtifactListSettingsService
     {

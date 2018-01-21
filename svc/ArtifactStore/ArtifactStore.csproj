@@ -116,10 +116,29 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="ArtifactList\ArtifactListSettingsService.cs" />
+    <Compile Include="ArtifactList\Helpers\ArtifactListHelper.cs" />
+    <Compile Include="ArtifactList\IArtifactListSettingsService.cs" />
+    <Compile Include="ArtifactList\Models\XmlProfileSettings.cs" />
+    <Compile Include="ArtifactList\Models\ProfileColumn.cs" />
+    <Compile Include="ArtifactList\Models\ProfileColumnsSettings.cs" />
+    <Compile Include="Collections\CollectionsController.cs" />
+    <Compile Include="Collections\CollectionsService.cs" />
+    <Compile Include="Collections\Helpers\CollectionsExceptionHelper.cs" />
+    <Compile Include="Collections\ICollectionsRepository.cs" />
+    <Compile Include="Collections\ICollectionsService.cs" />
+    <Compile Include="Collections\Models\AddArtifactsResult.cs" />
+    <Compile Include="Collections\Models\ArtifactDto.cs" />
+    <Compile Include="Collections\Models\ArtifactListColumn.cs" />
+    <Compile Include="Collections\Models\ArtifactListFilter.cs" />
+    <Compile Include="Collections\Models\ArtifactListSettings.cs" />
+    <Compile Include="Collections\Models\CollectionArtifact.cs" />
+    <Compile Include="Collections\Models\CollectionArtifacts.cs" />
+    <Compile Include="Collections\Models\PropertyInfo.cs" />
+    <Compile Include="Collections\SqlCollectionsRepository.cs" />
     <Compile Include="Controllers\ArtifactController.cs" />
     <Compile Include="Controllers\AttachmentsController.cs" />
     <Compile Include="Controllers\ArtifactVersionsController.cs" />
-    <Compile Include="Controllers\CollectionsController.cs" />
     <Compile Include="Controllers\DiscussionController.cs" />
     <Compile Include="Controllers\ProjectMetaController.cs" />
     <Compile Include="Controllers\RelationshipsController.cs" />
@@ -133,7 +152,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\CollectionsExceptionHelper.cs" />
     <Compile Include="Helpers\IMeaningOfSignatureValueExtensions.cs" />
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\ReviewsExceptionHelper.cs" />
@@ -226,10 +244,6 @@
     <Compile Include="Repositories\VersionControl\SqlPublishReuseProcessingRepository.cs" />
     <Compile Include="Repositories\VersionControl\SqlVersionControlRepository.cs" />
     <Compile Include="Executors\StateChangeExecutor.cs" />
-    <Compile Include="Services\ArtifactListSettings\ArtifactListSettingsService.cs" />
-    <Compile Include="Services\ArtifactListSettings\IArtifactListSettingsService.cs" />
-    <Compile Include="Services\Collections\CollectionsService.cs" />
-    <Compile Include="Services\Collections\ICollectionsService.cs" />
     <Compile Include="Services\Reviews\IReviewsService.cs" />
     <Compile Include="Services\Reviews\MeaningOfSignature\IMeaningOfSignatureUpdateStrategy.cs" />
     <Compile Include="Services\Reviews\MeaningOfSignature\MeaningOfSignatureUpdate.cs" />

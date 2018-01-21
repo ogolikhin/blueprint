@@ -4,16 +4,16 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ArtifactStore.Services.ArtifactListSettings;
-using ArtifactStore.Services.Collections;
+using ArtifactStore.ArtifactList;
+using ArtifactStore.ArtifactList.Models;
+using ArtifactStore.Collections.Models;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.Collection;
 
-namespace ArtifactStore.Controllers
+namespace ArtifactStore.Collections
 {
     [ApiControllerJsonConfig]
     [BaseExceptionFilter]
@@ -84,7 +84,8 @@ namespace ArtifactStore.Controllers
         {
             if (artifactIds.IsEmpty())
             {
-                throw new BadRequestException(ErrorMessages.InvalidAddArtifactsParameters, ErrorCodes.BadRequest);
+                throw new BadRequestException(
+                    ErrorMessages.Collections.AddArtifactsInvalidParameters, ErrorCodes.BadRequest);
             }
 
             var result = await _collectionsService.AddArtifactsToCollectionAsync(id, artifactIds, Session.UserId);

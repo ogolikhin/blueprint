@@ -1,4 +1,4 @@
-﻿namespace ServiceLibrary.Models
+﻿namespace ArtifactStore.Collections.Models
 {
     public class AddArtifactsResult
     {

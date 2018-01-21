@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Net.Http;
 using System.Web.Http;
+using ArtifactStore.Collections;
 using ArtifactStore.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Attributes;

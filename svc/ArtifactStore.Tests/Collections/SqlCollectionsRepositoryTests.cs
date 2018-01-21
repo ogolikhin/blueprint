@@ -3,11 +3,9 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
 
-namespace ServiceLibrary.Repositories
+namespace ArtifactStore.Collections
 {
     [TestClass]
     public class SqlCollectionsRepositoryTests

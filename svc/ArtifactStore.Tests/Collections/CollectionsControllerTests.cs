@@ -1,26 +1,28 @@
 ﻿using System.Net.Http;
-using ArtifactStore.Services.ArtifactListSettings;
-using ArtifactStore.Services.Collections;
+using ArtifactStore.ArtifactList;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
-namespace ArtifactStore.Controllers
+namespace ArtifactStore.Collections
 {
     [TestClass]
     public class CollectionsControllerTests
     {
+        private int _userId = 1;
+
         private Mock<ICollectionsService> _collectionsServiceMock;
         private Mock<IArtifactListSettingsService> _mockArtifactListSettingsService;
         private CollectionsController _collectionsController;
         private Session _session;
-        private int UserId = 1;
+
 
         [TestInitialize]
         public void Initialize()
         {
-            _session = new Session { UserId = UserId };
+            _userId = 1;
+            _session = new Session { UserId = _userId };
 
             _collectionsServiceMock = new Mock<ICollectionsService>();
             _mockArtifactListSettingsService = new Mock<IArtifactListSettingsService>();

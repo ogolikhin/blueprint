@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace ServiceLibrary.Models.Collection
+namespace ArtifactStore.ArtifactList.Models
 {
     [XmlRoot("Settings")]
     [XmlType("Settings")]

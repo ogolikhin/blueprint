@@ -1,7 +1,11 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
+using ArtifactStore.Collections.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
@@ -16,6 +20,10 @@ namespace ArtifactStore.Collections
         private Mock<IArtifactListService> _mockArtifactListSettingsService;
         private CollectionsController _collectionsController;
         private Session _session;
+        private int SessionUserId = 1;
+        private ISet<int> artifactIds;
+        private int CollectionId;
+        private AddArtifactsResult addArtifactsResult;
 
 
         [TestInitialize]
@@ -34,6 +42,39 @@ namespace ArtifactStore.Collections
             };
 
             _collectionsController.Request.Properties[ServiceConstants.SessionProperty] = _session;
+
+            artifactIds = new HashSet<int>() { 1, 2, 3 };
+
+            CollectionId = 1;
+            addArtifactsResult = new AddArtifactsResult()
+            {
+                AddedCount = 1,
+                Total = 1
+            };
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AddArtifactsToCollectionAsync_InvalidScope_ThrowsException()
+        {
+
+            _collectionsServiceMock.Setup(svc => svc.AddArtifactsToCollectionAsync(CollectionId, artifactIds, SessionUserId)).ReturnsAsync(addArtifactsResult);
+
+            artifactIds = null;
+
+            await _collectionsController.AddArtifactsToCollectionAsync(CollectionId, "add", artifactIds);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task AddArtifactsToCollectionAsync_EmptyScope_ThrowsException()
+        {
+
+            _collectionsServiceMock.Setup(svc => svc.AddArtifactsToCollectionAsync(CollectionId, artifactIds, SessionUserId)).ReturnsAsync(addArtifactsResult);
+
+            artifactIds = new HashSet<int>();
+
+            await _collectionsController.AddArtifactsToCollectionAsync(CollectionId, "add", artifactIds);
         }
     }
 }

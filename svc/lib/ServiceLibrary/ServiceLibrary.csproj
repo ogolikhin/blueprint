@@ -175,7 +175,7 @@
     <Compile Include="Models\Enums\StandardArtifactTypes.cs" />
     <Compile Include="Models\ItemType\ItemTypeInfo.cs" />
     <Compile Include="Models\ProjectMeta\PropertyTypeVersionExtension.cs" />
-    <Compile Include="Models\RevExpFilterParameters.cs" />
+    <Compile Include="Models\ReviewFilterParameters.cs" />
     <Compile Include="Models\StandardArtifactType.cs" />
     <Compile Include="Models\PropertyType\ChoicePropertyValidator.cs" />
     <Compile Include="Helpers\Validators\EmailValidator.cs" />

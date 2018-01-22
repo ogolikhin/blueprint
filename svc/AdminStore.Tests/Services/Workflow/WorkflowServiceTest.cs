@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AdminStore.Models;
+using AdminStore.Models.DTO;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
@@ -10,6 +13,8 @@ using AdminStore.Repositories.Workflow;
 using AdminStore.Services.Workflow.Validation;
 using AdminStore.Services.Workflow.Validation.Data;
 using AdminStore.Services.Workflow.Validation.Xml;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
+using BluePrintSys.Messaging.Models.Actions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -19,6 +24,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Services.Workflow
 {
@@ -50,6 +56,9 @@ namespace AdminStore.Services.Workflow
         private const DiagramPort FromPort = DiagramPort.Left;
         private const DiagramPort ToPort = DiagramPort.Right;
         private Mock<IWorkflowDataValidator> _workflowDataValidatorMock;
+        private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
+        private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
+        private Mock<ISendMessageExecutor> _sendMessageExecutorMock;
 
         #endregion
 
@@ -64,6 +73,10 @@ namespace AdminStore.Services.Workflow
             _triggerConverter = new Mock<ITriggerConverter>();
             _projectMetaRepository = new Mock<IProjectMetaRepository>();
             _artifactRepository = new Mock<IArtifactRepository>();
+            _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>();
+            _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>();
+            _serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
+            _sendMessageExecutorMock = new Mock<ISendMessageExecutor>();
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
@@ -73,7 +86,10 @@ namespace AdminStore.Services.Workflow
                 _triggerConverter.Object,
                 null,
                 null,
-                _artifactRepository.Object);
+                _artifactRepository.Object,
+                _applicationSettingsRepositoryMock.Object,
+                _serviceLogRepositoryMock.Object,
+                _sendMessageExecutorMock.Object);
 
             _workflowDataValidatorMock = new Mock<IWorkflowDataValidator>();
             _workflowDataValidatorMock
@@ -232,6 +248,46 @@ namespace AdminStore.Services.Workflow
 
         #endregion
 
+        #region UpdateWorkflowAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task UpdateWorkflowAsync_WorkflowNotExistsInDb_ThrowsResourceNotFound()
+        {
+            // Arrange
+            var updateSatus = new UpdateWorkflowDto() { VersionId = 1, Status = true };
+            _workflowRepositoryMock
+                .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
+            // Act
+            await _service.UpdateWorkflowAsync(updateSatus, WorkflowId, SessionUserId);
+        }
+
+        [TestMethod]
+        public async Task UpdateWorkflowAsync_StatusChanges_SuccessfullySendsMessage()
+        {
+            // Arrange
+            var transactionMock = new Mock<IDbTransaction>();
+            var updateSatus = new UpdateWorkflowDto() { VersionId = 1, Status = true };
+            _workflowRepositoryMock
+                .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)new SqlWorkflow() { Active = false });
+            _workflowRepositoryMock.Setup(
+                repo =>
+                    repo.CreateRevisionInTransactionAsync(It.IsAny<IDbTransaction>(), It.IsAny<int>(),
+                        It.IsAny<string>())).ReturnsAsync(1);
+            _workflowRepositoryMock.Setup(repo => repo.RunInTransactionAsync(It.IsAny<Func<IDbTransaction, Task>>()))
+                .Returns(Task.Run(() => { }))
+                .Callback((Func<IDbTransaction, Task> action) =>
+                {
+                    action(transactionMock.Object);
+                });
+
+            // Act
+            await _service.UpdateWorkflowAsync(updateSatus, WorkflowId, SessionUserId);
+
+            // Assert
+             _sendMessageExecutorMock.Verify(a => a.Execute(It.IsAny<IApplicationSettingsRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<ActionMessage>(), It.IsAny<IDbTransaction>()), Times.Once);
+        }
+        #endregion
         #region UpdateWorkflowStatusAsync
 
         [TestMethod]

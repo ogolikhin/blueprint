@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AdminStore.Models;
+using AdminStore.Models.DTO;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
 using AdminStore.Repositories;
@@ -240,6 +241,20 @@ namespace AdminStore.Services.Workflow
 
         #endregion
 
+        #region
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task UpdateWorkflowAsync_WorkflowNotExistsInDb_ThrowsResourceNotFound()
+        {
+            // Arrange
+            var updateSatus = new UpdateWorkflowDto() { VersionId = 1, Status = true };
+            _workflowRepositoryMock
+                .Setup(repo => repo.GetWorkflowDetailsAsync(It.IsAny<int>())).ReturnsAsync((SqlWorkflow)null);
+            // Act
+            await _service.UpdateWorkflowAsync(updateSatus, WorkflowId, SessionUserId);
+        }
+        #endregion
         #region UpdateWorkflowStatusAsync
 
         [TestMethod]

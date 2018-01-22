@@ -414,7 +414,11 @@ namespace AdminStore.Services.Workflow
                 }
 
                 versionId = await _workflowRepository.UpdateWorkflowsAsync(workflows, publishRevision, transaction);
-                await PostWorkflowStatusUpdate(workflowId, userId, publishRevision, transaction);
+
+                if (existingWorkflow.Active != statusUpdate.Active)
+                {
+                    await PostWorkflowStatusUpdate(workflowId, userId, publishRevision, transaction);
+                }
             };
             await _workflowRepository.RunInTransactionAsync(action);
             return versionId;
@@ -429,6 +433,13 @@ namespace AdminStore.Services.Workflow
 
         public async Task UpdateWorkflowAsync(UpdateWorkflowDto workflowDto, int workflowId, int userId)
         {
+            var previousWorkflowVersion = await _workflowRepository.GetWorkflowDetailsAsync(workflowId);
+
+            if (previousWorkflowVersion == null)
+            {
+                throw new ResourceNotFoundException(ErrorMessages.WorkflowNotExist, ErrorCodes.ResourceNotFound);
+            }
+
             var workflow = new SqlWorkflow
             {
                 Name = workflowDto.Name,
@@ -451,6 +462,10 @@ namespace AdminStore.Services.Workflow
                 }
 
                 await _workflowRepository.UpdateWorkflowAsync(workflow, publishRevision, transaction);
+                if (previousWorkflowVersion.Active != workflowDto.Status)
+                {
+                    await PostWorkflowStatusUpdate(workflowId, userId, publishRevision, transaction);
+                }
             };
 
             await _workflowRepository.RunInTransactionAsync(action);

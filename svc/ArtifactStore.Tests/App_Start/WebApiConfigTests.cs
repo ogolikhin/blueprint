@@ -72,6 +72,7 @@ namespace ArtifactStore
             config.AssertAction<ArtifactController>("GetStandardProperties", HttpMethod.Post, "artifacts/standardproperties");
             config.AssertAction<CollectionsController>("GetArtifactsInCollectionAsync", HttpMethod.Get, "collections/1/artifacts");
             config.AssertAction<CollectionsController>("AddArtifactsToCollectionAsync", HttpMethod.Post, "collections/1/artifacts?add");
+            config.AssertAction<CollectionsController>("SaveArtifactListColumnsSettingsAsync", HttpMethod.Post, "collections/1/settings/columns");
         }
 
         [TestMethod]

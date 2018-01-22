@@ -105,7 +105,7 @@ namespace ArtifactStore.Collections
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns></returns>
         [HttpPost]
-        [Route("{id:int:min(1)}/artifacts/settings/columns"), SessionRequired]
+        [Route("{id:int:min(1)}/settings/columns"), SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<HttpResponseMessage> SaveArtifactListColumnsSettingsAsync(
             int id, [FromBody] ProfileColumnsSettings profileColumnSettings)

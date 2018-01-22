@@ -13,7 +13,7 @@ namespace ArtifactStore.Collections
         private int _userId = 1;
 
         private Mock<ICollectionsService> _collectionsServiceMock;
-        private Mock<IArtifactListSettingsService> _mockArtifactListSettingsService;
+        private Mock<IArtifactListService> _mockArtifactListSettingsService;
         private CollectionsController _collectionsController;
         private Session _session;
 
@@ -25,11 +25,10 @@ namespace ArtifactStore.Collections
             _session = new Session { UserId = _userId };
 
             _collectionsServiceMock = new Mock<ICollectionsService>();
-            _mockArtifactListSettingsService = new Mock<IArtifactListSettingsService>();
+            _mockArtifactListSettingsService = new Mock<IArtifactListService>();
 
             _collectionsController = new CollectionsController(
-                _collectionsServiceMock.Object,
-                _mockArtifactListSettingsService.Object)
+                _collectionsServiceMock.Object)
             {
                 Request = new HttpRequestMessage()
             };

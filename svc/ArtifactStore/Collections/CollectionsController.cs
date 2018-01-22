@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using ServiceLibrary.Attributes;
@@ -21,22 +20,16 @@ namespace ArtifactStore.Collections
     public class CollectionsController : LoggableApiController
     {
         private readonly ICollectionsService _collectionsService;
-        private readonly IArtifactListSettingsService _artifactListSettingsService;
 
         public override string LogSource => "ArtifactStore.Collections";
 
-        public CollectionsController() : this(
-            new CollectionsService(),
-            new ArtifactListSettingsService())
+        public CollectionsController() : this(new CollectionsService())
         {
         }
 
-        public CollectionsController(
-            ICollectionsService collectionsService,
-            IArtifactListSettingsService artifactListSettingsService)
+        public CollectionsController(ICollectionsService collectionsService)
         {
             _collectionsService = collectionsService;
-            _artifactListSettingsService = artifactListSettingsService;
         }
 
         /// <summary>
@@ -76,6 +69,7 @@ namespace ArtifactStore.Collections
         /// <response code="403">Forbidden. The user does not have permissions for the collection.</response>
         /// <response code="404">Not found. A collection for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// <returns>Result of the operation.</returns>
         [HttpPost]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(AddArtifactsResult))]
@@ -94,24 +88,43 @@ namespace ArtifactStore.Collections
         }
 
         /// <summary>
-        /// Save artifact list columns settings.
+        /// Gets available collection columns.
         /// </summary>
         /// <param name="id">Collection id.</param>
-        /// <param name="profileColumnSettings">Columns settings to save.</param>
+        /// <param name="search">Parameter to match column names.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the collection.</response>
+        /// <response code="404">Not found. A collection for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// <returns>Selected and remaning columns.</returns>
+        [HttpGet, NoCache]
+        [Route("{id:int:min(1)}/settings/columns"), SessionRequired]
+        [ResponseType(typeof(GetColumnsDto))]
+        public async Task<IHttpActionResult> GetColumnsAsync(int id, string search = null)
+        {
+            var result = await _collectionsService.GetColumnsAsync(id, Session.UserId, search);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Save collection columns settings.
+        /// </summary>
+        /// <param name="id">Collection id.</param>
+        /// <param name="columnSettings">Columns settings to save.</param>
         /// <response code="204">NoContent. Artifact list columns settings were saved.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions to save artifact list columns settings.</response>
         /// <response code="404">Not Found. The collection with current id was not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <returns></returns>
         [HttpPost]
         [Route("{id:int:min(1)}/settings/columns"), SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<HttpResponseMessage> SaveArtifactListColumnsSettingsAsync(
-            int id, [FromBody] ProfileColumnsSettings profileColumnSettings)
+        public async Task<HttpResponseMessage> SaveColumnsSettingsAsync(
+            int id, [FromBody] ProfileColumnsSettings columnSettings)
         {
-            await _artifactListSettingsService.SaveArtifactListColumnsSettingsAsync(
-                id, profileColumnSettings, Session.UserId);
+            await _collectionsService.SaveColumnSettingsAsync(id, columnSettings, Session.UserId);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }

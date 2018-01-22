@@ -13,5 +13,14 @@ namespace ArtifactStore.ArtifactList.Helpers
                 Columns = columnSettings.Items.ToList()
             };
         }
+
+        public static ProfileColumnsSettings ConvertXmlProfileSettingsToProfileColumnSettings(
+            XmlProfileSettings settings)
+        {
+            return new ProfileColumnsSettings
+            {
+                Items = settings.Columns.ToList()
+            };
+        }
     }
 }

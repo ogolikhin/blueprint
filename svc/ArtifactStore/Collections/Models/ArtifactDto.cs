@@ -11,6 +11,6 @@ namespace ArtifactStore.Collections.Models
         public int? ItemTypeId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<PropertyInfo> PropertyInfos { get; set; }
+        public IEnumerable<PropertyValueInfo> PropertyInfos { get; set; }
     }
 }

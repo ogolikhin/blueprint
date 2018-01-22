@@ -150,12 +150,6 @@
         public static readonly string RequireESignatureDisabled = "Meaning of Signature setting cannot be updated. Electornic signatures are not enabled for Review (Id:{0}).";
         public static readonly string MeaningOfSignatureDisabledInProject = "Meaning of Signature is disabled for the current project.";
         public static readonly string InvalidStandardArtifactTypesFilterValue = "Invalid filter parameter value.";
-        // Collections
-        public static readonly string GeneralErrorOfAddingArtifactsToCollection = "General error of adding artifacts to collection";
-        public static readonly string CollectionDoesNotExist = "Collection does not exist";
-        public static readonly string CollectionInRevisionDoesNotExist = "Collection in revision {0} does not exist.";
-        public static readonly string IncorrectType = "Collection's id has wrong type.";
-        public static readonly string CollectionIsAlreadyLockedByUser = "Collection (Id:{0}) is already locked by current user (Id:{1}).";
 
         public static class Collections
         {

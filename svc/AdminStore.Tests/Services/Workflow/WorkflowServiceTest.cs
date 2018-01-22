@@ -19,6 +19,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Services.Workflow
 {
@@ -50,6 +51,8 @@ namespace AdminStore.Services.Workflow
         private const DiagramPort FromPort = DiagramPort.Left;
         private const DiagramPort ToPort = DiagramPort.Right;
         private Mock<IWorkflowDataValidator> _workflowDataValidatorMock;
+        private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
+        private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
 
         #endregion
 
@@ -64,6 +67,9 @@ namespace AdminStore.Services.Workflow
             _triggerConverter = new Mock<ITriggerConverter>();
             _projectMetaRepository = new Mock<IProjectMetaRepository>();
             _artifactRepository = new Mock<IArtifactRepository>();
+            _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>();
+            _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>();
+            _serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
@@ -73,7 +79,9 @@ namespace AdminStore.Services.Workflow
                 _triggerConverter.Object,
                 null,
                 null,
-                _artifactRepository.Object);
+                _artifactRepository.Object,
+                _applicationSettingsRepositoryMock.Object,
+                _serviceLogRepositoryMock.Object);
 
             _workflowDataValidatorMock = new Mock<IWorkflowDataValidator>();
             _workflowDataValidatorMock

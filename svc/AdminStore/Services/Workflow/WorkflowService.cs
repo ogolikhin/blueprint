@@ -17,6 +17,8 @@ using AdminStore.Services.Workflow.Validation;
 using AdminStore.Services.Workflow.Validation.Data;
 using AdminStore.Services.Workflow.Validation.Data.PropertyValue;
 using AdminStore.Services.Workflow.Validation.Xml;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
+using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -24,6 +26,8 @@ using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ApplicationSettings;
+using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
 using ServiceLibrary.Repositories.ProjectMeta;
 using File = ServiceLibrary.Models.Files.File;
@@ -44,6 +48,8 @@ namespace AdminStore.Services.Workflow
         private readonly IPropertyValueValidatorFactory _propertyValueValidatorFactory;
         private readonly IWorkflowDiff _workflowDiff;
         private readonly IArtifactRepository _artifactRepository;
+        private readonly IApplicationSettingsRepository _applicationSettingsRepository;
+        private readonly IServiceLogRepository _serviceLogRepository;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
@@ -57,7 +63,9 @@ namespace AdminStore.Services.Workflow
                   new TriggerConverter(),
                   new PropertyValueValidatorFactory(),
                   new WorkflowDiff(),
-                  new SqlArtifactRepository())
+                  new SqlArtifactRepository(),
+                  new ApplicationSettingsRepository(),
+                  new ServiceLogRepository())
         {
             _workflowDataValidator = new WorkflowDataValidator(
                 _workflowRepository,
@@ -76,7 +84,9 @@ namespace AdminStore.Services.Workflow
             ITriggerConverter triggerConverter,
             IPropertyValueValidatorFactory propertyValueValidatorFactory,
             IWorkflowDiff workflowDiff,
-            IArtifactRepository artifactRepository)
+            IArtifactRepository artifactRepository,
+            IApplicationSettingsRepository applicationSettingsRepository,
+            IServiceLogRepository serviceLogRepository)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
@@ -87,6 +97,8 @@ namespace AdminStore.Services.Workflow
             _propertyValueValidatorFactory = propertyValueValidatorFactory;
             _workflowDiff = workflowDiff;
             _artifactRepository = artifactRepository;
+            _applicationSettingsRepository = applicationSettingsRepository;
+            _serviceLogRepository = serviceLogRepository;
         }
 
         public IFileRepository FileRepository
@@ -402,9 +414,17 @@ namespace AdminStore.Services.Workflow
                 }
 
                 versionId = await _workflowRepository.UpdateWorkflowsAsync(workflows, publishRevision, transaction);
+                await PostWorkflowStatusUpdate(workflowId, userId, publishRevision, transaction);
             };
             await _workflowRepository.RunInTransactionAsync(action);
             return versionId;
+        }
+
+        private async Task PostWorkflowStatusUpdate(int workflowId, int userId, int revisionId, IDbTransaction transaction = null)
+        {
+            var sendMessageExecutor = new SendMessageExecutor();
+            var message = new WorkflowsChangedMessage { UserId = userId, RevisionId = revisionId, WorkflowId = workflowId };
+            await sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message, transaction);
         }
 
         public async Task UpdateWorkflowAsync(UpdateWorkflowDto workflowDto, int workflowId, int userId)

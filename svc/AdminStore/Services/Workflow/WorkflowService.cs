@@ -50,6 +50,7 @@ namespace AdminStore.Services.Workflow
         private readonly IArtifactRepository _artifactRepository;
         private readonly IApplicationSettingsRepository _applicationSettingsRepository;
         private readonly IServiceLogRepository _serviceLogRepository;
+        private readonly ISendMessageExecutor _sendMessageExecutor;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
@@ -65,7 +66,8 @@ namespace AdminStore.Services.Workflow
                   new WorkflowDiff(),
                   new SqlArtifactRepository(),
                   new ApplicationSettingsRepository(),
-                  new ServiceLogRepository())
+                  new ServiceLogRepository(),
+                  new SendMessageExecutor())
         {
             _workflowDataValidator = new WorkflowDataValidator(
                 _workflowRepository,
@@ -86,7 +88,8 @@ namespace AdminStore.Services.Workflow
             IWorkflowDiff workflowDiff,
             IArtifactRepository artifactRepository,
             IApplicationSettingsRepository applicationSettingsRepository,
-            IServiceLogRepository serviceLogRepository)
+            IServiceLogRepository serviceLogRepository,
+            ISendMessageExecutor sendMessageExecutor)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
@@ -99,6 +102,7 @@ namespace AdminStore.Services.Workflow
             _artifactRepository = artifactRepository;
             _applicationSettingsRepository = applicationSettingsRepository;
             _serviceLogRepository = serviceLogRepository;
+            _sendMessageExecutor = sendMessageExecutor;
         }
 
         public IFileRepository FileRepository
@@ -426,9 +430,8 @@ namespace AdminStore.Services.Workflow
 
         private async Task PostWorkflowStatusUpdate(int workflowId, int userId, int revisionId, IDbTransaction transaction = null)
         {
-            var sendMessageExecutor = new SendMessageExecutor();
             var message = new WorkflowsChangedMessage { UserId = userId, RevisionId = revisionId, WorkflowId = workflowId };
-            await sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message, transaction);
+            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message, transaction);
         }
 
         public async Task UpdateWorkflowAsync(UpdateWorkflowDto workflowDto, int workflowId, int userId)

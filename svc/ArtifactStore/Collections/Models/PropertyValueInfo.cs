@@ -7,6 +7,7 @@ namespace ArtifactStore.Collections.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? PropertyTypeId { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Value { get; set; }
     }
 }

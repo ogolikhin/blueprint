@@ -11,6 +11,12 @@ namespace ArtifactStore.Collections.Models
         public int? ItemTypeId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? PredefinedType { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? ItemTypeIconId { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<PropertyValueInfo> PropertyInfos { get; set; }
     }
 }

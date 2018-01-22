@@ -3,6 +3,7 @@ using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Models.Review;
 using ServiceLibrary.Models;
+using AddArtifactsResult = ArtifactStore.Models.Review.AddArtifactsResult;
 
 namespace ArtifactStore.Repositories
 {

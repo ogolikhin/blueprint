@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
+using ArtifactStore.Collections;
 
 namespace ServiceLibrary.Repositories
 {
@@ -29,7 +30,7 @@ namespace ServiceLibrary.Repositories
             // Arrange
 
             // Act
-            await _collectionRepository.RemoveDeletedArtifactsFromCollection(CollectionId, UserId);
+            await _collectionRepository.RemoveDeletedArtifactsFromCollectionAsync(CollectionId, UserId);
         }
 
         #endregion
@@ -42,7 +43,7 @@ namespace ServiceLibrary.Repositories
             // Arrange
 
             // Act
-            await _collectionRepository.AddArtifactsToCollectionAsync(UserId, CollectionId, new List<int>() { 1, 2, 3 });
+            await _collectionRepository.AddArtifactsToCollectionAsync(CollectionId, new List<int>() { 1, 2, 3 }, UserId);
         }
 
         #endregion

@@ -168,14 +168,6 @@
     <Compile Include="Helpers\I18NHelper.cs" />
     <Compile Include="Helpers\TimeProvider.cs" />
     <Compile Include="Helpers\UserManagementHelper.cs" />
-    <Compile Include="Models\Collection\ArtifactDto.cs" />
-    <Compile Include="Models\Collection\CollectionArtifact.cs" />
-    <Compile Include="Models\Collection\CollectionArtifacts.cs" />
-    <Compile Include="Models\Collection\ArtifactListColumn.cs" />
-    <Compile Include="Models\Collection\ArtifactListFilter.cs" />
-    <Compile Include="Models\Collection\PropertyInfo.cs" />
-    <Compile Include="Models\Collection\ArtifactListSettings.cs" />
-    <Compile Include="Models\AssignArtifactsResult.cs" />
     <Compile Include="Models\DropdownItem.cs" />
     <Compile Include="Models\Email\DiscussionEmail.cs" />
     <Compile Include="Models\Enums\ActionTypes.cs" />
@@ -381,7 +373,8 @@
     <Compile Include="Repositories\ApplicationSettings\SqlFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\IFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
-    <Compile Include="Repositories\SqlCollectionsRepository.cs" />
+    <Compile Include="Repositories\ArtifactListSetting\ArtifactListSettingsRepository.cs" />
+    <Compile Include="Repositories\ArtifactListSetting\IArtifactListSettingsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
@@ -389,7 +382,6 @@
     <Compile Include="Helpers\Files\FileHttpWebClient.cs" />
     <Compile Include="Repositories\IArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\Files\IFileRepository.cs" />
-    <Compile Include="Repositories\ICollectionsRepository.cs" />
     <Compile Include="Repositories\ILockArtifactsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\IInstanceSettingsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\SqlInstanceSettingsRepository.cs" />

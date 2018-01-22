@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace ServiceLibrary.Models.Collection
+namespace ArtifactStore.Collections.Models
 {
     public class ArtifactDto
     {
@@ -11,6 +11,6 @@ namespace ServiceLibrary.Models.Collection
         public int? ItemTypeId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<PropertyInfo> PropertyInfos { get; set; }
+        public IEnumerable<PropertyValueInfo> PropertyInfos { get; set; }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ArtifactStore.Services.Collections;
-using ArtifactStore.Services.Workflow;
+using ArtifactStore.ArtifactList;
+using ArtifactStore.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchEngineLibrary.Service;
@@ -23,6 +23,7 @@ namespace ArtifactStore.Services
         private Mock<IItemInfoRepository> _itemInfoRepository;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepository;
         private Mock<ISearchEngineService> _searchEngineService;
+        private Mock<IArtifactListService> _artifactListService;
 
         private int SessionUserId = 1;
         private ISet<int> artifactIds;
@@ -38,6 +39,7 @@ namespace ArtifactStore.Services
             _itemInfoRepository = new Mock<IItemInfoRepository>();
             _artifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             _searchEngineService = new Mock<ISearchEngineService>();
+            _artifactListService = new Mock<IArtifactListService>();
 
             _collectionService = new CollectionsService(_collectionsRepository.Object,
                                                         _artifactRepository.Object,
@@ -45,7 +47,8 @@ namespace ArtifactStore.Services
                                                         _itemInfoRepository.Object,
                                                         _artifactPermissionsRepository.Object,
                                                         _sqlHelperMock,
-                                                        _searchEngineService.Object);
+                                                        _searchEngineService.Object,
+                                                        _artifactListService.Object);
 
 
             artifactIds = new HashSet<int>() { 1, 2, 3 };
@@ -57,7 +60,7 @@ namespace ArtifactStore.Services
         public async Task AddArtifactsToCollectionAsync_InvalidUserId_ThrowArgumentOutOfRangeException()
         {
             SessionUserId = 0;
-            await _collectionService.AddArtifactsToCollectionAsync(SessionUserId, CollectionId, artifactIds);
+            await _collectionService.AddArtifactsToCollectionAsync(CollectionId, artifactIds, SessionUserId);
         }
 
         [TestMethod]
@@ -65,7 +68,7 @@ namespace ArtifactStore.Services
         public async Task AddArtifactsToCollectionAsync_InvalidCollectionId_ThrowArgumentOutOfRangeException()
         {
             CollectionId = 0;
-            await _collectionService.AddArtifactsToCollectionAsync(SessionUserId, CollectionId, artifactIds);
+            await _collectionService.AddArtifactsToCollectionAsync(CollectionId, artifactIds, SessionUserId);
         }
 
     }

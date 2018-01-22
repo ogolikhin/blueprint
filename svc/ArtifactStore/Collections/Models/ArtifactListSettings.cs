@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace ServiceLibrary.Models.Collection
+namespace ArtifactStore.Collections.Models
 {
     public class ArtifactListSettings
     {

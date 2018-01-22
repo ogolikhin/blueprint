@@ -2,7 +2,7 @@
 
 namespace ServiceLibrary.Helpers
 {
-    public class ExceptionHelper
+    public static class ExceptionHelper
     {
         public static ResourceNotFoundException NotFoundException(int projectId, int? artifactId)
         {
@@ -32,12 +32,6 @@ namespace ServiceLibrary.Helpers
         public static AuthorizationException ArtifactForbiddenException(int artifactId)
         {
             var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactId);
-            return new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
-        }
-
-        public static AuthorizationException CollectionForbiddenException(int collectionId)
-        {
-            var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Collection (Id:{0}).", collectionId);
             return new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 

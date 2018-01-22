@@ -32,7 +32,7 @@ namespace ServiceLibrary.Repositories
         public async Task<IEnumerable<ItemLabel>> GetItemsLabels(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
@@ -42,9 +42,14 @@ namespace ServiceLibrary.Repositories
 
         public async Task<IEnumerable<ItemDetails>> GetItemsDetails(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue, IDbTransaction transaction = null)
         {
+            if (itemIds.IsEmpty())
+            {
+                return Enumerable.Empty<ItemDetails>();
+            }
+
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
-            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
 
@@ -52,10 +57,8 @@ namespace ServiceLibrary.Repositories
             {
                 return await _connectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
             }
-            else
-            {
-                return await transaction.Connection.QueryAsync<ItemDetails>("GetItemsDetails", parameters, transaction, commandType: CommandType.StoredProcedure);
-            }
+
+            return await transaction.Connection.QueryAsync<ItemDetails>("GetItemsDetails", parameters, transaction, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<string> GetItemDescription(int itemId, int userId, bool? addDrafts = true, int? revisionId = int.MaxValue)
@@ -73,7 +76,7 @@ namespace ServiceLibrary.Repositories
         public async Task<IEnumerable<ItemRawDataCreatedDate>> GetItemsRawDataCreatedDate(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);

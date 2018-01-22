@@ -277,6 +277,8 @@ namespace ArtifactStore.Collections
 
                 var propertyInfos = new List<PropertyValueInfo>();
                 int? itemTypeId = null;
+                int? predefinedType = null;
+                int? itemTypeIconId = null;
 
                 foreach (var artifactProperty in artifactProperties)
                 {
@@ -287,7 +289,9 @@ namespace ArtifactStore.Collections
                     {
                         artifactListColumn = new ArtifactListColumn
                         {
-                            PropertyName = artifactProperty.PropertyName
+                            PropertyName = artifactProperty.PropertyName,
+                            Predefined = artifactProperty.PropertyTypePredefined,
+                            PrimitiveType = artifactProperty.PrimitiveType
                         };
                     }
 
@@ -314,6 +318,8 @@ namespace ArtifactStore.Collections
                                 artifactProperty.ArtifactId);
 
                             itemTypeId = artifactProperty.ItemTypeId;
+                            predefinedType = artifactProperty.PredefinedType;
+                            itemTypeIconId = artifactProperty.ItemTypeIconId;
                         }
                         else
                         {
@@ -345,6 +351,8 @@ namespace ArtifactStore.Collections
                 {
                     ArtifactId = id,
                     ItemTypeId = itemTypeId,
+                    PredefinedType = predefinedType,
+                    ItemTypeIconId = itemTypeIconId,
                     PropertyInfos = propertyInfos
                 });
             }

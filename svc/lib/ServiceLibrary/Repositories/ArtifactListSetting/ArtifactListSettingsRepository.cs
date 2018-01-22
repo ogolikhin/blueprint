@@ -25,7 +25,7 @@ namespace ServiceLibrary.Repositories.ArtifactListSetting
             parameters.Add("@itemId", itemId);
 
             return await _connectionWrapper.ExecuteScalarAsync<string>(
-                "GetArtifactListSettings", parameters, commandType: CommandType.Text);
+                "GetArtifactListSettings", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<int> CreateSettingsAsync(int itemId, int userId, string settings)

@@ -9,9 +9,6 @@ namespace ServiceLibrary.Repositories.ArtifactListSetting
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
 
-        private const string GetArtifactListSettingsQuery =
-            "SELECT [Settings] FROM [dbo].[ArtifactListSettings] WHERE [ItemId] = @itemId AND [UserId] = @userId";
-
         public ArtifactListSettingsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
@@ -28,7 +25,7 @@ namespace ServiceLibrary.Repositories.ArtifactListSetting
             parameters.Add("@itemId", itemId);
 
             return await _connectionWrapper.ExecuteScalarAsync<string>(
-                GetArtifactListSettingsQuery, parameters, commandType: CommandType.Text);
+                "GetArtifactListSettings", parameters, commandType: CommandType.Text);
         }
 
         public async Task<int> CreateSettingsAsync(int itemId, int userId, string settings)

@@ -16,5 +16,8 @@ namespace ArtifactStore.Collections
             IDbTransaction transaction = null);
 
         Task RemoveDeletedArtifactsFromCollectionAsync(int collectionId, int userId, IDbTransaction transaction = null);
+
+        Task<IReadOnlyList<PropertyTypeInfo>> GetPropertyTypeInfosForItemTypesAsync(
+            IEnumerable<int> itemTypeIds, string search = null);
     }
 }

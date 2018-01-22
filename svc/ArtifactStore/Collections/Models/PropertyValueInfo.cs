@@ -2,7 +2,7 @@
 
 namespace ArtifactStore.Collections.Models
 {
-    public class PropertyInfo
+    public class PropertyValueInfo
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? PropertyTypeId { get; set; }

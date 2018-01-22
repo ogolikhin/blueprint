@@ -51,7 +51,8 @@ namespace ArtifactStore.Collections
             return result.ToList();
         }
 
-        public async Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(int collectionId, int userId, bool addDrafts = true)
+        public async Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(
+            int collectionId, int userId, bool addDrafts = true)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
@@ -66,40 +67,66 @@ namespace ArtifactStore.Collections
             return result.ToList();
         }
 
-        public async Task<int> AddArtifactsToCollectionAsync(int collectionId, IEnumerable<int> artifactIds, int userId,
-            IDbTransaction transaction = null)
+        public async Task<int> AddArtifactsToCollectionAsync(
+            int collectionId, IEnumerable<int> artifactIds, int userId, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
 
             parameters.Add("@UserId", userId);
             parameters.Add("@CollectionId", collectionId);
-            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+
+            IEnumerable<int> result;
 
             if (transaction == null)
             {
-                return (await _connectionWrapper.QueryAsync<int>("AddArtifactsToCollection", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                result = await _connectionWrapper.QueryAsync<int>(
+                    "AddArtifactsToCollection", parameters, commandType: CommandType.StoredProcedure);
             }
             else
             {
-                return (await transaction.Connection.QueryAsync<int>("AddArtifactsToCollection", parameters, transaction, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                result = await transaction.Connection.QueryAsync<int>(
+                    "AddArtifactsToCollection", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
+
+            return result.FirstOrDefault();
+        }
+
+        public async Task RemoveDeletedArtifactsFromCollectionAsync(
+            int collectionId, int userId, IDbTransaction transaction = null)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@UserId", userId);
+            parameters.Add("@CollectionId", collectionId);
+
+            if (transaction == null)
+            {
+                await _connectionWrapper.ExecuteAsync(
+                    "RemoveDeletedArtifactsFromCollection", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await transaction.Connection.ExecuteAsync(
+                    "RemoveDeletedArtifactsFromCollection", parameters, transaction,
+                    commandType: CommandType.StoredProcedure);
             }
         }
 
-        public async Task RemoveDeletedArtifactsFromCollectionAsync(int collectionId, int userId, IDbTransaction transaction = null)
+        public async Task<IReadOnlyList<PropertyTypeInfo>> GetPropertyTypeInfosForItemTypesAsync(
+            IEnumerable<int> itemTypeIds, string search = null)
         {
             var parameters = new DynamicParameters();
 
-            parameters.Add("@UserId", userId);
-            parameters.Add("@CollectionId", collectionId);
+            parameters.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(itemTypeIds));
+            parameters.Add("@search", search);
 
-            if (transaction == null)
-            {
-                await _connectionWrapper.ExecuteAsync("RemoveDeletedArtifactsFromCollection", parameters, commandType: CommandType.StoredProcedure);
-            }
-            else
-            {
-                await transaction.Connection.ExecuteAsync("RemoveDeletedArtifactsFromCollection", parameters, transaction, commandType: CommandType.StoredProcedure);
-            }
+            var result = await _connectionWrapper.QueryAsync<PropertyTypeInfo>(
+                "GetPropertyTypeInformationForItemTypes",
+                parameters,
+                commandType: CommandType.StoredProcedure);
+
+            return result.ToList();
         }
     }
 }

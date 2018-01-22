@@ -243,7 +243,7 @@ namespace AdminStore.Controllers
                 }
 
                 var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
-                httpResponseMessage.Content = _imageService.CreateByteArrayContent(imageContent.Content);
+                httpResponseMessage.Content = _imageService.CreateByteArrayContent(imageContent.Content, false);
 
                 return httpResponseMessage;
             }

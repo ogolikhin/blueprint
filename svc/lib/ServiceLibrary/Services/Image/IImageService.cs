@@ -7,7 +7,7 @@ namespace ServiceLibrary.Services.Image
     {
         ImageType GetImageType(byte[] image);
 
-        ByteArrayContent CreateByteArrayContent(IEnumerable<byte> image, bool isSvg);
+        ByteArrayContent CreateByteArrayContent(byte[] image, bool isSvg);
 
         byte[] ConvertBitmapImageToPng(byte[] image, int width, int height);
     }

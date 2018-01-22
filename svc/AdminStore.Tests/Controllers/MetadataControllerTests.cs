@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.UI.WebControls;
 using AdminStore.Services.Metadata;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -32,7 +34,11 @@ namespace AdminStore.Controllers
         private const string _color = "ffffff";
         private const int _sessionUserId = 1;
         private const int ItemTypeIconSize = 32;
-        byte[] _icon = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+        Icon _icon = new Icon
+        {
+            Content = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
+            IsSvg = true
+        };
 
         #endregion
 
@@ -53,19 +59,39 @@ namespace AdminStore.Controllers
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
             _imageServiceMock
-                .Setup(m => m.CreateByteArrayContent(_icon))
-                .Returns(new ByteArrayContent(_icon))
+                .Setup(m => m.CreateByteArrayContent(_icon.Content.ToArray(), _icon.IsSvg))
+                .Returns(new ByteArrayContent(_icon.Content.ToArray()))
                 .Verifiable();
             _imageServiceMock
-                .Setup(m => m.ConvertBitmapImageToPng(_icon, ItemTypeIconSize, ItemTypeIconSize))
-                .Returns(_icon)
+                .Setup(m => m.ConvertBitmapImageToPng(_icon.Content.ToArray(), ItemTypeIconSize, ItemTypeIconSize))
+                .Returns(_icon.Content.ToArray())
                 .Verifiable();
+            _metadataServiceMock.Setup(service => service.GetIcon(_type, null, _color)).ReturnsAsync(_icon);
         }
 
         #region GetIcons
 
         [TestMethod]
-        public async Task GetIcons_AllParamsAreCorrect_ReturnSvgStream()
+        public async Task GetIcons_AllParamsAreCorrect_ReturnCustomIconSvgICon()
+        {
+            // Arrange
+            var icon = new Icon
+            {
+                Content = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
+                IsSvg = false
+            };
+            _metadataServiceMock.Setup(service => service.GetIcon(_type, _typeId, _color)).ReturnsAsync(icon);
+
+            // Act
+            var result = await _controller.GetIcons(_type, _typeId, _color);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task GetIcons_AllParamsAreCorrect_ReturnSvgICon()
         {
             // Arrange
 
@@ -75,6 +101,33 @@ namespace AdminStore.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task GetIcons_TypeIdNotCorrect_ReturnIconIsNull()
+        {
+            // Arrange
+            Exception exception = null;
+            var icon = new Icon
+            {
+                Content = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
+                IsSvg = false
+            };
+            _metadataServiceMock.Setup(service => service.GetIcon(_type, _typeId, _color)).ReturnsAsync(icon);
+
+            // Act
+            try
+            {
+                var result = await _controller.GetIcons(_type, _typeId + 1, _color);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(ResourceNotFoundException));
         }
 
         #endregion

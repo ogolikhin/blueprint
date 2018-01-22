@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories.Metadata
@@ -20,10 +23,8 @@ namespace AdminStore.Repositories.Metadata
             { ItemTypePredefined.BPConnector, "subartifact.svg" },
             { ItemTypePredefined.BPShape, "subartifact.svg" },
 
-             // not sure
             { ItemTypePredefined.ArtifactCollection, "collection.svg" },
 
-             // not sure
             { ItemTypePredefined.CollectionFolder, "collections.svg" },
 
             { ItemTypePredefined.Document, "document.svg" },
@@ -33,9 +34,6 @@ namespace AdminStore.Repositories.Metadata
             { ItemTypePredefined.DDShape, "subartifact.svg" },
 
             { ItemTypePredefined.PrimitiveFolder, "folder.svg" },
-
-             // folder open?
-             // { ItemTypePredefined.PrimitiveFolder, "folder-open.svg" },
 
             { ItemTypePredefined.GenericDiagram, "generic-diagram.svg" },
             { ItemTypePredefined.GDConnector, "subartifact.svg" },
@@ -75,7 +73,7 @@ namespace AdminStore.Repositories.Metadata
 
         };
 
-        public XDocument GetSvgIcon(ItemTypePredefined predefined, string color = null)
+        public byte[] GetSvgIconContent(ItemTypePredefined predefined, string color = null)
         {
             string iconSvgFileName;
             if (!IconFileNames.TryGetValue(predefined, out iconSvgFileName))
@@ -89,9 +87,9 @@ namespace AdminStore.Repositories.Metadata
                 var svgDocument = XDocument.Load(resourceStream);
                 if (string.IsNullOrEmpty(color))
                 {
-                    return svgDocument;
+                    return Encoding.UTF8.GetBytes(svgDocument.ToString());
                 }
-                return AddFillAttribute(svgDocument, color);
+                return Encoding.UTF8.GetBytes(AddFillAttribute(svgDocument, color).ToString());
             }
         }
 
@@ -111,6 +109,11 @@ namespace AdminStore.Repositories.Metadata
         private XDocument AddFillAttribute(XDocument svgDocument, string color)
         {
             string hexColor = string.Format(CultureInfo.CurrentCulture, "#{0}", color);
+            Regex hexColorRegex = new Regex("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", RegexOptions.IgnoreCase);
+            if (!hexColorRegex.IsMatch(hexColor))
+            {
+                return svgDocument;
+            }
             var svgElement = svgDocument.Root;
 
             foreach (var pathElement in svgElement.Descendants("{http://www.w3.org/2000/svg}path"))

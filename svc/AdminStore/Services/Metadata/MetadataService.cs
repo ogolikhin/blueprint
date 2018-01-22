@@ -6,6 +6,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Services.Image;
 using System;
+using System.Globalization;
 using System.Text;
 
 namespace AdminStore.Services.Metadata
@@ -35,7 +36,30 @@ namespace AdminStore.Services.Metadata
             _imageService = imageService;
         }
 
-        private async Task<byte[]> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue)
+        public async Task<Icon> GetIcon(string type, int? typeId = null, string color = null)
+        {
+            var itemType = ItemTypePredefined.None;
+            if (string.IsNullOrEmpty(type) || !Enum.TryParse(type, true, out itemType))
+            {
+                throw new BadRequestException("Unknown item type");
+            }
+
+            if (typeId != null)
+            {
+                var customIcon = await GetCustomItemTypeIcon(typeId.GetValueOrDefault());
+
+                if (customIcon != null)
+                {
+                    return customIcon;
+                }
+            }
+
+            var icon = GetItemTypeIcon(itemType, color);
+
+            return icon;
+        }
+
+        private async Task<Icon> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue)
         {
             var itemTypeInfo = await _sqlItemTypeRepository.GetItemTypeInfo(itemTypeId, revisionId);
 
@@ -44,32 +68,32 @@ namespace AdminStore.Services.Metadata
                 throw new ResourceNotFoundException("Artifact type not found.");
             }
 
-            var customIcon = _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon.ToArray(), ItemTypeIconSize, ItemTypeIconSize);
-
-            return customIcon;
-        }
-
-        private byte[] GetItemTypeIcon(ItemTypePredefined predefined, string color)
-        {
-            var resourceDocument = _metadataRepository.GetSvgIcon(predefined, color);
-            byte[] toBytes = Encoding.ASCII.GetBytes(resourceDocument.ToString());
-
-            return toBytes;
-        }
-
-        public async Task<byte[]> GetIcon(string type, int? typeId = null, string color = null)
-        {
-            var itemType = ItemTypePredefined.None;
-            if (string.IsNullOrEmpty(type) || !Enum.TryParse(type, true, out itemType))
+            if (!itemTypeInfo.HasCustomIcon)
             {
-                throw new BadRequestException("Unknown item type");
+                return null;
             }
 
-            if (typeId == null)
+            return new Icon
             {
-                return GetItemTypeIcon(itemType, color);
-            }
-            return await GetCustomItemTypeIcon(typeId.GetValueOrDefault());
+                Content = _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon.ToArray(), ItemTypeIconSize, ItemTypeIconSize),
+                IsSvg = false
+            };
         }
+
+        private Icon GetItemTypeIcon(ItemTypePredefined predefined, string color)
+        {
+            var iconContent = _metadataRepository.GetSvgIconContent(predefined, color);
+            if (iconContent == null)
+            {
+                throw new ResourceNotFoundException("Artifact type icon Content not found.");
+            }
+
+            return new Icon
+            {
+                Content = iconContent,
+                IsSvg = true
+            };
+        }
+
     }
 }

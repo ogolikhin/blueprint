@@ -1,17 +1,15 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AdminStore.Services.Metadata;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Services;
 using ServiceLibrary.Services.Image;
 
 namespace AdminStore.Controllers
@@ -39,15 +37,15 @@ namespace AdminStore.Controllers
         [Route("icons"), SessionRequired]
         public async Task<HttpResponseMessage> GetIcons(string type, int? typeId = null, string color = null)
         {
-
             var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
 
-            var customIcon = await _metadataService.GetIcon(type, typeId, color);
-            httpResponseMessage.Content = _imageService.CreateByteArrayContent(customIcon);
-            if (typeId == null)
+            var icon = await _metadataService.GetIcon(type, typeId, color);
+            if (icon == null)
             {
-                httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("image/svg+xml");
+                throw new ResourceNotFoundException(String.Format(CultureInfo.CurrentCulture,
+                    "artifact type {0}'s icon can not find", type));
             }
+            httpResponseMessage.Content = _imageService.CreateByteArrayContent(icon.Content.ToArray(), icon.IsSvg);
             return httpResponseMessage;
         }
     }

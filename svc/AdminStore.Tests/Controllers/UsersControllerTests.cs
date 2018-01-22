@@ -124,7 +124,7 @@ namespace AdminStore.Controllers
                 .Setup(repo => repo.GetUserIconByUserIdAsync(It.IsAny<int>()))
                 .ReturnsAsync(userIcon);
             _imageServiceMock
-                .Setup(m => m.CreateByteArrayContent(_icon))
+                .Setup(m => m.CreateByteArrayContent(_icon, false))
                 .Returns(new ByteArrayContent(_icon))
                 .Verifiable();
 

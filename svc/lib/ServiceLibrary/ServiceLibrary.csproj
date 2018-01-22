@@ -145,6 +145,7 @@
     <Compile Include="Helpers\HttpsSecurity.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
+    <Compile Include="Models\Icon.cs" />
     <Compile Include="Services\Image\IImageService.cs" />
     <Compile Include="Services\Image\ImageService.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />

@@ -241,7 +241,7 @@ namespace AdminStore.Services.Workflow
 
         #endregion
 
-        #region
+        #region UpdateWorkflowAsync
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]

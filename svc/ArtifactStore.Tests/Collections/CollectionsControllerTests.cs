@@ -57,6 +57,19 @@ namespace ArtifactStore.Collections
                 Total = 1
             };
 
+            _profileColumnsSettings = new ProfileColumnsSettings()
+            {
+                Items = new List<ProfileColumn>()
+                {
+                    new ProfileColumn()
+                    {
+                        Predefined = 1,
+                        PropertyName = "Custom",
+                        PropertyTypeId = 2
+                    }
+                }
+            };
+
             _expectedCollectionArtifacts = new CollectionArtifacts
             {
                 ItemsCount = 2,
@@ -127,22 +140,6 @@ namespace ArtifactStore.Collections
 
         #region AddArtifactsToCollectionAsync
 
-            _profileColumnsSettings = new ProfileColumnsSettings()
-            {
-                Items = new List<ProfileColumn>()
-                {
-                    new ProfileColumn()
-                    {
-                        Predefined = 1,
-                        PropertyName = "Custom",
-                        PropertyTypeId = 2
-                    }
-                }
-            };
-        }
-
-        #region AddArtifactsToCollectionAsync
-
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task AddArtifactsToCollectionAsync_InvalidScope_ThrowsException()
@@ -200,8 +197,6 @@ namespace ArtifactStore.Collections
         }
 
         #endregion SaveColumnsSettingsAsync
-
-        #endregion AddArtifactsToCollectionAsync
 
         #region GetArtifactsInCollectionAsync
 

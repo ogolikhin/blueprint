@@ -127,7 +127,7 @@ namespace ArtifactStore.Collections
         {
             if (columnSettings?.Items == null)
             {
-                throw new BadRequestException(ErrorMessages.Collections.ColumnsSettingsModelIsEmpty, ErrorCodes.BadRequest);
+                throw new BadRequestException(ErrorMessages.Collections.ColumnsSettingsModelIsIncorrect, ErrorCodes.BadRequest);
             }
 
             await _collectionsService.SaveColumnSettingsAsync(id, columnSettings, Session.UserId);

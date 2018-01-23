@@ -39,7 +39,7 @@ namespace ArtifactStore.Collections
         {
         }
 
-        private CollectionsService(
+        public CollectionsService(
             ICollectionsRepository collectionsRepository,
             IArtifactRepository artifactRepository,
             ILockArtifactsRepository lockArtifactsRepository,

@@ -12,6 +12,6 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 
         Task SendAsync(string tenantId, IWorkflowMessage message);
 
-        Task GetStatusAsync(TimeSpan timeout);
+        Task GetStatusAsync(int timeout);
     }
 }

@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
+﻿using ServiceLibrary.Models;
 using System.Threading.Tasks;
 
 namespace AdminStore.Services.Metadata
 {
     public interface IMetadataService
     {
-        Task<ByteArrayContent> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue);
 
-        void GetItemTypeIcon(int? typeId);
+        Task<Icon> GetIcon(string type, int? typeId = null, string color = null);
     }
 }

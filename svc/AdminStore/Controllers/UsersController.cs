@@ -22,6 +22,8 @@ using AdminStore.Services.Email;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Repositories.ApplicationSettings;
+using ServiceLibrary.Services;
+using ServiceLibrary.Services.Image;
 
 namespace AdminStore.Controllers
 {
@@ -44,13 +46,15 @@ namespace AdminStore.Controllers
         private readonly PrivilegesManager _privilegesManager;
         private readonly IItemInfoRepository _itemInfoRepository;
         private readonly ISendMessageExecutor _sendMessageExecutor;
+        private readonly IImageService _imageService;
 
         public UsersController()
             : this
             (
                 new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(),
                 new EmailHelper(), new ApplicationSettingsRepository(), new ServiceLogRepository(),
-                new HttpClientProvider(), new SqlPrivilegesRepository(), new SqlItemInfoRepository(), new SendMessageExecutor())
+                new HttpClientProvider(), new SqlPrivilegesRepository(), new SqlItemInfoRepository(),
+                new SendMessageExecutor(), new ImageService())
         {
         }
 
@@ -59,7 +63,8 @@ namespace AdminStore.Controllers
             IAuthenticationRepository authenticationRepository, IUserRepository userRepository,
             ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper,
             IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log,
-            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository, IItemInfoRepository itemInfoRepository, ISendMessageExecutor sendMessageExecutor)
+            IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository,
+            IItemInfoRepository itemInfoRepository, ISendMessageExecutor sendMessageExecutor, IImageService imageService)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -71,6 +76,8 @@ namespace AdminStore.Controllers
             _privilegesManager = new PrivilegesManager(privilegesRepository);
             _itemInfoRepository = itemInfoRepository;
             _sendMessageExecutor = sendMessageExecutor;
+            _imageService = imageService;
+
         }
 
         /// <summary>
@@ -236,7 +243,7 @@ namespace AdminStore.Controllers
                 }
 
                 var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
-                httpResponseMessage.Content = ImageHelper.CreateByteArrayContent(imageContent.Content);
+                httpResponseMessage.Content = _imageService.CreateByteArrayContent(imageContent.Content, false);
 
                 return httpResponseMessage;
             }

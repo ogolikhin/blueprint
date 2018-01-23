@@ -1,85 +1,125 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories.Metadata
 {
-    public class MetadataRepository
+    public class MetadataRepository : IMetadataRepository
     {
 
         private static readonly IDictionary<ItemTypePredefined, string> IconFileNames = new Dictionary<ItemTypePredefined, string>
         {
-             { ItemTypePredefined.Actor, "actor.svg" },
+            { ItemTypePredefined.Actor, "actor.svg" },
 
-             { ItemTypePredefined.Baseline, "baseline.svg" },
+            { ItemTypePredefined.Baseline, "baseline.svg" },
 
-             { ItemTypePredefined.BusinessProcess, "business-process.svg" },
+            { ItemTypePredefined.BusinessProcess, "business-process.svg" },
+            { ItemTypePredefined.BPConnector, "subartifact.svg" },
+            { ItemTypePredefined.BPShape, "subartifact.svg" },
 
-             // not sure
-             { ItemTypePredefined.ArtifactCollection, "collection.svg" },
+            { ItemTypePredefined.ArtifactCollection, "collection.svg" },
 
-             // not sure
-             { ItemTypePredefined.CollectionFolder, "collections.svg" },
+            { ItemTypePredefined.CollectionFolder, "collections.svg" },
 
-             { ItemTypePredefined.Document, "document.svg" },
+            { ItemTypePredefined.Document, "document.svg" },
 
-             { ItemTypePredefined.DomainDiagram, "domain-diagram.svg" },
+            { ItemTypePredefined.DomainDiagram, "domain-diagram.svg" },
+            { ItemTypePredefined.DDConnector, "subartifact.svg" },
+            { ItemTypePredefined.DDShape, "subartifact.svg" },
 
-             { ItemTypePredefined.PrimitiveFolder, "folder.svg" },
+            { ItemTypePredefined.PrimitiveFolder, "folder.svg" },
 
-             // folder open?
-             // { ItemTypePredefined.PrimitiveFolder, "folder-open.svg" },
+            { ItemTypePredefined.GenericDiagram, "generic-diagram.svg" },
+            { ItemTypePredefined.GDConnector, "subartifact.svg" },
+            { ItemTypePredefined.GDShape, "subartifact.svg" },
 
-             // { ItemTypePredefined.GenericDiagram, "generic-diagram.png"},
-             // { ItemTypePredefined.GDConnector, "generic-diagram-sub.png"},
-             // { ItemTypePredefined.GDShape, "generic-diagram-sub.png"},
+            { ItemTypePredefined.Glossary, "glossary.svg" },
+            { ItemTypePredefined.Term, "subartifact.svg" },
 
-             // { ItemTypePredefined.Glossary, "glossary.png"},
-             // { ItemTypePredefined.Term, "glossary-sub.png"},
+            { ItemTypePredefined.Project, "project.svg" },
+            { ItemTypePredefined.PROShape, "subartifact.svg" },
 
-             // { ItemTypePredefined.Process, "process.png"},
+            { ItemTypePredefined.ArtifactReviewPackage, "review.svg" },
 
-             // { ItemTypePredefined.Storyboard, "storyboard.png"},
-             // { ItemTypePredefined.SBConnector, "storyboard-sub.png" },
-             // { ItemTypePredefined.SBShape, "storyboard-sub.png"},
+            { ItemTypePredefined.Storyboard, "storyboard.svg" },
+            { ItemTypePredefined.SBConnector, "subartifact.svg" },
+            { ItemTypePredefined.SBShape, "subartifact.svg" },
 
-             // { ItemTypePredefined.TextualRequirement, "textual-requirement.png"},
+            { ItemTypePredefined.Process, "process.svg" },
 
-             // { ItemTypePredefined.UIMockup, "ui-mockup.png"},
-             // { ItemTypePredefined.UIConnector, "ui-mockup-sub.png"},
-             // { ItemTypePredefined.UIShape, "ui-mockup-sub.png"},
+            { ItemTypePredefined.TextualRequirement, "textual.svg" },
 
-             // { ItemTypePredefined.UseCaseDiagram, "use-case-diagram.png"},
-             // { ItemTypePredefined.UCDConnector, "use-case-diagram-sub.png"},
-             // { ItemTypePredefined.UCDShape, "use-case-diagram-sub.png"},
+            { ItemTypePredefined.UIMockup, "ui-mockup.svg" },
+            { ItemTypePredefined.UIConnector, "subartifact.svg" },
+            { ItemTypePredefined.UIShape, "subartifact.svg" },
 
-             // { ItemTypePredefined.UseCase, "use-case.png"},
-             // { ItemTypePredefined.PreCondition, "use-case-sub.png"},
-             // { ItemTypePredefined.PostCondition, "use-case-sub.png"},
-             // { ItemTypePredefined.Step, "use-case-sub.png"},
+            { ItemTypePredefined.UseCaseDiagram, "use-case-diagram.svg" },
+            { ItemTypePredefined.UCDConnector, "subartifact.svg" },
+            { ItemTypePredefined.UCDShape, "subartifact.svg" },
 
-             // { ItemTypePredefined.Project, "project.png"},
-             // { ItemTypePredefined.PROShape, "storyteller-sub.png"}
+            { ItemTypePredefined.UseCase, "use-case.svg" },
+            { ItemTypePredefined.PreCondition, "subartifact.svg" },
+            { ItemTypePredefined.PostCondition, "subartifact.svg" },
+            { ItemTypePredefined.Step, "subartifact.svg" },
+
+
         };
 
-        // public byte[] getSvgXaml(ItemTypePredefined predefined)
-        // {
-        //    string iconFileName;
-        //    if (!IconFileNames.TryGetValue(predefined, out iconFileName))
-        //    {
-        //        return null;
-        //    }
+        public byte[] GetSvgIconContent(ItemTypePredefined predefined, string color = null)
+        {
+            string iconSvgFileName;
+            if (!IconFileNames.TryGetValue(predefined, out iconSvgFileName))
+            {
+                return null;
+            }
 
-        // var svgIcon = LoadResourceImage(iconFileName);
-        // }
+            var resourceStream = LoadSvgResourceImage(iconSvgFileName);
+            using (resourceStream)
+            {
+                var svgDocument = XDocument.Load(resourceStream);
+                if (string.IsNullOrEmpty(color))
+                {
+                    return Encoding.UTF8.GetBytes(svgDocument.ToString());
+                }
+                return Encoding.UTF8.GetBytes(AddFillAttribute(svgDocument, color).ToString());
+            }
+        }
 
-        // private object LoadResourceImage(string iconFileName)
-        // {
-        //     if (string.IsNullOrWhiteSpace())
-        //    throw new NotImplementedException();
-        // }
+        private Stream LoadSvgResourceImage(string iconSvgFileName)
+        {
+            if (string.IsNullOrWhiteSpace(iconSvgFileName))
+            {
+                throw new ArgumentNullException(nameof(iconSvgFileName));
+            }
+
+            var assembly = typeof(MetadataRepository).Assembly;
+            var resourceName = string.Format(CultureInfo.CurrentCulture, "{0}.Assets.Icons.ItemTypes.{1}",
+                assembly.GetName().Name, iconSvgFileName);
+            return assembly.GetManifestResourceStream(resourceName);
+        }
+
+        private XDocument AddFillAttribute(XDocument svgDocument, string color)
+        {
+            string hexColor = string.Format(CultureInfo.CurrentCulture, "#{0}", color);
+            Regex hexColorRegex = new Regex("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", RegexOptions.IgnoreCase);
+            if (!hexColorRegex.IsMatch(hexColor))
+            {
+                return svgDocument;
+            }
+            var svgElement = svgDocument.Root;
+
+            foreach (var pathElement in svgElement.Descendants("{http://www.w3.org/2000/svg}path"))
+            {
+                var fillAttribute = new XAttribute("fill", hexColor);
+                pathElement.Add(fillAttribute);
+            }
+
+            return svgDocument;
+        }
     }
 }

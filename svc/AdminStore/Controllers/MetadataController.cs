@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using AdminStore.Services.Metadata;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
-using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Repositories.Metadata;
+using ServiceLibrary.Services.Image;
 
 namespace AdminStore.Controllers
 {
@@ -16,33 +18,34 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class MetadataController : LoggableApiController
     {
-        private readonly MetadataService _metadataService;
+        private readonly IMetadataService _metadataService;
+        private readonly IImageService _imageService;
         public override string LogSource => "AdminStore.Metadata";
 
-        public MetadataController() : this(new MetadataService(), new ServiceLogRepository())
+        public MetadataController() : this(new MetadataService(), new ServiceLogRepository(), new ImageService())
         {
         }
 
-        public MetadataController(MetadataService metadataService,
-            IServiceLogRepository log) : base(log)
+        public MetadataController(IMetadataService metadataService,
+            IServiceLogRepository log, IImageService imageService) : base(log)
         {
             _metadataService = metadataService;
+            _imageService = imageService;
         }
 
-        [HttpGet, NoCache]
+        [HttpGet, ResponseCache(Duration = 86400)]
         [Route("icons"), SessionRequired]
-        public async Task<HttpResponseMessage> GetIcons(string type, int? typeId)
+        public async Task<HttpResponseMessage> GetIcons(string type, int? typeId = null, string color = null)
         {
-            ItemTypePredefined itemType;
-            if (!string.IsNullOrEmpty(type) && !Enum.TryParse(type, true, out itemType))
-            {
-                throw new BadRequestException("Unknown item type");
-            }
-
-            var result = await _metadataService.GetCustomItemTypeIcon(typeId.GetValueOrDefault());
-
             var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
-            httpResponseMessage.Content = result;
+
+            var icon = await _metadataService.GetIcon(type, typeId, color);
+            if (icon == null)
+            {
+                throw new ResourceNotFoundException(String.Format(CultureInfo.CurrentCulture,
+                    "artifact type {0}'s icon can not find", type));
+            }
+            httpResponseMessage.Content = _imageService.CreateByteArrayContent(icon.Content, icon.IsSvg);
             return httpResponseMessage;
         }
     }

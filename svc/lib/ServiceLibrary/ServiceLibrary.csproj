@@ -104,7 +104,9 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="Attributes\ApiControllerConfigAttribute.cs" />
+    <Compile Include="Attributes\BaseCacheAttribute.cs" />
     <Compile Include="Attributes\BaseExceptionFilterAttribute.cs" />
+    <Compile Include="Attributes\ResponseCacheAttribute.cs" />
     <Compile Include="Attributes\FeatureActivationAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
     <Compile Include="Attributes\PreRequiredPrivilegeAttribute.cs" />
@@ -144,7 +146,9 @@
     <Compile Include="Helpers\HttpsSecurity.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
-    <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="Models\Icon.cs" />
+    <Compile Include="Services\Image\IImageService.cs" />
+    <Compile Include="Services\Image\ImageService.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
     <Compile Include="Helpers\PrivilegesManager.cs" />

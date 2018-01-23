@@ -18,6 +18,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using ServiceLibrary.Services.Image;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 
 namespace AdminStore.Controllers
@@ -33,9 +34,11 @@ namespace AdminStore.Controllers
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
         private Mock<IHttpClientProvider> _httpClientProviderMock;
         private Mock<IPrivilegesRepository> _privilegesRepository;
+        private Mock<IImageService> _imageServiceMock;
         private Mock<ISendMessageExecutor> _sendMessageExecutor;
         private UsersController _controller;
         private UserDto _user;
+        byte[] _icon = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 
         private const InstanceAdminPrivileges FullPermissions = InstanceAdminPrivileges.AssignAdminRoles;
         private const InstanceAdminPrivileges NoManageUsersPermissions = InstanceAdminPrivileges.ViewUsers;
@@ -61,13 +64,15 @@ namespace AdminStore.Controllers
             _httpClientProviderMock = new Mock<IHttpClientProvider>();
             _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
             _privilegesRepository = new Mock<IPrivilegesRepository>();
+            _imageServiceMock = new Mock<IImageService>();
             _sendMessageExecutor = new Mock<ISendMessageExecutor>();
             _itemInfoRepository = new Mock<IItemInfoRepository>();
 
             _controller = new UsersController(
                 _authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
                 _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object,
-                _httpClientProviderMock.Object, _privilegesRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object)
+                _httpClientProviderMock.Object, _privilegesRepository.Object,
+                _itemInfoRepository.Object, _sendMessageExecutor.Object, _imageServiceMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -114,11 +119,14 @@ namespace AdminStore.Controllers
         public async Task GetUserIcon_RepositoryReturnsIcon_ReturnsIcon()
         {
             var userId = 1;
-            var content = new byte[] { 0x20, 0x20, 0x20, 0x20 };
-            var userIcon = new UserIcon { UserId = userId, Content = content };
+            var userIcon = new UserIcon { UserId = userId, Content = _icon };
             _usersRepoMock
                 .Setup(repo => repo.GetUserIconByUserIdAsync(It.IsAny<int>()))
                 .ReturnsAsync(userIcon);
+            _imageServiceMock
+                .Setup(m => m.CreateByteArrayContent(_icon, false))
+                .Returns(new ByteArrayContent(_icon))
+                .Verifiable();
 
             // Act
             var result = await _controller.GetUserIcon(userId);
@@ -127,7 +135,7 @@ namespace AdminStore.Controllers
             var actualContent = await result.Content.ReadAsByteArrayAsync();
             Assert.IsNotNull(result);
             Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-            Assert.IsTrue(content.SequenceEqual(actualContent));
+            Assert.IsTrue(_icon.SequenceEqual(actualContent));
         }
 
         [TestMethod]
@@ -743,7 +751,8 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(24);
 
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider, _privilegesRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object)
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider,
+                _privilegesRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object, _imageServiceMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()

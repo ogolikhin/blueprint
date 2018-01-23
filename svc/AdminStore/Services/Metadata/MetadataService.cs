@@ -1,40 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Repositories.Metadata;
-using AdminStore.Services.Metadata;
 using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
+using ServiceLibrary.Services.Image;
+using System;
 
-namespace ServiceLibrary.Repositories.Metadata
+namespace AdminStore.Services.Metadata
 {
     public class MetadataService : IMetadataService
     {
-        // private readonly IMetadataRepository _metadataRepository;
         private readonly ISqlItemTypeRepository _sqlItemTypeRepository;
+        private readonly IMetadataRepository _metadataRepository;
+        private readonly IImageService _imageService;
 
         private const int ItemTypeIconSize = 32;
 
         public MetadataService()
             : this(
-                new SqlItemTypeRepository())
-                // new MetadataRepository())
+                 new SqlItemTypeRepository(),
+                 new MetadataRepository(),
+                 new ImageService())
         {
         }
 
-        public MetadataService(ISqlItemTypeRepository sqlItemTypeRepository)
-            // IMetadataRepository metadataRepository)
+        public MetadataService(ISqlItemTypeRepository sqlItemTypeRepository,
+             IMetadataRepository metadataRepository,
+             IImageService imageService)
         {
             _sqlItemTypeRepository = sqlItemTypeRepository;
-            // _metadataRepository = metadataRepository;
+            _metadataRepository = metadataRepository;
+            _imageService = imageService;
         }
 
-        public async Task<ByteArrayContent> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue)
+        public async Task<Icon> GetIcon(string type, int? typeId = null, string color = null)
+        {
+            var itemType = ItemTypePredefined.None;
+            if (string.IsNullOrEmpty(type) || !Enum.TryParse(type, true, out itemType))
+            {
+                throw new BadRequestException("Unknown item type");
+            }
+
+            if (typeId != null)
+            {
+                var customIcon = await GetCustomItemTypeIcon(typeId.GetValueOrDefault());
+
+                if (customIcon != null)
+                {
+                    return customIcon;
+                }
+            }
+
+            var icon = GetItemTypeIcon(itemType, color);
+
+            return icon;
+        }
+
+        private async Task<Icon> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue)
         {
             var itemTypeInfo = await _sqlItemTypeRepository.GetItemTypeInfo(itemTypeId, revisionId);
 
@@ -43,16 +66,32 @@ namespace ServiceLibrary.Repositories.Metadata
                 throw new ResourceNotFoundException("Artifact type not found.");
             }
 
-            byte[] data = null;
+            if (!itemTypeInfo.HasCustomIcon)
+            {
+                return null;
+            }
 
-            data = ImageHelper.ConvertBitmapImageToPng(itemTypeInfo.Icon.ToArray(), ItemTypeIconSize, ItemTypeIconSize);
-
-            return ImageHelper.CreateByteArrayContent(data);
+            return new Icon
+            {
+                Content = _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon, ItemTypeIconSize, ItemTypeIconSize),
+                IsSvg = false
+            };
         }
 
-        public void GetItemTypeIcon(int? typeId)
+        private Icon GetItemTypeIcon(ItemTypePredefined predefined, string color)
         {
-            throw new NotImplementedException();
+            var iconContent = _metadataRepository.GetSvgIconContent(predefined, color);
+            if (iconContent == null)
+            {
+                throw new ResourceNotFoundException("Artifact type icon Content not found.");
+            }
+
+            return new Icon
+            {
+                Content = iconContent,
+                IsSvg = true
+            };
         }
+
     }
 }

@@ -41,7 +41,7 @@ namespace AccessControl
         }
 
         [TestMethod]
-        public void Register_GetAndHeadMethods_HaveNoCacheAttribute()
+        public void Register_GetAndHeadMethods_HaveCacheAttribute()
         {
             // Arrange
             var config = new HttpConfiguration();
@@ -51,7 +51,7 @@ namespace AccessControl
             config.EnsureInitialized();
 
             // Assert
-            config.AssertMethodAttributes(attr => attr.Any(a => a is HttpGetAttribute || a is HttpHeadAttribute) == attr.Any(a => a is NoCacheAttribute),
+            config.AssertMethodAttributes(attr => attr.Any(a => a is HttpGetAttribute || a is HttpHeadAttribute) == attr.Any(a => a is BaseCacheAttribute),
                 "{0} is missing NoCacheAttribute.");
         }
     }

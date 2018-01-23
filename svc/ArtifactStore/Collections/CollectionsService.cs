@@ -155,7 +155,7 @@ namespace ArtifactStore.Collections
             return new GetColumnsDto
             {
                 SelectedColumns = GetSelectedColumns(columnSettings, search),
-                OtherColumns = await GetOtherColumnsAsync(collection.ArtifactId, userId, columnSettings, search)
+                OtherColumns = await GetOtherColumnsAsync(collection.ArtifactId, userId, search, columnSettings)
             };
         }
 
@@ -163,7 +163,27 @@ namespace ArtifactStore.Collections
         {
             var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
 
+            await FilterIncorrectColumnsSettings(collectionId, userId, columnSettings);
+
             await _artifactListService.SaveColumnsSettingsAsync(collection.ArtifactId, columnSettings, userId);
+        }
+
+
+        private async Task FilterIncorrectColumnsSettings(int collectionId, int userId, ProfileColumnsSettings columnSettings)
+        {
+            var columnsInCollection = (await GetOtherColumnsAsync(collectionId, userId, string.Empty)).ToList();
+            var columnsFromRequest = columnSettings.Items.ToList();
+
+            // filter incorrect columns
+            for (var i = 0; i < columnsFromRequest.Count; i++)
+            {
+                if (!columnsInCollection.Any(col => col.PropertyTypeId == columnsFromRequest[i].PropertyTypeId && col.Predefined == columnsFromRequest[i].Predefined && col.PropertyName == columnsFromRequest[i].PropertyName))
+                {
+                    columnsFromRequest.Remove(columnsFromRequest[i]);
+                }
+            }
+
+            columnSettings.Items = columnsFromRequest;
         }
 
         private static IEnumerable<ArtifactListColumn> GetSelectedColumns(
@@ -187,8 +207,7 @@ namespace ArtifactStore.Collections
                 .ToList();
         }
 
-        private async Task<IEnumerable<ArtifactListColumn>> GetOtherColumnsAsync(
-            int collectionId, int userId, ProfileColumnsSettings columnSettings, string search)
+        private async Task<IEnumerable<ArtifactListColumn>> GetOtherColumnsAsync(int collectionId, int userId, string search, ProfileColumnsSettings columnSettings = null)
         {
             var columns = new List<ArtifactListColumn>();
 
@@ -198,15 +217,13 @@ namespace ArtifactStore.Collections
             var propertyTypeInfos = await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(
                 itemTypeIds, search);
 
-            PopulateSystemPropertyColumns(columns, columnSettings, propertyTypeInfos);
-            PopulateCustomPropertyColumns(columns, columnSettings, propertyTypeInfos);
+            PopulateSystemPropertyColumns(columns, propertyTypeInfos, columnSettings);
+            PopulateCustomPropertyColumns(columns, propertyTypeInfos, columnSettings);
 
             return columns;
         }
 
-        private static void PopulateSystemPropertyColumns(
-            ICollection<ArtifactListColumn> columns, ProfileColumnsSettings columnSettings,
-            IEnumerable<PropertyTypeInfo> propertyTypeInfos)
+        private static void PopulateSystemPropertyColumns(ICollection<ArtifactListColumn> columns, IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumnsSettings columnSettings = null)
         {
             var systemPredefineds = new HashSet<PropertyTypePredefined>
             {
@@ -239,9 +256,7 @@ namespace ArtifactStore.Collections
             }
         }
 
-        private static void PopulateCustomPropertyColumns(
-            ICollection<ArtifactListColumn> columns, ProfileColumnsSettings columnSettings,
-            IEnumerable<PropertyTypeInfo> propertyTypeInfos)
+        private static void PopulateCustomPropertyColumns(ICollection<ArtifactListColumn> columns, IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumnsSettings columnSettings = null)
         {
             var customPropertyTypeInfos = propertyTypeInfos
                 .Where(i => i.Predefined == PropertyTypePredefined.CustomGroup);

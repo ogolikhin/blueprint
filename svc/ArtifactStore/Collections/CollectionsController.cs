@@ -125,6 +125,11 @@ namespace ArtifactStore.Collections
         public async Task<HttpResponseMessage> SaveColumnsSettingsAsync(
             int id, [FromBody] ProfileColumnsSettings columnSettings)
         {
+            if (columnSettings?.Items == null)
+            {
+                throw new BadRequestException(ErrorMessages.Collections.ColumnsSettingsModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
             await _collectionsService.SaveColumnSettingsAsync(id, columnSettings, Session.UserId);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);

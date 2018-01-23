@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using AdminStore.Repositories.Metadata;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

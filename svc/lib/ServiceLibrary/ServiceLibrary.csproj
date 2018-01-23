@@ -104,6 +104,7 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="Attributes\ApiControllerConfigAttribute.cs" />
+    <Compile Include="Attributes\BaseCacheAttribute.cs" />
     <Compile Include="Attributes\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Attributes\ResponseCacheAttribute.cs" />
     <Compile Include="Attributes\FeatureActivationAttribute.cs" />

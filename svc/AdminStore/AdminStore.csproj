@@ -106,7 +106,7 @@
     <EmbeddedResource Include="Assets\Icons\ItemTypes\project.svg" />
     <EmbeddedResource Include="Assets\Icons\ItemTypes\review.svg" />
     <EmbeddedResource Include="Assets\Icons\ItemTypes\storyboard.svg" />
-    <EmbeddedResource Include="Assets\Icons\ItemTypes\storyteller.svg" />
+    <EmbeddedResource Include="Assets\Icons\ItemTypes\process.svg" />
     <EmbeddedResource Include="Assets\Icons\ItemTypes\subartifact.svg" />
     <EmbeddedResource Include="Assets\Icons\ItemTypes\textual.svg" />
     <EmbeddedResource Include="Assets\Icons\ItemTypes\ui-mockup.svg" />

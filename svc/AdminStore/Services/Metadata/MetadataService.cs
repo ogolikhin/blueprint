@@ -6,8 +6,6 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Services.Image;
 using System;
-using System.Globalization;
-using System.Text;
 
 namespace AdminStore.Services.Metadata
 {

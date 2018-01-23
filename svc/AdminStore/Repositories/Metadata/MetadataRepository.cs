@@ -5,7 +5,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories.Metadata
@@ -51,8 +50,7 @@ namespace AdminStore.Repositories.Metadata
             { ItemTypePredefined.SBConnector, "subartifact.svg" },
             { ItemTypePredefined.SBShape, "subartifact.svg" },
 
-            // storyteller.svg  ??
-            { ItemTypePredefined.Process, "storyteller.svg" },
+            { ItemTypePredefined.Process, "process.svg" },
 
             { ItemTypePredefined.TextualRequirement, "textual.svg" },
 
@@ -69,7 +67,6 @@ namespace AdminStore.Repositories.Metadata
             { ItemTypePredefined.PostCondition, "subartifact.svg" },
             { ItemTypePredefined.Step, "subartifact.svg" },
 
-            // user story
 
         };
 

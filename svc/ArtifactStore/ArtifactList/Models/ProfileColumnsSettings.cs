@@ -9,7 +9,7 @@ namespace ArtifactStore.ArtifactList.Models
     {
         public IEnumerable<ProfileColumn> Items { get; set; }
 
-        public bool Contains(int propertyTypeId)
+        public bool PropertyTypeIdMatches(int propertyTypeId)
         {
             if (propertyTypeId < 1 || Items.IsEmpty())
             {
@@ -19,7 +19,7 @@ namespace ArtifactStore.ArtifactList.Models
             return Items.Any(item => item.PropertyTypeId == propertyTypeId);
         }
 
-        public bool Contains(PropertyTypePredefined predefined)
+        public bool PredefinedMatches(PropertyTypePredefined predefined)
         {
             return !Items.IsEmpty() && Items.Any(item => item.Predefined == (int)predefined);
         }

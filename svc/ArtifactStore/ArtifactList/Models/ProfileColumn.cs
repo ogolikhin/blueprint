@@ -14,13 +14,13 @@ namespace ArtifactStore.ArtifactList.Models
 
         public int Predefined { get; set; }
 
-        public bool IsMatching(string search)
+        public bool NameMatches(string search)
         {
             return string.IsNullOrEmpty(search) ||
                    PropertyName.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        public bool Exists(IEnumerable<PropertyTypeInfo> propertyTypeInfos)
+        public bool ExistsIn(IEnumerable<PropertyTypeInfo> propertyTypeInfos)
         {
             return Predefined == (int)PropertyTypePredefined.CustomGroup ?
                 propertyTypeInfos.Any(info => info.Id == PropertyTypeId) :

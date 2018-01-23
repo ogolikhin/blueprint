@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-namespace ServiceLibrary.Models
+namespace ArtifactStore.Models.Review
 {
 
     public class ReviewFilterParameters
@@ -8,7 +8,6 @@ namespace ServiceLibrary.Models
 
         public bool? IsApprovalRequired { get; set; }
 
-        public IEnumerable<string> ReviewStatuses { get; set; }
-
+        public IEnumerable<ReviewStatus> ReviewStatuses { get; set; }
     }
 }

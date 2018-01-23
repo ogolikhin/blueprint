@@ -900,7 +900,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@approveStatusesIds", SqlConnectionWrapper.ToDataTable(filterParameters?.ApprStsIds ?? new int[0]));
-            parameters.Add("@reviewStatuses", SqlConnectionWrapper.ToStringDataTable(filterParameters?.ReviewStatuses ?? new string[0]));
+            parameters.Add("@reviewStatuses", SqlConnectionWrapper.ToStringDataTable(filterParameters?.ReviewStatuses?.Select(s => s.ToString()) ?? new string[0]));
 
             var participants = await _connectionWrapper.QueryMultipleAsync<ReviewParticipant, int, int, int>("GetReviewParticipants", parameters, commandType: CommandType.StoredProcedure);
 

@@ -23,6 +23,7 @@ namespace ArtifactStore.Collections.Models
 
         public int Predefined { get; set; }
 
-        public int PrimitiveType { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? PrimitiveType { get; set; }
     }
 }

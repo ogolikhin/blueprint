@@ -38,6 +38,7 @@ namespace ArtifactStore.Collections
         /// <param name="id">Collection id.</param>
         /// <param name="pagination">Limit and offset values to query artifacts.</param>
         /// <response code="200">OK. List of artifacts in collection</response>
+        /// <response code="400">BadRequest. Parameters are invalid. </response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">User doesn’t have permission to access list of artifacts in collection.</response>
         /// <response code="404">Not Found. Collection was not found.</response>
@@ -124,6 +125,11 @@ namespace ArtifactStore.Collections
         public async Task<HttpResponseMessage> SaveColumnsSettingsAsync(
             int id, [FromBody] ProfileColumnsSettings columnSettings)
         {
+            if (columnSettings?.Items == null)
+            {
+                throw new BadRequestException(ErrorMessages.Collections.ColumnsSettingsModelIsEmpty, ErrorCodes.BadRequest);
+            }
+
             await _collectionsService.SaveColumnSettingsAsync(id, columnSettings, Session.UserId);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);

@@ -16,5 +16,11 @@ namespace ArtifactStore.Collections.Models
 
         public int PropertyTypePredefined { get; set; }
 
+        public int? PrimitiveType { get; set; }
+
+        public int? PredefinedType { get; set; }
+
+        public int? ItemTypeIconId { get; set; }
+
     }
 }

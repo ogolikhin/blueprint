@@ -80,6 +80,11 @@ namespace AdminStore.Services.Instance
 
         private async Task PostOperation(IEnumerable<int> artifactIds, int revisionId, int userId, IDbTransaction transaction = null)
         {
+            if (artifactIds.IsEmpty())
+            {
+                return;
+            }
+
             var message = new ArtifactsChangedMessage(artifactIds)
             {
                 RevisionId = revisionId,
@@ -87,7 +92,7 @@ namespace AdminStore.Services.Instance
                 ChangeType = ArtifactChangedType.Publish
             };
 
-            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
+            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message, transaction);
         }
 
         #region private methods

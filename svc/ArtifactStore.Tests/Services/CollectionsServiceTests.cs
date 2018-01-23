@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
+using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -28,6 +29,7 @@ namespace ArtifactStore.Services
         private int _sessionUserId = 1;
         private ISet<int> _artifactIds;
         private int _collectionId;
+        private ProfileColumnsSettings _profileColumnsSettings;
 
         [TestInitialize]
         public void Initialize()
@@ -40,7 +42,6 @@ namespace ArtifactStore.Services
             _artifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             _searchEngineService = new Mock<ISearchEngineService>();
             _artifactListService = new Mock<IArtifactListService>();
-
             _collectionService = new CollectionsService(_collectionsRepository.Object,
                                                         _artifactRepository.Object,
                                                         _lockArtifactsRepository.Object,
@@ -53,7 +54,22 @@ namespace ArtifactStore.Services
 
             _artifactIds = new HashSet<int>() { 1, 2, 3 };
             _collectionId = 1;
+
+            _profileColumnsSettings = new ProfileColumnsSettings()
+            {
+                Items = new List<ProfileColumn>()
+                {
+                    new ProfileColumn()
+                    {
+                        Predefined = 1,
+                        PropertyName = "Custom",
+                        PropertyTypeId = 2
+                    }
+                }
+            };
         }
+
+        #region AddArtifactsToCollectionAsync
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
@@ -71,5 +87,18 @@ namespace ArtifactStore.Services
             await _collectionService.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _sessionUserId);
         }
 
+        #endregion AddArtifactsToCollectionAsync
+
+        #region SaveColumnSettingsAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task SaveColumnSettingsAsync_InvalidUserId_ThrowArgumentOutOfRangeException()
+        {
+            _sessionUserId = 0;
+            await _collectionService.SaveColumnSettingsAsync(_collectionId, _profileColumnsSettings, _sessionUserId);
+        }
+
+        #endregion SaveColumnSettingsAsync
     }
 }

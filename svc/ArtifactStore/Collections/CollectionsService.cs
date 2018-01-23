@@ -157,7 +157,7 @@ namespace ArtifactStore.Collections
             return new GetColumnsDto
             {
                 SelectedColumns = GetSelectedColumns(propertyTypeInfos, columnSettings, search),
-                OtherColumns = GetUnselectedColumns(propertyTypeInfos, columnSettings)
+                UnselectedColumns = GetUnselectedColumns(propertyTypeInfos, columnSettings)
             };
         }
 

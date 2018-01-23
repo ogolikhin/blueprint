@@ -73,7 +73,7 @@ namespace AdminStore.Services.Metadata
 
             return new Icon
             {
-                Content = _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon.ToArray(), ItemTypeIconSize, ItemTypeIconSize),
+                Content = _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon, ItemTypeIconSize, ItemTypeIconSize),
                 IsSvg = false
             };
         }

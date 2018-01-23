@@ -1,15 +1,9 @@
 ﻿using System.Net.Http.Headers;
-using System.Web.Http.Filters;
 
 namespace ServiceLibrary.Attributes
 {
     public class NoCacheAttribute : BaseCacheAttribute
     {
-        public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
-        {
-            base.OnActionExecuted(actionExecutedContext);
-            CustomizeHttpResponseHeaders(actionExecutedContext.Response.Headers);
-        }
 
         protected override void CustomizeHttpResponseHeaders(HttpResponseHeaders responseHeaders)
         {

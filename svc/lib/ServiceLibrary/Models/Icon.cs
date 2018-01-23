@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace ServiceLibrary.Models
 {
     public class Icon
     {
-        public IEnumerable<byte> Content { get; set; }
+        [SuppressMessage("Microsoft.Performance", "CA1819:Properties should not return arrays")]
+        public byte[] Content { get; set; }
 
         public bool IsSvg { get; set; }
     }

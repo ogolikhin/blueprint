@@ -119,7 +119,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertMethodAttributes(attr => attr.Any(a => a is HttpGetAttribute || a is HttpHeadAttribute) == attr.Any(a => a is ResponseCacheAttribute),
+            config.AssertMethodAttributes(attr => attr.Any(a => a is HttpGetAttribute || a is HttpHeadAttribute) == attr.Any(a => a is BaseCacheAttribute),
                 "{0} is missing ResponseCacheAttribute.");
         }
 

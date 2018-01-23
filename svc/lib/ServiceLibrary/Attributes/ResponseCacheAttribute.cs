@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http.Headers;
-using System.Web.Http.Filters;
 
 namespace ServiceLibrary.Attributes
 {
@@ -18,18 +17,8 @@ namespace ServiceLibrary.Attributes
             set { _duration = value; }
         }
 
-        public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
-        {
-            base.OnActionExecuted(actionExecutedContext);
-            if (actionExecutedContext.Response != null)
-            {
-                CustomizeHttpResponseHeaders(actionExecutedContext.Response.Headers);
-            }
-        }
-
         protected override void CustomizeHttpResponseHeaders(HttpResponseHeaders responseHeaders)
         {
-            responseHeaders.CacheControl = new CacheControlHeaderValue();
             if (_duration.HasValue)
             {
                 responseHeaders.CacheControl.MaxAge = TimeSpan.FromSeconds(Duration);

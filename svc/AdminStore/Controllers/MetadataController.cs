@@ -45,7 +45,7 @@ namespace AdminStore.Controllers
                 throw new ResourceNotFoundException(String.Format(CultureInfo.CurrentCulture,
                     "artifact type {0}'s icon can not find", type));
             }
-            httpResponseMessage.Content = _imageService.CreateByteArrayContent(icon.Content.ToArray(), icon.IsSvg);
+            httpResponseMessage.Content = _imageService.CreateByteArrayContent(icon.Content, icon.IsSvg);
             return httpResponseMessage;
         }
     }

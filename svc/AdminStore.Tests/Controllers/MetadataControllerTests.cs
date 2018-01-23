@@ -57,12 +57,12 @@ namespace AdminStore.Controllers
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
             _imageServiceMock
-                .Setup(m => m.CreateByteArrayContent(_icon.Content.ToArray(), _icon.IsSvg))
-                .Returns(new ByteArrayContent(_icon.Content.ToArray()))
+                .Setup(m => m.CreateByteArrayContent(_icon.Content, _icon.IsSvg))
+                .Returns(new ByteArrayContent(_icon.Content))
                 .Verifiable();
             _imageServiceMock
-                .Setup(m => m.ConvertBitmapImageToPng(_icon.Content.ToArray(), ItemTypeIconSize, ItemTypeIconSize))
-                .Returns(_icon.Content.ToArray())
+                .Setup(m => m.ConvertBitmapImageToPng(_icon.Content, ItemTypeIconSize, ItemTypeIconSize))
+                .Returns(_icon.Content)
                 .Verifiable();
             _metadataServiceMock.Setup(service => service.GetIcon(_type, null, _color)).ReturnsAsync(_icon);
         }
@@ -102,7 +102,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetIcons_TypeIdNotCorrect_ReturnIconIsNull()
+        public async Task GetIcons_TypeIdNotCorrect_ThrowResourceNotFoundException()
         {
             // Arrange
             Exception exception = null;

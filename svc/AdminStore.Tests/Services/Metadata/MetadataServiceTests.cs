@@ -56,10 +56,10 @@ namespace AdminStore.Services.Metadata
                     Icon = _customIcon.Content
                 });
             _imageServiceMock
-                .Setup(m => m.ConvertBitmapImageToPng(_svgIcon.Content.ToArray(), ItemTypeIconSize, ItemTypeIconSize))
-                .Returns(_svgIcon.Content.ToArray())
+                .Setup(m => m.ConvertBitmapImageToPng(_svgIcon.Content, ItemTypeIconSize, ItemTypeIconSize))
+                .Returns(_svgIcon.Content)
                 .Verifiable();
-            _metadataRepositoryMock.Setup(repo => repo.GetSvgIconContent(_itemTypePredefined, _color)).Returns(_svgIcon.Content.ToArray());
+            _metadataRepositoryMock.Setup(repo => repo.GetSvgIconContent(_itemTypePredefined, _color)).Returns(_svgIcon.Content);
         }
 
         #region GetIcon
@@ -83,8 +83,8 @@ namespace AdminStore.Services.Metadata
         {
             // Arrange
             _imageServiceMock
-                .Setup(m => m.ConvertBitmapImageToPng(_customIcon.Content.ToArray(), ItemTypeIconSize, ItemTypeIconSize))
-                .Returns(_customIcon.Content.ToArray())
+                .Setup(m => m.ConvertBitmapImageToPng(_customIcon.Content, ItemTypeIconSize, ItemTypeIconSize))
+                .Returns(_customIcon.Content)
                 .Verifiable();
 
             // Act

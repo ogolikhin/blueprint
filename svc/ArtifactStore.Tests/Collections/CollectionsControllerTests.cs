@@ -73,5 +73,13 @@ namespace ArtifactStore.Collections
 
             await _collectionsController.AddArtifactsToCollectionAsync(_collectionId, "add", _artifactIds);
         }
+
+        [TestMethod]
+        public async Task AddArtifactsToCollectionAsync_AllParametersAreValid_Success()
+        {
+            _collectionsServiceMock.Setup(svc => svc.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _sessionUserId)).ReturnsAsync(_addArtifactsResult);
+
+            await _collectionsController.AddArtifactsToCollectionAsync(_collectionId, "add", _artifactIds);
+        }
     }
 }

@@ -55,6 +55,8 @@ namespace ArtifactStore.Services
             _collectionId = 1;
         }
 
+        #region AddArtifactsToCollectionAsync
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task AddArtifactsToCollectionAsync_InvalidUserId_ThrowArgumentOutOfRangeException()
@@ -70,6 +72,8 @@ namespace ArtifactStore.Services
             _collectionId = 0;
             await _collectionService.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _sessionUserId);
         }
+
+        #endregion AddArtifactsToCollectionAsync
 
     }
 }

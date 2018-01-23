@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
+using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -26,6 +28,7 @@ namespace ArtifactStore.Collections
         private AddArtifactsResult _addArtifactsResult;
         private Pagination _pagination;
         private CollectionArtifacts _expectedCollectionArtifacts;
+        private ProfileColumnsSettings _profileColumnsSettings;
 
 
         [TestInitialize]
@@ -52,6 +55,19 @@ namespace ArtifactStore.Collections
             {
                 AddedCount = 1,
                 Total = 1
+            };
+
+            _profileColumnsSettings = new ProfileColumnsSettings()
+            {
+                Items = new List<ProfileColumn>()
+                {
+                    new ProfileColumn()
+                    {
+                        Predefined = 1,
+                        PropertyName = "Custom",
+                        PropertyTypeId = 2
+                    }
+                }
             };
 
             _expectedCollectionArtifacts = new CollectionArtifacts
@@ -160,6 +176,27 @@ namespace ArtifactStore.Collections
         }
 
         #endregion AddArtifactsToCollectionAsync
+
+        #region SaveColumnsSettingsAsync
+
+        [TestMethod]
+        public async Task SaveColumnsSettingsAsync_AllParametersAreValid_Success()
+        {
+            var result = await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsSettings);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.NoContent);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task SaveColumnsSettingsAsync_EmptyItems_ThrowsException()
+        {
+            _profileColumnsSettings.Items = null;
+            await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsSettings);
+        }
+
+        #endregion SaveColumnsSettingsAsync
 
         #region GetArtifactsInCollectionAsync
 

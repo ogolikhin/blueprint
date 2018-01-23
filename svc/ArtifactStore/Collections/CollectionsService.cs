@@ -161,6 +161,11 @@ namespace ArtifactStore.Collections
 
         public async Task SaveColumnSettingsAsync(int collectionId, ProfileColumnsSettings columnSettings, int userId)
         {
+            if (userId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(userId));
+            }
+
             var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
 
             await FilterIncorrectColumnsSettings(collectionId, userId, columnSettings);

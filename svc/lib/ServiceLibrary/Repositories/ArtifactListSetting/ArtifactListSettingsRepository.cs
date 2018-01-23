@@ -13,7 +13,7 @@ namespace ServiceLibrary.Repositories.ArtifactListSetting
         {
         }
 
-        private ArtifactListSettingsRepository(ISqlConnectionWrapper connectionWrapper)
+        public ArtifactListSettingsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }

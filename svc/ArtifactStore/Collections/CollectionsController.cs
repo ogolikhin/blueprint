@@ -73,7 +73,7 @@ namespace ArtifactStore.Collections
         /// <returns>Result of the operation.</returns>
         [HttpPost]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
-        [ResponseType(typeof(AddArtifactsResult))]
+        [ResponseType(typeof(AddArtifactsToCollectionResult))]
         public async Task<IHttpActionResult> AddArtifactsToCollectionAsync(
             int id, string add, [FromBody] ISet<int> artifactIds)
         {

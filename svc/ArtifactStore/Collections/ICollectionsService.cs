@@ -10,7 +10,7 @@ namespace ArtifactStore.Collections
     {
         Task<CollectionArtifacts> GetArtifactsInCollectionAsync(int collectionId, Pagination pagination, int userId);
 
-        Task<AddArtifactsResult> AddArtifactsToCollectionAsync(int collectionId, ISet<int> artifactIds, int userId);
+        Task<AddArtifactsToCollectionResult> AddArtifactsToCollectionAsync(int collectionId, ISet<int> artifactIds, int userId);
 
         Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null);
 

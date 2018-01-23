@@ -11,7 +11,6 @@ namespace ServiceLibrary.Swagger
             config
                 .EnableSwagger(c =>
                 {
-                    c.UseFullTypeNameInSchemaIds();
                     c.SingleApiVersion("v1", title).Description(description);
                     c.ApiKey("apiKey").Description("API Key Authentication").Name("apiKey").In("header");
                     c.IncludeXmlComments(HostingEnvironment.MapPath(xmlCommentsPath));

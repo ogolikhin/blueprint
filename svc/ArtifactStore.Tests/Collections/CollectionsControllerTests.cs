@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web.Http.Results;
 using ArtifactStore.Collections.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -79,7 +80,10 @@ namespace ArtifactStore.Collections
         {
             _collectionsServiceMock.Setup(svc => svc.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _sessionUserId)).ReturnsAsync(_addArtifactsResult);
 
-            await _collectionsController.AddArtifactsToCollectionAsync(_collectionId, "add", _artifactIds);
+            var result = await _collectionsController.AddArtifactsToCollectionAsync(_collectionId, "add", _artifactIds) as OkNegotiatedContentResult<AddArtifactsResult>;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(_addArtifactsResult, result.Content);
         }
     }
 }

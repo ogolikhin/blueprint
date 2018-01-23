@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using ArtifactStore.Collections;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Repositories;
 
-namespace ServiceLibrary.Repositories
+namespace ArtifactStore.Repositories
 {
     [TestClass]
     public class SqlCollectionsRepositoryTests
@@ -43,7 +44,7 @@ namespace ServiceLibrary.Repositories
             // Arrange
 
             // Act
-            await _collectionRepository.AddArtifactsToCollectionAsync(CollectionId, new List<int>() { 1, 2, 3 }, UserId);
+            await _collectionRepository.AddArtifactsToCollectionAsync(CollectionId, new List<int> { 1, 2, 3 }, UserId);
         }
 
         #endregion

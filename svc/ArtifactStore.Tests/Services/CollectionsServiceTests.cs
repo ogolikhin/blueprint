@@ -25,9 +25,9 @@ namespace ArtifactStore.Services
         private Mock<ISearchEngineService> _searchEngineService;
         private Mock<IArtifactListService> _artifactListService;
 
-        private int SessionUserId = 1;
-        private ISet<int> artifactIds;
-        private int CollectionId;
+        private int _sessionUserId = 1;
+        private ISet<int> _artifactIds;
+        private int _collectionId;
 
         [TestInitialize]
         public void Initialize()
@@ -51,24 +51,24 @@ namespace ArtifactStore.Services
                                                         _artifactListService.Object);
 
 
-            artifactIds = new HashSet<int>() { 1, 2, 3 };
-            CollectionId = 1;
+            _artifactIds = new HashSet<int>() { 1, 2, 3 };
+            _collectionId = 1;
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task AddArtifactsToCollectionAsync_InvalidUserId_ThrowArgumentOutOfRangeException()
         {
-            SessionUserId = 0;
-            await _collectionService.AddArtifactsToCollectionAsync(CollectionId, artifactIds, SessionUserId);
+            _sessionUserId = 0;
+            await _collectionService.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _sessionUserId);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task AddArtifactsToCollectionAsync_InvalidCollectionId_ThrowArgumentOutOfRangeException()
         {
-            CollectionId = 0;
-            await _collectionService.AddArtifactsToCollectionAsync(CollectionId, artifactIds, SessionUserId);
+            _collectionId = 0;
+            await _collectionService.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _sessionUserId);
         }
 
     }

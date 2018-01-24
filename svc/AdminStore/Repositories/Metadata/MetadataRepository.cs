@@ -106,11 +106,6 @@ namespace AdminStore.Repositories.Metadata
 
         private XDocument AddFillAttribute(XDocument svgDocument, string color)
         {
-            Regex hexColorRegex = new Regex("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", RegexOptions.IgnoreCase);
-            if (!hexColorRegex.IsMatch(color))
-            {
-                return svgDocument;
-            }
             var svgElement = svgDocument.Root;
 
             foreach (var pathElement in svgElement.Descendants("{http://www.w3.org/2000/svg}path"))

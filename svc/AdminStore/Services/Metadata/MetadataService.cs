@@ -6,6 +6,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Services.Image;
 using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using ServiceLibrary.Helpers.Cache;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ItemType;
@@ -17,7 +18,9 @@ namespace AdminStore.Services.Metadata
         private readonly ISqlItemTypeRepository _sqlItemTypeRepository;
         private readonly IMetadataRepository _metadataRepository;
         private readonly IImageService _imageService;
-        private readonly IItemTypeIconCache _cache;
+        private readonly IAsyncCache _cache;
+        private readonly Regex _hexColorRegex = new Regex("^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private readonly DateTimeOffset _defaultExpirationOffset = DateTimeOffset.UtcNow.AddDays(1);
 
         private const int ItemTypeIconSize = 32;
 
@@ -26,14 +29,14 @@ namespace AdminStore.Services.Metadata
                  new SqlItemTypeRepository(),
                  new MetadataRepository(),
                  new ImageService(),
-                 ItemTypeIconCache.Instance)
+                 AsyncCache.Default)
         {
         }
 
         public MetadataService(ISqlItemTypeRepository sqlItemTypeRepository,
              IMetadataRepository metadataRepository,
              IImageService imageService,
-             IItemTypeIconCache cache)
+             IAsyncCache cache)
         {
             _sqlItemTypeRepository = sqlItemTypeRepository;
             _metadataRepository = metadataRepository;
@@ -41,76 +44,74 @@ namespace AdminStore.Services.Metadata
             _cache = cache;
         }
 
-        public async Task<Icon> GetIcon(string type, int? typeId = null, string color = null)
+        public Task<Icon> GetIconAsync(string type, int? typeId = null, string color = null)
         {
+            var iconType = ValidateInputParameter(type, typeId, color);
 
+            var cacheKey = GetIconCacheKey(type, typeId, color);
+            return _cache.AddOrGetExistingAsync(cacheKey, () => GetIconAsync(iconType, typeId, color), _defaultExpirationOffset);
+        }
 
-            var iconType = IconType.None;
+        private async Task<Icon> GetIconAsync(IconType iconType, int? typeId = null, string color = null)
+        {
+            Icon icon;
+            var hexColor = string.Format(CultureInfo.CurrentCulture, "#{0}", color);
+            switch (iconType)
+            {
+                case IconType.InstanceFolder:
+                    icon = GetDefaultIcon(ItemTypePredefined.PrimitiveFolder, hexColor);
+                    break;
+                case IconType.Project:
+                    icon = GetDefaultIcon(ItemTypePredefined.Project, hexColor);
+                    break;
+                default:
+                    var itemTypeInfo = await GetItemTypeInfoAsync(typeId.GetValueOrDefault());
+
+                    if (itemTypeInfo.HasCustomIcon)
+                    {
+                        icon = new Icon
+                        {
+                            Content = _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon, ItemTypeIconSize,
+                                ItemTypeIconSize),
+                            IsSvg = false
+                        };
+                    }
+                    else
+                    {
+                        icon = GetDefaultIcon(itemTypeInfo.Predefined, hexColor);
+                    }
+                    break;
+            }
+            return icon;
+        }
+
+        private string GetIconCacheKey(string type, int? typeId = null, string color = null)
+        {
+            return string.Format(CultureInfo.CurrentCulture, "{0}{1}{2}", type, typeId.GetValueOrDefault().ToString(CultureInfo.InvariantCulture), color);
+        }
+
+        private IconType ValidateInputParameter(string type, int? typeId = null, string color = null)
+        {
+            IconType iconType;
             if (string.IsNullOrEmpty(type) || !Enum.TryParse(type, true, out iconType))
             {
                 throw new BadRequestException("Unknown item type");
             }
 
-            if ((typeId == null && iconType == IconType.Artifact) || iconType == IconType.None)
+            if (typeId == null && iconType == IconType.Artifact)
             {
                 throw new BadRequestException("Unknown item type");
             }
-
-            string hexColor = string.Format(CultureInfo.CurrentCulture, "#{0}", color);
-
-
-            byte[] iconContent = null;
-
-            if (_cache != null)
+            if (!string.IsNullOrEmpty(color) && !_hexColorRegex.IsMatch(color))
             {
-                iconContent = _cache.GetValue(iconType, typeId, hexColor);
+                throw new BadRequestException("Color parameter should have hex presentation");
             }
-
-            if (iconContent != null)
-            {
-                return new Icon
-                {
-                    Content = iconContent,
-                    IsSvg = (typeId == null)
-                };
-            }
-            var icon = new Icon();
-
-            if (iconType == IconType.InstanceFolder)
-            {
-                icon = GetItemTypeIcon(ItemTypePredefined.PrimitiveFolder, hexColor);
-            }
-            else if (iconType == IconType.Project)
-            {
-                icon = GetItemTypeIcon(ItemTypePredefined.Project, hexColor);
-            }
-            else
-            {
-                var itemTypeInfo = await GetItemTypeInfo(typeId.GetValueOrDefault());
-
-                if (itemTypeInfo.HasCustomIcon)
-                {
-                    icon = new Icon
-                    {
-                        Content = _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon, ItemTypeIconSize,
-                            ItemTypeIconSize),
-                        IsSvg = false,
-                        ItemTypeId = itemTypeInfo.Id,
-                        ItemTypePredefined = itemTypeInfo.Predefined
-                    };
-                }
-                else
-                {
-                    icon = GetItemTypeIcon(itemTypeInfo.Predefined, hexColor);
-                }
-            }
-
-            return icon;
+            return iconType;
         }
 
-        private async Task<ItemTypeInfo> GetItemTypeInfo(int itemTypeId, int revisionId = int.MaxValue)
+        private async Task<ItemTypeInfo> GetItemTypeInfoAsync(int itemTypeId, int revisionId = int.MaxValue)
         {
-            var itemTypeInfo = await _sqlItemTypeRepository.GetItemTypeInfo(itemTypeId, revisionId);
+            var itemTypeInfo = await _sqlItemTypeRepository.GetItemTypeInfoAsync(itemTypeId, revisionId);
 
             if (itemTypeInfo == null)
             {
@@ -120,7 +121,7 @@ namespace AdminStore.Services.Metadata
             return itemTypeInfo;
         }
 
-        private Icon GetItemTypeIcon(ItemTypePredefined predefined, string color)
+        private Icon GetDefaultIcon(ItemTypePredefined predefined, string color)
         {
             var iconContent = _metadataRepository.GetSvgIconContent(predefined, color);
             if (iconContent == null)
@@ -132,7 +133,6 @@ namespace AdminStore.Services.Metadata
             {
                 Content = iconContent,
                 IsSvg = true,
-
             };
         }
 

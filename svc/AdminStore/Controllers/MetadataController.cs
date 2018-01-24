@@ -34,14 +34,14 @@ namespace AdminStore.Controllers
 
         [HttpGet, ResponseCache(Duration = 86400)]
         [Route("icons"), SessionRequired]
-        public async Task<HttpResponseMessage> GetIcons(string type, int? typeId = null, string color = null)
+        public async Task<HttpResponseMessage> GetIconsAsnyc(string type, int? typeId = null, string color = null)
         {
             var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
 
-            var icon = await _metadataService.GetIcon(type, typeId, color);
+            var icon = await _metadataService.GetIconAsync(type, typeId, color);
             if (icon == null)
             {
-                throw new ResourceNotFoundException(String.Format(CultureInfo.CurrentCulture,
+                throw new ResourceNotFoundException(string.Format(CultureInfo.CurrentCulture,
                     "artifact type {0}'s icon can not find", type));
             }
             httpResponseMessage.Content = _imageService.CreateByteArrayContent(icon.Content, icon.IsSvg);

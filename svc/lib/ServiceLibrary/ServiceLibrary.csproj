@@ -134,8 +134,6 @@
     <Compile Include="Exceptions\SqlServerSendException.cs" />
     <Compile Include="Exceptions\TenantInfoNotFoundException.cs" />
     <Compile Include="Helpers\AppSettingsHelper.cs" />
-    <Compile Include="Helpers\Cache\IItemTypeIconCache.cs" />
-    <Compile Include="Helpers\Cache\ItemTypeIconCache.cs" />
     <Compile Include="Helpers\CollectionHelper.cs" />
     <Compile Include="Helpers\FeatureLicenseHelper.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />

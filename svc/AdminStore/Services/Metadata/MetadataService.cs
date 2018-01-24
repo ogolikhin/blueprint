@@ -21,6 +21,7 @@ namespace AdminStore.Services.Metadata
         private readonly IAsyncCache _cache;
         private readonly Regex _hexColorRegex = new Regex("^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private readonly DateTimeOffset _defaultExpirationOffset = DateTimeOffset.UtcNow.AddDays(1);
+        private readonly string prefix = "IconCache";
 
         private const int ItemTypeIconSize = 32;
 
@@ -87,7 +88,7 @@ namespace AdminStore.Services.Metadata
 
         private string GetIconCacheKey(string type, int? typeId = null, string color = null)
         {
-            return string.Format(CultureInfo.CurrentCulture, "{0}{1}{2}", type, typeId.GetValueOrDefault().ToString(CultureInfo.InvariantCulture), color);
+            return string.Format(CultureInfo.CurrentCulture, prefix + "{0}{1}{2}", type, typeId.GetValueOrDefault().ToString(CultureInfo.InvariantCulture), color);
         }
 
         private IconType ValidateInputParameter(string type, int? typeId = null, string color = null)
@@ -132,7 +133,7 @@ namespace AdminStore.Services.Metadata
             return new Icon
             {
                 Content = iconContent,
-                IsSvg = true,
+                IsSvg = true
             };
         }
 

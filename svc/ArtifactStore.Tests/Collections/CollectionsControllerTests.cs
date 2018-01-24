@@ -29,6 +29,7 @@ namespace ArtifactStore.Collections
         private Pagination _pagination;
         private CollectionArtifacts _expectedCollectionArtifacts;
         private ProfileColumnsSettings _profileColumnsSettings;
+        private GetColumnsDto _columns;
 
 
         [TestInitialize]
@@ -136,6 +137,28 @@ namespace ArtifactStore.Collections
                     }
                 }
             };
+
+            _columns = new GetColumnsDto()
+            {
+                SelectedColumns = new List<ArtifactListColumn>()
+                {
+                    new ArtifactListColumn()
+                    {
+                        Predefined = 1,
+                        PrimitiveType = 2,
+                        PropertyTypeId = 3
+                    }
+                },
+                OtherColumns = new List<ArtifactListColumn>()
+                {
+                    new ArtifactListColumn()
+                    {
+                        Predefined = 4,
+                        PrimitiveType = 5,
+                        PropertyTypeId = 6
+                    }
+                }
+            };
         }
 
         #region AddArtifactsToCollectionAsync
@@ -221,5 +244,28 @@ namespace ArtifactStore.Collections
         }
 
         #endregion GetArtifactsInCollectionAsync
+
+        #region GetColumnsAsync
+
+        [TestMethod]
+        public async Task GetColumnsAsync_AllParametersAreValid_Success()
+        {
+            // Arrange
+
+            _collectionsServiceMock.Setup(q => q.GetColumnsAsync(_collectionId, _sessionUserId, null))
+                .ReturnsAsync(_columns);
+
+            // act
+            var actualResult =
+                await _collectionsController.GetColumnsAsync(_collectionId, null) as OkNegotiatedContentResult<GetColumnsDto>;
+
+            // assert
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(_columns, actualResult.Content);
+            Assert.AreEqual(_columns.OtherColumns.Count(), actualResult.Content.OtherColumns.Count());
+            Assert.AreEqual(_columns.SelectedColumns.Count(), actualResult.Content.SelectedColumns.Count());
+        }
+
+        #endregion GetColumnsAsync
     }
 }

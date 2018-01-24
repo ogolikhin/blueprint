@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Repositories;
 using System.Linq;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Repositories
 {
@@ -18,6 +19,7 @@ namespace ArtifactStore.Repositories
         private const int UserId = 1;
         private int CollectionId = 1;
         private List<CollectionArtifact> _expectedCollectionArtifacts;
+        private List<PropertyTypeInfo> _propertyTypeInfos;
 
 
         [TestInitialize]
@@ -53,6 +55,17 @@ namespace ArtifactStore.Repositories
                     PredefinedType = 4105,
                     PropertyValue = "Value_Description",
                     ItemTypeIconId = 0
+                }
+            };
+
+            _propertyTypeInfos = new List<PropertyTypeInfo>()
+            {
+                new PropertyTypeInfo()
+                {
+                    Id = 1,
+                    Name = "Test",
+                    Predefined = PropertyTypePredefined.ID,
+                    PrimitiveType = PropertyPrimitiveType.Number
                 }
             };
         }
@@ -100,5 +113,23 @@ namespace ArtifactStore.Repositories
         }
 
         #endregion
+
+        #region GetPropertyTypeInfosForItemTypesAsync
+
+        [TestMethod]
+        public async Task GetPropertyTypeInfosForItemTypesAsync_AllParametersAreValid_Success()
+        {
+            // Arrange
+            _cxn.SetupQueryAsync("GetPropertyTypeInformationForItemTypes", It.IsAny<Dictionary<string, object>>(), _propertyTypeInfos);
+
+            // Act
+            var actualResult = await _collectionRepository.GetPropertyTypeInfosForItemTypesAsync(new List<int> { 1, 2, 3 });
+
+            // assert
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(_propertyTypeInfos.Count, actualResult.Count);
+        }
+
+        #endregion GetPropertyTypeInfosForItemTypesAsync
     }
 }

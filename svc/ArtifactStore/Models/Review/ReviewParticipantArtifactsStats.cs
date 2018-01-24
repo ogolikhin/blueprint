@@ -8,6 +8,8 @@
 
         public int Pending { get; set; }
 
+        public int NotRequired { get; set; }
+
         public int Viewed { get; set; }
     }
 }

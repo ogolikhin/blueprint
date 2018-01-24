@@ -6,6 +6,6 @@ namespace ArtifactStore.Collections.Models
     {
         public IEnumerable<ArtifactListColumn> SelectedColumns { get; set; }
 
-        public IEnumerable<ArtifactListColumn> OtherColumns { get; set; }
+        public IEnumerable<ArtifactListColumn> UnselectedColumns { get; set; }
     }
 }

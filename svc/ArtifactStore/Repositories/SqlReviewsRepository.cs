@@ -153,11 +153,13 @@ namespace ArtifactStore.Repositories
                     Approved = reviewDetails.Approved,
                     Disapproved = reviewDetails.Disapproved,
                     Pending = reviewDetails.Pending,
-                    Viewed = reviewDetails.Viewed
+                    Viewed = reviewDetails.Viewed,
+                    NotRequired = reviewDetails.ApprovalNotRequiredArtifactsCount
                 },
                 ReviewType = reviewType,
                 RevisionId = reviewDetails.RevisionId,
-                ProjectId = reviewInfo.ProjectId
+                ProjectId = reviewInfo.ProjectId,
+                IncludeFolders = reviewDetails.IncludeFolders
             };
 
             if (reviewDetails.RequireMeaningOfSignature && reviewDetails.ReviewParticipantRole == ReviewParticipantRole.Approver)

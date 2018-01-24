@@ -149,7 +149,7 @@ namespace ArtifactStore.Collections
                         PropertyTypeId = 3
                     }
                 },
-                OtherColumns = new List<ArtifactListColumn>()
+                UnselectedColumns = new List<ArtifactListColumn>()
                 {
                     new ArtifactListColumn()
                     {
@@ -262,7 +262,7 @@ namespace ArtifactStore.Collections
             // assert
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(_columns, actualResult.Content);
-            Assert.AreEqual(_columns.OtherColumns.Count(), actualResult.Content.OtherColumns.Count());
+            Assert.AreEqual(_columns.UnselectedColumns.Count(), actualResult.Content.UnselectedColumns.Count());
             Assert.AreEqual(_columns.SelectedColumns.Count(), actualResult.Content.SelectedColumns.Count());
         }
 

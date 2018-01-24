@@ -1,11 +1,14 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AdminStore.Repositories.Metadata;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Services.Image;
 using System;
+using System.Globalization;
+using ServiceLibrary.Helpers.Cache;
+using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ItemType;
 
 namespace AdminStore.Services.Metadata
 {
@@ -14,6 +17,7 @@ namespace AdminStore.Services.Metadata
         private readonly ISqlItemTypeRepository _sqlItemTypeRepository;
         private readonly IMetadataRepository _metadataRepository;
         private readonly IImageService _imageService;
+        private readonly IItemTypeIconCache _cache;
 
         private const int ItemTypeIconSize = 32;
 
@@ -21,43 +25,90 @@ namespace AdminStore.Services.Metadata
             : this(
                  new SqlItemTypeRepository(),
                  new MetadataRepository(),
-                 new ImageService())
+                 new ImageService(),
+                 ItemTypeIconCache.Instance)
         {
         }
 
         public MetadataService(ISqlItemTypeRepository sqlItemTypeRepository,
              IMetadataRepository metadataRepository,
-             IImageService imageService)
+             IImageService imageService,
+             IItemTypeIconCache cache)
         {
             _sqlItemTypeRepository = sqlItemTypeRepository;
             _metadataRepository = metadataRepository;
             _imageService = imageService;
+            _cache = cache;
         }
 
         public async Task<Icon> GetIcon(string type, int? typeId = null, string color = null)
         {
-            var itemType = ItemTypePredefined.None;
-            if (string.IsNullOrEmpty(type) || !Enum.TryParse(type, true, out itemType))
+
+
+            var iconType = IconType.None;
+            if (string.IsNullOrEmpty(type) || !Enum.TryParse(type, true, out iconType))
             {
                 throw new BadRequestException("Unknown item type");
             }
 
-            if (typeId != null)
+            if ((typeId == null && iconType == IconType.Artifact) || iconType == IconType.None)
             {
-                var customIcon = await GetCustomItemTypeIcon(typeId.GetValueOrDefault());
-
-                if (customIcon != null)
-                {
-                    return customIcon;
-                }
+                throw new BadRequestException("Unknown item type");
             }
 
-            var icon = GetItemTypeIcon(itemType, color);
+            string hexColor = string.Format(CultureInfo.CurrentCulture, "#{0}", color);
+
+
+            byte[] iconContent = null;
+
+            if (_cache != null)
+            {
+                iconContent = _cache.GetValue(iconType, typeId, hexColor);
+            }
+
+            if (iconContent != null)
+            {
+                return new Icon
+                {
+                    Content = iconContent,
+                    IsSvg = (typeId == null)
+                };
+            }
+            var icon = new Icon();
+
+            if (iconType == IconType.InstanceFolder)
+            {
+                icon = GetItemTypeIcon(ItemTypePredefined.PrimitiveFolder, hexColor);
+            }
+            else if (iconType == IconType.Project)
+            {
+                icon = GetItemTypeIcon(ItemTypePredefined.Project, hexColor);
+            }
+            else
+            {
+                var itemTypeInfo = await GetItemTypeInfo(typeId.GetValueOrDefault());
+
+                if (itemTypeInfo.HasCustomIcon)
+                {
+                    icon = new Icon
+                    {
+                        Content = _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon, ItemTypeIconSize,
+                            ItemTypeIconSize),
+                        IsSvg = false,
+                        ItemTypeId = itemTypeInfo.Id,
+                        ItemTypePredefined = itemTypeInfo.Predefined
+                    };
+                }
+                else
+                {
+                    icon = GetItemTypeIcon(itemTypeInfo.Predefined, hexColor);
+                }
+            }
 
             return icon;
         }
 
-        private async Task<Icon> GetCustomItemTypeIcon(int itemTypeId, int revisionId = int.MaxValue)
+        private async Task<ItemTypeInfo> GetItemTypeInfo(int itemTypeId, int revisionId = int.MaxValue)
         {
             var itemTypeInfo = await _sqlItemTypeRepository.GetItemTypeInfo(itemTypeId, revisionId);
 
@@ -66,16 +117,7 @@ namespace AdminStore.Services.Metadata
                 throw new ResourceNotFoundException("Artifact type not found.");
             }
 
-            if (!itemTypeInfo.HasCustomIcon)
-            {
-                return null;
-            }
-
-            return new Icon
-            {
-                Content = _imageService.ConvertBitmapImageToPng(itemTypeInfo.Icon, ItemTypeIconSize, ItemTypeIconSize),
-                IsSvg = false
-            };
+            return itemTypeInfo;
         }
 
         private Icon GetItemTypeIcon(ItemTypePredefined predefined, string color)
@@ -89,7 +131,8 @@ namespace AdminStore.Services.Metadata
             return new Icon
             {
                 Content = iconContent,
-                IsSvg = true
+                IsSvg = true,
+
             };
         }
 

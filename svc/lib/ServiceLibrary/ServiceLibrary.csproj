@@ -134,6 +134,8 @@
     <Compile Include="Exceptions\SqlServerSendException.cs" />
     <Compile Include="Exceptions\TenantInfoNotFoundException.cs" />
     <Compile Include="Helpers\AppSettingsHelper.cs" />
+    <Compile Include="Helpers\Cache\IItemTypeIconCache.cs" />
+    <Compile Include="Helpers\Cache\ItemTypeIconCache.cs" />
     <Compile Include="Helpers\CollectionHelper.cs" />
     <Compile Include="Helpers\FeatureLicenseHelper.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />
@@ -146,6 +148,7 @@
     <Compile Include="Helpers\HttpsSecurity.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
+    <Compile Include="Models\Enums\IconType.cs" />
     <Compile Include="Models\Icon.cs" />
     <Compile Include="Services\Image\IImageService.cs" />
     <Compile Include="Services\Image\ImageService.cs" />

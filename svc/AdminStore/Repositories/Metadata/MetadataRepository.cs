@@ -33,6 +33,7 @@ namespace AdminStore.Repositories.Metadata
             { ItemTypePredefined.DDShape, "subartifact.svg" },
 
             { ItemTypePredefined.PrimitiveFolder, "folder.svg" },
+            { ItemTypePredefined.BaselineFolder, "folder.svg" },
 
             { ItemTypePredefined.GenericDiagram, "generic-diagram.svg" },
             { ItemTypePredefined.GDConnector, "subartifact.svg" },
@@ -105,9 +106,8 @@ namespace AdminStore.Repositories.Metadata
 
         private XDocument AddFillAttribute(XDocument svgDocument, string color)
         {
-            string hexColor = string.Format(CultureInfo.CurrentCulture, "#{0}", color);
             Regex hexColorRegex = new Regex("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", RegexOptions.IgnoreCase);
-            if (!hexColorRegex.IsMatch(hexColor))
+            if (!hexColorRegex.IsMatch(color))
             {
                 return svgDocument;
             }
@@ -115,7 +115,7 @@ namespace AdminStore.Repositories.Metadata
 
             foreach (var pathElement in svgElement.Descendants("{http://www.w3.org/2000/svg}path"))
             {
-                var fillAttribute = new XAttribute("fill", hexColor);
+                var fillAttribute = new XAttribute("fill", color);
                 pathElement.Add(fillAttribute);
             }
 

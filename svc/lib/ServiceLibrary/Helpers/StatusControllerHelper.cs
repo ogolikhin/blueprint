@@ -96,7 +96,6 @@ namespace ServiceLibrary.Helpers
         /// </summary>
         private async Task<List<StatusResponse>> TryGetStatusResponse(IStatusRepository statusRepo)
         {
-
             try
             {
                 return await statusRepo.GetStatuses(GET_STATUS_TIMEOUT);
@@ -116,8 +115,6 @@ namespace ServiceLibrary.Helpers
                 responseWithError.Add(responseData);
                  return responseWithError;
             }
-
-
         }
 
         private static string GetAssemblyFileVersion()

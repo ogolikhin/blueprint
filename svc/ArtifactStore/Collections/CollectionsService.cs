@@ -181,7 +181,9 @@ namespace ArtifactStore.Collections
             var artifacts = await _itemInfoRepository.GetItemsDetails(userId, artifactIds);
             var itemTypeIds = artifacts.Select(a => a.ItemTypeId).Distinct();
 
-            return await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(itemTypeIds, search);
+            var list = await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(itemTypeIds, search);
+
+            return list /*await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(itemTypeIds, search)*/;
         }
 
         private async Task FilterIncorrectColumnsSettingsAsync(

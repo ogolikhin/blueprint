@@ -4,10 +4,13 @@ using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections;
+using ArtifactStore.Collections.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Services
@@ -30,6 +33,7 @@ namespace ArtifactStore.Services
         private ISet<int> _artifactIds;
         private int _collectionId;
         private ProfileColumnsSettings _profileColumnsSettings;
+        private ArtifactBasicDetails _collectionDetails;
 
         [TestInitialize]
         public void Initialize()
@@ -51,7 +55,6 @@ namespace ArtifactStore.Services
                                                         _searchEngineService.Object,
                                                         _artifactListService.Object);
 
-
             _artifactIds = new HashSet<int>() { 1, 2, 3 };
             _collectionId = 1;
 
@@ -66,6 +69,13 @@ namespace ArtifactStore.Services
                         PropertyTypeId = 2
                     }
                 }
+            };
+
+            _collectionDetails = new ArtifactBasicDetails()
+            {
+                ArtifactId = 1,
+                DraftDeleted = false,
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection
             };
         }
 
@@ -100,5 +110,56 @@ namespace ArtifactStore.Services
         }
 
         #endregion SaveColumnSettingsAsync
+
+        #region GetColumnsAsync
+
+        [TestMethod]
+        public async Task GetColumnsAsync_SelectedColumnsEmpty_Success()
+        {
+            List<int> artifactIds = new List<int>() { 1, 2, 3 };
+
+            List<ItemDetails> artifacts = new List<ItemDetails>()
+            {
+                new ItemDetails()
+                {
+                    Name = "Artifact1",
+                    ItemTypeId = 2
+                }
+            };
+
+            List<PropertyTypeInfo> artifacTypeInfos = new List<PropertyTypeInfo>()
+            {
+                new PropertyTypeInfo()
+                {
+                    Id = 1,
+                    Predefined = PropertyTypePredefined.ArtifactType,
+                    Name = "Custom",
+                    PrimitiveType = PropertyPrimitiveType.Number
+                }
+            };
+
+            _artifactRepository.Setup(repo => repo.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
+                .ReturnsAsync(_collectionDetails);
+
+            _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(true);
+
+            _artifactListService.Setup(repo => repo.GetColumnSettingsAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(/*_profileColumnsSettings*/(ProfileColumnsSettings)null);
+
+            _collectionsRepository.Setup(repo => repo.GetContentArtifactIdsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync((artifactIds));
+
+            _itemInfoRepository.Setup(repo => repo.GetItemsDetails(It.IsAny<int>(), It.IsAny<List<int>>(), It.IsAny<bool>(), It.IsAny<int>(), null))
+                .ReturnsAsync((artifacts));
+
+            _collectionsRepository.Setup(repo => repo.GetPropertyTypeInfosForItemTypesAsync(It.IsAny<List<int>>(), It.IsAny<string>()))
+                .ReturnsAsync((artifacTypeInfos));
+
+            var result = await _collectionService.GetColumnsAsync(_collectionId, _sessionUserId);
+            Assert.IsNotNull(result);
+        }
+
+        #endregion GetColumnsAsync
     }
 }

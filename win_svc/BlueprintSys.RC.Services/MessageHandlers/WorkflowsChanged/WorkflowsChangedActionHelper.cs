@@ -1,6 +1,7 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
+using BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged
@@ -9,18 +10,21 @@ namespace BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged
     {
         protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
+            return await HandleWorkflowsChangedAction(tenant, actionMessage, baseRepository, WorkflowMessagingProcessor.Instance);
+        }
+
+        public async Task<bool> HandleWorkflowsChangedAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository, IWorkflowMessagingProcessor workflowMessagingProcessor)
+        {
             var message = (WorkflowsChangedMessage) actionMessage;
-            var repository = (WorkflowsChangedRepository) baseRepository;
+            var repository = (IWorkflowsChangedRepository) baseRepository;
 
             Logger.Log("Getting affected artifact IDs", message, tenant);
-            var artifactIds = await repository.GetAffectedArtifactIds();
-            if (!artifactIds.Any())
+            var workflowIds = new[]
             {
-                Logger.Log("No artifact IDs found", message, tenant);
-                return false;
-            }
-            Logger.Log($"Found artifact IDs {string.Join(",", artifactIds)}", message, tenant);
-
+                message.WorkflowId
+            };
+            var artifactIds = await repository.GetAffectedArtifactIds(workflowIds, message.RevisionId);
+            await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor);
             return true;
         }
     }

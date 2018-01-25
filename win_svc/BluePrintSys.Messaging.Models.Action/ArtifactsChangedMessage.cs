@@ -9,7 +9,8 @@ namespace BluePrintSys.Messaging.Models.Actions
         Save,
         Discard,
         Publish,
-        Move
+        Move,
+        Indirect
     }
 
     public class ArtifactsChangedMessage : ActionMessage

@@ -372,7 +372,7 @@ namespace ArtifactStore.Collections
                     ItemTypeId = itemTypeId,
                     PredefinedType = predefinedType,
                     ItemTypeIconId = itemTypeIconId,
-                    PropertyInfos = propertyInfos
+                    PropertyInfos = propertyInfos.OrderBy(x => x.PropertyTypeId)
                 });
             }
 
@@ -381,7 +381,7 @@ namespace ArtifactStore.Collections
                 Items = artifactDtos,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = settingsColumns
+                    Columns = settingsColumns.OrderBy(x => x.PropertyTypeId)
                 }
             };
         }

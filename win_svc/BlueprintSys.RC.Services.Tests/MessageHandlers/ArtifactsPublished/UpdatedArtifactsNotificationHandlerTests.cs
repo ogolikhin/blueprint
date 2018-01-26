@@ -16,7 +16,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Workflow;
 
-namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactPublished
+namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
 {
     [TestClass]
     public class UpdatedArtifactsNotificationHandlerTests

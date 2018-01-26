@@ -8,7 +8,7 @@ using Moq;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
 
-namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactPublished
+namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
 {
     /// <summary>
     /// Tests for the Artifacts Published Action Helper in the Action Handler Service

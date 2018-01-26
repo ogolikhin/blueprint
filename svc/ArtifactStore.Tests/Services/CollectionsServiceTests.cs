@@ -153,7 +153,7 @@ namespace ArtifactStore.Services
             _itemInfoRepository.Setup(repo => repo.GetItemsDetails(It.IsAny<int>(), It.IsAny<List<int>>(), It.IsAny<bool>(), It.IsAny<int>(), null))
                 .ReturnsAsync((artifacts));
 
-            _collectionsRepository.Setup(repo => repo.GetPropertyTypeInfosForItemTypesAsync(It.IsAny<List<int>>(), It.IsAny<string>()))
+            _collectionsRepository.Setup(repo => repo.GetPropertyTypeInfosForItemTypesAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<string>()))
                 .ReturnsAsync((artifacTypeInfos));
 
             var result = await _collectionService.GetColumnsAsync(_collectionId, _sessionUserId);

@@ -25,7 +25,7 @@ namespace ArtifactStore.Collections
         private int _sessionUserId = 1;
         private ISet<int> _artifactIds;
         private int _collectionId;
-        private AddArtifactsResult _addArtifactsResult;
+        private AddArtifactsToCollectionResult _addArtifactsResult;
         private Pagination _pagination;
         private CollectionArtifacts _expectedCollectionArtifacts;
         private ProfileColumnsSettings _profileColumnsSettings;
@@ -52,7 +52,7 @@ namespace ArtifactStore.Collections
             _artifactIds = new HashSet<int>() { 1, 2, 3 };
 
             _collectionId = 1;
-            _addArtifactsResult = new AddArtifactsResult()
+            _addArtifactsResult = new AddArtifactsToCollectionResult()
             {
                 AddedCount = 1,
                 Total = 1
@@ -192,7 +192,7 @@ namespace ArtifactStore.Collections
         {
             _collectionsServiceMock.Setup(svc => svc.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _sessionUserId)).ReturnsAsync(_addArtifactsResult);
 
-            var result = await _collectionsController.AddArtifactsToCollectionAsync(_collectionId, "add", _artifactIds) as OkNegotiatedContentResult<AddArtifactsResult>;
+            var result = await _collectionsController.AddArtifactsToCollectionAsync(_collectionId, "add", _artifactIds) as OkNegotiatedContentResult<AddArtifactsToCollectionResult>;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(_addArtifactsResult, result.Content);

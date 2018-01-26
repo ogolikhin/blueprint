@@ -162,7 +162,6 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
         {
             var options = new SendOptions();
             options.SetDestination(MessageQueue);
-
             await EndpointInstance.Send(message, options);
         }
 

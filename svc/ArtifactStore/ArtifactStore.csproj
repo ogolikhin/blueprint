@@ -127,7 +127,7 @@
     <Compile Include="Collections\Helpers\CollectionsExceptionHelper.cs" />
     <Compile Include="Collections\ICollectionsRepository.cs" />
     <Compile Include="Collections\ICollectionsService.cs" />
-    <Compile Include="Collections\Models\AddArtifactsResult.cs" />
+    <Compile Include="Collections\Models\AddArtifactsToCollectionResult.cs" />
     <Compile Include="Collections\Models\ArtifactDto.cs" />
     <Compile Include="Collections\Models\ArtifactListColumn.cs" />
     <Compile Include="Collections\Models\ArtifactListFilter.cs" />

@@ -99,7 +99,7 @@ namespace ArtifactStore.Collections
             return populatedArtifacts;
         }
 
-        public async Task<AddArtifactsResult> AddArtifactsToCollectionAsync(
+        public async Task<AddArtifactsToCollectionResult> AddArtifactsToCollectionAsync(
             int collectionId, ISet<int> artifactIds, int userId)
         {
             if (collectionId < 1)
@@ -112,7 +112,7 @@ namespace ArtifactStore.Collections
                 throw new ArgumentOutOfRangeException(nameof(userId));
             }
 
-            AddArtifactsResult result = null;
+            AddArtifactsToCollectionResult result = null;
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
@@ -135,7 +135,7 @@ namespace ArtifactStore.Collections
                 var addedCount = await _collectionsRepository.AddArtifactsToCollectionAsync(
                     collection.ArtifactId, artifactsWithReadPermissions, userId, transaction);
 
-                result = new AddArtifactsResult
+                result = new AddArtifactsToCollectionResult
                 {
                     AddedCount = addedCount,
                     Total = artifactIds.Count
@@ -374,7 +374,7 @@ namespace ArtifactStore.Collections
                     ItemTypeId = itemTypeId,
                     PredefinedType = predefinedType,
                     ItemTypeIconId = itemTypeIconId,
-                    PropertyInfos = propertyInfos
+                    PropertyInfos = propertyInfos.OrderBy(x => x.PropertyTypeId)
                 });
             }
 
@@ -383,7 +383,7 @@ namespace ArtifactStore.Collections
                 Items = artifactDtos,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = settingsColumns
+                    Columns = settingsColumns.OrderBy(x => x.PropertyTypeId)
                 }
             };
         }

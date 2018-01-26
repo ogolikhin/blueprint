@@ -108,6 +108,8 @@ namespace ArtifactStore.Repositories
             var reviewStatus = ReviewStatus.Completed;
 
             _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
+            var approvalNotRequiredArtifactsCount = 10;
+            var includeFolders = true;
             var reviewDetails = new ReviewSummaryDetails
             {
                 BaselineId = baselineId,
@@ -124,7 +126,9 @@ namespace ArtifactStore.Repositories
                 RequireAllArtifactsReviewed = true,
                 RequireESignature = true,
                 RequireMeaningOfSignature = false,
-                ShowOnlyDescription = true
+                ShowOnlyDescription = true,
+                ApprovalNotRequiredArtifactsCount = approvalNotRequiredArtifactsCount,
+                IncludeFolders = includeFolders
             };
 
             var param = new Dictionary<string, object> { { "reviewId", reviewId }, { "userId", userId } };
@@ -168,6 +172,8 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(3, review.ArtifactsStatus.Disapproved);
             Assert.AreEqual(2, review.ArtifactsStatus.Pending);
             Assert.AreEqual(null, review.MeaningOfSignatures);
+            Assert.AreEqual(includeFolders, review.IncludeFolders);
+            Assert.AreEqual(approvalNotRequiredArtifactsCount, review.ArtifactsStatus.NotRequired);
         }
 
         [TestMethod]
@@ -314,7 +320,9 @@ namespace ArtifactStore.Repositories
                 RequireAllArtifactsReviewed = true,
                 RequireESignature = true,
                 RequireMeaningOfSignature = true,
-                ShowOnlyDescription = true
+                ShowOnlyDescription = true,
+                ApprovalNotRequiredArtifactsCount = 10,
+                IncludeFolders = true
             };
 
             var param = new Dictionary<string, object> { { "reviewId", ReviewId }, { "userId", UserId } };
@@ -375,7 +383,9 @@ namespace ArtifactStore.Repositories
                 RequireAllArtifactsReviewed = true,
                 RequireESignature = true,
                 RequireMeaningOfSignature = true,
-                ShowOnlyDescription = true
+                ShowOnlyDescription = true,
+                ApprovalNotRequiredArtifactsCount = 10,
+                IncludeFolders = true
             };
 
             var param = new Dictionary<string, object> { { "reviewId", ReviewId }, { "userId", UserId } };
@@ -441,7 +451,9 @@ namespace ArtifactStore.Repositories
                 RequireAllArtifactsReviewed = true,
                 RequireESignature = true,
                 RequireMeaningOfSignature = true,
-                ShowOnlyDescription = true
+                ShowOnlyDescription = true,
+                ApprovalNotRequiredArtifactsCount = 10,
+                IncludeFolders = true
             };
 
             var param = new Dictionary<string, object> { { "reviewId", ReviewId }, { "userId", UserId } };

@@ -1,6 +1,6 @@
 ﻿namespace ArtifactStore.Collections.Models
 {
-    public class AddArtifactsResult
+    public class AddArtifactsToCollectionResult
     {
         public int Total { get; set; }
 

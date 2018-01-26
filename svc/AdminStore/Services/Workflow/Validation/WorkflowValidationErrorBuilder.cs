@@ -82,6 +82,13 @@ namespace AdminStore.Services.Workflow.Validation
         private const string TemplateXmlStateStateConditionNotFound = "The State '{0}' defined as part of a State condition was not found. Please ensure the State names or IDs in all <StateCondition> elements correspond to States described earlier in the Workflow definition.";
         private const string TemplateXmlPropertyChangeEventActionNotSupported = "One or more property-change events includes an incompatible action; a property change triggers an email notification. For all <PropertyChange> elements, please ensure all <Trigger> child elements have only <EmailNotificationAction> as the triggered action.";
         private const string TemplateXmlDuplicateArtifactTypesInProject = "One or more Projects contain duplicate artifact types. Please ensure for each <Project> element, there are no duplicate <ArtifactType> definitions.";
+        private const string TemplateXmlWebhookActionUrlNotSpecified = "One or more webhook actions have no URL provided. Please make sure that all webhook actions have an associated URL.";
+        private const string TemplateXmlWebhookActionUrlInvalid = "One or more webhook actions have an invalid URL. Please make sure that all webhook actions have a valid associated URL.";
+        private const string TemplateXmlWebhookActionHttpHeaderInvalid = "One or more webhook actions have an invalid HttpHeader provided. Please make sure that all webhook actions that provide http headers do so in the format 'key:value'.";
+        private const string TemplateXmlWebhookActionBasicAuthInvalid = "One or more webhook actions have an invalid basic authentication provided. Please make sure that all webhook actions that provide basic authentication have a username and password specified.";
+        private const string TemplateXmlWebhookActionSignatureSecretTokenEmpty = "One or more webhook actions have an invalid signature. Please make sure that all webhook actions that provide a signature have a secret token provided.";
+        private const string TemplateXmlWebhookActionSignatureAlgorithmInvalid = "One or more webhook actions have an invalid signature. Please make sure that all webhook actions that provide a signature have a valid algorithm provided. Valid options are 'HMACSHA1' and 'HMACSHA256', if not specified 'HMACSHA256' will be chosen by default.";
+        private const string TemplateXmlWebhookActionNoAuthenticationMethodProvided = "One or more webhook actions have no authentication method provided. Please make sure that all webhook actions have at least one authentication method provided. Valid choices are <HttpHeaders>, <BasicAuth> and <Signature>";
         // Workflow Update specific messages
         private const string TemplateXmlWorkflowIdDoesNotMatchIdInUrl = "The Workflow Id attribute in the file does not match the Workflow have you chosen to update. Please ensure you are uploading the correct Workflow XML file.";
         private const string TemplateXmlDuplicateStateIds = "One or more States have a duplicate ID. A State ID must be unique.";
@@ -502,6 +509,34 @@ namespace AdminStore.Services.Workflow.Validation
                     break;
                 case WorkflowXmlValidationErrorCodes.DuplicateArtifactTypeIdsInProject:
                     template = TemplateXmlDuplicateArtifactTypeIdsInProject;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.WebhookActionUrlNotSpecified:
+                    template = TemplateXmlWebhookActionUrlNotSpecified;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.WebhookActionUrlInvalid:
+                    template = TemplateXmlWebhookActionUrlInvalid;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.WebhookActionHttpHeaderInvalid:
+                    template = TemplateXmlWebhookActionHttpHeaderInvalid;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.WebhookActionBasicAuthInvalid:
+                    template = TemplateXmlWebhookActionBasicAuthInvalid;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.WebhookActionSignatureSecretTokenEmpty:
+                    template = TemplateXmlWebhookActionSignatureSecretTokenEmpty;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.WebhookActionSignatureAlgorithmInvalid:
+                    template = TemplateXmlWebhookActionSignatureAlgorithmInvalid;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.WebhookActionNoAuthenticationMethodProvided:
+                    template = TemplateXmlWebhookActionNoAuthenticationMethodProvided;
                     errParams = new object[] { };
                     break;
                 default:

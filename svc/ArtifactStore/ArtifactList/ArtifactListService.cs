@@ -2,7 +2,6 @@
 using ArtifactStore.ArtifactList.Helpers;
 using ArtifactStore.ArtifactList.Models;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories.ArtifactListSetting;
 
 namespace ArtifactStore.ArtifactList
 {
@@ -10,7 +9,7 @@ namespace ArtifactStore.ArtifactList
     {
         private readonly IArtifactListSettingsRepository _artifactListSettingsRepository;
 
-        public ArtifactListService() : this(new ArtifactListSettingsRepository())
+        public ArtifactListService() : this(new SqlArtifactListSettingsRepository())
         {
         }
 

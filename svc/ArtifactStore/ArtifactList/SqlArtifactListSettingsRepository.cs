@@ -2,18 +2,19 @@
 using System.Threading.Tasks;
 using Dapper;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories;
 
-namespace ServiceLibrary.Repositories.ArtifactListSetting
+namespace ArtifactStore.ArtifactList
 {
-    public class ArtifactListSettingsRepository : IArtifactListSettingsRepository
+    public class SqlArtifactListSettingsRepository : IArtifactListSettingsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
 
-        public ArtifactListSettingsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+        public SqlArtifactListSettingsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 
-        public ArtifactListSettingsRepository(ISqlConnectionWrapper connectionWrapper)
+        public SqlArtifactListSettingsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }

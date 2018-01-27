@@ -1,28 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Repositories.ArtifactListSetting;
+using ServiceLibrary.Repositories;
 
-namespace ServiceLibrary.Repositories
+namespace ArtifactStore.ArtifactList
 {
     [TestClass]
-    public class ArtifactListSettingsRepositoryTests
+    public class SqlArtifactListSettingsRepositoryTests
     {
+        private int _itemId;
+        private int _userId;
+        private string _settings;
+
         private SqlConnectionWrapperMock _cxn;
-        private ArtifactListSettingsRepository _repository;
-        private int _itemId = 1;
-        private int _userId = 1;
-        private string _settings = "test";
+        private SqlArtifactListSettingsRepository _repository;
 
         [TestInitialize]
         public void TestInitialize()
         {
+            _userId = 1;
+            _itemId = 1;
+            _settings = "test";
+
             _cxn = new SqlConnectionWrapperMock();
-            _repository = new ArtifactListSettingsRepository(_cxn.Object);
+            _repository = new SqlArtifactListSettingsRepository(_cxn.Object);
         }
 
         [TestMethod]

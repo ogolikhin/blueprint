@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace ServiceLibrary.Repositories.ArtifactListSetting
+namespace ArtifactStore.ArtifactList
 {
     public interface IArtifactListSettingsRepository
     {

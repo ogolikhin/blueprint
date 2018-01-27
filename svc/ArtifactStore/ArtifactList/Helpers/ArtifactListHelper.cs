@@ -12,7 +12,7 @@ namespace ArtifactStore.ArtifactList.Helpers
         {
             return new XmlProfileSettings
             {
-                Columns = columnSettings.Items
+                Columns = columnSettings.Items?
                     .Select(column => new XmlProfileColumn
                     {
                         PropertyName = column.PropertyName,
@@ -29,7 +29,7 @@ namespace ArtifactStore.ArtifactList.Helpers
         {
             return new ProfileColumnsSettings
             {
-                Items = settings.Columns
+                Items = settings.Columns?
                     .Select(xmlColumn => new ProfileColumn(
                         xmlColumn.PropertyName,
                         (PropertyTypePredefined)xmlColumn.Predefined,

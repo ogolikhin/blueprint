@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Threading.Tasks;
+using ArtifactStore.ArtifactList.Models.Xml;
 using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
@@ -19,33 +20,35 @@ namespace ArtifactStore.ArtifactList
             _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<string> GetSettingsAsync(int itemId, int userId)
+        public async Task<XmlProfileSettings> GetSettingsAsync(int itemId, int userId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
             parameters.Add("@itemId", itemId);
 
-            return await _connectionWrapper.ExecuteScalarAsync<string>(
+            var settingsXml = await _connectionWrapper.ExecuteScalarAsync<string>(
                 "GetArtifactListSettings", parameters, commandType: CommandType.StoredProcedure);
+
+            return SerializationHelper.FromXml<XmlProfileSettings>(settingsXml);
         }
 
-        public async Task<int> CreateSettingsAsync(int itemId, int userId, string settings)
+        public async Task<int> CreateSettingsAsync(int itemId, int userId, XmlProfileSettings settings)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
             parameters.Add("@itemId", itemId);
-            parameters.Add("@settings", settings);
+            parameters.Add("@settings", SerializationHelper.ToXml(settings));
 
             return await _connectionWrapper.ExecuteScalarAsync<int>(
                 "CreateArtifactListSettings", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<int> UpdateSettingsAsync(int itemId, int userId, string settings)
+        public async Task<int> UpdateSettingsAsync(int itemId, int userId, XmlProfileSettings settings)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@userId", userId);
             parameters.Add("@itemId", itemId);
-            parameters.Add("@settings", settings);
+            parameters.Add("@settings", SerializationHelper.ToXml(settings));
 
             return await _connectionWrapper.ExecuteScalarAsync<int>(
                 "UpdateArtifactListSettings", parameters, commandType: CommandType.StoredProcedure);

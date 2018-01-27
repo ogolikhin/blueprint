@@ -21,7 +21,7 @@ namespace ArtifactStore.ArtifactList.Models
 
         public bool PredefinedMatches(PropertyTypePredefined predefined)
         {
-            return !Items.IsEmpty() && Items.Any(item => item.Predefined == (int)predefined);
+            return !Items.IsEmpty() && Items.Any(item => item.Predefined == predefined);
         }
     }
 }

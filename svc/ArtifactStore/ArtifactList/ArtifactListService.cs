@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using ArtifactStore.ArtifactList.Helpers;
 using ArtifactStore.ArtifactList.Models;
+using ArtifactStore.ArtifactList.Models.Xml;
 using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.ArtifactList

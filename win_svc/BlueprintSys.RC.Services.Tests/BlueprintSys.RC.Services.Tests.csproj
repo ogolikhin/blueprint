@@ -122,21 +122,24 @@
     </Compile>
     <Compile Include="ActionsParserTests.cs" />
     <Compile Include="ConfigHelperTests.cs" />
-    <Compile Include="MessageHandlers\ArtifactPublished\CreatedArtifactsNotificationHandlerTests.cs" />
-    <Compile Include="MessageHandlers\ArtifactPublished\UpdatedArtifactsNotificationHandlerTests.cs" />
-    <Compile Include="NotificationsActionHelperTests.cs" />
+    <Compile Include="MessageHandlers\ArtifactsPublished\CreatedArtifactsNotificationHandlerTests.cs" />
+    <Compile Include="MessageHandlers\ArtifactsPublished\UpdatedArtifactsNotificationHandlerTests.cs" />
+    <Compile Include="MessageHandlers\Notifications\NotificationsActionHelperTests.cs" />
     <Compile Include="MessageHandlers\GenerateUserStories\GenerateUserStoriesActionHelperTests.cs" />
     <Compile Include="MessageHandlers\GenerateTests\GenerateTestsActionHelperTests.cs" />
     <Compile Include="MessageHandlers\GenerateDescendants\GenerateDescendantsActionHelperTests.cs" />
     <Compile Include="HandlerTests.cs" />
-    <Compile Include="MessageHandlers\ArtifactPublished\ArtifactsPublishedActionHelperTests.cs" />
+    <Compile Include="MessageHandlers\ArtifactsPublished\ArtifactsPublishedActionHelperTests.cs" />
+    <Compile Include="MessageHandlers\PropertyItemTypesChanged\PropertyItemTypesChangedActionHelperTests.cs" />
+    <Compile Include="MessageHandlers\UsersGroupsChanged\UsersGroupsChangedActionHelperTests.cs" />
+    <Compile Include="MessageHandlers\WorkflowsChanged\WorkflowsChangedActionHelperTests.cs" />
     <Compile Include="TransportTests.cs" />
     <Compile Include="HelperTests.cs" />
     <Compile Include="LoggingTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryTests.cs" />
     <Compile Include="SqlConnectionWrapperMock.cs" />
-    <Compile Include="ArtifactsChangedActionHelperTests.cs" />
+    <Compile Include="MessageHandlers\ArtifactsChanged\ArtifactsChangedActionHelperTests.cs" />
     <Compile Include="WorkflowEventsMessagesHelperTests.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -11,15 +11,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged
         {
             var message = (ArtifactsChangedMessage) actionMessage;
             var repository = (IArtifactsChangedRepository) baseRepository;
-            var artifactIds = message.ArtifactIds.ToList();
-            Logger.Log($"Handling ArtifactsChanged message with change type {message.ChangeType} and artifact IDs: {string.Join(", ", artifactIds)}", message, tenant);
+            var artifactIds = message.ArtifactIds?.ToList();
 
-            if (!artifactIds.Any())
+            if (artifactIds == null || !artifactIds.Any())
             {
-                Logger.Log("The message contains no artifact IDs", message, tenant);
+                Logger.Log("The Artifacts Changed Message contains no artifact IDs", message, tenant);
                 return false;
             }
 
+            Logger.Log($"Handling Artifacts Changed Message with change type {message.ChangeType} and {artifactIds.Count} artifact IDs: {string.Join(", ", artifactIds)}", message, tenant);
             Logger.Log("Started repopulating search items", message, tenant);
             await repository.RepopulateSearchItems(artifactIds);
             Logger.Log("Finished repopulating search items", message, tenant);

@@ -92,6 +92,31 @@ namespace ArtifactStore.Collections
             return result.FirstOrDefault();
         }
 
+        public async Task<int> RemoveArtifactsFromCollectionAsync(int collectionId, IEnumerable<int> artifactIds, int userId,
+            IDbTransaction transaction = null)
+        {
+            var parameters = new DynamicParameters();
+
+            parameters.Add("@UserId", userId);
+            parameters.Add("@CollectionId", collectionId);
+            parameters.Add("@ArtifactsIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+
+            IEnumerable<int> result;
+
+            if (transaction == null)
+            {
+                result = await _connectionWrapper.QueryAsync<int>(
+                    "RemoveArtifactsFromCollection", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                result = await transaction.Connection.QueryAsync<int>(
+                    "RemoveArtifactsFromCollection", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
+
+            return result.FirstOrDefault();
+        }
+
         public async Task RemoveDeletedArtifactsFromCollectionAsync(
             int collectionId, int userId, IDbTransaction transaction = null)
         {

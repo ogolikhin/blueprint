@@ -7,7 +7,9 @@ using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Helpers;
 using ArtifactStore.Collections.Models;
+using ArtifactStore.Models.Review;
 using SearchEngineLibrary.Service;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -116,18 +118,7 @@ namespace ArtifactStore.Collections
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
-                var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, transaction);
-
-                if (!await _artifactPermissionsRepository.HasEditPermissions(
-                    collection.ArtifactId, userId, transaction: transaction))
-                {
-                    throw CollectionsExceptionHelper.NoEditPermissionException(collection.ArtifactId);
-                }
-
-                await LockAsync(collection, userId, transaction);
-
-                await _collectionsRepository.RemoveDeletedArtifactsFromCollectionAsync(
-                    collection.ArtifactId, userId, transaction);
+                var collection = await ValidateCollection(collectionId, userId, transaction);
 
                 var artifactsWithReadPermissions = await GetAccessibleArtifactIdsAsync(
                     artifactIds, collection, userId, transaction);
@@ -139,6 +130,47 @@ namespace ArtifactStore.Collections
                 {
                     AddedCount = addedCount,
                     Total = artifactIds.Count
+                };
+            };
+
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
+
+            return result;
+        }
+
+        public async Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(int collectionId, ReviewItemsRemovalParams removalParams, int userId)
+        {
+            if ((removalParams.ItemIds == null || !removalParams.ItemIds.Any()) && removalParams.SelectionType == SelectionType.Selected)
+            {
+                throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
+            }
+
+            if (collectionId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(collectionId));
+            }
+
+            if (userId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(userId));
+            }
+
+            RemoveArtifactsFromCollectionResult result = null;
+
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var collection = await ValidateCollection(collectionId, userId, transaction);
+
+                var artifactsWithReadPermissions = await GetAccessibleArtifactIdsAsync(
+                    removalParams.ItemIds, collection, userId, transaction);
+
+                var removedCount = await _collectionsRepository.RemoveArtifactsFromCollectionAsync(
+                    collection.ArtifactId, artifactsWithReadPermissions, userId, transaction);
+
+                result = new RemoveArtifactsFromCollectionResult()
+                {
+                    RemovedCount = removedCount,
+                    Total = removalParams.ItemIds.Count()
                 };
             };
 
@@ -172,6 +204,24 @@ namespace ArtifactStore.Collections
 
             await FilterIncorrectColumnsSettingsAsync(collectionId, userId, columnSettings);
             await _artifactListService.SaveColumnsSettingsAsync(collection.ArtifactId, columnSettings, userId);
+        }
+
+        private async Task<ArtifactBasicDetails> ValidateCollection(int collectionId, int userId, IDbTransaction transaction)
+        {
+            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, transaction);
+
+            if (!await _artifactPermissionsRepository.HasEditPermissions(
+                collection.ArtifactId, userId, transaction: transaction))
+            {
+                throw CollectionsExceptionHelper.NoEditPermissionException(collection.ArtifactId);
+            }
+
+            await LockAsync(collection, userId, transaction);
+
+            await _collectionsRepository.RemoveDeletedArtifactsFromCollectionAsync(
+                collection.ArtifactId, userId, transaction);
+
+            return collection;
         }
 
         private async Task<IReadOnlyList<PropertyTypeInfo>> GetPropertyTypeInfosAsync(

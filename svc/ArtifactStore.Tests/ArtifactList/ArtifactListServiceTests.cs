@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ArtifactStore.ArtifactList.Models.Xml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -20,7 +21,10 @@ namespace ArtifactStore.ArtifactList
         {
             _userId = 1;
             _itemId = 1;
-            _xmlProfileSettings = new XmlProfileSettings();
+            _xmlProfileSettings = new XmlProfileSettings
+            {
+                Columns = new List<XmlProfileColumn>()
+            };
 
             _repositoryMock = new Mock<IArtifactListSettingsRepository>();
             _repositoryMock
@@ -30,7 +34,7 @@ namespace ArtifactStore.ArtifactList
         }
 
         [TestMethod]
-        public async Task GetColumnSettingsAsync_NoSettingsExist_ReturnsNull()
+        public async Task GetProfileColumnsAsync_NoSettingsExist_ReturnsNull()
         {
             // Arrange
             _repositoryMock
@@ -38,17 +42,17 @@ namespace ArtifactStore.ArtifactList
                 .ReturnsAsync((XmlProfileSettings)null);
 
             // Act
-            var result = await _service.GetColumnSettingsAsync(_itemId, _userId);
+            var result = await _service.GetProfileColumnsAsync(_itemId, _userId);
 
             // Assert
             Assert.IsNull(result);
         }
 
         [TestMethod]
-        public async Task GetColumnSettingsAsync_SettingsExist_ReturnsSettings()
+        public async Task GetProfileColumnsAsync_SettingsExist_ReturnsSettings()
         {
             // Act
-            var result = await _service.GetColumnSettingsAsync(_itemId, _userId);
+            var result = await _service.GetProfileColumnsAsync(_itemId, _userId);
 
             // Assert
             Assert.IsNotNull(result);

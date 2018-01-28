@@ -117,6 +117,7 @@
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="ArtifactList\ArtifactListService.cs" />
+    <Compile Include="ArtifactList\Models\ProfileColumns.cs" />
     <Compile Include="ArtifactList\Models\Xml\XmlProfileColumn.cs" />
     <Compile Include="ArtifactList\Models\Xml\XmlProfileSettings.cs" />
     <Compile Include="ArtifactList\SqlArtifactListSettingsRepository.cs" />
@@ -124,7 +125,7 @@
     <Compile Include="ArtifactList\IArtifactListService.cs" />
     <Compile Include="ArtifactList\IArtifactListSettingsRepository.cs" />
     <Compile Include="ArtifactList\Models\ProfileColumn.cs" />
-    <Compile Include="ArtifactList\Models\ProfileColumnsSettings.cs" />
+    <Compile Include="ArtifactList\Models\ProfileColumnsDto.cs" />
     <Compile Include="Collections\CollectionsController.cs" />
     <Compile Include="Collections\CollectionsService.cs" />
     <Compile Include="Collections\Helpers\CollectionsExceptionHelper.cs" />

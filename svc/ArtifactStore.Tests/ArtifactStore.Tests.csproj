@@ -81,7 +81,7 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfigTests.cs" />
-    <Compile Include="ArtifactList\SqlArtifactListSettingsRepositoryTests.cs" />
+    <Compile Include="ArtifactList\ArtifactListServiceTests.cs" />
     <Compile Include="Collections\CollectionsControllerTests.cs" />
     <Compile Include="Collections\CollectionsServiceTests.cs" />
     <Compile Include="Collections\SqlCollectionsRepositoryTests.cs" />

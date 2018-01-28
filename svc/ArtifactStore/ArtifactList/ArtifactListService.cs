@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using ArtifactStore.ArtifactList.Helpers;
 using ArtifactStore.ArtifactList.Models;
-using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.ArtifactList
 {
@@ -13,7 +12,7 @@ namespace ArtifactStore.ArtifactList
         {
         }
 
-        private ArtifactListService(IArtifactListSettingsRepository artifactListSettingsRepository)
+        public ArtifactListService(IArtifactListSettingsRepository artifactListSettingsRepository)
         {
             _artifactListSettingsRepository = artifactListSettingsRepository;
         }
@@ -22,23 +21,17 @@ namespace ArtifactStore.ArtifactList
         {
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
-            if (string.IsNullOrEmpty(existingSettings))
-            {
-                return null;
-            }
-
-            return ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumnSettings(
-                SerializationHelper.FromXml<XmlProfileSettings>(existingSettings));
+            return existingSettings == null
+                ? null
+                : ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumnSettings(existingSettings);
         }
 
         public async Task<int> SaveColumnsSettingsAsync(int itemId, ProfileColumnsSettings columnSettings, int userId)
         {
-            var settings = SerializationHelper.ToXml(
-                ArtifactListHelper.ConvertProfileColumnsSettingsToXmlProfileSettings(columnSettings));
-
+            var settings = ArtifactListHelper.ConvertProfileColumnsSettingsToXmlProfileSettings(columnSettings);
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
-            if (string.IsNullOrWhiteSpace(existingSettings))
+            if (existingSettings == null)
             {
                 return await _artifactListSettingsRepository.CreateSettingsAsync(itemId, userId, settings);
             }

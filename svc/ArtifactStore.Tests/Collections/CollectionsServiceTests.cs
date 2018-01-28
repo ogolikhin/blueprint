@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Services
@@ -52,19 +53,14 @@ namespace ArtifactStore.Services
                                                         _artifactListService.Object);
 
 
-            _artifactIds = new HashSet<int>() { 1, 2, 3 };
+            _artifactIds = new HashSet<int> { 1, 2, 3 };
             _collectionId = 1;
 
-            _profileColumnsSettings = new ProfileColumnsSettings()
+            _profileColumnsSettings = new ProfileColumnsSettings
             {
-                Items = new List<ProfileColumn>()
+                Items = new List<ProfileColumn>
                 {
-                    new ProfileColumn()
-                    {
-                        Predefined = 1,
-                        PropertyName = "Custom",
-                        PropertyTypeId = 2
-                    }
+                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
                 }
             };
         }

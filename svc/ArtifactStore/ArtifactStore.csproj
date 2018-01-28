@@ -117,11 +117,12 @@
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="ArtifactList\ArtifactListService.cs" />
+    <Compile Include="ArtifactList\Models\Xml\XmlProfileColumn.cs" />
+    <Compile Include="ArtifactList\Models\Xml\XmlProfileSettings.cs" />
     <Compile Include="ArtifactList\SqlArtifactListSettingsRepository.cs" />
     <Compile Include="ArtifactList\Helpers\ArtifactListHelper.cs" />
     <Compile Include="ArtifactList\IArtifactListService.cs" />
     <Compile Include="ArtifactList\IArtifactListSettingsRepository.cs" />
-    <Compile Include="ArtifactList\Models\XmlProfileSettings.cs" />
     <Compile Include="ArtifactList\Models\ProfileColumn.cs" />
     <Compile Include="ArtifactList\Models\ProfileColumnsSettings.cs" />
     <Compile Include="Collections\CollectionsController.cs" />

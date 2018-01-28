@@ -11,6 +11,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using System.Linq;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Collections
 {
@@ -48,25 +49,20 @@ namespace ArtifactStore.Collections
 
             _collectionsController.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
-            _artifactIds = new HashSet<int>() { 1, 2, 3 };
+            _artifactIds = new HashSet<int> { 1, 2, 3 };
 
             _collectionId = 1;
-            _addArtifactsResult = new AddArtifactsToCollectionResult()
+            _addArtifactsResult = new AddArtifactsToCollectionResult
             {
                 AddedCount = 1,
                 Total = 1
             };
 
-            _profileColumnsSettings = new ProfileColumnsSettings()
+            _profileColumnsSettings = new ProfileColumnsSettings
             {
-                Items = new List<ProfileColumn>()
+                Items = new List<ProfileColumn>
                 {
-                    new ProfileColumn()
-                    {
-                        Predefined = 1,
-                        PropertyName = "Custom",
-                        PropertyTypeId = 2
-                    }
+                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
                 }
             };
 

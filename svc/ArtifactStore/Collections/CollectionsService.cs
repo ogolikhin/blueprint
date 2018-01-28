@@ -195,7 +195,7 @@ namespace ArtifactStore.Collections
             {
                 if (!columnsInCollection.Any(column =>
                     column.PropertyTypeId == columnsFromRequest[i].PropertyTypeId &&
-                    column.Predefined == columnsFromRequest[i].Predefined &&
+                    column.Predefined == (int)columnsFromRequest[i].Predefined &&
                     column.PropertyName == columnsFromRequest[i].PropertyName))
                 {
                     columnsFromRequest.Remove(columnsFromRequest[i]);
@@ -219,8 +219,8 @@ namespace ArtifactStore.Collections
                 {
                     PropertyName = column.PropertyName,
                     PropertyTypeId = column.PropertyTypeId,
-                    Predefined = column.Predefined,
-                    PrimitiveType = default(int) // TODO: Either remove or add this property
+                    Predefined = (int)column.Predefined,
+                    PrimitiveType = (int?)column.PrimitiveType
                 });
         }
 

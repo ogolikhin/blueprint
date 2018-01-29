@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Exceptions;
 
-namespace AdminStore.Helpers
+namespace ServiceLibrary.Helpers.Validators
 {
     [TestClass]
     public class SearchFieldValidatorTest

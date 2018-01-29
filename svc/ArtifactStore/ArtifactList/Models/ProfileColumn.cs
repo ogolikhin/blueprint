@@ -8,11 +8,40 @@ namespace ArtifactStore.ArtifactList.Models
 {
     public class ProfileColumn
     {
-        public string PropertyName { get; set; }
+        public string PropertyName { get; }
 
-        public int PropertyTypeId { get; set; }
+        public int? PropertyTypeId { get; }
 
-        public int Predefined { get; set; }
+        public PropertyTypePredefined Predefined { get; }
+
+        public PropertyPrimitiveType PrimitiveType { get; }
+
+        public ProfileColumn(
+            string propertyName,
+            PropertyTypePredefined predefined,
+            PropertyPrimitiveType primitiveType,
+            int? propertyTypeId = null)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                throw new ArgumentNullException(nameof(propertyName));
+            }
+
+            if (propertyTypeId.HasValue && propertyTypeId.Value <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(propertyTypeId));
+            }
+
+            if (primitiveType == PropertyPrimitiveType.Image)
+            {
+                throw new ArgumentException("Image columns are currently not supported.");
+            }
+
+            PropertyName = propertyName;
+            PropertyTypeId = propertyTypeId;
+            Predefined = predefined;
+            PrimitiveType = primitiveType;
+        }
 
         public bool NameMatches(string search)
         {
@@ -22,9 +51,9 @@ namespace ArtifactStore.ArtifactList.Models
 
         public bool ExistsIn(IEnumerable<PropertyTypeInfo> propertyTypeInfos)
         {
-            return Predefined == (int)PropertyTypePredefined.CustomGroup ?
+            return Predefined == PropertyTypePredefined.CustomGroup ?
                 propertyTypeInfos.Any(info => info.Id == PropertyTypeId) :
-                propertyTypeInfos.Any(info => (int)info.Predefined == Predefined);
+                propertyTypeInfos.Any(info => info.Predefined == Predefined);
         }
     }
 }

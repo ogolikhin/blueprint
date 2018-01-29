@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
-using ArtifactStore.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 
-namespace ArtifactStore.Services
+namespace ArtifactStore.Collections
 {
     [TestClass]
     public class CollectionsServiceTests
@@ -29,7 +29,7 @@ namespace ArtifactStore.Services
         private int _sessionUserId = 1;
         private ISet<int> _artifactIds;
         private int _collectionId;
-        private ProfileColumnsSettings _profileColumnsSettings;
+        private ProfileColumns _profileColumns;
 
         [TestInitialize]
         public void Initialize()
@@ -42,31 +42,25 @@ namespace ArtifactStore.Services
             _artifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             _searchEngineService = new Mock<ISearchEngineService>();
             _artifactListService = new Mock<IArtifactListService>();
-            _collectionService = new CollectionsService(_collectionsRepository.Object,
-                                                        _artifactRepository.Object,
-                                                        _lockArtifactsRepository.Object,
-                                                        _itemInfoRepository.Object,
-                                                        _artifactPermissionsRepository.Object,
-                                                        _sqlHelperMock,
-                                                        _searchEngineService.Object,
-                                                        _artifactListService.Object);
+            _collectionService = new CollectionsService(
+                _collectionsRepository.Object,
+                _artifactRepository.Object,
+                _lockArtifactsRepository.Object,
+                _itemInfoRepository.Object,
+                _artifactPermissionsRepository.Object,
+                _sqlHelperMock,
+                _searchEngineService.Object,
+                _artifactListService.Object);
 
 
-            _artifactIds = new HashSet<int>() { 1, 2, 3 };
+            _artifactIds = new HashSet<int> { 1, 2, 3 };
             _collectionId = 1;
 
-            _profileColumnsSettings = new ProfileColumnsSettings()
-            {
-                Items = new List<ProfileColumn>()
+            _profileColumns = new ProfileColumns(
+                new List<ProfileColumn>
                 {
-                    new ProfileColumn()
-                    {
-                        Predefined = 1,
-                        PropertyName = "Custom",
-                        PropertyTypeId = 2
-                    }
-                }
-            };
+                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
+                });
         }
 
         #region AddArtifactsToCollectionAsync
@@ -89,16 +83,16 @@ namespace ArtifactStore.Services
 
         #endregion AddArtifactsToCollectionAsync
 
-        #region SaveColumnSettingsAsync
+        #region SaveProfileColumnsAsync
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task SaveColumnSettingsAsync_InvalidUserId_ThrowArgumentOutOfRangeException()
+        public async Task SaveProfileColumnsAsync_InvalidUserId_ThrowArgumentOutOfRangeException()
         {
             _sessionUserId = 0;
-            await _collectionService.SaveColumnSettingsAsync(_collectionId, _profileColumnsSettings, _sessionUserId);
+            await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _sessionUserId);
         }
 
-        #endregion SaveColumnSettingsAsync
+        #endregion SaveProfileColumnsAsync
     }
 }

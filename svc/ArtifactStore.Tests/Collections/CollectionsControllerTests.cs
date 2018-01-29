@@ -11,6 +11,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using System.Linq;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Collections
 {
@@ -28,7 +29,7 @@ namespace ArtifactStore.Collections
         private AddArtifactsToCollectionResult _addArtifactsResult;
         private Pagination _pagination;
         private CollectionArtifacts _expectedCollectionArtifacts;
-        private ProfileColumnsSettings _profileColumnsSettings;
+        private ProfileColumnsDto _profileColumnsDto;
 
 
         [TestInitialize]
@@ -48,25 +49,20 @@ namespace ArtifactStore.Collections
 
             _collectionsController.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
-            _artifactIds = new HashSet<int>() { 1, 2, 3 };
+            _artifactIds = new HashSet<int> { 1, 2, 3 };
 
             _collectionId = 1;
-            _addArtifactsResult = new AddArtifactsToCollectionResult()
+            _addArtifactsResult = new AddArtifactsToCollectionResult
             {
                 AddedCount = 1,
                 Total = 1
             };
 
-            _profileColumnsSettings = new ProfileColumnsSettings()
+            _profileColumnsDto = new ProfileColumnsDto
             {
-                Items = new List<ProfileColumn>()
+                Items = new List<ProfileColumn>
                 {
-                    new ProfileColumn()
-                    {
-                        Predefined = 1,
-                        PropertyName = "Custom",
-                        PropertyTypeId = 2
-                    }
+                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
                 }
             };
 
@@ -182,7 +178,7 @@ namespace ArtifactStore.Collections
         [TestMethod]
         public async Task SaveColumnsSettingsAsync_AllParametersAreValid_Success()
         {
-            var result = await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsSettings);
+            var result = await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(result.StatusCode, HttpStatusCode.NoContent);
@@ -192,8 +188,8 @@ namespace ArtifactStore.Collections
         [ExpectedException(typeof(BadRequestException))]
         public async Task SaveColumnsSettingsAsync_EmptyItems_ThrowsException()
         {
-            _profileColumnsSettings.Items = null;
-            await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsSettings);
+            _profileColumnsDto.Items = null;
+            await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);
         }
 
         #endregion SaveColumnsSettingsAsync

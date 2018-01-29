@@ -6,7 +6,7 @@ namespace ArtifactStore.Collections.Models
 {
     public class PropertyTypeInfo
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         public string Name { get; set; }
 

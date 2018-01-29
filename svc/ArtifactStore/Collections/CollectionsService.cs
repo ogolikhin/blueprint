@@ -150,14 +150,15 @@ namespace ArtifactStore.Collections
         public async Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null)
         {
             var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
-            var columnSettings = await _artifactListService.GetProfileColumnsAsync(collection.ArtifactId, userId);
+            var profileColumns = await _artifactListService.GetProfileColumnsAsync(
+                collection.ArtifactId, userId, ProfileColumns.Default);
 
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(collection.ArtifactId, userId, search);
 
             return new GetColumnsDto
             {
-                SelectedColumns = GetSelectedColumns(propertyTypeInfos, columnSettings, search),
-                UnselectedColumns = GetUnselectedColumns(propertyTypeInfos, columnSettings)
+                SelectedColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, search),
+                UnselectedColumns = GetUnselectedColumns(propertyTypeInfos, profileColumns)
             };
         }
 
@@ -188,34 +189,22 @@ namespace ArtifactStore.Collections
             int collectionId, int userId, ProfileColumns profileColumns)
         {
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(collectionId, userId);
-            var validColumns = new ProfileColumns();
 
-            foreach (var profileColumn in profileColumns.Items)
-            {
-                if (profileColumn.ExistsIn(propertyTypeInfos))
-                {
-                    validColumns.Add(profileColumn);
-                }
-            }
-
-            return validColumns;
+            return new ProfileColumns(
+                profileColumns.Items
+                    .Where(column => column.ExistsIn(propertyTypeInfos)));
         }
 
         private static IEnumerable<ProfileColumn> GetSelectedColumns(
             IReadOnlyList<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns, string search)
         {
-            if (profileColumns == null || profileColumns.IsEmpty())
-            {
-                return Enumerable.Empty<ProfileColumn>();
-            }
-
             return profileColumns.Items
                 .Where(column => column.ExistsIn(propertyTypeInfos) && column.NameMatches(search))
                 .Select(column => new ProfileColumn(
                     column.PropertyName, column.Predefined, column.PrimitiveType, column.PropertyTypeId));
         }
 
-        private static IReadOnlyList<ProfileColumn> GetUnselectedColumns(
+        private static IEnumerable<ProfileColumn> GetUnselectedColumns(
             IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns = null)
         {
             return propertyTypeInfos

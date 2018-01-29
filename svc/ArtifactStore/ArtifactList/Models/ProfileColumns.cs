@@ -10,12 +10,25 @@ namespace ArtifactStore.ArtifactList.Models
     {
         private const int DefaultMaxCapacity = 20;
 
+        private static ProfileColumns _default;
+
         private readonly int _maxCapacity;
         private readonly List<ProfileColumn> _columns;
 
+        public static ProfileColumns Default =>
+            _default ?? (_default = new ProfileColumns(
+                new List<ProfileColumn>
+                {
+                    new ProfileColumn("Artifact ID", PropertyTypePredefined.ID, PropertyPrimitiveType.Number),
+                    new ProfileColumn("Artifact Type", PropertyTypePredefined.ArtifactType,
+                        PropertyPrimitiveType.Choice),
+                    new ProfileColumn("Name", PropertyTypePredefined.Name, PropertyPrimitiveType.Text),
+                    new ProfileColumn("Description", PropertyTypePredefined.Description, PropertyPrimitiveType.Text)
+                }));
+
         public IEnumerable<ProfileColumn> Items => _columns.ToList();
 
-        public ProfileColumns(int maxCapacity = DefaultMaxCapacity)
+        private ProfileColumns(int maxCapacity = DefaultMaxCapacity)
         {
             _maxCapacity = maxCapacity;
             _columns = new List<ProfileColumn>(_maxCapacity);
@@ -35,41 +48,6 @@ namespace ArtifactStore.ArtifactList.Models
             }
         }
 
-        public void Add(ProfileColumn column)
-        {
-            if (column == null)
-            {
-                throw new ArgumentNullException(nameof(column));
-            }
-
-            if (NameMatches(column.PropertyName))
-            {
-                var errorMessage = I18NHelper.FormatInvariant(
-                    "Unable to add profile column '{0}'. The column already exists.", column.PropertyName);
-                throw new ArgumentException(errorMessage);
-            }
-
-            if (_columns.Count >= _maxCapacity)
-            {
-                var errorMessage = I18NHelper.FormatInvariant(
-                    "Unable to add profile column '{0}'. The column limit of {1} has been reached.",
-                    column.PropertyName, _maxCapacity);
-                throw new ApplicationException(errorMessage);
-            }
-
-            _columns.Add(column);
-        }
-
-        public bool IsEmpty()
-        {
-            return !_columns.Any();
-        }
-
-        public bool NameMatches(string name)
-        {
-            return !string.IsNullOrEmpty(name) && _columns.Any(column => column.NameMatches(name));
-        }
-
         public bool PropertyTypeIdMatches(int propertyTypeId)
         {
             if (propertyTypeId < 1 || _columns.IsEmpty())
@@ -83,6 +61,35 @@ namespace ArtifactStore.ArtifactList.Models
         public bool PredefinedMatches(PropertyTypePredefined predefined)
         {
             return !_columns.IsEmpty() && _columns.Any(column => column.Predefined == predefined);
+        }
+
+        private void Add(ProfileColumn column)
+        {
+            if (column == null)
+            {
+                throw new ArgumentNullException(nameof(column));
+            }
+
+            if (NameMatches(column.PropertyName))
+            {
+                var errorMessage = I18NHelper.FormatInvariant(
+                    ErrorMessages.ArtifactList.AddColumnColumnExists, column.PropertyName);
+                throw new ArgumentException(errorMessage);
+            }
+
+            if (_columns.Count >= _maxCapacity)
+            {
+                var errorMessage = I18NHelper.FormatInvariant(
+                    ErrorMessages.ArtifactList.AddColumnCapacityReached, column.PropertyName, _maxCapacity);
+                throw new ApplicationException(errorMessage);
+            }
+
+            _columns.Add(column);
+        }
+
+        private bool NameMatches(string name)
+        {
+            return !string.IsNullOrEmpty(name) && _columns.Any(column => column.NameMatches(name));
         }
     }
 }

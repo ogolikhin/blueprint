@@ -29,7 +29,6 @@ namespace ArtifactStore.Collections
         private AddArtifactsToCollectionResult _addArtifactsResult;
         private Pagination _pagination;
         private CollectionArtifacts _expectedCollectionArtifacts;
-        private ProfileColumnsSettings _profileColumnsSettings;
         private GetColumnsDto _columns;
         private ProfileColumnsDto _profileColumnsDto;
 
@@ -137,22 +136,16 @@ namespace ArtifactStore.Collections
 
             _columns = new GetColumnsDto()
             {
-                SelectedColumns = new List<ArtifactListColumn>()
+                SelectedColumns = new List<ProfileColumn>()
                 {
-                    new ArtifactListColumn()
+                    new ProfileColumn("Custom", PropertyTypePredefined.Name,  PropertyPrimitiveType.Number, 3)
                     {
-                        Predefined = 1,
-                        PrimitiveType = 2,
-                        PropertyTypeId = 3
                     }
                 },
-                UnselectedColumns = new List<ArtifactListColumn>()
+                UnselectedColumns = new List<ProfileColumn>()
                 {
-                    new ArtifactListColumn()
+                    new ProfileColumn("Custom", PropertyTypePredefined.Name,  PropertyPrimitiveType.Number, 3)
                     {
-                        Predefined = 4,
-                        PrimitiveType = 5,
-                        PropertyTypeId = 6
                     }
                 }
             };

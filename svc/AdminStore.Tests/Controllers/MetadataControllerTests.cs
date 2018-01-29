@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.UI.WebControls;
 using AdminStore.Services.Metadata;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -64,7 +62,7 @@ namespace AdminStore.Controllers
                 .Setup(m => m.ConvertBitmapImageToPng(_icon.Content, ItemTypeIconSize, ItemTypeIconSize))
                 .Returns(_icon.Content)
                 .Verifiable();
-            _metadataServiceMock.Setup(service => service.GetIcon(_type, null, _color)).ReturnsAsync(_icon);
+            _metadataServiceMock.Setup(service => service.GetIconAsync(_type, null, _color)).ReturnsAsync(_icon);
         }
 
         #region GetIcons
@@ -78,10 +76,10 @@ namespace AdminStore.Controllers
                 Content = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
                 IsSvg = false
             };
-            _metadataServiceMock.Setup(service => service.GetIcon(_type, _typeId, _color)).ReturnsAsync(icon);
+            _metadataServiceMock.Setup(service => service.GetIconAsync(_type, _typeId, _color)).ReturnsAsync(icon);
 
             // Act
-            var result = await _controller.GetIcons(_type, _typeId, _color);
+            var result = await _controller.GetIconsAsnyc(_type, _typeId, _color);
 
             // Assert
             Assert.IsNotNull(result);
@@ -94,7 +92,7 @@ namespace AdminStore.Controllers
             // Arrange
 
             // Act
-            var result = await _controller.GetIcons(_type, null, _color);
+            var result = await _controller.GetIconsAsnyc(_type, null, _color);
 
             // Assert
             Assert.IsNotNull(result);
@@ -111,12 +109,12 @@ namespace AdminStore.Controllers
                 Content = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
                 IsSvg = false
             };
-            _metadataServiceMock.Setup(service => service.GetIcon(_type, _typeId, _color)).ReturnsAsync(icon);
+            _metadataServiceMock.Setup(service => service.GetIconAsync(_type, _typeId, _color)).ReturnsAsync(icon);
 
             // Act
             try
             {
-                var result = await _controller.GetIcons(_type, _typeId + 1, _color);
+                var result = await _controller.GetIconsAsnyc(_type, _typeId + 1, _color);
             }
             catch (Exception ex)
             {

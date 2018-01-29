@@ -10,6 +10,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models;
 
 namespace ArtifactStore.Collections
@@ -73,7 +74,7 @@ namespace ArtifactStore.Collections
         /// <returns>Result of the operation.</returns>
         [HttpPost]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
-        [ResponseType(typeof(AddArtifactsResult))]
+        [ResponseType(typeof(AddArtifactsToCollectionResult))]
         public async Task<IHttpActionResult> AddArtifactsToCollectionAsync(
             int id, string add, [FromBody] ISet<int> artifactIds)
         {
@@ -104,6 +105,8 @@ namespace ArtifactStore.Collections
         [ResponseType(typeof(GetColumnsDto))]
         public async Task<IHttpActionResult> GetColumnsAsync(int id, string search = null)
         {
+            SearchFieldValidator.Validate(search);
+
             var result = await _collectionsService.GetColumnsAsync(id, Session.UserId, search);
 
             return Ok(result);
@@ -113,7 +116,7 @@ namespace ArtifactStore.Collections
         /// Save collection columns settings.
         /// </summary>
         /// <param name="id">Collection id.</param>
-        /// <param name="columnSettings">Columns settings to save.</param>
+        /// <param name="profileColumnsDto">Profile columns to save.</param>
         /// <response code="204">NoContent. Artifact list columns settings were saved.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions to save artifact list columns settings.</response>
@@ -123,14 +126,16 @@ namespace ArtifactStore.Collections
         [Route("{id:int:min(1)}/settings/columns"), SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<HttpResponseMessage> SaveColumnsSettingsAsync(
-            int id, [FromBody] ProfileColumnsSettings columnSettings)
+            int id, [FromBody] ProfileColumnsDto profileColumnsDto)
         {
-            if (columnSettings?.Items == null)
+            if (profileColumnsDto?.Items == null)
             {
-                throw new BadRequestException(ErrorMessages.Collections.ColumnsSettingsModelIsIncorrect, ErrorCodes.BadRequest);
+                throw new BadRequestException(
+                    ErrorMessages.Collections.ColumnsSettingsModelIsIncorrect, ErrorCodes.BadRequest);
             }
 
-            await _collectionsService.SaveColumnSettingsAsync(id, columnSettings, Session.UserId);
+            var profileColumns = new ProfileColumns(profileColumnsDto.Items);
+            await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }

@@ -99,7 +99,7 @@ namespace ArtifactStore.Collections
             return populatedArtifacts;
         }
 
-        public async Task<AddArtifactsResult> AddArtifactsToCollectionAsync(
+        public async Task<AddArtifactsToCollectionResult> AddArtifactsToCollectionAsync(
             int collectionId, ISet<int> artifactIds, int userId)
         {
             if (collectionId < 1)
@@ -112,7 +112,7 @@ namespace ArtifactStore.Collections
                 throw new ArgumentOutOfRangeException(nameof(userId));
             }
 
-            AddArtifactsResult result = null;
+            AddArtifactsToCollectionResult result = null;
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
@@ -135,7 +135,7 @@ namespace ArtifactStore.Collections
                 var addedCount = await _collectionsRepository.AddArtifactsToCollectionAsync(
                     collection.ArtifactId, artifactsWithReadPermissions, userId, transaction);
 
-                result = new AddArtifactsResult
+                result = new AddArtifactsToCollectionResult
                 {
                     AddedCount = addedCount,
                     Total = artifactIds.Count
@@ -150,16 +150,19 @@ namespace ArtifactStore.Collections
         public async Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null)
         {
             var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
-            var columnSettings = await _artifactListService.GetColumnSettingsAsync(collection.ArtifactId, userId);
+            var profileColumns = await _artifactListService.GetProfileColumnsAsync(
+                collection.ArtifactId, userId, ProfileColumns.Default);
+
+            var propertyTypeInfos = await GetPropertyTypeInfosAsync(collection.ArtifactId, userId, search);
 
             return new GetColumnsDto
             {
-                SelectedColumns = GetSelectedColumns(columnSettings, search),
-                OtherColumns = await GetOtherColumnsAsync(collection.ArtifactId, userId, search, columnSettings)
+                SelectedColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, search),
+                UnselectedColumns = GetUnselectedColumns(propertyTypeInfos, profileColumns)
             };
         }
 
-        public async Task SaveColumnSettingsAsync(int collectionId, ProfileColumnsSettings columnSettings, int userId)
+        public async Task SaveProfileColumnsAsync(int collectionId, ProfileColumns profileColumns, int userId)
         {
             if (userId < 1)
             {
@@ -168,67 +171,52 @@ namespace ArtifactStore.Collections
 
             var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
 
-            await FilterIncorrectColumnsSettings(collectionId, userId, columnSettings);
-
-            await _artifactListService.SaveColumnsSettingsAsync(collection.ArtifactId, columnSettings, userId);
+            var validColumns = await GetValidColumnsAsync(collectionId, userId, profileColumns);
+            await _artifactListService.SaveProfileColumnsAsync(collection.ArtifactId, validColumns, userId);
         }
 
-
-        private async Task FilterIncorrectColumnsSettings(int collectionId, int userId, ProfileColumnsSettings columnSettings)
+        private async Task<IReadOnlyList<PropertyTypeInfo>> GetPropertyTypeInfosAsync(
+            int collectionId, int userId, string search = null)
         {
-            var columnsInCollection = (await GetOtherColumnsAsync(collectionId, userId, string.Empty)).ToList();
-            var columnsFromRequest = columnSettings.Items.ToList();
-
-            // filter incorrect columns
-            for (var i = 0; i < columnsFromRequest.Count; i++)
-            {
-                if (!columnsInCollection.Any(col => col.PropertyTypeId == columnsFromRequest[i].PropertyTypeId && col.Predefined == columnsFromRequest[i].Predefined && col.PropertyName == columnsFromRequest[i].PropertyName))
-                {
-                    columnsFromRequest.Remove(columnsFromRequest[i]);
-                }
-            }
-
-            columnSettings.Items = columnsFromRequest;
-        }
-
-        private static IEnumerable<ArtifactListColumn> GetSelectedColumns(
-            ProfileColumnsSettings columnSettings, string search)
-        {
-            if (columnSettings == null || columnSettings.Items.IsEmpty())
-            {
-                return null;
-            }
-
-            return columnSettings.Items
-                .Where(column => string.IsNullOrEmpty(search) ||
-                                 column.PropertyName.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0)
-                .Select(column => new ArtifactListColumn
-                {
-                    PropertyName = column.PropertyName,
-                    PropertyTypeId = column.PropertyTypeId,
-                    Predefined = column.Predefined,
-                    PrimitiveType = default(int) // TODO: Either remove or add this property
-                })
-                .ToList();
-        }
-
-        private async Task<IEnumerable<ArtifactListColumn>> GetOtherColumnsAsync(int collectionId, int userId, string search, ProfileColumnsSettings columnSettings = null)
-        {
-            var columns = new List<ArtifactListColumn>();
-
             var artifactIds = await _collectionsRepository.GetContentArtifactIdsAsync(collectionId, userId);
             var artifacts = await _itemInfoRepository.GetItemsDetails(userId, artifactIds);
             var itemTypeIds = artifacts.Select(a => a.ItemTypeId).Distinct();
-            var propertyTypeInfos = await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(
-                itemTypeIds, search);
 
-            PopulateSystemPropertyColumns(columns, propertyTypeInfos, columnSettings);
-            PopulateCustomPropertyColumns(columns, propertyTypeInfos, columnSettings);
-
-            return columns;
+            return await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(itemTypeIds, search);
         }
 
-        private static void PopulateSystemPropertyColumns(ICollection<ArtifactListColumn> columns, IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumnsSettings columnSettings = null)
+        private async Task<ProfileColumns> GetValidColumnsAsync(
+            int collectionId, int userId, ProfileColumns profileColumns)
+        {
+            var propertyTypeInfos = await GetPropertyTypeInfosAsync(collectionId, userId);
+
+            return new ProfileColumns(
+                profileColumns.Items
+                    .Where(column => column.ExistsIn(propertyTypeInfos)));
+        }
+
+        private static IEnumerable<ProfileColumn> GetSelectedColumns(
+            IReadOnlyList<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns, string search)
+        {
+            return profileColumns.Items
+                .Where(column => column.ExistsIn(propertyTypeInfos) && column.NameMatches(search))
+                .Select(column => new ProfileColumn(
+                    column.PropertyName, column.Predefined, column.PrimitiveType, column.PropertyTypeId));
+        }
+
+        private static IEnumerable<ProfileColumn> GetUnselectedColumns(
+            IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns = null)
+        {
+            return propertyTypeInfos
+                .Select(info => info.IsCustom ?
+                    CreateCustomPropertyColumn(info, profileColumns) :
+                    CreateSystemPropertyColumn(info, profileColumns))
+                .Where(column => column != null)
+                .ToList();
+        }
+
+        private static ProfileColumn CreateSystemPropertyColumn(
+            PropertyTypeInfo propertyTypeInfo, ProfileColumns profileColumns = null)
         {
             var systemPredefineds = new HashSet<PropertyTypePredefined>
             {
@@ -242,45 +230,32 @@ namespace ArtifactStore.Collections
                 PropertyTypePredefined.ArtifactType
             };
 
-            var systemPropertyTypeInfos = propertyTypeInfos.Where(i => systemPredefineds.Contains(i.Predefined));
-
-            foreach (var propertyTypeInfo in systemPropertyTypeInfos)
+            if (!propertyTypeInfo.PredefinedMatches(systemPredefineds) ||
+                profileColumns != null && profileColumns.PredefinedMatches(propertyTypeInfo.Predefined))
             {
-                if (columnSettings != null && columnSettings.Contains(propertyTypeInfo.Predefined))
-                {
-                    continue;
-                }
-
-                columns.Add(new ArtifactListColumn
-                {
-                    PropertyName = propertyTypeInfo.Name,
-                    PropertyTypeId = propertyTypeInfo.Id,
-                    Predefined = (int)propertyTypeInfo.Predefined,
-                    PrimitiveType = (int)propertyTypeInfo.PrimitiveType
-                });
+                return null;
             }
+
+            return new ProfileColumn(
+                propertyTypeInfo.Name,
+                propertyTypeInfo.Predefined,
+                propertyTypeInfo.PrimitiveType,
+                propertyTypeInfo.Id);
         }
 
-        private static void PopulateCustomPropertyColumns(ICollection<ArtifactListColumn> columns, IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumnsSettings columnSettings = null)
+        private static ProfileColumn CreateCustomPropertyColumn(
+            PropertyTypeInfo propertyTypeInfo, ProfileColumns profileColumns = null)
         {
-            var customPropertyTypeInfos = propertyTypeInfos
-                .Where(i => i.Predefined == PropertyTypePredefined.CustomGroup);
-
-            foreach (var propertyTypeInfo in customPropertyTypeInfos)
+            if (profileColumns != null && profileColumns.PropertyTypeIdMatches(propertyTypeInfo.Id.Value))
             {
-                if (columnSettings != null && columnSettings.Contains(propertyTypeInfo.Id))
-                {
-                    continue;
-                }
-
-                columns.Add(new ArtifactListColumn
-                {
-                    PropertyName = propertyTypeInfo.Name,
-                    PropertyTypeId = propertyTypeInfo.Id,
-                    Predefined = (int)propertyTypeInfo.Predefined,
-                    PrimitiveType = (int)propertyTypeInfo.PrimitiveType
-                });
+                return null;
             }
+
+            return new ProfileColumn(
+                propertyTypeInfo.Name,
+                propertyTypeInfo.Predefined,
+                propertyTypeInfo.PrimitiveType,
+                propertyTypeInfo.Id);
         }
 
         private static CollectionArtifacts PopulateArtifactsProperties(IReadOnlyList<CollectionArtifact> artifacts)
@@ -373,7 +348,7 @@ namespace ArtifactStore.Collections
                     ItemTypeId = itemTypeId,
                     PredefinedType = predefinedType,
                     ItemTypeIconId = itemTypeIconId,
-                    PropertyInfos = propertyInfos
+                    PropertyInfos = propertyInfos.OrderBy(x => x.PropertyTypeId)
                 });
             }
 
@@ -382,7 +357,7 @@ namespace ArtifactStore.Collections
                 Items = artifactDtos,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = settingsColumns
+                    Columns = settingsColumns.OrderBy(x => x.PropertyTypeId)
                 }
             };
         }

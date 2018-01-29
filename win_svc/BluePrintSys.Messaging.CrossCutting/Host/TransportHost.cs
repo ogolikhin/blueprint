@@ -32,6 +32,11 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 
             if (await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(timeout))) == task)
             {
+                if (task.IsFaulted)
+                {
+                    Log.Error(task.Exception?.InnerException.Message);
+                    throw new Exception(task.Exception?.Message);
+                }
                 return;
             }
             else

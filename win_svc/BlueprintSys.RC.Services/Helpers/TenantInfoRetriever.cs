@@ -37,10 +37,10 @@ namespace BlueprintSys.RC.Services.Helpers
 
         private async Task<Dictionary<string, TenantInformation>> GetTenantInfoForCache()
         {
-            Log.Debug("Retrieving tenants");
+            Log.Info("Retrieving tenants");
             var sqlTenants = await _baseRepository.GetTenantsFromTenantsDb();
             var tenants = sqlTenants.ToDictionary(tenant => tenant.TenantId);
-            Log.Debug($"Retrieved {tenants.Count} tenants: {string.Join(", ", tenants.Select(p => p.Key))}");
+            Log.Info($"Retrieved {tenants.Count} tenants: {string.Join(", ", tenants.Select(p => $"{p.Key};{p.Value.BlueprintConnectionString}"))}");
             return tenants;
         }
     }

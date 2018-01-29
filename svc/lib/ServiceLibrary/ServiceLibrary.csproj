@@ -146,6 +146,7 @@
     <Compile Include="Helpers\HttpsSecurity.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
+    <Compile Include="Helpers\Validators\SearchFieldValidator.cs" />
     <Compile Include="Models\Enums\IconType.cs" />
     <Compile Include="Models\Icon.cs" />
     <Compile Include="Services\Image\IImageService.cs" />
@@ -377,8 +378,6 @@
     <Compile Include="Repositories\ApplicationSettings\SqlFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\IFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
-    <Compile Include="Repositories\ArtifactListSetting\ArtifactListSettingsRepository.cs" />
-    <Compile Include="Repositories\ArtifactListSetting\IArtifactListSettingsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />

@@ -87,14 +87,14 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             var transportType = NServiceBusValidator.GetTransportType(connectionString);
             if (transportType == NServiceBusTransportType.RabbitMq)
             {
-                Log.Info("Configuring RabbitMQ Transport");
+                Log.Info($"Configuring RabbitMQ Transport for {connectionString}");
                 var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
                 transport.ConnectionString(connectionString);
                 assembliesToExclude.Add("nservicebus.transport.sqlserver.dll");
             }
             else if (transportType == NServiceBusTransportType.Sql)
             {
-                Log.Info("Configuring SQL Server Transport");
+                Log.Info($"Configuring SQL Server Transport for {connectionString}");
                 var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
                 transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
                 transport.ConnectionString(connectionString);

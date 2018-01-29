@@ -17,12 +17,13 @@ namespace ArtifactStore.ArtifactList
             _artifactListSettingsRepository = artifactListSettingsRepository;
         }
 
-        public async Task<ProfileColumns> GetProfileColumnsAsync(int itemId, int userId)
+        public async Task<ProfileColumns> GetProfileColumnsAsync(
+            int itemId, int userId, ProfileColumns defaultColumns = null)
         {
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
             return existingSettings == null
-                ? null
+                ? defaultColumns
                 : ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings);
         }
 

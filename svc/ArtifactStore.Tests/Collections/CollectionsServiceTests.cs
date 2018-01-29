@@ -26,7 +26,7 @@ namespace ArtifactStore.Collections
         private Mock<ISearchEngineService> _searchEngineService;
         private Mock<IArtifactListService> _artifactListService;
 
-        private int _sessionUserId = 1;
+        private int _userId = 1;
         private ISet<int> _artifactIds;
         private int _collectionId;
         private ProfileColumns _profileColumns;
@@ -69,8 +69,8 @@ namespace ArtifactStore.Collections
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task AddArtifactsToCollectionAsync_InvalidUserId_ThrowArgumentOutOfRangeException()
         {
-            _sessionUserId = 0;
-            await _collectionService.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _sessionUserId);
+            _userId = 0;
+            await _collectionService.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _userId);
         }
 
         [TestMethod]
@@ -78,7 +78,7 @@ namespace ArtifactStore.Collections
         public async Task AddArtifactsToCollectionAsync_InvalidCollectionId_ThrowArgumentOutOfRangeException()
         {
             _collectionId = 0;
-            await _collectionService.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _sessionUserId);
+            await _collectionService.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _userId);
         }
 
         #endregion AddArtifactsToCollectionAsync
@@ -89,8 +89,8 @@ namespace ArtifactStore.Collections
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task SaveProfileColumnsAsync_InvalidUserId_ThrowArgumentOutOfRangeException()
         {
-            _sessionUserId = 0;
-            await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _sessionUserId);
+            _userId = 0;
+            await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
         }
 
         #endregion SaveProfileColumnsAsync

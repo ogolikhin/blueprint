@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.ArtifactList.Models.Xml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -34,7 +35,7 @@ namespace ArtifactStore.ArtifactList
         }
 
         [TestMethod]
-        public async Task GetProfileColumnsAsync_NoSettingsExist_ReturnsNull()
+        public async Task GetProfileColumnsAsync_WithoutFallback_NoSettingsExist_ReturnsNull()
         {
             // Arrange
             _repositoryMock
@@ -46,6 +47,22 @@ namespace ArtifactStore.ArtifactList
 
             // Assert
             Assert.IsNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetProfileColumnsAsync_WithFallback_NoSettingsExist_ReturnsDefaultColumns()
+        {
+            // Arrange
+            var defaultColumns = ProfileColumns.Default;
+            _repositoryMock
+                .Setup(m => m.GetSettingsAsync(_itemId, _userId))
+                .ReturnsAsync((XmlProfileSettings)null);
+
+            // Act
+            var result = await _service.GetProfileColumnsAsync(_itemId, _userId, defaultColumns);
+
+            // Assert
+            Assert.AreEqual(defaultColumns, result);
         }
 
         [TestMethod]

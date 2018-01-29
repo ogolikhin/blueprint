@@ -25,7 +25,7 @@ namespace ServiceLibrary.Helpers
             Assert.AreEqual(0, serviceStatus.StatusResponses.Count);
             Assert.AreEqual("MyService", serviceStatus.ServiceName);
             Assert.IsTrue(serviceStatus.NoErrors);
-            Assert.IsNull(serviceStatus.Errors);
+            Assert.IsNotNull(serviceStatus.Errors);
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace ServiceLibrary.Helpers
             Assert.AreEqual(3, serviceStatus.StatusResponses.Count);
             Assert.AreEqual("MyService", serviceStatus.ServiceName);
             Assert.IsTrue(serviceStatus.NoErrors);
-            Assert.IsNull(serviceStatus.Errors);
+            Assert.IsNotNull(serviceStatus.Errors);
 
             for (int i = 0; i < 3; i++)
             {
@@ -87,7 +87,7 @@ namespace ServiceLibrary.Helpers
             Assert.AreEqual(4, serviceStatus.StatusResponses.Count);
             Assert.AreEqual("MyService", serviceStatus.ServiceName);
             Assert.IsFalse(serviceStatus.NoErrors);
-            Assert.IsNull(serviceStatus.Errors);
+            Assert.IsNotNull(serviceStatus.Errors);
 
             for (int i = 0; i < 3; i++)
             {

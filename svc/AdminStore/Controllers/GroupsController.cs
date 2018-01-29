@@ -15,6 +15,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
+using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Repositories.ConfigControl;
 

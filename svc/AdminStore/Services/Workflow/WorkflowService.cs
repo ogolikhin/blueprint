@@ -514,6 +514,8 @@ namespace AdminStore.Services.Workflow
             var newStates = (await _workflowRepository.CreateWorkflowStatesAsync(workflow.States.Select(s =>
                 ToSqlState(s, newWorkflowId)), publishRevision, transaction)).ToList();
 
+            //var newWebhooks = (await _workflowRepository.)
+
             var dataMaps = CreateDataMap(dataValidationResult, newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
 
             await CreateWorkflowEventsAsync(workflow, newWorkflowId, publishRevision, transaction, dataMaps);

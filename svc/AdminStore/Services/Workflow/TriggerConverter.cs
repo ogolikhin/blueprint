@@ -155,6 +155,19 @@ namespace AdminStore.Services.Workflow
                         }
                         : null;
                     break;
+                case ActionTypes.Webhook:
+                    // var xgAction = xmlAction as XmlWebhookAction;
+
+                    action = new IeWebhookAction
+                    {
+                        BasicAuth = new IeBasicAuth { Username = "Admin", Password = "changeme" },
+                        HttpHeaders = new List<string>(),
+                        Signature = null,
+                        IgnoreInvalidSSLCertificate = false,
+                        Name = "Hack Webhook Action"
+                    };
+
+                    break;
             }
 
             return action;
@@ -281,6 +294,12 @@ namespace AdminStore.Services.Workflow
                     return ToXmlModel(ieAction as IePropertyChangeAction, dataMaps);
                 case ActionTypes.Generate:
                     return ToXmlModel(ieAction as IeGenerateAction, dataMaps.ArtifactTypeMap);
+                case ActionTypes.Webhook:
+                    // return ToXmlModel(ieAction as IeWebhookAction, dataMaps);
+                    return new XmlWebhookAction
+                    {
+                        WebhookId = 1
+                    };
                 default:
                     throw new ArgumentOutOfRangeException(nameof(ieAction.ActionType));
             }

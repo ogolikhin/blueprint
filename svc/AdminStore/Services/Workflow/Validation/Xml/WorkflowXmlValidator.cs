@@ -1208,6 +1208,8 @@ namespace AdminStore.Services.Workflow.Validation.Xml
                 case ActionTypes.Generate:
                     ValidateUpdateId((IeGenerateAction)action);
                     break;
+                case ActionTypes.Webhook:
+                    break;
                 case null:
                     break;
                 default:

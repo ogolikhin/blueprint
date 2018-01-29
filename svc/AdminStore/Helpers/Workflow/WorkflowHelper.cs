@@ -191,6 +191,8 @@ namespace AdminStore.Helpers.Workflow
                     break;
                 case ActionTypes.Generate:
                     break;
+                case ActionTypes.Webhook:
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.ActionType));
             }

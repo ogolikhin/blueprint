@@ -147,6 +147,9 @@
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
     <Compile Include="Models\Icon.cs" />
+    <Compile Include="Models\Webhook.cs" />
+    <Compile Include="Models\Workflow\Actions\WebhookAction.cs" />
+    <Compile Include="Models\Workflow\XmlWebhookAction.cs" />
     <Compile Include="Services\Image\IImageService.cs" />
     <Compile Include="Services\Image\ImageService.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />

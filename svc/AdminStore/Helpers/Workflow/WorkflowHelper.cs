@@ -483,6 +483,17 @@ namespace AdminStore.Helpers.Workflow
                                 .ToList()
                         };
                     break;
+                case ActionTypes.Webhook:
+                    var dWebhookAction = dBaseAction as DWebhookAction;
+                    if (dWebhookAction != null)
+                    {
+                        return new IeWebhookAction
+                        {
+                            Name = dWebhookAction.Name
+                            // TODO
+                        };
+                    }
+                    break;
                 default:
                     return null;
             }
@@ -550,6 +561,17 @@ namespace AdminStore.Helpers.Workflow
                                 Id = ieValidValue.Id,
                                 Value = ieValidValue.Value
                             }).ToList()
+                        };
+                    }
+                    break;
+                case ActionTypes.Webhook:
+                    var ieWebhookAction = ieBaseAction as IeWebhookAction;
+                    if (ieWebhookAction != null)
+                    {
+                        return new DWebhookAction
+                        {
+                            Name = ieWebhookAction.Name
+                            // TODO
                         };
                     }
                     break;

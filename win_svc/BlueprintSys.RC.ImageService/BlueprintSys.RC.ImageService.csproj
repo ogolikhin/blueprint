@@ -188,6 +188,7 @@
     <Compile Include="Helpers\ServiceHelper.cs" />
     <Compile Include="Transport\GenerateImageHandler.cs" />
     <Compile Include="Transport\NServiceBusServer.cs" />
+    <Compile Include="Transport\StatusMessageHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json">

@@ -257,7 +257,7 @@ namespace ArtifactStore.Collections
         private static ProfileColumn CreateCustomPropertyColumn(
             PropertyTypeInfo propertyTypeInfo, ProfileColumns profileColumns = null)
         {
-            if (profileColumns != null && profileColumns.PropertyTypeIdMatches(propertyTypeInfo.Id))
+            if (profileColumns != null && profileColumns.PropertyTypeIdMatches(propertyTypeInfo.Id.Value))
             {
                 return null;
             }

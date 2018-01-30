@@ -217,19 +217,6 @@ namespace ArtifactStore.Collections
         }
 
         [TestMethod]
-        public async Task GetColumnsAsync_PropertyTypeInfoInvalidIdUnSelectedColumnsNotEmpty_Success()
-        {
-            _propertyTypeInfos[0].Id = -1;
-
-            InitializeRepositoriesForGetColumnsAsync(_profileColumnsSettings, _propertyTypeInfos);
-
-            var result = await _collectionService.GetColumnsAsync(_collectionId, _userId);
-
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.UnselectedColumns.Any());
-        }
-
-        [TestMethod]
         public async Task GetColumnsAsync_PropertyTypeInfosEmptyUnSelectedColumnsEmpty_Success()
         {
             _propertyTypeInfos = new List<PropertyTypeInfo>();

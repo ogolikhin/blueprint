@@ -141,6 +141,11 @@ namespace ArtifactStore.Collections
         public async Task<IReadOnlyList<PropertyTypeInfo>> GetPropertyTypeInfosForItemTypesAsync(
             IEnumerable<int> itemTypeIds, string search = null)
         {
+            if (itemTypeIds.IsEmpty())
+            {
+                return new List<PropertyTypeInfo>();
+            }
+
             var parameters = new DynamicParameters();
 
             parameters.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(itemTypeIds));

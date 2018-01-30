@@ -207,6 +207,16 @@ namespace ArtifactStore.Collections
             await _artifactListService.SaveProfileColumnsAsync(collection.ArtifactId, validColumns, userId);
         }
 
+        private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)
+        {
+            var artifactIds = await _collectionsRepository.GetContentArtifactIdsAsync(collectionId, userId);
+            var artifactsInCollection = await _itemInfoRepository.GetItemsDetails(userId, artifactIds);
+
+            return artifactsInCollection
+                .Where(artifact => artifact.EndRevision == int.MaxValue || artifact.EndRevision == 1)
+                .ToList();
+        }
+
         private async Task<ArtifactBasicDetails> ValidateCollection(int collectionId, int userId, IDbTransaction transaction)
         {
             var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, transaction);
@@ -228,9 +238,8 @@ namespace ArtifactStore.Collections
         private async Task<IReadOnlyList<PropertyTypeInfo>> GetPropertyTypeInfosAsync(
             int collectionId, int userId, string search = null)
         {
-            var artifactIds = await _collectionsRepository.GetContentArtifactIdsAsync(collectionId, userId);
-            var artifacts = await _itemInfoRepository.GetItemsDetails(userId, artifactIds);
-            var itemTypeIds = artifacts.Select(a => a.ItemTypeId).Distinct();
+            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
+            var itemTypeIds = artifacts.Select(artifact => artifact.ItemTypeId).Distinct();
 
             return await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(itemTypeIds, search);
         }
@@ -249,7 +258,7 @@ namespace ArtifactStore.Collections
             IReadOnlyList<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns, string search)
         {
             return profileColumns.Items
-                .Where(column => column.ExistsIn(propertyTypeInfos) && column.NameMatches(search))
+                .Where(column => (propertyTypeInfos.IsEmpty() || column.ExistsIn(propertyTypeInfos)) && column.NameMatches(search))
                 .Select(column => new ProfileColumn(
                     column.PropertyName, column.Predefined, column.PrimitiveType, column.PropertyTypeId));
         }

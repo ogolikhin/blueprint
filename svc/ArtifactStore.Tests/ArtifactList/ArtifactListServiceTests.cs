@@ -4,6 +4,7 @@ using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.ArtifactList.Models.Xml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.ArtifactList
 {
@@ -24,7 +25,22 @@ namespace ArtifactStore.ArtifactList
             _itemId = 1;
             _xmlProfileSettings = new XmlProfileSettings
             {
-                Columns = new List<XmlProfileColumn>()
+                Columns = new List<XmlProfileColumn>
+                {
+                    new XmlProfileColumn
+                    {
+                        PropertyName = "Name",
+                        Predefined = (int)PropertyTypePredefined.Name,
+                        PrimitiveType = (int)PropertyPrimitiveType.Text
+                    },
+                    new XmlProfileColumn
+                    {
+                        PropertyName = "My Choice",
+                        Predefined = (int)PropertyTypePredefined.CustomGroup,
+                        PrimitiveType = (int)PropertyPrimitiveType.Choice,
+                        PropertyTypeId = 25
+                    }
+                }
             };
 
             _repositoryMock = new Mock<IArtifactListSettingsRepository>();

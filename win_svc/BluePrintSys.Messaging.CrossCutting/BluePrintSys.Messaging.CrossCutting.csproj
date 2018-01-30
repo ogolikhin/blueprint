@@ -112,7 +112,6 @@
     <Compile Include="Host\NServiceBusServer.cs" />
     <Compile Include="Host\NServiceBusTransportType.cs" />
     <Compile Include="Host\NServiceBusValidator.cs" />
-    <Compile Include="Host\StatusCheckMessageHandler.cs" />
     <Compile Include="Host\TransportHost.cs" />
     <Compile Include="Logging\IFileLogListener.cs" />
     <Compile Include="Logging\ILogEntry.cs" />
@@ -138,7 +137,6 @@
     <Compile Include="Models\Exceptions\EntityNotFoundException.cs" />
     <Compile Include="Models\Exceptions\MessageHeaderValueNotFoundException.cs" />
     <Compile Include="Models\Exceptions\UnsupportedActionTypeException.cs" />
-    <Compile Include="Models\StatusCheckMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

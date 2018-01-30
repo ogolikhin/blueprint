@@ -27,6 +27,11 @@ namespace ArtifactStore.ArtifactList.Models
                 throw new ArgumentNullException(nameof(propertyName));
             }
 
+            if (propertyTypeId.HasValue && propertyTypeId.Value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(propertyTypeId));
+            }
+
             if (primitiveType == PropertyPrimitiveType.Image)
             {
                 throw new ArgumentException("Image columns are currently not supported.");

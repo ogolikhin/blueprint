@@ -30,6 +30,7 @@ namespace AdminStore.Controllers
         private const string _color = "ffffff";
         private const int _sessionUserId = 1;
         private const int ItemTypeIconSize = 32;
+        private const int _imageId = 123;
         Icon _icon = new Icon
         {
             Content = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
@@ -62,13 +63,13 @@ namespace AdminStore.Controllers
                 .Setup(m => m.ConvertBitmapImageToPng(_icon.Content, ItemTypeIconSize, ItemTypeIconSize))
                 .Returns(_icon.Content)
                 .Verifiable();
-            _metadataServiceMock.Setup(service => service.GetIconAsync(_type, null, _color)).ReturnsAsync(_icon);
+            _metadataServiceMock.Setup(service => service.GetIconAsync(_type, null, _color, _imageId)).ReturnsAsync(_icon);
         }
 
         #region GetIcons
 
         [TestMethod]
-        public async Task GetIcons_AllParamsAreCorrect_ReturnCustomIconSvgICon()
+        public async Task GetIconsAsync_AllParamsAreCorrect_ReturnCustomIconSvgICon()
         {
             // Arrange
             var icon = new Icon
@@ -76,10 +77,10 @@ namespace AdminStore.Controllers
                 Content = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
                 IsSvg = false
             };
-            _metadataServiceMock.Setup(service => service.GetIconAsync(_type, _typeId, _color)).ReturnsAsync(icon);
+            _metadataServiceMock.Setup(service => service.GetIconAsync(_type, _typeId, _color, _imageId)).ReturnsAsync(icon);
 
             // Act
-            var result = await _controller.GetIconsAsnyc(_type, _typeId, _color);
+            var result = await _controller.GetIconsAsnyc(_type, _typeId, _color, _imageId);
 
             // Assert
             Assert.IsNotNull(result);
@@ -87,12 +88,12 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetIcons_AllParamsAreCorrect_ReturnSvgICon()
+        public async Task GetIconsAsync_AllParamsAreCorrect_ReturnSvgICon()
         {
             // Arrange
 
             // Act
-            var result = await _controller.GetIconsAsnyc(_type, null, _color);
+            var result = await _controller.GetIconsAsnyc(_type, null, _color, _imageId);
 
             // Assert
             Assert.IsNotNull(result);
@@ -100,7 +101,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetIcons_TypeIdNotCorrect_ThrowResourceNotFoundException()
+        public async Task GetIconsAsync_TypeIdNotCorrect_ThrowResourceNotFoundException()
         {
             // Arrange
             Exception exception = null;
@@ -109,12 +110,12 @@ namespace AdminStore.Controllers
                 Content = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
                 IsSvg = false
             };
-            _metadataServiceMock.Setup(service => service.GetIconAsync(_type, _typeId, _color)).ReturnsAsync(icon);
+            _metadataServiceMock.Setup(service => service.GetIconAsync(_type, _typeId, _color, _imageId)).ReturnsAsync(icon);
 
             // Act
             try
             {
-                var result = await _controller.GetIconsAsnyc(_type, _typeId + 1, _color);
+                var result = await _controller.GetIconsAsnyc(_type, _typeId + 1, _color, _imageId);
             }
             catch (Exception ex)
             {

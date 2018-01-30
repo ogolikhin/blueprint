@@ -514,35 +514,11 @@ namespace AdminStore.Services.Workflow
             var newStates = (await _workflowRepository.CreateWorkflowStatesAsync(workflow.States.Select(s =>
                 ToSqlState(s, newWorkflowId)), publishRevision, transaction)).ToList();
 
-            // var newWebhooks = (await _workflowRepository.)
-
             var dataMaps = CreateDataMap(dataValidationResult, newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
 
+            await CreateWebooksAsync(workflow, newWorkflowId, transaction, dataMaps);
+
             await CreateWorkflowEventsAsync(workflow, newWorkflowId, publishRevision, transaction, dataMaps);
-
-            var webHooksDict = new Dictionary<int, IEnumerable<IeWebhookAction>>();
-
-            workflow.NewArtifactEvents.Where(ev => ev.Triggers.Any(tr => tr.Action is IeWebhookAction)).ForEach(ev =>
-            {
-                if (ev.Id.HasValue)
-                {
-                    webHooksDict[ev.Id.Value] = ev.Triggers.Select(tr => tr.Action).OfType<IeWebhookAction>();
-                }
-            });
-            workflow.PropertyChangeEvents.Where(ev => ev.Triggers.Any(tr => tr.Action is IeWebhookAction)).ForEach(ev =>
-            {
-                if (ev.Id.HasValue)
-                {
-                    webHooksDict[ev.Id.Value] = ev.Triggers.Select(tr => tr.Action).OfType<IeWebhookAction>();
-                }
-            });
-            workflow.TransitionEvents.Where(ev => ev.Triggers.Any(tr => tr.Action is IeWebhookAction)).ForEach(ev =>
-            {
-                if (ev.Id.HasValue)
-                {
-                    webHooksDict[ev.Id.Value] = ev.Triggers.Select(tr => tr.Action).OfType<IeWebhookAction>();
-                }
-            });
 
             var kvPairs = new List<KeyValuePair<int, string>>();
             if (!workflow.Projects.IsEmpty())
@@ -1714,5 +1690,84 @@ namespace AdminStore.Services.Workflow
         }
 
         #endregion
+
+        #region Webhooks
+        private async Task CreateWebooksAsync(IeWorkflow workflow, int workflowId, IDbTransaction transaction, WorkflowDataMaps dataMaps)
+        {
+            var importWebhooksParams = new List<SqlWebhook>();
+
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
+            {
+                importWebhooksParams.AddRange(ToSqlWebhook(e, workflowId, dataMaps));
+            });
+            workflow.NewArtifactEvents.OfType<IeNewArtifactEvent>().ForEach(e =>
+            {
+                importWebhooksParams.AddRange(ToSqlWebhook(e, workflowId, dataMaps));
+            });
+
+            var newWebhooks = await _workflowRepository.CreateWebhooks(importWebhooksParams, transaction);
+
+            var index = 0;
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
+            {
+                if (e.Triggers.Any())
+                {
+                    foreach (var trigger in e.Triggers)
+                    {
+                        var webhookAction = (IeWebhookAction)trigger.Action;
+                        if (webhookAction != null)
+                        {
+                            dataMaps.WebhooksByActionObj[webhookAction] = newWebhooks.ElementAt(index).WebhookId;
+                            index++;
+                        }
+                    }
+                }
+            });
+            workflow.NewArtifactEvents.OfType<IeNewArtifactEvent>().ForEach(e =>
+            {
+                if (e.Triggers.Any())
+                {
+                    foreach (var trigger in e.Triggers)
+                    {
+                        var webhookAction = (IeWebhookAction)trigger.Action;
+                        if (webhookAction != null)
+                        {
+                            dataMaps.WebhooksByActionObj[webhookAction] = newWebhooks.ElementAt(index).WebhookId;
+                            index++;
+                        }
+                    }
+                }
+            });
+        }
+
+        private List<SqlWebhook> ToSqlWebhook(IeEvent wEvent, int workflowId, WorkflowDataMaps dataMaps)
+        {
+            var sqlWebhooks = new List<SqlWebhook>();
+
+            if (wEvent != null && (wEvent.EventType == EventTypes.Transition || wEvent.EventType == EventTypes.NewArtifact))
+            {
+                foreach (var trigger in wEvent.Triggers)
+                {
+                    var webHookAction = (IeWebhookAction)trigger.Action;
+                    if (webHookAction != null)
+                    {
+                        var sqlwebhook = new SqlWebhook
+                        {
+                            Url = webHookAction.Url,
+                            Scope = DWebhookScope.Workflow,
+                            State = true,
+                            EventType = wEvent.EventType == EventTypes.Transition ? DWebhookEventType.WorkflowTransistion : DWebhookEventType.ArtifactCreated,
+                            SecurityInfo = "TODO - Serialize SecurityInfo",
+                            WorkflowVersionId = workflowId
+                        };
+                        sqlWebhooks.Add(sqlwebhook);
+                        dataMaps.WebhooksByActionObj.Add(webHookAction, 0);
+                    }
+                }
+            }
+
+            return sqlWebhooks;
+        }
+        #endregion Webhooks
     }
 }

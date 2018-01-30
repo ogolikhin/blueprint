@@ -298,7 +298,7 @@ namespace AdminStore.Services.Workflow
                     // return ToXmlModel(ieAction as IeWebhookAction, dataMaps);
                     return new XmlWebhookAction
                     {
-                        WebhookId = 1
+                        WebhookId = dataMaps.WebhooksByActionObj[ieAction as IeWebhookAction]
                     };
                 default:
                     throw new ArgumentOutOfRangeException(nameof(ieAction.ActionType));

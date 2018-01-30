@@ -151,6 +151,12 @@
         public static readonly string MeaningOfSignatureDisabledInProject = "Meaning of Signature is disabled for the current project.";
         public static readonly string InvalidStandardArtifactTypesFilterValue = "Invalid filter parameter value.";
 
+        public static class ArtifactList
+        {
+            public static readonly string AddColumnColumnExists = "Unable to add profile column '{0}'. The column already exists.";
+            public static readonly string AddColumnCapacityReached = "Unable to add profile column '{0}'. The column limit of {1} has been reached.";
+        }
+
         public static class Collections
         {
             public static readonly string NotFound = "Collection (Id:{0}) is not found.";

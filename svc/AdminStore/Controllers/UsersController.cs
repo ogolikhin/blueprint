@@ -21,8 +21,8 @@ using System.Web.Http.Description;
 using AdminStore.Services.Email;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
+using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Repositories.ApplicationSettings;
-using ServiceLibrary.Services;
 using ServiceLibrary.Services.Image;
 
 namespace AdminStore.Controllers

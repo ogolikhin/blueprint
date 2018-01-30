@@ -12,6 +12,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Validators;
 using ServiceLibrary.Models;
 
 namespace ArtifactStore.Collections
@@ -132,6 +133,8 @@ namespace ArtifactStore.Collections
         [ResponseType(typeof(GetColumnsDto))]
         public async Task<IHttpActionResult> GetColumnsAsync(int id, string search = null)
         {
+            SearchFieldValidator.Validate(search);
+
             var result = await _collectionsService.GetColumnsAsync(id, Session.UserId, search);
 
             return Ok(result);

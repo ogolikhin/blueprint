@@ -514,9 +514,35 @@ namespace AdminStore.Services.Workflow
             var newStates = (await _workflowRepository.CreateWorkflowStatesAsync(workflow.States.Select(s =>
                 ToSqlState(s, newWorkflowId)), publishRevision, transaction)).ToList();
 
+            // var newWebhooks = (await _workflowRepository.)
+
             var dataMaps = CreateDataMap(dataValidationResult, newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
 
             await CreateWorkflowEventsAsync(workflow, newWorkflowId, publishRevision, transaction, dataMaps);
+
+            var webHooksDict = new Dictionary<int, IEnumerable<IeWebhookAction>>();
+
+            workflow.NewArtifactEvents.Where(ev => ev.Triggers.Any(tr => tr.Action is IeWebhookAction)).ForEach(ev =>
+            {
+                if (ev.Id.HasValue)
+                {
+                    webHooksDict[ev.Id.Value] = ev.Triggers.Select(tr => tr.Action).OfType<IeWebhookAction>();
+                }
+            });
+            workflow.PropertyChangeEvents.Where(ev => ev.Triggers.Any(tr => tr.Action is IeWebhookAction)).ForEach(ev =>
+            {
+                if (ev.Id.HasValue)
+                {
+                    webHooksDict[ev.Id.Value] = ev.Triggers.Select(tr => tr.Action).OfType<IeWebhookAction>();
+                }
+            });
+            workflow.TransitionEvents.Where(ev => ev.Triggers.Any(tr => tr.Action is IeWebhookAction)).ForEach(ev =>
+            {
+                if (ev.Id.HasValue)
+                {
+                    webHooksDict[ev.Id.Value] = ev.Triggers.Select(tr => tr.Action).OfType<IeWebhookAction>();
+                }
+            });
 
             var kvPairs = new List<KeyValuePair<int, string>>();
             if (!workflow.Projects.IsEmpty())

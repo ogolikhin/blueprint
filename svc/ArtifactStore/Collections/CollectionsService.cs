@@ -239,8 +239,7 @@ namespace ArtifactStore.Collections
             return new ProfileColumn(
                 propertyTypeInfo.Name,
                 propertyTypeInfo.Predefined,
-                propertyTypeInfo.PrimitiveType,
-                propertyTypeInfo.Id);
+                propertyTypeInfo.PrimitiveType);
         }
 
         private static ProfileColumn CreateCustomPropertyColumn(

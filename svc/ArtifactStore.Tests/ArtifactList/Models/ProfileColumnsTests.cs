@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers;
@@ -22,13 +23,14 @@ namespace ArtifactStore.ArtifactList.Models
             };
         }
 
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "ArtifactStore.ArtifactList.Models.ProfileColumns")]
         [TestMethod]
         public void Construction_ColumnsNull_ThrowsException()
         {
             // Act
             try
             {
-                var profileColumns = new ProfileColumns(null);
+                new ProfileColumns(null);
             }
             catch (ArgumentNullException ex)
             {
@@ -50,6 +52,7 @@ namespace ArtifactStore.ArtifactList.Models
             CollectionAssert.AreEquivalent(_columns, profileColumns.Items.ToList());
         }
 
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "ArtifactStore.ArtifactList.Models.ProfileColumns")]
         [TestMethod]
         public void Construction_DuplicateColumns_ThrowsException()
         {
@@ -60,7 +63,7 @@ namespace ArtifactStore.ArtifactList.Models
             // Act
             try
             {
-                var profileColumns = new ProfileColumns(_columns);
+                new ProfileColumns(_columns);
             }
             catch (ArgumentException ex)
             {
@@ -74,6 +77,7 @@ namespace ArtifactStore.ArtifactList.Models
             Assert.Fail("ArgumentException was expected.");
         }
 
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "ArtifactStore.ArtifactList.Models.ProfileColumns")]
         [TestMethod]
         public void Construction_OverCapacity_ThrowException()
         {
@@ -85,7 +89,7 @@ namespace ArtifactStore.ArtifactList.Models
             // Act
             try
             {
-                var profileColumns = new ProfileColumns(_columns, maxCapacity);
+                new ProfileColumns(_columns, maxCapacity);
             }
             catch (ApplicationException ex)
             {

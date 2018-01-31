@@ -34,7 +34,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             {
                 if (task.IsFaulted)
                 {
-                    Log.Error(task.Exception?.InnerException.Message);
+                    Log.Error(task.Exception);
                     throw new Exception(task.Exception?.Message);
                 }
                 return;

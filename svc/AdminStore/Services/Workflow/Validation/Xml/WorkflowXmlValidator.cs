@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using AdminStore.Helpers.Workflow;
 using AdminStore.Models.Enums;
 using AdminStore.Models.Workflow;
@@ -621,6 +622,13 @@ namespace AdminStore.Services.Workflow.Validation.Xml
         private bool _hasInvalidIdError;
         private bool _hasAmbiguousGroupProjectReference;
         private bool _hasPropertyChangeActionUserOrGroupNameNotSpecifiedError;
+        private bool _hasWebhookActionUrlNotSpecified;
+        private bool _hasWebhookActionUrlInvalid;
+        private bool _hasWebhookActionHttpHeaderInvalid;
+        private bool _hasWebhookActionBasicAuthInvalid;
+        private bool _hasWebhookActionSignatureSecretTokenEmpty;
+        private bool _hasWebhookActionSignatureAlgorithmInvalid;
+        private bool _hasWebhookActionNoAuthenticationMethodProvided;
 
         private void ResetErrorFlags()
         {
@@ -642,6 +650,13 @@ namespace AdminStore.Services.Workflow.Validation.Xml
             _hasInvalidIdError = false;
             _hasAmbiguousGroupProjectReference = false;
             _hasPropertyChangeActionUserOrGroupNameNotSpecifiedError = false;
+            _hasWebhookActionUrlNotSpecified = false;
+            _hasWebhookActionUrlInvalid = false;
+            _hasWebhookActionHttpHeaderInvalid = false;
+            _hasWebhookActionBasicAuthInvalid = false;
+            _hasWebhookActionSignatureSecretTokenEmpty = false;
+            _hasWebhookActionSignatureAlgorithmInvalid = false;
+            _hasWebhookActionNoAuthenticationMethodProvided = false;
         }
 
         private void ValidatePropertyChangeActionDuplicatePropertiesOnEvent(IeEvent wEvent, WorkflowXmlValidationResult result)
@@ -694,6 +709,9 @@ namespace AdminStore.Services.Workflow.Validation.Xml
                     break;
                 case ActionTypes.Generate:
                     ValidateGenerateAction((IeGenerateAction)action, result);
+                    break;
+                case ActionTypes.Webhook:
+                    ValidateWebhookAction((IeWebhookAction)action, result);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.ActionType));
@@ -898,6 +916,108 @@ namespace AdminStore.Services.Workflow.Validation.Xml
             }
         }
 
+        private void ValidateWebhookAction(IeWebhookAction action, WorkflowXmlValidationResult result)
+        {
+            bool hasHttpHeaders = false;
+            bool hasBasicAuth = false;
+            bool hasSignature = false;
+
+            if (!_hasWebhookActionUrlNotSpecified && action.Url.IsEmpty())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = action,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.WebhookActionUrlNotSpecified
+                });
+                _hasWebhookActionUrlNotSpecified = true;
+            }
+            else
+            {
+                Uri uriResult;
+                if (!_hasWebhookActionUrlInvalid &&
+                    !(Uri.TryCreate(action.Url, UriKind.Absolute, out uriResult) &&
+                    (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps)))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.WebhookActionUrlInvalid
+                    });
+                    _hasWebhookActionUrlInvalid = true;
+                }
+            }
+
+            if (action.HttpHeaders != null)
+            {
+                hasHttpHeaders = true;
+                foreach (var header in action.HttpHeaders)
+                {
+                    if (!_hasWebhookActionHttpHeaderInvalid &&
+                        !Regex.IsMatch(header, "^[^:]+:[^:]+$"))
+                    {
+                        result.Errors.Add(new WorkflowXmlValidationError
+                        {
+                            Element = action,
+                            ErrorCode = WorkflowXmlValidationErrorCodes.WebhookActionHttpHeaderInvalid
+                        });
+                        _hasWebhookActionHttpHeaderInvalid = true;
+                    }
+                }
+            }
+
+            if (action.BasicAuth != null)
+            {
+                hasBasicAuth = true;
+                if (!_hasWebhookActionBasicAuthInvalid &&
+                    (string.IsNullOrEmpty(action.BasicAuth.Username) ||
+                    string.IsNullOrEmpty(action.BasicAuth.Password)))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.WebhookActionBasicAuthInvalid
+                    });
+                    _hasWebhookActionBasicAuthInvalid = true;
+                }
+            }
+
+            if (action.Signature != null)
+            {
+                hasSignature = true;
+                if (!_hasWebhookActionSignatureSecretTokenEmpty && string.IsNullOrEmpty(action.Signature.SecretToken))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.WebhookActionSignatureSecretTokenEmpty
+                    });
+                    _hasWebhookActionSignatureSecretTokenEmpty = true;
+                }
+
+                if (!_hasWebhookActionSignatureAlgorithmInvalid &&
+                    !action.Signature.Algorithm.Equals("HMACSHA256") &&
+                    !action.Signature.Algorithm.Equals("HMACSHA1"))
+                {
+                    result.Errors.Add(new WorkflowXmlValidationError
+                    {
+                        Element = action,
+                        ErrorCode = WorkflowXmlValidationErrorCodes.WebhookActionSignatureAlgorithmInvalid
+                    });
+                    _hasWebhookActionSignatureAlgorithmInvalid = true;
+                }
+            }
+
+            if (!_hasWebhookActionNoAuthenticationMethodProvided && !hasHttpHeaders && !hasBasicAuth && !hasSignature)
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = action,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.WebhookActionNoAuthenticationMethodProvided
+                });
+                _hasWebhookActionNoAuthenticationMethodProvided = true;
+            }
+        }
+
         private void ValidateTriggerConditions(IeEvent wEvent, ICollection<string> states, WorkflowXmlValidationResult result)
         {
             ValidateConditionTriggerConditions(wEvent, states, result);
@@ -1087,6 +1207,8 @@ namespace AdminStore.Services.Workflow.Validation.Xml
                     break;
                 case ActionTypes.Generate:
                     ValidateUpdateId((IeGenerateAction)action);
+                    break;
+                case ActionTypes.Webhook:
                     break;
                 case null:
                     break;

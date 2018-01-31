@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ArtifactStore.Collections.Models;
+using Newtonsoft.Json;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.ArtifactList.Models
@@ -9,7 +10,7 @@ namespace ArtifactStore.ArtifactList.Models
     public class ProfileColumn
     {
         public string PropertyName { get; }
-
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? PropertyTypeId { get; }
 
         public PropertyTypePredefined Predefined { get; }

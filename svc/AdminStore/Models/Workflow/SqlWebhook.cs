@@ -10,7 +10,7 @@
 
         public bool State { get; set; }
 
-        public DWebhookScope Scope { get; set; }
+        public string Scope { get; set; }
 
         public DWebhookEventType EventType { get; set; }
 

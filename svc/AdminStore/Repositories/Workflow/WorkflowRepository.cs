@@ -1109,7 +1109,7 @@ namespace AdminStore.Repositories.Workflow
             table.Columns.Add("Url", typeof(string));
             table.Columns.Add("SecurityInfo", typeof(string));
             table.Columns.Add("State", typeof(bool));
-            table.Columns.Add("Scope", typeof(int));
+            table.Columns.Add("Scope", typeof(string));
             table.Columns.Add("EventType", typeof(int));
             table.Columns.Add("WorkflowVersionId", typeof(int));
 

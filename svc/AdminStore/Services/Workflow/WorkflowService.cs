@@ -1733,7 +1733,7 @@ namespace AdminStore.Services.Workflow
                         var sqlwebhook = new SqlWebhook
                         {
                             Url = webHookAction.Url,
-                            Scope = DWebhookScope.Workflow,
+                            Scope = DWebhookScope.Workflow.ToString(),
                             State = true,
                             EventType = GetWebhookEventType(wEvent.EventType),
                             SecurityInfo = SerializeWebhookSecurityInfo(webHookAction),

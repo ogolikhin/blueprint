@@ -156,17 +156,8 @@ namespace AdminStore.Services.Workflow
                         : null;
                     break;
                 case ActionTypes.Webhook:
-                    // var xgAction = xmlAction as XmlWebhookAction;
-
-                    action = new IeWebhookAction
-                    {
-                        BasicAuth = new IeBasicAuth { Username = "Admin", Password = "changeme" },
-                        HttpHeaders = new List<string>(),
-                        Signature = null,
-                        IgnoreInvalidSSLCertificate = false,
-                        Name = "Hack Webhook Action"
-                    };
-
+                    // TODO - Provide webhook support when exporting Workflow XML
+                    action = null;
                     break;
             }
 

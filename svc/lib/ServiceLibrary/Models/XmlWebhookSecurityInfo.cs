@@ -11,13 +11,14 @@ namespace ServiceLibrary.Models.Workflow
         [XmlElement(ElementName = "IgnoreInvalidSSLCertificate", IsNullable = false)]
         public bool IgnoreInvalidSSLCertificate { get; set; }
 
+        private const string PAYLOAD_DEFAULT = "application/json";
         private string _payload;
         [XmlElement(ElementName = "Payload", IsNullable = false)]
         public string Payload
         {
             get
             {
-                return _payload ?? "application/json";
+                return _payload ?? PAYLOAD_DEFAULT;
             }
             set
             {
@@ -61,13 +62,14 @@ namespace ServiceLibrary.Models.Workflow
         [XmlElement("SecretToken")]
         public string SecretToken { get; set; }
 
+        private const string ALGORITHM_DEFAULT = "HMACSHA256";
         private string _algorithm;
         [XmlElement("Algorithm")]
         public string Algorithm
         {
             get
             {
-                return _algorithm ?? "HMACSHA256";
+                return _algorithm ?? ALGORITHM_DEFAULT;
             }
             set
             {

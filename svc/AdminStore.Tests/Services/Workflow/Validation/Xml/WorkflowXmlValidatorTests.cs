@@ -1758,6 +1758,355 @@ namespace AdminStore.Services.Workflow.Validation.Xml
             Assert.AreEqual(WorkflowXmlValidationErrorCodes.StatesNotConnectedToInitialState, result.Errors[0].ErrorCode);
         }
 
+        [TestMethod]
+        public void Validate_WebhooksNoUrl_ReturnsWebhookActionUrlNotSpecifiedError()
+        {
+            // Arrange
+            var webhookAction = new IeWebhookAction
+            {
+                BasicAuth = new IeBasicAuth
+                {
+                    Username = "user",
+                    Password = "pass"
+                },
+                HttpHeaders = new List<string>
+                {
+                    "key: value"
+                },
+                IgnoreInvalidSSLCertificate = true,
+                Name = "name",
+                Signature = new IeSignature
+                {
+                    SecretToken = "jkafas241jalf"
+                }
+            };
+            var triggers = new List<IeTrigger>
+            {
+                new IeTrigger {
+                    Action = webhookAction
+                }
+            };
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "new event",
+                Triggers = triggers
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WebhookActionUrlNotSpecified, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_WebhooksInvalidUrl_ReturnsWebhookActionUrlInvalidError()
+        {
+            // Arrange
+            var webhookAction = new IeWebhookAction
+            {
+                 Url = "http:/www,example.com",
+                BasicAuth = new IeBasicAuth
+                {
+                    Username = "user",
+                    Password = "pass"
+                },
+                HttpHeaders = new List<string>
+                {
+                    "key: value"
+                },
+                IgnoreInvalidSSLCertificate = true,
+                Name = "name",
+                Signature = new IeSignature
+                {
+                    SecretToken = "jkafas241jalf"
+                }
+            };
+            var triggers = new List<IeTrigger>
+            {
+                new IeTrigger {
+                    Action = webhookAction
+                }
+            };
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "new event",
+                Triggers = triggers
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WebhookActionUrlInvalid, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_WebhooksInvalidHeader_ReturnsWebhookActionHttpHeaderInvalidError()
+        {
+            // Arrange
+            var webhookAction = new IeWebhookAction
+            {
+                Url = "http://www.example.com",
+                BasicAuth = new IeBasicAuth
+                {
+                    Username = "user",
+                    Password = "pass"
+                },
+                HttpHeaders = new List<string>
+                {
+                    "key: value",
+                    "key; value"
+                },
+                IgnoreInvalidSSLCertificate = true,
+                Name = "name",
+                Signature = new IeSignature
+                {
+                    SecretToken = "jkafas241jalf"
+                }
+            };
+            var triggers = new List<IeTrigger>
+            {
+                new IeTrigger {
+                    Action = webhookAction
+                }
+            };
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "new event",
+                Triggers = triggers
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WebhookActionHttpHeaderInvalid, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_WebhooksInvalidBasicAuth_ReturnsWebhookActionBasicAuthInvalidError()
+        {
+            // Arrange
+            var webhookAction = new IeWebhookAction
+            {
+                Url = "http://www.example.com",
+                BasicAuth = new IeBasicAuth
+                {
+                    Username = "user",
+                    Password = ""
+                },
+                HttpHeaders = new List<string>
+                {
+                    "key: value"
+                },
+                IgnoreInvalidSSLCertificate = true,
+                Name = "name",
+                Signature = new IeSignature
+                {
+                    SecretToken = "jkafas241jalf"
+                }
+            };
+            var triggers = new List<IeTrigger>
+            {
+                new IeTrigger {
+                    Action = webhookAction
+                }
+            };
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "new event",
+                Triggers = triggers
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WebhookActionBasicAuthInvalid, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_WebhooksMissingSecretToken_ReturnsWebhookActionSignatureSecretTokenEmptyError()
+        {
+            // Arrange
+            var webhookAction = new IeWebhookAction
+            {
+                Url = "http://www.example.com",
+                BasicAuth = new IeBasicAuth
+                {
+                    Username = "user",
+                    Password = "pass"
+                },
+                HttpHeaders = new List<string>
+                {
+                    "key: value"
+                },
+                IgnoreInvalidSSLCertificate = true,
+                Name = "name",
+                Signature = new IeSignature
+                {
+                    SecretToken = ""
+                }
+            };
+            var triggers = new List<IeTrigger>
+            {
+                new IeTrigger {
+                    Action = webhookAction
+                }
+            };
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "new event",
+                Triggers = triggers
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WebhookActionSignatureSecretTokenEmpty, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_WebhooksInvalidSignatureAlgorithm_ReturnsWebhookActionSignatureAlgorithmInvalidError()
+        {
+            // Arrange
+            var webhookAction = new IeWebhookAction
+            {
+                Url = "http://www.example.com",
+                BasicAuth = new IeBasicAuth
+                {
+                    Username = "user",
+                    Password = "pass"
+                },
+                HttpHeaders = new List<string>
+                {
+                    "key: value"
+                },
+                IgnoreInvalidSSLCertificate = true,
+                Name = "name",
+                Signature = new IeSignature
+                {
+                    Algorithm = "gsdfg",
+                    SecretToken = "jkafas241jalf"
+                }
+            };
+            var triggers = new List<IeTrigger>
+            {
+                new IeTrigger {
+                    Action = webhookAction
+                }
+            };
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "new event",
+                Triggers = triggers
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WebhookActionSignatureAlgorithmInvalid, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_WebhooksNoAuthMethod_ReturnsWebhookActionNoAuthenticationMethodProvidedError()
+        {
+            // Arrange
+            var webhookAction = new IeWebhookAction
+            {
+                Url = "http://www.example.com",
+                IgnoreInvalidSSLCertificate = true,
+                Name = "name"
+            };
+            var triggers = new List<IeTrigger>
+            {
+                new IeTrigger {
+                    Action = webhookAction
+                }
+            };
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
+            {
+                Name = "new event",
+                Triggers = triggers
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WebhookActionNoAuthenticationMethodProvided, result.Errors[0].ErrorCode);
+        }
+
+        [TestMethod]
+        public void Validate_WebhooksInPropertyChangeTrigger_ReturnsPropertyChangeEventActionNotSupportedError()
+        {
+            // Arrange
+            var webhookAction = new IeWebhookAction
+            {
+                Url = "http://www.example.com",
+                BasicAuth = new IeBasicAuth
+                {
+                    Username = "user",
+                    Password = "pass"
+                },
+                HttpHeaders = new List<string>
+                {
+                    "key: value"
+                },
+                IgnoreInvalidSSLCertificate = true,
+                Name = "name",
+                Signature = new IeSignature
+                {
+                    SecretToken = "jkafas241jalf"
+                }
+            };
+            var triggers = new List<IeTrigger>
+            {
+                new IeTrigger {
+                    Action = webhookAction
+                }
+            };
+            var workflowValidator = new WorkflowXmlValidator();
+            _workflow.PropertyChangeEvents.Add(new IePropertyChangeEvent
+            {
+                Name = "new event",
+                Triggers = triggers,
+                PropertyName = "property name"
+            });
+
+            // Act
+            var result = workflowValidator.ValidateXml(_workflow);
+
+            // Assert
+            Assert.IsTrue(result.HasErrors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(WorkflowXmlValidationErrorCodes.PropertyChangeEventActionNotSupported, result.Errors[0].ErrorCode);
+        }
+
         #region Private methods
 
         private static void AddStates(IeWorkflow workflow, int statesCount)

@@ -1727,6 +1727,11 @@ namespace AdminStore.Services.Workflow
             {
                 foreach (var trigger in wEvent.Triggers)
                 {
+                    if (trigger.Action.ActionType != ActionTypes.Webhook)
+                    {
+                        continue;
+                    }
+
                     var webHookAction = (IeWebhookAction)trigger.Action;
                     if (webHookAction != null)
                     {
@@ -1822,6 +1827,11 @@ namespace AdminStore.Services.Workflow
 
             foreach (var trigger in e.Triggers)
             {
+                if (trigger.Action.ActionType != ActionTypes.Webhook)
+                {
+                    continue;
+                }
+
                 var webhookAction = (IeWebhookAction)trigger.Action;
                 if (webhookAction != null)
                 {

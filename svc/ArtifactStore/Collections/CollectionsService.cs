@@ -169,11 +169,6 @@ namespace ArtifactStore.Collections
                                     searchArtifactsResult.ArtifactIds.Intersect(removalParams.ItemIds).ToList() :
                                     searchArtifactsResult.ArtifactIds.Except(removalParams.ItemIds).ToList();
 
-                if (artifactsToRemove.Count == 0)
-                {
-                    throw CollectionsExceptionHelper.CollectionMissingArtifactsCouldBeRemoved(collection.ArtifactId);
-                }
-
                 var artifactsWithReadPermissions = await GetAccessibleArtifactIdsAsync(artifactsToRemove, collection, userId, transaction);
 
                 var removedCount = await _collectionsRepository.RemoveArtifactsFromCollectionAsync(

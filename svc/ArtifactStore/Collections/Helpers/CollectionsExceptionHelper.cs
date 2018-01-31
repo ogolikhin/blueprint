@@ -34,11 +34,5 @@ namespace ArtifactStore.Collections.Helpers
             var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.Collections.LockedByAnotherUser, id, userId);
             return new ConflictException(errorMessage, ErrorCodes.Conflict);
         }
-
-        public static ConflictException CollectionMissingArtifactsCouldBeRemoved(int id)
-        {
-            var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.Collections.CollectionDoesNotHaveArtifactsCouldBeRemoved, id);
-            return new ConflictException(errorMessage, ErrorCodes.Conflict);
-        }
     }
 }

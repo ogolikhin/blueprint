@@ -161,8 +161,20 @@ namespace ArtifactStore.Collections
             {
                 var collection = await ValidateCollection(collectionId, userId, transaction);
 
-                var artifactsWithReadPermissions = await GetAccessibleArtifactIdsAsync(
-                    removalParams.ItemIds, collection, userId, transaction);
+                var searchArtifactsResult = await _searchEngineService.Search(collection.ArtifactId, null, ScopeType.Contents, true, userId);
+
+                List<int> artifactsToRemove = null;
+
+                artifactsToRemove = removalParams.SelectionType == SelectionType.Selected ?
+                                    searchArtifactsResult.ArtifactIds.Intersect(removalParams.ItemIds).ToList() :
+                                    searchArtifactsResult.ArtifactIds.Except(removalParams.ItemIds).ToList();
+
+                if (artifactsToRemove.Count == 0)
+                {
+                    throw CollectionsExceptionHelper.CollectionMissingArtifactsCouldBeRemoved(collection.ArtifactId);
+                }
+
+                var artifactsWithReadPermissions = await GetAccessibleArtifactIdsAsync(artifactsToRemove, collection, userId, transaction);
 
                 var removedCount = await _collectionsRepository.RemoveArtifactsFromCollectionAsync(
                     collection.ArtifactId, artifactsWithReadPermissions, userId, transaction);

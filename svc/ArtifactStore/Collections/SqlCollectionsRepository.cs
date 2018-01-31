@@ -101,20 +101,20 @@ namespace ArtifactStore.Collections
             parameters.Add("@CollectionId", collectionId);
             parameters.Add("@ArtifactsIds", SqlConnectionWrapper.ToDataTable(artifactIds));
 
-            IEnumerable<int> result;
+            int result;
 
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<int>(
+                result = await _connectionWrapper.ExecuteScalarAsync<int>(
                     "RemoveArtifactsFromCollection", parameters, commandType: CommandType.StoredProcedure);
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<int>(
+                result = await transaction.Connection.ExecuteScalarAsync<int>(
                     "RemoveArtifactsFromCollection", parameters, transaction, commandType: CommandType.StoredProcedure);
             }
 
-            return result.FirstOrDefault();
+            return result;
         }
 
         public async Task RemoveDeletedArtifactsFromCollectionAsync(

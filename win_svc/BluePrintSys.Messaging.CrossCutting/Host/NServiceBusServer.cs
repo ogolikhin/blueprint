@@ -11,7 +11,7 @@ using RabbitMQ.Client.Exceptions;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
-using BluePrintSys.Messaging.CrossCutting.Models;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {

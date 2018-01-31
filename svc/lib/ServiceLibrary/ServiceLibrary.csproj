@@ -152,6 +152,7 @@
     <Compile Include="Models\Webhook.cs" />
     <Compile Include="Models\Workflow\Actions\WebhookAction.cs" />
     <Compile Include="Models\Workflow\XmlWebhookAction.cs" />
+    <Compile Include="Models\Workflow\XmlWebhookSecurityInfo.cs" />
     <Compile Include="Services\Image\IImageService.cs" />
     <Compile Include="Services\Image\ImageService.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />

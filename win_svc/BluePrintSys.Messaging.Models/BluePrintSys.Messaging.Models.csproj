@@ -75,6 +75,7 @@
     </Compile>
     <Compile Include="ProcessImageGeneration\GenerateImageMessage.cs" />
     <Compile Include="ProcessImageGeneration\ImageResponseMessage.cs" />
+    <Compile Include="ProcessImageGeneration\StatusCheckMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

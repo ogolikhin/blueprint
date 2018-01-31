@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using ArtifactStore.ArtifactList.Helpers;
 using ArtifactStore.ArtifactList.Models;
+using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.ArtifactList
 {
@@ -22,7 +23,7 @@ namespace ArtifactStore.ArtifactList
         {
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
-            return existingSettings == null
+            return existingSettings == null || existingSettings.Columns.IsEmpty()
                 ? defaultColumns
                 : ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings);
         }

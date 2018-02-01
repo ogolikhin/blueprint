@@ -7,7 +7,7 @@ namespace ServiceLibrary.Models
     {
         public static void Validate(this Pagination pagination)
         {
-            if (pagination == null)
+            if (pagination == null || !pagination.Offset.HasValue && !pagination.Limit.HasValue)
             {
                 throw new BadRequestException(ErrorMessages.InvalidPagination, ErrorCodes.BadRequest);
             }

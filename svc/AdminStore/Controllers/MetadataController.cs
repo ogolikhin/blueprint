@@ -33,12 +33,12 @@ namespace AdminStore.Controllers
         }
 
         [HttpGet, ResponseCache(Duration = 86400)]
-        [Route("icons"), SessionRequired]
-        public async Task<HttpResponseMessage> GetIconsAsnyc(string type, int? typeId = null, string color = null)
+        [Route("icons"), SessionRequired(true)]
+        public async Task<HttpResponseMessage> GetIconsAsync(string type, int? typeId = null, string color = null, int? imageId = null)
         {
             var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
 
-            var icon = await _metadataService.GetIconAsync(type, typeId, color);
+            var icon = await _metadataService.GetIconAsync(type, typeId, color, imageId);
             if (icon == null)
             {
                 throw new ResourceNotFoundException(string.Format(CultureInfo.CurrentCulture,

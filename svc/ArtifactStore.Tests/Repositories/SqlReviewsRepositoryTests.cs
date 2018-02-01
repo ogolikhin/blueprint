@@ -106,6 +106,7 @@ namespace ArtifactStore.Repositories
             var totalArtifacts = 8;
             var revisionId = 999;
             var reviewStatus = ReviewStatus.Completed;
+            var totalViewable = 7;
 
             _itemInfoRepositoryMock.Setup(i => i.GetItemDescription(reviewId, userId, true, int.MaxValue)).ReturnsAsync(reviewDescription);
             var approvalNotRequiredArtifactsCount = 10;
@@ -116,7 +117,7 @@ namespace ArtifactStore.Repositories
                 ReviewPackageStatus = ReviewPackageStatus.Active,
                 ReviewParticipantRole = ReviewParticipantRole.Approver,
                 TotalArtifacts = totalArtifacts,
-                TotalViewable = 7,
+                TotalViewable = totalViewable,
                 TotalReviewers = 5,
                 ReviewStatus = reviewStatus,
                 Approved = 5,
@@ -173,7 +174,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(2, review.ArtifactsStatus.Pending);
             Assert.AreEqual(null, review.MeaningOfSignatures);
             Assert.AreEqual(includeFolders, review.IncludeFolders);
-            Assert.AreEqual(approvalNotRequiredArtifactsCount, review.ArtifactsStatus.NotRequired);
+            Assert.AreEqual(approvalNotRequiredArtifactsCount + (totalArtifacts - totalViewable), review.ArtifactsStatus.NotRequired);
         }
 
         [TestMethod]

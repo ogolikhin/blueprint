@@ -45,11 +45,11 @@ namespace AdminStore.Services.Metadata
             _cache = cache;
         }
 
-        public Task<Icon> GetIconAsync(string type, int? typeId = null, string color = null)
+        public Task<Icon> GetIconAsync(string type, int? typeId = null, string color = null, int? imageId = null)
         {
             var iconType = ValidateInputParameter(type, typeId, color);
 
-            var cacheKey = GetIconCacheKey(type, typeId, color);
+            var cacheKey = GetIconCacheKey(type, typeId, color, imageId);
             return _cache.AddOrGetExistingAsync(cacheKey, () => GetIconAsync(iconType, typeId, color), _defaultExpirationOffset);
         }
 
@@ -86,9 +86,9 @@ namespace AdminStore.Services.Metadata
             return icon;
         }
 
-        private string GetIconCacheKey(string type, int? typeId = null, string color = null)
+        private string GetIconCacheKey(string type, int? typeId = null, string color = null, int? imageId = null)
         {
-            return string.Format(CultureInfo.CurrentCulture, _prefix + "{0}{1}{2}", type, typeId.GetValueOrDefault().ToString(CultureInfo.InvariantCulture), color);
+            return string.Format(CultureInfo.CurrentCulture, _prefix + "{0}{1}{2}{3}", type, typeId.GetValueOrDefault().ToString(CultureInfo.InvariantCulture), color, imageId);
         }
 
         private IconType ValidateInputParameter(string type, int? typeId = null, string color = null)

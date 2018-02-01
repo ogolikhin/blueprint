@@ -535,10 +535,6 @@ namespace AdminStore.Services.Workflow.Validation
                     template = TemplateXmlWebhookActionSignatureAlgorithmInvalid;
                     errParams = new object[] { };
                     break;
-                case WorkflowXmlValidationErrorCodes.WebhookActionNoAuthenticationMethodProvided:
-                    template = TemplateXmlWebhookActionNoAuthenticationMethodProvided;
-                    errParams = new object[] { };
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(error.ErrorCode));
             }

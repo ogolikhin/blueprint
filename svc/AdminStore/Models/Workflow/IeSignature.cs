@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace AdminStore.Models.Workflow
 {
@@ -12,7 +13,7 @@ namespace AdminStore.Models.Workflow
         [XmlElement(IsNullable = false)]
         public string SecretToken { get; set; }
 
-        [XmlElement(IsNullable = false)]
+        [XmlElement(IsNullable = false), DefaultValue("HMACSHA256")]
         public string Algorithm { get; set; }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
@@ -20,9 +21,8 @@ namespace AdminStore.Models.Workflow
         public string Url { get; set; }
 
         // Optional
-        [XmlElement]
-        public bool? IgnoreInvalidSSLCertificate { get; set; }
-        public bool ShouldSerializeIgnoreInvalidSSLCertificate() { return IgnoreInvalidSSLCertificate.HasValue; }
+        [XmlElement(IsNullable = false), DefaultValue(false)]
+        public bool IgnoreInvalidSSLCertificate { get; set; }
 
         // Optional
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]
@@ -48,7 +48,7 @@ namespace AdminStore.Models.Workflow
         {
             return base.Equals(other) &&
                 string.Equals(Url, other.Url) &&
-                IgnoreInvalidSSLCertificate.GetValueOrDefault() == other.IgnoreInvalidSSLCertificate.GetValueOrDefault() &&
+                IgnoreInvalidSSLCertificate == other.IgnoreInvalidSSLCertificate &&
                 WorkflowHelper.CollectionEquals(HttpHeaders, other.HttpHeaders) &&
                 Equals(BasicAuth, other.BasicAuth) &&
                 Equals(Signature, other.Signature);

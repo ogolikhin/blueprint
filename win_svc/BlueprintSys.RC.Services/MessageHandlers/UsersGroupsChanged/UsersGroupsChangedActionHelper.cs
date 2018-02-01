@@ -15,8 +15,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.UsersGroupsChanged
 
         public async Task<bool> HandleUsersGroupsChangedAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository, IWorkflowMessagingProcessor workflowMessagingProcessor)
         {
-            var message = (UsersGroupsChangedMessage)actionMessage;
-            var repository = (IUsersGroupsChangedRepository)baseRepository;
+            var message = (UsersGroupsChangedMessage) actionMessage;
+            var repository = (IUsersGroupsChangedRepository) baseRepository;
 
             Logger.Log($"Handling Users Groups Changed Message for change type {message.ChangeType}", message, tenant);
 
@@ -26,8 +26,16 @@ namespace BlueprintSys.RC.Services.MessageHandlers.UsersGroupsChanged
                 return true;
             }
 
+            var revisionId = message.RevisionId;
+
+            var revisionStatus = await repository.ValidateRevision(revisionId, repository, message, tenant);
+            if (revisionStatus == RevisionStatus.RolledBack)
+            {
+                return false;
+            }
+
             Logger.Log("Getting affected artifact IDs", message, tenant);
-            var artifactIds = await repository.GetAffectedArtifactIds(message.UserIds, message.GroupIds, message.RevisionId);
+            var artifactIds = await repository.GetAffectedArtifactIds(message.UserIds, message.GroupIds, revisionId);
             await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor);
             return true;
         }

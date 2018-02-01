@@ -1,7 +1,8 @@
 ﻿using NServiceBus;
 
-namespace BluePrintSys.Messaging.CrossCutting.Models
+namespace BluePrintSys.Messaging.Models.Actions
 {
+    // Workflow Status Message
     public class StatusCheckMessage : IMessage
     {
     }

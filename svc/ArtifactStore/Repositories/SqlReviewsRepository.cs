@@ -154,7 +154,7 @@ namespace ArtifactStore.Repositories
                     Disapproved = reviewDetails.Disapproved,
                     Pending = reviewDetails.Pending,
                     Viewed = reviewDetails.Viewed,
-                    NotRequired = reviewDetails.ApprovalNotRequiredArtifactsCount
+                    NotRequired = reviewDetails.ApprovalNotRequiredArtifactsCount + (reviewDetails.TotalArtifacts - reviewDetails.TotalViewable) // NotRequired includes artifacts with no permission as well
                 },
                 ReviewType = reviewType,
                 RevisionId = reviewDetails.RevisionId,

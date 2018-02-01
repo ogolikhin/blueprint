@@ -58,6 +58,13 @@
         ProjectDoesNotHaveAnyArtfactTypes,
         ArtifactTypeNoSpecified,
         DuplicateArtifactTypesInProject,
+        WebhookActionUrlNotSpecified,
+        WebhookActionUrlInvalid,
+        WebhookActionHttpHeaderInvalid,
+        WebhookActionBasicAuthInvalid,
+        WebhookActionSignatureSecretTokenEmpty,
+        WebhookActionSignatureAlgorithmInvalid,
+        WebhookActionNoAuthenticationMethodProvided,
 
         // Update specific errors
         WorkflowIdDoesNotMatchIdInUrl,

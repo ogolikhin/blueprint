@@ -76,20 +76,20 @@ namespace ArtifactStore.Collections
             parameters.Add("@CollectionId", collectionId);
             parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
 
-            IEnumerable<int> result;
+            int result;
 
             if (transaction == null)
             {
-                result = await _connectionWrapper.QueryAsync<int>(
+                result = await _connectionWrapper.ExecuteScalarAsync<int>(
                     "AddArtifactsToCollection", parameters, commandType: CommandType.StoredProcedure);
             }
             else
             {
-                result = await transaction.Connection.QueryAsync<int>(
+                result = await transaction.Connection.ExecuteScalarAsync<int>(
                     "AddArtifactsToCollection", parameters, transaction, commandType: CommandType.StoredProcedure);
             }
 
-            return result.FirstOrDefault();
+            return result;
         }
 
         public async Task RemoveDeletedArtifactsFromCollectionAsync(
@@ -116,6 +116,11 @@ namespace ArtifactStore.Collections
         public async Task<IReadOnlyList<PropertyTypeInfo>> GetPropertyTypeInfosForItemTypesAsync(
             IEnumerable<int> itemTypeIds, string search = null)
         {
+            if (itemTypeIds.IsEmpty())
+            {
+                return new List<PropertyTypeInfo>();
+            }
+
             var parameters = new DynamicParameters();
 
             parameters.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(itemTypeIds));

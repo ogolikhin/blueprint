@@ -29,6 +29,7 @@ namespace ArtifactStore.Collections
         private AddArtifactsToCollectionResult _addArtifactsResult;
         private Pagination _pagination;
         private CollectionArtifacts _expectedCollectionArtifacts;
+        private GetColumnsDto _columns;
         private ProfileColumnsDto _profileColumnsDto;
 
 
@@ -132,6 +133,22 @@ namespace ArtifactStore.Collections
                     }
                 }
             };
+
+            _columns = new GetColumnsDto()
+            {
+                SelectedColumns = new List<ProfileColumn>()
+                {
+                    new ProfileColumn("Custom", PropertyTypePredefined.Name,  PropertyPrimitiveType.Number, 3)
+                    {
+                    }
+                },
+                UnselectedColumns = new List<ProfileColumn>()
+                {
+                    new ProfileColumn("Custom", PropertyTypePredefined.Name,  PropertyPrimitiveType.Number, 3)
+                    {
+                    }
+                }
+            };
         }
 
         #region AddArtifactsToCollectionAsync
@@ -217,5 +234,28 @@ namespace ArtifactStore.Collections
         }
 
         #endregion GetArtifactsInCollectionAsync
+
+        #region GetColumnsAsync
+
+        [TestMethod]
+        public async Task GetColumnsAsync_AllParametersAreValid_Success()
+        {
+            // Arrange
+
+            _collectionsServiceMock.Setup(q => q.GetColumnsAsync(_collectionId, _sessionUserId, null))
+                .ReturnsAsync(_columns);
+
+            // act
+            var actualResult =
+                await _collectionsController.GetColumnsAsync(_collectionId, null) as OkNegotiatedContentResult<GetColumnsDto>;
+
+            // assert
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(_columns, actualResult.Content);
+            Assert.AreEqual(_columns.UnselectedColumns.Count(), actualResult.Content.UnselectedColumns.Count());
+            Assert.AreEqual(_columns.SelectedColumns.Count(), actualResult.Content.SelectedColumns.Count());
+        }
+
+        #endregion GetColumnsAsync
     }
 }

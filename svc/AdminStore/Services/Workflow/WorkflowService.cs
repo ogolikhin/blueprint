@@ -1764,7 +1764,7 @@ namespace AdminStore.Services.Workflow
                 case EventTypes.PropertyChange:
                     return DWebhookEventType.None;
                 case EventTypes.Transition:
-                    return DWebhookEventType.WorkflowTransistion;
+                    return DWebhookEventType.WorkflowTransition;
                 case EventTypes.None:
                     return DWebhookEventType.None;
                 default:

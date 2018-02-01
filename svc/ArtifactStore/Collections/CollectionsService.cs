@@ -271,7 +271,7 @@ namespace ArtifactStore.Collections
             var artifactIdsResult = artifacts.Select(x => x.ArtifactId).Distinct().ToList();
 
             var artifactDtos = new List<ArtifactDto>();
-            var settingsColumns = new List<ArtifactListColumn>();
+            var settingsColumns = new List<ProfileColumn>();
             var areColumnsPopulated = false;
 
             foreach (var id in artifactIdsResult)
@@ -285,22 +285,18 @@ namespace ArtifactStore.Collections
 
                 foreach (var artifactProperty in artifactProperties)
                 {
-                    ArtifactListColumn artifactListColumn = null;
+                    ProfileColumn profileColumn = null;
                     var propertyInfo = new PropertyValueInfo();
 
                     if (!areColumnsPopulated)
                     {
-                        artifactListColumn = new ArtifactListColumn
+                        profileColumn = new ProfileColumn
                         {
                             PropertyName = artifactProperty.PropertyName,
-                            Predefined = artifactProperty.PropertyTypePredefined,
-                            PrimitiveType = artifactProperty.PrimitiveType
+                            Predefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined,
+                            PrimitiveType = artifactProperty.PrimitiveType.HasValue ? (PropertyPrimitiveType)artifactProperty.PrimitiveType.Value : 0,
+                            PropertyTypeId = artifactProperty.PropertyTypeId
                         };
-                    }
-
-                    if (!areColumnsPopulated)
-                    {
-                        artifactListColumn.PropertyTypeId = artifactProperty.PropertyTypeId;
                     }
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
@@ -326,7 +322,7 @@ namespace ArtifactStore.Collections
 
                     if (!areColumnsPopulated)
                     {
-                        settingsColumns.Add(artifactListColumn);
+                        settingsColumns.Add(profileColumn);
                     }
 
                     propertyInfos.Add(propertyInfo);
@@ -346,7 +342,7 @@ namespace ArtifactStore.Collections
 
             if (!settingsColumns.Any())
             {
-                settingsColumns = ArtifactListColumns.Default.Items.ToList();
+                settingsColumns = ProfileColumns.Default.Items.ToList();
             }
 
             return new CollectionArtifacts
@@ -356,7 +352,7 @@ namespace ArtifactStore.Collections
                 {
                     Columns = settingsColumns.OrderBy(
                         x => Array.IndexOf(
-                            ArtifactListColumns.Default.Items.Select(column => column.Predefined).ToArray(),
+                            ProfileColumns.Default.Items.Select(column => column.Predefined).ToArray(),
                             x.Predefined))
                 }
             };

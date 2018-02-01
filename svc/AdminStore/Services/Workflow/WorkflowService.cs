@@ -1727,28 +1727,19 @@ namespace AdminStore.Services.Workflow
 
             if (wEvent != null && (wEvent.EventType == EventTypes.Transition || wEvent.EventType == EventTypes.NewArtifact))
             {
-                foreach (var trigger in wEvent.Triggers)
+                foreach (var action in wEvent.Triggers.Select(t => t.Action).OfType<IeWebhookAction>())
                 {
-                    if (trigger.Action.ActionType != ActionTypes.Webhook)
+                    var sqlwebhook = new SqlWebhook
                     {
-                        continue;
-                    }
-
-                    var webHookAction = (IeWebhookAction)trigger.Action;
-                    if (webHookAction != null)
-                    {
-                        var sqlwebhook = new SqlWebhook
-                        {
-                            Url = webHookAction.Url,
-                            Scope = DWebhookScope.Workflow.ToString(),
-                            State = true,
-                            EventType = GetWebhookEventType(wEvent.EventType),
-                            SecurityInfo = SerializeWebhookSecurityInfo(webHookAction),
-                            WorkflowVersionId = workflowId
-                        };
-                        sqlWebhooks.Add(sqlwebhook);
-                        dataMaps.WebhooksByActionObj.Add(webHookAction, 0);
-                    }
+                        Url = action.Url,
+                        Scope = DWebhookScope.Workflow.ToString(),
+                        State = true,
+                        EventType = GetWebhookEventType(wEvent.EventType),
+                        SecurityInfo = SerializeWebhookSecurityInfo(action),
+                        WorkflowVersionId = workflowId
+                    };
+                    sqlWebhooks.Add(sqlwebhook);
+                    dataMaps.WebhooksByActionObj.Add(action, 0);
                 }
             }
 

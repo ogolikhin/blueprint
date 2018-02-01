@@ -157,7 +157,7 @@ namespace ArtifactStore.Collections
         #region GetColumnsAsync
 
         [TestMethod]
-        public async Task GetColumnsAsync_ProfileColumnsSettingsEmptySelectedColumnsEmpty_Success()
+        public async Task GetColumnsAsync_ProfileColumnsSettingsAreEmptySelectedColumnsEmpty_Success()
         {
             _profileColumnsSettings = new ProfileColumns(new List<ProfileColumn>());
 
@@ -170,12 +170,16 @@ namespace ArtifactStore.Collections
         }
 
         [TestMethod]
-        public async Task GetColumnsAsync_ProfileColumnsAndPropertyTypeInfosAreCustomSelectedColumnsNotEmpty_Success()
+        public async Task GetColumnsAsync_PropertyTypeInfosAreEmptySelectedColumnsEmpty_Success()
         {
+            _propertyTypeInfos = new List<PropertyTypeInfo>();
+
+            InitializeProfileColumnsAndPropertyTypeInfos(_profileColumnsSettings, _propertyTypeInfos);
+
             var result = await _collectionService.GetColumnsAsync(_collectionId, _userId);
 
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.SelectedColumns.Any());
+            Assert.AreEqual(0, result.UnselectedColumns.Count());
         }
 
         [TestMethod]

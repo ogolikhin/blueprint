@@ -34,12 +34,12 @@ namespace AdminStore.Models.Workflow
 
         ArtifactCreated = 1,
         ArtifactDeleted = 2,
-        ArtifactUpdated = 3,
+        ArtifactUpdated = 4,
 
-        ProjectCreated = 10,
-        ProjectDeleted = 11,
-        ProjectUpdated = 12,
+        ProjectCreated = 8,
+        ProjectDeleted = 16,
+        ProjectUpdated = 32,
 
-        WorkflowTransistion = 20
+        WorkflowTransistion = 64
     }
 }

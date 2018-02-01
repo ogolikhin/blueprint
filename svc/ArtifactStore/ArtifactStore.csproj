@@ -133,6 +133,7 @@
     <Compile Include="Collections\ICollectionsService.cs" />
     <Compile Include="Collections\Models\AddArtifactsToCollectionResult.cs" />
     <Compile Include="Collections\Models\ArtifactDto.cs" />
+    <Compile Include="Collections\Models\ArtifactListColumns.cs" />
     <Compile Include="Collections\Models\ArtifactListColumn.cs" />
     <Compile Include="Collections\Models\ArtifactListFilter.cs" />
     <Compile Include="Collections\Models\ArtifactListSettings.cs" />

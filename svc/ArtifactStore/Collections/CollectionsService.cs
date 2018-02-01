@@ -298,46 +298,25 @@ namespace ArtifactStore.Collections
                         };
                     }
 
-                    if (artifactProperty.PropertyTypeId == null)
+                    if (!areColumnsPopulated)
                     {
-                        int fakeId;
+                        artifactListColumn.PropertyTypeId = artifactProperty.PropertyTypeId;
+                    }
 
-                        if (!ServiceConstants.PropertyTypePredefineds.TryGetValue(
-                            (PropertyTypePredefined)artifactProperty.PropertyTypePredefined, out fakeId))
-                        {
-                            continue;
-                        }
+                    propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
+                    propertyInfo.PropertyTypePredefined = artifactProperty.PropertyTypePredefined;
 
-                        if (!areColumnsPopulated)
-                        {
-                            artifactListColumn.PropertyTypeId = fakeId;
-                        }
+                    if ((PropertyTypePredefined)artifactProperty.PropertyTypePredefined == PropertyTypePredefined.ID)
+                    {
+                        propertyInfo.Value = I18NHelper.FormatInvariant("{0}{1}", artifactProperty.Prefix,
+                            artifactProperty.ArtifactId);
 
-                        propertyInfo.PropertyTypeId = fakeId;
-
-                        if (fakeId == ServiceConstants.IdPropertyFakeId)
-                        {
-                            propertyInfo.Value = I18NHelper.FormatInvariant("{0}{1}", artifactProperty.Prefix,
-                                artifactProperty.ArtifactId);
-
-                            itemTypeId = artifactProperty.ItemTypeId;
-                            predefinedType = artifactProperty.PredefinedType;
-                            itemTypeIconId = artifactProperty.ItemTypeIconId;
-                        }
-                        else
-                        {
-                            propertyInfo.Value = artifactProperty.PropertyValue;
-                        }
+                        itemTypeId = artifactProperty.ItemTypeId;
+                        predefinedType = artifactProperty.PredefinedType;
+                        itemTypeIconId = artifactProperty.ItemTypeIconId;
                     }
                     else
                     {
-                        if (!areColumnsPopulated)
-                        {
-                            artifactListColumn.PropertyTypeId = artifactProperty.PropertyTypeId;
-                        }
-
-                        propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
-
                         propertyInfo.Value =
                             (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
                             PropertyTypePredefined.Description
@@ -365,12 +344,20 @@ namespace ArtifactStore.Collections
                 });
             }
 
+            if (!settingsColumns.Any())
+            {
+                settingsColumns = ArtifactListColumns.Default.Items.ToList();
+            }
+
             return new CollectionArtifacts
             {
                 Items = artifactDtos,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = settingsColumns.OrderBy(x => x.PropertyTypeId)
+                    Columns = settingsColumns.OrderBy(
+                        x => Array.IndexOf(
+                            ArtifactListColumns.Default.Items.Select(column => column.Predefined).ToArray(),
+                            x.Predefined))
                 }
             };
         }

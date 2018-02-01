@@ -140,7 +140,7 @@ namespace ArtifactStore.Collections
 
         public async Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(int collectionId, ReviewItemsRemovalParams removalParams, int userId)
         {
-            if ((removalParams.ItemIds == null || !removalParams.ItemIds.Any()) && removalParams.SelectionType == SelectionType.Selected)
+            if ((removalParams?.ItemIds == null || !removalParams.ItemIds.Any()))
             {
                 throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
             }

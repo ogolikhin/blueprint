@@ -178,20 +178,6 @@ namespace ArtifactStore.Collections
             Assert.IsTrue(result.SelectedColumns.Any());
         }
 
-
-        [TestMethod]
-        public async Task GetColumnsAsync_ProfileColumnsSettingsAreEmptySelectedColumnsEmpty_Success()
-        {
-            _profileColumnsSettings = new ProfileColumns(new List<ProfileColumn>());
-
-            InitializeProfileColumnsAndPropertyTypeInfos(_profileColumnsSettings, _propertyTypeInfos);
-
-            var result = await _collectionService.GetColumnsAsync(_collectionId, _userId);
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.SelectedColumns.Count());
-        }
-
         [TestMethod]
         public async Task GetColumnsAsync_SearchByNameMatchesSelectedColumnsNotEmpty_Success()
         {
@@ -215,7 +201,7 @@ namespace ArtifactStore.Collections
         }
 
         [TestMethod]
-        public async Task GetColumnsAsync_ProfileColumnsAndPropertyTypeInfosAreCustomUnSelectedColumnsEmpty_Success()
+        public async Task GetColumnsAsync_ProfileColumnsAndPropertyTypeInfosAreCustomAndPopertyTypeIdsAreSameUnSelectedColumnsEmpty_Success()
         {
             var result = await _collectionService.GetColumnsAsync(_collectionId, _userId);
 

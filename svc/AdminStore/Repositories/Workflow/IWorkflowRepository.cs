@@ -93,5 +93,6 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<SqlWebhook>> CreateWebhooks(IEnumerable<SqlWebhook> webhooks, IDbTransaction transaction = null);
         Task<IEnumerable<SqlWebhook>> UpdateWebhooks(IEnumerable<SqlWebhook> webhooks, IDbTransaction transaction = null);
+        Task<IEnumerable<SqlWebhook>> GetWebhooks(IEnumerable<int> webhookIds, IDbTransaction transaction = null);
     }
 }

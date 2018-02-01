@@ -1556,6 +1556,8 @@ namespace AdminStore.Services.Workflow
             var stateMap = await UpdateWorkflowStatesAsync(workflow.Id.Value, workflowDiffResult, publishRevision, transaction, workflowMode);
             var dataMaps = CreateDataMap(dataValidationResult, stateMap);
 
+            await CreateWebooksAsync(workflow, workflow.Id.Value, transaction, dataMaps);
+
             await UpdateWorkflowEventsAsync(workflow.Id.Value, workflowDiffResult, dataMaps,
                 publishRevision, transaction, workflowMode);
 

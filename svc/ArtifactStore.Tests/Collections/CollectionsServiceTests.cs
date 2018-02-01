@@ -44,6 +44,7 @@ namespace ArtifactStore.Collections
         private ProfileColumns _profileColumns;
         private ReviewItemsRemovalParams _reviewItemsRemovalParams;
         private SearchArtifactsResult _searchArtifactsResult;
+        private Dictionary<int, RolePermissions> _artifactPermissions;
 
         [TestInitialize]
         public void Initialize()
@@ -90,9 +91,18 @@ namespace ArtifactStore.Collections
                 new ItemDetails()
                 {
                     Name = "Artifact1",
-                    ItemTypeId = 2
+                    ItemTypeId = 2,
+                    EndRevision = int.MaxValue,
+                    PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
                 }
             };
+
+            _artifactPermissions = new Dictionary<int, RolePermissions>();
+
+            foreach (var itemDetails in _artifacts)
+            {
+                _artifactPermissions.Add(itemDetails.ItemTypeId, RolePermissions.Read);
+            }
 
             _profileColumns = new ProfileColumns(
             new List<ProfileColumn>
@@ -120,6 +130,11 @@ namespace ArtifactStore.Collections
             _artifactPermissionsRepository.Setup(repo => repo.HasEditPermissions(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(true);
 
+            _artifactPermissionsRepository.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
+                .ReturnsAsync(_artifactPermissions);
+
+
+
             _collectionsRepository.Setup(repo => repo.GetContentArtifactIdsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(_artifactIds.ToList());
 
@@ -135,7 +150,7 @@ namespace ArtifactStore.Collections
                 new ReviewItemsRemovalParams()
                 {
                     ItemIds = new List<int> { 1, 2, 3 },
-                    SelectionType = SelectionType.Excluded
+                    SelectionType = SelectionType.Selected
                 };
         }
 
@@ -181,7 +196,6 @@ namespace ArtifactStore.Collections
         [ExpectedException(typeof(BadRequestException))]
         public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsNull_BadRequestException()
         {
-            _reviewItemsRemovalParams.SelectionType = SelectionType.Selected;
             _reviewItemsRemovalParams.ItemIds = null;
             await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
         }
@@ -190,7 +204,6 @@ namespace ArtifactStore.Collections
         [ExpectedException(typeof(BadRequestException))]
         public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsEmpty_BadRequestException()
         {
-            _reviewItemsRemovalParams.SelectionType = SelectionType.Selected;
             _reviewItemsRemovalParams.ItemIds = new List<int>();
             await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
         }
@@ -198,10 +211,19 @@ namespace ArtifactStore.Collections
         [TestMethod]
         public async Task RemoveArtifactsFromCollectionAsync_AllParametersAreValid_Success()
         {
-            _collectionsRepository.Setup(q => q.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams.ItemIds, _userId, null))
-                .ReturnsAsync(_artifactIds.Count);
+            var artifactsWithReadPermissions = _artifactPermissions
+                .Where(p => p.Value.HasFlag(RolePermissions.Read))
+                .Select(p => p.Key)
+                .ToList();
 
-            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+            _collectionsRepository.Setup(q => q.RemoveArtifactsFromCollectionAsync(_collectionId, artifactsWithReadPermissions, _userId, null))
+                .ReturnsAsync(_artifacts.Count);
+
+            var result = await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(artifactsWithReadPermissions.Count, result.RemovedCount);
+
         }
         #endregion
 

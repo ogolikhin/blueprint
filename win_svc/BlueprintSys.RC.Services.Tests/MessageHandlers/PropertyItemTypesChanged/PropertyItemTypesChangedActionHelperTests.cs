@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
+using BlueprintSys.RC.Services.MessageHandlers;
 using BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged;
 using BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
@@ -40,7 +41,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
         }
 
         [TestMethod]
-        public async Task UsersGroupsChangedActionHelper_SendsNoMessage_WhenNoAffectedArtifactsAreFound()
+        public async Task PropertyItemTypesChangedActionHelper_SendsNoMessage_WhenNoAffectedArtifactsAreFound()
         {
             //arrange
             _message.ItemTypeIds = new List<int>
@@ -48,18 +49,20 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
                 1
             };
             var affectedArtifacts = new List<int>();
+            _repositoryMock.Setup(m => m.ValidateRevision(It.IsAny<int>(), It.IsAny<IBaseRepository>(), It.IsAny<ActionMessage>(), It.IsAny<TenantInformation>())).ReturnsAsync(RevisionStatus.Committed);
             _repositoryMock.Setup(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(affectedArtifacts);
             //act
             var result = await _helper.HandlePropertyItemTypesChangedAction(_tenantInformation, _message, _repositoryMock.Object, _workflowMessagingProcessorMock.Object);
             //assert
             Assert.IsTrue(result);
+            _repositoryMock.Verify(m => m.ValidateRevision(It.IsAny<int>(), It.IsAny<IBaseRepository>(), It.IsAny<ActionMessage>(), It.IsAny<TenantInformation>()), Times.Once());
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Once);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Never);
             _workflowMessagingProcessorMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Never);
         }
 
         [TestMethod]
-        public async Task UsersGroupsChangedActionHelper_SendsMessage_WhenAffectedArtifactIsFound()
+        public async Task PropertyItemTypesChangedActionHelper_SendsMessage_WhenAffectedArtifactIsFound()
         {
             //arrange
             _message.ChangeType = PropertyItemTypeChangeType.PropertyType;
@@ -73,19 +76,21 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
             {
                 1
             };
+            _repositoryMock.Setup(m => m.ValidateRevision(It.IsAny<int>(), It.IsAny<IBaseRepository>(), It.IsAny<ActionMessage>(), It.IsAny<TenantInformation>())).ReturnsAsync(RevisionStatus.Committed);
             _repositoryMock.Setup(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(affectedArtifacts);
             _workflowMessagingProcessorMock.Setup(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>())).Returns(Task.FromResult(true));
             //act
             var result = await _helper.HandlePropertyItemTypesChangedAction(_tenantInformation, _message, _repositoryMock.Object, _workflowMessagingProcessorMock.Object);
             //assert
             Assert.IsTrue(result);
+            _repositoryMock.Verify(m => m.ValidateRevision(It.IsAny<int>(), It.IsAny<IBaseRepository>(), It.IsAny<ActionMessage>(), It.IsAny<TenantInformation>()), Times.Once);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Never);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Once);
             _workflowMessagingProcessorMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Once);
         }
 
         [TestMethod]
-        public async Task UsersGroupsChangedActionHelper_SendsMessage_WhenMultipleAffectedArtifactsAreFound()
+        public async Task PropertyItemTypesChangedActionHelper_SendsMessage_WhenMultipleAffectedArtifactsAreFound()
         {
             //arrange
             _message.ItemTypeIds = new List<int>
@@ -108,6 +113,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
                 7,
                 8
             };
+            _repositoryMock.Setup(m => m.ValidateRevision(It.IsAny<int>(), It.IsAny<IBaseRepository>(), It.IsAny<ActionMessage>(), It.IsAny<TenantInformation>())).ReturnsAsync(RevisionStatus.Committed);
             _repositoryMock.Setup(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(affectedArtifactsForItems);
             _repositoryMock.Setup(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(affectedArtifactsForProperties);
             _workflowMessagingProcessorMock.Setup(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>())).Returns(Task.FromResult(true));
@@ -115,13 +121,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
             var result = await _helper.HandlePropertyItemTypesChangedAction(_tenantInformation, _message, _repositoryMock.Object, _workflowMessagingProcessorMock.Object);
             //assert
             Assert.IsTrue(result);
+            _repositoryMock.Verify(m => m.ValidateRevision(It.IsAny<int>(), It.IsAny<IBaseRepository>(), It.IsAny<ActionMessage>(), It.IsAny<TenantInformation>()), Times.Once);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Once);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Once);
             _workflowMessagingProcessorMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Once);
         }
 
         [TestMethod]
-        public async Task UsersGroupsChangedActionHelper_SendsMultipleMessages_WhenAffectedArtifactsCountExceedsMaximumBatchSize()
+        public async Task PropertyItemTypesChangedActionHelper_SendsMultipleMessages_WhenAffectedArtifactsCountExceedsMaximumBatchSize()
         {
             //arrange
             _message.ItemTypeIds = new List<int>
@@ -134,12 +141,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
             {
                 affectedArtifacts.Add(i);
             }
+            _repositoryMock.Setup(m => m.ValidateRevision(It.IsAny<int>(), It.IsAny<IBaseRepository>(), It.IsAny<ActionMessage>(), It.IsAny<TenantInformation>())).ReturnsAsync(RevisionStatus.Committed);
             _repositoryMock.Setup(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(affectedArtifacts);
             _workflowMessagingProcessorMock.Setup(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>())).Returns(Task.FromResult(true));
             //act
             var result = await _helper.HandlePropertyItemTypesChangedAction(_tenantInformation, _message, _repositoryMock.Object, _workflowMessagingProcessorMock.Object);
             //assert
             Assert.IsTrue(result);
+            _repositoryMock.Verify(m => m.ValidateRevision(It.IsAny<int>(), It.IsAny<IBaseRepository>(), It.IsAny<ActionMessage>(), It.IsAny<TenantInformation>()), Times.Once);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Once);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Never);
             _workflowMessagingProcessorMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(4));

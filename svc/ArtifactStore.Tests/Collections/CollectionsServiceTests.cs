@@ -6,9 +6,11 @@ using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections;
 using ArtifactStore.Collections.Models;
+using ArtifactStore.Models.Review;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchEngineLibrary.Service;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.ProjectMeta;
@@ -38,6 +40,7 @@ namespace ArtifactStore.Collections
         private List<ItemDetails> _artifacts;
         private List<PropertyTypeInfo> _propertyTypeInfos;
         private ProfileColumns _profileColumns;
+        private ReviewItemsRemovalParams _reviewItemsRemovalParams;
 
         [TestInitialize]
         public void Initialize()
@@ -116,6 +119,13 @@ namespace ArtifactStore.Collections
                 .ReturnsAsync(_artifacts);
 
             InitializeProfileColumnsAndPropertyTypeInfos(_profileColumnsSettings, _propertyTypeInfos);
+
+            _reviewItemsRemovalParams =
+                new ReviewItemsRemovalParams()
+                {
+                    ItemIds = new List<int> { 1, 2, 3 },
+                    SelectionType = SelectionType.Excluded
+                };
         }
 
         #region AddArtifactsToCollectionAsync
@@ -137,6 +147,45 @@ namespace ArtifactStore.Collections
         }
 
         #endregion AddArtifactsToCollectionAsync
+
+        #region RemoveArtifactsFromCollectionAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task RemoveArtifactsFromCollectionAsync_InvalidUserId_ThrowArgumentOutOfRangeException()
+        {
+            _userId = 0;
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task RemoveArtifactsFromCollectionAsync_InvalidCollectionId_ThrowArgumentOutOfRangeException()
+        {
+            _collectionId = 0;
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsNull_BadRequestException()
+        {
+            _reviewItemsRemovalParams.SelectionType = SelectionType.Selected;
+            _reviewItemsRemovalParams.ItemIds = null;
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsEmpty_BadRequestException()
+        {
+            _reviewItemsRemovalParams.SelectionType = SelectionType.Selected;
+            _reviewItemsRemovalParams.ItemIds = new List<int>();
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+
+        #endregion
 
         #region SaveProfileColumnsAsync
 

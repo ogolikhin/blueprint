@@ -550,6 +550,9 @@ namespace AdminStore.Services.Workflow.Validation.Data
                 case ActionTypes.Generate:
                     ValidateGenerateActionData(result, (IeGenerateAction)action, ignoreIds);
                     break;
+                case ActionTypes.Webhook:
+                    // No data to validate
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.ActionType));
             }

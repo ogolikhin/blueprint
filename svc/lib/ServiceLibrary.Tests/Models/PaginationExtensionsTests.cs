@@ -49,7 +49,7 @@ namespace ServiceLibrary.Models
 
             // assert
             Assert.IsNotNull(exception);
-            Assert.AreEqual(ErrorMessages.IncorrectOffsetParameter, exception.Message);
+            Assert.AreEqual(ErrorMessages.InvalidPagination, exception.Message);
             Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
 

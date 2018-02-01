@@ -165,6 +165,7 @@
     <Compile Include="Models\DiagramWorkflow\DUsersGroups.cs" />
     <Compile Include="Models\DiagramWorkflow\DValidValue.cs" />
     <Compile Include="Helpers\JsonTypeConverter.cs" />
+    <Compile Include="Models\DiagramWorkflow\DWebhookAction.cs" />
     <Compile Include="Models\DTO\CopyWorkflowDto.cs" />
     <Compile Include="Models\DTO\CreateWorkflowDto.cs" />
     <Compile Include="Models\DTO\FolderDto.cs" />
@@ -189,6 +190,7 @@
     <Compile Include="Models\DiagramWorkflow\DPortPair.cs" />
     <Compile Include="Models\DiagramWorkflow\DNewArtifactEvent.cs" />
     <Compile Include="Models\DiagramWorkflow\DArtifactType.cs" />
+    <Compile Include="Models\Workflow\IeBasicAuth.cs" />
     <Compile Include="Models\Workflow\IePortPair.cs" />
     <Compile Include="Models\DiagramWorkflow\DState.cs" />
     <Compile Include="Models\DiagramWorkflow\DTransitionEvent.cs" />
@@ -196,7 +198,10 @@
     <Compile Include="Models\DiagramWorkflow\DStateCondition.cs" />
     <Compile Include="Models\DiagramWorkflow\DPropertyChangeEvent.cs" />
     <Compile Include="Models\DiagramWorkflow\DProject.cs" />
+    <Compile Include="Models\Workflow\IeSignature.cs" />
     <Compile Include="Models\Workflow\IeUsersGroups.cs" />
+    <Compile Include="Models\Workflow\IeWebhookAction.cs" />
+    <Compile Include="Models\Workflow\SqlWebhook.cs" />
     <Compile Include="Models\Workflow\WorkflowGraph.cs" />
     <Compile Include="Models\DiagramWorkflow\DWorkflow.cs" />
     <Compile Include="Models\Workflow\XmlPortPair.cs" />

@@ -32,6 +32,7 @@ using ServiceLibrary.Repositories.Files;
 using ServiceLibrary.Repositories.ProjectMeta;
 using File = ServiceLibrary.Models.Files.File;
 using SqlWorkflowEvent = AdminStore.Models.Workflow.SqlWorkflowEvent;
+using ServiceLibrary.Helpers.Security;
 
 namespace AdminStore.Services.Workflow
 {
@@ -515,6 +516,8 @@ namespace AdminStore.Services.Workflow
                 ToSqlState(s, newWorkflowId)), publishRevision, transaction)).ToList();
 
             var dataMaps = CreateDataMap(dataValidationResult, newStates.ToDictionary(s => s.Name, s => s.WorkflowStateId));
+
+            await CreateWebooksAsync(workflow, newWorkflowId, transaction, dataMaps);
 
             await CreateWorkflowEventsAsync(workflow, newWorkflowId, publishRevision, transaction, dataMaps);
 
@@ -1688,5 +1691,155 @@ namespace AdminStore.Services.Workflow
         }
 
         #endregion
+
+        #region Webhooks
+        private async Task CreateWebooksAsync(IeWorkflow workflow, int workflowId, IDbTransaction transaction, WorkflowDataMaps dataMaps)
+        {
+            var importWebhooksParams = new List<SqlWebhook>();
+
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
+            {
+                importWebhooksParams.AddRange(ToSqlWebhook(e, workflowId, dataMaps));
+            });
+            workflow.NewArtifactEvents.OfType<IeNewArtifactEvent>().ForEach(e =>
+            {
+                importWebhooksParams.AddRange(ToSqlWebhook(e, workflowId, dataMaps));
+            });
+
+            var newWebhooks = await _workflowRepository.CreateWebhooks(importWebhooksParams, transaction);
+
+            var index = 0;
+            workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
+            {
+                UpdateWebhooksDataMap(e, dataMaps, newWebhooks, ref index);
+            });
+            workflow.NewArtifactEvents.OfType<IeNewArtifactEvent>().ForEach(e =>
+            {
+                UpdateWebhooksDataMap(e, dataMaps, newWebhooks, ref index);
+            });
+        }
+
+        private List<SqlWebhook> ToSqlWebhook(IeEvent wEvent, int workflowId, WorkflowDataMaps dataMaps)
+        {
+            var sqlWebhooks = new List<SqlWebhook>();
+
+            if (wEvent != null && (wEvent.EventType == EventTypes.Transition || wEvent.EventType == EventTypes.NewArtifact))
+            {
+                foreach (var trigger in wEvent.Triggers)
+                {
+                    if (trigger.Action.ActionType != ActionTypes.Webhook)
+                    {
+                        continue;
+                    }
+
+                    var webHookAction = (IeWebhookAction)trigger.Action;
+                    if (webHookAction != null)
+                    {
+                        var sqlwebhook = new SqlWebhook
+                        {
+                            Url = webHookAction.Url,
+                            Scope = DWebhookScope.Workflow.ToString(),
+                            State = true,
+                            EventType = GetWebhookEventType(wEvent.EventType),
+                            SecurityInfo = SerializeWebhookSecurityInfo(webHookAction),
+                            WorkflowVersionId = workflowId
+                        };
+                        sqlWebhooks.Add(sqlwebhook);
+                        dataMaps.WebhooksByActionObj.Add(webHookAction, 0);
+                    }
+                }
+            }
+
+            return sqlWebhooks;
+        }
+
+        private DWebhookEventType GetWebhookEventType(EventTypes eventType)
+        {
+            switch (eventType)
+            {
+                case EventTypes.NewArtifact:
+                    return DWebhookEventType.ArtifactCreated;
+                case EventTypes.PropertyChange:
+                    return DWebhookEventType.None;
+                case EventTypes.Transition:
+                    return DWebhookEventType.WorkflowTransistion;
+                case EventTypes.None:
+                    return DWebhookEventType.None;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(eventType), "Could not map  Workflow Event Type to Webhook Event Type.");
+            }
+        }
+
+        private string SerializeWebhookSecurityInfo(IeWebhookAction webhook)
+        {
+            if (webhook == null)
+            {
+                return string.Empty;
+            }
+
+            XmlWebhookSecurityInfo securityInfo = new XmlWebhookSecurityInfo();
+            securityInfo.IgnoreInvalidSSLCertificate = (bool)webhook.IgnoreInvalidSSLCertificate;
+            if (webhook.ShouldSerializeHttpHeaders())
+            {
+                foreach (var header in webhook.HttpHeaders)
+                {
+                    securityInfo.HttpHeaders.Add(SystemEncryptions.Encrypt(header));
+                }
+            }
+
+            if (webhook.ShouldSerializeBasicAuth())
+            {
+                securityInfo.BasicAuth = new XmlWebhookBasicAuth()
+                {
+                    Username = SystemEncryptions.Encrypt(webhook.BasicAuth.Username),
+                    Password = SystemEncryptions.Encrypt(webhook.BasicAuth.Password)
+                };
+            }
+
+            if (webhook.ShouldSerializeSignature())
+            {
+                securityInfo.Signature = new XmlWebhookSignature()
+                {
+                    SecretToken = SystemEncryptions.Encrypt(webhook.Signature.SecretToken),
+                    Algorithm = webhook.Signature.Algorithm
+                };
+            }
+
+            return SerializationHelper.ToXml(securityInfo);
+        }
+
+        private void UpdateWebhooksDataMap(IeEvent e, WorkflowDataMaps dataMaps, IEnumerable<SqlWebhook> newWebhooks, ref int counter)
+        {
+            if (e == null)
+            {
+                return;
+            }
+
+            if (!e.Triggers.Any())
+            {
+                return;
+            }
+
+            if (!newWebhooks.Any())
+            {
+                return;
+            }
+
+            foreach (var trigger in e.Triggers)
+            {
+                if (trigger.Action.ActionType != ActionTypes.Webhook)
+                {
+                    continue;
+                }
+
+                var webhookAction = (IeWebhookAction)trigger.Action;
+                if (webhookAction != null)
+                {
+                    dataMaps.WebhooksByActionObj[webhookAction] = newWebhooks.ElementAt(counter).WebhookId;
+                    counter++;
+                }
+            }
+        }
+        #endregion Webhooks
     }
 }

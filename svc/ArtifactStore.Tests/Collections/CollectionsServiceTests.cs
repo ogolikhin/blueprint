@@ -9,10 +9,12 @@ using ArtifactStore.Collections.Models;
 using ArtifactStore.Models.Review;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using SearchEngineLibrary.Model;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 
@@ -41,6 +43,7 @@ namespace ArtifactStore.Collections
         private List<PropertyTypeInfo> _propertyTypeInfos;
         private ProfileColumns _profileColumns;
         private ReviewItemsRemovalParams _reviewItemsRemovalParams;
+        private SearchArtifactsResult _searchArtifactsResult;
 
         [TestInitialize]
         public void Initialize()
@@ -66,6 +69,7 @@ namespace ArtifactStore.Collections
 
             _artifactIds = new HashSet<int> { 1, 2, 3 };
             _collectionId = 1;
+            _searchArtifactsResult = new SearchArtifactsResult { ArtifactIds = _artifactIds, Total = _artifactIds.Count };
 
             _profileColumnsSettings = new ProfileColumns(new List<ProfileColumn>
                 {
@@ -77,7 +81,8 @@ namespace ArtifactStore.Collections
             {
                 ArtifactId = 1,
                 DraftDeleted = false,
-                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection,
+                LockedByUserId = _userId
             };
 
             _artifacts = new List<ItemDetails>
@@ -112,11 +117,17 @@ namespace ArtifactStore.Collections
             _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(true);
 
+            _artifactPermissionsRepository.Setup(repo => repo.HasEditPermissions(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
+                .ReturnsAsync(true);
+
             _collectionsRepository.Setup(repo => repo.GetContentArtifactIdsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(_artifactIds.ToList());
 
             _itemInfoRepository.Setup(repo => repo.GetItemsDetails(It.IsAny<int>(), It.IsAny<List<int>>(), It.IsAny<bool>(), It.IsAny<int>(), null))
                 .ReturnsAsync(_artifacts);
+
+            _searchEngineService.Setup(repo => repo.Search(It.IsAny<int>(), It.IsAny<Pagination>(), It.IsAny<ScopeType>(), It.IsAny<bool>(), It.IsAny<int>()))
+                .ReturnsAsync(_searchArtifactsResult);
 
             InitializeProfileColumnsAndPropertyTypeInfos(_profileColumnsSettings, _propertyTypeInfos);
 
@@ -184,7 +195,14 @@ namespace ArtifactStore.Collections
             await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
         }
 
+        [TestMethod]
+        public async Task RemoveArtifactsFromCollectionAsync_AllParametersAreValid_Success()
+        {
+            _collectionsRepository.Setup(q => q.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams.ItemIds, _userId, null))
+                .ReturnsAsync(_artifactIds.Count);
 
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
         #endregion
 
         #region SaveProfileColumnsAsync

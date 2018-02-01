@@ -40,6 +40,6 @@ namespace AdminStore.Models.Workflow
         ProjectDeleted = 16,
         ProjectUpdated = 32,
 
-        WorkflowTransistion = 64
+        WorkflowTransition = 64
     }
 }

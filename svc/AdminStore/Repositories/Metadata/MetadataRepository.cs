@@ -16,6 +16,7 @@ namespace AdminStore.Repositories.Metadata
             { ItemTypePredefined.Actor, "actor.svg" },
 
             { ItemTypePredefined.Baseline, "baseline.svg" },
+            { ItemTypePredefined.ArtifactBaseline, "baseline.svg" },
 
             { ItemTypePredefined.BusinessProcess, "business-process.svg" },
             { ItemTypePredefined.BPConnector, "subartifact.svg" },

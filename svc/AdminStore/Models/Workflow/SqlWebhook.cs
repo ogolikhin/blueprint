@@ -1,4 +1,6 @@
-﻿namespace AdminStore.Models.Workflow
+﻿using System;
+
+namespace AdminStore.Models.Workflow
 {
     public class SqlWebhook
     {
@@ -25,6 +27,7 @@
         Workflow = 3
     }
 
+    [Flags]
     public enum DWebhookEventType
     {
         None = 0,

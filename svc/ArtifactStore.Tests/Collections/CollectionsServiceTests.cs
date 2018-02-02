@@ -124,16 +124,14 @@ namespace ArtifactStore.Collections
             _artifactRepository.Setup(repo => repo.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(_collectionDetails);
 
-            _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+            _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(It.IsAny<int>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(true);
 
-            _artifactPermissionsRepository.Setup(repo => repo.HasEditPermissions(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
+            _artifactPermissionsRepository.Setup(repo => repo.HasEditPermissions(It.IsAny<int>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(true);
 
-            _artifactPermissionsRepository.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
+            _artifactPermissionsRepository.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(_artifactPermissions);
-
-
 
             _collectionsRepository.Setup(repo => repo.GetContentArtifactIdsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(_artifactIds.ToList());
@@ -211,19 +209,85 @@ namespace ArtifactStore.Collections
         [TestMethod]
         public async Task RemoveArtifactsFromCollectionAsync_AllParametersAreValid_Success()
         {
-            var artifactsWithReadPermissions = _artifactPermissions
-                .Where(p => p.Value.HasFlag(RolePermissions.Read))
-                .Select(p => p.Key)
-                .ToList();
-
-            _collectionsRepository.Setup(q => q.RemoveArtifactsFromCollectionAsync(_collectionId, artifactsWithReadPermissions, _userId, null))
+            _collectionsRepository.Setup(q => q.RemoveArtifactsFromCollectionAsync(_collectionId, It.IsAny<IEnumerable<int>>(), _userId, null))
                 .ReturnsAsync(_artifacts.Count);
 
             var result = await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(artifactsWithReadPermissions.Count, result.RemovedCount);
+            Assert.AreEqual(_artifacts.Count, result.RemovedCount);
+        }
 
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task RemoveArtifactsFromCollectionAsync_ValidateCollection_NoEditPermissionArtifact_NoEditPermissionException()
+        {
+            _artifactPermissionsRepository
+                .Setup(repo => repo.HasEditPermissions(_collectionId, _userId, false, int.MaxValue, true, null))
+                .ReturnsAsync(false);
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveArtifactsFromCollectionAsync_LockAsync_ArtifactLockedByAnotherUser_LockedByAnotherUserException()
+        {
+            _userId = 2;
+            _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(_collectionId, _userId, false, int.MaxValue, true)).ReturnsAsync(true);
+            _artifactPermissionsRepository.Setup(repo => repo.HasEditPermissions(It.IsAny<int>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null)).ReturnsAsync(true);
+
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveArtifactsFromCollectionAsync_LockAsync_ArtifactNotLocked_ArtifactNotLockedException()
+        {
+            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null))
+                .ReturnsAsync(new ArtifactBasicDetails { ArtifactId = _collectionId, LockedByUserId = null, PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection });
+
+            _lockArtifactsRepository.Setup(repo => repo.LockArtifactAsync(_collectionId, _userId, null))
+                .ReturnsAsync(false);
+
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task RemoveArtifactsFromCollectionAsync_GetCollectionBasicDetailsAsync_ArtifactIsNotFound_ResourceNotFoundException()
+        {
+            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null))
+                .ReturnsAsync(new ArtifactBasicDetails
+                {
+                    ArtifactId = _collectionId,
+                    LockedByUserId = null,
+                    PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection,
+                    DraftDeleted = true
+                });
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromCollectionAsync_GetCollectionBasicDetailsAsync_ArtifactIsNotArtifactCollection_InvalidTypeException()
+        {
+            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null))
+                .ReturnsAsync(new ArtifactBasicDetails
+                {
+                    ArtifactId = _collectionId,
+                    LockedByUserId = null,
+                    PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
+                });
+
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task RemoveArtifactsFromCollectionAsync_GetCollectionBasicDetailsAsync_UsersNoHasReadPermissions_AuthorizationException()
+        {
+            _userId = 2;
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
         }
         #endregion
 

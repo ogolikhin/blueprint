@@ -628,7 +628,6 @@ namespace AdminStore.Services.Workflow.Validation.Xml
         private bool _hasWebhookActionBasicAuthInvalid;
         private bool _hasWebhookActionSignatureSecretTokenEmpty;
         private bool _hasWebhookActionSignatureAlgorithmInvalid;
-        private bool _hasWebhookActionNoAuthenticationMethodProvided;
 
         private void ResetErrorFlags()
         {
@@ -656,7 +655,6 @@ namespace AdminStore.Services.Workflow.Validation.Xml
             _hasWebhookActionBasicAuthInvalid = false;
             _hasWebhookActionSignatureSecretTokenEmpty = false;
             _hasWebhookActionSignatureAlgorithmInvalid = false;
-            _hasWebhookActionNoAuthenticationMethodProvided = false;
         }
 
         private void ValidatePropertyChangeActionDuplicatePropertiesOnEvent(IeEvent wEvent, WorkflowXmlValidationResult result)
@@ -918,10 +916,6 @@ namespace AdminStore.Services.Workflow.Validation.Xml
 
         private void ValidateWebhookAction(IeWebhookAction action, WorkflowXmlValidationResult result)
         {
-            bool hasHttpHeaders = false;
-            bool hasBasicAuth = false;
-            bool hasSignature = false;
-
             if (!_hasWebhookActionUrlNotSpecified && action.Url.IsEmpty())
             {
                 result.Errors.Add(new WorkflowXmlValidationError
@@ -947,9 +941,8 @@ namespace AdminStore.Services.Workflow.Validation.Xml
                 }
             }
 
-            if (action.HttpHeaders != null)
+            if (action.HttpHeaders != null && !action.HttpHeaders.IsEmpty())
             {
-                hasHttpHeaders = true;
                 foreach (var header in action.HttpHeaders)
                 {
                     if (!_hasWebhookActionHttpHeaderInvalid &&
@@ -967,7 +960,6 @@ namespace AdminStore.Services.Workflow.Validation.Xml
 
             if (action.BasicAuth != null)
             {
-                hasBasicAuth = true;
                 if (!_hasWebhookActionBasicAuthInvalid &&
                     (string.IsNullOrEmpty(action.BasicAuth.Username) ||
                     string.IsNullOrEmpty(action.BasicAuth.Password)))
@@ -983,7 +975,6 @@ namespace AdminStore.Services.Workflow.Validation.Xml
 
             if (action.Signature != null)
             {
-                hasSignature = true;
                 if (!_hasWebhookActionSignatureSecretTokenEmpty && string.IsNullOrEmpty(action.Signature.SecretToken))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
@@ -1006,16 +997,6 @@ namespace AdminStore.Services.Workflow.Validation.Xml
                     });
                     _hasWebhookActionSignatureAlgorithmInvalid = true;
                 }
-            }
-
-            if (!_hasWebhookActionNoAuthenticationMethodProvided && !hasHttpHeaders && !hasBasicAuth && !hasSignature)
-            {
-                result.Errors.Add(new WorkflowXmlValidationError
-                {
-                    Element = action,
-                    ErrorCode = WorkflowXmlValidationErrorCodes.WebhookActionNoAuthenticationMethodProvided
-                });
-                _hasWebhookActionNoAuthenticationMethodProvided = true;
             }
         }
 

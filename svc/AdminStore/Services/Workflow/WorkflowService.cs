@@ -1556,6 +1556,8 @@ namespace AdminStore.Services.Workflow
             var stateMap = await UpdateWorkflowStatesAsync(workflow.Id.Value, workflowDiffResult, publishRevision, transaction, workflowMode);
             var dataMaps = CreateDataMap(dataValidationResult, stateMap);
 
+            await CreateWebooksAsync(workflow, workflow.Id.Value, transaction, dataMaps);
+
             await UpdateWorkflowEventsAsync(workflow.Id.Value, workflowDiffResult, dataMaps,
                 publishRevision, transaction, workflowMode);
 
@@ -1725,28 +1727,19 @@ namespace AdminStore.Services.Workflow
 
             if (wEvent != null && (wEvent.EventType == EventTypes.Transition || wEvent.EventType == EventTypes.NewArtifact))
             {
-                foreach (var trigger in wEvent.Triggers)
+                foreach (var action in wEvent.Triggers.Select(t => t.Action).OfType<IeWebhookAction>())
                 {
-                    if (trigger.Action.ActionType != ActionTypes.Webhook)
+                    var sqlwebhook = new SqlWebhook
                     {
-                        continue;
-                    }
-
-                    var webHookAction = (IeWebhookAction)trigger.Action;
-                    if (webHookAction != null)
-                    {
-                        var sqlwebhook = new SqlWebhook
-                        {
-                            Url = webHookAction.Url,
-                            Scope = DWebhookScope.Workflow.ToString(),
-                            State = true,
-                            EventType = GetWebhookEventType(wEvent.EventType),
-                            SecurityInfo = SerializeWebhookSecurityInfo(webHookAction),
-                            WorkflowVersionId = workflowId
-                        };
-                        sqlWebhooks.Add(sqlwebhook);
-                        dataMaps.WebhooksByActionObj.Add(webHookAction, 0);
-                    }
+                        Url = action.Url,
+                        Scope = DWebhookScope.Workflow.ToString(),
+                        State = true,
+                        EventType = GetWebhookEventType(wEvent.EventType),
+                        SecurityInfo = SerializeWebhookSecurityInfo(action),
+                        WorkflowVersionId = workflowId
+                    };
+                    sqlWebhooks.Add(sqlwebhook);
+                    dataMaps.WebhooksByActionObj.Add(action, 0);
                 }
             }
 
@@ -1762,7 +1755,7 @@ namespace AdminStore.Services.Workflow
                 case EventTypes.PropertyChange:
                     return DWebhookEventType.None;
                 case EventTypes.Transition:
-                    return DWebhookEventType.WorkflowTransistion;
+                    return DWebhookEventType.WorkflowTransition;
                 case EventTypes.None:
                     return DWebhookEventType.None;
                 default:

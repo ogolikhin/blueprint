@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using System.Linq;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Collections
@@ -72,19 +72,19 @@ namespace ArtifactStore.Collections
                 ItemsCount = 2,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = new List<ArtifactListColumn>
+                    Columns = new List<ProfileColumn>
                     {
-                        new ArtifactListColumn
+                        new ProfileColumn
                         {
-                            Predefined = 4098,
-                            PrimitiveType = 0,
+                            Predefined = PropertyTypePredefined.Name,
+                            PrimitiveType = PropertyPrimitiveType.Text,
                             PropertyName = "Name",
                             PropertyTypeId = 80
                         },
-                        new ArtifactListColumn
+                        new ProfileColumn
                         {
-                            Predefined = 4099,
-                            PrimitiveType = 0,
+                            Predefined = PropertyTypePredefined.Description,
+                            PrimitiveType = PropertyPrimitiveType.Text,
                             PropertyName = "Description",
                             PropertyTypeId = 81
                         }
@@ -134,19 +134,15 @@ namespace ArtifactStore.Collections
                 }
             };
 
-            _columns = new GetColumnsDto()
+            _columns = new GetColumnsDto
             {
-                SelectedColumns = new List<ProfileColumn>()
+                SelectedColumns = new List<ProfileColumn>
                 {
                     new ProfileColumn("Custom", PropertyTypePredefined.Name,  PropertyPrimitiveType.Number, 3)
-                    {
-                    }
                 },
-                UnselectedColumns = new List<ProfileColumn>()
+                UnselectedColumns = new List<ProfileColumn>
                 {
                     new ProfileColumn("Custom", PropertyTypePredefined.Name,  PropertyPrimitiveType.Number, 3)
-                    {
-                    }
                 }
             };
         }

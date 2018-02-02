@@ -69,14 +69,5 @@ namespace ServiceLibrary.Helpers
         public const string ExpiredUserKey = "Raptor_RC_ExpiredUser";
         public const string UserLogout = "Raptor_RC_UserLogout";
         public const string InvalidUserKey = "Raptor_RC_InvalidUser";
-
-        public const int ArtifactTypePropertyFakeId = -1;
-        public const int IdPropertyFakeId = -2;
-
-        public static Dictionary<PropertyTypePredefined, int> PropertyTypePredefineds => new Dictionary<PropertyTypePredefined, int>
-        {
-            { PropertyTypePredefined.ArtifactType, ArtifactTypePropertyFakeId },
-            { PropertyTypePredefined.ID, IdPropertyFakeId }
-        };
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ArtifactStore.ArtifactList.Models;
 using Newtonsoft.Json;
 
 namespace ArtifactStore.Collections.Models
@@ -9,6 +10,6 @@ namespace ArtifactStore.Collections.Models
         public IEnumerable<ArtifactListFilter> Filters { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<ArtifactListColumn> Columns { get; set; }
+        public IEnumerable<ProfileColumn> Columns { get; set; }
     }
 }

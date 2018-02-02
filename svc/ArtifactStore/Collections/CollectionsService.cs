@@ -140,11 +140,6 @@ namespace ArtifactStore.Collections
 
         public async Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(int collectionId, ReviewItemsRemovalParams removalParams, int userId)
         {
-            if ((removalParams?.ItemIds == null || !removalParams.ItemIds.Any()))
-            {
-                throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
-            }
-
             if (collectionId < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(collectionId));
@@ -161,7 +156,7 @@ namespace ArtifactStore.Collections
             {
                 var collection = await ValidateCollection(collectionId, userId, transaction);
 
-                var searchArtifactsResult = await _searchEngineService.Search(collection.ArtifactId, null, ScopeType.Contents, true, userId);
+                var searchArtifactsResult = await _searchEngineService.Search(collection.ArtifactId, null, ScopeType.Contents, true, userId, transaction);
 
                 List<int> artifactsToRemove = null;
 

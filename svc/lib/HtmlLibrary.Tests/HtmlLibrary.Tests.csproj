@@ -61,6 +61,7 @@
     </Compile>
     <Compile Include="MentionProcessorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RichText\HtmlHelperTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HtmlLibrary\HtmlLibrary.csproj">

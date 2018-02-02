@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
-using ArtifactStore.Collections;
 using ArtifactStore.Collections.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

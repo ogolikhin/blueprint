@@ -7,10 +7,11 @@ namespace ArtifactStore.ArtifactList.Helpers
 {
     public static class ArtifactListHelper
     {
-        public static XmlProfileSettings ConvertProfileColumnsToXmlProfileSettings(
-            ProfileColumns profileColumns)
-        {
-            return new XmlProfileSettings
+        public static XmlProfileSettings ConvertPaginationLimitToXmlProfileSettings(int? paginationLimit) =>
+            new XmlProfileSettings { PaginationLimit = paginationLimit };
+
+        public static XmlProfileSettings ConvertProfileColumnsToXmlProfileSettings(ProfileColumns profileColumns) =>
+            new XmlProfileSettings
             {
                 Columns = profileColumns.Items?
                     .Select(column => new XmlProfileColumn
@@ -22,11 +23,12 @@ namespace ArtifactStore.ArtifactList.Helpers
                     })
                     .ToList()
             };
-        }
 
-        public static ProfileColumns ConvertXmlProfileSettingsToProfileColumns(XmlProfileSettings settings)
-        {
-            return new ProfileColumns(
+        public static int? ConvertXmlProfileSettingsToPaginationLimit(XmlProfileSettings settings) =>
+            settings.PaginationLimit;
+
+        public static ProfileColumns ConvertXmlProfileSettingsToProfileColumns(XmlProfileSettings settings) =>
+            new ProfileColumns(
                 settings.Columns?
                     .Select(xmlColumn => new ProfileColumn(
                         xmlColumn.PropertyName,
@@ -34,6 +36,5 @@ namespace ArtifactStore.ArtifactList.Helpers
                         (PropertyPrimitiveType)xmlColumn.PrimitiveType,
                         xmlColumn.PropertyTypeId))
                     .ToList());
-        }
     }
 }

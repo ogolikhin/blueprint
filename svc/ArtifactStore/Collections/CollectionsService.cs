@@ -294,13 +294,21 @@ namespace ArtifactStore.Collections
                         {
                             PropertyName = artifactProperty.PropertyName,
                             Predefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined,
-                            PrimitiveType = artifactProperty.PrimitiveType.HasValue ? (PropertyPrimitiveType)artifactProperty.PrimitiveType.Value : 0,
+                            PrimitiveType = artifactProperty.PrimitiveType.HasValue
+                                ? (PropertyPrimitiveType)artifactProperty.PrimitiveType.Value
+                                : (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
+                                  PropertyTypePredefined.ID
+                                    ? PropertyPrimitiveType.Number
+                                    : (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
+                                      PropertyTypePredefined.ArtifactType
+                                        ? PropertyPrimitiveType.Choice
+                                        : 0,
                             PropertyTypeId = artifactProperty.PropertyTypeId
                         };
                     }
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
-                    propertyInfo.PropertyTypePredefined = artifactProperty.PropertyTypePredefined;
+                    propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
 
                     if ((PropertyTypePredefined)artifactProperty.PropertyTypePredefined == PropertyTypePredefined.ID)
                     {

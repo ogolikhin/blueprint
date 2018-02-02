@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using System.Linq;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Collections
@@ -29,6 +29,7 @@ namespace ArtifactStore.Collections
         private AddArtifactsToCollectionResult _addArtifactsResult;
         private Pagination _pagination;
         private CollectionArtifacts _expectedCollectionArtifacts;
+        private GetColumnsDto _columns;
         private ProfileColumnsDto _profileColumnsDto;
 
 
@@ -71,19 +72,19 @@ namespace ArtifactStore.Collections
                 ItemsCount = 2,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = new List<ArtifactListColumn>
+                    Columns = new List<ProfileColumn>
                     {
-                        new ArtifactListColumn
+                        new ProfileColumn
                         {
-                            Predefined = 4098,
-                            PrimitiveType = 0,
+                            Predefined = PropertyTypePredefined.Name,
+                            PrimitiveType = PropertyPrimitiveType.Text,
                             PropertyName = "Name",
                             PropertyTypeId = 80
                         },
-                        new ArtifactListColumn
+                        new ProfileColumn
                         {
-                            Predefined = 4099,
-                            PrimitiveType = 0,
+                            Predefined = PropertyTypePredefined.Description,
+                            PrimitiveType = PropertyPrimitiveType.Text,
                             PropertyName = "Description",
                             PropertyTypeId = 81
                         }
@@ -130,6 +131,18 @@ namespace ArtifactStore.Collections
                             }
                         }
                     }
+                }
+            };
+
+            _columns = new GetColumnsDto
+            {
+                SelectedColumns = new List<ProfileColumn>
+                {
+                    new ProfileColumn("Custom", PropertyTypePredefined.Name,  PropertyPrimitiveType.Number, 3)
+                },
+                UnselectedColumns = new List<ProfileColumn>
+                {
+                    new ProfileColumn("Custom", PropertyTypePredefined.Name,  PropertyPrimitiveType.Number, 3)
                 }
             };
         }
@@ -217,5 +230,28 @@ namespace ArtifactStore.Collections
         }
 
         #endregion GetArtifactsInCollectionAsync
+
+        #region GetColumnsAsync
+
+        [TestMethod]
+        public async Task GetColumnsAsync_AllParametersAreValid_Success()
+        {
+            // Arrange
+
+            _collectionsServiceMock.Setup(q => q.GetColumnsAsync(_collectionId, _sessionUserId, null))
+                .ReturnsAsync(_columns);
+
+            // act
+            var actualResult =
+                await _collectionsController.GetColumnsAsync(_collectionId, null) as OkNegotiatedContentResult<GetColumnsDto>;
+
+            // assert
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(_columns, actualResult.Content);
+            Assert.AreEqual(_columns.UnselectedColumns.Count(), actualResult.Content.UnselectedColumns.Count());
+            Assert.AreEqual(_columns.SelectedColumns.Count(), actualResult.Content.SelectedColumns.Count());
+        }
+
+        #endregion GetColumnsAsync
     }
 }

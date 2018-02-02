@@ -14,6 +14,7 @@ namespace AdminStore.Models.Workflow {
         [XmlElement(typeof(IeEmailNotificationAction), ElementName = "EmailNotificationAction")]
         [XmlElement(typeof(IeGenerateAction), ElementName = "GenerateAction")]
         [XmlElement(typeof(IePropertyChangeAction), ElementName = "PropertyChangeAction")]
+        [XmlElement(typeof(IeWebhookAction), ElementName = "WebhookAction")]
         public IeBaseAction Action { get; set; }
 
         [XmlElement(typeof(IeStateCondition), ElementName = "StateCondition")]

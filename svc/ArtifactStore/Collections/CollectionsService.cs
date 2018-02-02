@@ -328,7 +328,7 @@ namespace ArtifactStore.Collections
             var artifactIdsResult = artifacts.Select(x => x.ArtifactId).Distinct().ToList();
 
             var artifactDtos = new List<ArtifactDto>();
-            var settingsColumns = new List<ArtifactListColumn>();
+            var settingsColumns = new List<ProfileColumn>();
             var areColumnsPopulated = false;
 
             foreach (var id in artifactIdsResult)
@@ -342,64 +342,44 @@ namespace ArtifactStore.Collections
 
                 foreach (var artifactProperty in artifactProperties)
                 {
-                    ArtifactListColumn artifactListColumn = null;
+                    ProfileColumn profileColumn = null;
                     var propertyInfo = new PropertyValueInfo();
 
                     if (!areColumnsPopulated)
                     {
-                        artifactListColumn = new ArtifactListColumn
+                        profileColumn = new ProfileColumn
                         {
                             PropertyName = artifactProperty.PropertyName,
-                            Predefined = artifactProperty.PropertyTypePredefined,
-                            PrimitiveType = artifactProperty.PrimitiveType
+                            Predefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined,
+                            PrimitiveType = artifactProperty.PrimitiveType.HasValue ? (PropertyPrimitiveType)artifactProperty.PrimitiveType.Value : 0,
+                            PropertyTypeId = artifactProperty.PropertyTypeId
                         };
                     }
 
-                    if (artifactProperty.PropertyTypeId == null)
+                    propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
+                    propertyInfo.PropertyTypePredefined = artifactProperty.PropertyTypePredefined;
+
+                    if ((PropertyTypePredefined)artifactProperty.PropertyTypePredefined == PropertyTypePredefined.ID)
                     {
-                        int fakeId;
+                        propertyInfo.Value = I18NHelper.FormatInvariant("{0}{1}", artifactProperty.Prefix,
+                            artifactProperty.ArtifactId);
 
-                        if (!ServiceConstants.PropertyTypePredefineds.TryGetValue(
-                            (PropertyTypePredefined)artifactProperty.PropertyTypePredefined, out fakeId))
-                        {
-                            continue;
-                        }
-
-                        if (!areColumnsPopulated)
-                        {
-                            artifactListColumn.PropertyTypeId = fakeId;
-                        }
-
-                        propertyInfo.PropertyTypeId = fakeId;
-
-                        if (fakeId == ServiceConstants.IdPropertyFakeId)
-                        {
-                            propertyInfo.Value = I18NHelper.FormatInvariant("{0}{1}", artifactProperty.Prefix,
-                                artifactProperty.ArtifactId);
-
-                            itemTypeId = artifactProperty.ItemTypeId;
-                            predefinedType = artifactProperty.PredefinedType;
-                            itemTypeIconId = artifactProperty.ItemTypeIconId;
-                        }
-                        else
-                        {
-                            propertyInfo.Value = artifactProperty.PropertyValue;
-                        }
+                        itemTypeId = artifactProperty.ItemTypeId;
+                        predefinedType = artifactProperty.PredefinedType;
+                        itemTypeIconId = artifactProperty.ItemTypeIconId;
                     }
                     else
                     {
-                        if (!areColumnsPopulated)
-                        {
-                            artifactListColumn.PropertyTypeId = artifactProperty.PropertyTypeId;
-                        }
-
-                        propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
-                        propertyInfo.Value = artifactProperty.PropertyValue;
+                        propertyInfo.Value =
+                            (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
+                            PropertyTypePredefined.Description
+                                ? PropertyHelper.ConvertHtmlToPlainText(artifactProperty.PropertyValue)
+                                : artifactProperty.PropertyValue;
                     }
 
                     if (!areColumnsPopulated)
                     {
-                        settingsColumns.Add(artifactListColumn);
+                        settingsColumns.Add(profileColumn);
                     }
 
                     propertyInfos.Add(propertyInfo);
@@ -417,12 +397,20 @@ namespace ArtifactStore.Collections
                 });
             }
 
+            if (!settingsColumns.Any())
+            {
+                settingsColumns = ProfileColumns.Default.Items.ToList();
+            }
+
             return new CollectionArtifacts
             {
                 Items = artifactDtos,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = settingsColumns.OrderBy(x => x.PropertyTypeId)
+                    Columns = settingsColumns.OrderBy(
+                        x => Array.IndexOf(
+                            ProfileColumns.Default.Items.Select(column => column.Predefined).ToArray(),
+                            x.Predefined))
                 }
             };
         }

@@ -2,19 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using ArtifactStore.Collections.Models;
+using Newtonsoft.Json;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.ArtifactList.Models
 {
     public class ProfileColumn
     {
-        public string PropertyName { get; }
+        public string PropertyName { get; set; }
 
-        public int? PropertyTypeId { get; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? PropertyTypeId { get; set; }
 
-        public PropertyTypePredefined Predefined { get; }
+        public PropertyTypePredefined Predefined { get; set; }
 
-        public PropertyPrimitiveType PrimitiveType { get; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public PropertyPrimitiveType PrimitiveType { get; set; }
+
+        public ProfileColumn() { }
 
         public ProfileColumn(
             string propertyName,

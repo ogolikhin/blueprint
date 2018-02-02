@@ -11,6 +11,7 @@ namespace ServiceLibrary.Models.Workflow
         [XmlElement(typeof(XmlEmailNotificationAction), ElementName = "AEN")]
         [XmlElement(typeof(XmlGenerateAction), ElementName = "AG")]
         [XmlElement(typeof(XmlPropertyChangeAction), ElementName = "APC")]
+        [XmlElement(typeof(XmlWebhookAction), ElementName = "AWH")]
         public XmlAction Action { get; set; }
 
         [XmlElement(typeof(XmlStateCondition), ElementName = "SC")]

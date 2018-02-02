@@ -63,6 +63,7 @@
         <xs:element minOccurs="0" maxOccurs="1" name="EmailNotificationAction" type="NotificationAction" />
         <xs:element minOccurs="0" maxOccurs="1" name="GenerateAction" type="GenerateAction" />
         <xs:element minOccurs="0" maxOccurs="1" name="PropertyChangeAction" type="PropertyChangeAction" />
+        <xs:element minOccurs="0" maxOccurs="1" name="WebhookAction" type="WebhookAction" />
       </xs:choice>
       <xs:element minOccurs="0" maxOccurs="1" name="StateCondition" type="StateCondition" />
     </xs:sequence>
@@ -82,6 +83,36 @@
   <xs:complexType name="BaseAction" abstract="true">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="WebhookAction">
+    <xs:complexContent mixed="false">
+      <xs:extension base="BaseAction">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="Url" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="IgnoreInvalidSSLCertificate" nillable="true" type="xs:boolean" />
+          <xs:element minOccurs="0" maxOccurs="1" name="HttpHeaders" type="ArrayOfString1" />
+          <xs:element minOccurs="0" maxOccurs="1" name="BasicAuth" type="BasicAuth" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Signature" type="Signature" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfString1">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Header" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BasicAuth">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Username" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Password" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Signature">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="SecretToken" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Algorithm" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="PropertyChangeAction">

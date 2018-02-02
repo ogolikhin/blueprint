@@ -59,7 +59,7 @@ namespace ArtifactStore.Collections
         [ResponseType(typeof(CollectionArtifacts))]
         public async Task<IHttpActionResult> GetArtifactsInCollectionAsync(int id, [FromUri] Pagination pagination)
         {
-            PaginationExtensions.Validate(pagination, nullAllowed: true);
+            pagination.Validate(nullAllowed: true);
 
             var userId = Session.UserId;
 

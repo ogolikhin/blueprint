@@ -19,17 +19,17 @@ namespace ServiceLibrary.Models
                 throw new BadRequestException(ErrorMessages.InvalidPagination, ErrorCodes.BadRequest);
             }
 
-            var offsetValid =
-                nullAllowed && !pagination.Offset.HasValue
-                || pagination.Offset.HasValue && pagination.Offset >= 0;
+            var offsetValid = pagination == null
+                || (nullAllowed && !pagination.Offset.HasValue
+                    || pagination.Offset.HasValue && pagination.Offset >= 0);
             if (!offsetValid)
             {
                 throw new BadRequestException(ErrorMessages.IncorrectOffsetParameter, ErrorCodes.BadRequest);
             }
 
-            var limitValid =
-                nullAllowed && !pagination.Limit.HasValue
-                || pagination.Limit.HasValue && pagination.Limit > 0;
+            var limitValid = pagination == null
+                || (nullAllowed && !pagination.Limit.HasValue
+                    || pagination.Limit.HasValue && pagination.Limit > 0);
             if (!limitValid)
             {
                 throw new BadRequestException(ErrorMessages.IncorrectLimitParameter, ErrorCodes.BadRequest);

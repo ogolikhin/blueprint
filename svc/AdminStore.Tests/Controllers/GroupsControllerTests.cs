@@ -1,6 +1,14 @@
-﻿using AdminStore.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Results;
+using AdminStore.Models;
 using AdminStore.Models.Enums;
 using AdminStore.Repositories;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -8,14 +16,6 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Results;
-using BluePrintSys.Messaging.CrossCutting.Helpers;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
@@ -102,7 +102,6 @@ namespace AdminStore.Controllers
 
             // assert
             // Exception
-
         }
 
         [TestMethod]
@@ -121,6 +120,7 @@ namespace AdminStore.Controllers
             // assert
             // Exception
         }
+
         #endregion
 
         #region DeleteGroups
@@ -173,7 +173,6 @@ namespace AdminStore.Controllers
 
             // act
             var result = await _controller.DeleteGroups(scope, string.Empty) as OkNegotiatedContentResult<DeleteResult>;
-
 
             // assert
             Assert.IsNotNull(result);
@@ -506,6 +505,36 @@ namespace AdminStore.Controllers
             // Assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(ErrorMessages.CreationGroupWithScopeAndLicenseIdSimultaneously, exception.Message);
+            Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
+        }
+
+        [TestMethod]
+        public async Task CreateGroup_ForStandardProject_ReturnBadRequestResult()
+        {
+            // Arrange
+            BadRequestException exception = null;
+            _group.ProjectId = 0;
+            _group.LicenseType = LicenseType.None;
+            _privilegesRepository
+                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
+                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
+            _sqlGroupRepositoryMock
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .ReturnsAsync(_groupId);
+
+            // Act
+            try
+            {
+                await _controller.CreateGroup(_group);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorMessages.ProjectIdIsInvalid, exception.Message);
             Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
 

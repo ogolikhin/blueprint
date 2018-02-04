@@ -9,14 +9,18 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
 {
     public class DatePropertyValueValidator : PropertyValueValidator
     {
-        public override void Validate(IePropertyChangeAction action, PropertyType propertyType, WorkflowDataValidationResult result)
+        private static readonly DateTime MinAllowedDate = new DateTime(1753, 1, 1);
+
+        public override void Validate(IePropertyChangeAction action, PropertyType propertyType,
+            WorkflowDataValidationResult result)
         {
             if (!action.ValidValues.IsEmpty())
             {
                 result.Errors.Add(new WorkflowDataValidationError
                 {
                     Element = action.PropertyName,
-                    ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable
+                    ErrorCode = WorkflowDataValidationErrorCodes
+                        .PropertyChangeActionNotChoicePropertyValidValuesNotApplicable
                 });
                 return;
             }
@@ -26,7 +30,8 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                 result.Errors.Add(new WorkflowDataValidationError
                 {
                     Element = action.PropertyName,
-                    ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable
+                    ErrorCode = WorkflowDataValidationErrorCodes
+                        .PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable
                 });
                 return;
             }
@@ -41,6 +46,11 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(action.PropertyValue))
+            {
+                return;
+            }
+
             // For "Today+/-{the number of days)" date format we do not validate Min and Max constraints.
             int relativeToTodayDays;
             if (int.TryParse(action.PropertyValue, out relativeToTodayDays))
@@ -49,7 +59,8 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
             }
 
             DateTime dateValue;
-            if (!DateTime.TryParseExact(action.PropertyValue, WorkflowConstants.Iso8601DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+            if (!DateTime.TryParseExact(action.PropertyValue, WorkflowConstants.Iso8601DateFormat,
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
             {
                 if (!string.IsNullOrWhiteSpace(action.PropertyValue))
                 {
@@ -62,7 +73,16 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
                 }
             }
 
-            if (!propertyType.IsValidated.GetValueOrDefault() || string.IsNullOrWhiteSpace(action.PropertyValue))
+            if (dateValue.Date < MinAllowedDate)
+            {
+                result.Errors.Add(new WorkflowDataValidationError
+                {
+                    Element = action.PropertyName,
+                    ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange
+                });
+            }
+
+            if (!propertyType.IsValidated.HasValue || !propertyType.IsValidated.Value)
             {
                 return;
             }

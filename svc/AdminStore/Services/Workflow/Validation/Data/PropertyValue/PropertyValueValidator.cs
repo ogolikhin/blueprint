@@ -7,7 +7,7 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
     {
         public abstract void Validate(IePropertyChangeAction action, PropertyType propertyType, WorkflowDataValidationResult result);
 
-        protected bool IsPropertyRequired(bool isRequired, string value, bool isChoicesEmpty, bool isUsersGroupsEmpty)
+        protected static bool IsPropertyRequired(bool isRequired, string value, bool isChoicesEmpty, bool isUsersGroupsEmpty)
         {
             return !(isRequired && string.IsNullOrWhiteSpace(value) && isChoicesEmpty && isUsersGroupsEmpty);
         }

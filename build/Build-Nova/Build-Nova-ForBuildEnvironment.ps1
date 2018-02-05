@@ -1,15 +1,13 @@
 <#
     Build Nova
 
-    Used in Jenkins to build Nova.
+    Used in Jenkins to build Nova Services.
     
     Assumptions:
        - None
 
 #>
     
-
-
 param(
     [Parameter(Mandatory=$true)][string] $workspace,
     [Parameter(Mandatory=$true)][string] $storytellerVersion,
@@ -18,7 +16,6 @@ param(
     [Parameter(Mandatory=$false)][string] $msBuildVerbosity = "m", #q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].
     [Parameter(Mandatory=$false)][bool] $removeFiles = $true,
     [Parameter(Mandatory=$false)][bool] $RunTests = $true,
-    # [Parameter(Mandatory=$false)][bool] $BuildDebug = $false,
 
     #Unused, for splatting the same hashtable into multiple methods without error.
     [Parameter(ValueFromRemainingArguments=$true)] $vars
@@ -40,7 +37,6 @@ $buildParams = @{
     msBuildVerbosity = $msBuildVerbosity
     msBuildPath = "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
     visualStudioVersion = "14.0"
-    # BuildDebug = $BuildDebug
 }
 
 Setup-Environment @buildParams -removeFiles $removeFiles
@@ -51,7 +47,5 @@ if($RunTests)
 {
     Run-Nova-Unit-Tests @buildParams
 }
-
-# Build-Nova-Html @buildParams -RunTests $RunTests
 
 Build-Nova-Windows-Services @buildParams

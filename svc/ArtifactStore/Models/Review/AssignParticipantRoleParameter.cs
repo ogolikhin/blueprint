@@ -1,6 +1,8 @@
-﻿namespace ArtifactStore.Models.Review
+﻿using ServiceLibrary.Models;
+
+namespace ArtifactStore.Models.Review
 {
-    public class AssignParticipantRoleParameter : ReviewItemsRemovalParams
+    public class AssignParticipantRoleParameter : ItemsRemovalParams
     {
         public ReviewParticipantRole Role { get; set; }
     }

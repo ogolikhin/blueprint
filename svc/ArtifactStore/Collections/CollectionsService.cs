@@ -138,7 +138,7 @@ namespace ArtifactStore.Collections
             return result;
         }
 
-        public async Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(int collectionId, ReviewItemsRemovalParams removalParams, int userId)
+        public async Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(int collectionId, ItemsRemovalParams removalParams, int userId)
         {
             if (collectionId < 1)
             {

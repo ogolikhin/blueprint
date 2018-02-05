@@ -52,7 +52,9 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
 
             // Assert
             Assert.IsTrue(_result.HasErrors);
-            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable, _result.Errors.Single().ErrorCode);
+            Assert.AreEqual(
+                WorkflowDataValidationErrorCodes.PropertyChangeActionNotChoicePropertyValidValuesNotApplicable,
+                _result.Errors.Single().ErrorCode);
         }
 
         [TestMethod]
@@ -75,7 +77,9 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
 
             // Assert
             Assert.IsTrue(_result.HasErrors);
-            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable, _result.Errors.Single().ErrorCode);
+            Assert.AreEqual(
+                WorkflowDataValidationErrorCodes.PropertyChangeActionNotUserPropertyUsersGroupsNotApplicable,
+                _result.Errors.Single().ErrorCode);
         }
 
         [TestMethod]
@@ -104,7 +108,8 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
 
             // Assert
             Assert.IsTrue(_result.HasErrors);
-            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty, _result.Errors.Single().ErrorCode);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionRequiredPropertyValueEmpty,
+                _result.Errors.Single().ErrorCode);
         }
 
         [TestMethod]
@@ -120,7 +125,36 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
 
             // Assert
             Assert.IsTrue(_result.HasErrors);
-            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat, _result.Errors.Single().ErrorCode);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat,
+                _result.Errors.Single().ErrorCode);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Date_OutsideTheValidRange_Failure()
+        {
+            // Arrange
+            var action = new IePropertyChangeAction { PropertyValue = "1752-01-01" };
+
+            // Act
+            Validate(action, true);
+
+            // Assert
+            Assert.IsTrue(_result.HasErrors);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange,
+                _result.Errors.Single().ErrorCode);
+        }
+
+        [TestMethod]
+        public void ValidatePropertyValue_Date_MinAllowedValue_Success()
+        {
+            // Arrange
+            var action = new IePropertyChangeAction { PropertyValue = "1753-01-01" };
+
+            // Act
+            Validate(action, true);
+
+            // Assert
+            Assert.IsFalse(_result.HasErrors);
         }
 
         [TestMethod]
@@ -170,7 +204,8 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
 
             // Assert
             Assert.IsTrue(_result.HasErrors);
-            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange, _result.Errors.Single().ErrorCode);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange,
+                _result.Errors.Single().ErrorCode);
         }
 
         [TestMethod]
@@ -188,7 +223,8 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
 
             // Assert
             Assert.IsTrue(_result.HasErrors);
-            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange, _result.Errors.Single().ErrorCode);
+            Assert.AreEqual(WorkflowDataValidationErrorCodes.PropertyChangeActionDateOutOfRange,
+                _result.Errors.Single().ErrorCode);
         }
 
         private void Validate(IePropertyChangeAction action, bool ignoreIds)

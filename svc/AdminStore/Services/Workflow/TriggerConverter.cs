@@ -156,8 +156,11 @@ namespace AdminStore.Services.Workflow
                         : null;
                     break;
                 case ActionTypes.Webhook:
-                    // TODO - Provide webhook support when exporting Workflow XML
-                    action = null;
+                    var xwAction = xmlAction as XmlWebhookAction;
+                    action = new IeWebhookAction
+                    {
+                        Id = xwAction.WebhookId
+                    };
                     break;
             }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.DirectoryServices;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -854,6 +855,11 @@ namespace AdminStore.Services.Workflow
                 Projects = GetProjects(workflowArtifactTypes, mode)
             };
 
+            var allWebhookTriggers = ieWorkflow.TransitionEvents.SelectMany(e => e.Triggers)
+                .Union(ieWorkflow.NewArtifactEvents.SelectMany(e => e.Triggers)).ToList();
+
+            await LookupWebhookActionsFromIds(allWebhookTriggers);
+
             await UpdateUserAndGroupInfo(ieWorkflow, userIds, groupIds);
             // Remove Property Change and New Artifact events if they do not have any triggers.
             ieWorkflow.PropertyChangeEvents.RemoveAll(e => e.Triggers.IsEmpty());
@@ -1158,6 +1164,35 @@ namespace AdminStore.Services.Workflow
             var ieTriggers = _triggerConverter.FromXmlModel(xmlTriggers, dataMaps, userIdsToCollect, groupIdsToCollect).ToList();
 
             return ieTriggers.IsEmpty() ? null : ieTriggers;
+        }
+
+        private async Task LookupWebhookActionsFromIds(List<IeTrigger> triggers)
+        {
+            var webhookIds = triggers.Select(t => t.Action).OfType<IeWebhookAction>().Select(a => a.Id);
+
+            var webhooks = await _workflowRepository.GetWebhooks(webhookIds);
+
+            foreach (var webhook in webhooks)
+            {
+                var action = triggers.Select(t => t.Action).OfType<IeWebhookAction>().FirstOrDefault(a => a.Id == webhook.WebhookId);
+                if (action != null)
+                {
+                    var securityInfo = SerializationHelper.FromXml<XmlWebhookSecurityInfo>(webhook.SecurityInfo);
+                    action.Url = webhook.Url;
+                    action.IgnoreInvalidSSLCertificate = securityInfo.IgnoreInvalidSSLCertificate;
+                    action.HttpHeaders = securityInfo.HttpHeaders;
+                    action.BasicAuth = new IeBasicAuth
+                    {
+                        Username = securityInfo.BasicAuth?.Username,
+                        Password = securityInfo.BasicAuth?.Password
+                    };
+                    action.Signature = new IeSignature
+                    {
+                        Algorithm = securityInfo.Signature?.Algorithm,
+                        SecretToken = securityInfo.Signature?.SecretToken
+                    };
+                }
+            }
         }
 
         private static WorkflowDataNameMaps LoadDataMaps(ProjectTypes standardTypes, IDictionary<int, string> stateMap)

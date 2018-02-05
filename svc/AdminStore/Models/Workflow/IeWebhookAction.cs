@@ -14,6 +14,10 @@ namespace AdminStore.Models.Workflow
     {
         #region Properties
 
+        // used for reference to webhooks table
+        [XmlIgnore]
+        public int Id { get; set; }
+
         [XmlIgnore]
         public override ActionTypes ActionType => ActionTypes.Webhook;
 

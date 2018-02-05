@@ -25,8 +25,9 @@ namespace AdminStore.Models.Workflow
         public string Url { get; set; }
 
         // Optional
-        [XmlElement(IsNullable = false), DefaultValue(false)]
-        public bool IgnoreInvalidSSLCertificate { get; set; }
+        [XmlElement]
+        public bool? IgnoreInvalidSSLCertificate { get; set; }
+        public bool ShouldSerializeIgnoreInvalidSSLCertificate() { return IgnoreInvalidSSLCertificate.HasValue; }
 
         // Optional
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For Xml serialization, the property sometimes needs to be null")]

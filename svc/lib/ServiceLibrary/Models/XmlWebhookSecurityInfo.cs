@@ -8,7 +8,7 @@ namespace ServiceLibrary.Models.Workflow
     [XmlRoot(ElementName = "WebhookSecurityInfo")]
     public class XmlWebhookSecurityInfo
     {
-        [XmlElement(ElementName = "IgnoreInvalidSSLCertificate", IsNullable = false), DefaultValue(false)]
+        [XmlElement(ElementName = "IgnoreInvalidSSLCertificate", IsNullable = false)]
         public bool IgnoreInvalidSSLCertificate { get; set; }
 
         [XmlElement(ElementName = "Payload", IsNullable = false), DefaultValue("application/json")]
@@ -50,7 +50,7 @@ namespace ServiceLibrary.Models.Workflow
         [XmlElement("SecretToken")]
         public string SecretToken { get; set; }
 
-        [XmlElement("Algorithm"), DefaultValue("HMACSHA256")]
+        [XmlElement("Algorithm")]
         public string Algorithm { get; set; }
 
     }

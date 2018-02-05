@@ -13,7 +13,7 @@ namespace AdminStore.Models.Workflow
         [XmlElement(IsNullable = false)]
         public string SecretToken { get; set; }
 
-        [XmlElement(IsNullable = false), DefaultValue("HMACSHA256")]
+        [XmlElement(IsNullable = false)]
         public string Algorithm { get; set; }
 
         #endregion

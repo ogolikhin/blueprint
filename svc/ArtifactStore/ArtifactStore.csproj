@@ -141,6 +141,7 @@
     <Compile Include="Collections\Models\GetColumnsDto.cs" />
     <Compile Include="Collections\Models\PropertyTypeInfo.cs" />
     <Compile Include="Collections\Models\PropertyValueInfo.cs" />
+    <Compile Include="Collections\Models\RemoveArtifactsFromCollectionResult.cs" />
     <Compile Include="Collections\SqlCollectionsRepository.cs" />
     <Compile Include="Controllers\ArtifactController.cs" />
     <Compile Include="Controllers\AttachmentsController.cs" />

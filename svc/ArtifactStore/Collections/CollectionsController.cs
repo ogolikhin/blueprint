@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using System.Web.Http.Description;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
+using ArtifactStore.Models.Review;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
@@ -91,7 +93,7 @@ namespace ArtifactStore.Collections
         /// <response code="403">Forbidden. The user does not have permissions for the collection.</response>
         /// <response code="404">Not found. A collection for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <returns>Result of the operation.</returns>
+        /// <returns>Amount of added artifacts, total amount of passed artifact to add.</returns>
         [HttpPost]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(AddArtifactsToCollectionResult))]
@@ -105,6 +107,38 @@ namespace ArtifactStore.Collections
             }
 
             var result = await _collectionsService.AddArtifactsToCollectionAsync(id, artifactIds, Session.UserId);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Remove artifacts from collection.
+        /// </summary>
+        /// <remarks>
+        /// Removes artifacts from the collection with specified id.
+        /// </remarks>
+        /// <param name="id">Collection id.</param>
+        /// <param name="remove">Operation identifier.</param>
+        /// <param name="removalParams">Removal parameters for artifacts to be removed.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the collection.</response>
+        /// <response code="404">Not found. A collection for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// <returns>Amount of removed artifacts, total amount of passed artifact to remove.</returns>
+        [HttpPost]
+        [Route("{id:int:min(1)}/artifacts"), SessionRequired]
+        [ResponseType(typeof(RemoveArtifactsFromCollectionResult))]
+        public async Task<IHttpActionResult> RemoveArtifactsFromCollectionAsync(
+            int id, string remove, ReviewItemsRemovalParams removalParams)
+        {
+            if (removalParams == null || ((removalParams.ItemIds == null || !removalParams.ItemIds.Any()) && removalParams.SelectionType == SelectionType.Selected))
+            {
+                throw new BadRequestException(
+                    ErrorMessages.Collections.RemoveArtifactsInvalidParameters, ErrorCodes.BadRequest);
+            }
+
+            var result = await _collectionsService.RemoveArtifactsFromCollectionAsync(id, removalParams, Session.UserId);
 
             return Ok(result);
         }

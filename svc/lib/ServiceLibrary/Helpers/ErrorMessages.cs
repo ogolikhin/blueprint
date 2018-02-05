@@ -167,6 +167,7 @@
             public static readonly string LockedByAnotherUser = "Collection (Id:{0}) is already locked by user (Id:{1}).";
             public static readonly string AddArtifactsInvalidParameters = "Invalid parameters to add artifact(s)";
             public static readonly string ColumnsSettingsModelIsIncorrect = "The body of the call is malformed or has invalid parameter.";
+            public static readonly string RemoveArtifactsInvalidParameters = "Incorrect input parameters.";
         }
     }
 }

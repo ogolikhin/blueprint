@@ -118,6 +118,56 @@ function Build-Nova-Html{
     }
 }
 
+function Build-ImageGen-Html{
+    param(
+        [Parameter(Mandatory=$true)][string]$workspace,
+        [Parameter(Mandatory=$true)][string]$storytellerVersion,
+        [Parameter(Mandatory=$true)][string]$blueprintVersion,
+        [Parameter(Mandatory=$true)][string]$buildNumber,
+
+        [Parameter(Mandatory=$true)][string]$msBuildPath,
+        [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
+        [Parameter(Mandatory=$true)][string]$visualStudioVersion,
+        [Parameter(Mandatory=$false)][bool] $RunTests = $true,
+        [Parameter(Mandatory=$false)][bool] $BuildDebug = $false,
+
+        #Unused, for splatting the same hashtable into multiple methods without error.
+        [Parameter(ValueFromRemainingArguments=$true)] $vars
+    )
+
+    Write-Section "Building ImageGen Html"
+
+    try
+    {
+        pushd "$workspace\app\NovaWeb"
+   
+        Invoke-MyExpression "yarn" "install"
+        # Invoke-MyExpression "yarn" "upgrade"
+
+        # Increment build version number
+        $semver = $storytellerVersion + "-" + $buildnumber
+
+        Invoke-MyExpression "yarn" "version --new-version $semver" -ignoreErrorCode
+
+        # Build Nova Application
+        if($BuildDebug) {
+            Invoke-MyExpression "yarn" "run build:imagegen -- --debug"
+        } else {
+            Invoke-MyExpression "yarn" "run build:imagegen"
+        }
+
+        if($RunTests)
+        {
+            # Test Nova Application
+            Invoke-MyExpression "yarn" "run test"
+        }
+    }
+    finally
+    {
+        popd
+    }
+}
+
 <#
     Builds new windows services
     
@@ -126,10 +176,15 @@ function Build-Nova-Html{
 function Build-Nova-Windows-Services{
     param(
         [Parameter(Mandatory=$true)][string]$workspace,
+        [Parameter(Mandatory=$true)][string]$storytellerVersion,
+        [Parameter(Mandatory=$true)][string]$blueprintVersion,
+        [Parameter(Mandatory=$true)][string]$buildNumber,
 
         [Parameter(Mandatory=$true)][string]$msBuildPath,
         [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
         [Parameter(Mandatory=$true)][string]$visualStudioVersion,
+        [Parameter(Mandatory=$false)][bool] $RunTests = $true,
+        [Parameter(Mandatory=$false)][bool] $BuildDebug = $false,
 
         #Unused, for splatting the same hashtable into multiple methods without error.
         [Parameter(ValueFromRemainingArguments=$true)] $vars
@@ -137,6 +192,9 @@ function Build-Nova-Windows-Services{
 
     $buildParams = @{
         workspace = $workspace
+        storytellerVersion = $storytellerVersion
+        blueprintVersion = $blueprintVersion
+        buildNumber = $buildNumber
         msBuildVerbosity = $msBuildVerbosity
         configuration = "Release" 
         visualStudioVersion = $visualStudioVersion 
@@ -145,6 +203,8 @@ function Build-Nova-Windows-Services{
 
     Write-Section "Building Nova Windows services"
     
+    Build-ImageGen-Html @buildParams
+
     Build-ImageService @buildParams
     
     Build-BlueprintServices @buildParams 
@@ -157,7 +217,10 @@ function Build-ImageService{
         [Parameter(Mandatory=$true)][string]$msBuildPath,
         [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
         [Parameter(Mandatory=$true)][string]$visualStudioVersion,
-        [Parameter(Mandatory=$true)][string]$configuration
+        [Parameter(Mandatory=$true)][string]$configuration,
+
+        #Unused, for splatting the same hashtable into multiple methods without error.
+        [Parameter(ValueFromRemainingArguments=$true)] $vars
     )
     
     $msBuildArgs = @{
@@ -196,7 +259,10 @@ function Build-BlueprintServices{
         [Parameter(Mandatory=$true)][string]$msBuildPath,
         [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
         [Parameter(Mandatory=$true)][string]$visualStudioVersion,
-        [Parameter(Mandatory=$true)][string]$configuration
+        [Parameter(Mandatory=$true)][string]$configuration,
+
+        #Unused, for splatting the same hashtable into multiple methods without error.
+        [Parameter(ValueFromRemainingArguments=$true)] $vars
     )
     
     $msBuildArgs = @{

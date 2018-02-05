@@ -62,15 +62,12 @@ namespace AdminStore.Services.Workflow.Validation.Data.PropertyValue
             if (!DateTime.TryParseExact(action.PropertyValue, WorkflowConstants.Iso8601DateFormat,
                 CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
             {
-                if (!string.IsNullOrWhiteSpace(action.PropertyValue))
+                result.Errors.Add(new WorkflowDataValidationError
                 {
-                    result.Errors.Add(new WorkflowDataValidationError
-                    {
-                        Element = action.PropertyName,
-                        ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat
-                    });
-                    return;
-                }
+                    Element = action.PropertyName,
+                    ErrorCode = WorkflowDataValidationErrorCodes.PropertyChangeActionInvalidDateFormat
+                });
+                return;
             }
 
             if (dateValue.Date < MinAllowedDate)

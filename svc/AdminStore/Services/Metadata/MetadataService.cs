@@ -106,7 +106,7 @@ namespace AdminStore.Services.Metadata
             }
             if (!string.IsNullOrEmpty(color) && !_hexColorRegex.IsMatch(color))
             {
-                throw new BadRequestException("Color parameter should have hex presentation", ErrorCodes.BadRequest);
+                throw new BadRequestException("Color parameter should have hex presentation.", ErrorCodes.BadRequest);
             }
             return iconType;
         }

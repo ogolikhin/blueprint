@@ -19,7 +19,7 @@ namespace ArtifactStore.ArtifactList.Models
             _default ?? (_default = new ProfileColumns(
                 new List<ProfileColumn>
                 {
-                    new ProfileColumn("Artifact ID", PropertyTypePredefined.ID, PropertyPrimitiveType.Number),
+                    new ProfileColumn("Artifact ID", PropertyTypePredefined.ID, PropertyPrimitiveType.Text),
                     new ProfileColumn("Artifact Type", PropertyTypePredefined.ArtifactType,
                         PropertyPrimitiveType.Choice),
                     new ProfileColumn("Name", PropertyTypePredefined.Name, PropertyPrimitiveType.Text),

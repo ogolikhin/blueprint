@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using ArtifactStore.ArtifactList.Helpers;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.ArtifactList.Models.Xml;
@@ -40,41 +42,40 @@ namespace ArtifactStore.ArtifactList
 
         public async Task<int> SavePaginationLimitAsync(int itemId, int? paginationLimit, int userId)
         {
-            var paginationLimitSettings = ArtifactListHelper.ConvertPaginationLimitToXmlProfileSettings(paginationLimit);
-
-            return await SaveSettingsAsync(itemId, userId, null, paginationLimitSettings);
+            return await SaveSettingsAsync(itemId, userId, new ProfileSettingsParams { PaginationLimit = paginationLimit });
         }
 
         public async Task<int> SaveProfileColumnsAsync(int itemId, ProfileColumns profileColumns, int userId)
         {
-            var profileColumnsSettings = ArtifactListHelper.ConvertProfileColumnsToXmlProfileSettings(profileColumns);
-
-            return await SaveSettingsAsync(itemId, userId, profileColumnsSettings, paginationLimitSettings: null);
+            return await SaveSettingsAsync(itemId, userId, new ProfileSettingsParams { Columns = profileColumns });
         }
 
-        private async Task<int> SaveSettingsAsync(int itemId, int userId, XmlProfileSettings profileColumnsSettings, XmlProfileSettings paginationLimitSettings)
+        private async Task<int> SaveSettingsAsync(int itemId, int userId, ProfileSettingsParams profileSettings)
         {
+            if (profileSettings == null)
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant(
+                    ErrorMessages.ArtifactList.SaveProfileSettingsProfileSettingsNull));
+            }
+
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
-            var settings = profileColumnsSettings != null || paginationLimitSettings != null
-                ? new XmlProfileSettings
+            var settings =
+                new XmlProfileSettings
                 {
-                    Columns = profileColumnsSettings != null ? profileColumnsSettings.Columns : existingSettings?.Columns,
-                    PaginationLimit = paginationLimitSettings != null ? paginationLimitSettings.PaginationLimit : existingSettings?.PaginationLimit,
-                }
-                : null;
+                    Columns = !profileSettings.ColumnsUndefined
+                        ? ArtifactListHelper.ConvertProfileColumnsToXmlProfileSettings(profileSettings.Columns)
+                        : existingSettings?.Columns,
+                    PaginationLimit = !profileSettings.PaginationLimitUndefined ? profileSettings.PaginationLimit : existingSettings?.PaginationLimit,
+                };
 
-            if (existingSettings == null && settings != null)
+            if (existingSettings == null)
             {
                 return await _artifactListSettingsRepository.CreateSettingsAsync(itemId, userId, settings);
             }
-            else if (existingSettings != null)
-            {
-                return await _artifactListSettingsRepository.UpdateSettingsAsync(itemId, userId, settings);
-            }
             else
             {
-                return 0;
+                return await _artifactListSettingsRepository.UpdateSettingsAsync(itemId, userId, settings);
             }
         }
     }

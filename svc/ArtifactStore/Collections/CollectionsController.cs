@@ -59,13 +59,12 @@ namespace ArtifactStore.Collections
         [ResponseType(typeof(CollectionArtifacts))]
         public async Task<IHttpActionResult> GetArtifactsInCollectionAsync(int id, [FromUri] Pagination pagination)
         {
-            pagination.Validate(nullAllowed: true);
+            pagination.Validate(true);
 
             var userId = Session.UserId;
 
             pagination = pagination ?? new Pagination();
             pagination.Offset = pagination.Offset ?? _defaultPaginationOffset;
-
             pagination.Limit = pagination.Limit
                 ?? await _artifactListService.GetPaginationLimitAsync(id, userId)
                 ?? _defaultPaginationLimit;
@@ -149,7 +148,7 @@ namespace ArtifactStore.Collections
         public async Task<HttpResponseMessage> SaveColumnsSettingsAsync(
             int id, [FromBody] ProfileColumnsDto profileColumnsDto)
         {
-            if (profileColumnsDto?.Items == null)
+            if (profileColumnsDto == null || profileColumnsDto.Items.IsEmpty())
             {
                 throw new BadRequestException(
                     ErrorMessages.Collections.ColumnsSettingsModelIsIncorrect, ErrorCodes.BadRequest);

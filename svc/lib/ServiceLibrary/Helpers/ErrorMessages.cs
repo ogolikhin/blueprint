@@ -155,6 +155,7 @@
         {
             public static readonly string AddColumnColumnExists = "Unable to add profile column '{0}'. The column already exists.";
             public static readonly string AddColumnCapacityReached = "Unable to add profile column '{0}'. The column limit of {1} has been reached.";
+            public static readonly string SaveProfileSettingsProfileSettingsNull = "\"profileSettings\" param is null.";
         }
 
         public static class Collections

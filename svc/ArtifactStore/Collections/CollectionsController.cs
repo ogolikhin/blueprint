@@ -110,13 +110,9 @@ namespace ArtifactStore.Collections
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(RemoveArtifactsFromCollectionResult))]
         public async Task<IHttpActionResult> RemoveArtifactsFromCollectionAsync(
-            int id, string remove, ReviewItemsRemovalParams removalParams)
+            int id, string remove, ItemsRemovalParams removalParams)
         {
-            if (removalParams == null || ((removalParams.ItemIds == null || !removalParams.ItemIds.Any()) && removalParams.SelectionType == SelectionType.Selected))
-            {
-                throw new BadRequestException(
-                    ErrorMessages.Collections.RemoveArtifactsInvalidParameters, ErrorCodes.BadRequest);
-            }
+            removalParams.Validate();
 
             var result = await _collectionsService.RemoveArtifactsFromCollectionAsync(id, removalParams, Session.UserId);
 

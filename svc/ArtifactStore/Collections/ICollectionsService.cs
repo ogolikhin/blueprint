@@ -13,7 +13,7 @@ namespace ArtifactStore.Collections
 
         Task<AddArtifactsToCollectionResult> AddArtifactsToCollectionAsync(int collectionId, ISet<int> artifactIds, int userId);
 
-        Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(int collectionId, ReviewItemsRemovalParams removalParams, int userId);
+        Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(int collectionId, ItemsRemovalParams removalParams, int userId);
 
         Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null);
 

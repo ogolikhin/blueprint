@@ -159,6 +159,7 @@ namespace AdminStore.Services.Workflow
                     var xwAction = xmlAction as XmlWebhookAction;
                     action = new IeWebhookAction
                     {
+                        Name = xmlAction.Name,
                         Id = xwAction.WebhookId
                     };
                     break;
@@ -550,6 +551,7 @@ namespace AdminStore.Services.Workflow
 
             return new XmlWebhookAction
             {
+                Name = ieWebhookAction.Name,
                 WebhookId = dataMaps.WebhooksByActionObj[ieWebhookAction]
             };
         }

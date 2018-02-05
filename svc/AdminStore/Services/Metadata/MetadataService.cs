@@ -66,6 +66,9 @@ namespace AdminStore.Services.Metadata
                 case IconType.Project:
                     icon = GetDefaultIcon(ItemTypePredefined.Project, hexColor);
                     break;
+                case IconType.InstanceSubartifact:
+                    icon = GetDefaultIcon(ItemTypePredefined.SubArtifactGroup, hexColor);
+                    break;
                 default:
                     var itemTypeInfo = await GetItemTypeInfoAsync(typeId.GetValueOrDefault());
 

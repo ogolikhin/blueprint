@@ -5,6 +5,7 @@
         // Compatible with InternalApi exceptions from Blueprint-current
         public const int ItemNotFound = 101;
         public const int IncorrectInputParameters = 103;
+        public const int ItemTypeNotFound = 109;
         public const int CannotPublish = 113;
         public const int CannotPublishOverValidationErrors = 121;
         public const int CannotDiscardOverDependencies = 122;

@@ -7,6 +7,7 @@ using ServiceLibrary.Services.Image;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Cache;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ItemType;
@@ -96,16 +97,16 @@ namespace AdminStore.Services.Metadata
             IconType iconType;
             if (string.IsNullOrEmpty(type) || !Enum.TryParse(type, true, out iconType))
             {
-                throw new BadRequestException("Unknown item type");
+                throw new BadRequestException("Unknown item type.", ErrorCodes.BadRequest);
             }
 
             if (typeId == null && iconType == IconType.Artifact)
             {
-                throw new BadRequestException("Unknown item type");
+                throw new BadRequestException("Unknown item type.", ErrorCodes.BadRequest);
             }
             if (!string.IsNullOrEmpty(color) && !_hexColorRegex.IsMatch(color))
             {
-                throw new BadRequestException("Color parameter should have hex presentation");
+                throw new BadRequestException("Color parameter should have hex presentation.", ErrorCodes.BadRequest);
             }
             return iconType;
         }
@@ -116,7 +117,7 @@ namespace AdminStore.Services.Metadata
 
             if (itemTypeInfo == null)
             {
-                throw new ResourceNotFoundException("Artifact type not found.");
+                throw new ResourceNotFoundException("Artifact type not found.", ErrorCodes.ItemTypeNotFound);
             }
 
             return itemTypeInfo;
@@ -127,7 +128,7 @@ namespace AdminStore.Services.Metadata
             var iconContent = _metadataRepository.GetSvgIconContent(predefined, color);
             if (iconContent == null)
             {
-                throw new ResourceNotFoundException("Artifact type icon Content not found.");
+                throw new ResourceNotFoundException("Artifact type icon Content not found.", ErrorCodes.ResourceNotFound);
             }
 
             return new Icon

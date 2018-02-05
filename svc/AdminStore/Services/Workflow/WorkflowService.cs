@@ -855,8 +855,8 @@ namespace AdminStore.Services.Workflow
                 Projects = GetProjects(workflowArtifactTypes, mode)
             };
 
-            var allWebhookTriggers = ieWorkflow.TransitionEvents.SelectMany(e => e.Triggers)
-                .Union(ieWorkflow.NewArtifactEvents.SelectMany(e => e.Triggers)).ToList();
+            var allWebhookTriggers = ieWorkflow.TransitionEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)
+                .Union(ieWorkflow.NewArtifactEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)).ToList();
 
             await LookupWebhookActionsFromIds(allWebhookTriggers);
 
@@ -1180,17 +1180,27 @@ namespace AdminStore.Services.Workflow
                     var securityInfo = SerializationHelper.FromXml<XmlWebhookSecurityInfo>(webhook.SecurityInfo);
                     action.Url = webhook.Url;
                     action.IgnoreInvalidSSLCertificate = securityInfo.IgnoreInvalidSSLCertificate;
-                    action.HttpHeaders = securityInfo.HttpHeaders;
-                    action.BasicAuth = new IeBasicAuth
+                    if (securityInfo.HttpHeaders.Any())
                     {
-                        Username = securityInfo.BasicAuth?.Username,
-                        Password = securityInfo.BasicAuth?.Password
-                    };
-                    action.Signature = new IeSignature
+                        action.HttpHeaders = new List<string>();
+                        securityInfo.HttpHeaders.ForEach(h => action.HttpHeaders.Add(SystemEncryptions.Decrypt(h)));
+                    }
+                    if (securityInfo.BasicAuth != null)
                     {
-                        Algorithm = securityInfo.Signature?.Algorithm,
-                        SecretToken = securityInfo.Signature?.SecretToken
-                    };
+                        action.BasicAuth = new IeBasicAuth
+                        {
+                            Username = SystemEncryptions.Decrypt(securityInfo.BasicAuth?.Username),
+                            Password = SystemEncryptions.Decrypt(securityInfo.BasicAuth?.Password)
+                        };
+                    }
+                    if (securityInfo.Signature != null)
+                    {
+                        action.Signature = new IeSignature
+                        {
+                            Algorithm = SystemEncryptions.Decrypt(securityInfo.Signature?.Algorithm),
+                            SecretToken = securityInfo.Signature?.SecretToken
+                        };
+                    }
                 }
             }
         }

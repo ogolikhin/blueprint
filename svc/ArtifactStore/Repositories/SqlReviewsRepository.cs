@@ -432,6 +432,10 @@ namespace ArtifactStore.Repositories
             {
                 if (effectiveIds.IsBaselineAdded)
                 {
+                    if (effectiveIds.Unpublished > 0)
+                    {
+                        throw ReviewsExceptionHelper.BaselineNotSealedException();
+                    }
                     return new AddArtifactsResult
                     {
                         ArtifactCount = 0,

@@ -80,7 +80,7 @@ namespace AdminStore.Controllers
             _metadataServiceMock.Setup(service => service.GetIconAsync(_type, _typeId, _color, _imageId)).ReturnsAsync(icon);
 
             // Act
-            var result = await _controller.GetIconsAsnyc(_type, _typeId, _color, _imageId);
+            var result = await _controller.GetIconsAsync(_type, _typeId, _color, _imageId);
 
             // Assert
             Assert.IsNotNull(result);
@@ -93,7 +93,7 @@ namespace AdminStore.Controllers
             // Arrange
 
             // Act
-            var result = await _controller.GetIconsAsnyc(_type, null, _color, _imageId);
+            var result = await _controller.GetIconsAsync(_type, null, _color, _imageId);
 
             // Assert
             Assert.IsNotNull(result);
@@ -115,7 +115,7 @@ namespace AdminStore.Controllers
             // Act
             try
             {
-                var result = await _controller.GetIconsAsnyc(_type, _typeId + 1, _color, _imageId);
+                var result = await _controller.GetIconsAsync(_type, _typeId + 1, _color, _imageId);
             }
             catch (Exception ex)
             {

@@ -2030,38 +2030,6 @@ namespace AdminStore.Services.Workflow.Validation.Xml
         }
 
         [TestMethod]
-        public void Validate_WebhooksNoAuthMethod_ReturnsWebhookActionNoAuthenticationMethodProvidedError()
-        {
-            // Arrange
-            var webhookAction = new IeWebhookAction
-            {
-                Url = "http://www.example.com",
-                IgnoreInvalidSSLCertificate = true,
-                Name = "name"
-            };
-            var triggers = new List<IeTrigger>
-            {
-                new IeTrigger {
-                    Action = webhookAction
-                }
-            };
-            var workflowValidator = new WorkflowXmlValidator();
-            _workflow.NewArtifactEvents.Add(new IeNewArtifactEvent
-            {
-                Name = "new event",
-                Triggers = triggers
-            });
-
-            // Act
-            var result = workflowValidator.ValidateXml(_workflow);
-
-            // Assert
-            Assert.IsTrue(result.HasErrors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(WorkflowXmlValidationErrorCodes.WebhookActionNoAuthenticationMethodProvided, result.Errors[0].ErrorCode);
-        }
-
-        [TestMethod]
         public void Validate_WebhooksInPropertyChangeTrigger_ReturnsPropertyChangeEventActionNotSupportedError()
         {
             // Arrange

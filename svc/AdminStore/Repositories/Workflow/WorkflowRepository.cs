@@ -1031,6 +1031,34 @@ namespace AdminStore.Repositories.Workflow
             return result;
         }
 
+        public async Task<IEnumerable<SqlWebhook>> GetWebhooks(IEnumerable<int> webhookIds, IDbTransaction transaction = null)
+        {
+            if (webhookIds == null)
+            {
+                throw new ArgumentException(nameof(webhookIds));
+            }
+
+            IEnumerable<SqlWebhook> result = new List<SqlWebhook>();
+
+            var ids = webhookIds.ToList();
+            if (ids.Any())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@webhookIds", ids);
+
+                if (transaction == null)
+                {
+                    result = await _connectionWrapper.QueryAsync<SqlWebhook>("GetWebhooks", parameters, commandType: CommandType.StoredProcedure);
+                }
+                else
+                {
+                    result = await transaction.Connection.QueryAsync<SqlWebhook>("GetWebhooks", parameters, transaction, commandType: CommandType.StoredProcedure);
+                }
+            }
+
+            return result;
+        }
+
         #endregion Webhooks
 
         #endregion

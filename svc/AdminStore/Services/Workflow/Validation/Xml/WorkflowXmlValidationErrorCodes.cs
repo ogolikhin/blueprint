@@ -64,7 +64,6 @@
         WebhookActionBasicAuthInvalid,
         WebhookActionSignatureSecretTokenEmpty,
         WebhookActionSignatureAlgorithmInvalid,
-        WebhookActionNoAuthenticationMethodProvided,
 
         // Update specific errors
         WorkflowIdDoesNotMatchIdInUrl,

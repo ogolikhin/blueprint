@@ -1197,7 +1197,7 @@ namespace AdminStore.Services.Workflow
                     {
                         action.Signature = new IeSignature
                         {
-                            Algorithm = securityInfo.Signature?.Algorithm,
+                            Algorithm = securityInfo.Signature?.Algorithm ?? "HMACSHA256",
                             SecretToken = SystemEncryptions.Decrypt(securityInfo.Signature?.SecretToken)
                         };
                     }
@@ -1816,7 +1816,10 @@ namespace AdminStore.Services.Workflow
             }
 
             XmlWebhookSecurityInfo securityInfo = new XmlWebhookSecurityInfo();
-            securityInfo.IgnoreInvalidSSLCertificate = (bool)webhook.IgnoreInvalidSSLCertificate;
+            if (webhook.ShouldSerializeIgnoreInvalidSSLCertificate())
+            {
+                securityInfo.IgnoreInvalidSSLCertificate = webhook.IgnoreInvalidSSLCertificate.Value;
+            }
             if (webhook.ShouldSerializeHttpHeaders())
             {
                 foreach (var header in webhook.HttpHeaders)
@@ -1836,10 +1839,10 @@ namespace AdminStore.Services.Workflow
 
             if (webhook.ShouldSerializeSignature())
             {
-                securityInfo.Signature = new XmlWebhookSignature()
+                securityInfo.Signature = new XmlWebhookSignature
                 {
                     SecretToken = SystemEncryptions.Encrypt(webhook.Signature.SecretToken),
-                    Algorithm = webhook.Signature.Algorithm
+                    Algorithm = webhook.Signature.Algorithm ?? "HMACSHA256"
                 };
             }
 

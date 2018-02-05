@@ -89,7 +89,7 @@ function Build-Nova-Html{
 
     try
     {
-        pushd "$workspace\app\NovaWeb"
+        Push-Location "$workspace\app\NovaWeb"
    
         Invoke-MyExpression "yarn" "install"
         # Invoke-MyExpression "yarn" "upgrade"
@@ -114,7 +114,7 @@ function Build-Nova-Html{
     }
     finally
     {
-        popd
+        Pop-Location
     }
 }
 
@@ -139,7 +139,7 @@ function Build-ImageGen-Html{
 
     try
     {
-        pushd "$workspace\app\NovaWeb"
+        Push-Location "$workspace\app\NovaWeb"
    
         Invoke-MyExpression "yarn" "install"
         # Invoke-MyExpression "yarn" "upgrade"
@@ -164,7 +164,7 @@ function Build-ImageGen-Html{
     }
     finally
     {
-        popd
+        Push-Location
     }
 }
 

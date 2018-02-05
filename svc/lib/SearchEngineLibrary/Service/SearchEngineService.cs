@@ -7,6 +7,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Exceptions;
 using System;
+using System.Data;
 using SearchEngineLibrary.Model;
 
 namespace SearchEngineLibrary.Service
@@ -27,9 +28,9 @@ namespace SearchEngineLibrary.Service
             _sqlArtifactRepository = sqlArtifactRepository;
         }
 
-        public async Task<SearchArtifactsResult> Search(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDrafts, int userId)
+        public async Task<SearchArtifactsResult> Search(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDrafts, int userId, IDbTransaction transaction = null)
         {           
-            var artifactBasicDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(scopeId, userId);
+            var artifactBasicDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(scopeId, userId, transaction);
                       
             if (artifactBasicDetails == null)
             {
@@ -47,7 +48,7 @@ namespace SearchEngineLibrary.Service
                 throw new NotImplementedException(ErrorMessages.NotImplementedForDescendantsScopeType);
             }
 
-            return await _searchEngineRepository.GetCollectionContentSearchArtifactResults(scopeId, pagination, includeDrafts, userId);
+            return await _searchEngineRepository.GetCollectionContentSearchArtifactResults(scopeId, pagination, includeDrafts, userId, transaction);
         }
     }
 }

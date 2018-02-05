@@ -2,16 +2,15 @@
 using AdminStore.Models.Enums;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using System.Text.RegularExpressions;
 
 namespace AdminStore.Helpers
 {
     public class GroupValidator
     {
-        public const int MinNameLength = 1;
-        public const int MaxNameLength = 255;
-        public const int MinEmailLength = 4;
-        public const int MaxEmailLength = 255;
+        private const int MinNameLength = 1;
+        private const int MaxNameLength = 255;
+        private const int MinEmailLength = 4;
+        private const int MaxEmailLength = 255;
 
         public static void ValidateModel(GroupDto group, OperationMode operationMode, int? existingGroupProjectId = null)
         {
@@ -48,18 +47,17 @@ namespace AdminStore.Helpers
                 {
                     throw new BadRequestException(ErrorMessages.CreationOnlyDatabaseGroup, ErrorCodes.BadRequest);
                 }
-                else
-                {
-                    throw new BadRequestException(ErrorMessages.SourceFieldValueForGroupsShouldBeOnlyDatabase, ErrorCodes.BadRequest);
-                }
+
+                throw new BadRequestException(ErrorMessages.SourceFieldValueForGroupsShouldBeOnlyDatabase, ErrorCodes.BadRequest);
             }
 
             if (operationMode == OperationMode.Create)
             {
-                if (group.ProjectId != null && group.ProjectId < 0)
+                if (group.ProjectId != null && group.ProjectId <= 0)
                 {
                     throw new BadRequestException(ErrorMessages.ProjectIdIsInvalid, ErrorCodes.BadRequest);
                 }
+
                 if (group.ProjectId != null && (group.LicenseType != LicenseType.None))
                 {
                     throw new BadRequestException(ErrorMessages.CreationGroupWithScopeAndLicenseIdSimultaneously, ErrorCodes.BadRequest);

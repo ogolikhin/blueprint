@@ -140,11 +140,6 @@ namespace ArtifactStore.Collections
 
         public async Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(int collectionId, ReviewItemsRemovalParams removalParams, int userId)
         {
-            if ((removalParams?.ItemIds == null || !removalParams.ItemIds.Any()))
-            {
-                throw new BadRequestException("Incorrect input parameters", ErrorCodes.OutOfRangeParameter);
-            }
-
             if (collectionId < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(collectionId));
@@ -161,7 +156,7 @@ namespace ArtifactStore.Collections
             {
                 var collection = await ValidateCollection(collectionId, userId, transaction);
 
-                var searchArtifactsResult = await _searchEngineService.Search(collection.ArtifactId, null, ScopeType.Contents, true, userId);
+                var searchArtifactsResult = await _searchEngineService.Search(collection.ArtifactId, null, ScopeType.Contents, true, userId, transaction);
 
                 List<int> artifactsToRemove = null;
 
@@ -351,13 +346,21 @@ namespace ArtifactStore.Collections
                         {
                             PropertyName = artifactProperty.PropertyName,
                             Predefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined,
-                            PrimitiveType = artifactProperty.PrimitiveType.HasValue ? (PropertyPrimitiveType)artifactProperty.PrimitiveType.Value : 0,
+                            PrimitiveType = artifactProperty.PrimitiveType.HasValue
+                                ? (PropertyPrimitiveType)artifactProperty.PrimitiveType.Value
+                                : (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
+                                  PropertyTypePredefined.ID
+                                    ? PropertyPrimitiveType.Number
+                                    : (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
+                                      PropertyTypePredefined.ArtifactType
+                                        ? PropertyPrimitiveType.Choice
+                                        : 0,
                             PropertyTypeId = artifactProperty.PropertyTypeId
                         };
                     }
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
-                    propertyInfo.PropertyTypePredefined = artifactProperty.PropertyTypePredefined;
+                    propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
 
                     if ((PropertyTypePredefined)artifactProperty.PropertyTypePredefined == PropertyTypePredefined.ID)
                     {

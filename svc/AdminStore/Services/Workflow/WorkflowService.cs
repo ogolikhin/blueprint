@@ -281,7 +281,7 @@ namespace AdminStore.Services.Workflow
 
             dataValidationResult.Errors.AddRange(notFoundErrors);
 
-            if (!dataValidationResult.HasErrors && !workflowDiffResult.HasChanges)
+            if (!dataValidationResult.HasErrors && !workflowDiffResult.HasChanges && workflowMode != WorkflowMode.Canvas)
             {
                 dataValidationResult.Errors.Add(new WorkflowDataValidationError
                 {

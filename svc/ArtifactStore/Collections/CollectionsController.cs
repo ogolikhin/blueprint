@@ -73,7 +73,7 @@ namespace ArtifactStore.Collections
         /// <response code="403">Forbidden. The user does not have permissions for the collection.</response>
         /// <response code="404">Not found. A collection for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <returns>Result of the operation.</returns>
+        /// <returns>Amount of added artifacts, total amount of passed artifact to add.</returns>
         [HttpPost]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(AddArtifactsToCollectionResult))]
@@ -105,13 +105,19 @@ namespace ArtifactStore.Collections
         /// <response code="403">Forbidden. The user does not have permissions for the collection.</response>
         /// <response code="404">Not found. A collection for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <returns>Result of the operation.</returns>
+        /// <returns>Amount of removed artifacts, total amount of passed artifact to remove.</returns>
         [HttpPost]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(RemoveArtifactsFromCollectionResult))]
         public async Task<IHttpActionResult> RemoveArtifactsFromCollectionAsync(
             int id, string remove, ReviewItemsRemovalParams removalParams)
         {
+            if (removalParams == null || ((removalParams.ItemIds == null || !removalParams.ItemIds.Any()) && removalParams.SelectionType == SelectionType.Selected))
+            {
+                throw new BadRequestException(
+                    ErrorMessages.Collections.RemoveArtifactsInvalidParameters, ErrorCodes.BadRequest);
+            }
+
             var result = await _collectionsService.RemoveArtifactsFromCollectionAsync(id, removalParams, Session.UserId);
 
             return Ok(result);

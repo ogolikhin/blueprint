@@ -1044,7 +1044,7 @@ namespace AdminStore.Repositories.Workflow
             if (ids.Any())
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@webhookIds", ids);
+                parameters.Add("@webhookIds", SqlConnectionWrapper.ToDataTable(ids));
 
                 if (transaction == null)
                 {

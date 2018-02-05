@@ -1197,8 +1197,8 @@ namespace AdminStore.Services.Workflow
                     {
                         action.Signature = new IeSignature
                         {
-                            Algorithm = SystemEncryptions.Decrypt(securityInfo.Signature?.Algorithm),
-                            SecretToken = securityInfo.Signature?.SecretToken
+                            Algorithm = securityInfo.Signature?.Algorithm,
+                            SecretToken = SystemEncryptions.Decrypt(securityInfo.Signature?.SecretToken)
                         };
                     }
                 }

@@ -202,8 +202,7 @@ namespace ArtifactStore.Collections
             var removalParameters =
                 new ReviewItemsRemovalParams
                 {
-                    ItemIds = new List<int> { 1, 2, 3 },
-                    SelectionType = SelectionType.Selected
+                    ItemIds = new List<int> { 1, 2, 3 }
                 };
 
             _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
@@ -221,8 +220,7 @@ namespace ArtifactStore.Collections
             var removalParameters =
                 new ReviewItemsRemovalParams
                 {
-                    ItemIds = null,
-                    SelectionType = SelectionType.Selected
+                    ItemIds = null
                 };
 
             _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);

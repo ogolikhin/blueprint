@@ -986,6 +986,7 @@ namespace AdminStore.Services.Workflow.Validation.Xml
                 }
 
                 if (!_hasWebhookActionSignatureAlgorithmInvalid &&
+                    !string.IsNullOrEmpty(action.Signature.Algorithm) &&
                     !action.Signature.Algorithm.Equals("HMACSHA256") &&
                     !action.Signature.Algorithm.Equals("HMACSHA1"))
                 {

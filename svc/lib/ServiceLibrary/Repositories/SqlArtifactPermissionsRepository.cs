@@ -153,9 +153,9 @@ namespace ServiceLibrary.Repositories
             return dictionary;
         }
 
-        public async Task<bool> HasReadPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
+        public async Task<bool> HasReadPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null)
         {
-            var result = await GetArtifactPermissions(new[] { artifactId }, sessionUserId, contextUser, revisionId, addDrafts);
+            var result = await GetArtifactPermissions(new[] { artifactId }, sessionUserId, contextUser, revisionId, addDrafts, transaction);
             RolePermissions permission;
 
             return result.TryGetValue(artifactId, out permission) && permission.HasFlag(RolePermissions.Read);

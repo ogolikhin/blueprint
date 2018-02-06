@@ -60,8 +60,13 @@ namespace ArtifactStore.Collections
         }
 
         private async Task<ArtifactBasicDetails> GetCollectionBasicDetailsAsync(
-            int collectionId, int userId, RolePermissions permissions = RolePermissions.Read, IDbTransaction transaction = null)
+            int collectionId, int userId, RolePermissions expectedPermissions = RolePermissions.Read, IDbTransaction transaction = null)
         {
+            if (expectedPermissions != RolePermissions.Read && expectedPermissions != RolePermissions.Edit)
+            {
+                throw new ArgumentOutOfRangeException(nameof(expectedPermissions));
+            }
+
             var collection = await _artifactRepository.GetArtifactBasicDetails(collectionId, userId, transaction);
 
             if (collection == null || collection.DraftDeleted || collection.LatestDeleted)
@@ -74,19 +79,18 @@ namespace ArtifactStore.Collections
                 throw CollectionsExceptionHelper.InvalidTypeException(collectionId);
             }
 
-            if (permissions == RolePermissions.Read)
+            if (expectedPermissions == RolePermissions.Read)
             {
-                if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId))
+                if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId, transaction: transaction))
                 {
                     throw CollectionsExceptionHelper.NoAccessException(collectionId);
                 }
             }
-            else if (permissions == RolePermissions.Edit)
+            else
             {
-                if (!await _artifactPermissionsRepository.HasEditPermissions(
-                    collection.ArtifactId, userId, transaction: transaction))
+                if (!await _artifactPermissionsRepository.HasEditPermissions(collectionId, userId, transaction: transaction))
                 {
-                    throw CollectionsExceptionHelper.NoEditPermissionException(collection.ArtifactId);
+                    throw CollectionsExceptionHelper.NoEditPermissionException(collectionId);
                 }
             }
 

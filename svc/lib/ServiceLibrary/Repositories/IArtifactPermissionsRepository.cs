@@ -11,7 +11,7 @@ namespace ServiceLibrary.Repositories
 
         Task<Dictionary<int, RolePermissions>> GetArtifactPermissionDirectly(int itemId, int userId, int projectId);
 
-        Task<bool> HasReadPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true);
+        Task<bool> HasReadPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null);
 
         Task<bool> HasEditPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null);
 

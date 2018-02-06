@@ -41,7 +41,7 @@ namespace ArtifactStore.Collections
         private List<ItemDetails> _artifacts;
         private List<PropertyTypeInfo> _propertyTypeInfos;
         private ProfileColumns _profileColumns;
-        private ReviewItemsRemovalParams _reviewItemsRemovalParams;
+        private ItemsRemovalParams _reviewItemsRemovalParams;
         private SearchArtifactsResult _searchArtifactsResult;
         private Dictionary<int, RolePermissions> _artifactPermissions;
 
@@ -144,7 +144,7 @@ namespace ArtifactStore.Collections
             InitializeProfileColumnsAndPropertyTypeInfos(_profileColumnsSettings, _propertyTypeInfos);
 
             _reviewItemsRemovalParams =
-                new ReviewItemsRemovalParams()
+                new ItemsRemovalParams()
                 {
                     ItemIds = new List<int> { 1, 2, 3 },
                     SelectionType = SelectionType.Selected

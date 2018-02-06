@@ -204,7 +204,7 @@ namespace ArtifactStore.Collections
         public async Task RemoveArtifactsFromCollectionAsync_AllParametersAreValid_Success()
         {
             var removalParameters =
-                new ReviewItemsRemovalParams
+                new ItemsRemovalParams
                 {
                     ItemIds = new List<int> { 1, 2, 3 }
                 };
@@ -222,7 +222,7 @@ namespace ArtifactStore.Collections
         public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsNull_BadRequestException()
         {
             var removalParameters =
-                new ReviewItemsRemovalParams
+                new ItemsRemovalParams
                 {
                     ItemIds = null
                 };
@@ -237,7 +237,7 @@ namespace ArtifactStore.Collections
         public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsEmpty_BadRequestException()
         {
             var removalParameters =
-                new ReviewItemsRemovalParams
+                new ItemsRemovalParams
                 {
                     ItemIds = new List<int>(),
                     SelectionType = SelectionType.Selected
@@ -252,7 +252,7 @@ namespace ArtifactStore.Collections
         [ExpectedException(typeof(BadRequestException))]
         public async Task RemoveArtifactsFromCollectionAsync_ReviewItemsRemovalParamsIsNull_BadRequestException()
         {
-            ReviewItemsRemovalParams removalParameters = null;
+            ItemsRemovalParams removalParameters = null;
 
             _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
 

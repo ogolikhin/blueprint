@@ -270,8 +270,7 @@ namespace ArtifactStore.Collections
             IReadOnlyList<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns, string search)
         {
             return profileColumns.Items
-                .Where(column => (propertyTypeInfos.IsEmpty() || column.ExistsIn(propertyTypeInfos)) &&
-                                 column.NameMatches(search))
+                .Where(column => column.ExistsIn(propertyTypeInfos) && column.NameMatches(search))
                 .Select(column => new ProfileColumn(
                     column.PropertyName, column.Predefined, column.PrimitiveType, column.PropertyTypeId));
         }

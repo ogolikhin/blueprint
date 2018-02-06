@@ -74,12 +74,14 @@ namespace ArtifactStore.Collections
                 throw CollectionsExceptionHelper.InvalidTypeException(collectionId);
             }
 
-            if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId))
+            if (permissions == RolePermissions.Read)
             {
-                throw CollectionsExceptionHelper.NoAccessException(collectionId);
+                if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId))
+                {
+                    throw CollectionsExceptionHelper.NoAccessException(collectionId);
+                }
             }
-
-            if (permissions == RolePermissions.Edit)
+            else if (permissions == RolePermissions.Edit)
             {
                 if (!await _artifactPermissionsRepository.HasEditPermissions(
                     collection.ArtifactId, userId, transaction: transaction))

@@ -33,6 +33,18 @@ namespace ServiceLibrary.Models
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
+        public void Validate_ItemsRemovalParamsItemIdsIsNullSelectionTypeSelected_BadRequestException()
+        {
+            var removalParams = new ItemsRemovalParams()
+            {
+                ItemIds = null,
+                SelectionType = SelectionType.Selected
+            };
+            removalParams.Validate();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public void Validate_ItemsRemovalParamsItemIdsIsNullSelectionTypeExcluded_BadRequestException()
         {
             var removalParams = new ItemsRemovalParams()

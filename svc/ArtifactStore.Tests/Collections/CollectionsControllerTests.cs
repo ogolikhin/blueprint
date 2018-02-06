@@ -216,48 +216,6 @@ namespace ArtifactStore.Collections
             Assert.IsNotNull(result);
             Assert.AreEqual(_removeArtifactsFromCollectionResult, result.Content);
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsNull_BadRequestException()
-        {
-            var removalParameters =
-                new ItemsRemovalParams
-                {
-                    ItemIds = null
-                };
-
-            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
-
-            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsEmpty_BadRequestException()
-        {
-            var removalParameters =
-                new ItemsRemovalParams
-                {
-                    ItemIds = new List<int>(),
-                    SelectionType = SelectionType.Selected
-                };
-
-            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
-
-            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task RemoveArtifactsFromCollectionAsync_ReviewItemsRemovalParamsIsNull_BadRequestException()
-        {
-            ItemsRemovalParams removalParameters = null;
-
-            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
-
-            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
-        }
         #endregion
 
         #region SaveColumnsSettingsAsync

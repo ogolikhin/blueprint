@@ -144,5 +144,68 @@ namespace ServiceLibrary.Models
             Assert.AreEqual(ErrorMessages.IncorrectLimitParameter, exception.Message);
             Assert.AreEqual(ErrorCodes.BadRequest, exception.ErrorCode);
         }
+
+        [TestMethod]
+        public void Validate_PaginationNotSpecified_OkResult()
+        {
+            // arrange
+            BadRequestException exception = null;
+            Pagination pagination = null;
+
+            // act
+            try
+            {
+                pagination.Validate(nullAllowed: true);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // assert
+            Assert.IsNull(exception);
+        }
+
+        [TestMethod]
+        public void Validate_OffsetIsNull_OkResult()
+        {
+            // arrange
+            BadRequestException exception = null;
+            Pagination pagination = new Pagination();
+
+            // act
+            try
+            {
+                pagination.Validate(nullAllowed: true);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // assert
+            Assert.IsNull(exception);
+        }
+
+        [TestMethod]
+        public void Validate_LimitIsNull_OkResult()
+        {
+            // arrange
+            BadRequestException exception = null;
+            var pagination = new Pagination { Offset = 0, Limit = null };
+
+            // act
+            try
+            {
+                pagination.Validate(nullAllowed: true);
+            }
+            catch (BadRequestException ex)
+            {
+                exception = ex;
+            }
+
+            // assert
+            Assert.IsNull(exception);
+        }
     }
 }

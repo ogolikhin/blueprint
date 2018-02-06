@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
+using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,6 +21,7 @@ namespace ArtifactStore.Collections
     {
         private int _userId = 1;
 
+        private Mock<IArtifactListService> _artifactListServiceMock;
         private Mock<ICollectionsService> _collectionsServiceMock;
         private CollectionsController _collectionsController;
         private Session _session;
@@ -41,9 +43,11 @@ namespace ArtifactStore.Collections
             _pagination = new Pagination { Limit = int.MaxValue, Offset = 0 };
 
             _collectionsServiceMock = new Mock<ICollectionsService>();
+            _artifactListServiceMock = new Mock<IArtifactListService>();
 
             _collectionsController = new CollectionsController(
-                _collectionsServiceMock.Object)
+                _collectionsServiceMock.Object,
+                _artifactListServiceMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -200,6 +204,14 @@ namespace ArtifactStore.Collections
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task SaveColumnsSettingsAsync_EmptyItems_ThrowsException()
+        {
+            _profileColumnsDto.Items = new List<ProfileColumn>();
+            await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task SaveColumnsSettingsAsync_NullItems_ThrowsException()
         {
             _profileColumnsDto.Items = null;
             await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);

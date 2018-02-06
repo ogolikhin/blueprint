@@ -153,11 +153,13 @@ namespace ArtifactStore.Repositories
                     Approved = reviewDetails.Approved,
                     Disapproved = reviewDetails.Disapproved,
                     Pending = reviewDetails.Pending,
-                    Viewed = reviewDetails.Viewed
+                    Viewed = reviewDetails.Viewed,
+                    NotRequired = reviewDetails.ApprovalNotRequiredArtifactsCount + (reviewDetails.TotalArtifacts - reviewDetails.TotalViewable) // NotRequired includes artifacts with no permission as well
                 },
                 ReviewType = reviewType,
                 RevisionId = reviewDetails.RevisionId,
-                ProjectId = reviewInfo.ProjectId
+                ProjectId = reviewInfo.ProjectId,
+                IncludeFolders = reviewDetails.IncludeFolders
             };
 
             if (reviewDetails.RequireMeaningOfSignature && reviewDetails.ReviewParticipantRole == ReviewParticipantRole.Approver)
@@ -430,6 +432,10 @@ namespace ArtifactStore.Repositories
             {
                 if (effectiveIds.IsBaselineAdded)
                 {
+                    if (effectiveIds.Unpublished > 0)
+                    {
+                        throw ReviewsExceptionHelper.BaselineNotSealedException();
+                    }
                     return new AddArtifactsResult
                     {
                         ArtifactCount = 0,
@@ -1254,7 +1260,7 @@ namespace ArtifactStore.Repositories
             return toc;
         }
 
-        public async Task RemoveParticipantsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId)
+        public async Task RemoveParticipantsFromReviewAsync(int reviewId, ItemsRemovalParams removeParams, int userId)
         {
             if ((removeParams.ItemIds == null || !removeParams.ItemIds.Any()) && removeParams.SelectionType == SelectionType.Selected)
             {
@@ -1347,7 +1353,7 @@ namespace ArtifactStore.Repositories
                 commandType: CommandType.StoredProcedure);
         }
 
-        public async Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId)
+        public async Task RemoveArtifactsFromReviewAsync(int reviewId, ItemsRemovalParams removeParams, int userId)
         {
             if ((removeParams.ItemIds == null || !removeParams.ItemIds.Any()) && removeParams.SelectionType == SelectionType.Selected)
             {

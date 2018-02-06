@@ -146,7 +146,14 @@
     <Compile Include="Helpers\HttpsSecurity.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
+    <Compile Include="Helpers\Validators\SearchFieldValidator.cs" />
+    <Compile Include="Models\Enums\IconType.cs" />
     <Compile Include="Models\Icon.cs" />
+    <Compile Include="Models\ItemsRemovalParams.cs" />
+    <Compile Include="Models\ItemsRemovalParamsExtensions.cs" />
+    <Compile Include="Models\Workflow\Actions\WebhookAction.cs" />
+    <Compile Include="Models\Workflow\XmlWebhookAction.cs" />
+    <Compile Include="Models\XmlWebhookSecurityInfo.cs" />
     <Compile Include="Services\Image\IImageService.cs" />
     <Compile Include="Services\Image\ImageService.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />
@@ -376,8 +383,6 @@
     <Compile Include="Repositories\ApplicationSettings\SqlFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\IFeaturesRepository.cs" />
     <Compile Include="Repositories\ApplicationSettings\ISettingsRepository.cs" />
-    <Compile Include="Repositories\ArtifactListSetting\ArtifactListSettingsRepository.cs" />
-    <Compile Include="Repositories\ArtifactListSetting\IArtifactListSettingsRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />

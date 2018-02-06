@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Models.Workflow;
-using BluePrintSys.Messaging.CrossCutting.Models;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {
@@ -32,6 +32,11 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 
             if (await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(timeout))) == task)
             {
+                if (task.IsFaulted)
+                {
+                    Log.Error(task.Exception);
+                    throw new Exception(task.Exception?.Message);
+                }
                 return;
             }
             else

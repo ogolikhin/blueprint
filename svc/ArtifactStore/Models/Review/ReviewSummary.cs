@@ -57,6 +57,8 @@ namespace ArtifactStore.Models.Review
         public bool ShowOnlyDescription { get; set; }
 
         public IEnumerable<SelectedMeaningOfSignature> MeaningOfSignatures { get; set; }
+
+        public bool IncludeFolders { get; set; }
     }
 
     internal class ReviewSummaryDetails
@@ -96,6 +98,10 @@ namespace ArtifactStore.Models.Review
         public int Pending { get; set; }
 
         public int Viewed { get; set; }
+
+        public int ApprovalNotRequiredArtifactsCount { get; set; }
+
+        public bool IncludeFolders { get; set; }
 
         private DateTime? _expirationDate;
         public DateTime? ExpirationDate

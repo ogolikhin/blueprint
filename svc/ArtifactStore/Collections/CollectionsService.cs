@@ -7,7 +7,9 @@ using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Helpers;
 using ArtifactStore.Collections.Models;
+using ArtifactStore.Models.Review;
 using SearchEngineLibrary.Service;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -99,7 +101,7 @@ namespace ArtifactStore.Collections
             return populatedArtifacts;
         }
 
-        public async Task<AddArtifactsResult> AddArtifactsToCollectionAsync(
+        public async Task<AddArtifactsToCollectionResult> AddArtifactsToCollectionAsync(
             int collectionId, ISet<int> artifactIds, int userId)
         {
             if (collectionId < 1)
@@ -112,22 +114,11 @@ namespace ArtifactStore.Collections
                 throw new ArgumentOutOfRangeException(nameof(userId));
             }
 
-            AddArtifactsResult result = null;
+            AddArtifactsToCollectionResult result = null;
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
-                var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, transaction);
-
-                if (!await _artifactPermissionsRepository.HasEditPermissions(
-                    collection.ArtifactId, userId, transaction: transaction))
-                {
-                    throw CollectionsExceptionHelper.NoEditPermissionException(collection.ArtifactId);
-                }
-
-                await LockAsync(collection, userId, transaction);
-
-                await _collectionsRepository.RemoveDeletedArtifactsFromCollectionAsync(
-                    collection.ArtifactId, userId, transaction);
+                var collection = await ValidateCollection(collectionId, userId, transaction);
 
                 var artifactsWithReadPermissions = await GetAccessibleArtifactIdsAsync(
                     artifactIds, collection, userId, transaction);
@@ -135,7 +126,7 @@ namespace ArtifactStore.Collections
                 var addedCount = await _collectionsRepository.AddArtifactsToCollectionAsync(
                     collection.ArtifactId, artifactsWithReadPermissions, userId, transaction);
 
-                result = new AddArtifactsResult
+                result = new AddArtifactsToCollectionResult
                 {
                     AddedCount = addedCount,
                     Total = artifactIds.Count
@@ -147,21 +138,65 @@ namespace ArtifactStore.Collections
             return result;
         }
 
+        public async Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(int collectionId, ItemsRemovalParams removalParams, int userId)
+        {
+            if (collectionId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(collectionId));
+            }
+
+            if (userId < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(userId));
+            }
+
+            RemoveArtifactsFromCollectionResult result = null;
+
+            Func<IDbTransaction, Task> action = async transaction =>
+            {
+                var collection = await ValidateCollection(collectionId, userId, transaction);
+
+                var searchArtifactsResult = await _searchEngineService.Search(collection.ArtifactId, null, ScopeType.Contents, true, userId, transaction);
+
+                List<int> artifactsToRemove = null;
+
+                artifactsToRemove = removalParams.SelectionType == SelectionType.Selected ?
+                                    searchArtifactsResult.ArtifactIds.Intersect(removalParams.ItemIds).ToList() :
+                                    searchArtifactsResult.ArtifactIds.Except(removalParams.ItemIds).ToList();
+
+                var artifactsWithReadPermissions = await GetAccessibleArtifactIdsAsync(artifactsToRemove, collection, userId, transaction);
+
+                var removedCount = await _collectionsRepository.RemoveArtifactsFromCollectionAsync(
+                    collection.ArtifactId, artifactsWithReadPermissions, userId, transaction);
+
+                result = new RemoveArtifactsFromCollectionResult()
+                {
+                    RemovedCount = removedCount,
+                    Total = removalParams.ItemIds.Count()
+                };
+            };
+
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
+
+            return result;
+        }
+
         public async Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null)
         {
             var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
-            var columnSettings = await _artifactListService.GetColumnSettingsAsync(collection.ArtifactId, userId);
+            var profileColumns = await _artifactListService.GetProfileColumnsAsync(
+                collection.ArtifactId, userId, ProfileColumns.Default);
 
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(collection.ArtifactId, userId, search);
 
             return new GetColumnsDto
             {
-                SelectedColumns = GetSelectedColumns(propertyTypeInfos, columnSettings, search),
-                UnselectedColumns = GetUnselectedColumns(propertyTypeInfos, columnSettings)
+                SelectedColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, search),
+                UnselectedColumns = GetUnselectedColumns(propertyTypeInfos, profileColumns)
             };
         }
 
-        public async Task SaveColumnSettingsAsync(int collectionId, ProfileColumnsSettings columnSettings, int userId)
+        public async Task SaveProfileColumnsAsync(int collectionId, ProfileColumns profileColumns, int userId)
         {
             if (userId < 1)
             {
@@ -170,73 +205,79 @@ namespace ArtifactStore.Collections
 
             var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
 
-            await FilterIncorrectColumnsSettingsAsync(collectionId, userId, columnSettings);
-            await _artifactListService.SaveColumnsSettingsAsync(collection.ArtifactId, columnSettings, userId);
+            var validColumns = await GetValidColumnsAsync(collectionId, userId, profileColumns);
+            await _artifactListService.SaveProfileColumnsAsync(collection.ArtifactId, validColumns, userId);
+        }
+
+        private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)
+        {
+            var artifactIds = await _collectionsRepository.GetContentArtifactIdsAsync(collectionId, userId);
+            var artifactsInCollection = await _itemInfoRepository.GetItemsDetails(userId, artifactIds);
+
+            return artifactsInCollection
+                .Where(artifact => artifact.EndRevision == int.MaxValue || artifact.EndRevision == 1)
+                .ToList();
+        }
+
+        private async Task<ArtifactBasicDetails> ValidateCollection(int collectionId, int userId, IDbTransaction transaction)
+        {
+            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, transaction);
+
+            if (!await _artifactPermissionsRepository.HasEditPermissions(
+                collection.ArtifactId, userId, transaction: transaction))
+            {
+                throw CollectionsExceptionHelper.NoEditPermissionException(collection.ArtifactId);
+            }
+
+            await LockAsync(collection, userId, transaction);
+
+            await _collectionsRepository.RemoveDeletedArtifactsFromCollectionAsync(
+                collection.ArtifactId, userId, transaction);
+
+            return collection;
         }
 
         private async Task<IReadOnlyList<PropertyTypeInfo>> GetPropertyTypeInfosAsync(
             int collectionId, int userId, string search = null)
         {
-            var artifactIds = await _collectionsRepository.GetContentArtifactIdsAsync(collectionId, userId);
-            var artifacts = await _itemInfoRepository.GetItemsDetails(userId, artifactIds);
-            var itemTypeIds = artifacts.Select(a => a.ItemTypeId).Distinct();
+            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
+            var itemTypeIds = artifacts.Select(artifact => artifact.ItemTypeId).Distinct();
 
             return await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(itemTypeIds, search);
         }
 
-        private async Task FilterIncorrectColumnsSettingsAsync(
-            int collectionId, int userId, ProfileColumnsSettings columnSettings)
+        private async Task<ProfileColumns> GetValidColumnsAsync(
+            int collectionId, int userId, ProfileColumns profileColumns)
         {
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(collectionId, userId);
-            var columnsInCollection = GetUnselectedColumns(propertyTypeInfos);
-            var columnsFromRequest = columnSettings.Items.ToList();
 
-            for (var i = 0; i < columnsFromRequest.Count; i++)
-            {
-                if (!columnsInCollection.Any(column =>
-                    column.PropertyTypeId == columnsFromRequest[i].PropertyTypeId &&
-                    column.Predefined == columnsFromRequest[i].Predefined &&
-                    column.PropertyName == columnsFromRequest[i].PropertyName))
-                {
-                    columnsFromRequest.Remove(columnsFromRequest[i]);
-                }
-            }
-
-            columnSettings.Items = columnsFromRequest;
+            return new ProfileColumns(
+                profileColumns.Items
+                    .Where(column => column.ExistsIn(propertyTypeInfos)));
         }
 
-        private static IEnumerable<ArtifactListColumn> GetSelectedColumns(
-            IReadOnlyList<PropertyTypeInfo> propertyTypeInfos, ProfileColumnsSettings columnSettings, string search)
+        private static IEnumerable<ProfileColumn> GetSelectedColumns(
+            IReadOnlyList<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns, string search)
         {
-            if (columnSettings == null || columnSettings.Items.IsEmpty())
-            {
-                return Enumerable.Empty<ArtifactListColumn>();
-            }
-
-            return columnSettings.Items
-                .Where(column => column.ExistsIn(propertyTypeInfos) && column.NameMatches(search))
-                .Select(column => new ArtifactListColumn
-                {
-                    PropertyName = column.PropertyName,
-                    PropertyTypeId = column.PropertyTypeId,
-                    Predefined = column.Predefined,
-                    PrimitiveType = default(int) // TODO: Either remove or add this property
-                });
+            return profileColumns.Items
+                .Where(column => (propertyTypeInfos.IsEmpty() || column.ExistsIn(propertyTypeInfos)) && column.NameMatches(search))
+                .Select(column => new ProfileColumn(
+                    column.PropertyName, column.Predefined, column.PrimitiveType, column.PropertyTypeId));
         }
 
-        private static IReadOnlyList<ArtifactListColumn> GetUnselectedColumns(
-            IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumnsSettings columnSettings = null)
+        private static IEnumerable<ProfileColumn> GetUnselectedColumns(
+            IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns = null)
         {
             return propertyTypeInfos
                 .Select(info => info.IsCustom ?
-                    CreateCustomPropertyColumn(info, columnSettings) :
-                    CreateSystemPropertyColumn(info, columnSettings))
+                    CreateCustomPropertyColumn(info, profileColumns) :
+                    CreateSystemPropertyColumn(info, profileColumns))
                 .Where(column => column != null)
                 .ToList();
         }
 
-        private static ArtifactListColumn CreateSystemPropertyColumn(
-            PropertyTypeInfo propertyTypeInfo, ProfileColumnsSettings columnSettings = null)
+        private static ProfileColumn CreateSystemPropertyColumn(
+            PropertyTypeInfo propertyTypeInfo, ProfileColumns profileColumns = null)
         {
             var systemPredefineds = new HashSet<PropertyTypePredefined>
             {
@@ -251,35 +292,30 @@ namespace ArtifactStore.Collections
             };
 
             if (!propertyTypeInfo.PredefinedMatches(systemPredefineds) ||
-                columnSettings != null && columnSettings.PredefinedMatches(propertyTypeInfo.Predefined))
+                profileColumns != null && profileColumns.PredefinedMatches(propertyTypeInfo.Predefined))
             {
                 return null;
             }
 
-            return new ArtifactListColumn
-            {
-                PropertyName = propertyTypeInfo.Name,
-                PropertyTypeId = propertyTypeInfo.Id,
-                Predefined = (int)propertyTypeInfo.Predefined,
-                PrimitiveType = (int)propertyTypeInfo.PrimitiveType
-            };
+            return new ProfileColumn(
+                propertyTypeInfo.Name,
+                propertyTypeInfo.Predefined,
+                propertyTypeInfo.PrimitiveType);
         }
 
-        private static ArtifactListColumn CreateCustomPropertyColumn(
-            PropertyTypeInfo propertyTypeInfo, ProfileColumnsSettings columnSettings = null)
+        private static ProfileColumn CreateCustomPropertyColumn(
+            PropertyTypeInfo propertyTypeInfo, ProfileColumns profileColumns = null)
         {
-            if (columnSettings != null && columnSettings.PropertyTypeIdMatches(propertyTypeInfo.Id))
+            if (profileColumns != null && profileColumns.PropertyTypeIdMatches(propertyTypeInfo.Id.Value))
             {
                 return null;
             }
 
-            return new ArtifactListColumn
-            {
-                PropertyName = propertyTypeInfo.Name,
-                PropertyTypeId = propertyTypeInfo.Id,
-                Predefined = (int)propertyTypeInfo.Predefined,
-                PrimitiveType = (int)propertyTypeInfo.PrimitiveType
-            };
+            return new ProfileColumn(
+                propertyTypeInfo.Name,
+                propertyTypeInfo.Predefined,
+                propertyTypeInfo.PrimitiveType,
+                propertyTypeInfo.Id);
         }
 
         private static CollectionArtifacts PopulateArtifactsProperties(IReadOnlyList<CollectionArtifact> artifacts)
@@ -287,7 +323,7 @@ namespace ArtifactStore.Collections
             var artifactIdsResult = artifacts.Select(x => x.ArtifactId).Distinct().ToList();
 
             var artifactDtos = new List<ArtifactDto>();
-            var settingsColumns = new List<ArtifactListColumn>();
+            var settingsColumns = new List<ProfileColumn>();
             var areColumnsPopulated = false;
 
             foreach (var id in artifactIdsResult)
@@ -301,64 +337,52 @@ namespace ArtifactStore.Collections
 
                 foreach (var artifactProperty in artifactProperties)
                 {
-                    ArtifactListColumn artifactListColumn = null;
+                    ProfileColumn profileColumn = null;
                     var propertyInfo = new PropertyValueInfo();
 
                     if (!areColumnsPopulated)
                     {
-                        artifactListColumn = new ArtifactListColumn
+                        profileColumn = new ProfileColumn
                         {
                             PropertyName = artifactProperty.PropertyName,
-                            Predefined = artifactProperty.PropertyTypePredefined,
-                            PrimitiveType = artifactProperty.PrimitiveType
+                            Predefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined,
+                            PrimitiveType = artifactProperty.PrimitiveType.HasValue
+                                ? (PropertyPrimitiveType)artifactProperty.PrimitiveType.Value
+                                : (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
+                                  PropertyTypePredefined.ID
+                                    ? PropertyPrimitiveType.Number
+                                    : (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
+                                      PropertyTypePredefined.ArtifactType
+                                        ? PropertyPrimitiveType.Choice
+                                        : 0,
+                            PropertyTypeId = artifactProperty.PropertyTypeId
                         };
                     }
 
-                    if (artifactProperty.PropertyTypeId == null)
+                    propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
+                    propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
+
+                    if ((PropertyTypePredefined)artifactProperty.PropertyTypePredefined == PropertyTypePredefined.ID)
                     {
-                        int fakeId;
+                        propertyInfo.Value = I18NHelper.FormatInvariant("{0}{1}", artifactProperty.Prefix,
+                            artifactProperty.ArtifactId);
 
-                        if (!ServiceConstants.PropertyTypePredefineds.TryGetValue(
-                            (PropertyTypePredefined)artifactProperty.PropertyTypePredefined, out fakeId))
-                        {
-                            continue;
-                        }
-
-                        if (!areColumnsPopulated)
-                        {
-                            artifactListColumn.PropertyTypeId = fakeId;
-                        }
-
-                        propertyInfo.PropertyTypeId = fakeId;
-
-                        if (fakeId == ServiceConstants.IdPropertyFakeId)
-                        {
-                            propertyInfo.Value = I18NHelper.FormatInvariant("{0}{1}", artifactProperty.Prefix,
-                                artifactProperty.ArtifactId);
-
-                            itemTypeId = artifactProperty.ItemTypeId;
-                            predefinedType = artifactProperty.PredefinedType;
-                            itemTypeIconId = artifactProperty.ItemTypeIconId;
-                        }
-                        else
-                        {
-                            propertyInfo.Value = artifactProperty.PropertyValue;
-                        }
+                        itemTypeId = artifactProperty.ItemTypeId;
+                        predefinedType = artifactProperty.PredefinedType;
+                        itemTypeIconId = artifactProperty.ItemTypeIconId;
                     }
                     else
                     {
-                        if (!areColumnsPopulated)
-                        {
-                            artifactListColumn.PropertyTypeId = artifactProperty.PropertyTypeId;
-                        }
-
-                        propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
-                        propertyInfo.Value = artifactProperty.PropertyValue;
+                        propertyInfo.Value =
+                            (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
+                            PropertyTypePredefined.Description
+                                ? PropertyHelper.ConvertHtmlToPlainText(artifactProperty.PropertyValue)
+                                : artifactProperty.PropertyValue;
                     }
 
                     if (!areColumnsPopulated)
                     {
-                        settingsColumns.Add(artifactListColumn);
+                        settingsColumns.Add(profileColumn);
                     }
 
                     propertyInfos.Add(propertyInfo);
@@ -372,8 +396,13 @@ namespace ArtifactStore.Collections
                     ItemTypeId = itemTypeId,
                     PredefinedType = predefinedType,
                     ItemTypeIconId = itemTypeIconId,
-                    PropertyInfos = propertyInfos
+                    PropertyInfos = propertyInfos.OrderBy(x => x.PropertyTypeId)
                 });
+            }
+
+            if (!settingsColumns.Any())
+            {
+                settingsColumns = ProfileColumns.Default.Items.ToList();
             }
 
             return new CollectionArtifacts
@@ -381,7 +410,10 @@ namespace ArtifactStore.Collections
                 Items = artifactDtos,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = settingsColumns
+                    Columns = settingsColumns.OrderBy(
+                        x => Array.IndexOf(
+                            ProfileColumns.Default.Items.Select(column => column.Predefined).ToArray(),
+                            x.Predefined))
                 }
             };
         }

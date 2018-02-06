@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ArtifactStore.Collections.Models;
+using Newtonsoft.Json;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.ArtifactList.Models
@@ -10,9 +11,42 @@ namespace ArtifactStore.ArtifactList.Models
     {
         public string PropertyName { get; set; }
 
-        public int PropertyTypeId { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? PropertyTypeId { get; set; }
 
-        public int Predefined { get; set; }
+        public PropertyTypePredefined Predefined { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public PropertyPrimitiveType PrimitiveType { get; set; }
+
+        public ProfileColumn() { }
+
+        public ProfileColumn(
+            string propertyName,
+            PropertyTypePredefined predefined,
+            PropertyPrimitiveType primitiveType,
+            int? propertyTypeId = null)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                throw new ArgumentNullException(nameof(propertyName));
+            }
+
+            if (propertyTypeId.HasValue && propertyTypeId.Value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(propertyTypeId));
+            }
+
+            if (primitiveType == PropertyPrimitiveType.Image)
+            {
+                throw new ArgumentException("Image columns are currently not supported.");
+            }
+
+            PropertyName = propertyName;
+            PropertyTypeId = propertyTypeId;
+            Predefined = predefined;
+            PrimitiveType = primitiveType;
+        }
 
         public bool NameMatches(string search)
         {
@@ -22,9 +56,9 @@ namespace ArtifactStore.ArtifactList.Models
 
         public bool ExistsIn(IEnumerable<PropertyTypeInfo> propertyTypeInfos)
         {
-            return Predefined == (int)PropertyTypePredefined.CustomGroup ?
+            return Predefined == PropertyTypePredefined.CustomGroup ?
                 propertyTypeInfos.Any(info => info.Id == PropertyTypeId) :
-                propertyTypeInfos.Any(info => (int)info.Predefined == Predefined);
+                propertyTypeInfos.Any(info => info.Predefined == Predefined);
         }
     }
 }

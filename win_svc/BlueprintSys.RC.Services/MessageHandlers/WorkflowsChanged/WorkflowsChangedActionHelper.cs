@@ -1,6 +1,7 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
+using BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged
@@ -9,18 +10,29 @@ namespace BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged
     {
         protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
-            var message = (WorkflowsChangedMessage) actionMessage;
-            var repository = (WorkflowsChangedRepository) baseRepository;
+            return await HandleWorkflowsChangedAction(tenant, actionMessage, baseRepository, WorkflowMessagingProcessor.Instance);
+        }
 
-            Logger.Log("Getting affected artifact IDs", message, tenant);
-            var artifactIds = await repository.GetAffectedArtifactIds();
-            if (!artifactIds.Any())
+        public async Task<bool> HandleWorkflowsChangedAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository, IWorkflowMessagingProcessor workflowMessagingProcessor)
+        {
+            var message = (WorkflowsChangedMessage) actionMessage;
+            var repository = (IWorkflowsChangedRepository) baseRepository;
+
+            var revisionId = message.RevisionId;
+
+            var revisionStatus = await repository.ValidateRevision(revisionId, repository, message, tenant);
+            if (revisionStatus == RevisionStatus.RolledBack)
             {
-                Logger.Log("No artifact IDs found", message, tenant);
                 return false;
             }
-            Logger.Log($"Found artifact IDs {string.Join(",", artifactIds)}", message, tenant);
 
+            Logger.Log("Getting affected artifact IDs", message, tenant);
+            var workflowIds = new[]
+            {
+                message.WorkflowId
+            };
+            var artifactIds = await repository.GetAffectedArtifactIds(workflowIds, revisionId);
+            await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor);
             return true;
         }
     }

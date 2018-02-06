@@ -55,8 +55,8 @@ namespace ServiceLibrary.Helpers
                 List<StatusResponse> statusResult = await result;
                 serviceStatus.StatusResponses.AddRange(statusResult);
                 statusResult.ForEach((response) => { serviceStatus.NoErrors &= response.NoErrors; });
-
             }
+            serviceStatus.Errors = serviceStatus.NoErrors ? "False" : "True";
 
             return serviceStatus;
         }
@@ -71,24 +71,20 @@ namespace ServiceLibrary.Helpers
 
             if (s.StatusResponses.Count > 0)
             {
-
                 foreach (var statusResponse in s.StatusResponses)
                 {
                     statusResponses.Add(new StatusResponse { Name = statusResponse.Name, NoErrors = statusResponse.NoErrors });
                 }
             }
 
-
-            serviceStatus.NoErrors = true;
-            foreach (var result in statusResponses)
+            foreach (var statusResult in statusResponses)
             {
-                var statusResult = result;
                 serviceStatus.StatusResponses.Add(statusResult);
-                serviceStatus.NoErrors = s.NoErrors;
             }
+            serviceStatus.NoErrors = s.NoErrors;
+            serviceStatus.Errors = s.Errors;
 
             return serviceStatus;
-
         }
 
         /// <summary>
@@ -96,7 +92,6 @@ namespace ServiceLibrary.Helpers
         /// </summary>
         private async Task<List<StatusResponse>> TryGetStatusResponse(IStatusRepository statusRepo)
         {
-
             try
             {
                 return await statusRepo.GetStatuses(GET_STATUS_TIMEOUT);
@@ -116,8 +111,6 @@ namespace ServiceLibrary.Helpers
                 responseWithError.Add(responseData);
                  return responseWithError;
             }
-
-
         }
 
         private static string GetAssemblyFileVersion()

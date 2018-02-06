@@ -155,6 +155,14 @@ namespace AdminStore.Services.Workflow
                         }
                         : null;
                     break;
+                case ActionTypes.Webhook:
+                    var xwAction = xmlAction as XmlWebhookAction;
+                    action = new IeWebhookAction
+                    {
+                        Name = xmlAction.Name,
+                        Id = xwAction.WebhookId
+                    };
+                    break;
             }
 
             return action;
@@ -281,6 +289,8 @@ namespace AdminStore.Services.Workflow
                     return ToXmlModel(ieAction as IePropertyChangeAction, dataMaps);
                 case ActionTypes.Generate:
                     return ToXmlModel(ieAction as IeGenerateAction, dataMaps.ArtifactTypeMap);
+                case ActionTypes.Webhook:
+                    return ToXmlModel(ieAction as IeWebhookAction, dataMaps);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(ieAction.ActionType));
             }
@@ -525,6 +535,25 @@ namespace AdminStore.Services.Workflow
 
             var xmlCondition = new XmlStateCondition { StateId = stateId };
             return xmlCondition;
+        }
+
+        private static XmlWebhookAction ToXmlModel(IeWebhookAction ieWebhookAction, WorkflowDataMaps dataMaps)
+        {
+            if (ieWebhookAction == null)
+            {
+                return null;
+            }
+
+            if (!dataMaps.WebhooksByActionObj.ContainsKey(ieWebhookAction))
+            {
+                return null;
+            }
+
+            return new XmlWebhookAction
+            {
+                Name = ieWebhookAction.Name,
+                WebhookId = dataMaps.WebhooksByActionObj[ieWebhookAction]
+            };
         }
 
         #endregion

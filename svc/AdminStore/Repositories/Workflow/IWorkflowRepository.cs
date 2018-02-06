@@ -90,5 +90,9 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<WorkflowProjectSearch>> SearchProjectsByName(int workflowId, string search = null);
         Task<int> CopyWorkflowAsync(int workflowId, int userId, CopyWorkflowDto copyWorkfloDto);
+
+        Task<IEnumerable<SqlWebhook>> CreateWebhooks(IEnumerable<SqlWebhook> webhooks, IDbTransaction transaction = null);
+        Task<IEnumerable<SqlWebhook>> UpdateWebhooks(IEnumerable<SqlWebhook> webhooks, IDbTransaction transaction = null);
+        Task<IEnumerable<SqlWebhook>> GetWebhooks(IEnumerable<int> webhookIds, IDbTransaction transaction = null);
     }
 }

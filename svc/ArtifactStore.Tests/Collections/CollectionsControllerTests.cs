@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using System.Linq;
+using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Collections
 {
@@ -25,10 +26,11 @@ namespace ArtifactStore.Collections
         private int _sessionUserId = 1;
         private ISet<int> _artifactIds;
         private int _collectionId;
-        private AddArtifactsResult _addArtifactsResult;
+        private AddArtifactsToCollectionResult _addArtifactsResult;
         private Pagination _pagination;
         private CollectionArtifacts _expectedCollectionArtifacts;
-        private ProfileColumnsSettings _profileColumnsSettings;
+        private GetColumnsDto _columns;
+        private ProfileColumnsDto _profileColumnsDto;
 
 
         [TestInitialize]
@@ -48,25 +50,20 @@ namespace ArtifactStore.Collections
 
             _collectionsController.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
-            _artifactIds = new HashSet<int>() { 1, 2, 3 };
+            _artifactIds = new HashSet<int> { 1, 2, 3 };
 
             _collectionId = 1;
-            _addArtifactsResult = new AddArtifactsResult()
+            _addArtifactsResult = new AddArtifactsToCollectionResult
             {
                 AddedCount = 1,
                 Total = 1
             };
 
-            _profileColumnsSettings = new ProfileColumnsSettings()
+            _profileColumnsDto = new ProfileColumnsDto
             {
-                Items = new List<ProfileColumn>()
+                Items = new List<ProfileColumn>
                 {
-                    new ProfileColumn()
-                    {
-                        Predefined = 1,
-                        PropertyName = "Custom",
-                        PropertyTypeId = 2
-                    }
+                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
                 }
             };
 
@@ -75,19 +72,19 @@ namespace ArtifactStore.Collections
                 ItemsCount = 2,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = new List<ArtifactListColumn>
+                    Columns = new List<ProfileColumn>
                     {
-                        new ArtifactListColumn
+                        new ProfileColumn
                         {
-                            Predefined = 4098,
-                            PrimitiveType = 0,
+                            Predefined = PropertyTypePredefined.Name,
+                            PrimitiveType = PropertyPrimitiveType.Text,
                             PropertyName = "Name",
                             PropertyTypeId = 80
                         },
-                        new ArtifactListColumn
+                        new ProfileColumn
                         {
-                            Predefined = 4099,
-                            PrimitiveType = 0,
+                            Predefined = PropertyTypePredefined.Description,
+                            PrimitiveType = PropertyPrimitiveType.Text,
                             PropertyName = "Description",
                             PropertyTypeId = 81
                         }
@@ -136,6 +133,18 @@ namespace ArtifactStore.Collections
                     }
                 }
             };
+
+            _columns = new GetColumnsDto
+            {
+                SelectedColumns = new List<ProfileColumn>
+                {
+                    new ProfileColumn("Custom", PropertyTypePredefined.Name,  PropertyPrimitiveType.Number, 3)
+                },
+                UnselectedColumns = new List<ProfileColumn>
+                {
+                    new ProfileColumn("Custom", PropertyTypePredefined.Name,  PropertyPrimitiveType.Number, 3)
+                }
+            };
         }
 
         #region AddArtifactsToCollectionAsync
@@ -169,7 +178,7 @@ namespace ArtifactStore.Collections
         {
             _collectionsServiceMock.Setup(svc => svc.AddArtifactsToCollectionAsync(_collectionId, _artifactIds, _sessionUserId)).ReturnsAsync(_addArtifactsResult);
 
-            var result = await _collectionsController.AddArtifactsToCollectionAsync(_collectionId, "add", _artifactIds) as OkNegotiatedContentResult<AddArtifactsResult>;
+            var result = await _collectionsController.AddArtifactsToCollectionAsync(_collectionId, "add", _artifactIds) as OkNegotiatedContentResult<AddArtifactsToCollectionResult>;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(_addArtifactsResult, result.Content);
@@ -182,7 +191,7 @@ namespace ArtifactStore.Collections
         [TestMethod]
         public async Task SaveColumnsSettingsAsync_AllParametersAreValid_Success()
         {
-            var result = await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsSettings);
+            var result = await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(result.StatusCode, HttpStatusCode.NoContent);
@@ -192,8 +201,8 @@ namespace ArtifactStore.Collections
         [ExpectedException(typeof(BadRequestException))]
         public async Task SaveColumnsSettingsAsync_EmptyItems_ThrowsException()
         {
-            _profileColumnsSettings.Items = null;
-            await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsSettings);
+            _profileColumnsDto.Items = null;
+            await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);
         }
 
         #endregion SaveColumnsSettingsAsync
@@ -221,5 +230,28 @@ namespace ArtifactStore.Collections
         }
 
         #endregion GetArtifactsInCollectionAsync
+
+        #region GetColumnsAsync
+
+        [TestMethod]
+        public async Task GetColumnsAsync_AllParametersAreValid_Success()
+        {
+            // Arrange
+
+            _collectionsServiceMock.Setup(q => q.GetColumnsAsync(_collectionId, _sessionUserId, null))
+                .ReturnsAsync(_columns);
+
+            // act
+            var actualResult =
+                await _collectionsController.GetColumnsAsync(_collectionId, null) as OkNegotiatedContentResult<GetColumnsDto>;
+
+            // assert
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(_columns, actualResult.Content);
+            Assert.AreEqual(_columns.UnselectedColumns.Count(), actualResult.Content.UnselectedColumns.Count());
+            Assert.AreEqual(_columns.SelectedColumns.Count(), actualResult.Content.SelectedColumns.Count());
+        }
+
+        #endregion GetColumnsAsync
     }
 }

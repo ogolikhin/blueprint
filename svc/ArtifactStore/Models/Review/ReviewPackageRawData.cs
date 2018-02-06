@@ -23,6 +23,9 @@ namespace ArtifactStore.Models.Review
         public bool IsFollowUpReview;
 
         [DataMember(EmitDefaultValue = false)]
+        public int FollowUpSourceReviewId;
+
+        [DataMember(EmitDefaultValue = false)]
         public bool IsIgnoreFolder;
 
         [DataMember(EmitDefaultValue = false)]

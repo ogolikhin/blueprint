@@ -105,7 +105,7 @@ namespace AdminStore
             config.AssertAction<WorkflowController>("GetWorkflowDiagram", HttpMethod.Get, "workflow/diagram/1");
             config.AssertAction<WorkflowController>("GetWorkflowArtifactTypesProperties", HttpMethod.Post, "workflow/artifacttypes/properties");
             config.AssertAction<WorkflowController>("UpdateWorkflowDiagram", HttpMethod.Put, "workflow/diagram/1");
-            config.AssertAction<MetadataController>("GetIcons", HttpMethod.Get, "icons?type=actor&typeId=128");
+            config.AssertAction<MetadataController>("GetIconsAsync", HttpMethod.Get, "icons?type=artifact&typeId=128&imageId=123");
         }
 
         [TestMethod]

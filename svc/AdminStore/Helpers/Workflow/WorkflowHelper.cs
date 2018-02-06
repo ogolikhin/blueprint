@@ -191,6 +191,8 @@ namespace AdminStore.Helpers.Workflow
                     break;
                 case ActionTypes.Generate:
                     break;
+                case ActionTypes.Webhook:
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.ActionType));
             }
@@ -483,6 +485,9 @@ namespace AdminStore.Helpers.Workflow
                                 .ToList()
                         };
                     break;
+                case ActionTypes.Webhook:
+                    // At the moment, we do not allow webhooks to be updated within the workflow diagram
+                    break;
                 default:
                     return null;
             }
@@ -552,6 +557,9 @@ namespace AdminStore.Helpers.Workflow
                             }).ToList()
                         };
                     }
+                    break;
+                case ActionTypes.Webhook:
+                    // At the moment, we do not allow webhooks to be displayed within the workflow diagram
                     break;
                 default:
                     return null;

@@ -15,6 +15,9 @@ namespace ArtifactStore.Collections
         Task<int> AddArtifactsToCollectionAsync(int collectionId, IEnumerable<int> artifactIds, int userId,
             IDbTransaction transaction = null);
 
+        Task<int> RemoveArtifactsFromCollectionAsync(int collectionId, IEnumerable<int> artifactIds, int userId,
+            IDbTransaction transaction = null);
+
         Task RemoveDeletedArtifactsFromCollectionAsync(int collectionId, int userId, IDbTransaction transaction = null);
 
         Task<IReadOnlyList<PropertyTypeInfo>> GetPropertyTypeInfosForItemTypesAsync(

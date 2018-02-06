@@ -11,7 +11,7 @@ using RabbitMQ.Client.Exceptions;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
-using BluePrintSys.Messaging.CrossCutting.Models;
+using BluePrintSys.Messaging.Models.Actions;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {
@@ -87,14 +87,14 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             var transportType = NServiceBusValidator.GetTransportType(connectionString);
             if (transportType == NServiceBusTransportType.RabbitMq)
             {
-                Log.Info("Configuring RabbitMQ Transport");
+                Log.Info($"Configuring RabbitMQ Transport for {connectionString}");
                 var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
                 transport.ConnectionString(connectionString);
                 assembliesToExclude.Add("nservicebus.transport.sqlserver.dll");
             }
             else if (transportType == NServiceBusTransportType.Sql)
             {
-                Log.Info("Configuring SQL Server Transport");
+                Log.Info($"Configuring SQL Server Transport for {connectionString}");
                 var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
                 transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
                 transport.ConnectionString(connectionString);
@@ -162,7 +162,6 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
         {
             var options = new SendOptions();
             options.SetDestination(MessageQueue);
-
             await EndpointInstance.Send(message, options);
         }
 

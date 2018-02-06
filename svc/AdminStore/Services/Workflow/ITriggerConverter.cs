@@ -38,6 +38,10 @@ namespace AdminStore.Services.Workflow
         // Key - Choice Property Type Id, Value - (Key - Valid Value, Valid Value Id)
         private IDictionary<int, IDictionary<string, int>> _validValuesByValue;
         public IDictionary<int, IDictionary<string, int>> ValidValuesByValue => _validValuesByValue ?? (_validValuesByValue = new Dictionary<int, IDictionary<string, int>>());
+
+        // Key - Workflow Webhook Action, Value - WebhookId
+        private IDictionary<IeWebhookAction, int> _webhooksByActionObj;
+        public IDictionary<IeWebhookAction, int> WebhooksByActionObj => _webhooksByActionObj ?? (_webhooksByActionObj = new Dictionary<IeWebhookAction, int>());
     }
 
     public class WorkflowDataNameMaps

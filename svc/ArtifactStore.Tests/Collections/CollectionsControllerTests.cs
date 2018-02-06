@@ -7,6 +7,7 @@ using System.Web.Http.Results;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
+using ArtifactStore.Models.Review;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -29,6 +30,7 @@ namespace ArtifactStore.Collections
         private ISet<int> _artifactIds;
         private int _collectionId;
         private AddArtifactsToCollectionResult _addArtifactsResult;
+        private RemoveArtifactsFromCollectionResult _removeArtifactsFromCollectionResult;
         private Pagination _pagination;
         private CollectionArtifacts _expectedCollectionArtifacts;
         private GetColumnsDto _columns;
@@ -61,6 +63,12 @@ namespace ArtifactStore.Collections
             {
                 AddedCount = 1,
                 Total = 1
+            };
+
+            _removeArtifactsFromCollectionResult = new RemoveArtifactsFromCollectionResult
+            {
+                RemovedCount = 1,
+                Total = 3
             };
 
             _profileColumnsDto = new ProfileColumnsDto
@@ -189,6 +197,68 @@ namespace ArtifactStore.Collections
         }
 
         #endregion AddArtifactsToCollectionAsync
+
+        #region RemoveArtifactsFromCollectionAsync
+
+        [TestMethod]
+        public async Task RemoveArtifactsFromCollectionAsync_AllParametersAreValid_Success()
+        {
+            var removalParameters =
+                new ReviewItemsRemovalParams
+                {
+                    ItemIds = new List<int> { 1, 2, 3 }
+                };
+
+            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
+
+            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(_removeArtifactsFromCollectionResult, result.Content);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsNull_BadRequestException()
+        {
+            var removalParameters =
+                new ReviewItemsRemovalParams
+                {
+                    ItemIds = null
+                };
+
+            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
+
+            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsEmpty_BadRequestException()
+        {
+            var removalParameters =
+                new ReviewItemsRemovalParams
+                {
+                    ItemIds = new List<int>(),
+                    SelectionType = SelectionType.Selected
+                };
+
+            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
+
+            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromCollectionAsync_ReviewItemsRemovalParamsIsNull_BadRequestException()
+        {
+            ReviewItemsRemovalParams removalParameters = null;
+
+            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
+
+            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
+        }
+        #endregion
 
         #region SaveColumnsSettingsAsync
 

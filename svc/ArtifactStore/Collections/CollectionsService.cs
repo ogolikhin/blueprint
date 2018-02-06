@@ -127,7 +127,7 @@ namespace ArtifactStore.Collections
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
-                var collection = await ValidateCollection(collectionId, userId, transaction);
+                var collection = await ValidateCollectionAsync(collectionId, userId, transaction);
 
                 var artifactsWithReadPermissions = await GetAccessibleArtifactIdsAsync(
                     artifactIds, collection, userId, transaction);
@@ -147,7 +147,8 @@ namespace ArtifactStore.Collections
             return result;
         }
 
-        public async Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(int collectionId, ItemsRemovalParams removalParams, int userId)
+        public async Task<RemoveArtifactsFromCollectionResult> RemoveArtifactsFromCollectionAsync(
+            int collectionId, ItemsRemovalParams removalParams, int userId)
         {
             if (collectionId < 1)
             {
@@ -163,9 +164,10 @@ namespace ArtifactStore.Collections
 
             Func<IDbTransaction, Task> action = async transaction =>
             {
-                var collection = await ValidateCollection(collectionId, userId, transaction);
+                var collection = await ValidateCollectionAsync(collectionId, userId, transaction);
 
-                var searchArtifactsResult = await _searchEngineService.Search(collection.ArtifactId, null, ScopeType.Contents, true, userId, transaction);
+                var searchArtifactsResult = await _searchEngineService.Search(
+                    collection.ArtifactId, null, ScopeType.Contents, true, userId, transaction);
 
                 List<int> artifactsToRemove = null;
 
@@ -193,10 +195,20 @@ namespace ArtifactStore.Collections
         public async Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null)
         {
             var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
+            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
+
+            if (artifacts.IsEmpty())
+            {
+                return new GetColumnsDto
+                {
+                    SelectedColumns = ProfileColumns.Default.Items,
+                    UnselectedColumns = Enumerable.Empty<ProfileColumn>()
+                };
+            }
+
+            var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts, search);
             var profileColumns = await _artifactListService.GetProfileColumnsAsync(
                 collection.ArtifactId, userId, ProfileColumns.Default);
-
-            var propertyTypeInfos = await GetPropertyTypeInfosAsync(collection.ArtifactId, userId, search);
 
             return new GetColumnsDto
             {
@@ -228,7 +240,7 @@ namespace ArtifactStore.Collections
                 .ToList();
         }
 
-        private async Task<ArtifactBasicDetails> ValidateCollection(int collectionId, int userId, IDbTransaction transaction)
+        private async Task<ArtifactBasicDetails> ValidateCollectionAsync(int collectionId, int userId, IDbTransaction transaction)
         {
             var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, RolePermissions.Edit, transaction);
 
@@ -241,9 +253,8 @@ namespace ArtifactStore.Collections
         }
 
         private async Task<IReadOnlyList<PropertyTypeInfo>> GetPropertyTypeInfosAsync(
-            int collectionId, int userId, string search = null)
+            IEnumerable<ItemDetails> artifacts, string search = null)
         {
-            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
             var itemTypeIds = artifacts.Select(artifact => artifact.ItemTypeId).Distinct();
 
             return await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(itemTypeIds, search);
@@ -252,7 +263,8 @@ namespace ArtifactStore.Collections
         private async Task<ProfileColumns> GetValidColumnsAsync(
             int collectionId, int userId, ProfileColumns profileColumns)
         {
-            var propertyTypeInfos = await GetPropertyTypeInfosAsync(collectionId, userId);
+            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
+            var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts);
 
             return new ProfileColumns(
                 profileColumns.Items
@@ -263,7 +275,7 @@ namespace ArtifactStore.Collections
             IReadOnlyList<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns, string search)
         {
             return profileColumns.Items
-                .Where(column => (propertyTypeInfos.IsEmpty() || column.ExistsIn(propertyTypeInfos)) && column.NameMatches(search))
+                .Where(column => column.ExistsIn(propertyTypeInfos) && column.NameMatches(search))
                 .Select(column => new ProfileColumn(
                     column.PropertyName, column.Predefined, column.PrimitiveType, column.PropertyTypeId));
         }

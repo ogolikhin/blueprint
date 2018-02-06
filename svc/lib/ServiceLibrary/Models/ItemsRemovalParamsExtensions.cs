@@ -12,7 +12,8 @@ namespace ServiceLibrary.Models
     {
         public static void Validate(this ItemsRemovalParams removalParams)
         {
-            if (removalParams == null || (removalParams.ItemIds.IsEmpty() && removalParams.SelectionType == SelectionType.Selected))
+            if (removalParams == null || (removalParams.ItemIds.IsEmpty() && removalParams.SelectionType == SelectionType.Selected)
+                || (removalParams.ItemIds == null && removalParams.SelectionType == SelectionType.Excluded))
             {
                 throw new BadRequestException(
                     ErrorMessages.Collections.RemoveArtifactsInvalidParameters, ErrorCodes.BadRequest);

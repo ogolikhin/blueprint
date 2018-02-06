@@ -227,7 +227,7 @@ namespace AdminStore.Services.Workflow.Validation.Xml
                     });
                 }
 
-                if (from != null && from.EqualsOrdinalIgnoreCase(to))
+                if (from != null && from.Equals(to))
                 {
                     result.Errors.Add(new WorkflowXmlValidationError
                     {

@@ -216,48 +216,6 @@ namespace ArtifactStore.Collections
             Assert.IsNotNull(result);
             Assert.AreEqual(_removeArtifactsFromCollectionResult, result.Content);
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsNull_BadRequestException()
-        {
-            var removalParameters =
-                new ItemsRemovalParams
-                {
-                    ItemIds = null
-                };
-
-            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
-
-            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsEmpty_BadRequestException()
-        {
-            var removalParameters =
-                new ItemsRemovalParams
-                {
-                    ItemIds = new List<int>(),
-                    SelectionType = SelectionType.Selected
-                };
-
-            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
-
-            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(BadRequestException))]
-        public async Task RemoveArtifactsFromCollectionAsync_ReviewItemsRemovalParamsIsNull_BadRequestException()
-        {
-            ItemsRemovalParams removalParameters = null;
-
-            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
-
-            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
-        }
         #endregion
 
         #region SaveColumnsSettingsAsync
@@ -309,6 +267,56 @@ namespace ArtifactStore.Collections
             Assert.AreEqual(_expectedCollectionArtifacts, actualResult.Content);
             Assert.AreEqual(_expectedCollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
             Assert.AreEqual(_expectedCollectionArtifacts.Items.Count(), actualResult.Content.Items.Count());
+            Assert.AreEqual(_expectedCollectionArtifacts.Pagination.Limit, actualResult.Content.Pagination.Limit);
+            Assert.AreEqual(_expectedCollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
+        }
+
+        [TestMethod]
+        public async Task GetArtifactsInCollectionAsync_AllParametersAreValid_WithPaginationLimit()
+        {
+            // Setup:
+            _pagination.Limit = 1;
+            _expectedCollectionArtifacts.Items = _expectedCollectionArtifacts.Items.Take((int)_pagination.Limit);
+
+            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _pagination, _sessionUserId))
+                .ReturnsAsync(_expectedCollectionArtifacts);
+
+            // Execute:
+            var actualResult =
+                await _collectionsController.GetArtifactsInCollectionAsync(_collectionId,
+                        _pagination) as OkNegotiatedContentResult<CollectionArtifacts>;
+
+            // Verify:
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(_expectedCollectionArtifacts, actualResult.Content);
+            Assert.AreEqual(_expectedCollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
+            Assert.AreEqual(1, actualResult.Content.Items.Count());
+            Assert.AreEqual(1, actualResult.Content.Pagination.Limit);
+            Assert.AreEqual(_expectedCollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
+        }
+
+        [TestMethod]
+        public async Task GetArtifactsInCollectionAsync_AllParametersAreValid_WithPaginationOffset()
+        {
+            // Setup:
+            _pagination.Offset = 1;
+            _expectedCollectionArtifacts.Items = _expectedCollectionArtifacts.Items.Skip((int)_pagination.Offset);
+
+            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _pagination, _sessionUserId))
+                .ReturnsAsync(_expectedCollectionArtifacts);
+
+            // Execute:
+            var actualResult =
+                await _collectionsController.GetArtifactsInCollectionAsync(_collectionId,
+                        _pagination) as OkNegotiatedContentResult<CollectionArtifacts>;
+
+            // Verify:
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(_expectedCollectionArtifacts, actualResult.Content);
+            Assert.AreEqual(_expectedCollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
+            Assert.AreEqual(1, actualResult.Content.Items.Count());
+            Assert.AreEqual(1, actualResult.Content.Pagination.Offset);
+            Assert.AreEqual(_expectedCollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
         }
 
         #endregion GetArtifactsInCollectionAsync

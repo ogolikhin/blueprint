@@ -24,22 +24,14 @@ namespace BlueprintSys.RC.Services.MessageHandlers
         private IActionHelper ActionHelper { get; }
         private ITenantInfoRetriever TenantInfoRetriever { get; }
         private IConfigHelper ConfigHelper { get; }
+        private ITransactionValidator TransactionValidator { get; }
 
-        protected BaseMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever, IConfigHelper configHelper)
+        protected BaseMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever, IConfigHelper configHelper, ITransactionValidator transactionValidator)
         {
             ActionHelper = actionHelper;
             TenantInfoRetriever = tenantInfoRetriever;
             ConfigHelper = configHelper;
-        }
-
-        private string GetMessageHeaderValue(string header, IMessageHandlerContext context)
-        {
-            string headerValue;
-            if (!context.MessageHeaders.TryGetValue(header, out headerValue))
-            {
-                throw new MessageHeaderValueNotFoundException($"Failed to find Message Header Value: {header}");
-            }
-            return headerValue;
+            TransactionValidator = transactionValidator;
         }
 
         public async Task Handle(T message, IMessageHandlerContext context)
@@ -62,41 +54,24 @@ namespace BlueprintSys.RC.Services.MessageHandlers
                     throw new EntityNotFoundException($"Failed to find Tenant Info for Tenant ID {tenantId}.");
                 }
 
+                var tenantConnectionString = tenant.BlueprintConnectionString;
+                if (string.IsNullOrWhiteSpace(tenantConnectionString))
+                {
+                    throw new EntityNotFoundException($"Invalid Connection String provided for tenant {tenantId}.");
+                }
+
+                Logger.Log($"Creating repository with tenant connection string: {tenantConnectionString}", message, tenant);
+                var repository = CreateRepository(actionType, tenantConnectionString);
+
+                var transactionStatus = await TransactionValidator.GetStatus(message, tenant, repository);
+                if (transactionStatus == TransactionStatus.RolledBack)
+                {
+                    Logger.Log("Discarding message for rolled back transaction", message, tenant);
+                    return;
+                }
+
                 var messageId = GetMessageHeaderValue(Headers.MessageId, context);
                 var timeSent = GetMessageHeaderValue(Headers.TimeSent, context);
-
-                IBaseRepository repository;
-                switch (actionType)
-                {
-                    case MessageActionType.ArtifactsPublished:
-                        repository = new ArtifactsPublishedRepository(tenant.BlueprintConnectionString);
-                        break;
-                    case MessageActionType.ArtifactsChanged:
-                        repository = new ArtifactsChangedRepository(tenant.BlueprintConnectionString);
-                        break;
-                    case MessageActionType.GenerateChildren:
-                    case MessageActionType.GenerateTests:
-                    case MessageActionType.GenerateUserStories:
-                        repository = new GenerateActionsRepository(tenant.BlueprintConnectionString);
-                        break;
-                    case MessageActionType.Notification:
-                        repository = new NotificationRepository(tenant.BlueprintConnectionString);
-                        break;
-                    case MessageActionType.ProjectsChanged:
-                        repository = new ProjectsChangedRepository(tenant.BlueprintConnectionString);
-                        break;
-                    case MessageActionType.PropertyItemTypesChanged:
-                        repository = new PropertyItemTypesChangedRepository(tenant.BlueprintConnectionString);
-                        break;
-                    case MessageActionType.UsersGroupsChanged:
-                        repository = new UsersGroupsChangedRepository(tenant.BlueprintConnectionString);
-                        break;
-                    case MessageActionType.WorkflowsChanged:
-                        repository = new WorkflowsChangedRepository(tenant.BlueprintConnectionString);
-                        break;
-                    default:
-                        throw new UnsupportedActionTypeException($"Failed to instantiate repository for unsupported Action Type: {actionType}");
-                }
 
                 Logger.Log($"Started handling {actionType} action. Message ID: {messageId}. Time Sent: {timeSent}", message, tenant);
                 var result = await ActionHelper.HandleAction(tenant, message, repository);
@@ -106,6 +81,43 @@ namespace BlueprintSys.RC.Services.MessageHandlers
             {
                 Log.Error($"Failed to handle {message.ActionType} Message {message.ToJSON()} due to an exception: {ex.Message}", ex);
                 throw;
+            }
+        }
+
+        private string GetMessageHeaderValue(string header, IMessageHandlerContext context)
+        {
+            string headerValue;
+            if (!context.MessageHeaders.TryGetValue(header, out headerValue))
+            {
+                throw new MessageHeaderValueNotFoundException($"Failed to find Message Header Value: {header}");
+            }
+            return headerValue;
+        }
+
+        private static IBaseRepository CreateRepository(MessageActionType actionType, string connectionString)
+        {
+            switch (actionType)
+            {
+                case MessageActionType.ArtifactsPublished:
+                    return new ArtifactsPublishedRepository(connectionString);
+                case MessageActionType.ArtifactsChanged:
+                    return new ArtifactsChangedRepository(connectionString);
+                case MessageActionType.GenerateChildren:
+                case MessageActionType.GenerateTests:
+                case MessageActionType.GenerateUserStories:
+                    return new GenerateActionsRepository(connectionString);
+                case MessageActionType.Notification:
+                    return new NotificationRepository(connectionString);
+                case MessageActionType.ProjectsChanged:
+                    return new ProjectsChangedRepository(connectionString);
+                case MessageActionType.PropertyItemTypesChanged:
+                    return new PropertyItemTypesChangedRepository(connectionString);
+                case MessageActionType.UsersGroupsChanged:
+                    return new UsersGroupsChangedRepository(connectionString);
+                case MessageActionType.WorkflowsChanged:
+                    return new WorkflowsChangedRepository(connectionString);
+                default:
+                    throw new UnsupportedActionTypeException($"Failed to instantiate repository for unsupported Action Type: {actionType}");
             }
         }
     }

@@ -16,7 +16,7 @@ namespace AdminStore.Models.Workflow
 
         public DWebhookEventType EventType { get; set; }
 
-        public int WorkflowVersionId { get; set; }
+        public int WorkflowId { get; set; }
     }
 
     public enum DWebhookScope

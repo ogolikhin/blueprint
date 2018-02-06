@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.DirectoryServices;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -1166,45 +1165,6 @@ namespace AdminStore.Services.Workflow
             return ieTriggers.IsEmpty() ? null : ieTriggers;
         }
 
-        private async Task LookupWebhookActionsFromIds(List<IeTrigger> triggers)
-        {
-            var webhookIds = triggers.Select(t => t.Action).OfType<IeWebhookAction>().Select(a => a.Id);
-
-            var webhooks = await _workflowRepository.GetWebhooks(webhookIds);
-
-            foreach (var webhook in webhooks)
-            {
-                var action = triggers.Select(t => t.Action).OfType<IeWebhookAction>().FirstOrDefault(a => a.Id == webhook.WebhookId);
-                if (action != null)
-                {
-                    var securityInfo = SerializationHelper.FromXml<XmlWebhookSecurityInfo>(webhook.SecurityInfo);
-                    action.Url = webhook.Url;
-                    action.IgnoreInvalidSSLCertificate = securityInfo.IgnoreInvalidSSLCertificate;
-                    if (securityInfo.HttpHeaders.Any())
-                    {
-                        action.HttpHeaders = new List<string>();
-                        securityInfo.HttpHeaders.ForEach(h => action.HttpHeaders.Add(SystemEncryptions.Decrypt(h)));
-                    }
-                    if (securityInfo.BasicAuth != null)
-                    {
-                        action.BasicAuth = new IeBasicAuth
-                        {
-                            Username = SystemEncryptions.Decrypt(securityInfo.BasicAuth?.Username),
-                            Password = SystemEncryptions.Decrypt(securityInfo.BasicAuth?.Password)
-                        };
-                    }
-                    if (securityInfo.Signature != null)
-                    {
-                        action.Signature = new IeSignature
-                        {
-                            Algorithm = securityInfo.Signature?.Algorithm ?? "HMACSHA256",
-                            SecretToken = SystemEncryptions.Decrypt(securityInfo.Signature?.SecretToken)
-                        };
-                    }
-                }
-            }
-        }
-
         private static WorkflowDataNameMaps LoadDataMaps(ProjectTypes standardTypes, IDictionary<int, string> stateMap)
         {
             var dataMaps = new WorkflowDataNameMaps();
@@ -1601,10 +1561,9 @@ namespace AdminStore.Services.Workflow
             var stateMap = await UpdateWorkflowStatesAsync(workflow.Id.Value, workflowDiffResult, publishRevision, transaction, workflowMode);
             var dataMaps = CreateDataMap(dataValidationResult, stateMap);
 
-            await CreateWebooksAsync(workflow, workflow.Id.Value, transaction, dataMaps);
+            await UpdateWebhooksAsync(workflow.Id.Value, workflowDiffResult, dataMaps, transaction);
 
-            await UpdateWorkflowEventsAsync(workflow.Id.Value, workflowDiffResult, dataMaps,
-                publishRevision, transaction, workflowMode);
+            await UpdateWorkflowEventsAsync(workflow.Id.Value, workflowDiffResult, dataMaps, publishRevision, transaction, workflowMode);
 
             await UpdateArtifactAssociationsAsync(workflow.Id.Value, workflowDiffResult, transaction);
         }
@@ -1746,11 +1705,11 @@ namespace AdminStore.Services.Workflow
 
             workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
             {
-                importWebhooksParams.AddRange(ToSqlWebhook(e, workflowId, dataMaps));
+                importWebhooksParams.AddRange(ToSqlWebhooks(e, workflowId, dataMaps));
             });
             workflow.NewArtifactEvents.OfType<IeNewArtifactEvent>().ForEach(e =>
             {
-                importWebhooksParams.AddRange(ToSqlWebhook(e, workflowId, dataMaps));
+                importWebhooksParams.AddRange(ToSqlWebhooks(e, workflowId, dataMaps));
             });
 
             var newWebhooks = await _workflowRepository.CreateWebhooks(importWebhooksParams, transaction);
@@ -1766,8 +1725,73 @@ namespace AdminStore.Services.Workflow
             });
         }
 
-        private List<SqlWebhook> ToSqlWebhook(IeEvent wEvent, int workflowId, WorkflowDataMaps dataMaps)
+        private async Task UpdateWebhooksAsync(int workflowId, WorkflowDiffResult workflowDiffResult, WorkflowDataMaps dataMaps, IDbTransaction transaction)
         {
+            if (workflowDiffResult.AddedEvents.Any())
+            {
+                var createWebhooksParams = new List<SqlWebhook>();
+                workflowDiffResult.AddedEvents.ForEach(e => createWebhooksParams.AddRange(ToSqlWebhooks(e, workflowId, dataMaps)));
+                var createdWebhooks = await _workflowRepository.CreateWebhooks(createWebhooksParams, transaction);
+
+                var index = 0;
+                workflowDiffResult.AddedEvents.ForEach(e =>
+                {
+                    UpdateWebhooksDataMap(e, dataMaps, createdWebhooks, ref index);
+                });
+            }
+
+            if (workflowDiffResult.ChangedEvents.Any())
+            {
+                // Need to handle situations where an existing webhook has been updated or a new webhook has been added within a changed event
+                var updateWebhookParams = new List<SqlWebhook>();
+                var createWebhooksParams = new List<SqlWebhook>();
+
+                // Since a workflow event can contain both new and updated webhook actions, we need to handle each trigger individually
+                foreach (var changedEvent in workflowDiffResult.ChangedEvents)
+                {
+                    foreach (var trigger in changedEvent.Triggers)
+                    {
+                        var webhook = (IeWebhookAction)trigger.Action;
+                        if (webhook != null)
+                        {
+                            // If a webhook does not have an assigned Id, assume that it needs to be created
+                            if (webhook.IdSerializable > 0)
+                            {
+                                updateWebhookParams.Add(ToSqlWebhook(changedEvent.EventType, trigger, workflowId, dataMaps));
+                            }
+                            else
+                            {
+                                createWebhooksParams.Add(ToSqlWebhook(changedEvent.EventType, trigger, workflowId, dataMaps));
+                            }
+                        }
+                    }
+                }
+
+                var createdAndUpdatedWebhooks = new List<SqlWebhook>();
+                // Updated all webhooks that already exist
+                if (updateWebhookParams.Any())
+                {
+                    createdAndUpdatedWebhooks.AddRange(await _workflowRepository.UpdateWebhooks(updateWebhookParams, transaction));
+                }
+
+                // Create any newly added webhook
+                if (createWebhooksParams.Any())
+                {
+                    createdAndUpdatedWebhooks.AddRange(await _workflowRepository.CreateWebhooks(createWebhooksParams, transaction));
+                }
+
+                // After All Webhooks have been created / updated, we need to go back and update our dataMap for all events
+                var index = 0;
+                workflowDiffResult.ChangedEvents.ForEach(e =>
+                {
+                    UpdateWebhooksDataMap(e, dataMaps, createdAndUpdatedWebhooks, ref index);
+                });
+            }
+        }
+
+        private List<SqlWebhook> ToSqlWebhooks(IeEvent wEvent, int workflowId, WorkflowDataMaps dataMaps)
+        {
+            // Bulk conversion of all webhook action triggers within an event to SqlWebhook
             var sqlWebhooks = new List<SqlWebhook>();
 
             if (wEvent != null && (wEvent.EventType == EventTypes.Transition || wEvent.EventType == EventTypes.NewArtifact))
@@ -1776,19 +1800,42 @@ namespace AdminStore.Services.Workflow
                 {
                     var sqlwebhook = new SqlWebhook
                     {
+                        WebhookId = action.IdSerializable,
                         Url = action.Url,
                         Scope = DWebhookScope.Workflow.ToString(),
                         State = true,
                         EventType = GetWebhookEventType(wEvent.EventType),
                         SecurityInfo = SerializeWebhookSecurityInfo(action),
-                        WorkflowVersionId = workflowId
+                        WorkflowId = workflowId
                     };
                     sqlWebhooks.Add(sqlwebhook);
-                    dataMaps.WebhooksByActionObj.Add(action, 0);
+                    dataMaps.WebhooksByActionObj.Add(action, action.IdSerializable);
                 }
             }
 
             return sqlWebhooks;
+        }
+
+        private SqlWebhook ToSqlWebhook(EventTypes eventType, IeTrigger wTrigger, int workflowId, WorkflowDataMaps dataMaps)
+        {
+            SqlWebhook sqlWebhook = null;
+            if (wTrigger != null && (IeWebhookAction)wTrigger.Action != null)
+            {
+                var action = (IeWebhookAction)wTrigger.Action;
+                sqlWebhook = new SqlWebhook()
+                {
+                    WebhookId = action.IdSerializable,
+                    Url = action.Url,
+                    Scope = DWebhookScope.Workflow.ToString(),
+                    State = true,
+                    EventType = GetWebhookEventType(eventType),
+                    SecurityInfo = SerializeWebhookSecurityInfo(action),
+                    WorkflowId = workflowId
+                };
+                dataMaps.WebhooksByActionObj.Add(action, action.IdSerializable);
+            }
+
+            return sqlWebhook;
         }
 
         private DWebhookEventType GetWebhookEventType(EventTypes eventType)
@@ -1876,8 +1923,53 @@ namespace AdminStore.Services.Workflow
                 var webhookAction = (IeWebhookAction)trigger.Action;
                 if (webhookAction != null)
                 {
+                    if (!dataMaps.WebhooksByActionObj.ContainsKey(webhookAction))
+                    {
+                        throw new KeyNotFoundException("Webhook DataMap does not contain Webhook specificied within Trigger.");
+                    }
+
+                    // Webhook Actions are only added to DataMap after an SqlWebhook obj has been created in preparation of being updated/created within the DB
                     dataMaps.WebhooksByActionObj[webhookAction] = newWebhooks.ElementAt(counter).WebhookId;
                     counter++;
+                }
+            }
+        }
+
+        private async Task LookupWebhookActionsFromIds(List<IeTrigger> triggers)
+        {
+            var webhookIds = triggers.Select(t => t.Action).OfType<IeWebhookAction>().Select(a => (int)a.Id);
+
+            var webhooks = await _workflowRepository.GetWebhooks(webhookIds);
+
+            foreach (var webhook in webhooks)
+            {
+                var action = triggers.Select(t => t.Action).OfType<IeWebhookAction>().FirstOrDefault(a => a.Id == webhook.WebhookId);
+                if (action != null)
+                {
+                    var securityInfo = SerializationHelper.FromXml<XmlWebhookSecurityInfo>(webhook.SecurityInfo);
+                    action.Url = webhook.Url;
+                    action.IgnoreInvalidSSLCertificate = securityInfo.IgnoreInvalidSSLCertificate;
+                    if (securityInfo.HttpHeaders.Any())
+                    {
+                        action.HttpHeaders = new List<string>();
+                        securityInfo.HttpHeaders.ForEach(h => action.HttpHeaders.Add(SystemEncryptions.Decrypt(h)));
+                    }
+                    if (securityInfo.BasicAuth != null)
+                    {
+                        action.BasicAuth = new IeBasicAuth
+                        {
+                            Username = SystemEncryptions.Decrypt(securityInfo.BasicAuth?.Username),
+                            Password = SystemEncryptions.Decrypt(securityInfo.BasicAuth?.Password)
+                        };
+                    }
+                    if (securityInfo.Signature != null)
+                    {
+                        action.Signature = new IeSignature
+                        {
+                            Algorithm = securityInfo.Signature?.Algorithm ?? "HMACSHA256",
+                            SecretToken = SystemEncryptions.Decrypt(securityInfo.Signature?.SecretToken)
+                        };
+                    }
                 }
             }
         }

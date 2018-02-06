@@ -20,6 +20,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers
         Task<SqlUser> GetUser(int userId);
         Task<List<TenantInformation>> GetTenantsFromTenantsDb();
         Task<bool> IsProjectMaxArtifactBoundaryReached(int projectId);
+
+        /// <summary>
+        /// Calls the [dbo].[GetTransactionStatus] stored procedure.
+        /// </summary>
+        Task<int> GetTransactionStatus(long transactionId);
+
         /// <summary>
         /// Validates whether the Revision ID has been committed to the database. This will eventually be replaced with Transaction validation.
         /// </summary>
@@ -60,6 +66,13 @@ namespace BlueprintSys.RC.Services.MessageHandlers
         public async Task<bool> IsProjectMaxArtifactBoundaryReached(int projectId)
         {
             return await CheckMaxArtifactsPerProjectBoundary(projectId) == 2;
+        }
+
+        public async Task<int> GetTransactionStatus(long transactionId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@transactionId", transactionId);
+            return await ConnectionWrapper.ExecuteScalarAsync<int>("[dbo].[GetTransactionStatus]", param, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<RevisionStatus> GetRevisionStatus(int revisionId)

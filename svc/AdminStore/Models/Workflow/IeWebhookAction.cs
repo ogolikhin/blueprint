@@ -14,9 +14,24 @@ namespace AdminStore.Models.Workflow
     {
         #region Properties
 
-        // used for reference to webhooks table
+        // Optional, not used for the import, will be used for the update
+        // ========================================================
+        // To make xml attribute nullable.
         [XmlIgnore]
-        public int Id { get; set; }
+        public int? Id { get; set; }
+
+        [XmlAttribute("Id")]
+        public int IdSerializable
+        {
+            get { return Id.GetValueOrDefault(); }
+            set { Id = value; }
+        }
+
+        public bool ShouldSerializeIdSerializable()
+        {
+            return Id.HasValue;
+        }
+        // ========================================================
 
         [XmlIgnore]
         public override ActionTypes ActionType => ActionTypes.Webhook;

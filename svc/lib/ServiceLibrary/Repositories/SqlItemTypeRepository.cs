@@ -36,7 +36,7 @@ namespace ServiceLibrary.Repositories
             parameters.Add("@projectId", projectId);
             parameters.Add("@standardItemTypeId", standardItemTypeId);
 
-            return (await _connectionWrapper.QueryAsync<SqlItemType>("GetCustomItemTypeInfo", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return (await _connectionWrapper.QueryAsync<SqlItemType>("GetCustomItemTypeForProvidedStandardItemType", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
         public async Task<ItemTypeInfo> GetItemTypeInfoAsync(int itemTypeId, int revisionId, bool loadCustomIcon = true)

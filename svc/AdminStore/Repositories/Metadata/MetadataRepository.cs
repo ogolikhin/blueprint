@@ -24,8 +24,6 @@ namespace AdminStore.Repositories.Metadata
 
             { ItemTypePredefined.ArtifactCollection, "collection.svg" },
 
-            { ItemTypePredefined.CollectionFolder, "collections.svg" },
-
             { ItemTypePredefined.Document, "document.svg" },
 
             { ItemTypePredefined.DomainDiagram, "domain-diagram.svg" },
@@ -34,6 +32,7 @@ namespace AdminStore.Repositories.Metadata
 
             { ItemTypePredefined.PrimitiveFolder, "folder.svg" },
             { ItemTypePredefined.BaselineFolder, "folder.svg" },
+            { ItemTypePredefined.CollectionFolder, "folder.svg" },
 
             { ItemTypePredefined.GenericDiagram, "generic-diagram.svg" },
             { ItemTypePredefined.GDConnector, "subartifact.svg" },
@@ -73,10 +72,11 @@ namespace AdminStore.Repositories.Metadata
 
         };
 
-        public byte[] GetSvgIconContent(ItemTypePredefined predefined, string color = null)
+        public byte[] GetSvgIconContent(ItemTypePredefined predefined, string color = null, bool isPrimitiveType = false)
         {
-            string iconSvgFileName;
-            if (!IconFileNames.TryGetValue(predefined, out iconSvgFileName))
+            var iconSvgFileName = GetIconSvgFileName(predefined, isPrimitiveType);
+
+            if (iconSvgFileName == null)
             {
                 return null;
             }
@@ -91,6 +91,28 @@ namespace AdminStore.Repositories.Metadata
                 }
                 return Encoding.UTF8.GetBytes(AddFillAttribute(svgDocument, color).ToString());
             }
+        }
+
+        private string GetIconSvgFileName(ItemTypePredefined predefined, bool isPrimitiveType = false)
+        {
+            if (isPrimitiveType)
+            {
+                if (predefined == ItemTypePredefined.CollectionFolder)
+                {
+                    return "collections.svg";
+                }
+                if (predefined == ItemTypePredefined.BaselineFolder)
+                {
+                    return "baseline.svg";
+                }
+            }
+
+            string iconSvgFileName;
+            if (!IconFileNames.TryGetValue(predefined, out iconSvgFileName))
+            {
+                return null;
+            }
+            return iconSvgFileName;
         }
 
         private Stream LoadSvgResourceImage(string iconSvgFileName)

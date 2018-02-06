@@ -4,8 +4,10 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
+using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
+using ArtifactStore.Models.Review;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
@@ -20,6 +22,7 @@ namespace ArtifactStore.Collections
     {
         private int _userId = 1;
 
+        private Mock<IArtifactListService> _artifactListServiceMock;
         private Mock<ICollectionsService> _collectionsServiceMock;
         private CollectionsController _collectionsController;
         private Session _session;
@@ -27,6 +30,7 @@ namespace ArtifactStore.Collections
         private ISet<int> _artifactIds;
         private int _collectionId;
         private AddArtifactsToCollectionResult _addArtifactsResult;
+        private RemoveArtifactsFromCollectionResult _removeArtifactsFromCollectionResult;
         private Pagination _pagination;
         private CollectionArtifacts _expectedCollectionArtifacts;
         private GetColumnsDto _columns;
@@ -41,9 +45,11 @@ namespace ArtifactStore.Collections
             _pagination = new Pagination { Limit = int.MaxValue, Offset = 0 };
 
             _collectionsServiceMock = new Mock<ICollectionsService>();
+            _artifactListServiceMock = new Mock<IArtifactListService>();
 
             _collectionsController = new CollectionsController(
-                _collectionsServiceMock.Object)
+                _collectionsServiceMock.Object,
+                _artifactListServiceMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -57,6 +63,12 @@ namespace ArtifactStore.Collections
             {
                 AddedCount = 1,
                 Total = 1
+            };
+
+            _removeArtifactsFromCollectionResult = new RemoveArtifactsFromCollectionResult
+            {
+                RemovedCount = 1,
+                Total = 3
             };
 
             _profileColumnsDto = new ProfileColumnsDto
@@ -186,6 +198,68 @@ namespace ArtifactStore.Collections
 
         #endregion AddArtifactsToCollectionAsync
 
+        #region RemoveArtifactsFromCollectionAsync
+
+        [TestMethod]
+        public async Task RemoveArtifactsFromCollectionAsync_AllParametersAreValid_Success()
+        {
+            var removalParameters =
+                new ItemsRemovalParams
+                {
+                    ItemIds = new List<int> { 1, 2, 3 }
+                };
+
+            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
+
+            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(_removeArtifactsFromCollectionResult, result.Content);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsNull_BadRequestException()
+        {
+            var removalParameters =
+                new ItemsRemovalParams
+                {
+                    ItemIds = null
+                };
+
+            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
+
+            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromCollectionAsync_InvalidItemIds_ItemIdsIsEmpty_BadRequestException()
+        {
+            var removalParameters =
+                new ItemsRemovalParams
+                {
+                    ItemIds = new List<int>(),
+                    SelectionType = SelectionType.Selected
+                };
+
+            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
+
+            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromCollectionAsync_ReviewItemsRemovalParamsIsNull_BadRequestException()
+        {
+            ItemsRemovalParams removalParameters = null;
+
+            _collectionsServiceMock.Setup(svc => svc.RemoveArtifactsFromCollectionAsync(_collectionId, removalParameters, _sessionUserId)).ReturnsAsync(_removeArtifactsFromCollectionResult);
+
+            var result = await _collectionsController.RemoveArtifactsFromCollectionAsync(_collectionId, "remove", removalParameters) as OkNegotiatedContentResult<RemoveArtifactsFromCollectionResult>;
+        }
+        #endregion
+
         #region SaveColumnsSettingsAsync
 
         [TestMethod]
@@ -200,6 +274,14 @@ namespace ArtifactStore.Collections
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task SaveColumnsSettingsAsync_EmptyItems_ThrowsException()
+        {
+            _profileColumnsDto.Items = new List<ProfileColumn>();
+            await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task SaveColumnsSettingsAsync_NullItems_ThrowsException()
         {
             _profileColumnsDto.Items = null;
             await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);

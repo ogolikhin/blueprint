@@ -5,11 +5,15 @@ using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
+using ArtifactStore.Models.Review;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using SearchEngineLibrary.Model;
 using SearchEngineLibrary.Service;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 
@@ -37,6 +41,9 @@ namespace ArtifactStore.Collections
         private List<ItemDetails> _artifacts;
         private List<PropertyTypeInfo> _propertyTypeInfos;
         private ProfileColumns _profileColumns;
+        private ItemsRemovalParams _reviewItemsRemovalParams;
+        private SearchArtifactsResult _searchArtifactsResult;
+        private Dictionary<int, RolePermissions> _artifactPermissions;
 
         [TestInitialize]
         public void Initialize()
@@ -62,6 +69,7 @@ namespace ArtifactStore.Collections
 
             _artifactIds = new HashSet<int> { 1, 2, 3 };
             _collectionId = 1;
+            _searchArtifactsResult = new SearchArtifactsResult { ArtifactIds = _artifactIds, Total = _artifactIds.Count };
 
             _profileColumnsSettings = new ProfileColumns(
                 new List<ProfileColumn>
@@ -73,7 +81,8 @@ namespace ArtifactStore.Collections
             {
                 ArtifactId = 1,
                 DraftDeleted = false,
-                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection
+                PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection,
+                LockedByUserId = _userId
             };
 
             _artifacts = new List<ItemDetails>
@@ -82,9 +91,17 @@ namespace ArtifactStore.Collections
                 {
                     Name = "Artifact1",
                     ItemTypeId = 2,
-                    EndRevision = int.MaxValue
+                    EndRevision = int.MaxValue,
+                    PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
                 }
             };
+
+            _artifactPermissions = new Dictionary<int, RolePermissions>();
+
+            foreach (var itemDetails in _artifacts)
+            {
+                _artifactPermissions.Add(itemDetails.ItemTypeId, RolePermissions.Read);
+            }
 
             _profileColumns = new ProfileColumns(
                 new List<ProfileColumn>
@@ -106,8 +123,14 @@ namespace ArtifactStore.Collections
             _artifactRepository.Setup(repo => repo.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(_collectionDetails);
 
-            _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+            _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(It.IsAny<int>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(true);
+
+            _artifactPermissionsRepository.Setup(repo => repo.HasEditPermissions(It.IsAny<int>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
+                .ReturnsAsync(true);
+
+            _artifactPermissionsRepository.Setup(repo => repo.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
+                .ReturnsAsync(_artifactPermissions);
 
             _collectionsRepository.Setup(repo => repo.GetContentArtifactIdsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(_artifactIds.ToList());
@@ -115,7 +138,17 @@ namespace ArtifactStore.Collections
             _itemInfoRepository.Setup(repo => repo.GetItemsDetails(It.IsAny<int>(), It.IsAny<List<int>>(), It.IsAny<bool>(), It.IsAny<int>(), null))
                 .ReturnsAsync(_artifacts);
 
+            _searchEngineService.Setup(repo => repo.Search(It.IsAny<int>(), It.IsAny<Pagination>(), It.IsAny<ScopeType>(), It.IsAny<bool>(), It.IsAny<int>(), null))
+                .ReturnsAsync(_searchArtifactsResult);
+
             InitializeProfileColumnsAndPropertyTypeInfos(_profileColumnsSettings, _propertyTypeInfos);
+
+            _reviewItemsRemovalParams =
+                new ItemsRemovalParams()
+                {
+                    ItemIds = new List<int> { 1, 2, 3 },
+                    SelectionType = SelectionType.Selected
+                };
         }
 
         #region AddArtifactsToCollectionAsync
@@ -137,6 +170,109 @@ namespace ArtifactStore.Collections
         }
 
         #endregion AddArtifactsToCollectionAsync
+
+        #region RemoveArtifactsFromCollectionAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task RemoveArtifactsFromCollectionAsync_InvalidUserId_ThrowArgumentOutOfRangeException()
+        {
+            _userId = 0;
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task RemoveArtifactsFromCollectionAsync_InvalidCollectionId_ThrowArgumentOutOfRangeException()
+        {
+            _collectionId = 0;
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        public async Task RemoveArtifactsFromCollectionAsync_AllParametersAreValid_Success()
+        {
+            _collectionsRepository.Setup(q => q.RemoveArtifactsFromCollectionAsync(_collectionId, It.IsAny<IEnumerable<int>>(), _userId, null))
+                .ReturnsAsync(_artifacts.Count);
+
+            var result = await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(_artifacts.Count, result.RemovedCount);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task RemoveArtifactsFromCollectionAsync_ValidateCollection_NoEditPermissionArtifact_NoEditPermissionException()
+        {
+            _artifactPermissionsRepository
+                .Setup(repo => repo.HasEditPermissions(_collectionId, _userId, false, int.MaxValue, true, null))
+                .ReturnsAsync(false);
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveArtifactsFromCollectionAsync_LockAsync_ArtifactLockedByAnotherUser_LockedByAnotherUserException()
+        {
+            _userId = 2;
+            _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(_collectionId, _userId, false, int.MaxValue, true)).ReturnsAsync(true);
+            _artifactPermissionsRepository.Setup(repo => repo.HasEditPermissions(It.IsAny<int>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null)).ReturnsAsync(true);
+
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ConflictException))]
+        public async Task RemoveArtifactsFromCollectionAsync_LockAsync_ArtifactNotLocked_ArtifactNotLockedException()
+        {
+            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null))
+                .ReturnsAsync(new ArtifactBasicDetails { ArtifactId = _collectionId, LockedByUserId = null, PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection });
+
+            _lockArtifactsRepository.Setup(repo => repo.LockArtifactAsync(_collectionId, _userId, null))
+                .ReturnsAsync(false);
+
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task RemoveArtifactsFromCollectionAsync_GetCollectionBasicDetailsAsync_ArtifactIsNotFound_ResourceNotFoundException()
+        {
+            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null))
+                .ReturnsAsync(new ArtifactBasicDetails
+                {
+                    ArtifactId = _collectionId,
+                    LockedByUserId = null,
+                    PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection,
+                    DraftDeleted = true
+                });
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task RemoveArtifactsFromCollectionAsync_GetCollectionBasicDetailsAsync_ArtifactIsNotArtifactCollection_InvalidTypeException()
+        {
+            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null))
+                .ReturnsAsync(new ArtifactBasicDetails
+                {
+                    ArtifactId = _collectionId,
+                    LockedByUserId = null,
+                    PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
+                });
+
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task RemoveArtifactsFromCollectionAsync_GetCollectionBasicDetailsAsync_UsersNoHasReadPermissions_AuthorizationException()
+        {
+            _userId = 2;
+            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
+        }
+        #endregion
 
         #region SaveProfileColumnsAsync
 

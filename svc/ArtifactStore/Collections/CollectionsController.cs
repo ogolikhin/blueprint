@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using ArtifactStore.Models.Review;
@@ -22,17 +23,25 @@ namespace ArtifactStore.Collections
     [RoutePrefix("collections")]
     public class CollectionsController : LoggableApiController
     {
+        private readonly IArtifactListService _artifactListService;
         private readonly ICollectionsService _collectionsService;
+        private const int _defaultPaginationLimit = 10;
+        private const int _defaultPaginationOffset = 0;
 
         public override string LogSource => "ArtifactStore.Collections";
 
-        public CollectionsController() : this(new CollectionsService())
+        public CollectionsController() : this(
+            new CollectionsService(),
+            new ArtifactListService())
         {
         }
 
-        public CollectionsController(ICollectionsService collectionsService)
+        public CollectionsController(
+            ICollectionsService collectionsService,
+            IArtifactListService artifactListService)
         {
             _collectionsService = collectionsService;
+            _artifactListService = artifactListService;
         }
 
         /// <summary>
@@ -52,9 +61,20 @@ namespace ArtifactStore.Collections
         [ResponseType(typeof(CollectionArtifacts))]
         public async Task<IHttpActionResult> GetArtifactsInCollectionAsync(int id, [FromUri] Pagination pagination)
         {
-            pagination.Validate();
+            pagination.Validate(true);
 
-            var artifacts = await _collectionsService.GetArtifactsInCollectionAsync(id, pagination, Session.UserId);
+            var userId = Session.UserId;
+
+            pagination = pagination ?? new Pagination();
+            pagination.Offset = pagination.Offset ?? _defaultPaginationOffset;
+            pagination.Limit = pagination.Limit
+                ?? await _artifactListService.GetPaginationLimitAsync(id, userId)
+                ?? _defaultPaginationLimit;
+
+            var artifacts = await _collectionsService.GetArtifactsInCollectionAsync(id, pagination, userId);
+            artifacts.Pagination = pagination;
+
+            await _artifactListService.SavePaginationLimitAsync(id, pagination.Limit, userId);
 
             return Ok(artifacts);
         }
@@ -158,7 +178,7 @@ namespace ArtifactStore.Collections
         public async Task<HttpResponseMessage> SaveColumnsSettingsAsync(
             int id, [FromBody] ProfileColumnsDto profileColumnsDto)
         {
-            if (profileColumnsDto?.Items == null)
+            if (profileColumnsDto == null || profileColumnsDto.Items.IsEmpty())
             {
                 throw new BadRequestException(
                     ErrorMessages.Collections.ColumnsSettingsModelIsIncorrect, ErrorCodes.BadRequest);

@@ -7,9 +7,7 @@ using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Helpers;
 using ArtifactStore.Collections.Models;
-using ArtifactStore.Models.Review;
 using SearchEngineLibrary.Service;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -62,7 +60,7 @@ namespace ArtifactStore.Collections
         }
 
         private async Task<ArtifactBasicDetails> GetCollectionBasicDetailsAsync(
-            int collectionId, int userId, IDbTransaction transaction = null)
+            int collectionId, int userId, RolePermissions permissions = RolePermissions.Read, IDbTransaction transaction = null)
         {
             var collection = await _artifactRepository.GetArtifactBasicDetails(collectionId, userId, transaction);
 
@@ -79,6 +77,15 @@ namespace ArtifactStore.Collections
             if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId))
             {
                 throw CollectionsExceptionHelper.NoAccessException(collectionId);
+            }
+
+            if (permissions == RolePermissions.Edit)
+            {
+                if (!await _artifactPermissionsRepository.HasEditPermissions(
+                    collection.ArtifactId, userId, transaction: transaction))
+                {
+                    throw CollectionsExceptionHelper.NoEditPermissionException(collection.ArtifactId);
+                }
             }
 
             return collection;
@@ -221,13 +228,7 @@ namespace ArtifactStore.Collections
 
         private async Task<ArtifactBasicDetails> ValidateCollection(int collectionId, int userId, IDbTransaction transaction)
         {
-            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, transaction);
-
-            if (!await _artifactPermissionsRepository.HasEditPermissions(
-                collection.ArtifactId, userId, transaction: transaction))
-            {
-                throw CollectionsExceptionHelper.NoEditPermissionException(collection.ArtifactId);
-            }
+            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, RolePermissions.Edit, transaction);
 
             await LockAsync(collection, userId, transaction);
 

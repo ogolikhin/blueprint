@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
@@ -123,7 +124,7 @@ namespace ArtifactStore.Collections
             _artifactRepository.Setup(repo => repo.GetArtifactBasicDetails(It.IsAny<int>(), It.IsAny<int>(), null))
                 .ReturnsAsync(_collectionDetails);
 
-            _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(It.IsAny<int>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+            _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(It.IsAny<int>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(true);
 
             _artifactPermissionsRepository.Setup(repo => repo.HasEditPermissions(It.IsAny<int>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
@@ -216,7 +217,6 @@ namespace ArtifactStore.Collections
         public async Task RemoveArtifactsFromCollectionAsync_LockAsync_ArtifactLockedByAnotherUser_LockedByAnotherUserException()
         {
             _userId = 2;
-            _artifactPermissionsRepository.Setup(repo => repo.HasReadPermissions(_collectionId, _userId, false, int.MaxValue, true)).ReturnsAsync(true);
             _artifactPermissionsRepository.Setup(repo => repo.HasEditPermissions(It.IsAny<int>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null)).ReturnsAsync(true);
 
             await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
@@ -265,13 +265,6 @@ namespace ArtifactStore.Collections
             await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(AuthorizationException))]
-        public async Task RemoveArtifactsFromCollectionAsync_GetCollectionBasicDetailsAsync_UsersNoHasReadPermissions_AuthorizationException()
-        {
-            _userId = 2;
-            await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
-        }
         #endregion
 
         #region SaveProfileColumnsAsync

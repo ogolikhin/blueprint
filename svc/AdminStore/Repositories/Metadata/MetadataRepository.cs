@@ -68,6 +68,8 @@ namespace AdminStore.Repositories.Metadata
             { ItemTypePredefined.PostCondition, "subartifact.svg" },
             { ItemTypePredefined.Step, "subartifact.svg" },
 
+            { ItemTypePredefined.SubArtifactGroup, "subartifact.svg" }
+
 
         };
 

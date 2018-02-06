@@ -154,6 +154,27 @@ namespace ArtifactStore.Collections
 
         #endregion
 
+        #region RemoveArtifactsFromCollectionAsync
+
+        [TestMethod]
+        public async Task RemoveArtifactsFromCollectionAsync_AllParametersAreValid_Success()
+        {
+            // Arrange
+            var expectedResult = 3;
+
+            var artifactIds = new List<int> { 1, 2, 3 };
+
+            _cxn.SetupExecuteScalarAsync("RemoveArtifactsFromCollection", It.IsAny<Dictionary<string, object>>(),
+                expectedResult);
+
+            // Act
+            var actualResult = await _repository.RemoveArtifactsFromCollectionAsync(_collectionId, artifactIds, _userId);
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        #endregion
+
         #region GetArtifactsWithPropertyValuesAsync
 
         [TestMethod]

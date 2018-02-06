@@ -1139,12 +1139,12 @@ namespace AdminStore.Repositories.Workflow
             table.Columns.Add("State", typeof(bool));
             table.Columns.Add("Scope", typeof(string));
             table.Columns.Add("EventType", typeof(int));
-            table.Columns.Add("WorkflowVersionId", typeof(int));
+            table.Columns.Add("WorkflowId", typeof(int));
 
             foreach (var webhook in webhooks)
             {
                 table.Rows.Add(webhook.WebhookId, webhook.Url, webhook.SecurityInfo, webhook.State, webhook.Scope,
-                    webhook.EventType, webhook.WorkflowVersionId);
+                    webhook.EventType, webhook.WorkflowId);
             }
 
             return table;

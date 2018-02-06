@@ -95,6 +95,7 @@
           <xs:element minOccurs="0" maxOccurs="1" name="BasicAuth" type="BasicAuth" />
           <xs:element minOccurs="0" maxOccurs="1" name="Signature" type="Signature" />
         </xs:sequence>
+        <xs:attribute name="Id" type="xs:int" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

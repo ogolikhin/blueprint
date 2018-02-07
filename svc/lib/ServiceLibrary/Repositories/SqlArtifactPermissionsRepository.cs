@@ -290,8 +290,18 @@ namespace ServiceLibrary.Repositories
 
             const string query = @"SELECT [Perm] FROM [dbo].[GetArtifactPermission](@userId, @projectId, @artifactId)";
 
-            var queryResult = await _connectionWrapper.QueryAsync<bool>(
-                query, parameters, transaction, commandType: CommandType.Text);
+            IEnumerable<bool> queryResult;
+
+            if (transaction == null)
+            {
+                queryResult = await _connectionWrapper.QueryAsync<bool>(
+                    query, parameters, commandType: CommandType.Text);
+            }
+            else
+            {
+                queryResult = await transaction.Connection.QueryAsync<bool>(
+                    query, parameters, transaction, commandType: CommandType.Text);
+            }
 
             var permissions = queryResult.FirstOrDefault() ? RolePermissions.Read : RolePermissions.None;
             var result = new Dictionary<int, RolePermissions> { { itemId, permissions } };

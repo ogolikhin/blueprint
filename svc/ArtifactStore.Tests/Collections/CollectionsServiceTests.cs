@@ -101,6 +101,7 @@ namespace ArtifactStore.Collections
                 {
                     Name = "Artifact1",
                     ItemTypeId = 2,
+                    VersionProjectId = 1,
                     EndRevision = int.MaxValue,
                     PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
                 }
@@ -135,7 +136,7 @@ namespace ArtifactStore.Collections
                 .ReturnsAsync(_collectionDetails);
 
             _artifactPermissionsRepository
-                .Setup(r => r.GetArtifactPermissionDirectly(_collectionId, _userId, It.IsAny<int>(), null))
+                .Setup(r => r.GetArtifactPermissions(_collectionId, _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(_collectionPermissions);
 
             _artifactPermissionsRepository

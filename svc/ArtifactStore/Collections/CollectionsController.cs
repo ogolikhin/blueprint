@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
+using ArtifactStore.Models.Review;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
@@ -20,17 +23,25 @@ namespace ArtifactStore.Collections
     [RoutePrefix("collections")]
     public class CollectionsController : LoggableApiController
     {
+        private readonly IArtifactListService _artifactListService;
         private readonly ICollectionsService _collectionsService;
+        private const int _defaultPaginationLimit = 10;
+        private const int _defaultPaginationOffset = 0;
 
         public override string LogSource => "ArtifactStore.Collections";
 
-        public CollectionsController() : this(new CollectionsService())
+        public CollectionsController() : this(
+            new CollectionsService(),
+            new ArtifactListService())
         {
         }
 
-        public CollectionsController(ICollectionsService collectionsService)
+        public CollectionsController(
+            ICollectionsService collectionsService,
+            IArtifactListService artifactListService)
         {
             _collectionsService = collectionsService;
+            _artifactListService = artifactListService;
         }
 
         /// <summary>
@@ -50,9 +61,20 @@ namespace ArtifactStore.Collections
         [ResponseType(typeof(CollectionArtifacts))]
         public async Task<IHttpActionResult> GetArtifactsInCollectionAsync(int id, [FromUri] Pagination pagination)
         {
-            pagination.Validate();
+            pagination.Validate(true);
 
-            var artifacts = await _collectionsService.GetArtifactsInCollectionAsync(id, pagination, Session.UserId);
+            var userId = Session.UserId;
+
+            pagination = pagination ?? new Pagination();
+            pagination.Offset = pagination.Offset ?? _defaultPaginationOffset;
+            pagination.Limit = pagination.Limit
+                ?? await _artifactListService.GetPaginationLimitAsync(id, userId)
+                ?? _defaultPaginationLimit;
+
+            var artifacts = await _collectionsService.GetArtifactsInCollectionAsync(id, pagination, userId);
+            artifacts.Pagination = pagination;
+
+            await _artifactListService.SavePaginationLimitAsync(id, pagination.Limit, userId);
 
             return Ok(artifacts);
         }
@@ -71,7 +93,7 @@ namespace ArtifactStore.Collections
         /// <response code="403">Forbidden. The user does not have permissions for the collection.</response>
         /// <response code="404">Not found. A collection for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <returns>Result of the operation.</returns>
+        /// <returns>Amount of added artifacts, total amount of passed artifact to add.</returns>
         [HttpPost]
         [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(AddArtifactsToCollectionResult))]
@@ -85,6 +107,34 @@ namespace ArtifactStore.Collections
             }
 
             var result = await _collectionsService.AddArtifactsToCollectionAsync(id, artifactIds, Session.UserId);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Remove artifacts from collection.
+        /// </summary>
+        /// <remarks>
+        /// Removes artifacts from the collection with specified id.
+        /// </remarks>
+        /// <param name="id">Collection id.</param>
+        /// <param name="remove">Operation identifier.</param>
+        /// <param name="removalParams">Removal parameters for artifacts to be removed.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the collection.</response>
+        /// <response code="404">Not found. A collection for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// <returns>Amount of removed artifacts, total amount of passed artifact to remove.</returns>
+        [HttpPost]
+        [Route("{id:int:min(1)}/artifacts"), SessionRequired]
+        [ResponseType(typeof(RemoveArtifactsFromCollectionResult))]
+        public async Task<IHttpActionResult> RemoveArtifactsFromCollectionAsync(
+            int id, string remove, ItemsRemovalParams removalParams)
+        {
+            removalParams.Validate();
+
+            var result = await _collectionsService.RemoveArtifactsFromCollectionAsync(id, removalParams, Session.UserId);
 
             return Ok(result);
         }
@@ -128,16 +178,36 @@ namespace ArtifactStore.Collections
         public async Task<HttpResponseMessage> SaveColumnsSettingsAsync(
             int id, [FromBody] ProfileColumnsDto profileColumnsDto)
         {
-            if (profileColumnsDto?.Items == null)
+            if (profileColumnsDto == null || profileColumnsDto.Items.IsEmpty())
             {
                 throw new BadRequestException(
                     ErrorMessages.Collections.ColumnsSettingsModelIsIncorrect, ErrorCodes.BadRequest);
             }
 
+            var result = await _collectionsService.GetColumnsAsync(id, Session.UserId);
+            var notExistColumns = GetNotExistColumns(profileColumnsDto, result);
+
             var profileColumns = new ProfileColumns(profileColumnsDto.Items);
             await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        /// Return Not Exist Profile Columns in database from Profile Columns for Saving
+        /// </summary>
+        /// <param name="profileColumnsDto">IEnumerable Profile Column for Saving</param>
+        /// <param name="getColumnsDto">Profile Columns exist in database</param>
+        /// <returns></returns>
+        private static IEnumerable<ProfileColumn> GetNotExistColumns(ProfileColumnsDto profileColumnsDto, GetColumnsDto getColumnsDto)
+        {
+            var result = Enumerable.Empty<ProfileColumn>();
+            if ((profileColumnsDto != null) && (getColumnsDto != null))
+            {
+                result = profileColumnsDto.Items.Except(getColumnsDto.SelectedColumns);
+                result = result.Except(getColumnsDto.SelectedColumns);
+            }
+            return result;
         }
     }
 }

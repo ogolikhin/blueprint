@@ -113,6 +113,7 @@
     <Compile Include="Helpers\Validators\UserPropertyValidatorTests.cs" />
     <Compile Include="Helpers\WebApiConfigHelper.cs" />
     <Compile Include="LocalLog\LocalLogTests.cs" />
+    <Compile Include="Models\ItemsRemovalParamsExtensionsTests.cs" />
     <Compile Include="Models\Licenses\FeatureInformationTests.cs" />
     <Compile Include="Models\Licenses\FeatureLicenseHelperTests.cs" />
     <Compile Include="Models\LicenseTransactionTests.cs" />

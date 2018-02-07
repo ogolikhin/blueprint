@@ -432,6 +432,10 @@ namespace ArtifactStore.Repositories
             {
                 if (effectiveIds.IsBaselineAdded)
                 {
+                    if (effectiveIds.Unpublished > 0)
+                    {
+                        throw ReviewsExceptionHelper.BaselineNotSealedException();
+                    }
                     return new AddArtifactsResult
                     {
                         ArtifactCount = 0,
@@ -1256,7 +1260,7 @@ namespace ArtifactStore.Repositories
             return toc;
         }
 
-        public async Task RemoveParticipantsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId)
+        public async Task RemoveParticipantsFromReviewAsync(int reviewId, ItemsRemovalParams removeParams, int userId)
         {
             if ((removeParams.ItemIds == null || !removeParams.ItemIds.Any()) && removeParams.SelectionType == SelectionType.Selected)
             {
@@ -1349,7 +1353,7 @@ namespace ArtifactStore.Repositories
                 commandType: CommandType.StoredProcedure);
         }
 
-        public async Task RemoveArtifactsFromReviewAsync(int reviewId, ReviewItemsRemovalParams removeParams, int userId)
+        public async Task RemoveArtifactsFromReviewAsync(int reviewId, ItemsRemovalParams removeParams, int userId)
         {
             if ((removeParams.ItemIds == null || !removeParams.ItemIds.Any()) && removeParams.SelectionType == SelectionType.Selected)
             {

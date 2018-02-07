@@ -6,6 +6,7 @@ namespace ServiceLibrary.Models.Enums
     {
         InstanceFolder = 0,
         Project = 1,
-        Artifact = 2
+        Artifact = 2,
+        SubArtifactRoot = 3
     }
 }

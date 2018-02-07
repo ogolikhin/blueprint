@@ -5581,7 +5581,7 @@ namespace ArtifactStore.Repositories
         public async Task RemoveArtifactsFromReviewAsync_ShouldThrow_BadRequestException()
         {
             // Arrange
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int>(),
                 SelectionType = SelectionType.Selected
@@ -5605,7 +5605,7 @@ namespace ArtifactStore.Repositories
             var reviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>";
             SetupGetReviewDataQuery(reviewId, userId, reviewContentsXml, null);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5646,7 +5646,7 @@ namespace ArtifactStore.Repositories
             var reviewPackageRawDataXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ReviewPackageRawData xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Status>Closed</Status></ReviewPackageRawData>";
             SetupGetReviewDataQuery(reviewId, userId, reviewContentsXml, reviewPackageRawDataXml);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5665,7 +5665,7 @@ namespace ArtifactStore.Repositories
                 .Setup(m => m.GetArtifactBasicDetails(ReviewId, UserId, null))
                 .ReturnsAsync(() => null);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5685,7 +5685,7 @@ namespace ArtifactStore.Repositories
 
             var reviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>";
             SetupGetReviewDataQuery(reviewId, userId, reviewContentsXml, null);
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5708,7 +5708,7 @@ namespace ArtifactStore.Repositories
             var reviewContentsXml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><RDReviewContents xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.blueprintsys.com/raptor/reviews\"><Artifacts><CA><Id>3</Id></CA><CA><Id>4</Id></CA></Artifacts></RDReviewContents>";
             SetupGetReviewDataQuery(reviewId, userId, reviewContentsXml, null, baselineId);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5735,7 +5735,7 @@ namespace ArtifactStore.Repositories
             SetupGetReviewDataQuery(reviewId, userId, null, xmlString);
             SetupUpdateReviewXmlQuery(reviewId, userId, 1, updatedXml);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5750,7 +5750,7 @@ namespace ArtifactStore.Repositories
         public async Task RemoveParticipantsFromReviewAsync_ShouldThrow_BadRequestException()
         {
             // Arrange
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int>(),
                 SelectionType = SelectionType.Selected
@@ -5772,7 +5772,7 @@ namespace ArtifactStore.Repositories
             SetupGetReviewDataQuery(ReviewId, UserId, null, xmlString);
             SetupUpdateReviewXmlQuery(ReviewId, UserId, 1, updatedXml);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5803,7 +5803,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetReviewDataQuery(ReviewId, UserId, null, xmlString);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5835,7 +5835,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetReviewDataQuery(reviewId, userId, null, null);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5856,7 +5856,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetReviewDataQuery(reviewId, userId, null, xmlString);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5881,7 +5881,7 @@ namespace ArtifactStore.Repositories
             SetupGetReviewDataQuery(reviewId, userId, null, xmlString);
             SetupUpdateReviewXmlQuery(reviewId, userId, -1, updatedXml);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected
@@ -5905,7 +5905,7 @@ namespace ArtifactStore.Repositories
 
             SetupGetReviewDataQuery(reviewId, userId, artifactsXml, xmlString);
 
-            var prms = new ReviewItemsRemovalParams
+            var prms = new ItemsRemovalParams
             {
                 ItemIds = new List<int> { 1, 2, 3 },
                 SelectionType = SelectionType.Selected

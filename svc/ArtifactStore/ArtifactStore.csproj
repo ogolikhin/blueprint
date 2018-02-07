@@ -118,6 +118,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="ArtifactList\ArtifactListService.cs" />
     <Compile Include="ArtifactList\Models\ProfileColumns.cs" />
+    <Compile Include="ArtifactList\Models\ProfileSettingsParams.cs" />
     <Compile Include="ArtifactList\Models\Xml\XmlProfileColumn.cs" />
     <Compile Include="ArtifactList\Models\Xml\XmlProfileSettings.cs" />
     <Compile Include="ArtifactList\SqlArtifactListSettingsRepository.cs" />
@@ -133,7 +134,6 @@
     <Compile Include="Collections\ICollectionsService.cs" />
     <Compile Include="Collections\Models\AddArtifactsToCollectionResult.cs" />
     <Compile Include="Collections\Models\ArtifactDto.cs" />
-    <Compile Include="Collections\Models\ArtifactListColumn.cs" />
     <Compile Include="Collections\Models\ArtifactListFilter.cs" />
     <Compile Include="Collections\Models\ArtifactListSettings.cs" />
     <Compile Include="Collections\Models\CollectionArtifact.cs" />
@@ -141,6 +141,7 @@
     <Compile Include="Collections\Models\GetColumnsDto.cs" />
     <Compile Include="Collections\Models\PropertyTypeInfo.cs" />
     <Compile Include="Collections\Models\PropertyValueInfo.cs" />
+    <Compile Include="Collections\Models\RemoveArtifactsFromCollectionResult.cs" />
     <Compile Include="Collections\SqlCollectionsRepository.cs" />
     <Compile Include="Controllers\ArtifactController.cs" />
     <Compile Include="Controllers\AttachmentsController.cs" />
@@ -173,7 +174,6 @@
     <Compile Include="Models\Review\ReviewChangeItemsStatusResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactApprovalResult.cs" />
     <Compile Include="Models\Review\ReviewArtifactId.cs" />
-    <Compile Include="Models\Review\ReviewArtifactsRemovalParams.cs" />
     <Compile Include="Models\Review\ReviewArtifactViewedInput.cs" />
     <Compile Include="Models\Review\ParticipantMeaningOfSignatureResult.cs" />
     <Compile Include="Models\Review\ReviewChangeParticipantsStatusResult.cs" />

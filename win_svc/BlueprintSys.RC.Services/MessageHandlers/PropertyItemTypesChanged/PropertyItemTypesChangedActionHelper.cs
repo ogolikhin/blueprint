@@ -20,8 +20,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged
             var message = (PropertyItemTypesChangedMessage)actionMessage;
             var repository = (IPropertyItemTypesChangedRepository)baseRepository;
 
-            var isInstance = message.IsStandard;
             var revisionId = message.RevisionId;
+
+            var revisionStatus = await repository.ValidateRevision(revisionId, repository, message, tenant);
+            if (revisionStatus == RevisionStatus.RolledBack)
+            {
+                return false;
+            }
+
+            var isInstance = message.IsStandard;
             var itemTypes = message.ItemTypeIds?.ToList();
             var propertyTypes = message.PropertyTypeIds?.ToList();
 

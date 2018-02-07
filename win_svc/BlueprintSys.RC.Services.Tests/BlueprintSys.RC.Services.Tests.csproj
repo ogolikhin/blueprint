@@ -133,6 +133,7 @@
     <Compile Include="MessageHandlers\PropertyItemTypesChanged\PropertyItemTypesChangedActionHelperTests.cs" />
     <Compile Include="MessageHandlers\UsersGroupsChanged\UsersGroupsChangedActionHelperTests.cs" />
     <Compile Include="MessageHandlers\WorkflowsChanged\WorkflowsChangedActionHelperTests.cs" />
+    <Compile Include="TransactionValidatorTests.cs" />
     <Compile Include="TransportTests.cs" />
     <Compile Include="HelperTests.cs" />
     <Compile Include="LoggingTests.cs" />

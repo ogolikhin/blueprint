@@ -155,6 +155,7 @@
         {
             public static readonly string AddColumnColumnExists = "Unable to add profile column '{0}'. The column already exists.";
             public static readonly string AddColumnCapacityReached = "Unable to add profile column '{0}'. The column limit of {1} has been reached.";
+            public static readonly string SaveProfileSettingsProfileSettingsNull = "\"profileSettings\" param is null.";
         }
 
         public static class Collections
@@ -166,6 +167,7 @@
             public static readonly string LockedByAnotherUser = "Collection (Id:{0}) is already locked by user (Id:{1}).";
             public static readonly string AddArtifactsInvalidParameters = "Invalid parameters to add artifact(s)";
             public static readonly string ColumnsSettingsModelIsIncorrect = "The body of the call is malformed or has invalid parameter.";
+            public static readonly string RemoveArtifactsInvalidParameters = "Incorrect input parameters.";
         }
     }
 }

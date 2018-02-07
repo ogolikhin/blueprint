@@ -9,13 +9,17 @@ namespace ArtifactStore.ArtifactList.Models
 {
     public class ProfileColumn
     {
-        public string PropertyName { get; }
+        public string PropertyName { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? PropertyTypeId { get; }
+        public int? PropertyTypeId { get; set; }
 
-        public PropertyTypePredefined Predefined { get; }
+        public PropertyTypePredefined Predefined { get; set; }
 
-        public PropertyPrimitiveType PrimitiveType { get; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public PropertyPrimitiveType PrimitiveType { get; set; }
+
+        public ProfileColumn() { }
 
         public ProfileColumn(
             string propertyName,

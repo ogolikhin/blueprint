@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using ServiceLibrary.Models;
 
 namespace ArtifactStore.Collections.Models
 {
@@ -12,5 +13,8 @@ namespace ArtifactStore.Collections.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ArtifactListSettings ArtifactListSettings { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public Pagination Pagination { get; set; }
     }
 }

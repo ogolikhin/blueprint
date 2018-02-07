@@ -1,4 +1,6 @@
-﻿namespace AdminStore.Models.Workflow
+﻿using System;
+
+namespace AdminStore.Models.Workflow
 {
     public class SqlWebhook
     {
@@ -14,7 +16,7 @@
 
         public DWebhookEventType EventType { get; set; }
 
-        public int WorkflowVersionId { get; set; }
+        public int WorkflowId { get; set; }
     }
 
     public enum DWebhookScope
@@ -25,18 +27,19 @@
         Workflow = 3
     }
 
+    [Flags]
     public enum DWebhookEventType
     {
         None = 0,
 
         ArtifactCreated = 1,
         ArtifactDeleted = 2,
-        ArtifactUpdated = 3,
+        ArtifactUpdated = 4,
 
-        ProjectCreated = 10,
-        ProjectDeleted = 11,
-        ProjectUpdated = 12,
+        ProjectCreated = 8,
+        ProjectDeleted = 16,
+        ProjectUpdated = 32,
 
-        WorkflowTransistion = 20
+        WorkflowTransition = 64
     }
 }

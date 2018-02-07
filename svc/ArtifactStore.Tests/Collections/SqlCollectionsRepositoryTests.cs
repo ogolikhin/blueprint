@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -115,8 +116,19 @@ namespace ArtifactStore.Collections
         {
             // Arrange
 
+            Exception exception = null;
+
             // Act
-            await _repository.RemoveDeletedArtifactsFromCollectionAsync(_collectionId, _userId);
+            try
+            {
+                await _repository.RemoveDeletedArtifactsFromCollectionAsync(_collectionId, _userId);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            Assert.IsNull(exception);
         }
 
         #endregion
@@ -127,10 +139,38 @@ namespace ArtifactStore.Collections
         public async Task AddArtifactsToCollectionAsync_AllParametersAreValid_Success()
         {
             // Arrange
+            var expectedResult = 3;
+
             var artifactIds = new List<int> { 1, 2, 3 };
 
+            _cxn.SetupExecuteScalarAsync("AddArtifactsToCollection", It.IsAny<Dictionary<string, object>>(),
+                expectedResult);
+
             // Act
-            await _repository.AddArtifactsToCollectionAsync(_collectionId, artifactIds, _userId);
+            var actualResult = await _repository.AddArtifactsToCollectionAsync(_collectionId, artifactIds, _userId);
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        #endregion
+
+        #region RemoveArtifactsFromCollectionAsync
+
+        [TestMethod]
+        public async Task RemoveArtifactsFromCollectionAsync_AllParametersAreValid_Success()
+        {
+            // Arrange
+            var expectedResult = 3;
+
+            var artifactIds = new List<int> { 1, 2, 3 };
+
+            _cxn.SetupExecuteScalarAsync("RemoveArtifactsFromCollection", It.IsAny<Dictionary<string, object>>(),
+                expectedResult);
+
+            // Act
+            var actualResult = await _repository.RemoveArtifactsFromCollectionAsync(_collectionId, artifactIds, _userId);
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         #endregion

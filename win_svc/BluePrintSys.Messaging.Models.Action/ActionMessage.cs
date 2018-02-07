@@ -6,8 +6,9 @@ namespace BluePrintSys.Messaging.Models.Actions
 {
     public abstract class ActionMessage : IMessage, IWorkflowMessage
     {
-        public int UserId { get; set; }
         public abstract MessageActionType ActionType { get; }
+        public long TransactionId { get; set; }
+        public int UserId { get; set; }
         public int RevisionId { get; set; }
     }
 

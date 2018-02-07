@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -78,7 +79,7 @@ namespace ArtifactStore.Services
             _mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
 
             _mockArtifactPermissionsRepository
-                .Setup(m => m.HasReadPermissions(ReviewId, UserId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .Setup(m => m.HasReadPermissions(ReviewId, UserId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
                 .ReturnsAsync(() => _hasReadPermissions);
 
             _mockArtifactPermissionsRepository

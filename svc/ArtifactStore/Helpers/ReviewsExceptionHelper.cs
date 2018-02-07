@@ -2,6 +2,7 @@
 using ArtifactStore.Models.Review;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 
 namespace ArtifactStore.Helpers
 {
@@ -85,7 +86,7 @@ namespace ArtifactStore.Helpers
             return new BadRequestException(errorMessage, ErrorCodes.MeaningOfSignatureNotChosen);
         }
 
-        public static void VerifyNotLastApproverInFormalReview(ReviewItemsRemovalParams content, Review review)
+        public static void VerifyNotLastApproverInFormalReview(ItemsRemovalParams content, Review review)
         {
             if (review.ReviewType != ReviewType.Formal)
             {

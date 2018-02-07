@@ -149,6 +149,8 @@
     <Compile Include="Helpers\Validators\SearchFieldValidator.cs" />
     <Compile Include="Models\Enums\IconType.cs" />
     <Compile Include="Models\Icon.cs" />
+    <Compile Include="Models\ItemsRemovalParams.cs" />
+    <Compile Include="Models\ItemsRemovalParamsExtensions.cs" />
     <Compile Include="Models\Workflow\Actions\WebhookAction.cs" />
     <Compile Include="Models\Workflow\XmlWebhookAction.cs" />
     <Compile Include="Models\XmlWebhookSecurityInfo.cs" />

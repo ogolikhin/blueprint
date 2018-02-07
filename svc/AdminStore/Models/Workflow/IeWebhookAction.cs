@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 using AdminStore.Helpers.Workflow;
@@ -12,6 +13,25 @@ namespace AdminStore.Models.Workflow
     public class IeWebhookAction : IeBaseAction
     {
         #region Properties
+
+        // Optional, not used for the import, will be used for the update
+        // ========================================================
+        // To make xml attribute nullable.
+        [XmlIgnore]
+        public int? Id { get; set; }
+
+        [XmlAttribute("Id")]
+        public int IdSerializable
+        {
+            get { return Id.GetValueOrDefault(); }
+            set { Id = value; }
+        }
+
+        public bool ShouldSerializeIdSerializable()
+        {
+            return Id.HasValue;
+        }
+        // ========================================================
 
         [XmlIgnore]
         public override ActionTypes ActionType => ActionTypes.Webhook;
@@ -48,7 +68,7 @@ namespace AdminStore.Models.Workflow
         {
             return base.Equals(other) &&
                 string.Equals(Url, other.Url) &&
-                IgnoreInvalidSSLCertificate.GetValueOrDefault() == other.IgnoreInvalidSSLCertificate.GetValueOrDefault() &&
+                IgnoreInvalidSSLCertificate == other.IgnoreInvalidSSLCertificate &&
                 WorkflowHelper.CollectionEquals(HttpHeaders, other.HttpHeaders) &&
                 Equals(BasicAuth, other.BasicAuth) &&
                 Equals(Signature, other.Signature);

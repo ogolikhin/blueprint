@@ -6,11 +6,11 @@ namespace BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged
 {
     public class PropertyItemTypesChangedMessageHandler : BaseMessageHandler<PropertyItemTypesChangedMessage>
     {
-        public PropertyItemTypesChangedMessageHandler() : this(new PropertyItemTypesChangedActionHelper(), new TenantInfoRetriever(), new ConfigHelper())
+        public PropertyItemTypesChangedMessageHandler() : this(new PropertyItemTypesChangedActionHelper(), new TenantInfoRetriever(), new ConfigHelper(), new TransactionValidator())
         {
         }
 
-        public PropertyItemTypesChangedMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever, IConfigHelper configHelper) : base(actionHelper, tenantInfoRetriever, configHelper)
+        public PropertyItemTypesChangedMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever, IConfigHelper configHelper, ITransactionValidator transactionValidator) : base(actionHelper, tenantInfoRetriever, configHelper, transactionValidator)
         {
         }
     }

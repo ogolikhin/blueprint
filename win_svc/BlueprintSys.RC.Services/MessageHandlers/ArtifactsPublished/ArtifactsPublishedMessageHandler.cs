@@ -6,13 +6,11 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
     public class ArtifactsPublishedMessageHandler : BaseMessageHandler<ArtifactsPublishedMessage>
     {
-        public ArtifactsPublishedMessageHandler() : this(new ArtifactsPublishedActionHelper(), new TenantInfoRetriever(), new ConfigHelper())
+        public ArtifactsPublishedMessageHandler() : this(new ArtifactsPublishedActionHelper(), new TenantInfoRetriever(), new ConfigHelper(), new TransactionValidator())
         {
         }
 
-        public ArtifactsPublishedMessageHandler(IActionHelper actionHelper, 
-            ITenantInfoRetriever tenantInfoRetriever, 
-            IConfigHelper configHelper) : base(actionHelper, tenantInfoRetriever, configHelper)
+        public ArtifactsPublishedMessageHandler(IActionHelper actionHelper, ITenantInfoRetriever tenantInfoRetriever, IConfigHelper configHelper, ITransactionValidator transactionValidator) : base(actionHelper, tenantInfoRetriever, configHelper, transactionValidator)
         {
         }
     }

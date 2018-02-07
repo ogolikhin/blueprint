@@ -135,7 +135,7 @@ namespace ArtifactStore.Collections
                 .ReturnsAsync(_collectionDetails);
 
             _artifactPermissionsRepository
-                .Setup(r => r.GetArtifactPermissionDirectly(_collectionId, _userId, It.IsAny<int>()))
+                .Setup(r => r.GetArtifactPermissionDirectly(_collectionId, _userId, It.IsAny<int>(), null))
                 .ReturnsAsync(_collectionPermissions);
 
             _artifactPermissionsRepository

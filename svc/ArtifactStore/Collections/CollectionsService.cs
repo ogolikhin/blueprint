@@ -75,7 +75,7 @@ namespace ArtifactStore.Collections
             }
 
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissionDirectly(
-                collectionId, userId, basicDetails.ProjectId);
+                collectionId, userId, basicDetails.ProjectId, transaction);
 
             RolePermissions collectionPermissions;
 

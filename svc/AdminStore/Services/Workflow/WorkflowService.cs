@@ -1731,13 +1731,16 @@ namespace AdminStore.Services.Workflow
             {
                 var createWebhooksParams = new List<SqlWebhook>();
                 workflowDiffResult.AddedEvents.ForEach(e => createWebhooksParams.AddRange(ToSqlWebhooks(e, workflowId, dataMaps)));
-                var createdWebhooks = await _workflowRepository.CreateWebhooks(createWebhooksParams, transaction);
-
-                var index = 0;
-                workflowDiffResult.AddedEvents.ForEach(e =>
+                if (createWebhooksParams.Any())
                 {
-                    UpdateWebhooksDataMap(e, dataMaps, createdWebhooks, ref index);
-                });
+                    var createdWebhooks = await _workflowRepository.CreateWebhooks(createWebhooksParams, transaction);
+
+                    var index = 0;
+                    workflowDiffResult.AddedEvents.ForEach(e =>
+                    {
+                        UpdateWebhooksDataMap(e, dataMaps, createdWebhooks, ref index);
+                    });
+                }
             }
 
             if (workflowDiffResult.ChangedEvents.Any())
@@ -1749,7 +1752,7 @@ namespace AdminStore.Services.Workflow
                 // Since a workflow event can contain both new and updated webhook actions, we need to handle each trigger individually
                 foreach (var changedEvent in workflowDiffResult.ChangedEvents)
                 {
-                    foreach (var trigger in changedEvent.Triggers)
+                    foreach (var trigger in changedEvent.Triggers.Where(t => t.Action.ActionType == ActionTypes.Webhook))
                     {
                         var webhook = (IeWebhookAction)trigger.Action;
                         if (webhook != null)
@@ -1781,11 +1784,14 @@ namespace AdminStore.Services.Workflow
                 }
 
                 // After All Webhooks have been created / updated, we need to go back and update our dataMap for all events
-                var index = 0;
-                workflowDiffResult.ChangedEvents.ForEach(e =>
+                if (createdAndUpdatedWebhooks.Any())
                 {
-                    UpdateWebhooksDataMap(e, dataMaps, createdAndUpdatedWebhooks, ref index);
-                });
+                    var index = 0;
+                    workflowDiffResult.ChangedEvents.ForEach(e =>
+                    {
+                        UpdateWebhooksDataMap(e, dataMaps, createdAndUpdatedWebhooks, ref index);
+                    });
+                }
             }
         }
 
@@ -1794,23 +1800,25 @@ namespace AdminStore.Services.Workflow
             // Bulk conversion of all webhook action triggers within an event to SqlWebhook
             var sqlWebhooks = new List<SqlWebhook>();
 
-            if (wEvent != null && (wEvent.EventType == EventTypes.Transition || wEvent.EventType == EventTypes.NewArtifact))
+            if (wEvent == null || (wEvent.EventType != EventTypes.Transition && wEvent.EventType != EventTypes.NewArtifact))
             {
-                foreach (var action in wEvent.Triggers.Select(t => t.Action).OfType<IeWebhookAction>())
+                return sqlWebhooks;
+            }
+
+            foreach (var action in wEvent.Triggers.Select(t => t.Action).OfType<IeWebhookAction>())
+            {
+                var sqlwebhook = new SqlWebhook
                 {
-                    var sqlwebhook = new SqlWebhook
-                    {
-                        WebhookId = action.IdSerializable,
-                        Url = action.Url,
-                        Scope = DWebhookScope.Workflow.ToString(),
-                        State = true,
-                        EventType = GetWebhookEventType(wEvent.EventType),
-                        SecurityInfo = SerializeWebhookSecurityInfo(action),
-                        WorkflowId = workflowId
-                    };
-                    sqlWebhooks.Add(sqlwebhook);
-                    dataMaps.WebhooksByActionObj.Add(action, action.IdSerializable);
-                }
+                    WebhookId = action.IdSerializable,
+                    Url = action.Url,
+                    Scope = DWebhookScope.Workflow.ToString(),
+                    State = true,
+                    EventType = GetWebhookEventType(wEvent.EventType),
+                    SecurityInfo = SerializeWebhookSecurityInfo(action),
+                    WorkflowId = workflowId
+                };
+                sqlWebhooks.Add(sqlwebhook);
+                dataMaps.WebhooksByActionObj.Add(action, action.IdSerializable);
             }
 
             return sqlWebhooks;
@@ -1819,7 +1827,12 @@ namespace AdminStore.Services.Workflow
         private SqlWebhook ToSqlWebhook(EventTypes eventType, IeTrigger wTrigger, int workflowId, WorkflowDataMaps dataMaps)
         {
             SqlWebhook sqlWebhook = null;
-            if (wTrigger != null && (IeWebhookAction)wTrigger.Action != null)
+            if (eventType != EventTypes.Transition && eventType != EventTypes.NewArtifact)
+            {
+                return sqlWebhook;
+            }
+
+            if (wTrigger != null && wTrigger.Action.ActionType == ActionTypes.Webhook)
             {
                 var action = (IeWebhookAction)wTrigger.Action;
                 sqlWebhook = new SqlWebhook()

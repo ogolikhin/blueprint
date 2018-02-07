@@ -60,8 +60,13 @@ namespace ArtifactStore.Collections
         }
 
         private async Task<ArtifactBasicDetails> GetCollectionBasicDetailsAsync(
-            int collectionId, int userId, IDbTransaction transaction = null)
+            int collectionId, int userId, RolePermissions expectedPermissions = RolePermissions.Read, IDbTransaction transaction = null)
         {
+            if (expectedPermissions != RolePermissions.Read && expectedPermissions != RolePermissions.Edit)
+            {
+                throw new ArgumentOutOfRangeException(nameof(expectedPermissions));
+            }
+
             var collection = await _artifactRepository.GetArtifactBasicDetails(collectionId, userId, transaction);
 
             if (collection == null || collection.DraftDeleted || collection.LatestDeleted)
@@ -74,9 +79,19 @@ namespace ArtifactStore.Collections
                 throw CollectionsExceptionHelper.InvalidTypeException(collectionId);
             }
 
-            if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId))
+            if (expectedPermissions == RolePermissions.Read)
             {
-                throw CollectionsExceptionHelper.NoAccessException(collectionId);
+                if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId, transaction: transaction))
+                {
+                    throw CollectionsExceptionHelper.NoAccessException(collectionId);
+                }
+            }
+            else
+            {
+                if (!await _artifactPermissionsRepository.HasEditPermissions(collectionId, userId, transaction: transaction))
+                {
+                    throw CollectionsExceptionHelper.NoEditPermissionException(collectionId);
+                }
             }
 
             return collection;
@@ -231,13 +246,7 @@ namespace ArtifactStore.Collections
 
         private async Task<ArtifactBasicDetails> ValidateCollectionAsync(int collectionId, int userId, IDbTransaction transaction)
         {
-            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, transaction);
-
-            if (!await _artifactPermissionsRepository.HasEditPermissions(
-                collection.ArtifactId, userId, transaction: transaction))
-            {
-                throw CollectionsExceptionHelper.NoEditPermissionException(collection.ArtifactId);
-            }
+            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, RolePermissions.Edit, transaction);
 
             await LockAsync(collection, userId, transaction);
 

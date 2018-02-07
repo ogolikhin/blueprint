@@ -392,11 +392,7 @@ namespace ArtifactStore.Collections
                     }
                     else
                     {
-                        propertyInfo.Value =
-                            (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
-                            PropertyTypePredefined.Description
-                                ? PropertyHelper.ConvertHtmlToPlainText(artifactProperty.PropertyValue)
-                                : artifactProperty.PropertyValue;
+                        propertyInfo.Value = artifactProperty.PropertyValue;
                     }
 
                     if (!areColumnsPopulated)

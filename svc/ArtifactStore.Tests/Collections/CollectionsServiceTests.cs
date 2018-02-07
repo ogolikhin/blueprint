@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
@@ -44,6 +43,7 @@ namespace ArtifactStore.Collections
         private ItemsRemovalParams _reviewItemsRemovalParams;
         private SearchArtifactsResult _searchArtifactsResult;
         private Dictionary<int, RolePermissions> _artifactPermissions;
+        private Dictionary<int, RolePermissions> _collectionPermissions;
 
         [TestInitialize]
         public void Initialize()
@@ -80,6 +80,11 @@ namespace ArtifactStore.Collections
                 {
                     new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Number, 2)
                 });
+
+            _collectionPermissions = new Dictionary<int, RolePermissions>
+            {
+                { _collectionId, RolePermissions.Read | RolePermissions.Edit }
+            };
 
             _collectionDetails = new ArtifactBasicDetails
             {
@@ -130,12 +135,8 @@ namespace ArtifactStore.Collections
                 .ReturnsAsync(_collectionDetails);
 
             _artifactPermissionsRepository
-                .Setup(r => r.HasReadPermissions(_collectionId, _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<IDbTransaction>()))
-                .ReturnsAsync(true);
-
-            _artifactPermissionsRepository
-                .Setup(r => r.HasEditPermissions(_collectionId, _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
-                .ReturnsAsync(true);
+                .Setup(r => r.GetArtifactPermissionDirectly(_collectionId, _userId, It.IsAny<int>()))
+                .ReturnsAsync(_collectionPermissions);
 
             _artifactPermissionsRepository
                 .Setup(r => r.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), _userId, It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), null))
@@ -222,9 +223,7 @@ namespace ArtifactStore.Collections
         [ExpectedException(typeof(AuthorizationException))]
         public async Task RemoveArtifactsFromCollectionAsync_ValidateCollection_NoEditPermissionArtifact_NoEditPermissionException()
         {
-            _artifactPermissionsRepository
-                .Setup(r => r.HasEditPermissions(_collectionId, _userId, false, int.MaxValue, true, null))
-                .ReturnsAsync(false);
+            _collectionPermissions[_collectionId] = RolePermissions.Read;
 
             await _collectionService.RemoveArtifactsFromCollectionAsync(_collectionId, _reviewItemsRemovalParams, _userId);
         }
@@ -284,6 +283,15 @@ namespace ArtifactStore.Collections
         #endregion SaveColumnSettingsAsync
 
         #region GetColumnsAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetColumnsAsync_NoPermissions_ThrowsAuthorizationException()
+        {
+            _collectionPermissions[_collectionId] = RolePermissions.None;
+
+            var result = await _collectionService.GetColumnsAsync(_collectionId, _userId);
+        }
 
         [TestMethod]
         public async Task GetColumnsAsync_ProfileColumnsSettingsAreEmptySelectedColumnsEmpty_Success()

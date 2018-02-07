@@ -60,13 +60,8 @@ namespace ArtifactStore.Collections
         }
 
         private async Task<Collection> GetCollectionAsync(
-            int collectionId, int userId, RolePermissions expectedPermissions = RolePermissions.Read, IDbTransaction transaction = null)
+            int collectionId, int userId, IDbTransaction transaction = null)
         {
-            if (expectedPermissions != RolePermissions.Read && expectedPermissions != RolePermissions.Edit)
-            {
-                throw new ArgumentOutOfRangeException(nameof(expectedPermissions));
-            }
-
             var basicDetails = await _artifactRepository.GetArtifactBasicDetails(collectionId, userId, transaction);
 
             if (basicDetails == null || basicDetails.DraftDeleted || basicDetails.LatestDeleted)
@@ -79,25 +74,22 @@ namespace ArtifactStore.Collections
                 throw CollectionsExceptionHelper.InvalidTypeException(collectionId);
             }
 
-            if (expectedPermissions == RolePermissions.Read)
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissionDirectly(
+                collectionId, userId, basicDetails.ProjectId);
+
+            RolePermissions collectionPermissions;
+
+            if (!permissions.TryGetValue(collectionId, out collectionPermissions) ||
+                !collectionPermissions.HasFlag(RolePermissions.Read))
             {
-                if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId, transaction: transaction))
-                {
-                    throw CollectionsExceptionHelper.NoAccessException(collectionId);
-                }
-            }
-            else
-            {
-                if (!await _artifactPermissionsRepository.HasEditPermissions(collectionId, userId, transaction: transaction))
-                {
-                    throw CollectionsExceptionHelper.NoEditPermissionException(collectionId);
-                }
+                throw CollectionsExceptionHelper.NoAccessException(collectionId);
             }
 
             return new Collection(
                 basicDetails.ArtifactId,
                 basicDetails.ProjectId,
-                basicDetails.LockedByUserId);
+                basicDetails.LockedByUserId,
+                collectionPermissions);
         }
 
         public async Task<CollectionArtifacts> GetArtifactsInCollectionAsync(
@@ -248,12 +240,16 @@ namespace ArtifactStore.Collections
 
         private async Task<Collection> ValidateCollectionAsync(int collectionId, int userId, IDbTransaction transaction)
         {
-            var collection = await GetCollectionAsync(collectionId, userId, RolePermissions.Edit, transaction);
+            var collection = await GetCollectionAsync(collectionId, userId, transaction);
+
+            if (!collection.Permissions.HasFlag(RolePermissions.Edit))
+            {
+                throw CollectionsExceptionHelper.NoEditPermissionException(collectionId);
+            }
 
             await LockAsync(collection, userId, transaction);
 
-            await _collectionsRepository.RemoveDeletedArtifactsFromCollectionAsync(
-                collection.Id, userId, transaction);
+            await _collectionsRepository.RemoveDeletedArtifactsFromCollectionAsync(collection.Id, userId, transaction);
 
             return collection;
         }

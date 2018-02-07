@@ -1,4 +1,5 @@
 ﻿using System;
+using ServiceLibrary.Models;
 
 namespace ArtifactStore.Collections.Models
 {
@@ -10,7 +11,9 @@ namespace ArtifactStore.Collections.Models
 
         public int? LockedByUserId { get; }
 
-        public Collection(int id, int projectId, int? lockedByUserId)
+        public RolePermissions Permissions { get; }
+
+        public Collection(int id, int projectId, int? lockedByUserId, RolePermissions permissions)
         {
             if (id <= 0)
             {
@@ -25,6 +28,7 @@ namespace ArtifactStore.Collections.Models
             Id = id;
             ProjectId = projectId;
             LockedByUserId = lockedByUserId;
+            Permissions = permissions;
         }
     }
 }

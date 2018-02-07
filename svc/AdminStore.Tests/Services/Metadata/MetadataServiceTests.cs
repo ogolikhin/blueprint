@@ -55,13 +55,14 @@ namespace AdminStore.Services.Metadata
                     Id = 1,
                     Predefined = _itemTypePredefined,
                     HasCustomIcon = true,
-                    Icon = _customIcon.Content
+                    Icon = _customIcon.Content,
+                    IsPrimitiveType = false
                 });
             _imageServiceMock
                 .Setup(m => m.ConvertBitmapImageToPng(_svgIcon.Content, ItemTypeIconSize, ItemTypeIconSize))
                 .Returns(_svgIcon.Content)
                 .Verifiable();
-            _metadataRepositoryMock.Setup(repo => repo.GetSvgIconContent(_itemTypePredefined, _color)).Returns(_svgIcon.Content);
+            _metadataRepositoryMock.Setup(repo => repo.GetSvgIconContent(_itemTypePredefined, _color, false)).Returns(_svgIcon.Content);
         }
 
         #region GetIcon
@@ -71,7 +72,7 @@ namespace AdminStore.Services.Metadata
         {
             // Arrange
             string type = "project";
-            _metadataRepositoryMock.Setup(repo => repo.GetSvgIconContent(ItemTypePredefined.Project, "#ffffff")).Returns(_svgIcon.Content);
+            _metadataRepositoryMock.Setup(repo => repo.GetSvgIconContent(ItemTypePredefined.Project, "#ffffff", false)).Returns(_svgIcon.Content);
 
             // Act
             var result = await _service.GetIconAsync(type, null, _color);

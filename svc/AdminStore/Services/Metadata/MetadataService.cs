@@ -83,7 +83,7 @@ namespace AdminStore.Services.Metadata
                     }
                     else
                     {
-                        icon = GetDefaultIcon(itemTypeInfo.Predefined, hexColor);
+                        icon = GetDefaultIcon(itemTypeInfo.Predefined, hexColor, itemTypeInfo.IsPrimitiveType);
                     }
                     break;
             }
@@ -126,9 +126,9 @@ namespace AdminStore.Services.Metadata
             return itemTypeInfo;
         }
 
-        private Icon GetDefaultIcon(ItemTypePredefined predefined, string color)
+        private Icon GetDefaultIcon(ItemTypePredefined predefined, string color, bool isPrimitiveType = false)
         {
-            var iconContent = _metadataRepository.GetSvgIconContent(predefined, color);
+            var iconContent = _metadataRepository.GetSvgIconContent(predefined, color, isPrimitiveType);
             if (iconContent == null)
             {
                 throw new ResourceNotFoundException("Artifact type icon Content not found.", ErrorCodes.ResourceNotFound);

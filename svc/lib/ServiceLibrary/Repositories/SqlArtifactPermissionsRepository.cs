@@ -280,20 +280,21 @@ namespace ServiceLibrary.Repositories
         // we will encounter scenarios where our current method of permission calculation is not
         // sufficient. Until then, we will directly get the user's permission for an artifact
         // directly. STOR-6440
-        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionDirectly(int itemId, int userId, int projectId)
+        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionDirectly(
+            int itemId, int userId, int projectId, IDbTransaction transaction = null)
         {
-            var sqlParameters = new DynamicParameters();
-            sqlParameters.Add("@userId", userId);
-            sqlParameters.Add("@projectId", projectId);
-            sqlParameters.Add("@artifactId", itemId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@projectId", projectId);
+            parameters.Add("@artifactId", itemId);
 
-            string sqlString = @"SELECT [Perm] FROM [dbo].[GetArtifactPermission](@userId,@projectId,@artifactId)";
-            var hasPermission = (await _connectionWrapper.QueryAsync<bool>(sqlString, sqlParameters, commandType: CommandType.Text)).FirstOrDefault();
+            const string query = @"SELECT [Perm] FROM [dbo].[GetArtifactPermission](@userId, @projectId, @artifactId)";
 
-            var itemPermission = hasPermission ? RolePermissions.Read : RolePermissions.None;
+            var queryResult = await _connectionWrapper.QueryAsync<bool>(
+                query, parameters, transaction, commandType: CommandType.Text);
 
-            var result = new Dictionary<int, RolePermissions>();
-            result.Add(itemId, itemPermission);
+            var permissions = queryResult.FirstOrDefault() ? RolePermissions.Read : RolePermissions.None;
+            var result = new Dictionary<int, RolePermissions> { { itemId, permissions } };
 
             return result;
         }

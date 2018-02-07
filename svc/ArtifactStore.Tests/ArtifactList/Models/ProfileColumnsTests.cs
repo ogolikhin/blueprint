@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using ArtifactStore.ArtifactList.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 
@@ -65,16 +67,16 @@ namespace ArtifactStore.ArtifactList.Models
             {
                 new ProfileColumns(_columns);
             }
-            catch (ArgumentException ex)
+            catch (BadRequestException ex)
             {
                 // Assert
-                var errorMessage = I18NHelper.FormatInvariant(
-                    ErrorMessages.ArtifactList.AddColumnColumnExists, column.PropertyName);
-                Assert.AreEqual(errorMessage, ex.Message);
+                var expectedException = ArtifactListExceptionHelper.DuplicateColumnException(column.PropertyName);
+                Assert.AreEqual(expectedException.ErrorCode, ex.ErrorCode);
+                Assert.AreEqual(expectedException.Message, ex.Message);
                 return;
             }
 
-            Assert.Fail("ArgumentException was expected.");
+            Assert.Fail("BadRequestException was expected.");
         }
 
         [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "ArtifactStore.ArtifactList.Models.ProfileColumns")]
@@ -91,16 +93,16 @@ namespace ArtifactStore.ArtifactList.Models
             {
                 new ProfileColumns(_columns, maxCapacity);
             }
-            catch (ApplicationException ex)
+            catch (BadRequestException ex)
             {
                 // Assert
-                var errorMessage = I18NHelper.FormatInvariant(
-                    ErrorMessages.ArtifactList.AddColumnCapacityReached, column.PropertyName, maxCapacity);
-                Assert.AreEqual(errorMessage, ex.Message);
+                var expectedException = ArtifactListExceptionHelper.ColumnCapacityExceededException(column.PropertyName, maxCapacity);
+                Assert.AreEqual(expectedException.ErrorCode, ex.ErrorCode);
+                Assert.AreEqual(expectedException.Message, ex.Message);
                 return;
             }
 
-            Assert.Fail("ApplicationException was expected.");
+            Assert.Fail("BadRequestException was expected.");
         }
     }
 }

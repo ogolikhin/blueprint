@@ -1,7 +1,4 @@
-﻿using Dapper;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -9,6 +6,9 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Dapper;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 
 namespace ServiceLibrary.Repositories
 {
@@ -51,7 +51,7 @@ namespace ServiceLibrary.Repositories
             _connectionWrapper = connectionWrapper;
         }
 
-        private RolePermissions GetAllPermissions()
+        private static RolePermissions GetAllPermissions()
         {
             var allPermissions = RolePermissions.None;
 
@@ -63,21 +63,26 @@ namespace ServiceLibrary.Repositories
             return allPermissions;
         }
 
-        private async Task GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null)
+        private async Task GetOpenArtifactPermissions(
+            Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds,
+            int sessionUserId, IEnumerable<int> projectArtifactIds, int revisionId = int.MaxValue,
+            bool addDrafts = true, IDbTransaction transaction = null)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@userId", sessionUserId);
-            prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(projectArtifactIds, "Int32Collection", "Int32Value"));
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", sessionUserId);
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(projectArtifactIds));
 
-            List<OpenArtifactPermission> openArtifactPermissions = null;
+            IEnumerable<OpenArtifactPermission> openArtifactPermissions;
 
             if (transaction == null)
             {
-                openArtifactPermissions = (await _connectionWrapper.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, commandType: CommandType.StoredProcedure)).ToList();
+                openArtifactPermissions = await _connectionWrapper.QueryAsync<OpenArtifactPermission>(
+                    "GetOpenArtifactPermissions", parameters, commandType: CommandType.StoredProcedure);
             }
             else
             {
-                openArtifactPermissions = (await transaction.Connection.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, transaction, commandType: CommandType.StoredProcedure)).ToList();
+                openArtifactPermissions = await transaction.Connection.QueryAsync<OpenArtifactPermission>(
+                    "GetOpenArtifactPermissions", parameters, transaction, commandType: CommandType.StoredProcedure);
             }
 
             foreach (var openArtifactPermission in openArtifactPermissions)
@@ -94,51 +99,65 @@ namespace ServiceLibrary.Repositories
 
         private async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId, IDbTransaction transaction = null)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@contextUser", contextUser);
-            prm.Add("@userId", sessionUserId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@contextUser", contextUser);
+            parameters.Add("@userId", sessionUserId);
+
+            IEnumerable<bool> queryResult;
 
             if (transaction == null)
             {
-                return (await _connectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+                queryResult = await _connectionWrapper.QueryAsync<bool>(
+                    "IsInstanceAdmin", parameters, commandType: CommandType.StoredProcedure);
             }
             else
             {
-                return (await transaction.Connection.QueryAsync<bool>("IsInstanceAdmin", prm, transaction, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+                queryResult = await transaction.Connection.QueryAsync<bool>(
+                    "IsInstanceAdmin", parameters, transaction, commandType: CommandType.StoredProcedure);
             }
+
+            return queryResult.SingleOrDefault();
         }
 
-        private async Task<Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, int revisionId, bool addDrafts, IDbTransaction transaction = null)
+        private async Task<Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(
+            IEnumerable<int> itemIds, int sessionUserId, int revisionId, bool addDrafts, IDbTransaction transaction = null)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@userId", sessionUserId);
-            prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", sessionUserId);
+            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
 
             if (transaction == null)
             {
-                return (await _connectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
+                return await _connectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", parameters, commandType: CommandType.StoredProcedure);
             }
-            else
-            {
-                using (var command = await transaction.Connection.QueryMultipleAsync("GetArtifactsProjects", prm, transaction, commandType: CommandType.StoredProcedure))
-                {
-                    var projectsAtifacts = command.Read<ProjectsArtifactsItem>().ToList();
-                    var versionProjects = command.Read<VersionProjectInfo>().ToList();
 
-                    return new Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>(projectsAtifacts, versionProjects);
-                }
+            using (var command = await transaction.Connection.QueryMultipleAsync("GetArtifactsProjects", parameters, transaction, commandType: CommandType.StoredProcedure))
+            {
+                var projectsAtifacts = command.Read<ProjectsArtifactsItem>().ToList();
+                var versionProjects = command.Read<VersionProjectInfo>().ToList();
+
+                return new Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>(projectsAtifacts, versionProjects);
             }
         }
 
-        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null)
+        public Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(
+            int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue,
+            bool addDrafts = true, IDbTransaction transaction = null)
+        {
+            return GetArtifactPermissions(new[] { artifactId }, sessionUserId, contextUser, revisionId, addDrafts, transaction);
+        }
+
+        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(
+            IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue,
+            bool addDrafts = true, IDbTransaction transaction = null)
         {
             var itemIdsList = itemIds is List<int> ? (List<int>)itemIds : itemIds.ToList();
             var dictionary = new Dictionary<int, RolePermissions>();
-            int index = 0;
+            var index = 0;
 
             while (index < itemIdsList.Count)
             {
-                int chunkSize = 50;
+                var chunkSize = 50;
                 if (chunkSize > itemIdsList.Count - index)
                 {
                     chunkSize = itemIdsList.Count - index;
@@ -153,7 +172,9 @@ namespace ServiceLibrary.Repositories
             return dictionary;
         }
 
-        public async Task<bool> HasReadPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null)
+        public async Task<bool> HasReadPermissions(
+            int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue,
+            bool addDrafts = true, IDbTransaction transaction = null)
         {
             var result = await GetArtifactPermissions(new[] { artifactId }, sessionUserId, contextUser, revisionId, addDrafts, transaction);
             RolePermissions permission;
@@ -161,7 +182,9 @@ namespace ServiceLibrary.Repositories
             return result.TryGetValue(artifactId, out permission) && permission.HasFlag(RolePermissions.Read);
         }
 
-        public async Task<bool> HasEditPermissions(int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null)
+        public async Task<bool> HasEditPermissions(
+            int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue,
+            bool addDrafts = true, IDbTransaction transaction = null)
         {
             var result = await GetArtifactPermissions(new[] { artifactId }, sessionUserId, contextUser, revisionId, addDrafts, transaction);
             RolePermissions permission;
@@ -169,7 +192,9 @@ namespace ServiceLibrary.Repositories
             return result.TryGetValue(artifactId, out permission) && permission.HasFlag(RolePermissions.Edit);
         }
 
-        private async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInternal(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true, IDbTransaction transaction = null)
+        private async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInternal(
+            IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue,
+            bool addDrafts = true, IDbTransaction transaction = null)
         {
             if (itemIds.Count() > 50)
             {
@@ -188,7 +213,7 @@ namespace ServiceLibrary.Repositories
             var versionProjectInfos = multipleResult.Item2;
 
             var projectIds = new HashSet<int>(projectsArtifactsItems.Select(i => i.VersionProjectId));
-            Dictionary<int, RolePermissions> itemIdsPermissions = new Dictionary<int, RolePermissions>(projectsArtifactsItems.Count);
+            var itemIdsPermissions = new Dictionary<int, RolePermissions>(projectsArtifactsItems.Count);
 
             foreach (var projectInfo in versionProjectInfos)
             {
@@ -209,7 +234,7 @@ namespace ServiceLibrary.Repositories
             ISet<int> projectArtifactIds = null;
             var projectOnlyScopeIdsPermissions = new HashSet<int>(versionProjectInfos.Select(i => i.ProjectId));
 
-            foreach (int projectId in projectIds)
+            foreach (var projectId in projectIds)
             {
                 if (projectOnlyScopeIdsPermissions.Contains(projectId))
                 {
@@ -252,21 +277,21 @@ namespace ServiceLibrary.Repositories
 
         public Task<ProjectPermissions> GetProjectPermissions(int projectId)
         {
-            var discussionsPrm = new DynamicParameters();
-            discussionsPrm.Add("@ProjectId", projectId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@ProjectId", projectId);
 
-            return _connectionWrapper.ExecuteScalarAsync<ProjectPermissions>("GetProjectPermissions", discussionsPrm, commandType: CommandType.StoredProcedure);
+            return _connectionWrapper.ExecuteScalarAsync<ProjectPermissions>("GetProjectPermissions", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<ItemInfo> GetItemInfo(int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
         {
-            var itemsPrm = new DynamicParameters();
-            itemsPrm.Add("@itemId", itemId);
-            itemsPrm.Add("@userId", userId);
-            itemsPrm.Add("@addDrafts", addDrafts);
-            itemsPrm.Add("@revisionId", revisionId);
+            var parameters = new DynamicParameters();
+            parameters.Add("@itemId", itemId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@addDrafts", addDrafts);
+            parameters.Add("@revisionId", revisionId);
 
-            return (await _connectionWrapper.QueryAsync<ItemInfo>("GetItemInfo", itemsPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return (await _connectionWrapper.QueryAsync<ItemInfo>("GetItemInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         public static bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)
@@ -290,8 +315,18 @@ namespace ServiceLibrary.Repositories
 
             const string query = @"SELECT [Perm] FROM [dbo].[GetArtifactPermission](@userId, @projectId, @artifactId)";
 
-            var queryResult = await _connectionWrapper.QueryAsync<bool>(
-                query, parameters, transaction, commandType: CommandType.Text);
+            IEnumerable<bool> queryResult;
+
+            if (transaction == null)
+            {
+                queryResult = await _connectionWrapper.QueryAsync<bool>(
+                    query, parameters, commandType: CommandType.Text);
+            }
+            else
+            {
+                queryResult = await transaction.Connection.QueryAsync<bool>(
+                    query, parameters, transaction, commandType: CommandType.Text);
+            }
 
             var permissions = queryResult.FirstOrDefault() ? RolePermissions.Read : RolePermissions.None;
             var result = new Dictionary<int, RolePermissions> { { itemId, permissions } };

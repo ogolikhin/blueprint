@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ArtifactStore.ArtifactList.Helpers;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.ProjectMeta;
 
@@ -72,16 +73,12 @@ namespace ArtifactStore.ArtifactList.Models
 
             if (NameMatches(column.PropertyName))
             {
-                var errorMessage = I18NHelper.FormatInvariant(
-                    ErrorMessages.ArtifactList.AddColumnColumnExists, column.PropertyName);
-                throw new ArgumentException(errorMessage);
+                throw ArtifactListExceptionHelper.DuplicateColumnException(column.PropertyName);
             }
 
             if (_columns.Count >= _maxCapacity)
             {
-                var errorMessage = I18NHelper.FormatInvariant(
-                    ErrorMessages.ArtifactList.AddColumnCapacityReached, column.PropertyName, _maxCapacity);
-                throw new ApplicationException(errorMessage);
+                throw ArtifactListExceptionHelper.ColumnCapacityExceededException(column.PropertyName, _maxCapacity);
             }
 
             _columns.Add(column);

@@ -14,5 +14,7 @@ namespace ServiceLibrary.Models.ItemType
 
         [SuppressMessage("Microsoft.Performance", "CA1819:Properties should not return arrays")]
         public byte[] Icon { get; set; }
+
+        public bool IsPrimitiveType { get; set; }
     }
 }

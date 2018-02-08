@@ -59,51 +59,46 @@ namespace ArtifactStore.Collections
             _artifactListService = artifactListService;
         }
 
-        private async Task<ArtifactBasicDetails> GetCollectionBasicDetailsAsync(
-            int collectionId, int userId, RolePermissions expectedPermissions = RolePermissions.Read, IDbTransaction transaction = null)
+        private async Task<Collection> GetCollectionAsync(
+            int collectionId, int userId, IDbTransaction transaction = null)
         {
-            if (expectedPermissions != RolePermissions.Read && expectedPermissions != RolePermissions.Edit)
-            {
-                throw new ArgumentOutOfRangeException(nameof(expectedPermissions));
-            }
+            var basicDetails = await _artifactRepository.GetArtifactBasicDetails(collectionId, userId, transaction);
 
-            var collection = await _artifactRepository.GetArtifactBasicDetails(collectionId, userId, transaction);
-
-            if (collection == null || collection.DraftDeleted || collection.LatestDeleted)
+            if (basicDetails == null || basicDetails.DraftDeleted || basicDetails.LatestDeleted)
             {
                 throw CollectionsExceptionHelper.NotFoundException(collectionId);
             }
 
-            if (collection.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactCollection)
+            if (basicDetails.PrimitiveItemTypePredefined != (int)ItemTypePredefined.ArtifactCollection)
             {
                 throw CollectionsExceptionHelper.InvalidTypeException(collectionId);
             }
 
-            if (expectedPermissions == RolePermissions.Read)
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(
+                collectionId, userId, transaction: transaction);
+
+            RolePermissions collectionPermissions;
+
+            if (!permissions.TryGetValue(collectionId, out collectionPermissions) ||
+                !collectionPermissions.HasFlag(RolePermissions.Read))
             {
-                if (!await _artifactPermissionsRepository.HasReadPermissions(collectionId, userId, transaction: transaction))
-                {
-                    throw CollectionsExceptionHelper.NoAccessException(collectionId);
-                }
-            }
-            else
-            {
-                if (!await _artifactPermissionsRepository.HasEditPermissions(collectionId, userId, transaction: transaction))
-                {
-                    throw CollectionsExceptionHelper.NoEditPermissionException(collectionId);
-                }
+                throw CollectionsExceptionHelper.NoAccessException(collectionId);
             }
 
-            return collection;
+            return new Collection(
+                basicDetails.ArtifactId,
+                basicDetails.ProjectId,
+                basicDetails.LockedByUserId,
+                collectionPermissions);
         }
 
         public async Task<CollectionArtifacts> GetArtifactsInCollectionAsync(
             int collectionId, Pagination pagination, int userId)
         {
-            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
+            var collection = await GetCollectionAsync(collectionId, userId);
 
             var searchArtifactsResult = await _searchEngineService.Search(
-                collection.ArtifactId, pagination, ScopeType.Contents, true, userId);
+                collection.Id, pagination, ScopeType.Contents, true, userId);
 
             var artifacts = await _collectionsRepository.GetArtifactsWithPropertyValuesAsync(
                 userId, searchArtifactsResult.ArtifactIds);
@@ -115,7 +110,7 @@ namespace ArtifactStore.Collections
         }
 
         public async Task<AddArtifactsToCollectionResult> AddArtifactsToCollectionAsync(
-            int collectionId, ISet<int> artifactIds, int userId)
+            int collectionId, IEnumerable<int> artifactIds, int userId)
         {
             if (collectionId < 1)
             {
@@ -133,16 +128,18 @@ namespace ArtifactStore.Collections
             {
                 var collection = await ValidateCollectionAsync(collectionId, userId, transaction);
 
-                var artifactsWithReadPermissions = await GetAccessibleArtifactIdsAsync(
-                    artifactIds, collection, userId, transaction);
+                var artifactIdsToAdd = artifactIds.ToList();
+                var accessibleArtifacts = await GetAccessibleArtifactsAsync(artifactIdsToAdd, userId, transaction);
+                var validArtifacts = accessibleArtifacts.Where(i => CanAddArtifactToCollection(i, collection)).ToList();
+                var validArtifactIds = validArtifacts.Select(a => a.HolderId);
 
                 var addedCount = await _collectionsRepository.AddArtifactsToCollectionAsync(
-                    collection.ArtifactId, artifactsWithReadPermissions, userId, transaction);
+                    collection.Id, validArtifactIds, userId, transaction);
 
                 result = new AddArtifactsToCollectionResult
                 {
                     AddedCount = addedCount,
-                    Total = artifactIds.Count
+                    Total = artifactIdsToAdd.Count
                 };
             };
 
@@ -171,20 +168,19 @@ namespace ArtifactStore.Collections
                 var collection = await ValidateCollectionAsync(collectionId, userId, transaction);
 
                 var searchArtifactsResult = await _searchEngineService.Search(
-                    collection.ArtifactId, null, ScopeType.Contents, true, userId, transaction);
+                    collection.Id, null, ScopeType.Contents, true, userId, transaction);
 
-                List<int> artifactsToRemove = null;
+                var artifactsToRemove = removalParams.SelectionType == SelectionType.Selected ?
+                    searchArtifactsResult.ArtifactIds.Intersect(removalParams.ItemIds).ToList() :
+                    searchArtifactsResult.ArtifactIds.Except(removalParams.ItemIds).ToList();
 
-                artifactsToRemove = removalParams.SelectionType == SelectionType.Selected ?
-                                    searchArtifactsResult.ArtifactIds.Intersect(removalParams.ItemIds).ToList() :
-                                    searchArtifactsResult.ArtifactIds.Except(removalParams.ItemIds).ToList();
-
-                var artifactsWithReadPermissions = await GetAccessibleArtifactIdsAsync(artifactsToRemove, collection, userId, transaction);
+                var accessibleArtifacts = await GetAccessibleArtifactsAsync(artifactsToRemove, userId, transaction);
+                var accessibleArtifactIds = accessibleArtifacts.Select(a => a.HolderId);
 
                 var removedCount = await _collectionsRepository.RemoveArtifactsFromCollectionAsync(
-                    collection.ArtifactId, artifactsWithReadPermissions, userId, transaction);
+                    collection.Id, accessibleArtifactIds, userId, transaction);
 
-                result = new RemoveArtifactsFromCollectionResult()
+                result = new RemoveArtifactsFromCollectionResult
                 {
                     RemovedCount = removedCount,
                     Total = removalParams.ItemIds.Count()
@@ -198,7 +194,7 @@ namespace ArtifactStore.Collections
 
         public async Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null)
         {
-            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
+            var collection = await GetCollectionAsync(collectionId, userId);
             var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
 
             if (artifacts.IsEmpty())
@@ -212,7 +208,7 @@ namespace ArtifactStore.Collections
 
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts, search);
             var profileColumns = await _artifactListService.GetProfileColumnsAsync(
-                collection.ArtifactId, userId, ProfileColumns.Default);
+                collection.Id, userId, ProfileColumns.Default);
 
             return new GetColumnsDto
             {
@@ -228,10 +224,10 @@ namespace ArtifactStore.Collections
                 throw new ArgumentOutOfRangeException(nameof(userId));
             }
 
-            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId);
+            var collection = await GetCollectionAsync(collectionId, userId);
 
             var validColumns = await GetValidColumnsAsync(collectionId, userId, profileColumns);
-            await _artifactListService.SaveProfileColumnsAsync(collection.ArtifactId, validColumns, userId);
+            await _artifactListService.SaveProfileColumnsAsync(collection.Id, validColumns, userId);
         }
 
         public async Task<ProfileColumns> GetInvalidColumns(int collectionId, int userId, ProfileColumnsDto profileColumnsDto)
@@ -263,14 +259,18 @@ namespace ArtifactStore.Collections
                 .ToList();
         }
 
-        private async Task<ArtifactBasicDetails> ValidateCollectionAsync(int collectionId, int userId, IDbTransaction transaction)
+        private async Task<Collection> ValidateCollectionAsync(int collectionId, int userId, IDbTransaction transaction)
         {
-            var collection = await GetCollectionBasicDetailsAsync(collectionId, userId, RolePermissions.Edit, transaction);
+            var collection = await GetCollectionAsync(collectionId, userId, transaction);
+
+            if (!collection.Permissions.HasFlag(RolePermissions.Edit))
+            {
+                throw CollectionsExceptionHelper.NoEditPermissionException(collectionId);
+            }
 
             await LockAsync(collection, userId, transaction);
 
-            await _collectionsRepository.RemoveDeletedArtifactsFromCollectionAsync(
-                collection.ArtifactId, userId, transaction);
+            await _collectionsRepository.RemoveDeletedArtifactsFromCollectionAsync(collection.Id, userId, transaction);
 
             return collection;
         }
@@ -452,39 +452,35 @@ namespace ArtifactStore.Collections
             };
         }
 
-        private async Task LockAsync(ArtifactBasicDetails collection, int userId, IDbTransaction transaction = null)
+        private async Task LockAsync(Collection collection, int userId, IDbTransaction transaction = null)
         {
             if (collection.LockedByUserId == null)
             {
-                if (!await _lockArtifactsRepository.LockArtifactAsync(collection.ArtifactId, userId, transaction))
+                if (!await _lockArtifactsRepository.LockArtifactAsync(collection.Id, userId, transaction))
                 {
-                    throw ExceptionHelper.ArtifactNotLockedException(collection.ArtifactId, userId);
+                    throw ExceptionHelper.ArtifactNotLockedException(collection.Id, userId);
                 }
             }
             else if (collection.LockedByUserId != userId)
             {
-                throw CollectionsExceptionHelper.LockedByAnotherUserException(collection.ArtifactId, userId);
+                throw CollectionsExceptionHelper.LockedByAnotherUserException(collection.Id, userId);
             }
         }
 
-        private async Task<IReadOnlyList<int>> GetAccessibleArtifactIdsAsync(
-            IEnumerable<int> artifactIds, ArtifactBasicDetails collection, int userId,
-            IDbTransaction transaction = null)
+        private async Task<IReadOnlyList<ItemDetails>> GetAccessibleArtifactsAsync(
+            List<int> artifactIds, int userId, IDbTransaction transaction = null)
         {
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(
+                artifactIds, userId, transaction: transaction);
+
             var artifacts = await _itemInfoRepository.GetItemsDetails(userId, artifactIds, transaction: transaction);
 
-            var validArtifacts = artifacts.Where(i => CanAddArtifactToCollection(i, collection)).ToList();
-
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(
-                validArtifacts.Select(i => i.HolderId), userId, transaction: transaction);
-
-            return permissions
-                .Where(p => p.Value.HasFlag(RolePermissions.Read))
-                .Select(p => p.Key)
+            return artifacts
+                .Where(a => permissions.ContainsKey(a.HolderId) && permissions[a.HolderId].HasFlag(RolePermissions.Read))
                 .ToList();
         }
 
-        private static bool CanAddArtifactToCollection(ItemDetails artifact, ArtifactBasicDetails collection)
+        private static bool CanAddArtifactToCollection(ItemDetails artifact, Collection collection)
         {
             return (artifact.PrimitiveItemTypePredefined & (int)ItemTypePredefined.PrimitiveArtifactGroup) != 0 &&
                    (artifact.PrimitiveItemTypePredefined & (int)ItemTypePredefined.BaselineArtifactGroup) == 0 &&

@@ -66,9 +66,9 @@ namespace FileStore.Controllers
 
             // Assert
             Assert.IsTrue(response.IsSuccessStatusCode);
-            Assert.IsTrue(fileName == "Test3.txt");
-            Assert.IsTrue(contentType.MediaType == "text/html", string.Format("Returned content type {0} does not match expected {1}", contentType, "text/html"));
-            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+            Assert.AreEqual("Test3.txt", fileName);
+            Assert.AreEqual("text/html", contentType.MediaType, string.Format("Returned content type {0} does not match expected {1}", contentType, "text/html"));
+            Assert.AreEqual(DateTime.Parse("2015-09-05T22:57:31.7824054-04:00"), DateTime.Parse(storedTime.First()));
         }
 
         [TestCategory("FileStoreTests.Head")]
@@ -123,9 +123,9 @@ namespace FileStore.Controllers
 
             // Assert
             Assert.IsTrue(response.IsSuccessStatusCode);
-            Assert.IsTrue(fileName == "Test3.txt");
-            Assert.IsTrue(contentType.MediaType == "application/octet-stream", string.Format("Returned content type {0} does not match expected {1}", contentType, "text/html"));
-            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+            Assert.AreEqual("Test3.txt", fileName);
+            Assert.AreEqual("application/octet-stream", contentType.MediaType, string.Format("Returned content type {0} does not match expected {1}", contentType, "text/html"));
+            Assert.AreEqual(DateTime.Parse("2015-09-05T22:57:31.7824054-04:00"), DateTime.Parse(storedTime.First()));
         }
 
         [TestCategory("FileStoreTests.Head")]

@@ -185,9 +185,9 @@ namespace FileStore.Controllers
 
             // Assert
             Assert.IsTrue(response.IsSuccessStatusCode);
-            Assert.IsTrue(fileName == "Test2.txt");
-            Assert.IsTrue(fileContent == "Test2 content");
-            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+            Assert.AreEqual("Test2.txt", fileName);
+            Assert.AreEqual("Test2 content", fileContent);
+            Assert.AreEqual(DateTime.Parse("2015-09-05T22:57:31.7824054-04:00"), DateTime.Parse(storedTime.First()));
         }
 
         [TestCategory("FileStoreTests.Get")]
@@ -260,10 +260,10 @@ namespace FileStore.Controllers
 
             // Assert
             Assert.IsTrue(response.IsSuccessStatusCode);
-            Assert.IsTrue(fileName == "Test2.txt");
-            Assert.IsTrue(contentType.MediaType == "application/octet-stream");
-            Assert.IsTrue(fileContent == "Test2 content", "Improper content was returned");
-            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+            Assert.AreEqual("Test2.txt", fileName);
+            Assert.AreEqual("application/octet-stream", contentType.MediaType);
+            Assert.AreEqual("Test2 content", fileContent, "Improper content was returned");
+            Assert.AreEqual(DateTime.Parse("2015-09-05T22:57:31.7824054-04:00"), DateTime.Parse(storedTime.First()));
         }
 
         [TestCategory("FileStoreTests.Get")]

@@ -39,7 +39,7 @@ namespace ServiceLibrary.Models.Licenses
         public void GetStatus_WhenExpirationDateIsEqual_StatusIsActive()
         {
             // Arrange
-            var expirationDate = new DateTime(2000, 1, 1);
+            var expirationDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             _timeProviderMock.Setup(i => i.CurrentUniversalTime).Returns(expirationDate);
             var featureInformation = new FeatureInformation(_workflowFeatureName, expirationDate, _timeProviderMock.Object);
             // Act

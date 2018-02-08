@@ -184,30 +184,17 @@ namespace ArtifactStore.Collections
                     ErrorMessages.Collections.ColumnsSettingsModelIsIncorrect, ErrorCodes.BadRequest);
             }
 
-            var result = await _collectionsService.GetColumnsAsync(id, Session.UserId);
-            var notExistColumns = GetNotExistColumns(profileColumnsDto, result);
+            var invalidProfileColumns = await _collectionsService.GetInvalidColumns(id, Session.UserId, profileColumnsDto);
+
+            if (invalidProfileColumns.Items.Any())
+            {
+                throw new BadRequestException("Something", ErrorCodes.BadRequest);
+            }
 
             var profileColumns = new ProfileColumns(profileColumnsDto.Items);
             await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
-        }
-
-        /// <summary>
-        /// Return Not Exist Profile Columns in database from Profile Columns for Saving
-        /// </summary>
-        /// <param name="profileColumnsDto">IEnumerable Profile Column for Saving</param>
-        /// <param name="getColumnsDto">Profile Columns exist in database</param>
-        /// <returns></returns>
-        private static IEnumerable<ProfileColumn> GetNotExistColumns(ProfileColumnsDto profileColumnsDto, GetColumnsDto getColumnsDto)
-        {
-            var result = Enumerable.Empty<ProfileColumn>();
-            if ((profileColumnsDto != null) && (getColumnsDto != null))
-            {
-                result = profileColumnsDto.Items.Except(getColumnsDto.SelectedColumns);
-                result = result.Except(getColumnsDto.SelectedColumns);
-            }
-            return result;
         }
     }
 }

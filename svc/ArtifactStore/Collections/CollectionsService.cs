@@ -234,6 +234,25 @@ namespace ArtifactStore.Collections
             await _artifactListService.SaveProfileColumnsAsync(collection.ArtifactId, validColumns, userId);
         }
 
+        public async Task<ProfileColumns> GetInvalidColumns(int collectionId, int userId, ProfileColumnsDto profileColumnsDto)
+        {
+            var validColumns = await GetColumnsAsync(collectionId, userId);
+            var validItems = validColumns.SelectedColumns.Union(validColumns.UnselectedColumns);
+
+            return new ProfileColumns(ExcludeValidColumns(profileColumnsDto.Items, validItems));
+        }
+
+        private static IEnumerable<ProfileColumn> ExcludeValidColumns(IEnumerable<ProfileColumn> allProfileColumns,
+            IEnumerable<ProfileColumn> validProfileColumns)
+        {
+            var validNames = validProfileColumns.Select(q => q.PropertyName);
+            foreach (var allProfileColumn in allProfileColumns)
+            {
+                if (!validNames.Contains(allProfileColumn.PropertyName))
+                    yield return allProfileColumn;
+            }
+        }
+
         private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)
         {
             var artifactIds = await _collectionsRepository.GetContentArtifactIdsAsync(collectionId, userId);

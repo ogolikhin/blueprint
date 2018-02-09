@@ -855,7 +855,7 @@ namespace AdminStore.Services.Workflow
             };
 
             var allWebhookTriggers = ieWorkflow.TransitionEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)
-                .Union(ieWorkflow.NewArtifactEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)).ToList();
+                .Concat(ieWorkflow.NewArtifactEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)).ToList();
 
             await LookupWebhookActionsFromIds(allWebhookTriggers);
 

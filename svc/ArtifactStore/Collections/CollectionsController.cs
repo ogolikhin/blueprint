@@ -186,7 +186,7 @@ namespace ArtifactStore.Collections
 
             var invalidProfileColumns = await _collectionsService.GetNoLongerApplicableProperties(id, Session.UserId, profileColumnsDto);
 
-            var toastMessage = getNoLongerApplicablePropertiesToastMessage(invalidProfileColumns);
+            var toastMessage = GetNoLongerApplicablePropertiesToastMessage(invalidProfileColumns);
             if (toastMessage != null)
             {
                 throw new BadRequestException(toastMessage, ErrorCodes.BadRequest);
@@ -198,11 +198,10 @@ namespace ArtifactStore.Collections
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
-        private string getNoLongerApplicablePropertiesToastMessage(ProfileColumns profileColumns)
+        private static string GetNoLongerApplicablePropertiesToastMessage(ProfileColumns profileColumns)
         {
             if (profileColumns?.Items != null && (profileColumns.Items.Any()))
             {
-
                 if (profileColumns.Items.Count() == 1)
                 {
                     return I18NHelper.FormatInvariant(ErrorMessages.Collections.SingleNoLongerApplicableProperty,

@@ -116,6 +116,7 @@ namespace ArtifactStore.Executors
                     null,
                     _stateChangeExecutorRepositories.UsersRepository,
                     _stateChangeExecutorRepositories.ServiceLogRepository,
+                    _stateChangeExecutorRepositories.WebhookRepository,
                     transaction)));
 
                 await _workflowEventsMessagesHelper.ProcessMessages(LogSource,

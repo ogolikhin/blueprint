@@ -3,6 +3,7 @@ using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Reuse;
+using ServiceLibrary.Repositories.Webhooks;
 using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Executors
@@ -17,6 +18,7 @@ namespace ArtifactStore.Executors
         public IApplicationSettingsRepository ApplicationSettingsRepository { get; }
         public IServiceLogRepository ServiceLogRepository { get; }
         public IUsersRepository UsersRepository { get; }
+        public IWebhookRepository WebhookRepository { get; }
 
 
         public StateChangeExecutorRepositories(IArtifactVersionsRepository artifactVersionsRepository,
@@ -26,7 +28,8 @@ namespace ArtifactStore.Executors
             ISaveArtifactRepository saveArtifactRepository,
             IApplicationSettingsRepository applicationSettingsRepository,
             IServiceLogRepository serviceLogRepository,
-            IUsersRepository usersRepository)
+            IUsersRepository usersRepository,
+            IWebhookRepository webhookRepository)
         {
             ArtifactVersionsRepository = artifactVersionsRepository;
             WorkflowRepository = workflowRepository;
@@ -36,6 +39,7 @@ namespace ArtifactStore.Executors
             ApplicationSettingsRepository = applicationSettingsRepository;
             ServiceLogRepository = serviceLogRepository;
             UsersRepository = usersRepository;
+            WebhookRepository = webhookRepository;
         }
     }
 }

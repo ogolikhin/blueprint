@@ -3,6 +3,7 @@ using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Reuse;
+using ServiceLibrary.Repositories.Webhooks;
 using ServiceLibrary.Repositories.Workflow;
 
 namespace ArtifactStore.Executors
@@ -17,5 +18,6 @@ namespace ArtifactStore.Executors
         IApplicationSettingsRepository ApplicationSettingsRepository { get; }
         IServiceLogRepository ServiceLogRepository { get; }
         IUsersRepository UsersRepository { get; }
+        IWebhookRepository WebhookRepository { get; }
     }
 }

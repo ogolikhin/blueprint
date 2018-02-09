@@ -5,6 +5,7 @@ using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Webhooks;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
@@ -28,6 +29,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                 new LocalFileLog(),
                 tenant.AdminStoreLog);
 
+            var webhookRespository = new WebhookRepository();
+
             //Get modified properties for all artifacts and create a dictionary with key as artifact ids
             bool handledAllUpdatedArtifacts = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(tenant,
                 message,
@@ -46,7 +49,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     message,
                     repository,
                     serviceLogRepository, 
-                    WorkflowMessagingProcessor.Instance);
+                    WorkflowMessagingProcessor.Instance,
+                    webhookRespository);
 
             if (!handledAllCreatedArtifacts)
             {

@@ -1169,7 +1169,7 @@ namespace AdminStore.Services.Workflow
 
             if (mode == WorkflowMode.Canvas)
             {
-                return ieTriggers.Where(t => t.Action.ActionType != ActionTypes.Webhook).ToList();
+                return ieTriggers.Where(t => t.Action?.ActionType != ActionTypes.Webhook).ToList();
             }
 
             return ieTriggers;

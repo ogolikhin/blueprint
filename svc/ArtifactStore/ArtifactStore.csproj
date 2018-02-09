@@ -24,6 +24,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -117,6 +118,7 @@
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="ArtifactList\ArtifactListService.cs" />
+    <Compile Include="ArtifactList\Helpers\ArtifactListExceptionHelper.cs" />
     <Compile Include="ArtifactList\Models\ProfileColumns.cs" />
     <Compile Include="ArtifactList\Models\ProfileSettingsParams.cs" />
     <Compile Include="ArtifactList\Models\Xml\XmlProfileColumn.cs" />

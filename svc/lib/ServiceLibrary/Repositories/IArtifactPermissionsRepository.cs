@@ -8,6 +8,10 @@ namespace ServiceLibrary.Repositories
     public interface IArtifactPermissionsRepository
     {
         Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(
+            int artifactId, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue,
+            bool addDrafts = true, IDbTransaction transaction = null);
+
+        Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(
             IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue,
             bool addDrafts = true, IDbTransaction transaction = null);
 

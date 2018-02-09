@@ -1,15 +1,13 @@
 <#
     Build Nova
 
-    Used in Jenkins to build Nova.
+    Used in Jenkins to build Nova Services.
     
     Assumptions:
        - None
 
 #>
     
-
-
 param(
     [Parameter(Mandatory=$true)][string] $workspace,
     [Parameter(Mandatory=$true)][string] $storytellerVersion,
@@ -41,16 +39,16 @@ $buildParams = @{
     msBuildPath = "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
     visualStudioVersion = "14.0"
     BuildDebug = $BuildDebug
+    RunTests = $RunTests
 }
 
 Setup-Environment @buildParams -removeFiles $removeFiles
+
 Build-Nova-Services @buildParams
 
 if($RunTests)
 {
     Run-Nova-Unit-Tests @buildParams
 }
-
-Build-Nova-Html @buildParams -RunTests $RunTests
 
 Build-Nova-Windows-Services @buildParams

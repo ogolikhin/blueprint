@@ -230,7 +230,7 @@ namespace ArtifactStore.Collections
             await _artifactListService.SaveProfileColumnsAsync(collection.Id, validColumns, userId);
         }
 
-        public async Task<ProfileColumns> GetInvalidColumns(int collectionId, int userId, ProfileColumnsDto profileColumnsDto)
+        public async Task<ProfileColumns> GetNoLongerApplicableProperties(int collectionId, int userId, ProfileColumnsDto profileColumnsDto)
         {
             var validColumns = await GetColumnsAsync(collectionId, userId);
             var validItems = validColumns.SelectedColumns.Union(validColumns.UnselectedColumns);

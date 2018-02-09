@@ -184,17 +184,38 @@ namespace ArtifactStore.Collections
                     ErrorMessages.Collections.ColumnsSettingsModelIsIncorrect, ErrorCodes.BadRequest);
             }
 
-            var invalidProfileColumns = await _collectionsService.GetInvalidColumns(id, Session.UserId, profileColumnsDto);
+            var invalidProfileColumns = await _collectionsService.GetNoLongerApplicableProperties(id, Session.UserId, profileColumnsDto);
 
-            if (invalidProfileColumns.Items.Any())
+            var toastMessage = getNoLongerApplicablePropertiesToastMessage(invalidProfileColumns);
+            if (toastMessage != null)
             {
-                throw new BadRequestException("Something", ErrorCodes.BadRequest);
+                throw new BadRequestException(toastMessage, ErrorCodes.BadRequest);
             }
 
             var profileColumns = new ProfileColumns(profileColumnsDto.Items);
             await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
+        }
+
+        private string getNoLongerApplicablePropertiesToastMessage(ProfileColumns profileColumns)
+        {
+            if (profileColumns?.Items != null && (profileColumns.Items.Any()))
+            {
+
+                if (profileColumns.Items.Count() == 1)
+                {
+                    return I18NHelper.FormatInvariant(ErrorMessages.Collections.SingleNoLongerApplicableProperty,
+                        profileColumns.Items.Take(1).SingleOrDefault()?.PropertyName);
+                }
+                else
+                {
+                    return I18NHelper.FormatInvariant(ErrorMessages.Collections.MultipleNoLongerApplicableProperties,
+                        string.Join(", ", profileColumns.Items.Take(3).Select(q => q.PropertyName)));
+                }
+
+            }
+            return null;
         }
     }
 }

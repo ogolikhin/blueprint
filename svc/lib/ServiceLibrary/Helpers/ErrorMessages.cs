@@ -168,6 +168,10 @@
             public static readonly string AddArtifactsInvalidParameters = "Invalid parameters to add artifact(s)";
             public static readonly string ColumnsSettingsModelIsIncorrect = "The body of the call is malformed or has invalid parameter.";
             public static readonly string RemoveArtifactsInvalidParameters = "Incorrect input parameters.";
+            // Column Property
+            public static readonly string SingleNoLongerApplicableProperty = "The selected property is no longer applicable: {0}. Please ensure correct values are selected.";
+            public static readonly string MultipleNoLongerApplicableProperties = "The selected properties are no longer applicable: {0}... Please ensure correct values are selected.";
+
         }
     }
 }

@@ -241,10 +241,12 @@ namespace ArtifactStore.Collections
         private static IEnumerable<ProfileColumn> ExcludeValidColumns(IEnumerable<ProfileColumn> allProfileColumns,
             IEnumerable<ProfileColumn> validProfileColumns)
         {
-            var validNames = validProfileColumns.Select(q => q.PropertyName);
             foreach (var allProfileColumn in allProfileColumns)
             {
-                if (!validNames.Contains(allProfileColumn.PropertyName))
+                if (!validProfileColumns.Any(q => ((q.PropertyName == allProfileColumn.PropertyName) &&
+                                                   (q.Predefined == allProfileColumn.Predefined) &&
+                                                   (q.PrimitiveType == allProfileColumn.PrimitiveType) &&
+                                                   (q.PropertyTypeId == allProfileColumn.PropertyTypeId))))
                     yield return allProfileColumn;
             }
         }

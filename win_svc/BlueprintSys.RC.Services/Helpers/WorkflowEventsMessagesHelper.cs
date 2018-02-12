@@ -147,6 +147,7 @@ namespace BlueprintSys.RC.Services.Helpers
                         if (webhookMessage == null)
                         {
                             await serviceLogRepository.LogInformation(LogSource, $"Skipping Webhook action for artifact {artifactInfo.Id}: {artifactInfo.Name}.");
+                            continue;
                         }
                         resultMessages.Add(webhookMessage);
                         break;

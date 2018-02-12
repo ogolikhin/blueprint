@@ -21,8 +21,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
         private async Task<bool> SendWebhook(TenantInformation tenant, WebhookMessage message, IWebhookRepository repository)
         {
             var httpClientProvider = new HttpClientProvider();
-            var webhookUri = new Uri(message.Url);
-            var http = httpClientProvider.Create(webhookUri);
+            var http = httpClientProvider.Create(GetBaseAddress(message.Url));
             var request = new HttpRequestMessage
             {
                 RequestUri = new Uri(message.Url),
@@ -32,6 +31,16 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             var result = await http.SendAsync(request);
 
             return (result.StatusCode == System.Net.HttpStatusCode.OK);
+        }
+
+        private Uri GetBaseAddress(string urlString)
+        {
+            var url = new Uri(urlString);
+            var builder = new UriBuilder();
+            builder.Scheme = url.Scheme;
+            builder.Host = url.Host;
+            builder.Port = url.Port;
+            return builder.Uri;
         }
     }
 }

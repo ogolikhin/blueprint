@@ -315,14 +315,27 @@ namespace ServiceLibrary.Repositories.Workflow
             {
                 return ToEmailNotificationAction(emailNotification);
             }
+
             var propertyChangeAction = action as XmlPropertyChangeAction;
             if (propertyChangeAction != null)
             {
                 return ToPropertyChangeAction(propertyChangeAction, currentUserId);
             }
+
             var generateAction = action as XmlGenerateAction;
-            // TODO: Should we throw an exception if the action is not a known action? Import ahead of handling situation
-            return generateAction != null ? ToGenerateAction(generateAction) : null;
+            if (generateAction != null)
+            {
+                return ToGenerateAction(generateAction);
+            }
+
+            var webhookAction = action as XmlWebhookAction;
+            if (webhookAction != null)
+            {
+                return ToWebhookAction(webhookAction);
+            }
+
+            // Throw an exception if we receive an action that has not already been handled by the above cases
+            throw new ApplicationException("Cannot generate WorkflowEventAction of unknown type.");
         }
 
         private EmailNotificationAction ToEmailNotificationAction(XmlEmailNotificationAction emailNotification)
@@ -395,7 +408,7 @@ namespace ServiceLibrary.Repositories.Workflow
             return action;
         }
 
-        private WorkflowEventAction ToGenerateAction(XmlGenerateAction generateAction)
+        private GenerateAction ToGenerateAction(XmlGenerateAction generateAction)
         {
             switch (generateAction.GenerateActionType)
             {
@@ -415,6 +428,19 @@ namespace ServiceLibrary.Repositories.Workflow
                     return new GenerateTestCasesAction();
             }
             return null;
+        }
+
+        private WebhookAction ToWebhookAction(XmlWebhookAction webhookAction)
+        {
+            if (webhookAction == null)
+            {
+                return null;
+            }
+
+            return new WebhookAction
+            {
+                WebhookId = webhookAction.WebhookId
+            };
         }
 
         private async Task<WorkflowState> ChangeStateForArtifactInternal(int userId, int artifactId, int desiredStateId, IDbTransaction transaction = null)

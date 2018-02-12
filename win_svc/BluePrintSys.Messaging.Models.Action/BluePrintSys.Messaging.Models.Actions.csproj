@@ -88,6 +88,7 @@
     <Compile Include="PublishedPropertyInformation.cs" />
     <Compile Include="StatusCheckMessage.cs" />
     <Compile Include="UsersGroupsChangedMessage.cs" />
+    <Compile Include="WebhookMessage.cs" />
     <Compile Include="WorkflowsChangedMessage.cs" />
   </ItemGroup>
   <ItemGroup>

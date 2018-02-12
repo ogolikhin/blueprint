@@ -18,6 +18,7 @@ using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Reuse;
 using ServiceLibrary.Repositories.Workflow;
+using ServiceLibrary.Repositories.Webhooks;
 
 namespace ArtifactStore.Controllers
 {
@@ -41,7 +42,8 @@ namespace ArtifactStore.Controllers
                     new SqlSaveArtifactRepository(),
                     new ApplicationSettingsRepository(),
                     new ServiceLogRepository(),
-                    new SqlUsersRepository()),
+                    new SqlUsersRepository(),
+                    new WebhookRepository()),
                 new WorkflowEventsMessagesHelper()))
         {
         }

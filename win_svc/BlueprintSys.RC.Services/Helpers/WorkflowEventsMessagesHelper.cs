@@ -330,12 +330,21 @@ namespace BlueprintSys.RC.Services.Helpers
             var webhookInfos = await webhookRepository.GetWebhooks(webhookId);
             var webhookInfo = webhookInfos.FirstOrDefault();
 
+            var securityInfo = SerializationHelper.FromXml<XmlWebhookSecurityInfo>(webhookInfo.SecurityInfo);
+
             var webhookMessage = new WebhookMessage
             {
                 UserId = userId,
                 RevisionId = revisionId,
+                // Authentication Information
                 Url = webhookInfo.Url,
-                SecurityInfo = webhookInfo.SecurityInfo,
+                IgnoreInvalidSSLCertificate = securityInfo.IgnoreInvalidSSLCertificate,
+                HttpHeaders = securityInfo.HttpHeaders,
+                BasicAuthUsername = securityInfo.BasicAuth?.Username,
+                BasicAuthPassword = securityInfo.BasicAuth?.Password,
+                SignatureSecretToken = securityInfo.Signature?.SecretToken,
+                SignatureAlgorithm = securityInfo.Signature?.Algorithm,
+                // Payload Information
                 ArtifactId = artifactInfo.Id,
                 ArtifactName = artifactInfo.Name
             };

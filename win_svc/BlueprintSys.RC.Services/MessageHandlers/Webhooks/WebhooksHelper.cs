@@ -5,6 +5,9 @@ using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Repositories.Webhooks;
 using ServiceLibrary.Helpers;
 using System.Net.Http;
+using System.Collections.Generic;
+using ServiceLibrary.Helpers.Security;
+using System.Net.Http.Headers;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 {
@@ -28,6 +31,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
                 Method = HttpMethod.Post
             };
 
+            AddHttpHeaders(request, message);
+
+            AddBasicAuthentication(request, message);
+
+            AddAuthenticationSignature(request, message);
+
             var result = await http.SendAsync(request);
 
             return (result.StatusCode == System.Net.HttpStatusCode.OK);
@@ -41,6 +50,38 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             builder.Host = url.Host;
             builder.Port = url.Port;
             return builder.Uri;
+        }
+
+        private void AddHttpHeaders(HttpRequestMessage request, WebhookMessage message)
+        {
+            if (message.HttpHeaders.IsEmpty())
+            {
+                return;
+            }
+
+            foreach(var httpHeader in message.HttpHeaders)
+            {
+                var headers = SystemEncryptions.Decrypt(httpHeader);
+                var keyValuePair = headers.Split(':');
+                request.Headers.Add(keyValuePair[0], keyValuePair[1]);
+            }
+        }
+
+        private void AddBasicAuthentication(HttpRequestMessage request, WebhookMessage message)
+        {
+            if (message.BasicAuthUsername.IsEmpty() || message.BasicAuthPassword.IsEmpty())
+            {
+                return;
+            }
+
+            string basicAuthentication = SystemEncryptions.Decrypt(message.BasicAuthUsername) + ':' + SystemEncryptions.Decrypt(message.BasicAuthPassword);
+            string authenticationInfo = SystemEncryptions.EncodeTo64UTF8(basicAuthentication);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationInfo);
+        }
+
+        private void AddAuthenticationSignature(HttpRequestMessage request, WebhookMessage message)
+        {
+            // ToDo - To be implemented
         }
     }
 }

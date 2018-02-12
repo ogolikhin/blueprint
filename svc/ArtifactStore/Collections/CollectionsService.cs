@@ -234,8 +234,13 @@ namespace ArtifactStore.Collections
         {
             var validColumns = await GetColumnsAsync(collectionId, userId);
             var validItems = validColumns.SelectedColumns.Union(validColumns.UnselectedColumns);
+            var duplicateColumns = profileColumnsDto.Items.GroupBy(s => s)
+                .SelectMany(grp => grp.Skip(1));
+            var invalidPropertyPrimitiveTypeColumns = profileColumnsDto.Items.Where(q => q.PrimitiveType == PropertyPrimitiveType.Image);
+            var invalidColumns = ExcludeValidColumns(profileColumnsDto.Items, validItems);
 
-            return new ProfileColumns(ExcludeValidColumns(profileColumnsDto.Items, validItems));
+            return new ProfileColumns(duplicateColumns.Union(invalidColumns)
+                .Union(invalidPropertyPrimitiveTypeColumns));
         }
 
         private static IEnumerable<ProfileColumn> ExcludeValidColumns(IEnumerable<ProfileColumn> allProfileColumns,

@@ -250,7 +250,7 @@ namespace AdminStore.Services.Workflow
             var dataValidationResult = new WorkflowDataValidationResult();
 
             var standardTypes = await _projectMetaRepository.GetStandardProjectTypesAsync();
-            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, WorkflowMode.Canvas, false);
+            var currentWorkflow = await GetWorkflowExportAsync(workflowId, standardTypes, workflowMode, false);
             if (currentWorkflow.IsActive)
             {
                 dataValidationResult.Errors.Add(new WorkflowDataValidationError
@@ -829,7 +829,7 @@ namespace AdminStore.Services.Workflow
                         ToStateId = e.ToStateId,
                         PermissionGroups = DeserializePermissionGroups(e.Permissions, groupIds),
                         SkipPermissionGroups = GetSkipPermissionGroup(e.Permissions),
-                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds),
+                        Triggers = DeserializeTriggersForWorkflowMode(e.Triggers, dataMaps, userIds, groupIds, mode),
                         PortPair = mode == WorkflowMode.Canvas ? DeserializeTransitionCanvasSettings(e.CanvasSettings) : null
                     }).Distinct().ToList(),
                 // Do not include PropertyChangeEvent if PropertyType is not found.
@@ -842,20 +842,20 @@ namespace AdminStore.Services.Workflow
                         Name = e.Name,
                         PropertyId = e.PropertyTypeId,
                         PropertyName = GetPropertyChangedName(e.PropertyTypeId, dataMaps),
-                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
+                        Triggers = DeserializeTriggersForWorkflowMode(e.Triggers, dataMaps, userIds, groupIds, mode)
                     }).Distinct().ToList(),
                 NewArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).
                     Select(e => new IeNewArtifactEvent
                     {
                         Id = e.WorkflowEventId,
                         Name = e.Name,
-                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
+                        Triggers = DeserializeTriggersForWorkflowMode(e.Triggers, dataMaps, userIds, groupIds, mode)
                     }).Distinct().ToList(),
                 Projects = GetProjects(workflowArtifactTypes, mode)
             };
 
             var allWebhookTriggers = ieWorkflow.TransitionEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)
-                .Union(ieWorkflow.NewArtifactEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)).ToList();
+                .Concat(ieWorkflow.NewArtifactEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)).ToList();
 
             await LookupWebhookActionsFromIds(allWebhookTriggers);
 
@@ -1155,14 +1155,24 @@ namespace AdminStore.Services.Workflow
             return skip;
         }
 
-        private List<IeTrigger> DeserializeTriggers(string triggers, WorkflowDataNameMaps dataMaps,
-            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect)
+        private List<IeTrigger> DeserializeTriggersForWorkflowMode(string triggers, WorkflowDataNameMaps dataMaps,
+            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect, WorkflowMode mode)
         {
             var xmlTriggers = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggers);
 
             var ieTriggers = _triggerConverter.FromXmlModel(xmlTriggers, dataMaps, userIdsToCollect, groupIdsToCollect).ToList();
 
-            return ieTriggers.IsEmpty() ? null : ieTriggers;
+            if (ieTriggers.IsEmpty())
+            {
+                return null;
+            }
+
+            if (mode == WorkflowMode.Canvas)
+            {
+                return ieTriggers.Where(t => t.Action?.ActionType != ActionTypes.Webhook).ToList();
+            }
+
+            return ieTriggers;
         }
 
         private static WorkflowDataNameMaps LoadDataMaps(ProjectTypes standardTypes, IDictionary<int, string> stateMap)

@@ -178,7 +178,7 @@ namespace ArtifactStore.Collections
         public async Task<HttpResponseMessage> SaveColumnsSettingsAsync(
             int id, [FromBody] ProfileColumnsDto profileColumnsDto)
         {
-            if (profileColumnsDto == null || profileColumnsDto.Items.IsEmpty() || profileColumnsDto.Items.Count() > 20)
+            if (profileColumnsDto == null || profileColumnsDto.Items.IsEmpty())
             {
                 throw new BadRequestException(
                     ErrorMessages.Collections.ColumnsSettingsModelIsIncorrect, ErrorCodes.BadRequest);

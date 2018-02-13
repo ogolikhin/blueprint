@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
-using System.Net.Http;
 using ServiceLibrary.Helpers.Security;
-using System.Net.Http.Headers;
-using System.Net;
-using System.Security.Cryptography;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 {
@@ -15,6 +16,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
     {
         public enum SignatureAlgorithm
         {
+            None = 0,
             HMACSHA1 = 1,
             HMACSHA256 = 2
         }
@@ -24,7 +26,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
         {
             var message = (WebhookMessage)actionMessage;
             var result = await SendWebhook(tenant, message, (IWebhookRepository)baseRepository);
-            Logger.Log($"Finished processing message with result: {result}", message, tenant);
+            Logger.Log($"Finished processing webhook with result: {result}", message, tenant);
             return await Task.FromResult(result == true);
         }
 
@@ -36,8 +38,10 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             {
                 RequestUri = new Uri(message.Url),
                 Method = HttpMethod.Post,
-                Content = new StringContent(message.WebhookJsonPayload)
+                Content = new StringContent(message.WebhookJsonPayload, Encoding.UTF8, "application/json")
             };
+
+            request.Headers.Add("X-BLUEPRINT-RETRY-NUMBER", "0");
 
             AddHttpHeaders(request, message);
 
@@ -107,8 +111,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             }
 
             SignatureAlgorithm webhookAlgorithm;
-            Enum.TryParse(message.SignatureAlgorithm, out webhookAlgorithm);
-            var messageHashCheckSum = CreateEncodedSignature(message.WebhookJsonPayload, message.SignatureSecretToken, webhookAlgorithm);
+            var algorithm = Enum.TryParse(message.SignatureAlgorithm, out webhookAlgorithm) ? webhookAlgorithm : SignatureAlgorithm.HMACSHA256;
+            var messageHashCheckSum = CreateEncodedSignature(message.WebhookJsonPayload, message.SignatureSecretToken, algorithm);
             request.Headers.Add("X-BLUEPRINT-SIGNATURE", messageHashCheckSum);
         }
 

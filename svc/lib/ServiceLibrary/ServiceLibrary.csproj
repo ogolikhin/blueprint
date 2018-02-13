@@ -127,6 +127,7 @@
     <Compile Include="Exceptions\ElasticsearchConfigurationException.cs" />
     <Compile Include="Exceptions\ElasticsearchException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
+    <Compile Include="Exceptions\InvalidColumnsException.cs" />
     <Compile Include="Exceptions\NServiceBusConnectionException.cs" />
     <Compile Include="Exceptions\RabbitMqSendException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />

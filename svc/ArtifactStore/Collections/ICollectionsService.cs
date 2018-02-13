@@ -17,7 +17,5 @@ namespace ArtifactStore.Collections
         Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null);
 
         Task SaveProfileColumnsAsync(int collectionId, ProfileColumns profileColumns, int userId);
-
-        Task<ProfileColumns> GetNoLongerApplicableProperties(int collectionId, int userId, ProfileColumnsDto profileColumnsDto);
     }
 }

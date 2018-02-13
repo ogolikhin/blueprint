@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -184,37 +185,35 @@ namespace ArtifactStore.Collections
                     ErrorMessages.Collections.ColumnsSettingsModelIsIncorrect, ErrorCodes.BadRequest);
             }
 
-            var invalidProfileColumns = await _collectionsService.GetNoLongerApplicableProperties(id, Session.UserId, profileColumnsDto);
-
-            var toastMessage = GetNoLongerApplicablePropertiesToastMessage(invalidProfileColumns);
-            if (toastMessage != null)
-            {
-                throw new BadRequestException(toastMessage, ErrorCodes.BadRequest);
-            }
-
             var profileColumns = new ProfileColumns(profileColumnsDto.Items);
-            await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
+            try
+            {
+                await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
+            }
+            catch (InvalidColumnsException e)
+            {
+                throw new BadRequestException(GetInvalidColumnsErrorMessage((IEnumerable<ProfileColumn>)e.Content), e.ErrorCode);
+            }
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
-        private static string GetNoLongerApplicablePropertiesToastMessage(ProfileColumns profileColumns)
+        private static string GetInvalidColumnsErrorMessage(IEnumerable<ProfileColumn> profileColumns)
         {
-            if (profileColumns?.Items != null && (profileColumns.Items.Any()))
+            if (profileColumns == null) return null;
+            switch (profileColumns.Count())
             {
-                if (profileColumns.Items.Count() == 1)
-                {
-                    return I18NHelper.FormatInvariant(ErrorMessages.Collections.SingleNoLongerApplicableProperty,
-                        profileColumns.Items.Take(1).SingleOrDefault()?.PropertyName);
-                }
-                else
-                {
-                    return I18NHelper.FormatInvariant(ErrorMessages.Collections.MultipleNoLongerApplicableProperties,
-                        string.Join(", ", profileColumns.Items.Take(3).Select(q => q.PropertyName)));
-                }
-
+                case 1:
+                    return I18NHelper.FormatInvariant(ErrorMessages.Collections.SingleInvalidColumn,
+                        profileColumns.Take(1).SingleOrDefault()?.PropertyName);
+                case 2:
+                case 3:
+                    return I18NHelper.FormatInvariant(ErrorMessages.Collections.SomeInvalidColumns,
+                        string.Join(", ", profileColumns.Select(q => q.PropertyName)));
+                default:
+                    return I18NHelper.FormatInvariant(ErrorMessages.Collections.MultipleInvalidColumns,
+                        string.Join(", ", profileColumns.Take(3).Select(q => q.PropertyName)));
             }
-            return null;
         }
     }
 }

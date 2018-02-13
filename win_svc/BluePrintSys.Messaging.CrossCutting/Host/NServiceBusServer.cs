@@ -128,6 +128,16 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 delayed.TimeIncrease(TimeSpan.FromMinutes(10));
             });
 
+            var conventions = endpointConfiguration.Conventions();
+            conventions.DefiningTimeToBeReceivedAs(
+                type => {
+                    if (type == typeof(StatusCheckMessage))
+                    {
+                        return TimeSpan.FromMinutes(1);
+                    }
+                    return TimeSpan.MaxValue;
+            });
+
             var loggerDefinition = NServiceBus.Logging.LogManager.Use<LoggerDefinition>();
             loggerDefinition.Level(NServiceBus.Logging.LogLevel.Warn);
 

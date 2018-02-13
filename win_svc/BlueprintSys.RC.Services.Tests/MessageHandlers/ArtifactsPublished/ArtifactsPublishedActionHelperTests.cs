@@ -13,6 +13,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
     /// <summary>
     /// Tests for the Artifacts Published Action Helper in the Action Handler Service
     /// </summary>
+    [Ignore]
     [TestClass]
     public class ArtifactsPublishedActionHelperTests
     {

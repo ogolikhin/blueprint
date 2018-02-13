@@ -46,6 +46,8 @@ namespace BlueprintSys.RC.Services
             MessageQueue = ConfigHelper.MessageQueue;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         protected override void LogInfo(string tenantId, IWorkflowMessage message, Exception exception)
         {
             var actionMessage = message as ActionMessage;

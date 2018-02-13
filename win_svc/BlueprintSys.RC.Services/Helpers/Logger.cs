@@ -20,6 +20,7 @@ namespace BlueprintSys.RC.Services.Helpers
         /// <param name="message">The ActionMessage that spawned the log.</param>
         /// <param name="tenant">The tenant that spawned the log.</param>
         /// <param name="level">The level to log at.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
         public static void Log(string text, ActionMessage message, TenantInformation tenant, LogLevel level = LogLevel.Info)
         {
             var logText = $" {text}. Message: {message?.ActionType}. Tenant ID: {tenant?.TenantId}.";

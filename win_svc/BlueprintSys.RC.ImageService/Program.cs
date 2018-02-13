@@ -11,6 +11,7 @@ namespace BlueprintSys.RC.ImageService
          * 2. [Resolved] CefSharp - Shutdown must be called on the same thread that Initialize was called. Topshelf approach below causes an error when the service is stopped.
          * 3. There is no event to hook up when the browser resizing is completed. The delay is used in this spike.
          */
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         static void Main(string[] args)
         {
             HostFactory.Run(x =>

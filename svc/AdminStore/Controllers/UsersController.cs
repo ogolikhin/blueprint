@@ -12,6 +12,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -47,6 +48,7 @@ namespace AdminStore.Controllers
         private readonly IItemInfoRepository _itemInfoRepository;
         private readonly ISendMessageExecutor _sendMessageExecutor;
         private readonly IImageService _imageService;
+        private readonly ISqlHelper _sqlHelper;
 
         public UsersController()
             : this
@@ -54,7 +56,7 @@ namespace AdminStore.Controllers
                 new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(),
                 new EmailHelper(), new ApplicationSettingsRepository(), new ServiceLogRepository(),
                 new HttpClientProvider(), new SqlPrivilegesRepository(), new SqlItemInfoRepository(),
-                new SendMessageExecutor(), new ImageService())
+                new SendMessageExecutor(), new ImageService(), new SqlHelper())
         {
         }
 
@@ -64,7 +66,7 @@ namespace AdminStore.Controllers
             ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper,
             IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log,
             IHttpClientProvider httpClientProvider, IPrivilegesRepository privilegesRepository,
-            IItemInfoRepository itemInfoRepository, ISendMessageExecutor sendMessageExecutor, IImageService imageService)
+            IItemInfoRepository itemInfoRepository, ISendMessageExecutor sendMessageExecutor, IImageService imageService, ISqlHelper sqlHelper)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -77,7 +79,7 @@ namespace AdminStore.Controllers
             _itemInfoRepository = itemInfoRepository;
             _sendMessageExecutor = sendMessageExecutor;
             _imageService = imageService;
-
+            _sqlHelper = sqlHelper;
         }
 
         /// <summary>
@@ -174,17 +176,29 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageUsers);
 
-            var deletedUserIds = await _userRepository.DeleteUsersAsync(scope, search, Session.UserId);
-
-            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
-            var message = new UsersGroupsChangedMessage(deletedUserIds, new int[0])
+            var deletedUserIds = new List<int>();
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
-                RevisionId = topRevisionId,
-                ChangeType = UsersGroupsChangedType.Delete
+                var userIds = await _userRepository.DeleteUsersAsync(scope, search, Session.UserId);
+                deletedUserIds.AddRange(userIds);
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+
+                var message = new UsersGroupsChangedMessage(deletedUserIds, new int[0])
+                {
+                    TransactionId = transactionId,
+                    RevisionId = topRevisionId,
+                    ChangeType = UsersGroupsChangedType.Delete
+                };
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
             };
-            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
+            await RunInTransactionAsync(action);
 
             return Ok(new DeleteResult { TotalDeleted = deletedUserIds.Count });
+        }
+
+        private async Task RunInTransactionAsync(Func<IDbTransaction, long, Task> action)
+        {
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
         }
 
         /// <summary>
@@ -570,19 +584,25 @@ namespace AdminStore.Controllers
 
             var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Create, _settingsRepository);
 
-            var userId = await _userRepository.AddUserAsync(databaseUser);
+            int userId = 0;
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
+            {
+                userId = await _userRepository.AddUserAsync(databaseUser);
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
 
-            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
-            var userIds = new[]
-            {
-                userId
+                var userIds = new[]
+                {
+                    userId
+                };
+                var message = new UsersGroupsChangedMessage(userIds, new int[0])
+                {
+                    TransactionId = transactionId,
+                    RevisionId = topRevisionId,
+                    ChangeType = UsersGroupsChangedType.Create
+                };
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
             };
-            var message = new UsersGroupsChangedMessage(userIds, new int[0])
-            {
-                RevisionId = topRevisionId,
-                ChangeType = UsersGroupsChangedType.Create
-            };
-            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
+            await RunInTransactionAsync(action);
 
             return Request.CreateResponse(HttpStatusCode.Created, userId);
         }
@@ -626,19 +646,25 @@ namespace AdminStore.Controllers
             }
 
             var databaseUser = await UsersHelper.CreateDbUserFromDtoAsync(user, OperationMode.Edit, _settingsRepository, userId);
-            await _userRepository.UpdateUserAsync(databaseUser);
 
-            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
-            var userIds = new[]
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
-                userId
+                await _userRepository.UpdateUserAsync(databaseUser);
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+
+                var userIds = new[]
+                {
+                    userId
+                };
+                var message = new UsersGroupsChangedMessage(userIds, new int[0])
+                {
+                    TransactionId = transactionId,
+                    RevisionId = topRevisionId,
+                    ChangeType = UsersGroupsChangedType.Update
+                };
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
             };
-            var message = new UsersGroupsChangedMessage(userIds, new int[0])
-            {
-                RevisionId = topRevisionId,
-                ChangeType = UsersGroupsChangedType.Update
-            };
-            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
+            await RunInTransactionAsync(action);
 
             return Ok();
         }

@@ -29,6 +29,7 @@ namespace AdminStore.Controllers
         private Mock<IServiceLogRepository> _serviceLogRepository;
         private Mock<IItemInfoRepository> _itemInfoRepository;
         private Mock<ISendMessageExecutor> _sendMessageExecutor;
+        private ISqlHelper _sqlHelperMock;
         private QueryResult<GroupDto> _groupsQueryDataResult;
         private GroupsController _controller;
 
@@ -51,8 +52,9 @@ namespace AdminStore.Controllers
             _serviceLogRepository = new Mock<IServiceLogRepository>();
             _itemInfoRepository = new Mock<IItemInfoRepository>();
             _sendMessageExecutor = new Mock<ISendMessageExecutor>();
+            _sqlHelperMock = new SqlHelperMock();
 
-            _controller = new GroupsController(_sqlGroupRepositoryMock.Object, _privilegesRepository.Object, _applicationSettingsRepository.Object, _serviceLogRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object)
+            _controller = new GroupsController(_sqlGroupRepositoryMock.Object, _privilegesRepository.Object, _applicationSettingsRepository.Object, _serviceLogRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object, _sqlHelperMock)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()

@@ -32,7 +32,7 @@ namespace BlueprintSys.RC.Services.Tests
         {
             //arrange
             var connectionMock = new SqlConnectionWrapperMock();
-            const string storedProcedure = "GetWorkflowTriggersForArtifacts";
+            const string storedProcedure = "[dbo].[GetWorkflowTriggersForArtifacts]";
             const int userId = 1;
             const int revisionId = 2;
             const int eventType = 1;
@@ -64,7 +64,7 @@ namespace BlueprintSys.RC.Services.Tests
         {
             //arrange
             var connectionMock = new SqlConnectionWrapperMock();
-            const string storedProcedure = "GetWorkflowStatesForArtifacts";
+            const string storedProcedure = "[dbo].[GetWorkflowStatesForArtifacts]";
             const int userId = 1;
             var artifactIds = new[] {1, 2, 3};
             const int revisionId = 2;
@@ -119,7 +119,7 @@ namespace BlueprintSys.RC.Services.Tests
         {
             //arrange
             var connectionMock = new SqlConnectionWrapperMock();
-            const string storedProcedure = "GetProjectNameByIds";
+            const string storedProcedure = "[dbo].[GetProjectNameByIds]";
             var projectIds = new[] {1, 2, 3};
             var parameters = new Dictionary<string, object> {{nameof(projectIds), SqlConnectionWrapper.ToDataTable(projectIds)}};
             var result = new List<SqlProject>();

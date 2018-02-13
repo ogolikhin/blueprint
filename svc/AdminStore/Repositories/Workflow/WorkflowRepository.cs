@@ -754,7 +754,7 @@ namespace AdminStore.Repositories.Workflow
             return new QueryResult<WorkflowProjectArtifactTypesDto>() { Items = groupedList, Total = total ?? 0 };
         }
 
-        public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
+        public async Task RunInTransactionAsync(Func<IDbTransaction, long, Task> action)
         {
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
         }

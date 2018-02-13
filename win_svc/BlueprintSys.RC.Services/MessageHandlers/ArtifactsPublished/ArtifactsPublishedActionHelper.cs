@@ -29,8 +29,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                 new LocalFileLog(),
                 tenant.AdminStoreLog);
 
-            var webhookRespository = new WebhookRepository();
-
             //Get modified properties for all artifacts and create a dictionary with key as artifact ids
             bool handledAllUpdatedArtifacts = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(tenant,
                 message,
@@ -42,6 +40,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
             {
                 Logger.Log("Could not process messages for all published updated artifacts", message, tenant, LogLevel.Debug);
             }
+            Logger.Log("Finished processing updated artifacts", message, tenant);
             
             var handledAllCreatedArtifacts =
                 await
@@ -50,12 +49,13 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     repository,
                     serviceLogRepository, 
                     WorkflowMessagingProcessor.Instance,
-                    webhookRespository);
+                    repository.WebhookRepository);
 
             if (!handledAllCreatedArtifacts)
             {
                 Logger.Log("Could not process messages for all published created artifacts", message, tenant, LogLevel.Debug);
             }
+            Logger.Log("Finished processing created artifacts", message, tenant);
 
             Logger.Log("Finished processing message", message, tenant, LogLevel.Debug);
             return handledAllUpdatedArtifacts && handledAllCreatedArtifacts;

@@ -1,4 +1,7 @@
-﻿using AdminStore.Helpers;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Models.Enums;
 using AdminStore.Repositories;
@@ -32,12 +35,13 @@ namespace AdminStore.Controllers
         private readonly IServiceLogRepository _serviceLogRepository;
         private readonly IItemInfoRepository _itemInfoRepository;
         private readonly ISendMessageExecutor _sendMessageExecutor;
+        private readonly ISqlHelper _sqlHelper;
 
-        public GroupsController() : this(new SqlGroupRepository(), new SqlPrivilegesRepository(), new ApplicationSettingsRepository(), new ServiceLogRepository(), new SqlItemInfoRepository(), new SendMessageExecutor())
+        public GroupsController() : this(new SqlGroupRepository(), new SqlPrivilegesRepository(), new ApplicationSettingsRepository(), new ServiceLogRepository(), new SqlItemInfoRepository(), new SendMessageExecutor(), new SqlHelper())
         {
         }
 
-        internal GroupsController(IGroupRepository groupRepository, IPrivilegesRepository privilegesRepository, IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, IItemInfoRepository itemInfoRepository, ISendMessageExecutor sendMessageExecutor)
+        internal GroupsController(IGroupRepository groupRepository, IPrivilegesRepository privilegesRepository, IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, IItemInfoRepository itemInfoRepository, ISendMessageExecutor sendMessageExecutor, ISqlHelper sqlHelper)
         {
             _groupRepository = groupRepository;
             _privilegesManager = new PrivilegesManager(privilegesRepository);
@@ -45,6 +49,7 @@ namespace AdminStore.Controllers
             _serviceLogRepository = serviceLogRepository;
             _itemInfoRepository = itemInfoRepository;
             _sendMessageExecutor = sendMessageExecutor;
+            _sqlHelper = sqlHelper;
         }
 
         /// <summary>
@@ -134,17 +139,30 @@ namespace AdminStore.Controllers
 
             await _privilegesManager.Demand(Session.UserId, InstanceAdminPrivileges.ManageGroups);
 
-            var deletedGroupIds = await _groupRepository.DeleteGroupsAsync(scope, search);
-
-            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
-            var message = new UsersGroupsChangedMessage(new int[0], deletedGroupIds)
+            var deletedGroupIds = new List<int>();
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
-                RevisionId = topRevisionId,
-                ChangeType = UsersGroupsChangedType.Delete
+                var groupIds = await _groupRepository.DeleteGroupsAsync(scope, search);
+                deletedGroupIds.AddRange(groupIds);
+
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+
+                var message = new UsersGroupsChangedMessage(new int[0], deletedGroupIds)
+                {
+                    TransactionId = transactionId,
+                    RevisionId = topRevisionId,
+                    ChangeType = UsersGroupsChangedType.Delete
+                };
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
             };
-            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
+            await RunInTransactionAsync(action);
 
             return Ok(new DeleteResult { TotalDeleted = deletedGroupIds.Count });
+        }
+
+        private async Task RunInTransactionAsync(Func<IDbTransaction, long, Task> action)
+        {
+            await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
         }
 
         /// <summary>
@@ -172,19 +190,25 @@ namespace AdminStore.Controllers
 
             GroupValidator.ValidateModel(group, OperationMode.Create);
 
-            var groupId = await _groupRepository.AddGroupAsync(group);
+            int groupId = 0;
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
+            {
+                groupId = await _groupRepository.AddGroupAsync(group);
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
 
-            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
-            var groupIds = new[]
-            {
-                groupId
+                var groupIds = new[]
+                {
+                    groupId
+                };
+                var message = new UsersGroupsChangedMessage(new int[0], groupIds)
+                {
+                    TransactionId = transactionId,
+                    RevisionId = topRevisionId,
+                    ChangeType = UsersGroupsChangedType.Create
+                };
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
             };
-            var message = new UsersGroupsChangedMessage(new int[0], groupIds)
-            {
-                RevisionId = topRevisionId,
-                ChangeType = UsersGroupsChangedType.Create
-            };
-            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
+            await RunInTransactionAsync(action);
 
             return Request.CreateResponse(HttpStatusCode.Created, groupId);
         }
@@ -250,19 +274,24 @@ namespace AdminStore.Controllers
 
             GroupValidator.ValidateModel(group, OperationMode.Edit, existingGroup.ProjectId);
 
-            await _groupRepository.UpdateGroupAsync(groupId, group);
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
+            {
+                await _groupRepository.UpdateGroupAsync(groupId, group);
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
 
-            var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
-            var groupIds = new[]
-            {
-                groupId
+                var groupIds = new[]
+                {
+                    groupId
+                };
+                var message = new UsersGroupsChangedMessage(new int[0], groupIds)
+                {
+                    TransactionId = transactionId,
+                    RevisionId = topRevisionId,
+                    ChangeType = UsersGroupsChangedType.Update
+                };
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
             };
-            var message = new UsersGroupsChangedMessage(new int[0], groupIds)
-            {
-                RevisionId = topRevisionId,
-                ChangeType = UsersGroupsChangedType.Update
-            };
-            await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
+            await RunInTransactionAsync(action);
 
             return Ok();
         }

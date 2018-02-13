@@ -15,7 +15,7 @@ namespace ServiceLibrary.Repositories.Webhooks
 
         public WebhookRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain)) { }
 
-        internal WebhookRepository(ISqlConnectionWrapper connectionWrapper)
+        public WebhookRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }

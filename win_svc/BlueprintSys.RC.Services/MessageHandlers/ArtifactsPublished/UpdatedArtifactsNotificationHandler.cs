@@ -27,12 +27,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
             var allUpdatedArtifacts = message?.Artifacts?.Where(p => !p.IsFirstTimePublished).ToList();
             if (allUpdatedArtifacts == null || allUpdatedArtifacts.Count <= 0)
             {
+                Logger.Log("No updated artifacts found", message, tenant);
                 return false;
             }
+            Logger.Log($"{allUpdatedArtifacts.Count} updated artifacts found", message, tenant);
 
             var updatedArtifacts = allUpdatedArtifacts.Where(a => a.ModifiedProperties?.Count > 0).ToList();
             if (updatedArtifacts.Count == 0)
             {
+                Logger.Log("No modified properties found for updated artifacts", message, tenant);
                 return false;
             }
 
@@ -60,6 +63,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
             Logger.Log($"{artifactPropertyEvents?.Count ?? 0} workflow property events found", message, tenant, LogLevel.Debug);
             if (artifactPropertyEvents == null || artifactPropertyEvents.Count == 0)
             {
+                Logger.Log("No property change triggers found", message, tenant);
                 return false;
             }
 
@@ -155,13 +159,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 
             if (notificationMessages.Count == 0)
             {
+                Logger.Log("None of the modified properties have property change notification triggers", message, tenant);
                 return false;
             }
+            Logger.Log($"Sending property change notifications for artifacts: {string.Join(", ", notificationMessages.Select(kvp => kvp.Key))}", message, tenant);
 
             foreach (var notificationMessage in notificationMessages)
             {
                 await WorkflowEventsMessagesHelper.ProcessMessages(LogSource,
-                    tenant.TenantId,
+                    tenant,
                     serviceLogRepository,
                      notificationMessage.Value,
                     $"Error on new artifact creation with Id: {notificationMessage.Key}",
@@ -239,6 +245,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 
                 var notificationMessage = new NotificationMessage
                 {
+                    TransactionId = message.TransactionId,
                     ArtifactName = workflowStates[artifactId].Name,
                     ProjectName = projects.First(p => p.ItemId == artifact.ProjectId).Name,
                     Subject = notificationAction.Subject,
@@ -357,6 +364,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 
                 var notificationMessage = new NotificationMessage
                 {
+                    TransactionId = message.TransactionId,
                     ArtifactName = workflowStates[artifactId].Name,
                     ProjectName = projects.First(p => p.ItemId == artifact.ProjectId).Name,
                     Subject = notificationAction.Subject,

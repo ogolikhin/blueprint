@@ -484,7 +484,7 @@ namespace ArtifactStore.Repositories
                 replaceAllArtifacts, addedIdsList,
                 out alreadyIncludedCount);
 
-            Func<IDbTransaction, Task> transactionAction = async transaction =>
+            Func<IDbTransaction, long, Task> transactionAction = async (transaction, transactionId) =>
             {
                 await UpdateReviewArtifactsAsync(reviewId, userId, artifactXmlResult, transaction);
 
@@ -1715,7 +1715,7 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
             }
 
-            Func<IDbTransaction, Task> transactionAction = async transaction =>
+            Func<IDbTransaction, long, Task> transactionAction = async (transaction, transactionId) =>
             {
                 var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId, transaction);
 

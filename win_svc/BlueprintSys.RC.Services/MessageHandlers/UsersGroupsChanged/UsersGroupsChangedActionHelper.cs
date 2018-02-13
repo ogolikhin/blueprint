@@ -26,16 +26,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.UsersGroupsChanged
                 return true;
             }
 
-            var revisionId = message.RevisionId;
-
-            var revisionStatus = await repository.ValidateRevision(revisionId, repository, message, tenant);
-            if (revisionStatus == RevisionStatus.RolledBack)
-            {
-                return false;
-            }
-
             Logger.Log("Getting affected artifact IDs", message, tenant);
-            var artifactIds = await repository.GetAffectedArtifactIds(message.UserIds, message.GroupIds, revisionId);
+            var artifactIds = await repository.GetAffectedArtifactIds(message.UserIds, message.GroupIds, message.RevisionId);
             await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor);
             return true;
         }

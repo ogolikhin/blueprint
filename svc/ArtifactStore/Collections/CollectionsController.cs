@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using ArtifactStore.ArtifactList;
+using ArtifactStore.ArtifactList.Exceptions;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using ArtifactStore.Models.Review;
@@ -192,7 +193,7 @@ namespace ArtifactStore.Collections
             }
             catch (InvalidColumnsException e)
             {
-                throw new BadRequestException(GetInvalidColumnsErrorMessage((IEnumerable<ProfileColumn>)e.Content), e.ErrorCode);
+                throw new BadRequestException(GetInvalidColumnsErrorMessage(e.ProfileColumns), ErrorCodes.BadRequest);
             }
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
@@ -201,18 +202,21 @@ namespace ArtifactStore.Collections
         private static string GetInvalidColumnsErrorMessage(IEnumerable<ProfileColumn> profileColumns)
         {
             if (profileColumns == null) return null;
-            switch (profileColumns.Count())
+
+            if (profileColumns.Count() == 1)
             {
-                case 1:
-                    return I18NHelper.FormatInvariant(ErrorMessages.Collections.SingleInvalidColumn,
-                        profileColumns.Take(1).SingleOrDefault()?.PropertyName);
-                case 2:
-                case 3:
-                    return I18NHelper.FormatInvariant(ErrorMessages.Collections.SomeInvalidColumns,
-                        string.Join(", ", profileColumns.Select(q => q.PropertyName)));
-                default:
-                    return I18NHelper.FormatInvariant(ErrorMessages.Collections.MultipleInvalidColumns,
-                        string.Join(", ", profileColumns.Take(3).Select(q => q.PropertyName)));
+                return I18NHelper.FormatInvariant(ErrorMessages.Collections.SaveColumnsSettings.SingleInvalidColumn,
+                    profileColumns.Take(1).SingleOrDefault()?.PropertyName);
+            }
+            else if (profileColumns.Count() < 4)
+            {
+                return I18NHelper.FormatInvariant(ErrorMessages.Collections.SaveColumnsSettings.SomeInvalidColumns,
+                    string.Join(", ", profileColumns.Select(q => q.PropertyName)));
+            }
+            else
+            {
+                return I18NHelper.FormatInvariant(ErrorMessages.Collections.SaveColumnsSettings.MultipleInvalidColumns,
+                    string.Join(", ", profileColumns.Take(3).Select(q => q.PropertyName)));
             }
         }
     }

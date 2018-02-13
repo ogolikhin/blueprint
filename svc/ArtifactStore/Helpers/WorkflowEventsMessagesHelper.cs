@@ -14,13 +14,33 @@ using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Webhooks;
 
 namespace ArtifactStore.Helpers
 {
     public interface IWorkflowEventsMessagesHelper
     {
-        Task<IList<IWorkflowMessage>> GenerateMessages(int userId, int revisionId, string userName, WorkflowEventTriggers postOpTriggers, IBaseArtifactVersionControlInfo artifactInfo, string projectName, IDictionary<int, IList<Property>> modifiedProperties, bool sendArtifactPublishedMessage, string artifactUrl, string baseUrl, IUsersRepository repository, IServiceLogRepository serviceLogRepository, IDbTransaction transaction = null);
-        Task ProcessMessages(string logSource, IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, IList<IWorkflowMessage> messages, string exceptionMessagePrepender, IDbTransaction transaction = null);
+        Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
+            int revisionId,
+            string userName,
+            WorkflowEventTriggers postOpTriggers,
+            IBaseArtifactVersionControlInfo artifactInfo,
+            string projectName,
+            IDictionary<int, IList<Property>> modifiedProperties,
+            bool sendArtifactPublishedMessage,
+            string artifactUrl,
+            string baseUrl,
+            IUsersRepository repository,
+            IServiceLogRepository serviceLogRepository,
+            IWebhookRepository webhookRepository,
+            IDbTransaction transaction = null);
+
+        Task ProcessMessages(string logSource,
+            IApplicationSettingsRepository applicationSettingsRepository,
+            IServiceLogRepository serviceLogRepository,
+            IList<IWorkflowMessage> messages,
+            string exceptionMessagePrepender,
+            IDbTransaction transaction = null);
     }
 
     public class WorkflowEventsMessagesHelper : IWorkflowEventsMessagesHelper
@@ -39,6 +59,7 @@ namespace ArtifactStore.Helpers
             string baseUrl,
             IUsersRepository repository,
             IServiceLogRepository serviceLogRepository,
+            IWebhookRepository webhookRepository,
             IDbTransaction transaction = null)
         {
             var resultMessages = new List<IWorkflowMessage>();
@@ -131,6 +152,22 @@ namespace ArtifactStore.Helpers
                             ProjectName = projectName
                         };
                         resultMessages.Add(generateUserStoriesMessage);
+                        break;
+                    case MessageActionType.Webhook:
+                        var webhookAction = workflowEventTrigger.Action as WebhookAction;
+                        if (webhookAction == null)
+                        {
+                            continue;
+                        }
+
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, webhookAction, webhookRepository, artifactInfo, transaction);
+
+                        if (webhookMessage == null)
+                        {
+                            await serviceLogRepository.LogInformation(LogSource, $"Skipping Webhook action for artifact {artifactInfo.Id}: {artifactInfo.Name}.");
+                            continue;
+                        }
+                        resultMessages.Add(webhookMessage);
                         break;
                 }
             }
@@ -292,5 +329,24 @@ namespace ArtifactStore.Helpers
             return message;
         }
 
+        private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, WebhookAction webhookAction,
+            IWebhookRepository webhookRepository, IBaseArtifactVersionControlInfo artifactInfo, IDbTransaction transaction)
+        {
+            List<int> webhookId = new List<int> { webhookAction.WebhookId };
+            var webhookInfos = await webhookRepository.GetWebhooks(webhookId, transaction);
+            var webhookInfo = webhookInfos.FirstOrDefault();
+
+            var webhookMessage = new WebhookMessage
+            {
+                UserId = userId,
+                RevisionId = revisionId,
+                Url = webhookInfo.Url,
+                SecurityInfo = webhookInfo.SecurityInfo,
+                ArtifactId = artifactInfo.Id,
+                ArtifactName = artifactInfo.Name
+            };
+
+            return webhookMessage;
+        }
     }
 }

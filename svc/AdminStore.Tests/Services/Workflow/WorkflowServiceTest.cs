@@ -25,6 +25,7 @@ using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Webhooks;
 
 namespace AdminStore.Services.Workflow
 {
@@ -59,6 +60,7 @@ namespace AdminStore.Services.Workflow
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
         private Mock<ISendMessageExecutor> _sendMessageExecutorMock;
+        private Mock<IWebhookRepository> _webhookRepositoryMock;
 
         #endregion
 
@@ -77,6 +79,7 @@ namespace AdminStore.Services.Workflow
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>();
             _serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
             _sendMessageExecutorMock = new Mock<ISendMessageExecutor>();
+            _webhookRepositoryMock = new Mock<IWebhookRepository>();
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
@@ -89,7 +92,8 @@ namespace AdminStore.Services.Workflow
                 _artifactRepository.Object,
                 _applicationSettingsRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
-                _sendMessageExecutorMock.Object);
+                _sendMessageExecutorMock.Object,
+                _webhookRepositoryMock.Object);
 
             _workflowDataValidatorMock = new Mock<IWorkflowDataValidator>();
             _workflowDataValidatorMock

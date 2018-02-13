@@ -17,6 +17,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Reuse;
 using ServiceLibrary.Repositories.Workflow;
+using ServiceLibrary.Repositories.Webhooks;
 
 namespace ArtifactStore.Executors
 {
@@ -41,6 +42,7 @@ namespace ArtifactStore.Executors
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<IStateChangeExecutorHelper> _stateChangeHelperMock;
         private Mock<IWorkflowEventsMessagesHelper> _workflowEventsMessagesHelperMock;
+        private Mock<IWebhookRepository> _webhookRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -63,19 +65,21 @@ namespace ArtifactStore.Executors
             _usersRepositoryMock = new Mock<IUsersRepository>(MockBehavior.Loose);
             _stateChangeHelperMock = new Mock<IStateChangeExecutorHelper>(MockBehavior.Loose);
             _workflowEventsMessagesHelperMock = new Mock<IWorkflowEventsMessagesHelper>();
-            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<WorkflowEventTriggers>(), It.IsAny<IBaseArtifactVersionControlInfo>(), It.IsAny<string>(), It.IsAny<IDictionary<int, IList<Property>>>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IUsersRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<IDbTransaction>())).ReturnsAsync(new List<IWorkflowMessage>());
+            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<WorkflowEventTriggers>(), It.IsAny<IBaseArtifactVersionControlInfo>(), It.IsAny<string>(), It.IsAny<IDictionary<int, IList<Property>>>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IUsersRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<IWebhookRepository>(), It.IsAny<IDbTransaction>())).ReturnsAsync(new List<IWorkflowMessage>());
+            _webhookRepositoryMock = new Mock<IWebhookRepository>(MockBehavior.Loose);
 
             _stateChangeExecutor = new StateChangeExecutor(UserId,
                 ex,
                 _sqlHelperMock,
                 new StateChangeExecutorRepositories(_artifactVersionsRepository.Object,
-                _workflowRepository.Object,
-                _versionControlService.Object,
-                _reuseRepository.Object,
-                _saveArtifactRepositoryMock.Object,
-                _applicationSettingsRepositoryMock.Object,
-                _serviceLogRepositoryMock.Object,
-                _usersRepositoryMock.Object),
+                    _workflowRepository.Object,
+                    _versionControlService.Object,
+                    _reuseRepository.Object,
+                    _saveArtifactRepositoryMock.Object,
+                    _applicationSettingsRepositoryMock.Object,
+                    _serviceLogRepositoryMock.Object,
+                    _usersRepositoryMock.Object,
+                    _webhookRepositoryMock.Object),
                 _stateChangeHelperMock.Object,
                 _workflowEventsMessagesHelperMock.Object);
         }

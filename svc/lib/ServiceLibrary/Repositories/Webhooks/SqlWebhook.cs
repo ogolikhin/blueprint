@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AdminStore.Models.Workflow
+namespace ServiceLibrary.Repositories.Webhooks
 {
     public class SqlWebhook
     {

@@ -30,6 +30,7 @@ using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Files;
 using ServiceLibrary.Repositories.ProjectMeta;
+using ServiceLibrary.Repositories.Webhooks;
 using File = ServiceLibrary.Models.Files.File;
 using SqlWorkflowEvent = AdminStore.Models.Workflow.SqlWorkflowEvent;
 using ServiceLibrary.Helpers.Security;
@@ -52,6 +53,7 @@ namespace AdminStore.Services.Workflow
         private readonly IApplicationSettingsRepository _applicationSettingsRepository;
         private readonly IServiceLogRepository _serviceLogRepository;
         private readonly ISendMessageExecutor _sendMessageExecutor;
+        private readonly IWebhookRepository _webhookRepository;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
@@ -68,7 +70,8 @@ namespace AdminStore.Services.Workflow
                   new SqlArtifactRepository(),
                   new ApplicationSettingsRepository(),
                   new ServiceLogRepository(),
-                  new SendMessageExecutor())
+                  new SendMessageExecutor(),
+                  new WebhookRepository())
         {
             _workflowDataValidator = new WorkflowDataValidator(
                 _workflowRepository,
@@ -90,7 +93,8 @@ namespace AdminStore.Services.Workflow
             IArtifactRepository artifactRepository,
             IApplicationSettingsRepository applicationSettingsRepository,
             IServiceLogRepository serviceLogRepository,
-            ISendMessageExecutor sendMessageExecutor)
+            ISendMessageExecutor sendMessageExecutor,
+            IWebhookRepository webhookRepository)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
@@ -104,6 +108,7 @@ namespace AdminStore.Services.Workflow
             _applicationSettingsRepository = applicationSettingsRepository;
             _serviceLogRepository = serviceLogRepository;
             _sendMessageExecutor = sendMessageExecutor;
+            _webhookRepository = webhookRepository;
         }
 
         public IFileRepository FileRepository
@@ -1722,7 +1727,7 @@ namespace AdminStore.Services.Workflow
                 importWebhooksParams.AddRange(ToSqlWebhooks(e, workflowId, dataMaps));
             });
 
-            var newWebhooks = await _workflowRepository.CreateWebhooks(importWebhooksParams, transaction);
+            var newWebhooks = await _webhookRepository.CreateWebhooks(importWebhooksParams, transaction);
 
             var index = 0;
             workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
@@ -1743,7 +1748,7 @@ namespace AdminStore.Services.Workflow
                 workflowDiffResult.AddedEvents.ForEach(e => createWebhooksParams.AddRange(ToSqlWebhooks(e, workflowId, dataMaps)));
                 if (createWebhooksParams.Any())
                 {
-                    var createdWebhooks = await _workflowRepository.CreateWebhooks(createWebhooksParams, transaction);
+                    var createdWebhooks = await _webhookRepository.CreateWebhooks(createWebhooksParams, transaction);
 
                     var index = 0;
                     workflowDiffResult.AddedEvents.ForEach(e =>
@@ -1780,13 +1785,13 @@ namespace AdminStore.Services.Workflow
                 // Updated all webhooks that already exist
                 if (updateWebhookParams.Any())
                 {
-                    createdAndUpdatedWebhooks.AddRange(await _workflowRepository.UpdateWebhooks(updateWebhookParams, transaction));
+                    createdAndUpdatedWebhooks.AddRange(await _webhookRepository.UpdateWebhooks(updateWebhookParams, transaction));
                 }
 
                 // Create any newly added webhook
                 if (createWebhooksParams.Any())
                 {
-                    createdAndUpdatedWebhooks.AddRange(await _workflowRepository.CreateWebhooks(createWebhooksParams, transaction));
+                    createdAndUpdatedWebhooks.AddRange(await _webhookRepository.CreateWebhooks(createWebhooksParams, transaction));
                 }
 
                 // After All Webhooks have been created / updated, we need to go back and update our dataMap for all events
@@ -1954,7 +1959,7 @@ namespace AdminStore.Services.Workflow
         {
             var webhookIds = triggers.Select(t => t.Action).OfType<IeWebhookAction>().Select(a => (int)a.Id);
 
-            var webhooks = await _workflowRepository.GetWebhooks(webhookIds);
+            var webhooks = await _webhookRepository.GetWebhooks(webhookIds);
 
             foreach (var webhook in webhooks)
             {

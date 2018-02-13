@@ -14,6 +14,7 @@ using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Webhooks;
 
 namespace BlueprintSys.RC.Services.Helpers
 {
@@ -33,7 +34,8 @@ namespace BlueprintSys.RC.Services.Helpers
             string baseUrl,
             IEnumerable<int> ancestorArtifactTypeIds, 
             IUsersRepository repository, 
-            IServiceLogRepository serviceLogRepository)
+            IServiceLogRepository serviceLogRepository,
+            IWebhookRepository webhookRepository)
         {
             var resultMessages = new List<IWorkflowMessage>();
             //var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
@@ -132,6 +134,22 @@ namespace BlueprintSys.RC.Services.Helpers
                             ProjectName = projectName
                         };
                         resultMessages.Add(generateUserStoriesMessage);
+                        break;
+                    case MessageActionType.Webhook:
+                        var webhookAction = workflowEventTrigger.Action as WebhookAction;
+                        if (webhookAction == null)
+                        {
+                            continue;
+                        }
+
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, webhookAction, webhookRepository, artifactInfo);
+
+                        if (webhookMessage == null)
+                        {
+                            await serviceLogRepository.LogInformation(LogSource, $"Skipping Webhook action for artifact {artifactInfo.Id}: {artifactInfo.Name}.");
+                            continue;
+                        }
+                        resultMessages.Add(webhookMessage);
                         break;
                 }
             }
@@ -305,5 +323,24 @@ namespace BlueprintSys.RC.Services.Helpers
             return message;
         }
 
+        private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, WebhookAction webhookAction,
+            IWebhookRepository webhookRepository, IBaseArtifactVersionControlInfo artifactInfo)
+        {
+            List<int> webhookId = new List<int> { webhookAction.WebhookId };
+            var webhookInfos = await webhookRepository.GetWebhooks(webhookId);
+            var webhookInfo = webhookInfos.FirstOrDefault();
+
+            var webhookMessage = new WebhookMessage
+            {
+                UserId = userId,
+                RevisionId = revisionId,
+                Url = webhookInfo.Url,
+                SecurityInfo = webhookInfo.SecurityInfo,
+                ArtifactId = artifactInfo.Id,
+                ArtifactName = artifactInfo.Name
+            };
+
+            return webhookMessage;
+        }
     }
 }

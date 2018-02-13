@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using System.Web.Http.Description;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
-using ArtifactStore.Models.Review;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Controllers;
 using ServiceLibrary.Exceptions;
@@ -23,10 +21,11 @@ namespace ArtifactStore.Collections
     [RoutePrefix("collections")]
     public class CollectionsController : LoggableApiController
     {
+        private const int DefaultPaginationOffset = 0;
+        private const int DefaultPaginationLimit = 10;
+
         private readonly IArtifactListService _artifactListService;
         private readonly ICollectionsService _collectionsService;
-        private const int _defaultPaginationLimit = 10;
-        private const int _defaultPaginationOffset = 0;
 
         public override string LogSource => "ArtifactStore.Collections";
 
@@ -66,10 +65,10 @@ namespace ArtifactStore.Collections
             var userId = Session.UserId;
 
             pagination = pagination ?? new Pagination();
-            pagination.Offset = pagination.Offset ?? _defaultPaginationOffset;
+            pagination.Offset = pagination.Offset ?? DefaultPaginationOffset;
             pagination.Limit = pagination.Limit
                 ?? await _artifactListService.GetPaginationLimitAsync(id, userId)
-                ?? _defaultPaginationLimit;
+                ?? DefaultPaginationLimit;
 
             var artifacts = await _collectionsService.GetArtifactsInCollectionAsync(id, pagination, userId);
             artifacts.Pagination = pagination;

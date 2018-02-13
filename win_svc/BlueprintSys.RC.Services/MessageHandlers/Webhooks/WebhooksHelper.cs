@@ -2,17 +2,24 @@
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
-using ServiceLibrary.Repositories.Webhooks;
 using ServiceLibrary.Helpers;
 using System.Net.Http;
-using System.Collections.Generic;
 using ServiceLibrary.Helpers.Security;
 using System.Net.Http.Headers;
+using System.Net;
+using System.Security.Cryptography;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 {
     public class WebhooksHelper : MessageActionHandler
     {
+        public enum SignatureAlgorithm
+        {
+            HMACSHA1 = 1,
+            HMACSHA256 = 2
+        }
+
+
         protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (WebhookMessage)actionMessage;
@@ -28,7 +35,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             var request = new HttpRequestMessage
             {
                 RequestUri = new Uri(message.Url),
-                Method = HttpMethod.Post
+                Method = HttpMethod.Post,
+                Content = new StringContent(message.WebhookJsonPayload)
             };
 
             AddHttpHeaders(request, message);
@@ -39,7 +47,19 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
             var result = await http.SendAsync(request);
 
-            return (result.StatusCode == System.Net.HttpStatusCode.OK);
+            if (result.IsSuccessStatusCode)
+            {
+                return true;
+            }
+
+            if (result.StatusCode == HttpStatusCode.Gone)
+            {
+                Logger.Log($"Failed to send webhook.", message, tenant);
+                return false;
+            }
+
+            // To Do - Handle Re-try logic here
+            return result.IsSuccessStatusCode;
         }
 
         private Uri GetBaseAddress(string urlString)
@@ -81,7 +101,37 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
         private void AddAuthenticationSignature(HttpRequestMessage request, WebhookMessage message)
         {
-            // ToDo - To be implemented
+            if (message.SignatureSecretToken.IsEmpty() || message.SignatureAlgorithm.IsEmpty())
+            {
+                return;
+            }
+
+            SignatureAlgorithm webhookAlgorithm;
+            Enum.TryParse(message.SignatureAlgorithm, out webhookAlgorithm);
+            var messageHashCheckSum = CreateEncodedSignature(message.WebhookJsonPayload, message.SignatureSecretToken, webhookAlgorithm);
+            request.Headers.Add("X-BLUEPRINT-SIGNATURE", messageHashCheckSum);
+        }
+
+        private string CreateEncodedSignature(string message, string secretToken, SignatureAlgorithm algorithm = SignatureAlgorithm.HMACSHA256)
+        {
+            var encoding = new System.Text.ASCIIEncoding();
+            byte[] keyByte = encoding.GetBytes(secretToken);
+            byte[] messageBytes = encoding.GetBytes(message);
+            using (var hmac = CreateHmacSignatureInstance(algorithm, keyByte))
+            {
+                byte[] hashmessage = hmac.ComputeHash(messageBytes);
+                return Convert.ToBase64String(hashmessage);
+            }
+        }
+
+        private HMAC CreateHmacSignatureInstance(SignatureAlgorithm algorithm, byte[] keyByte)
+        {
+            if (algorithm == SignatureAlgorithm.HMACSHA1)
+            {
+                return new HMACSHA1(keyByte);
+            }
+
+            return new HMACSHA256(keyByte);
         }
     }
 }

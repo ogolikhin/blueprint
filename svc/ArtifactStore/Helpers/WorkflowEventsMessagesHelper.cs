@@ -153,7 +153,7 @@ namespace ArtifactStore.Helpers
                         };
                         resultMessages.Add(generateUserStoriesMessage);
                         break;
-                    case MessageActionType.Webhook:
+                    case MessageActionType.Webhooks:
                         var webhookAction = workflowEventTrigger.Action as WebhookAction;
                         if (webhookAction == null)
                         {
@@ -351,8 +351,7 @@ namespace ArtifactStore.Helpers
                 SignatureSecretToken = securityInfo.Signature?.SecretToken,
                 SignatureAlgorithm = securityInfo.Signature?.Algorithm,
                 // Payload Information
-                ArtifactId = artifactInfo.Id,
-                ArtifactName = artifactInfo.Name
+                WebhookJsonPayload = artifactInfo.ToJSON()
             };
 
             return webhookMessage;

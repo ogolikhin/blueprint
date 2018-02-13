@@ -34,5 +34,15 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
         public const string SupportedActionTypesKey = "SupportedActionTypes";
         public const MessageActionType SupportedActionTypesDefault = MessageActionType.All;
         public MessageActionType SupportedActionTypes => AppSettingsHelper.GetConfigEnum(SupportedActionTypesKey, SupportedActionTypesDefault);
+
+        // Webhooks
+        public const string WebhookConnectionTimeoutKey = "WebhookConnectionTimeout";
+        public const int WebhookConnectionTimeoutDefault = 20;
+
+        public const string WebhookRetryCountKey = "WebhookRetryCount";
+        public const int WebhookRetryCountDefault = 5;
+
+        public const string WebhookRetryIntervalKey = "WebhookRetryInterval";
+        public const int WebhookRetryIntervalDefault = 60;
     }
 }

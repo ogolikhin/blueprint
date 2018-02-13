@@ -6,7 +6,7 @@ namespace BluePrintSys.Messaging.Models.Actions
 {
     public class WebhookMessage : ActionMessage
     {
-        public override MessageActionType ActionType { get; } = MessageActionType.Webhook;
+        public override MessageActionType ActionType { get; } = MessageActionType.Webhooks;
 
         // Authentication Information
         public string Url { get; set; }
@@ -25,8 +25,6 @@ namespace BluePrintSys.Messaging.Models.Actions
         public string SignatureAlgorithm { get; set; }
 
         // Payload Information
-        public int ArtifactId { get; set; }
-
-        public string ArtifactName { get; set; }
+        public string WebhookJsonPayload { get; set; }
     }
 }

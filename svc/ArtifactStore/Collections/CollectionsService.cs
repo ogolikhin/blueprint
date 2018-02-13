@@ -9,7 +9,6 @@ using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Helpers;
 using ArtifactStore.Collections.Models;
 using SearchEngineLibrary.Service;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;

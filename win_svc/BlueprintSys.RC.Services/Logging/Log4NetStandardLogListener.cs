@@ -127,6 +127,7 @@ namespace BlueprintSys.RC.Services.Logging
         /// <summary>
         /// Perform all initialization for the logger, including layout pattern and file location.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object[])")]
         protected Log4NetStandardLogListener()
             : base
         (

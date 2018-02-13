@@ -5,6 +5,7 @@ namespace BlueprintSys.RC.Services
 {
     class Program
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         static void Main()
         {
             var serviceName = new ExtendedConfigHelper().ServiceName;

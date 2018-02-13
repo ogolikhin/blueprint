@@ -71,6 +71,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         private void SendMailBeeMessage(Message message)
         {
             var smtpServer = SmtpServer;

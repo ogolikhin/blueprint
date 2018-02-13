@@ -129,6 +129,7 @@ namespace BlueprintSys.RC.Services.Tests
             Assert.AreEqual(2, notificationActions.Count);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
         [TestMethod]
         public void ActionsParser_ReturnsAnActionWithMultipleEmails_WhenTheTriggerHasMultipleEmails()
         {

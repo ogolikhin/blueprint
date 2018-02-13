@@ -228,16 +228,24 @@ namespace ArtifactStore.Collections
 
             var collection = await GetCollectionAsync(collectionId, userId);
 
-            var validColumns = await GetValidColumnsAsync(collectionId, userId, profileColumns);
+            var validColumns = await GetValidColumnsAsync(collectionId, userId);
+            var invalidColumns = GetInvalidColumns(profileColumns.Items, validColumns.Items);
+
+            if (invalidColumns.Any())
+            {
+                throw new InvalidColumnsException(invalidColumns);
+            }
+
             await _artifactListService.SaveProfileColumnsAsync(collection.Id, validColumns, userId);
         }
 
         private static IEnumerable<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> savingColumns, IEnumerable<ProfileColumn> validColumns)
         {
-            return savingColumns.Where(p => !validColumns.Any(q => ((q.PropertyName == p.PropertyName) &&
-                                                                    (q.Predefined == p.Predefined) &&
-                                                                    (q.PrimitiveType == p.PrimitiveType) &&
-                                                                    (q.PropertyTypeId == p.PropertyTypeId))));
+            return savingColumns.Where(p =>
+                !validColumns.Any(q => ((q.PropertyName == p.PropertyName) &&
+                                        (q.Predefined == p.Predefined) &&
+                                        (q.PrimitiveType == p.PrimitiveType) &&
+                                        (q.PropertyTypeId == p.PropertyTypeId))));
         }
 
         private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)
@@ -275,18 +283,11 @@ namespace ArtifactStore.Collections
         }
 
         private async Task<ProfileColumns> GetValidColumnsAsync(
-            int collectionId, int userId, ProfileColumns profileColumns)
+            int collectionId, int userId)
         {
             var getColumns = await GetColumnsAsync(collectionId, userId, null);
-            var validColumns = getColumns.SelectedColumns.Union(getColumns.UnselectedColumns);
-            var invalidColumns = GetInvalidColumns(profileColumns.Items, validColumns);
 
-            if (invalidColumns.Any())
-            {
-                throw new InvalidColumnsException(invalidColumns);
-            }
-
-            return new ProfileColumns(validColumns);
+            return new ProfileColumns(getColumns.SelectedColumns.Union(getColumns.UnselectedColumns));
         }
 
         private static IEnumerable<ProfileColumn> GetSelectedColumns(

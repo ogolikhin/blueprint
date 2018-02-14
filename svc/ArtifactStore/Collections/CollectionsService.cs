@@ -229,9 +229,9 @@ namespace ArtifactStore.Collections
 
             var collection = await GetCollectionAsync(collectionId, userId);
             var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
-            var allColumns = await GetPropertyTypeInfosAsync(artifacts);
+            var artifactsColumns = await GetPropertyTypeInfosAsync(artifacts);
 
-            var invalidColumns = GetInvalidColumns(profileColumns.Items, allColumns);
+            var invalidColumns = GetInvalidColumns(profileColumns.Items, artifactsColumns);
 
             if (invalidColumns.Any())
             {
@@ -241,12 +241,14 @@ namespace ArtifactStore.Collections
             await _artifactListService.SaveProfileColumnsAsync(collection.Id, profileColumns, userId);
         }
 
-        private static IEnumerable<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> profileColumns, IEnumerable<PropertyTypeInfo> allProperties)
+        private static IEnumerable<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> profileColumns, IEnumerable<PropertyTypeInfo> artifactsColumns)
         {
-            return profileColumns.Where(column => !allProperties.Any(info => (info.Name == column.PropertyName) &&
-                                                                            (info.Predefined == column.Predefined) &&
-                                                                            (info.PrimitiveType == column.PrimitiveType) &&
-                                                                            (info.Id == column.PropertyTypeId)));
+            return profileColumns.Where(column =>
+                !artifactsColumns.Any(info =>
+                    (info.Name == column.PropertyName) &&
+                    (info.Predefined == column.Predefined) &&
+                    (info.PrimitiveType == column.PrimitiveType) &&
+                    (info.Id == column.PropertyTypeId)));
         }
 
         private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)

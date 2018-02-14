@@ -226,9 +226,10 @@ namespace ArtifactStore.Collections
             }
 
             var collection = await GetCollectionAsync(collectionId, userId);
+            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
+            var allColumns = await GetPropertyTypeInfosAsync(artifacts);
 
-            var validColumns = await GetValidPropertiesAsync(collectionId, userId);
-            var invalidColumns = GetInvalidColumns(profileColumns.Items, validColumns);
+            var invalidColumns = GetInvalidColumns(profileColumns.Items, allColumns);
 
             if (invalidColumns.Any())
             {
@@ -238,9 +239,12 @@ namespace ArtifactStore.Collections
             await _artifactListService.SaveProfileColumnsAsync(collection.Id, profileColumns, userId);
         }
 
-        private static IEnumerable<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> profileColumns, IEnumerable<PropertyTypeInfo> validProperties)
+        private static IEnumerable<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> profileColumns, IEnumerable<PropertyTypeInfo> allProperties)
         {
-            return profileColumns.Where(p => !p.ExistsIn(validProperties));
+            return profileColumns.Where(column => !allProperties.Any(info => (info.Name == column.PropertyName) &&
+                                                                            (info.Predefined == column.Predefined) &&
+                                                                            (info.PrimitiveType == column.PrimitiveType) &&
+                                                                            (info.Id == column.PropertyTypeId)));
         }
 
         private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)
@@ -275,12 +279,6 @@ namespace ArtifactStore.Collections
             var itemTypeIds = artifacts.Select(artifact => artifact.ItemTypeId).Distinct();
 
             return await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(itemTypeIds, search);
-        }
-
-        private async Task<IEnumerable<PropertyTypeInfo>> GetValidPropertiesAsync(int collectionId, int userId)
-        {
-            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
-            return await GetPropertyTypeInfosAsync(artifacts);
         }
 
         private static IEnumerable<ProfileColumn> GetSelectedColumns(

@@ -19,9 +19,7 @@ namespace ArtifactStore.ArtifactList.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public PropertyPrimitiveType PrimitiveType { get; set; }
 
-        public ProfileColumn()
-        {
-        }
+        public ProfileColumn() { }
 
         public ProfileColumn(
             string propertyName,
@@ -58,10 +56,9 @@ namespace ArtifactStore.ArtifactList.Models
 
         public bool ExistsIn(IEnumerable<PropertyTypeInfo> propertyTypeInfos)
         {
-            return propertyTypeInfos.Any(info => (info.Name == PropertyName) &&
-                                                 (info.Predefined == Predefined) &&
-                                                 (info.PrimitiveType == PrimitiveType) &&
-                                                 (info.Id == PropertyTypeId));
+            return Predefined == PropertyTypePredefined.CustomGroup
+                ? propertyTypeInfos.Any(info => info.Id == PropertyTypeId)
+                : propertyTypeInfos.Any(info => info.Predefined == Predefined);
         }
     }
 }

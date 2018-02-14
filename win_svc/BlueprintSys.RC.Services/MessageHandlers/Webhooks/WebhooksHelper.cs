@@ -47,7 +47,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             };
 
             // Track the number of times the request has been retried
-            // request.Headers.Add("X-BLUEPRINT-RETRY-NUMBER", message.NSBRetryCount);
+            request.Headers.Add("X-BLUEPRINT-RETRY-NUMBER", message.NSBRetryCount);
 
             VerifySSLCertificate(request, message);
 

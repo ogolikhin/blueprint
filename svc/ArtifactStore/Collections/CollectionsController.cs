@@ -94,7 +94,7 @@ namespace ArtifactStore.Collections
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns>Amount of added artifacts, total amount of passed artifact to add.</returns>
         [HttpPost]
-        [Route("{id:int:min(1)}/artifacts/{add?}"), SessionRequired]
+        [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(AddArtifactsToCollectionResult))]
         public async Task<IHttpActionResult> AddArtifactsToCollectionAsync(
             int id, string add, [FromBody] ISet<int> artifactIds)
@@ -126,7 +126,7 @@ namespace ArtifactStore.Collections
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <returns>Amount of removed artifacts, total amount of passed artifact to remove.</returns>
         [HttpPost]
-        [Route("{id:int:min(1)}/artifacts/{remove?}"), SessionRequired]
+        [Route("{id:int:min(1)}/artifacts"), SessionRequired]
         [ResponseType(typeof(RemoveArtifactsFromCollectionResult))]
         public async Task<IHttpActionResult> RemoveArtifactsFromCollectionAsync(
             int id, string remove, ItemsRemovalParams removalParams)

@@ -5,10 +5,12 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using BlueprintSys.RC.Services.Helpers;
-using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Security;
+using ServiceLibrary.Exceptions;
+using BluePrintSys.Messaging.CrossCutting.Configuration;
+using BluePrintSys.Messaging.Models.Actions;
+using BlueprintSys.RC.Services.Helpers;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 {
@@ -21,6 +23,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             HMACSHA256 = 2
         }
 
+        protected IConfigHelper ConfigHelper = new ConfigHelper();
 
         protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
@@ -34,6 +37,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
         {
             var httpClientProvider = new HttpClientProvider();
             var http = httpClientProvider.Create(GetBaseAddress(message.Url));
+            // Set Webhook Connection Timeout as specified within app.config
+            http.Timeout = new TimeSpan(hours: 0, minutes: 0, seconds: ConfigHelper.WebhookConnectionTimeout);
             var request = new HttpRequestMessage
             {
                 RequestUri = new Uri(message.Url),
@@ -41,7 +46,10 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
                 Content = new StringContent(message.WebhookJsonPayload, Encoding.UTF8, "application/json")
             };
 
-            request.Headers.Add("X-BLUEPRINT-RETRY-NUMBER", "0");
+            // Track the number of times the request has been retried
+            // request.Headers.Add("X-BLUEPRINT-RETRY-NUMBER", message.NSBRetryCount);
+
+            VerifySSLCertificate(request, message);
 
             AddHttpHeaders(request, message);
 
@@ -58,12 +66,14 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
             if (result.StatusCode == HttpStatusCode.Gone)
             {
-                Logger.Log($"Failed to send webhook.", message, tenant);
-                return false;
+                Logger.Log($"Failed to send webhook. Will not try to send again.", message, tenant);
+                throw new WebhookExceptionDoNotRetry($"Failed to send webhook.");
             }
-
-            // To Do - Handle Re-try logic here
-            return result.IsSuccessStatusCode;
+            else
+            {
+                Logger.Log($"Failed to send webhook. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.", message, tenant);
+                throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook");
+            }
         }
 
         private Uri GetBaseAddress(string urlString)
@@ -136,6 +146,16 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             }
 
             return new HMACSHA256(keyByte);
+        }
+
+        private void VerifySSLCertificate(HttpRequestMessage request, WebhookMessage message)
+        {
+            if (message.IgnoreInvalidSSLCertificate)
+            {
+                // To Do
+            }
+
+            // To Do
         }
     }
 }

@@ -38,11 +38,14 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
         // Webhooks
         public const string WebhookConnectionTimeoutKey = "WebhookConnectionTimeout";
         public const int WebhookConnectionTimeoutDefault = 20;
+        public int WebhookConnectionTimeout => AppSettingsHelper.GetConfigIntValue(WebhookConnectionTimeoutKey, WebhookConnectionTimeoutDefault);
 
         public const string WebhookRetryCountKey = "WebhookRetryCount";
         public const int WebhookRetryCountDefault = 5;
+        public int WebhookRetryCount => AppSettingsHelper.GetConfigIntValue(WebhookRetryCountKey, WebhookRetryCountDefault);
 
         public const string WebhookRetryIntervalKey = "WebhookRetryInterval";
-        public const int WebhookRetryIntervalDefault = 60;
+        public const int WebhookRetryIntervalDefault = 900;
+        public int WebhookRetryInterval => AppSettingsHelper.GetConfigIntValue(WebhookRetryIntervalKey, WebhookRetryIntervalDefault);
     }
 }

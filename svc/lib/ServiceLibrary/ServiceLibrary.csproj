@@ -133,6 +133,7 @@
     <Compile Include="Exceptions\SearchEngineNotFoundException.cs" />
     <Compile Include="Exceptions\SqlServerSendException.cs" />
     <Compile Include="Exceptions\TenantInfoNotFoundException.cs" />
+    <Compile Include="Exceptions\WebhookException.cs" />
     <Compile Include="Helpers\AppSettingsHelper.cs" />
     <Compile Include="Helpers\CollectionHelper.cs" />
     <Compile Include="Helpers\FeatureLicenseHelper.cs" />

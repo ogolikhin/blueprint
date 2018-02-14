@@ -10,6 +10,7 @@ namespace BluePrintSys.Messaging.Models.Actions
         public long TransactionId { get; set; }
         public int UserId { get; set; }
         public int RevisionId { get; set; }
+        // public string NSBRetryCount { get; set; }
     }
 
     public abstract class ProjectContainerActionMessage : ActionMessage

@@ -73,6 +73,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers
 
                 var messageId = GetMessageHeaderValue(Headers.MessageId, context);
                 var timeSent = GetMessageHeaderValue(Headers.TimeSent, context);
+                // message.NSBRetryCount = GetMessageHeaderValue(Headers.DelayedRetries, context);
 
                 Logger.Log($"Started handling {actionType} action. Message ID: {messageId}. Time Sent: {timeSent}", message, tenant);
                 var result = await ActionHelper.HandleAction(tenant, message, repository);

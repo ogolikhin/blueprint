@@ -85,6 +85,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         private string GetMessageHeaderValue(string header, IMessageHandlerContext context)
         {
             string headerValue;
@@ -95,6 +96,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers
             return headerValue;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         private static IBaseRepository CreateRepository(MessageActionType actionType, string connectionString)
         {
             switch (actionType)

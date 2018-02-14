@@ -52,7 +52,6 @@ namespace BlueprintSys.RC.ImageService.Tests.ImageGen
 
             //Assert
             screenshotMock.Verify(b => b.Save(It.IsAny<Stream>(), It.IsAny<ImageFormat>()));
-
         }
 
         [TestMethod]

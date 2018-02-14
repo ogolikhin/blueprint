@@ -16,6 +16,7 @@ namespace BlueprintSys.RC.Services.Helpers
 
     public class ActionsParser : IActionsParser
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         public List<EmailNotificationAction> GetNotificationActions(IEnumerable<SqlWorkflowEvent> sqlArtifactTriggers)
         {
             var notifications = new List<EmailNotificationAction>();

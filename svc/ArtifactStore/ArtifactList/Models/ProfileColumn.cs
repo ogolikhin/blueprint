@@ -56,9 +56,9 @@ namespace ArtifactStore.ArtifactList.Models
 
         public bool ExistsIn(IEnumerable<PropertyTypeInfo> propertyTypeInfos)
         {
-            return Predefined == PropertyTypePredefined.CustomGroup ?
-                propertyTypeInfos.Any(info => info.Id == PropertyTypeId) :
-                propertyTypeInfos.Any(info => info.Predefined == Predefined);
+            return Predefined == PropertyTypePredefined.CustomGroup
+                ? propertyTypeInfos.Any(info => info.Id == PropertyTypeId)
+                : propertyTypeInfos.Any(info => info.Predefined == Predefined);
         }
     }
 }

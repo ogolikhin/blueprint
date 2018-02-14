@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using ArtifactStore.ArtifactList;
+using ArtifactStore.ArtifactList.Exceptions;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using ServiceLibrary.Attributes;
@@ -184,9 +186,26 @@ namespace ArtifactStore.Collections
             }
 
             var profileColumns = new ProfileColumns(profileColumnsDto.Items);
-            await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
+            try
+            {
+                await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
+            }
+            catch (InvalidColumnsException e)
+            {
+                throw new BadRequestException(GetInvalidColumnsErrorMessage(e.ProfileColumns), ErrorCodes.BadRequest);
+            }
 
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }
+
+        private static string GetInvalidColumnsErrorMessage(IEnumerable<ProfileColumn> profileColumns) =>
+            (profileColumns.Count() == 1)
+            ? I18NHelper.FormatInvariant(ErrorMessages.Collections.SaveColumnsSettings.SingleInvalidColumn,
+                profileColumns.First().PropertyName)
+            : (profileColumns.Count() < 4)
+            ? I18NHelper.FormatInvariant(ErrorMessages.Collections.SaveColumnsSettings.SomeInvalidColumns,
+                string.Join(", ", profileColumns.Select(q => q.PropertyName)))
+            : I18NHelper.FormatInvariant(ErrorMessages.Collections.SaveColumnsSettings.MultipleInvalidColumns,
+                string.Join(", ", profileColumns.Take(3).Select(q => q.PropertyName)));
     }
 }

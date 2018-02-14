@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
+using ArtifactStore.ArtifactList.Exceptions;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Helpers;
 using ArtifactStore.Collections.Models;
@@ -183,7 +184,9 @@ namespace ArtifactStore.Collections
                 result = new RemoveArtifactsFromCollectionResult
                 {
                     RemovedCount = removedCount,
-                    Total = removalParams.ItemIds.Count()
+                    Total = removalParams.SelectionType == SelectionType.Selected ?
+                            removalParams.ItemIds.Count() :
+                            searchArtifactsResult.ArtifactIds.Except(removalParams.ItemIds).Count()
                 };
             };
 
@@ -225,9 +228,27 @@ namespace ArtifactStore.Collections
             }
 
             var collection = await GetCollectionAsync(collectionId, userId);
+            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
+            var artifactsColumns = await GetPropertyTypeInfosAsync(artifacts);
 
-            var validColumns = await GetValidColumnsAsync(collectionId, userId, profileColumns);
-            await _artifactListService.SaveProfileColumnsAsync(collection.Id, validColumns, userId);
+            var invalidColumns = GetInvalidColumns(profileColumns.Items, artifactsColumns);
+
+            if (invalidColumns.Any())
+            {
+                throw new InvalidColumnsException(invalidColumns);
+            }
+
+            await _artifactListService.SaveProfileColumnsAsync(collection.Id, profileColumns, userId);
+        }
+
+        private static IEnumerable<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> profileColumns, IEnumerable<PropertyTypeInfo> artifactsColumns)
+        {
+            return profileColumns.Where(column =>
+                !artifactsColumns.Any(info =>
+                    (info.Name == column.PropertyName) &&
+                    (info.Predefined == column.Predefined) &&
+                    (info.PrimitiveType == column.PrimitiveType) &&
+                    (info.Id == column.PropertyTypeId)));
         }
 
         private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)
@@ -262,17 +283,6 @@ namespace ArtifactStore.Collections
             var itemTypeIds = artifacts.Select(artifact => artifact.ItemTypeId).Distinct();
 
             return await _collectionsRepository.GetPropertyTypeInfosForItemTypesAsync(itemTypeIds, search);
-        }
-
-        private async Task<ProfileColumns> GetValidColumnsAsync(
-            int collectionId, int userId, ProfileColumns profileColumns)
-        {
-            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
-            var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts);
-
-            return new ProfileColumns(
-                profileColumns.Items
-                    .Where(column => column.ExistsIn(propertyTypeInfos)));
         }
 
         private static IEnumerable<ProfileColumn> GetSelectedColumns(

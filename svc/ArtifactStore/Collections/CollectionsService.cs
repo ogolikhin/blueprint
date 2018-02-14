@@ -183,7 +183,9 @@ namespace ArtifactStore.Collections
                 result = new RemoveArtifactsFromCollectionResult
                 {
                     RemovedCount = removedCount,
-                    Total = removalParams.ItemIds.Count()
+                    Total = removalParams.SelectionType == SelectionType.Selected ?
+                            removalParams.ItemIds.Count() :
+                            searchArtifactsResult.ArtifactIds.Except(removalParams.ItemIds).Count()
                 };
             };
 

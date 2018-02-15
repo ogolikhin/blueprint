@@ -29,6 +29,8 @@
         public const int WorkflowLicenseUnavailable = 1003;
         public const int LicenseUnavailable = 1004;
 
+        public const int ReviewNotActive = 1205;
+
         // Authentication errors
         public const int InvalidCredentials = 2000;
         public const int AccountIsLocked = 2001;

@@ -1641,9 +1641,9 @@ namespace ArtifactStore.Repositories
                 throw new ConflictException("Cannot update approval status, the review is not in progress.");
             }
 
-            if (approvalCheck.ReviewApprovalCheck.ReviewStatus != ReviewPackageStatus.Active)
+            if (approvalCheck.ReviewApprovalCheck.ReviewStatus == ReviewPackageStatus.Closed)
             {
-                throw new ConflictException("Cannot update approval status, the review is not active.", ErrorCodes.ReviewClosed);
+                throw ReviewsExceptionHelper.ReviewClosedException();
             }
 
             if (!approvalCheck.ReviewApprovalCheck.AllArtifactsRequireApproval && (approvalCheck.ValidArtifactIds == null || !approvalCheck.ValidArtifactIds.Any()))
@@ -1653,6 +1653,7 @@ namespace ArtifactStore.Repositories
 
             if (approvalCheck.ReviewApprovalCheck.ReviewerRole != ReviewParticipantRole.Approver)
             {
+
                 throw new ConflictException("Cannot update approval status, participant's role is invalid.", ErrorCodes.ParticipantIsNotAnApprover);
             }
 

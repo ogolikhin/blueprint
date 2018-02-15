@@ -1641,9 +1641,9 @@ namespace ArtifactStore.Repositories
                 throw new ConflictException("Cannot update approval status, the review is not in progress.");
             }
 
-            if (approvalCheck.ReviewApprovalCheck.ReviewStatus == ReviewPackageStatus.Closed)
+            if (approvalCheck.ReviewApprovalCheck.ReviewStatus != ReviewPackageStatus.Active)
             {
-                throw ReviewsExceptionHelper.ReviewClosedException();
+                throw new ConflictException("Cannot update approval status, the review is not active.", ErrorCodes.ReviewNotActive);
             }
 
             if (!approvalCheck.ReviewApprovalCheck.AllArtifactsRequireApproval && (approvalCheck.ValidArtifactIds == null || !approvalCheck.ValidArtifactIds.Any()))

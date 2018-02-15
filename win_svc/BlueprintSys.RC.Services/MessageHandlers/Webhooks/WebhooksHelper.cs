@@ -38,7 +38,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             var httpClientProvider = new HttpClientProvider();
             var http = httpClientProvider.Create(GetBaseAddress(message.Url));
             // Set Webhook Connection Timeout as specified within app.config
-            http.Timeout = new TimeSpan(hours: 0, minutes: 0, seconds: ConfigHelper.WebhookConnectionTimeout);
+            http.Timeout = TimeSpan.FromSeconds(ConfigHelper.WebhookConnectionTimeout);
             var request = new HttpRequestMessage
             {
                 RequestUri = new Uri(message.Url),
@@ -51,11 +51,11 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
             VerifySSLCertificate(request, message);
 
-            AddHttpHeaders(request, message);
+            AddHttpHeaders(request, message, tenant);
 
-            AddBasicAuthentication(request, message);
+            AddBasicAuthentication(request, message, tenant);
 
-            AddAuthenticationSignature(request, message);
+            AddAuthenticationSignature(request, message, tenant);
 
             var result = await http.SendAsync(request);
 
@@ -66,12 +66,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
             if (result.StatusCode == HttpStatusCode.Gone)
             {
-                Logger.Log($"Failed to send webhook. Will not try to send again.", message, tenant);
+                Logger.Log($"Failed to send webhook. Will not try to send again.", message, tenant, LogLevel.Error);
                 throw new WebhookExceptionDoNotRetry($"Failed to send webhook.");
             }
             else
             {
-                Logger.Log($"Failed to send webhook. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.", message, tenant);
+                Logger.Log($"Failed to send webhook. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.", message, tenant, LogLevel.Error);
                 throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook");
             }
         }
@@ -86,7 +86,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             return builder.Uri;
         }
 
-        private void AddHttpHeaders(HttpRequestMessage request, WebhookMessage message)
+        private void AddHttpHeaders(HttpRequestMessage request, WebhookMessage message, TenantInformation tenant)
         {
             if (message.HttpHeaders.IsEmpty())
             {
@@ -97,33 +97,54 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             {
                 var headers = SystemEncryptions.Decrypt(httpHeader);
                 var keyValuePair = headers.Split(':');
-                request.Headers.Add(keyValuePair[0], keyValuePair[1]);
+                try
+                {
+                    request.Headers.Add(keyValuePair[0], keyValuePair[1]);
+                }
+                catch (ArgumentException)
+                {
+                    Logger.Log($"Failed to add the following Http Header to Webhook: {keyValuePair[0]}:{keyValuePair[1]}.", message, tenant, LogLevel.Error);
+                }
             }
         }
 
-        private void AddBasicAuthentication(HttpRequestMessage request, WebhookMessage message)
+        private void AddBasicAuthentication(HttpRequestMessage request, WebhookMessage message, TenantInformation tenant)
         {
             if (message.BasicAuthUsername.IsEmpty() || message.BasicAuthPassword.IsEmpty())
             {
                 return;
             }
 
-            string basicAuthentication = SystemEncryptions.Decrypt(message.BasicAuthUsername) + ':' + SystemEncryptions.Decrypt(message.BasicAuthPassword);
-            string authenticationInfo = SystemEncryptions.EncodeTo64UTF8(basicAuthentication);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationInfo);
+            try
+            {
+                string basicAuthentication = SystemEncryptions.Decrypt(message.BasicAuthUsername) + ':' + SystemEncryptions.Decrypt(message.BasicAuthPassword);
+                string authenticationInfo = SystemEncryptions.EncodeTo64UTF8(basicAuthentication);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authenticationInfo);
+            }
+            catch
+            {
+                Logger.Log("Failed to add Basic Authentication Http Header to Webhook.", message, tenant, LogLevel.Error);
+            }
         }
 
-        private void AddAuthenticationSignature(HttpRequestMessage request, WebhookMessage message)
+        private void AddAuthenticationSignature(HttpRequestMessage request, WebhookMessage message, TenantInformation tenant)
         {
             if (message.SignatureSecretToken.IsEmpty() || message.SignatureAlgorithm.IsEmpty())
             {
                 return;
             }
 
-            SignatureAlgorithm webhookAlgorithm;
-            var algorithm = Enum.TryParse(message.SignatureAlgorithm, out webhookAlgorithm) ? webhookAlgorithm : SignatureAlgorithm.HMACSHA256;
-            var messageHashCheckSum = CreateEncodedSignature(message.WebhookJsonPayload, message.SignatureSecretToken, algorithm);
-            request.Headers.Add("X-BLUEPRINT-SIGNATURE", messageHashCheckSum);
+            try
+            {
+                SignatureAlgorithm webhookAlgorithm;
+                var algorithm = Enum.TryParse(message.SignatureAlgorithm, out webhookAlgorithm) ? webhookAlgorithm : SignatureAlgorithm.HMACSHA256;
+                var messageHashCheckSum = CreateEncodedSignature(message.WebhookJsonPayload, message.SignatureSecretToken, algorithm);
+                request.Headers.Add("X-BLUEPRINT-SIGNATURE", messageHashCheckSum);
+            }
+            catch
+            {
+                Logger.Log("Failed to add Signature Authentication to Webhook.", message, tenant, LogLevel.Error);
+            }
         }
 
         private string CreateEncodedSignature(string message, string secretToken, SignatureAlgorithm algorithm = SignatureAlgorithm.HMACSHA256)

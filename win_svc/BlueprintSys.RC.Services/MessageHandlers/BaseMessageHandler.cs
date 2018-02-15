@@ -127,8 +127,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers
                     return new UsersGroupsChangedRepository(connectionString);
                 case MessageActionType.WorkflowsChanged:
                     return new WorkflowsChangedRepository(connectionString);
-                case MessageActionType.Webhooks:
-                    return new WebhooksRepository(connectionString);
                 default:
                     throw new UnsupportedActionTypeException($"Failed to instantiate repository for unsupported Action Type: {actionType}");
             }

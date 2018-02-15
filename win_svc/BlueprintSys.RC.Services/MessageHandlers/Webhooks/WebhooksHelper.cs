@@ -29,12 +29,28 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
         protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
             var message = (WebhookMessage)actionMessage;
-            var result = await SendWebhook(tenant, message, (IWebhookRepository)baseRepository);
-            Logger.Log($"Finished processing webhook with result: {result}", message, tenant);
-            return await Task.FromResult(result == true);
+
+            var result = await SendWebhook(tenant, message);
+
+            if (result.IsSuccessStatusCode)
+            {
+                Logger.Log($"Finished processing webhook with result: {result.StatusCode}", message, tenant);
+                return true;
+            }
+
+            if (result.StatusCode == HttpStatusCode.Gone)
+            {
+                Logger.Log($"Failed to send webhook. Will not try again.", message, tenant, LogLevel.Error);
+                throw new WebhookExceptionDoNotRetry($"Failed to send webhook.");
+            }
+            else
+            {
+                Logger.Log($"Failed to send webhook. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.", message, tenant, LogLevel.Error);
+                throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook");
+            }
         }
 
-        private async Task<bool> SendWebhook(TenantInformation tenant, WebhookMessage message, IWebhookRepository repository)
+        public async Task<HttpResponseMessage> SendWebhook(TenantInformation tenant, WebhookMessage message)
         {
             VerifySSLCertificate(message);
 
@@ -59,23 +75,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
             AddNServiceBusHeaders(request, message, tenant);
 
-            var result = await http.SendAsync(request);
-
-            if (result.IsSuccessStatusCode)
-            {
-                return true;
-            }
-
-            if (result.StatusCode == HttpStatusCode.Gone)
-            {
-                Logger.Log($"Failed to send webhook. Will not try to send again.", message, tenant, LogLevel.Error);
-                throw new WebhookExceptionDoNotRetry($"Failed to send webhook.");
-            }
-            else
-            {
-                Logger.Log($"Failed to send webhook. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.", message, tenant, LogLevel.Error);
-                throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook");
-            }
+            return await http.SendAsync(request);
         }
 
         private void VerifySSLCertificate(WebhookMessage message)

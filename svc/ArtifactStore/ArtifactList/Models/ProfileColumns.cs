@@ -68,6 +68,9 @@ namespace ArtifactStore.ArtifactList.Models
         public IReadOnlyList<ProfileColumn> GetInvalidColumns(IEnumerable<PropertyTypeInfo> propertyTypeInfos,
             IEnumerable<ProfileColumn> defaultColumns)
         {
+            // TODO not validate default columns.
+            // TODO Fix this validate after default created columns will take from DataBase.
+
             return _columns
                 .Where(column =>
                     !propertyTypeInfos.Any(info =>

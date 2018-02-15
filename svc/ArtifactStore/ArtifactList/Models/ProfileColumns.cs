@@ -65,7 +65,8 @@ namespace ArtifactStore.ArtifactList.Models
             return !_columns.IsEmpty() && _columns.Any(column => column.Predefined == predefined);
         }
 
-        public IReadOnlyList<ProfileColumn> GetInvalidColumns(IEnumerable<PropertyTypeInfo> propertyTypeInfos)
+        public IReadOnlyList<ProfileColumn> GetInvalidColumns(IEnumerable<PropertyTypeInfo> propertyTypeInfos,
+            IEnumerable<ProfileColumn> defaultColumns)
         {
             return _columns
                 .Where(column =>
@@ -74,7 +75,13 @@ namespace ArtifactStore.ArtifactList.Models
                             info.Name == column.PropertyName &&
                             info.Predefined == column.Predefined &&
                             info.PrimitiveType == column.PrimitiveType &&
-                            info.Id == column.PropertyTypeId))
+                            info.Id == column.PropertyTypeId) &&
+                    !defaultColumns.Any(defaultColumn =>
+                        defaultColumn.PropertyName == column.PropertyName &&
+                        defaultColumn.Predefined == column.Predefined &&
+                        defaultColumn.PrimitiveType == column.PrimitiveType &&
+                        column.PropertyTypeId == null)) // ||
+                    // propertyTypeInfos.Any(info => info.Name == column.PropertyName))
                 .ToList();
         }
 

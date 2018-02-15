@@ -231,7 +231,8 @@ namespace ArtifactStore.Collections
             var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts);
 
-            var invalidColumns = profileColumns.GetInvalidColumns(propertyTypeInfos);
+            var defaultColumns = GetUnselectedColumns(propertyTypeInfos);
+            var invalidColumns = profileColumns.GetInvalidColumns(propertyTypeInfos, defaultColumns);
 
             if (invalidColumns.Any())
             {

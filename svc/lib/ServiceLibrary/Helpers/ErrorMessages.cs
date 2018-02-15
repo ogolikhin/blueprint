@@ -156,6 +156,16 @@
             public static readonly string AddColumnColumnExists = "Unable to add profile column '{0}'. The column already exists.";
             public static readonly string ColumnCapacityExceeded = "Unable to add profile column '{0}'. The column limit of {1} has been reached.";
             public static readonly string SaveProfileSettingsProfileSettingsNull = "\"profileSettings\" param is null.";
+
+            public static class ColumnsSettings
+            {
+                public static readonly string SingleInvalidColumn =
+                    "The selected column is no longer applicable: {0}. Please ensure correct values are selected.";
+                public static readonly string SomeInvalidColumns =
+                    "The selected columns are no longer applicable: {0}. Please ensure correct values are selected.";
+                public static readonly string MultipleInvalidColumns =
+                    "The selected columns are no longer applicable: {0}... Please ensure correct values are selected.";
+            }
         }
 
         public static class Collections
@@ -168,18 +178,6 @@
             public static readonly string AddArtifactsInvalidParameters = "Invalid parameters to add artifact(s)";
             public static readonly string ColumnsSettingsModelIsIncorrect = "The body of the call is malformed or has invalid parameter.";
             public static readonly string RemoveArtifactsInvalidParameters = "Incorrect input parameters.";
-            // Column Property
-            public static class SaveColumnsSettings
-            {
-                public static readonly string SingleInvalidColumn =
-                    "The selected property is no longer applicable: {0}. Please ensure correct values are selected.";
-
-                public static readonly string SomeInvalidColumns =
-                    "The selected properties are no longer applicable: {0}. Please ensure correct values are selected.";
-
-                public static readonly string MultipleInvalidColumns =
-                        "The selected properties are no longer applicable: {0}... Please ensure correct values are selected.";
-            }
         }
     }
 }

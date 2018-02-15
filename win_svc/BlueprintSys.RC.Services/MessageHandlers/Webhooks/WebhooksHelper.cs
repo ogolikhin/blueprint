@@ -2,12 +2,13 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Helpers.Security;
-using ServiceLibrary.Exceptions;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.Models.Actions;
 using BlueprintSys.RC.Services.Helpers;
@@ -35,10 +36,14 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
         private async Task<bool> SendWebhook(TenantInformation tenant, WebhookMessage message, IWebhookRepository repository)
         {
+            VerifySSLCertificate(message);
+
             var httpClientProvider = new HttpClientProvider();
             var http = httpClientProvider.Create(GetBaseAddress(message.Url));
+
             // Set Webhook Connection Timeout as specified within app.config
             http.Timeout = TimeSpan.FromSeconds(ConfigHelper.WebhookConnectionTimeout);
+
             var request = new HttpRequestMessage
             {
                 RequestUri = new Uri(message.Url),
@@ -46,18 +51,13 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
                 Content = new StringContent(message.WebhookJsonPayload, Encoding.UTF8, "application/json")
             };
 
-            // Include the NSB Message Id in the request header
-            request.Headers.Add("X-BLUEPRINT-MESSAGE-ID", message.NSBMessageId);
-            // Track the number of times the request has been retried
-            request.Headers.Add("X-BLUEPRINT-RETRY-NUMBER", message.NSBRetryCount);
-
-            VerifySSLCertificate(request, message);
-
             AddHttpHeaders(request, message, tenant);
 
             AddBasicAuthentication(request, message, tenant);
 
-            AddAuthenticationSignature(request, message, tenant);
+            AddSignatureAuthentication(request, message, tenant);
+
+            AddNServiceBusHeaders(request, message, tenant);
 
             var result = await http.SendAsync(request);
 
@@ -76,6 +76,18 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
                 Logger.Log($"Failed to send webhook. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.", message, tenant, LogLevel.Error);
                 throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook");
             }
+        }
+
+        private void VerifySSLCertificate(WebhookMessage message)
+        {
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, errors) =>
+            {
+                if (message.IgnoreInvalidSSLCertificate)
+                {
+                    return true;
+                }
+                return errors == SslPolicyErrors.None;
+            };
         }
 
         private Uri GetBaseAddress(string urlString)
@@ -130,7 +142,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             }
         }
 
-        private void AddAuthenticationSignature(HttpRequestMessage request, WebhookMessage message, TenantInformation tenant)
+        private void AddSignatureAuthentication(HttpRequestMessage request, WebhookMessage message, TenantInformation tenant)
         {
             if (message.SignatureSecretToken.IsEmpty() || message.SignatureAlgorithm.IsEmpty())
             {
@@ -172,14 +184,20 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             return new HMACSHA256(keyByte);
         }
 
-        private void VerifySSLCertificate(HttpRequestMessage request, WebhookMessage message)
+        private void AddNServiceBusHeaders(HttpRequestMessage request, WebhookMessage message, TenantInformation tenant)
         {
-            if (message.IgnoreInvalidSSLCertificate)
+            try
             {
-                // To Do
-            }
+                // Include the NServiceBus Message Id in the request header
+                request.Headers.Add("X-BLUEPRINT-MESSAGE-ID", message.NSBMessageId);
 
-            // To Do
+                // Track the number of times the request has been retried by the NServiceBus
+                request.Headers.Add("X-BLUEPRINT-RETRY-NUMBER", message.NSBRetryCount);
+            }
+            catch
+            {
+                Logger.Log("Failed to add NServiceBus Headers to Webhook.", message, tenant, LogLevel.Error);
+            }
         }
     }
 }

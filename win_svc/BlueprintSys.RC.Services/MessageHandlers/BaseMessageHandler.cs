@@ -71,7 +71,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers
                     return;
                 }
 
-                var messageId = GetMessageHeaderValue(Headers.MessageId, context);
+                message.NSBMessageId = GetMessageHeaderValue(Headers.MessageId, context);
                 var timeSent = GetMessageHeaderValue(Headers.TimeSent, context);
                 try
                 {
@@ -82,9 +82,9 @@ namespace BlueprintSys.RC.Services.MessageHandlers
                     message.NSBRetryCount = "0";
                 }
 
-                Logger.Log($"Started handling {actionType} action. Message ID: {messageId}. Time Sent: {timeSent}", message, tenant);
+                Logger.Log($"Started handling {actionType} action. Message ID: {message.NSBMessageId}. Time Sent: {timeSent}", message, tenant);
                 var result = await ActionHelper.HandleAction(tenant, message, repository);
-                Logger.Log($"Finished handling {actionType} action. Result: {result}. Message ID: {messageId}. Time Sent: {timeSent}", message, tenant);
+                Logger.Log($"Finished handling {actionType} action. Result: {result}. Message ID: {message.NSBMessageId}. Time Sent: {timeSent}", message, tenant);
             }
             catch (Exception ex)
             {

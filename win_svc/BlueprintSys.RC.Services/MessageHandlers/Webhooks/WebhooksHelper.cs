@@ -46,6 +46,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
                 Content = new StringContent(message.WebhookJsonPayload, Encoding.UTF8, "application/json")
             };
 
+            // Include the NSB Message Id in the request header
+            request.Headers.Add("X-BLUEPRINT-MESSAGE-ID", message.NSBMessageId);
             // Track the number of times the request has been retried
             request.Headers.Add("X-BLUEPRINT-RETRY-NUMBER", message.NSBRetryCount);
 
@@ -86,6 +88,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             return builder.Uri;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
         private void AddHttpHeaders(HttpRequestMessage request, WebhookMessage message, TenantInformation tenant)
         {
             if (message.HttpHeaders.IsEmpty())

@@ -41,7 +41,7 @@ namespace ServiceLibrary.Helpers
         /// <param name="baseAddress"></param>
         /// <param name="ignoreSSLCertErrors"></param>
         /// <returns></returns>
-        HttpClient CreateWithCustomCertificateValidation(Uri baseAddress, bool ignoreSSLCertErrors);
+        HttpClient CreateWithCustomCertificateValidation(Uri baseAddress, bool ignoreSSLCertErrors, int connectionTimeout);
 
         /// <summary>
         /// Checks if the HttpClient is configured to ignore Certificate Errors
@@ -69,14 +69,20 @@ namespace ServiceLibrary.Helpers
             return HttpClients.GetOrAdd(baseAddress, CreateInternal);
         }
 
-        public HttpClient CreateWithCustomCertificateValidation(Uri baseAddress, bool ignoreSSLCertErrors)
+        public HttpClient CreateWithCustomCertificateValidation(Uri baseAddress, bool ignoreSSLCertErrors, int connectionTimeout)
         {
+            HttpClient httpClient;
+
             if (ignoreSSLCertErrors)
             {
-                return HttpClients.GetOrAdd(baseAddress, CreateInternalWhoIgnoresCertificateErrors);
+                httpClient = HttpClients.GetOrAdd(baseAddress, CreateInternalWhoIgnoresCertificateErrors);
+                httpClient.Timeout = TimeSpan.FromSeconds(connectionTimeout);
+                return httpClient;
             }
 
-            return HttpClients.GetOrAdd(baseAddress, CreateInternal);
+            httpClient = HttpClients.GetOrAdd(baseAddress, CreateInternal);
+            httpClient.Timeout = TimeSpan.FromSeconds(connectionTimeout);
+            return httpClient;
         }
 
         public bool HttpClientIgnoresCertificateErrors(Uri baseAddress)

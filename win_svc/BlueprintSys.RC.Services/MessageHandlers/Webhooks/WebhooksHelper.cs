@@ -72,7 +72,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
                             return true;
                     }
 
-                    throw new WebhookExceptionRetryPerPolicy("Failed to send webhook due to invalid SSL Certificate");
+                    throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to invalid SSL Certificate. SSL Policy Error: {sslPolicyErrors.ToString()}.");
                 };
 
                 using (var httpClient = new HttpClient(webRequestHandler))

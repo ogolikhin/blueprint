@@ -89,6 +89,17 @@ namespace ArtifactStore.ArtifactList.Models
                 .ToList();
         }
 
+        public IReadOnlyList<int?> GetChangedColumnIds(IEnumerable<PropertyTypeInfo> propertyTypeInfos,
+            IEnumerable<ProfileColumn> defaultColumns)
+        {
+            return _columns
+                .Where(column => propertyTypeInfos.Any(info =>
+                    info.Predefined == PropertyTypePredefined.CustomGroup &&
+                    info.Id == column.PropertyTypeId))
+                .Select(q => q.PropertyTypeId)
+                .ToList();
+        }
+
         private void Add(ProfileColumn column)
         {
             if (column == null)

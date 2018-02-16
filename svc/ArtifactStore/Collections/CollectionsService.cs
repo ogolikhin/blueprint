@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Helpers;
@@ -220,7 +221,7 @@ namespace ArtifactStore.Collections
             };
         }
 
-        public async Task SaveProfileColumnsAsync(int collectionId, ProfileColumns profileColumns, int userId)
+        public async Task<bool> SaveProfileColumnsAsync(int collectionId, ProfileColumns profileColumns, int userId)
         {
             if (userId < 1)
             {
@@ -239,7 +240,31 @@ namespace ArtifactStore.Collections
                 throw ArtifactListExceptionHelper.InvalidColumnsException(invalidColumns);
             }
 
-            await _artifactListService.SaveProfileColumnsAsync(collection.Id, profileColumns, userId);
+            var changedColumnIds = profileColumns.GetChangedColumnIds(propertyTypeInfos, defaultColumns);
+
+            var savingColumns = profileColumns.Items
+                .Except(profileColumns.Items.Where(
+                    q => changedColumnIds.Any(changed => changed.Value == q.PropertyTypeId)))
+                .Union(ConvertPropertiesToColumns(
+                    propertyTypeInfos.Where(q => changedColumnIds.Any(changed => changed.Value == q.Id))));
+
+            await _artifactListService.SaveProfileColumnsAsync(collection.Id, new ProfileColumns(savingColumns), userId);
+
+            return changedColumnIds.Any();
+        }
+
+        private IEnumerable<ProfileColumn> ConvertPropertiesToColumns(IEnumerable<PropertyTypeInfo> listProperties)
+        {
+            foreach (var propertyTypeInfo in listProperties)
+            {
+                yield return new ProfileColumn
+                {
+                    Predefined = propertyTypeInfo.Predefined,
+                    PropertyName = propertyTypeInfo.Name,
+                    PropertyTypeId = propertyTypeInfo.Id,
+                    PrimitiveType = propertyTypeInfo.PrimitiveType
+                };
+            }
         }
 
         private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)

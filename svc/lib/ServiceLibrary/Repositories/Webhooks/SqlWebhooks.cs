@@ -2,7 +2,7 @@
 
 namespace ServiceLibrary.Repositories.Webhooks
 {
-    public class SqlWebhook
+    public class SqlWebhooks
     {
         public int WebhookId { get; set; }
 

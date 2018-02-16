@@ -30,9 +30,9 @@ namespace ArtifactStore.Helpers
             bool sendArtifactPublishedMessage,
             string artifactUrl,
             string baseUrl,
-            IUsersRepository userRepository,
+            IUsersRepository usersRepository,
             IServiceLogRepository serviceLogRepository,
-            IWebhookRepository webhookRepository,
+            IWebhooksRepository webhooksRepository,
             IDbTransaction transaction = null);
 
         Task ProcessMessages(string logSource,
@@ -57,9 +57,9 @@ namespace ArtifactStore.Helpers
             bool sendArtifactPublishedMessage,
             string artifactUrl,
             string baseUrl,
-            IUsersRepository userRepository,
+            IUsersRepository usersRepository,
             IServiceLogRepository serviceLogRepository,
-            IWebhookRepository webhookRepository,
+            IWebhooksRepository webhooksRepository,
             IDbTransaction transaction = null)
         {
             var resultMessages = new List<IWorkflowMessage>();
@@ -87,7 +87,7 @@ namespace ArtifactStore.Helpers
                             notificationAction,
                             artifactUrl,
                             baseHostUri,
-                            userRepository,
+                            usersRepository,
                             transaction);
                         if (notificationMessage == null)
                         {
@@ -160,7 +160,7 @@ namespace ArtifactStore.Helpers
                             continue;
                         }
 
-                        var webhookMessage = await GetWebhookMessage(userId, revisionId, webhookAction, webhookRepository, artifactInfo, transaction);
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, webhookAction, webhooksRepository, artifactInfo, transaction);
 
                         if (webhookMessage == null)
                         {
@@ -242,7 +242,7 @@ namespace ArtifactStore.Helpers
             EmailNotificationAction notificationAction,
             string artifactUrl,
             string blueprintUrl,
-            IUsersRepository userRepository,
+            IUsersRepository usersRepository,
             IDbTransaction transaction)
         {
             string messageHeader = I18NHelper.FormatInvariant("You are being notified because of an update to the artifact with Id: {0}.", artifactInfo.Id);
@@ -256,7 +256,7 @@ namespace ArtifactStore.Helpers
             if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
             {
                 var userInfos =
-                    await userRepository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
+                    await usersRepository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
                         (artifactInfo.Id,
                             notificationAction.PropertyTypeId.Value,
                             revisionId,
@@ -330,10 +330,10 @@ namespace ArtifactStore.Helpers
         }
 
         private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, WebhookAction webhookAction,
-            IWebhookRepository webhookRepository, IBaseArtifactVersionControlInfo artifactInfo, IDbTransaction transaction)
+            IWebhooksRepository webhooksRepository, IBaseArtifactVersionControlInfo artifactInfo, IDbTransaction transaction)
         {
             List<int> webhookId = new List<int> { webhookAction.WebhookId };
-            var webhookInfos = await webhookRepository.GetWebhooks(webhookId, transaction);
+            var webhookInfos = await webhooksRepository.GetWebhooks(webhookId, transaction);
             var webhookInfo = webhookInfos.FirstOrDefault();
 
             var securityInfo = SerializationHelper.FromXml<XmlWebhookSecurityInfo>(webhookInfo.SecurityInfo);

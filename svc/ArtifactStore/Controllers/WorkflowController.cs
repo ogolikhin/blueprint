@@ -43,7 +43,7 @@ namespace ArtifactStore.Controllers
                     new ApplicationSettingsRepository(),
                     new ServiceLogRepository(),
                     new SqlUsersRepository(),
-                    new WebhookRepository()),
+                    new WebhooksRepository()),
                 new WorkflowEventsMessagesHelper()))
         {
         }

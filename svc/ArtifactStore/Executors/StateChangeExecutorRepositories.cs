@@ -18,7 +18,7 @@ namespace ArtifactStore.Executors
         public IApplicationSettingsRepository ApplicationSettingsRepository { get; }
         public IServiceLogRepository ServiceLogRepository { get; }
         public IUsersRepository UsersRepository { get; }
-        public IWebhookRepository WebhookRepository { get; }
+        public IWebhooksRepository WebhooksRepository { get; }
 
 
         public StateChangeExecutorRepositories(IArtifactVersionsRepository artifactVersionsRepository,
@@ -29,7 +29,7 @@ namespace ArtifactStore.Executors
             IApplicationSettingsRepository applicationSettingsRepository,
             IServiceLogRepository serviceLogRepository,
             IUsersRepository usersRepository,
-            IWebhookRepository webhookRepository)
+            IWebhooksRepository webhooksRepository)
         {
             ArtifactVersionsRepository = artifactVersionsRepository;
             WorkflowRepository = workflowRepository;
@@ -39,7 +39,7 @@ namespace ArtifactStore.Executors
             ApplicationSettingsRepository = applicationSettingsRepository;
             ServiceLogRepository = serviceLogRepository;
             UsersRepository = usersRepository;
-            WebhookRepository = webhookRepository;
+            WebhooksRepository = webhooksRepository;
         }
     }
 }

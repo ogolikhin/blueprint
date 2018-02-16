@@ -9,25 +9,25 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories.Webhooks
 {
-    public class WebhookRepository : IWebhookRepository
+    public class WebhooksRepository : IWebhooksRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
 
-        public WebhookRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain)) { }
+        public WebhooksRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain)) { }
 
-        public WebhookRepository(ISqlConnectionWrapper connectionWrapper)
+        public WebhooksRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<IEnumerable<SqlWebhook>> CreateWebhooks(IEnumerable<SqlWebhook> webhooks, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlWebhooks>> CreateWebhooks(IEnumerable<SqlWebhooks> webhooks, IDbTransaction transaction = null)
         {
             if (webhooks == null)
             {
                 throw new ArgumentException(nameof(webhooks));
             }
 
-            IEnumerable<SqlWebhook> result = new List<SqlWebhook>();
+            IEnumerable<SqlWebhooks> result = new List<SqlWebhooks>();
 
             var dWebhooks = webhooks.ToList();
             if (dWebhooks.Any())
@@ -37,11 +37,11 @@ namespace ServiceLibrary.Repositories.Webhooks
 
                 if (transaction == null)
                 {
-                    result = await _connectionWrapper.QueryAsync<SqlWebhook>("CreateWebhooks", parameters, commandType: CommandType.StoredProcedure);
+                    result = await _connectionWrapper.QueryAsync<SqlWebhooks>("CreateWebhooks", parameters, commandType: CommandType.StoredProcedure);
                 }
                 else
                 {
-                    result = await transaction.Connection.QueryAsync<SqlWebhook>("CreateWebhooks", parameters, transaction,
+                    result = await transaction.Connection.QueryAsync<SqlWebhooks>("CreateWebhooks", parameters, transaction,
                         commandType: CommandType.StoredProcedure);
                 }
             }
@@ -49,14 +49,14 @@ namespace ServiceLibrary.Repositories.Webhooks
             return result;
         }
 
-        public async Task<IEnumerable<SqlWebhook>> UpdateWebhooks(IEnumerable<SqlWebhook> webhooks, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlWebhooks>> UpdateWebhooks(IEnumerable<SqlWebhooks> webhooks, IDbTransaction transaction = null)
         {
             if (webhooks == null)
             {
                 throw new ArgumentException(nameof(webhooks));
             }
 
-            IEnumerable<SqlWebhook> result = new List<SqlWebhook>();
+            IEnumerable<SqlWebhooks> result = new List<SqlWebhooks>();
 
             var dWebhooks = webhooks.ToList();
             if (dWebhooks.Any())
@@ -66,11 +66,11 @@ namespace ServiceLibrary.Repositories.Webhooks
 
                 if (transaction == null)
                 {
-                    result = await _connectionWrapper.QueryAsync<SqlWebhook>("UpdateWebhooks", parameters, commandType: CommandType.StoredProcedure);
+                    result = await _connectionWrapper.QueryAsync<SqlWebhooks>("UpdateWebhooks", parameters, commandType: CommandType.StoredProcedure);
                 }
                 else
                 {
-                    result = await transaction.Connection.QueryAsync<SqlWebhook>("UpdateWebhooks", parameters, transaction,
+                    result = await transaction.Connection.QueryAsync<SqlWebhooks>("UpdateWebhooks", parameters, transaction,
                         commandType: CommandType.StoredProcedure);
                 }
             }
@@ -78,14 +78,14 @@ namespace ServiceLibrary.Repositories.Webhooks
             return result;
         }
 
-        public async Task<IEnumerable<SqlWebhook>> GetWebhooks(IEnumerable<int> webhookIds, IDbTransaction transaction = null)
+        public async Task<IEnumerable<SqlWebhooks>> GetWebhooks(IEnumerable<int> webhookIds, IDbTransaction transaction = null)
         {
             if (webhookIds == null)
             {
                 throw new ArgumentException(nameof(webhookIds));
             }
 
-            IEnumerable<SqlWebhook> result = new List<SqlWebhook>();
+            IEnumerable<SqlWebhooks> result = new List<SqlWebhooks>();
 
             var ids = webhookIds.ToList();
             if (ids.Any())
@@ -95,18 +95,18 @@ namespace ServiceLibrary.Repositories.Webhooks
 
                 if (transaction == null)
                 {
-                    result = await _connectionWrapper.QueryAsync<SqlWebhook>("GetWebhooks", parameters, commandType: CommandType.StoredProcedure);
+                    result = await _connectionWrapper.QueryAsync<SqlWebhooks>("GetWebhooks", parameters, commandType: CommandType.StoredProcedure);
                 }
                 else
                 {
-                    result = await transaction.Connection.QueryAsync<SqlWebhook>("GetWebhooks", parameters, transaction, commandType: CommandType.StoredProcedure);
+                    result = await transaction.Connection.QueryAsync<SqlWebhooks>("GetWebhooks", parameters, transaction, commandType: CommandType.StoredProcedure);
                 }
             }
 
             return result;
         }
 
-        private static DataTable ToWebhooksCollectionDataTable(IEnumerable<SqlWebhook> webhooks)
+        private static DataTable ToWebhooksCollectionDataTable(IEnumerable<SqlWebhooks> webhooks)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WebhooksCollection");

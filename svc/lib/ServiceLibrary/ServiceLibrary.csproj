@@ -155,9 +155,9 @@
     <Compile Include="Models\Workflow\Actions\WebhookAction.cs" />
     <Compile Include="Models\Workflow\XmlWebhookAction.cs" />
     <Compile Include="Models\XmlWebhookSecurityInfo.cs" />
-    <Compile Include="Repositories\Webhooks\IWebhookRepository.cs" />
-    <Compile Include="Repositories\Webhooks\SqlWebhook.cs" />
-    <Compile Include="Repositories\Webhooks\WebhookRepository.cs" />
+    <Compile Include="Repositories\Webhooks\IWebhooksRepository.cs" />
+    <Compile Include="Repositories\Webhooks\SqlWebhooks.cs" />
+    <Compile Include="Repositories\Webhooks\WebhooksRepository.cs" />
     <Compile Include="Services\Image\IImageService.cs" />
     <Compile Include="Services\Image\ImageService.cs" />
     <Compile Include="Helpers\ISqlHelper.cs" />

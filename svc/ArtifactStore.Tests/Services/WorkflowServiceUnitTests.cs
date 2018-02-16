@@ -36,7 +36,7 @@ namespace ArtifactStore.Services
         private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<IWorkflowEventsMessagesHelper> _workflowEventsMessagesHelperMock;
-        private Mock<IWebhookRepository> _webhookRepositoryMock;
+        private Mock<IWebhooksRepository> _webhooksRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -52,8 +52,8 @@ namespace ArtifactStore.Services
             _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
             _usersRepositoryMock = new Mock<IUsersRepository>(MockBehavior.Loose);
             _workflowEventsMessagesHelperMock = new Mock<IWorkflowEventsMessagesHelper>();
-            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<WorkflowEventTriggers>(), It.IsAny<IBaseArtifactVersionControlInfo>(), It.IsAny<string>(), It.IsAny<IDictionary<int, IList<Property>>>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IUsersRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<IWebhookRepository>(), It.IsAny<IDbTransaction>())).ReturnsAsync(new List<IWorkflowMessage>());
-            _webhookRepositoryMock = new Mock<IWebhookRepository>(MockBehavior.Loose);
+            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<WorkflowEventTriggers>(), It.IsAny<IBaseArtifactVersionControlInfo>(), It.IsAny<string>(), It.IsAny<IDictionary<int, IList<Property>>>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IUsersRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<IWebhooksRepository>(), It.IsAny<IDbTransaction>())).ReturnsAsync(new List<IWorkflowMessage>());
+            _webhooksRepositoryMock = new Mock<IWebhooksRepository>(MockBehavior.Loose);
 
             _workflowServiceMock = new WorkflowService(_sqlHelperMock,
                 _itemInfoRepositoryMock.Object,
@@ -65,7 +65,7 @@ namespace ArtifactStore.Services
                     _applicationSettingsRepositoryMock.Object,
                     _serviceLogRepositoryMock.Object,
                     _usersRepositoryMock.Object,
-                    _webhookRepositoryMock.Object),
+                    _webhooksRepositoryMock.Object),
                 _workflowEventsMessagesHelperMock.Object);
         }
 

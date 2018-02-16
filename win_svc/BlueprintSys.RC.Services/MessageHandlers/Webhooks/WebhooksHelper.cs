@@ -101,18 +101,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             }
         }
 
-        private void VerifySSLCertificate(WebhookMessage message)
-        {
-            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, errors) =>
-            {
-                if (message.IgnoreInvalidSSLCertificate)
-                {
-                    return true;
-                }
-                return errors == SslPolicyErrors.None;
-            };
-        }
-
         private Uri GetBaseAddress(string urlString)
         {
             var url = new Uri(urlString);

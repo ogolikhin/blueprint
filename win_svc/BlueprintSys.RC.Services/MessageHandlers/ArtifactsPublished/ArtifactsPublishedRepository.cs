@@ -34,14 +34,14 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 
         IWorkflowRepository WorkflowRepository { get; }
 
-        IWebhookRepository WebhookRepository { get; }
+        IWebhooksRepository WebhooksRepository { get; }
     }
 
     public class ArtifactsPublishedRepository : BaseRepository, IArtifactsPublishedRepository
     {
         public IWorkflowRepository WorkflowRepository { get; }
 
-        public IWebhookRepository WebhookRepository { get; }
+        public IWebhooksRepository WebhooksRepository { get; }
 
         public ArtifactsPublishedRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
         {
@@ -58,7 +58,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
         public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository, IUsersRepository usersRepository) : base(connectionWrapper, artifactPermissionsRepository, usersRepository)
         {
             WorkflowRepository = new SqlWorkflowRepository(connectionWrapper, ArtifactPermissionsRepository);
-            WebhookRepository = new WebhookRepository(connectionWrapper);
+            WebhooksRepository = new WebhooksRepository(connectionWrapper);
         }
 
         public async Task<List<SqlWorkflowEvent>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)

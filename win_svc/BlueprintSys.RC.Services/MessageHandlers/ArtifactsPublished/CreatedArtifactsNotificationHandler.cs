@@ -106,7 +106,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     createdArtifact.AncestorArtifactTypeIds,
                     repository.UsersRepository,
                     serviceLogRepository,
-                    repository.WebhookRepository);
+                    repository.WebhooksRepository);
 
                 if (actionMessages == null || actionMessages.Count == 0)
                 {

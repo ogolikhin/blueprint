@@ -142,10 +142,10 @@ namespace AdminStore.Controllers
             var deletedGroupIds = new List<int>();
             Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
-                var groupIds = await _groupRepository.DeleteGroupsAsync(scope, search);
+                var groupIds = await _groupRepository.DeleteGroupsAsync(scope, search, transaction);
                 deletedGroupIds.AddRange(groupIds);
 
-                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId(transaction);
 
                 var message = new UsersGroupsChangedMessage(new int[0], deletedGroupIds)
                 {
@@ -153,7 +153,7 @@ namespace AdminStore.Controllers
                     RevisionId = topRevisionId,
                     ChangeType = UsersGroupsChangedType.Delete
                 };
-                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message, transaction);
             };
             await RunInTransactionAsync(action);
 
@@ -193,8 +193,8 @@ namespace AdminStore.Controllers
             int groupId = 0;
             Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
-                groupId = await _groupRepository.AddGroupAsync(group);
-                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+                groupId = await _groupRepository.AddGroupAsync(group, transaction);
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId(transaction);
 
                 var groupIds = new[]
                 {
@@ -206,7 +206,7 @@ namespace AdminStore.Controllers
                     RevisionId = topRevisionId,
                     ChangeType = UsersGroupsChangedType.Create
                 };
-                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message, transaction);
             };
             await RunInTransactionAsync(action);
 
@@ -276,8 +276,8 @@ namespace AdminStore.Controllers
 
             Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
-                await _groupRepository.UpdateGroupAsync(groupId, group);
-                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+                await _groupRepository.UpdateGroupAsync(groupId, group, transaction);
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId(transaction);
 
                 var groupIds = new[]
                 {
@@ -289,7 +289,7 @@ namespace AdminStore.Controllers
                     RevisionId = topRevisionId,
                     ChangeType = UsersGroupsChangedType.Update
                 };
-                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message);
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message, transaction);
             };
             await RunInTransactionAsync(action);
 

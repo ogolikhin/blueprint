@@ -12,6 +12,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -101,12 +102,12 @@ namespace AdminStore.Controllers
             };
 
             _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin)))
+                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(UserId);
 
             var badRequestException = new BadRequestException(ErrorMessages.LoginNameUnique);
             _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login == ExistedUserLogin)))
+                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login == ExistedUserLogin), It.IsAny<IDbTransaction>()))
                 .ThrowsAsync(badRequestException);
 
             _userGroupsTabularPagination = new Pagination { Limit = 1, Offset = 0 };
@@ -1911,7 +1912,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(existingUser);
 
             var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
-            _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>())).Throws(resourceNotFoundExeption);
+            _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>(), It.IsAny<IDbTransaction>())).Throws(resourceNotFoundExeption);
 
             // Act
             await _controller.UpdateUser(UserId, _user);
@@ -1934,7 +1935,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(existingUser);
 
             var conflictExeption = new ConflictException(ErrorMessages.UserVersionsNotEqual);
-            _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>())).Throws(conflictExeption);
+            _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>(), It.IsAny<IDbTransaction>())).Throws(conflictExeption);
 
             // Act
             await _controller.UpdateUser(UserId, _user);

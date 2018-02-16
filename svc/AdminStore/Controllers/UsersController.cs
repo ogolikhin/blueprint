@@ -179,9 +179,9 @@ namespace AdminStore.Controllers
             var deletedUserIds = new List<int>();
             Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
-                var userIds = await _userRepository.DeleteUsersAsync(scope, search, Session.UserId);
+                var userIds = await _userRepository.DeleteUsersAsync(scope, search, Session.UserId, transaction);
                 deletedUserIds.AddRange(userIds);
-                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId(transaction);
 
                 var message = new UsersGroupsChangedMessage(deletedUserIds, new int[0])
                 {
@@ -189,7 +189,7 @@ namespace AdminStore.Controllers
                     RevisionId = topRevisionId,
                     ChangeType = UsersGroupsChangedType.Delete
                 };
-                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message, transaction);
             };
             await RunInTransactionAsync(action);
 
@@ -587,8 +587,8 @@ namespace AdminStore.Controllers
             int userId = 0;
             Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
-                userId = await _userRepository.AddUserAsync(databaseUser);
-                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+                userId = await _userRepository.AddUserAsync(databaseUser, transaction);
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId(transaction);
 
                 var userIds = new[]
                 {
@@ -600,7 +600,7 @@ namespace AdminStore.Controllers
                     RevisionId = topRevisionId,
                     ChangeType = UsersGroupsChangedType.Create
                 };
-                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message, transaction);
             };
             await RunInTransactionAsync(action);
 
@@ -649,8 +649,8 @@ namespace AdminStore.Controllers
 
             Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
-                await _userRepository.UpdateUserAsync(databaseUser);
-                var topRevisionId = await _itemInfoRepository.GetTopRevisionId();
+                await _userRepository.UpdateUserAsync(databaseUser, transaction);
+                var topRevisionId = await _itemInfoRepository.GetTopRevisionId(transaction);
 
                 var userIds = new[]
                 {
@@ -662,7 +662,7 @@ namespace AdminStore.Controllers
                     RevisionId = topRevisionId,
                     ChangeType = UsersGroupsChangedType.Update
                 };
-                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message);
+                await _sendMessageExecutor.Execute(_applicationSettingsRepository, _log, message, transaction);
             };
             await RunInTransactionAsync(action);
 

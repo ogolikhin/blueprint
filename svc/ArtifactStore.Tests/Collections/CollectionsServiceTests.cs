@@ -348,7 +348,7 @@ namespace ArtifactStore.Collections
             {
                 propertyTypeInfos.Add(new PropertyTypeInfo()
                 {
-                     Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Id = column.PropertyTypeId.GetValueOrDefault(),
                     Name = column.PropertyName,
                     Predefined = column.Predefined,
                     PrimitiveType = PropertyPrimitiveType.Date

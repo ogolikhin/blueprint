@@ -33,7 +33,7 @@ namespace BlueprintSys.RC.Services.Helpers
             string artifactUrl, 
             string baseUrl,
             IEnumerable<int> ancestorArtifactTypeIds, 
-            IUsersRepository repository, 
+            IUsersRepository userRepository, 
             IServiceLogRepository serviceLogRepository,
             IWebhookRepository webhookRepository)
         {
@@ -62,7 +62,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             notificationAction,
                             artifactUrl,
                             baseHostUri,
-                            repository);
+                            userRepository);
                         if (notificationMessage == null)
                         {
                             await serviceLogRepository.LogInformation(LogSource, $"Skipping Email notification action for artifact {artifactInfo.Id}");
@@ -228,7 +228,7 @@ namespace BlueprintSys.RC.Services.Helpers
             EmailNotificationAction notificationAction,
             string artifactUrl,
             string blueprintUrl,
-            IUsersRepository repository)
+            IUsersRepository userRepository)
         {
             string messageHeader = I18NHelper.FormatInvariant("You are being notified because artifact with Id: {0} has been created.", artifactInfo.Id);
             var artifactPartUrl = artifactUrl ?? ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
@@ -237,7 +237,7 @@ namespace BlueprintSys.RC.Services.Helpers
                 return null;
             }
             var baseUrl = blueprintUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
-            var emails = await GetEmailValues(revisionId, artifactInfo.Id, notificationAction, repository);
+            var emails = await GetEmailValues(revisionId, artifactInfo.Id, notificationAction, userRepository);
 
             var notificationMessage = new NotificationMessage
             {
@@ -261,13 +261,13 @@ namespace BlueprintSys.RC.Services.Helpers
         }
 
         internal static async Task<List<string>>  GetEmailValues(int revisionId, int artifactId,
-            EmailNotificationAction notificationAction, IUsersRepository repository)
+            EmailNotificationAction notificationAction, IUsersRepository userRepository)
         {
             var emails = new List<string>();
             if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
             {
                 var userInfos =
-                    await repository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
+                    await userRepository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
                         (artifactId,
                             notificationAction.PropertyTypeId.Value,
                             revisionId);

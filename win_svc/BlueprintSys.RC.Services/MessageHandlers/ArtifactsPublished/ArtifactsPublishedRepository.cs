@@ -6,6 +6,7 @@ using Dapper;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.Workflow;
+using ServiceLibrary.Repositories.Webhooks;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
@@ -32,11 +33,15 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
         Task<List<SqlProject>> GetProjectNameByIdsAsync(IEnumerable<int> projectIds);
 
         IWorkflowRepository WorkflowRepository { get; }
+
+        IWebhookRepository WebhookRepository { get; }
     }
 
     public class ArtifactsPublishedRepository : BaseRepository, IArtifactsPublishedRepository
     {
         public IWorkflowRepository WorkflowRepository { get; }
+
+        public IWebhookRepository WebhookRepository { get; }
 
         public ArtifactsPublishedRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
         {
@@ -53,6 +58,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
         public ArtifactsPublishedRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository, IUsersRepository usersRepository) : base(connectionWrapper, artifactPermissionsRepository, usersRepository)
         {
             WorkflowRepository = new SqlWorkflowRepository(connectionWrapper, ArtifactPermissionsRepository);
+            WebhookRepository = new WebhookRepository(connectionWrapper);
         }
 
         public async Task<List<SqlWorkflowEvent>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)

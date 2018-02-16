@@ -52,30 +52,53 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
         public async Task<HttpResponseMessage> SendWebhook(TenantInformation tenant, WebhookMessage message)
         {
-            VerifySSLCertificate(message);
-
-            var httpClientProvider = new HttpClientProvider();
-            var http = httpClientProvider.Create(GetBaseAddress(message.Url));
-
-            // Set Webhook Connection Timeout as specified within app.config
-            http.Timeout = TimeSpan.FromSeconds(ConfigHelper.WebhookConnectionTimeout);
-
-            var request = new HttpRequestMessage
+            using (var webRequestHandler = new WebRequestHandler())
             {
-                RequestUri = new Uri(message.Url),
-                Method = HttpMethod.Post,
-                Content = new StringContent(message.WebhookJsonPayload, Encoding.UTF8, "application/json")
-            };
+                webRequestHandler.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => 
+                {
+                    // If sslPolicyErrors is set to None, then the certificate is valid according to the default certificate validation algorithm
+                    if (sslPolicyErrors == SslPolicyErrors.None)
+                    {
+                        return true;
+                    }
 
-            AddHttpHeaders(request, message, tenant);
+                    // If the certificate is invalid, check if it should be ignored for the specific sender
+                    if (message.IgnoreInvalidSSLCertificate)
+                    {
+                        var webhookUrl = new Uri(message.Url);
+                        var senderUrl = ((HttpWebRequest)sender)?.Address;
 
-            AddBasicAuthentication(request, message, tenant);
+                        if (webhookUrl == senderUrl)
+                            return true;
+                    }
 
-            AddSignatureAuthentication(request, message, tenant);
+                    throw new WebhookExceptionRetryPerPolicy("Failed to send webhook due to invalid SSL Certificate");
+                };
 
-            AddNServiceBusHeaders(request, message, tenant);
+                using (var httpClient = new HttpClient(webRequestHandler))
+                {
+                    httpClient.BaseAddress = GetBaseAddress(message.Url);
+                    // Set Webhook Connection Timeout as specified within app.config
+                    httpClient.Timeout = TimeSpan.FromSeconds(ConfigHelper.WebhookConnectionTimeout);
 
-            return await http.SendAsync(request);
+                    var request = new HttpRequestMessage
+                    {
+                        RequestUri = new Uri(message.Url),
+                        Method = HttpMethod.Post,
+                        Content = new StringContent(message.WebhookJsonPayload, Encoding.UTF8, "application/json")
+                    };
+
+                    AddHttpHeaders(request, message, tenant);
+
+                    AddBasicAuthentication(request, message, tenant);
+
+                    AddSignatureAuthentication(request, message, tenant);
+
+                    AddNServiceBusHeaders(request, message, tenant);
+
+                    return await httpClient.SendAsync(request);
+                }
+            }
         }
 
         private void VerifySSLCertificate(WebhookMessage message)
@@ -138,7 +161,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             }
             catch
             {
-                Logger.Log("Failed to add Basic Authentication Http Header to Webhook.", message, tenant, LogLevel.Error);
+                Logger.Log("Failed to add Basic Authentication Header to Webhook.", message, tenant, LogLevel.Error);
             }
         }
 

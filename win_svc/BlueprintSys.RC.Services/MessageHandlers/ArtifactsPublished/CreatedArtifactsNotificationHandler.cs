@@ -11,7 +11,6 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Repositories.Webhooks;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
@@ -23,7 +22,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
             IArtifactsPublishedRepository repository,
             IServiceLogRepository serviceLogRepository,
             IWorkflowMessagingProcessor messageProcessor,
-            IWebhookRepository webhookRepository,
             int transactionCommitWaitTimeInMilliSeconds = 60000)
         {
             var createdArtifacts = message?.Artifacts?.Where(p => p.IsFirstTimePublished && repository.WorkflowRepository.IsWorkflowSupported((ItemTypePredefined)p.Predefined)).ToList();
@@ -108,7 +106,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     createdArtifact.AncestorArtifactTypeIds,
                     repository.UsersRepository,
                     serviceLogRepository,
-                    webhookRepository);
+                    repository.WebhookRepository);
 
                 if (actionMessages == null || actionMessages.Count == 0)
                 {

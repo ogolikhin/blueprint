@@ -30,7 +30,7 @@ namespace ArtifactStore.Helpers
             bool sendArtifactPublishedMessage,
             string artifactUrl,
             string baseUrl,
-            IUsersRepository repository,
+            IUsersRepository userRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhookRepository webhookRepository,
             IDbTransaction transaction = null);
@@ -57,7 +57,7 @@ namespace ArtifactStore.Helpers
             bool sendArtifactPublishedMessage,
             string artifactUrl,
             string baseUrl,
-            IUsersRepository repository,
+            IUsersRepository userRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhookRepository webhookRepository,
             IDbTransaction transaction = null)
@@ -87,7 +87,7 @@ namespace ArtifactStore.Helpers
                             notificationAction,
                             artifactUrl,
                             baseHostUri,
-                            repository,
+                            userRepository,
                             transaction);
                         if (notificationMessage == null)
                         {
@@ -242,7 +242,7 @@ namespace ArtifactStore.Helpers
             EmailNotificationAction notificationAction,
             string artifactUrl,
             string blueprintUrl,
-            IUsersRepository repository,
+            IUsersRepository userRepository,
             IDbTransaction transaction)
         {
             string messageHeader = I18NHelper.FormatInvariant("You are being notified because of an update to the artifact with Id: {0}.", artifactInfo.Id);
@@ -256,7 +256,7 @@ namespace ArtifactStore.Helpers
             if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
             {
                 var userInfos =
-                    await repository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
+                    await userRepository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
                         (artifactInfo.Id,
                             notificationAction.PropertyTypeId.Value,
                             revisionId,

@@ -52,51 +52,49 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
         public async Task<HttpResponseMessage> SendWebhook(TenantInformation tenant, WebhookMessage message)
         {
-            using (var webRequestHandler = new WebRequestHandler())
+            try
             {
-                webRequestHandler.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => 
+                var webhookUri = GetBaseAddress(message.Url);
+                var httpClientProvider = new HttpClientProvider();
+                var httpClient = httpClientProvider.CreateWithCustomCertificateValidation(webhookUri, message.IgnoreInvalidSSLCertificate);
+
+                // Check if the httpClient configuration of ignoring SSL Certificate errors is inline with the webhook configuration of ignoring SSL errors
+                // We must perform this check, as the creation of HttpClients is cached and we may need to update the cache if the webhook configuration has changed since
+                if (httpClientProvider.HttpClientIgnoresCertificateErrors(webhookUri) != message.IgnoreInvalidSSLCertificate)
                 {
-                    // If sslPolicyErrors is set to None, then the certificate is valid according to the default certificate validation algorithm
-                    if (sslPolicyErrors == SslPolicyErrors.None)
-                    {
-                        return true;
-                    }
+                    httpClientProvider.UpdateHttpClient(webhookUri, message.IgnoreInvalidSSLCertificate);
+                }
 
-                    // If the certificate is invalid, check if it should be ignored for the specific sender
-                    if (message.IgnoreInvalidSSLCertificate)
-                    {
-                        var webhookUrl = new Uri(message.Url);
-                        var senderUrl = ((HttpWebRequest)sender)?.Address;
+                // Set Webhook Connection Timeout as specified within app.config
+                // httpClient.Timeout = TimeSpan.FromSeconds(ConfigHelper.WebhookConnectionTimeout);
 
-                        if (webhookUrl == senderUrl)
-                            return true;
-                    }
-
-                    throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to invalid SSL Certificate. SSL Policy Error: {sslPolicyErrors.ToString()}.");
+                var request = new HttpRequestMessage
+                {
+                    RequestUri = webhookUri,
+                    Method = HttpMethod.Post,
+                    Content = new StringContent(message.WebhookJsonPayload, Encoding.UTF8, "application/json")
                 };
 
-                using (var httpClient = new HttpClient(webRequestHandler))
+                AddHttpHeaders(request, message, tenant);
+
+                AddBasicAuthentication(request, message, tenant);
+
+                AddSignatureAuthentication(request, message, tenant);
+
+                AddNServiceBusHeaders(request, message, tenant);
+
+                return await httpClient.SendAsync(request);
+            }
+            catch(HttpRequestException e)
+            {
+                if (e.InnerException is WebException &&
+                    ((WebException)e.InnerException).Status == WebExceptionStatus.TrustFailure)
                 {
-                    httpClient.BaseAddress = GetBaseAddress(message.Url);
-                    // Set Webhook Connection Timeout as specified within app.config
-                    httpClient.Timeout = TimeSpan.FromSeconds(ConfigHelper.WebhookConnectionTimeout);
-
-                    var request = new HttpRequestMessage
-                    {
-                        RequestUri = new Uri(message.Url),
-                        Method = HttpMethod.Post,
-                        Content = new StringContent(message.WebhookJsonPayload, Encoding.UTF8, "application/json")
-                    };
-
-                    AddHttpHeaders(request, message, tenant);
-
-                    AddBasicAuthentication(request, message, tenant);
-
-                    AddSignatureAuthentication(request, message, tenant);
-
-                    AddNServiceBusHeaders(request, message, tenant);
-
-                    return await httpClient.SendAsync(request);
+                    throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to invalid SSL Certificate. {e}.");
+                }
+                else
+                {
+                    throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to {e.Message}.");
                 }
             }
         }

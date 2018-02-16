@@ -16,7 +16,6 @@ using ServiceLibrary.Models.Workflow.Actions;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Repositories.Workflow;
-using ServiceLibrary.Repositories.Webhooks;
 
 namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
 {
@@ -33,7 +32,6 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         private Mock<IUsersRepository> _userRepoMock;
         private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
         private Mock<IWorkflowMessagingProcessor> _wfMessagingMock;
-        private Mock<IWebhookRepository> _webhookRepositoryMock;
 
         private const int ProjectId = 1;
         private const int ArtifactId = 2;

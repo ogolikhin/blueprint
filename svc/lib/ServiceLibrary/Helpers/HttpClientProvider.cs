@@ -42,27 +42,13 @@ namespace ServiceLibrary.Helpers
         /// <param name="ignoreSSLCertErrors"></param>
         /// <returns></returns>
         HttpClient CreateWithCustomCertificateValidation(Uri baseAddress, bool ignoreSSLCertErrors, int connectionTimeout);
-
-        /// <summary>
-        /// Checks if the HttpClient is configured to ignore Certificate Errors
-        /// </summary>
-        /// <param name="baseAddress"></param>
-        /// <returns></returns>
-        bool HttpClientIgnoresCertificateErrors(Uri baseAddress);
-
-        /// <summary>
-        /// Updates the HttpClient configuration of ignoring Certificate Errors
-        /// </summary>
-        /// <param name="baseAddress"></param>
-        /// <param name="ignoreSSLCertErrors"></param>
-        bool UpdateHttpClient(Uri baseAddress, bool ignoreSSLCertErrors);
     }
 
     public class HttpClientProvider : IHttpClientProvider
     {
         private static readonly ConcurrentDictionary<Uri, HttpClient> HttpClients = new ConcurrentDictionary<Uri, HttpClient>();
 
-        private static readonly ConcurrentDictionary<Uri, bool> HttpClientsWhoIgnoreCertificateErrors = new ConcurrentDictionary<Uri, bool>();
+        private static readonly ConcurrentDictionary<Uri, HttpClient> HttpClientsWhoIgnoreCertificateErrors = new ConcurrentDictionary<Uri, HttpClient>();
 
         public HttpClient Create(Uri baseAddress)
         {
@@ -75,7 +61,7 @@ namespace ServiceLibrary.Helpers
 
             if (ignoreSSLCertErrors)
             {
-                httpClient = HttpClients.GetOrAdd(baseAddress, CreateInternalWhoIgnoresCertificateErrors);
+                httpClient = HttpClientsWhoIgnoreCertificateErrors.GetOrAdd(baseAddress, CreateInternalWhoIgnoresCertificateErrors);
                 httpClient.Timeout = TimeSpan.FromSeconds(connectionTimeout);
                 return httpClient;
             }
@@ -83,38 +69,6 @@ namespace ServiceLibrary.Helpers
             httpClient = HttpClients.GetOrAdd(baseAddress, CreateInternal);
             httpClient.Timeout = TimeSpan.FromSeconds(connectionTimeout);
             return httpClient;
-        }
-
-        public bool HttpClientIgnoresCertificateErrors(Uri baseAddress)
-        {
-            if (HttpClientsWhoIgnoreCertificateErrors.ContainsKey(baseAddress))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool UpdateHttpClient(Uri baseAddress, bool ignoreSSLCertErrors)
-        {
-            bool addUrlToInternalList = !HttpClientsWhoIgnoreCertificateErrors.ContainsKey(baseAddress) && ignoreSSLCertErrors;
-            bool removeUrlFromInternalList = HttpClientsWhoIgnoreCertificateErrors.ContainsKey(baseAddress) && !ignoreSSLCertErrors;
-
-            if (addUrlToInternalList)
-            {
-                HttpClientsWhoIgnoreCertificateErrors.AddIfNotListed(new KeyValuePair<Uri, bool>(baseAddress, true));
-                return true;
-            }
-
-            if (removeUrlFromInternalList)
-            {
-                bool urlSuccessfullyRemoved;
-                HttpClientsWhoIgnoreCertificateErrors.TryRemove(baseAddress, out urlSuccessfullyRemoved);
-                return urlSuccessfullyRemoved;
-            }
-
-            // No changes required to internal dictionary - everything is uptodate
-            return true;
         }
 
         private HttpClient CreateInternal(Uri baseAddress)
@@ -143,8 +97,6 @@ namespace ServiceLibrary.Helpers
 
                 return false;
             };
-
-            HttpClientsWhoIgnoreCertificateErrors.AddIfNotListed(new KeyValuePair<Uri, bool>(baseAddress, true));
 
             var result = new HttpClient(httpClientHandler) { BaseAddress = baseAddress };
             result.DefaultRequestHeaders.Accept.Clear();

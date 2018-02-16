@@ -58,13 +58,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
                 var httpClientProvider = new HttpClientProvider();
                 var httpClient = httpClientProvider.CreateWithCustomCertificateValidation(webhookUri, message.IgnoreInvalidSSLCertificate, ConfigHelper.WebhookConnectionTimeout);
 
-                // Check if the httpClient configuration of ignoring SSL Certificate errors is inline with the webhook configuration of ignoring SSL errors
-                // We must perform this check, as the creation of HttpClients is cached and we may need to update the cache if the webhook configuration has changed since
-                if (httpClientProvider.HttpClientIgnoresCertificateErrors(webhookUri) != message.IgnoreInvalidSSLCertificate)
-                {
-                    httpClientProvider.UpdateHttpClient(webhookUri, message.IgnoreInvalidSSLCertificate);
-                }
-
                 var request = new HttpRequestMessage
                 {
                     RequestUri = webhookUri,

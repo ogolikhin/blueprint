@@ -240,31 +240,23 @@ namespace ArtifactStore.Collections
                 throw ArtifactListExceptionHelper.InvalidColumnsException(invalidColumns);
             }
 
-            var changedColumnIds = profileColumns.GetChangedColumnIds(propertyTypeInfos, defaultColumns);
+            var changedColumnIds = profileColumns.GetChangedColumnIds(propertyTypeInfos);
 
             var savingColumns = profileColumns.Items
                 .Except(profileColumns.Items.Where(
                     q => changedColumnIds.Any(changed => changed.Value == q.PropertyTypeId)))
-                .Union(ConvertPropertiesToColumns(
-                    propertyTypeInfos.Where(q => changedColumnIds.Any(changed => changed.Value == q.Id))));
+                .Union(propertyTypeInfos.Where(q => changedColumnIds.Any(changed => changed.Value == q.Id))
+                    .Select(propertyTypeInfo => new ProfileColumn
+                    {
+                        Predefined = propertyTypeInfo.Predefined,
+                        PropertyName = propertyTypeInfo.Name,
+                        PropertyTypeId = propertyTypeInfo.Id,
+                        PrimitiveType = propertyTypeInfo.PrimitiveType
+                    }));
 
             await _artifactListService.SaveProfileColumnsAsync(collection.Id, new ProfileColumns(savingColumns), userId);
 
             return changedColumnIds.Any();
-        }
-
-        private IEnumerable<ProfileColumn> ConvertPropertiesToColumns(IEnumerable<PropertyTypeInfo> listProperties)
-        {
-            foreach (var propertyTypeInfo in listProperties)
-            {
-                yield return new ProfileColumn
-                {
-                    Predefined = propertyTypeInfo.Predefined,
-                    PropertyName = propertyTypeInfo.Name,
-                    PropertyTypeId = propertyTypeInfo.Id,
-                    PrimitiveType = propertyTypeInfo.PrimitiveType
-                };
-            }
         }
 
         private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)

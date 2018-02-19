@@ -69,29 +69,30 @@ namespace ArtifactStore.ArtifactList.Models
         {
             return _columns
                 .Where(column =>
-                    !propertyTypeInfos.Any(info =>
-                        info.Name == column.PropertyName &&
-                        info.Predefined == column.Predefined &&
-                        info.PrimitiveType == column.PrimitiveType &&
-                        info.Id == column.PropertyTypeId) &&
-                    !defaultColumns.Any(defaultColumn =>
-                        defaultColumn.PropertyName == column.PropertyName &&
-                        defaultColumn.Predefined == column.Predefined &&
-                        defaultColumn.PrimitiveType == column.PrimitiveType &&
+                    !columns.Any(customColumn =>
+                        customColumn.PropertyName == column.PropertyName &&
+                        customColumn.Predefined == column.Predefined &&
+                        customColumn.PrimitiveType == column.PrimitiveType &&
+                        customColumn.PropertyTypeId == column.PropertyTypeId) &&
+                     !columns.Any(systemColumn =>
+                        systemColumn.PropertyName == column.PropertyName &&
+                        systemColumn.Predefined == column.Predefined &&
+                        systemColumn.PrimitiveType == column.PrimitiveType &&
                         column.PropertyTypeId == null) &&
-                    !propertyTypeInfos.Any(info =>
-                        info.Predefined == PropertyTypePredefined.CustomGroup &&
-                        info.Id == column.PropertyTypeId))
+                    !columns.Any(changedColumns =>
+                        changedColumns.Predefined == PropertyTypePredefined.CustomGroup &&
+                        changedColumns.PropertyTypeId == column.PropertyTypeId))
                 .ToList();
         }
 
-        public IReadOnlyList<int?> GetChangedColumnIds(IEnumerable<PropertyTypeInfo> propertyTypeInfos,
-            IEnumerable<ProfileColumn> defaultColumns)
+        public IReadOnlyList<int?> GetChangedColumnIds(IEnumerable<PropertyTypeInfo> propertyTypeInfos)
         {
             return _columns
                 .Where(column => propertyTypeInfos.Any(info =>
                     info.Predefined == PropertyTypePredefined.CustomGroup &&
-                    info.Id == column.PropertyTypeId))
+                    info.Id == column.PropertyTypeId &&
+                    ((info.PrimitiveType != column.PrimitiveType) ||
+                     (info.Name != column.PropertyName))))
                 .Select(q => q.PropertyTypeId)
                 .ToList();
         }

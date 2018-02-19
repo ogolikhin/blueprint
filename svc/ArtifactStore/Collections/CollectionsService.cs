@@ -252,9 +252,11 @@ namespace ArtifactStore.Collections
                         PropertyName = propertyTypeInfo.Name,
                         PropertyTypeId = propertyTypeInfo.Id,
                         PrimitiveType = propertyTypeInfo.PrimitiveType
-                    }));
+                    }))
+                .OrderBy(q => q.PropertyName);
 
-            await _artifactListService.SaveProfileColumnsAsync(collection.Id, new ProfileColumns(savingColumns), userId);
+            await _artifactListService.SaveProfileColumnsAsync(collection.Id,
+                new ProfileColumns(savingColumns), userId);
 
             return changedColumnIds.Any();
         }

@@ -73,12 +73,7 @@ namespace ArtifactStore.ArtifactList.Models
                         customColumn.PropertyName == column.PropertyName &&
                         customColumn.Predefined == column.Predefined &&
                         customColumn.PrimitiveType == column.PrimitiveType &&
-                        customColumn.PropertyTypeId == column.PropertyTypeId) &&
-                    !columns.Any(systemColumn =>
-                        systemColumn.PropertyName == column.PropertyName &&
-                        systemColumn.Predefined == column.Predefined &&
-                        systemColumn.PrimitiveType == column.PrimitiveType &&
-                        column.PropertyTypeId == null))
+                        customColumn.PropertyTypeId == column.PropertyTypeId))
                 .ToList();
         }
 

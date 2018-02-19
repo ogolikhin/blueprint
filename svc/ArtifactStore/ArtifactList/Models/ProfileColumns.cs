@@ -69,16 +69,14 @@ namespace ArtifactStore.ArtifactList.Models
         {
             return _columns
                 .Where(column =>
+                    !columns.Any(standardColumn =>
+                        standardColumn.PropertyName == column.PropertyName &&
+                        standardColumn.Predefined == column.Predefined &&
+                        standardColumn.PrimitiveType == column.PrimitiveType &&
+                        standardColumn.PropertyTypeId == column.PropertyTypeId) &&
                     !columns.Any(customColumn =>
-                        customColumn.PropertyName == column.PropertyName &&
-                        customColumn.Predefined == column.Predefined &&
-                        customColumn.PrimitiveType == column.PrimitiveType &&
-                        customColumn.PropertyTypeId == column.PropertyTypeId) &&
-                    !columns.Any(changedColumns =>
-                        changedColumns.Predefined == PropertyTypePredefined.CustomGroup &&
-                        changedColumns.PropertyTypeId == column.PropertyTypeId &&
-                        (changedColumns.PropertyName != column.PropertyName ||
-                         changedColumns.PrimitiveType != column.PrimitiveType)))
+                        customColumn.Predefined == PropertyTypePredefined.CustomGroup &&
+                        customColumn.PropertyTypeId == column.PropertyTypeId))
                 .ToList();
         }
 

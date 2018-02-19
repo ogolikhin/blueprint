@@ -30,8 +30,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers
             var tries = 1;
             while (true)
             {
-                // TODO remove this check when transaction IDs are implemented in messages; for now, we allow messages that do not have a transaction ID
-                var status = transactionId == 0 ? 0 : await repository.GetTransactionStatus(transactionId);
+                var status = await repository.GetTransactionStatus(transactionId);
                 if (!Enum.IsDefined(typeof(TransactionStatus), status))
                 {
                     throw new ArgumentOutOfRangeException($"Invalid Transaction Status: {status}");

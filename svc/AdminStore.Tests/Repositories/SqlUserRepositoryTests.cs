@@ -410,7 +410,7 @@ namespace AdminStore.Repositories
                 returntResult);
 
             // act
-            var result = await repository.DeleteUsersAsync(operationScope, string.Empty, 0);
+            var result = await repository.DeleteUsersAsync(operationScope, string.Empty, 0, null);
 
             // assert
             cxn.Verify();
@@ -444,7 +444,7 @@ namespace AdminStore.Repositories
                 returntResult);
 
             // act
-            var result = await repository.DeleteUsersAsync(operationScope, string.Empty, 0);
+            var result = await repository.DeleteUsersAsync(operationScope, string.Empty, 0, null);
 
             // assert
             cxn.Verify();
@@ -483,7 +483,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("AddUser", It.IsAny<Dictionary<string, object>>(), userId);
 
             // Act
-            var result = await repository.AddUserAsync(user);
+            var result = await repository.AddUserAsync(user, null);
 
             // Assert
             cxn.Verify();
@@ -559,7 +559,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteAsync("UpdateUser", It.IsAny<Dictionary<string, object>>(), 1, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.UpdateUserAsync(user);
+            await repository.UpdateUserAsync(user, null);
 
             // Assert
             cxn.Verify();

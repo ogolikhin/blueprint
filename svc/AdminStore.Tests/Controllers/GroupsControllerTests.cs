@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace AdminStore.Controllers
         private Mock<IServiceLogRepository> _serviceLogRepository;
         private Mock<IItemInfoRepository> _itemInfoRepository;
         private Mock<ISendMessageExecutor> _sendMessageExecutor;
+        private ISqlHelper _sqlHelperMock;
         private QueryResult<GroupDto> _groupsQueryDataResult;
         private GroupsController _controller;
 
@@ -51,8 +53,9 @@ namespace AdminStore.Controllers
             _serviceLogRepository = new Mock<IServiceLogRepository>();
             _itemInfoRepository = new Mock<IItemInfoRepository>();
             _sendMessageExecutor = new Mock<ISendMessageExecutor>();
+            _sqlHelperMock = new SqlHelperMock();
 
-            _controller = new GroupsController(_sqlGroupRepositoryMock.Object, _privilegesRepository.Object, _applicationSettingsRepository.Object, _serviceLogRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object)
+            _controller = new GroupsController(_sqlGroupRepositoryMock.Object, _privilegesRepository.Object, _applicationSettingsRepository.Object, _serviceLogRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object, _sqlHelperMock)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -169,7 +172,7 @@ namespace AdminStore.Controllers
                 2,
                 3
             };
-            _sqlGroupRepositoryMock.Setup(repo => repo.DeleteGroupsAsync(It.Is<OperationScope>(a => a.Ids != null), It.IsAny<string>())).ReturnsAsync(returnResult);
+            _sqlGroupRepositoryMock.Setup(repo => repo.DeleteGroupsAsync(It.Is<OperationScope>(a => a.Ids != null), It.IsAny<string>(), It.IsAny<IDbTransaction>())).ReturnsAsync(returnResult);
 
             // act
             var result = await _controller.DeleteGroups(scope, string.Empty) as OkNegotiatedContentResult<DeleteResult>;
@@ -248,7 +251,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>())).ReturnsAsync(_groupId);
 
             // Act
             var result = await _controller.CreateGroup(_group);
@@ -266,7 +269,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>())).ReturnsAsync(_groupId);
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>())).ReturnsAsync(_groupId);
 
             // Act
             await _controller.CreateGroup(_group);
@@ -285,7 +288,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             _sqlGroupRepositoryMock
-                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(_groupId);
 
             // Act
@@ -314,7 +317,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             _sqlGroupRepositoryMock
-                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(_groupId);
 
             // Act
@@ -343,7 +346,7 @@ namespace AdminStore.Controllers
              .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
              .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             _sqlGroupRepositoryMock
-                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(_groupId);
 
             // Act
@@ -372,7 +375,7 @@ namespace AdminStore.Controllers
                .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             _sqlGroupRepositoryMock
-                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(_groupId);
 
             // Act
@@ -401,7 +404,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             _sqlGroupRepositoryMock
-                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(_groupId);
 
             // Act
@@ -430,7 +433,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             _sqlGroupRepositoryMock
-                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(_groupId);
 
             // Act
@@ -459,7 +462,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             _sqlGroupRepositoryMock
-                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(_groupId);
 
             // Act
@@ -489,7 +492,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             _sqlGroupRepositoryMock
-                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(_groupId);
 
             // Act
@@ -519,7 +522,7 @@ namespace AdminStore.Controllers
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
             _sqlGroupRepositoryMock
-                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+                .Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(_groupId);
 
             // Act
@@ -548,7 +551,7 @@ namespace AdminStore.Controllers
             _privilegesRepository
                 .Setup(r => r.GetInstanceAdminPrivilegesAsync(SessionUserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
-            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>()))
+            _sqlGroupRepositoryMock.Setup(repo => repo.AddGroupAsync(It.IsAny<GroupDto>(), It.IsAny<IDbTransaction>()))
                 .ThrowsAsync(new BadRequestException(ErrorMessages.GroupAlreadyExist));
 
             // Act

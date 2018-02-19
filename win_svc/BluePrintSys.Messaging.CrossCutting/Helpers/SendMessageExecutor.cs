@@ -11,12 +11,12 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
 {
     public interface ISendMessageExecutor
     {
-        Task Execute(IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, ActionMessage message, IDbTransaction transaction = null);
+        Task Execute(IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, ActionMessage message, IDbTransaction transaction);
     }
 
     public class SendMessageExecutor : ISendMessageExecutor
     {
-        public async Task Execute(IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, ActionMessage message, IDbTransaction transaction = null)
+        public async Task Execute(IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository serviceLogRepository, ActionMessage message, IDbTransaction transaction)
         {
             var tenantInfo = await applicationSettingsRepository.GetTenantInfo(transaction);
             var tenantId = tenantInfo?.TenantId;

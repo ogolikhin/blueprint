@@ -195,7 +195,7 @@ namespace AdminStore.Services.Workflow
 
             SqlWorkflow newWorkflow = null;
 
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
                 var publishRevision =
                     await _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId, "Workflow import.");
@@ -303,7 +303,7 @@ namespace AdminStore.Services.Workflow
             AssignStateOrderIndexes(workflowDiffResult,
                 currentWorkflow.States?.ToDictionary(s => s.Id.Value, s => s.OrderIndex));
 
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
                 var publishRevision =
                     await
@@ -411,7 +411,7 @@ namespace AdminStore.Services.Workflow
                 }
             };
 
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
                 var publishRevision =
                     await
@@ -427,16 +427,22 @@ namespace AdminStore.Services.Workflow
 
                 if (existingWorkflow.Active != statusUpdate.Active)
                 {
-                    await PostWorkflowStatusUpdate(workflowId, userId, publishRevision, transaction);
+                    await PostWorkflowStatusUpdate(workflowId, userId, publishRevision, transactionId, transaction);
                 }
             };
             await _workflowRepository.RunInTransactionAsync(action);
             return versionId;
         }
 
-        private async Task PostWorkflowStatusUpdate(int workflowId, int userId, int revisionId, IDbTransaction transaction = null)
+        private async Task PostWorkflowStatusUpdate(int workflowId, int userId, int revisionId, long transactionId, IDbTransaction transaction = null)
         {
-            var message = new WorkflowsChangedMessage { UserId = userId, RevisionId = revisionId, WorkflowId = workflowId };
+            var message = new WorkflowsChangedMessage
+            {
+                TransactionId = transactionId,
+                UserId = userId,
+                RevisionId = revisionId,
+                WorkflowId = workflowId
+            };
             await _sendMessageExecutor.Execute(_applicationSettingsRepository, _serviceLogRepository, message, transaction);
         }
 
@@ -458,7 +464,7 @@ namespace AdminStore.Services.Workflow
                 VersionId = workflowDto.VersionId
             };
 
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
                 var publishRevision =
                     await
@@ -473,7 +479,7 @@ namespace AdminStore.Services.Workflow
                 await _workflowRepository.UpdateWorkflowAsync(workflow, publishRevision, transaction);
                 if (previousWorkflowVersion.Active != workflowDto.Status)
                 {
-                    await PostWorkflowStatusUpdate(workflowId, userId, publishRevision, transaction);
+                    await PostWorkflowStatusUpdate(workflowId, userId, publishRevision, transactionId, transaction);
                 }
             };
 
@@ -483,7 +489,7 @@ namespace AdminStore.Services.Workflow
         public async Task<int> DeleteWorkflows(OperationScope body, string search, int sessionUserId)
         {
             var totalDeleted = 0;
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
                 var publishRevision =
                     await
@@ -726,7 +732,7 @@ namespace AdminStore.Services.Workflow
         {
             var workflowId = 0;
 
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
                 var publishRevision =
                     await _workflowRepository.CreateRevisionInTransactionAsync(transaction, userId, "Create workflow.");

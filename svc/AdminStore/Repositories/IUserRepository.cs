@@ -2,6 +2,7 @@
 using ServiceLibrary.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 
 namespace AdminStore.Repositories
@@ -40,13 +41,13 @@ namespace AdminStore.Repositories
 
         Task<UserDto> GetUserDtoAsync(int userId);
 
-        Task<int> AddUserAsync(User loginUser);
+        Task<int> AddUserAsync(User loginUser, IDbTransaction transaction);
 
         Task<int> AddUserToGroupsAsync(int userId, OperationScope body, string search);
 
-        Task UpdateUserAsync(User loginUser);
+        Task UpdateUserAsync(User loginUser, IDbTransaction transaction);
 
-        Task<List<int>> DeleteUsersAsync(OperationScope body, string search, int sessionUserId);
+        Task<List<int>> DeleteUsersAsync(OperationScope body, string search, int sessionUserId, IDbTransaction transaction);
 
         Task UpdateUserPasswordAsync(string login, string password);
 

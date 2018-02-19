@@ -211,7 +211,7 @@ namespace AdminStore.Repositories
             return result.FirstOrDefault() >= passwordRequestLimit;
         }
 
-        public async Task<int> AddUserAsync(User loginUser)
+        public async Task<int> AddUserAsync(User loginUser, IDbTransaction transaction)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@Login", loginUser.Login);
@@ -238,7 +238,16 @@ namespace AdminStore.Repositories
             parameters.Add("@Guest", loginUser.Guest);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var userId = await _connectionWrapper.ExecuteScalarAsync<int>("AddUser", parameters, commandType: CommandType.StoredProcedure);
+            int userId;
+            if (transaction == null)
+            {
+                userId = await _connectionWrapper.ExecuteScalarAsync<int>("AddUser", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                userId = await transaction.Connection.ExecuteScalarAsync<int>("AddUser", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
+
             var errorCode = parameters.Get<int?>("ErrorCode");
 
             if (errorCode.HasValue)
@@ -259,7 +268,7 @@ namespace AdminStore.Repositories
             return userId;
         }
 
-        public async Task<List<int>> DeleteUsersAsync(OperationScope scope, string search, int sessionUserId)
+        public async Task<List<int>> DeleteUsersAsync(OperationScope scope, string search, int sessionUserId, IDbTransaction transaction)
         {
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -272,7 +281,17 @@ namespace AdminStore.Repositories
             parameters.Add("@SelectAll", scope.SelectAll);
             parameters.Add("@SessionUserId", sessionUserId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var result = (await _connectionWrapper.QueryAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
+
+            List<int> result;
+            if (transaction == null)
+            {
+                result = (await _connectionWrapper.QueryAsync<int>("DeleteUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
+            }
+            else
+            {
+                result = (await transaction.Connection.QueryAsync<int>("DeleteUsers", parameters, transaction, commandType: CommandType.StoredProcedure)).ToList();
+            }
+
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)
             {
@@ -298,7 +317,7 @@ namespace AdminStore.Repositories
             await _connectionWrapper.ExecuteAsync("UpdateUserOnPasswordResetAsync", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task UpdateUserAsync(User loginUser)
+        public async Task UpdateUserAsync(User loginUser, IDbTransaction transaction)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@Login", loginUser.Login);
@@ -318,7 +337,14 @@ namespace AdminStore.Repositories
             parameters.Add("@CurrentVersion", loginUser.CurrentVersion);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            await _connectionWrapper.ExecuteAsync("UpdateUser", parameters, commandType: CommandType.StoredProcedure);
+            if (transaction == null)
+            {
+                await _connectionWrapper.ExecuteAsync("UpdateUser", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await transaction.Connection.ExecuteAsync("UpdateUser", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
 
             var errorCode = parameters.Get<int?>("ErrorCode");
             if (errorCode.HasValue)

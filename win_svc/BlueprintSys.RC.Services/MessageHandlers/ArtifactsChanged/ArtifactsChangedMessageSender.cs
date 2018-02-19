@@ -23,6 +23,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged
 
             var artifactsChangedMessage = new ArtifactsChangedMessage
             {
+                TransactionId = sourceMessage.TransactionId,
                 RevisionId = sourceMessage.RevisionId,
                 UserId = sourceMessage.UserId,
                 ChangeType = ArtifactChangedType.Indirect
@@ -34,7 +35,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged
                 artifactsChangedMessage.ArtifactIds = batch;
 
                 Logger.Log($"Sending Artifacts Changed Message for {batch.Count} artifact IDs: {string.Join(",", batch)}", sourceMessage, tenant);
-                await workflowMessagingProcessor.SendMessageAsync(tenant.TenantId, artifactsChangedMessage);
+                await ActionMessageSender.Send(artifactsChangedMessage, tenant, workflowMessagingProcessor);
                 Logger.Log("Finished sending Artifacts Changed Message", sourceMessage, tenant);
 
                 artifacts = artifacts.Skip(MaximumArtifactBatchSize).ToList();

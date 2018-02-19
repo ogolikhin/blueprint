@@ -12,6 +12,7 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -51,6 +52,7 @@ namespace AdminStore.Controllers
         private Sorting _userGroupsSorting;
         private OperationScope _operationScope;
         private Mock<IItemInfoRepository> _itemInfoRepository;
+        private ISqlHelper _sqlHelperMock;
 
         [TestInitialize]
         public void Initialize()
@@ -67,12 +69,13 @@ namespace AdminStore.Controllers
             _imageServiceMock = new Mock<IImageService>();
             _sendMessageExecutor = new Mock<ISendMessageExecutor>();
             _itemInfoRepository = new Mock<IItemInfoRepository>();
+            _sqlHelperMock = new SqlHelperMock();
 
             _controller = new UsersController(
                 _authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
                 _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object,
                 _httpClientProviderMock.Object, _privilegesRepository.Object,
-                _itemInfoRepository.Object, _sendMessageExecutor.Object, _imageServiceMock.Object)
+                _itemInfoRepository.Object, _sendMessageExecutor.Object, _imageServiceMock.Object, _sqlHelperMock)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -99,12 +102,12 @@ namespace AdminStore.Controllers
             };
 
             _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin)))
+                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin), It.IsAny<IDbTransaction>()))
                 .ReturnsAsync(UserId);
 
             var badRequestException = new BadRequestException(ErrorMessages.LoginNameUnique);
             _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login == ExistedUserLogin)))
+                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login == ExistedUserLogin), It.IsAny<IDbTransaction>()))
                 .ThrowsAsync(badRequestException);
 
             _userGroupsTabularPagination = new Pagination { Limit = 1, Offset = 0 };
@@ -752,7 +755,7 @@ namespace AdminStore.Controllers
 
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
                 _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider,
-                _privilegesRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object, _imageServiceMock.Object)
+                _privilegesRepository.Object, _itemInfoRepository.Object, _sendMessageExecutor.Object, _imageServiceMock.Object, _sqlHelperMock)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -1909,7 +1912,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(existingUser);
 
             var resourceNotFoundExeption = new ResourceNotFoundException(ErrorMessages.UserNotExist);
-            _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>())).Throws(resourceNotFoundExeption);
+            _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>(), It.IsAny<IDbTransaction>())).Throws(resourceNotFoundExeption);
 
             // Act
             await _controller.UpdateUser(UserId, _user);
@@ -1932,7 +1935,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(existingUser);
 
             var conflictExeption = new ConflictException(ErrorMessages.UserVersionsNotEqual);
-            _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>())).Throws(conflictExeption);
+            _usersRepoMock.Setup(repo => repo.UpdateUserAsync(It.IsAny<User>(), It.IsAny<IDbTransaction>())).Throws(conflictExeption);
 
             // Act
             await _controller.UpdateUser(UserId, _user);

@@ -10,12 +10,8 @@ using BlueprintSys.RC.Services.MessageHandlers.ProjectsChanged;
 using BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged;
 using BlueprintSys.RC.Services.MessageHandlers.UsersGroupsChanged;
 using BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged;
-using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Host;
-using BluePrintSys.Messaging.CrossCutting.Logging;
-using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Models.Workflow;
 
 namespace BlueprintSys.RC.Services
 {
@@ -38,32 +34,6 @@ namespace BlueprintSys.RC.Services
         protected override Dictionary<MessageActionType, Type> GetMessageActionToHandlerMapping()
         {
             return _messageActionToHandlerMapping;
-        }
-
-        public WorkflowServiceBusServer()
-        {
-            ConfigHelper = new ConfigHelper();
-            MessageQueue = ConfigHelper.MessageQueue;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
-        protected override void LogInfo(string tenantId, IWorkflowMessage message, Exception exception)
-        {
-            var actionMessage = message as ActionMessage;
-            if (actionMessage == null)
-            {
-                base.LogInfo(tenantId, message, exception);
-                return;
-            }
-            if (exception == null)
-            {
-                Log.Info($"Sending {actionMessage.ActionType} message for tenant {tenantId}");
-            }
-            else
-            {
-                Log.Error($"Failed to send {actionMessage.ActionType.ToString()} message for tenant {tenantId} due to an exception: {exception.Message}", exception);
-            }
         }
     }
 }

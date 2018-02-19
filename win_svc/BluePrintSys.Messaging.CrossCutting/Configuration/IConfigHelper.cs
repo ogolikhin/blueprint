@@ -6,6 +6,8 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
     {
         string NServiceBusConnectionString { get; }
 
+        int NServiceBusSendTimeoutSeconds { get; }
+
         string MessageQueue { get; }
 
         string ErrorQueue { get; }

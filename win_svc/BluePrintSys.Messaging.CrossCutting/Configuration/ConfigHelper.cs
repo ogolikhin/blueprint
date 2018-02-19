@@ -8,6 +8,10 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
         public const string NServiceBusConnectionStringDefault = "";
         public string NServiceBusConnectionString => AppSettingsHelper.GetConfigStringValue(NServiceBusConnectionStringKey, NServiceBusConnectionStringDefault);
 
+        public const string NServiceBusSendTimeoutSecondsKey = "NServiceBus.SendTimeoutSeconds";
+        public const int DefaultNServiceBusSendTimeoutSeconds = 60;
+        public int NServiceBusSendTimeoutSeconds => AppSettingsHelper.GetConfigIntValue(NServiceBusSendTimeoutSecondsKey, DefaultNServiceBusSendTimeoutSeconds);
+
         public const string MessageQueueKey = "NServiceBus.Messaging.MessageQueue";
         public const string MessageQueueDefault = "Blueprint.Workflow";
         public string MessageQueue => AppSettingsHelper.GetConfigStringValue(MessageQueueKey, MessageQueueDefault);

@@ -125,7 +125,7 @@ namespace ArtifactStore.Collections
 
             AddArtifactsToCollectionResult result = null;
 
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
                 var collection = await ValidateCollectionAsync(collectionId, userId, transaction);
 
@@ -164,7 +164,7 @@ namespace ArtifactStore.Collections
 
             RemoveArtifactsFromCollectionResult result = null;
 
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
                 var collection = await ValidateCollectionAsync(collectionId, userId, transaction);
 

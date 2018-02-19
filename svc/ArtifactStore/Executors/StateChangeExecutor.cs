@@ -49,9 +49,9 @@ namespace ArtifactStore.Executors
             return result.Result;
         }
 
-        private Func<IDbTransaction, Task<StateChangeResult>> GetTransactionAction()
+        private Func<IDbTransaction, long, Task<StateChangeResult>> GetTransactionAction()
         {
-            Func<IDbTransaction, Task<StateChangeResult>> action = async transaction =>
+            Func<IDbTransaction, long, Task<StateChangeResult>> action = async (transaction, transactionId) =>
             {
                 var publishRevision = await CreateRevision(transaction);
                 _input.RevisionId = publishRevision;
@@ -107,6 +107,7 @@ namespace ArtifactStore.Executors
                     _userId,
                     publishRevision,
                     _input.UserName,
+                    transactionId,
                     triggers.AsynchronousTriggers,
                     artifactInfo,
                     artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId)?.Name,

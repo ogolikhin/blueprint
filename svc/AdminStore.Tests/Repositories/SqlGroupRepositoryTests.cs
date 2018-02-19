@@ -36,7 +36,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("AddGroup", It.IsAny<Dictionary<string, object>>(), groupId);
 
             // Act
-            await repository.AddGroupAsync(group);
+            await repository.AddGroupAsync(group, null);
 
             // Assert
             cxn.Verify();
@@ -66,7 +66,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("UpdateGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.UpdateGroupAsync(groupId, group);
+            await repository.UpdateGroupAsync(groupId, group, null);
 
             // Assert
             cxn.Verify();
@@ -93,7 +93,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("UpdateGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.UpdateGroupAsync(groupId, group);
+            await repository.UpdateGroupAsync(groupId, group, null);
 
             // Assert
             // Exception
@@ -120,7 +120,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("UpdateGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.UpdateGroupAsync(groupId, group);
+            await repository.UpdateGroupAsync(groupId, group, null);
 
             // Assert
             // Exception
@@ -147,7 +147,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("UpdateGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.UpdateGroupAsync(groupId, group);
+            await repository.UpdateGroupAsync(groupId, group, null);
 
             // Assert
             // Exception
@@ -174,7 +174,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("UpdateGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.UpdateGroupAsync(groupId, group);
+            await repository.UpdateGroupAsync(groupId, group, null);
 
             // Assert
             // Exception
@@ -201,7 +201,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("UpdateGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.UpdateGroupAsync(groupId, group);
+            await repository.UpdateGroupAsync(groupId, group, null);
 
             // Assert
             // Exception
@@ -228,7 +228,7 @@ namespace AdminStore.Repositories
             cxn.SetupExecuteScalarAsync("UpdateGroup", It.IsAny<Dictionary<string, object>>(), 0, new Dictionary<string, object> { { "ErrorCode", errorId } });
 
             // Act
-            await repository.UpdateGroupAsync(groupId, group);
+            await repository.UpdateGroupAsync(groupId, group, null);
 
             // Assert
             // Exception

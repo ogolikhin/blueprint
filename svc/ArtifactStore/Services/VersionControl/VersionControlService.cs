@@ -143,9 +143,9 @@ namespace ArtifactStore.Services.VersionControl
             }
         }
 
-        private Func<IDbTransaction, Task<PublishEnvironment>> GetPublishTransactionAction(PublishParameters parameters, IList<int> artifactIdsList)
+        private Func<IDbTransaction, long, Task<PublishEnvironment>> GetPublishTransactionAction(PublishParameters parameters, IList<int> artifactIdsList)
         {
-            Func<IDbTransaction, Task<PublishEnvironment>> action = async transaction =>
+            Func<IDbTransaction, long, Task<PublishEnvironment>> action = async (transaction, transactionId) =>
             await TransactionalPublishArtifact(parameters, artifactIdsList, transaction);
 
             return action;

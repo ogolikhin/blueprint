@@ -125,7 +125,7 @@ namespace ArtifactStore.Collections
 
             AddArtifactsToCollectionResult result = null;
 
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
                 var collection = await ValidateCollectionAsync(collectionId, userId, transaction);
 
@@ -164,7 +164,7 @@ namespace ArtifactStore.Collections
 
             RemoveArtifactsFromCollectionResult result = null;
 
-            Func<IDbTransaction, Task> action = async transaction =>
+            Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
             {
                 var collection = await ValidateCollectionAsync(collectionId, userId, transaction);
 
@@ -231,8 +231,8 @@ namespace ArtifactStore.Collections
             var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts);
 
-            var defaultColumns = GetUnselectedColumns(propertyTypeInfos);
-            var invalidColumns = profileColumns.GetInvalidColumns(propertyTypeInfos, defaultColumns);
+            var columns = GetUnselectedColumns(propertyTypeInfos);
+            var invalidColumns = profileColumns.GetInvalidColumns(columns);
 
             if (invalidColumns.Any())
             {

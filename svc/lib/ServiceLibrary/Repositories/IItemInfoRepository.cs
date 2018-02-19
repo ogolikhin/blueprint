@@ -17,7 +17,7 @@ namespace ServiceLibrary.Repositories
 
         Task<int> GetRevisionIdFromBaselineId(int baselineId, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
 
-        Task<int> GetTopRevisionId();
+        Task<int> GetTopRevisionId(IDbTransaction transaction);
 
         Task<string> GetItemDescription(int itemId, int userId, bool? addDrafts = true, int? revisionId = int.MaxValue);
 

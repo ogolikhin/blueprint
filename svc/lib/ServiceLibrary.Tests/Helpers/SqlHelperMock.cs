@@ -6,14 +6,14 @@ namespace ServiceLibrary.Helpers
 {
     public class SqlHelperMock : ISqlHelper
     {
-        public async Task RunInTransactionAsync(string connectionString, Func<IDbTransaction, Task> action)
+        public async Task RunInTransactionAsync(string connectionString, Func<IDbTransaction, long, Task> action)
         {
-            await action(null);
+            await action(null, 0);
         }
 
-        public async Task<T> RunInTransactionAsync<T>(string connectionString, Func<IDbTransaction, Task<T>> action)
+        public async Task<T> RunInTransactionAsync<T>(string connectionString, Func<IDbTransaction, long, Task<T>> action)
         {
-            return await action(null);
+            return await action(null, 0);
         }
 
         public async Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string comment)

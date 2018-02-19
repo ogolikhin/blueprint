@@ -57,7 +57,7 @@ namespace AdminStore.Repositories.Workflow
 
         Task<IEnumerable<string>> CheckLiveWorkflowsForNameUniquenessAsync(IEnumerable<string> names, int? exceptWorkflowId = null);
 
-        Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
+        Task RunInTransactionAsync(Func<IDbTransaction, long, Task> action);
 
         Task<QueryResult<WorkflowDto>> GetWorkflows(Pagination pagination, Sorting sorting = null, string search = null,
             Func<Sorting, string> sort = null);

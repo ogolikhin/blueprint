@@ -14,7 +14,7 @@ namespace ServiceLibrary.Helpers
         /// </summary>
         private const int DeadlockSqlExceptionErrorCode = 1205;
 
-        public async Task RunInTransactionAsync(string connectionString, Func<IDbTransaction, Task> action)
+        public async Task RunInTransactionAsync(string connectionString, Func<IDbTransaction, long, Task> action)
         {
             using (var connection = new SqlConnection(connectionString))
             {
@@ -22,13 +22,14 @@ namespace ServiceLibrary.Helpers
 
                 using (var transaction = connection.BeginTransaction())
                 {
-                    await action(transaction);
+                    var transactionId = await CreateTransactionId(transaction);
+                    await action(transaction, transactionId);
                     transaction.Commit();
                 }
             }
         }
 
-        public async Task<T> RunInTransactionAsync<T>(string connectionString, Func<IDbTransaction, Task<T>> action)
+        public async Task<T> RunInTransactionAsync<T>(string connectionString, Func<IDbTransaction, long, Task<T>> action)
         {
             using (var connection = new SqlConnection(connectionString))
             {
@@ -36,12 +37,18 @@ namespace ServiceLibrary.Helpers
 
                 using (var transaction = connection.BeginTransaction())
                 {
-                    var result = await action(transaction);
+                    var transactionId = await CreateTransactionId(transaction);
+                    var result = await action(transaction, transactionId);
                     transaction.Commit();
 
                     return result;
                 }
             }
+        }
+
+        private static async Task<long> CreateTransactionId(SqlTransaction transaction)
+        {
+            return await transaction.Connection.ExecuteScalarAsync<long>("[dbo].[CreateTransactionId]", transaction: transaction, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<int> CreateRevisionInTransactionAsync(IDbTransaction transaction, int userId, string comment)

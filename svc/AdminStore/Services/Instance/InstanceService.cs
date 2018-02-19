@@ -62,12 +62,12 @@ namespace AdminStore.Services.Instance
 
             if (projectStatus == ProjectStatus.Live)
             {
-                Func<IDbTransaction, Task> action = async transaction =>
+                Func<IDbTransaction, long, Task> action = async (transaction, transactionId) =>
                 {
                     var revisionId = await _instanceRepository.RemoveProject(userId, projectId, transaction);
                     await _instanceRepository.DeactivateWorkflowsWithLastAssignmentForDeletedProject(projectId, transaction);
                     var artifactIds = await _instanceRepository.GetProjectArtifactIds(projectId, revisionId - 1, userId, transaction: transaction);
-                    await PostOperation(artifactIds, revisionId, userId, transaction);
+                    await PostOperation(artifactIds, revisionId, userId, transactionId, transaction);
                 };
 
                 await _instanceRepository.RunInTransactionAsync(action);
@@ -78,7 +78,7 @@ namespace AdminStore.Services.Instance
             }
         }
 
-        private async Task PostOperation(IEnumerable<int> artifactIds, int revisionId, int userId, IDbTransaction transaction = null)
+        private async Task PostOperation(IEnumerable<int> artifactIds, int revisionId, int userId, long transactionId, IDbTransaction transaction = null)
         {
             if (artifactIds.IsEmpty())
             {
@@ -87,6 +87,7 @@ namespace AdminStore.Services.Instance
 
             var message = new ArtifactsChangedMessage(artifactIds)
             {
+                TransactionId = transactionId,
                 RevisionId = revisionId,
                 UserId = userId,
                 ChangeType = ArtifactChangedType.Publish

@@ -484,7 +484,7 @@ namespace ArtifactStore.Repositories
                 replaceAllArtifacts, addedIdsList,
                 out alreadyIncludedCount);
 
-            Func<IDbTransaction, Task> transactionAction = async transaction =>
+            Func<IDbTransaction, long, Task> transactionAction = async (transaction, transactionId) =>
             {
                 await UpdateReviewArtifactsAsync(reviewId, userId, artifactXmlResult, transaction);
 
@@ -1643,7 +1643,7 @@ namespace ArtifactStore.Repositories
 
             if (approvalCheck.ReviewApprovalCheck.ReviewStatus != ReviewPackageStatus.Active)
             {
-                throw new ConflictException("Cannot update approval status, the review is not active.");
+                throw new ConflictException("Cannot update approval status, the review is not active.", ErrorCodes.ReviewNotActive);
             }
 
             if (!approvalCheck.ReviewApprovalCheck.AllArtifactsRequireApproval && (approvalCheck.ValidArtifactIds == null || !approvalCheck.ValidArtifactIds.Any()))
@@ -1653,7 +1653,8 @@ namespace ArtifactStore.Repositories
 
             if (approvalCheck.ReviewApprovalCheck.ReviewerRole != ReviewParticipantRole.Approver)
             {
-                throw new ConflictException("Cannot update approval status, participant's role is invalid.");
+
+                throw new ConflictException("Cannot update approval status, participant's role is invalid.", ErrorCodes.ParticipantIsNotAnApprover);
             }
 
             if (!approvalCheck.ValidArtifactIds.Any())
@@ -1715,7 +1716,7 @@ namespace ArtifactStore.Repositories
                 throw ReviewsExceptionHelper.UserCannotAccessReviewException(reviewId);
             }
 
-            Func<IDbTransaction, Task> transactionAction = async transaction =>
+            Func<IDbTransaction, long, Task> transactionAction = async (transaction, transactionId) =>
             {
                 var rdReviewedArtifacts = await GetReviewUserStatsXmlAsync(reviewId, userId, transaction);
 

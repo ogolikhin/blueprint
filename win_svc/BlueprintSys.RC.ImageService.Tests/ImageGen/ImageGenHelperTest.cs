@@ -27,14 +27,14 @@ namespace BlueprintSys.RC.ImageService.Tests.ImageGen
         [TestMethod]
         public async Task GenerateImageAsync_Success()
         {
-            //Arrange
+            // Arrange
             const string jsonModel = "json";
             const int maxWidth = 6000;
             const int maxHeight = 5000;
 
             _browserMock.Setup(b => b.Load(It.IsAny<string>()))
                .Raises(b => b.LoadingStateChanged += null,
-                _browserMock.Object, 
+                _browserMock.Object,
                 new VirtualBrowserLoadingStateChangedEventArgs
                 {
                     Browser = _browserMock.Object, IsLoading = false
@@ -47,27 +47,27 @@ namespace BlueprintSys.RC.ImageService.Tests.ImageGen
             _imageGenHelperMock.Setup(s => s.LoadPageAsync(_browserMock.Object, jsonModel, maxWidth, maxHeight))
                 .ReturnsAsync(true);
 
-            //Act
+            // Act
             await _imageGenHelperMock.Object.GenerateImageAsync(jsonModel, maxWidth, maxHeight, ImageFormat.Png);
 
-            //Assert
+            // Assert
             screenshotMock.Verify(b => b.Save(It.IsAny<Stream>(), It.IsAny<ImageFormat>()));
         }
 
         [TestMethod]
         public async Task GenerateImageAsync_NoBrowser_ReturnsNull()
         {
-            //Arrange
+            // Arrange
             var browserPoolMock = new Mock<IBrowserPool>();
             browserPoolMock.Setup(pool => pool.Rent())
                 .ReturnsAsync((IVirtualBrowser)null);
             var imageGenHelper = new ImageGenHelper(browserPoolMock.Object);
-            
 
-            //Act
+
+            // Act
             var result = await imageGenHelper.GenerateImageAsync("json", 5000, 5000, ImageFormat.Png);
 
-            //Assert
+            // Assert
             Assert.IsNull(result);
         }
     }

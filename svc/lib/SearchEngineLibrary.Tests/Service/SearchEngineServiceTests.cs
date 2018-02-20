@@ -32,13 +32,13 @@ namespace SearchEngineLibrary.Tests.Service
             _sqlArtifactRepositoryMock = new Mock<IArtifactRepository>();
             _searchEngineService = new SearchEngineService(_searchEngineRepositoryMock.Object, _sqlArtifactRepositoryMock.Object);
             _pagination = new Pagination { Limit = 10, Offset = 0 };
-            _searchArtifactsResult = new SearchArtifactsResult { Total = 3, ArtifactIds = new List<int> {1, 2, 3} };
+            _searchArtifactsResult = new SearchArtifactsResult { Total = 3, ArtifactIds = new List<int> { 1, 2, 3 } };
         }
 
         [TestMethod]
         public async Task Search_AllSearchItemsExists_ReturnedSearchArtifactsResult()
         {
-            // arrange           
+            // arrange
             _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId, null)).ReturnsAsync(new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection });
             _searchEngineRepositoryMock.Setup(q => q.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId, null)).ReturnsAsync(_searchArtifactsResult);
 
@@ -52,7 +52,7 @@ namespace SearchEngineLibrary.Tests.Service
         [TestMethod]
         public async Task Search_NotFoundArtifact_ResourceNotFoundException()
         {
-            // arrange           
+            // arrange
             ArtifactBasicDetails artifactBasicDetails = null;
             _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId, null)).ReturnsAsync(artifactBasicDetails);
             _searchEngineRepositoryMock.Setup(q => q.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId, null)).ReturnsAsync(_searchArtifactsResult);
@@ -65,7 +65,7 @@ namespace SearchEngineLibrary.Tests.Service
             {
                 await _searchEngineService.Search(ScopeId, _pagination, ScopeType.Contents, true, UserId);
             }
-            catch(ResourceNotFoundException ex)
+            catch (ResourceNotFoundException ex)
             {
                 exception = ex;
             }
@@ -73,6 +73,6 @@ namespace SearchEngineLibrary.Tests.Service
             // assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(excectedResult.Message, exception.Message);
-        }       
+        }
     }
 }

@@ -45,7 +45,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
             _projectId = 6;
             _projectName = "Test Project";
 
-            _transitionType = (int) TransitionType.Property;
+            _transitionType = (int)TransitionType.Property;
 
             _tenant = new TenantInformation
             {
@@ -72,27 +72,26 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_MessageIsNull_DoesNotProcessMessage()
         {
-            //Arrange
+            // Arrange
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 null,
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_NoUpdatedArtifacts_DoesNotProcessMessage()
         {
-            //Arrange
+            // Arrange
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 new ArtifactsPublishedMessage()
                 {
@@ -107,23 +106,22 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                             IsFirstTimePublished = true
                         }
                     }
-                }, 
+                },
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_NoModifiedPropertiesAvailable_DoesNotProcessMessage()
         {
-            //Arrange
+            // Arrange
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 new ArtifactsPublishedMessage()
                 {
@@ -141,23 +139,22 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_NoPropertyTransitionEventAvailable_ProcessMessage()
         {
-            //Arrange
+            // Arrange
             _artifactsPublishedRepositoryMock.Setup(t => t.GetWorkflowPropertyTransitionsForArtifactsAsync(_userId,
                 _revisionId,
                 _transitionType,
                 It.IsAny<IEnumerable<int>>())).ReturnsAsync(new List<SqlWorkflowEvent>());
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 new ArtifactsPublishedMessage()
                 {
@@ -182,17 +179,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_NoWorkflowStatesAvailable_ProcessMessage()
         {
-            //Arrange
+            // Arrange
             int propertyTypeId = 45;
             _artifactsPublishedRepositoryMock.Setup(t => t.GetWorkflowPropertyTransitionsForArtifactsAsync(_userId,
                 _revisionId,
@@ -210,8 +206,8 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 It.IsAny<IEnumerable<int>>(),
                 _revisionId,
                 true)).ReturnsAsync(new List<SqlWorkFlowStateInformation>());
-            
-            //Act
+
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 new ArtifactsPublishedMessage()
                 {
@@ -237,17 +233,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_NoEmailNotificationAvailable_ProcessMessage()
         {
-            //Arrange
+            // Arrange
             int propertyTypeId = 45;
             int workflowId = 46;
             int workflowStateId = 47;
@@ -289,7 +284,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
             _actionParserMock.Setup(t => t.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).
                 Returns(new List<EmailNotificationAction>());
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 new ArtifactsPublishedMessage
                 {
@@ -316,17 +311,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_ReturnsFalse_WhenNoEmailNotificationActionHasEventPropertyTypeIdForSystemProperty()
         {
-            //Arrange
+            // Arrange
             int propertyTypeId = 45;
             int workflowId = 46;
             int workflowStateId = 47;
@@ -336,7 +330,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 {
                     new SqlWorkflowEvent
                     {
-                        EventType = (int) TransitionType.Property,
+                        EventType = (int)TransitionType.Property,
                         VersionItemId = _artifactId,
                         EventPropertyTypeId = propertyTypeId
                     }
@@ -372,7 +366,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
 
             const PropertyTypePredefined propertyTypePredefined = PropertyTypePredefined.Name;
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(
                 _tenant,
                 new ArtifactsPublishedMessage
@@ -391,7 +385,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                                 new PublishedPropertyInformation
                                 {
                                     TypeId = propertyTypeId,
-                                    PredefinedType = (int) propertyTypePredefined
+                                    PredefinedType = (int)propertyTypePredefined
                                 }
                             }
                         }
@@ -402,14 +396,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _actionParserMock.Object,
                 _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_ReturnsFalse_WhenNoEmailNotificationActionHasEventPropertyTypeIdForCustomProperty()
         {
-            //Arrange
+            // Arrange
             int propertyTypeId = 45;
             int workflowId = 46;
             int workflowStateId = 47;
@@ -419,7 +413,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 {
                     new SqlWorkflowEvent
                     {
-                        EventType = (int) TransitionType.Property,
+                        EventType = (int)TransitionType.Property,
                         VersionItemId = _artifactId,
                         EventPropertyTypeId = propertyTypeId
                     }
@@ -456,7 +450,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
 
             const PropertyTypePredefined propertyTypePredefined = PropertyTypePredefined.CustomGroup;
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(
                 _tenant,
                 new ArtifactsPublishedMessage
@@ -475,7 +469,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                                 new PublishedPropertyInformation
                                 {
                                     TypeId = propertyTypeId,
-                                    PredefinedType = (int) propertyTypePredefined
+                                    PredefinedType = (int)propertyTypePredefined
                                 }
                             }
                         }
@@ -486,14 +480,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _actionParserMock.Object,
                 _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_InstancePropertyTypeIdsDoesNotContainEvent_ProcessMessage()
         {
-            //Arrange
+            // Arrange
             int eventPropertyTypeId = 45;
             int propertyTypeId = 45;
             int workflowId = 46;
@@ -538,7 +532,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 {
                     new EmailNotificationAction
                     {
-                        Emails = { "test@blueprintsys.com"},
+                        Emails = { "test@blueprintsys.com" },
                         Message = "My message",
                         EventPropertyTypeId = eventPropertyTypeId
                     }
@@ -549,7 +543,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                     { propertyTypeId, new List<int>() }
                 });
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 new ArtifactsPublishedMessage
                 {
@@ -576,17 +570,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_ConditionalStateIdDoesNotMatchWorkflowStateId_ProcessMessage()
         {
-            //Arrange
+            // Arrange
             int eventPropertyTypeId = 45;
             int propertyTypeId = 45;
             int workflowId = 46;
@@ -632,7 +625,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 {
                     new EmailNotificationAction
                     {
-                        Emails = { "test@blueprintsys.com"},
+                        Emails = { "test@blueprintsys.com" },
                         Message = "My message",
                         EventPropertyTypeId = eventPropertyTypeId,
                         ConditionalStateId = conditionalStateId
@@ -649,7 +642,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                     }
                 });
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 new ArtifactsPublishedMessage
                 {
@@ -676,10 +669,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
@@ -687,7 +679,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_MessageWithNameSystemPropertyAndConditionalStateIdDoesNotMatchWorkflowStateId_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             int propertyTypeId = 45;
             int workflowId = 46;
             int workflowStateId = 47;
@@ -732,15 +724,15 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 {
                     new EmailNotificationAction
                     {
-                        Emails = { "test@blueprintsys.com"},
+                        Emails = { "test@blueprintsys.com" },
                         Message = "My message",
                         EventPropertyTypeId = WorkflowConstants.PropertyTypeFakeIdName,
                         ConditionalStateId = conditionalStateId
                     }
                 });
-            
 
-            //Act
+
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 new ArtifactsPublishedMessage
                 {
@@ -767,17 +759,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_MessageWithNameSystemPropertyAndConditionalStateIdMatchWorkflowStateId_ReturnsTrue()
         {
-            //Arrange
+            // Arrange
             int propertyTypeId = 45;
             int workflowId = 46;
             int workflowStateId = 48;
@@ -822,7 +813,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 {
                     new EmailNotificationAction
                     {
-                        Emails = { "test@blueprintsys.com"},
+                        Emails = { "test@blueprintsys.com" },
                         Message = "My message",
                         EventPropertyTypeId = WorkflowConstants.PropertyTypeFakeIdName,
                         ConditionalStateId = conditionalStateId
@@ -830,7 +821,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 });
 
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 new ArtifactsPublishedMessage
                 {
@@ -857,17 +848,16 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "Message should be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_MessageWithDescriptionSystemPropertyAndConditionalStateIdMatchWorkflowStateId_ReturnsTrue()
         {
-            //Arrange
+            // Arrange
             const int propertyTypeId = 33;
             const int workflowId = 34;
             const int workflowStateId = 35;
@@ -878,7 +868,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 {
                     new SqlWorkflowEvent
                     {
-                        EventType = (int) TransitionType.Property,
+                        EventType = (int)TransitionType.Property,
                         VersionItemId = _artifactId,
                         EventPropertyTypeId = WorkflowConstants.PropertyTypeFakeIdDescription
                     }
@@ -917,7 +907,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                     }
                 });
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(
                 _tenant,
                 new ArtifactsPublishedMessage
@@ -936,7 +926,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                                 new PublishedPropertyInformation
                                 {
                                     TypeId = propertyTypeId,
-                                    PredefinedType = (int) PropertyTypePredefined.Description
+                                    PredefinedType = (int)PropertyTypePredefined.Description
                                 }
                             }
                         }
@@ -947,14 +937,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _actionParserMock.Object,
                 _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "Message with a Description system property should be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessUpdatedArtifacts_AllEvaluationsSuccessful_ProcessMessage()
         {
-            //Arrange
+            // Arrange
             int eventPropertyTypeId = 45;
             int propertyTypeId = 45;
             int workflowId = 46;
@@ -1000,7 +990,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 {
                     new EmailNotificationAction
                     {
-                        Emails = { "test@blueprintsys.com"},
+                        Emails = { "test@blueprintsys.com" },
                         Message = "My message",
                         EventPropertyTypeId = eventPropertyTypeId,
                         ConditionalStateId = conditionalStateId
@@ -1017,7 +1007,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                     }
                 });
 
-            //Act
+            // Act
             var result = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(_tenant,
                 new ArtifactsPublishedMessage
                 {
@@ -1049,10 +1039,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _actionParserMock.Object,
-                _wfMessagingMock.Object
-                );
+                _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "Did not process message.");
         }
     }

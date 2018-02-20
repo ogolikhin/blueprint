@@ -9,8 +9,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ProjectsChanged
     {
         protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
-            var message = (ProjectsChangedMessage) actionMessage;
-            var repository = (ProjectsChangedRepository) baseRepository;
+            var message = (ProjectsChangedMessage)actionMessage;
+            var repository = (ProjectsChangedRepository)baseRepository;
 
             Logger.Log("Getting affected artifact IDs", message, tenant);
             var artifactIds = await repository.GetAffectedArtifactIds();

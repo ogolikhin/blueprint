@@ -64,10 +64,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         [TestMethod]
         public async Task HandleAction_ArtifactIdIsInvalid_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateTestsActionHelper();
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -80,10 +80,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
                 RevisionId = RevisionId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed for invalid message");
             _jobsRepoMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -91,10 +90,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         [TestMethod]
         public async Task HandleAction_RevisionIdIsInvalid_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateTestsActionHelper();
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -107,10 +106,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
                 UserId = UserId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed for invalid message");
             _jobsRepoMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -118,10 +116,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         [TestMethod]
         public async Task HandleAction_UserNameIsInvalid_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateTestsActionHelper();
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -134,10 +132,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
                 UserId = UserId,
                 RevisionId = RevisionId,
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed for invalid message");
             _jobsRepoMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -145,7 +142,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         [TestMethod]
         public async Task HandleAction_CannotCreateJob_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateTestsActionHelper();
             var sqlUser = new SqlUser
             {
@@ -169,7 +166,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
                 UserName,
                 null)).ReturnsAsync((int?)null);
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -183,10 +180,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
                 ProjectId = ProjectId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed when unable to create job");
             _jobsRepoMock.Verify(t => t.AddJobMessage(JobType.GenerateProcessTests, It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
@@ -194,7 +190,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
         [TestMethod]
         public async Task HandleAction_CreatesJob_ReturnsTrue()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateTestsActionHelper();
             var sqlUser = new SqlUser
             {
@@ -218,7 +214,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
                 UserName,
                 It.IsAny<string>())).ReturnsAsync(2);
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -232,10 +228,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateTests
                 ProjectId = ProjectId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "Action should have succeeded");
             _jobsRepoMock.Verify(t => t.AddJobMessage(JobType.GenerateProcessTests, It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }

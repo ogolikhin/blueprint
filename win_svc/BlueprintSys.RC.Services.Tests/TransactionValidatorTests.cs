@@ -33,12 +33,12 @@ namespace BlueprintSys.RC.Services.Tests
         [TestMethod]
         public async Task TransactionValidator_ReturnsCommitted_WhenRepositoryReturnsCommittedInt()
         {
-            //arrange
+            // arrange
             const TransactionStatus expectedStatus = TransactionStatus.Committed;
-            _baseRepoMock.Setup(m => m.GetTransactionStatus(It.IsAny<long>())).ReturnsAsync((int) expectedStatus);
-            //act
+            _baseRepoMock.Setup(m => m.GetTransactionStatus(It.IsAny<long>())).ReturnsAsync((int)expectedStatus);
+            // act
             var status = await _transactionValidator.GetStatus(_message, _tenant, _baseRepoMock.Object);
-            //assert
+            // assert
             Assert.AreEqual(expectedStatus, status);
             _baseRepoMock.Verify(m => m.GetTransactionStatus(It.IsAny<long>()), Times.Once);
         }
@@ -46,12 +46,12 @@ namespace BlueprintSys.RC.Services.Tests
         [TestMethod]
         public async Task TransactionValidator_ReturnsRolledBack_WhenRepositoryReturnsRolledBackInt()
         {
-            //arrange
+            // arrange
             const TransactionStatus expectedStatus = TransactionStatus.RolledBack;
-            _baseRepoMock.Setup(m => m.GetTransactionStatus(It.IsAny<long>())).ReturnsAsync((int) expectedStatus);
-            //act
+            _baseRepoMock.Setup(m => m.GetTransactionStatus(It.IsAny<long>())).ReturnsAsync((int)expectedStatus);
+            // act
             var status = await _transactionValidator.GetStatus(_message, _tenant, _baseRepoMock.Object);
-            //assert
+            // assert
             Assert.AreEqual(expectedStatus, status);
             _baseRepoMock.Verify(m => m.GetTransactionStatus(It.IsAny<long>()), Times.Once);
         }
@@ -60,17 +60,17 @@ namespace BlueprintSys.RC.Services.Tests
         [ExpectedException(typeof(EntityNotFoundException))]
         public async Task TransactionValidator_ThrowsException_WhenRepositoryRepeatedlyReturnsUncommittedInt()
         {
-            //arrange
+            // arrange
             const TransactionStatus expectedStatus = TransactionStatus.Uncommitted;
-            _baseRepoMock.Setup(m => m.GetTransactionStatus(It.IsAny<long>())).ReturnsAsync((int) expectedStatus);
-            //act
+            _baseRepoMock.Setup(m => m.GetTransactionStatus(It.IsAny<long>())).ReturnsAsync((int)expectedStatus);
+            // act
             try
             {
                 await _transactionValidator.GetStatus(_message, _tenant, _baseRepoMock.Object);
             }
             catch (EntityNotFoundException)
             {
-                //assert
+                // assert
                 _baseRepoMock.Verify(m => m.GetTransactionStatus(It.IsAny<long>()), Times.Exactly(TransactionValidator.TriesMax));
                 throw;
             }
@@ -80,18 +80,18 @@ namespace BlueprintSys.RC.Services.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public async Task TransactionValidator_ThrowsException_WhenRepositoryReturnsUnhandledInt()
         {
-            //arrange
+            // arrange
             var maxStatus = Enum.GetValues(typeof(TransactionStatus)).Cast<int>().Max();
             var unhandledStatus = maxStatus + 1;
             _baseRepoMock.Setup(m => m.GetTransactionStatus(It.IsAny<long>())).ReturnsAsync(unhandledStatus);
-            //act
+            // act
             try
             {
                 await _transactionValidator.GetStatus(_message, _tenant, _baseRepoMock.Object);
             }
             catch (ArgumentOutOfRangeException)
             {
-                //assert
+                // assert
                 _baseRepoMock.Verify(m => m.GetTransactionStatus(It.IsAny<long>()), Times.Once);
                 throw;
             }

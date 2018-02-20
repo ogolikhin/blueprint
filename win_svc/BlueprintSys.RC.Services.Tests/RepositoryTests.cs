@@ -17,123 +17,123 @@ namespace BlueprintSys.RC.Services.Tests
         [TestMethod]
         public void BaseRepository_InstantiatesSuccessfully()
         {
-            //arrange
+            // arrange
             var connectionString = string.Empty;
 
-            //act
+            // act
             var repository = new BaseRepository(connectionString);
 
-            //assert
+            // assert
             Assert.IsNotNull(repository);
         }
 
         [TestMethod]
         public async Task GetWorkflowPropertyTransitionsForArtifactsAsync_CompletesSuccessfuly()
         {
-            //arrange
+            // arrange
             var connectionMock = new SqlConnectionWrapperMock();
             const string storedProcedure = "[dbo].[GetWorkflowTriggersForArtifacts]";
             const int userId = 1;
             const int revisionId = 2;
             const int eventType = 1;
-            var itemIds = new[] {1, 2, 3};
+            var itemIds = new[] { 1, 2, 3 };
             var parameters = new Dictionary<string, object>
             {
-                {nameof(userId), userId},
-                {nameof(revisionId), revisionId},
-                {nameof(eventType), eventType},
-                {nameof(itemIds), SqlConnectionWrapper.ToDataTable(itemIds)}
+                { nameof(userId), userId },
+                { nameof(revisionId), revisionId },
+                { nameof(eventType), eventType },
+                { nameof(itemIds), SqlConnectionWrapper.ToDataTable(itemIds) }
             };
             var result = new List<SqlWorkflowEvent>();
             for (int i = 0; i < 5; i++)
             {
-                result.Add(new SqlWorkflowEvent {Triggers = $"Triggers{i}"});
+                result.Add(new SqlWorkflowEvent { Triggers = $"Triggers{i}" });
             }
             connectionMock.SetupQueryAsync(storedProcedure, parameters, result);
 
-            //act
+            // act
             var repository = new ArtifactsPublishedRepository(connectionMock.Object);
             var repositoryResult = await repository.GetWorkflowPropertyTransitionsForArtifactsAsync(userId, revisionId, eventType, itemIds);
 
-            //assert
+            // assert
             Assert.AreEqual(result.Count, repositoryResult.Count);
         }
 
         [TestMethod]
         public async Task GetWorkflowStatesForArtifactsAsync_CompletesSuccessfuly()
         {
-            //arrange
+            // arrange
             var connectionMock = new SqlConnectionWrapperMock();
             const string storedProcedure = "[dbo].[GetWorkflowStatesForArtifacts]";
             const int userId = 1;
-            var artifactIds = new[] {1, 2, 3};
+            var artifactIds = new[] { 1, 2, 3 };
             const int revisionId = 2;
             const bool addDrafts = true;
             var parameters = new Dictionary<string, object>
             {
-                {nameof(userId), userId},
-                {nameof(artifactIds), SqlConnectionWrapper.ToDataTable(artifactIds)},
-                {nameof(revisionId), revisionId},
-                {nameof(addDrafts), addDrafts}
+                { nameof(userId), userId },
+                { nameof(artifactIds), SqlConnectionWrapper.ToDataTable(artifactIds) },
+                { nameof(revisionId), revisionId },
+                { nameof(addDrafts), addDrafts }
             };
             var result = new List<SqlWorkFlowStateInformation>();
             for (int i = 0; i < 5; i++)
             {
-                result.Add(new SqlWorkFlowStateInformation {Name = $"Name{i}"});
+                result.Add(new SqlWorkFlowStateInformation { Name = $"Name{i}" });
             }
             connectionMock.SetupQueryAsync(storedProcedure, parameters, result);
 
-            //act
+            // act
             var repository = new ArtifactsPublishedRepository(connectionMock.Object);
             var repositoryResult = await repository.GetWorkflowStatesForArtifactsAsync(userId, artifactIds, revisionId, addDrafts);
 
-            //assert
+            // assert
             Assert.AreEqual(result.Count, repositoryResult.Count);
         }
 
         [TestMethod]
         public async Task GetInstancePropertyTypeIdsMap_CompletesSuccessfuly()
         {
-            //arrange
+            // arrange
             var connectionMock = new SqlConnectionWrapperMock();
             const string storedProcedure = "[dbo].[GetInstancePropertyTypeIdsFromCustomIds]";
-            var customPropertyTypeIds = new[] {1, 2, 3};
-            var parameters = new Dictionary<string, object> {{nameof(customPropertyTypeIds), SqlConnectionWrapper.ToDataTable(customPropertyTypeIds)}};
+            var customPropertyTypeIds = new[] { 1, 2, 3 };
+            var parameters = new Dictionary<string, object> { { nameof(customPropertyTypeIds), SqlConnectionWrapper.ToDataTable(customPropertyTypeIds) } };
             var result = new List<SqlCustomToInstancePropertyTypeIds>();
             for (int i = 0; i < 5; i++)
             {
-                result.Add(new SqlCustomToInstancePropertyTypeIds {InstancePropertyTypeId = i, PropertyTypeId = i});
+                result.Add(new SqlCustomToInstancePropertyTypeIds { InstancePropertyTypeId = i, PropertyTypeId = i });
             }
             connectionMock.SetupQueryAsync(storedProcedure, parameters, result);
 
-            //act
+            // act
             var repository = new ArtifactsPublishedRepository(connectionMock.Object);
             var repositoryResult = await repository.GetInstancePropertyTypeIdsMap(customPropertyTypeIds);
 
-            //assert
+            // assert
             Assert.AreEqual(result.Count, repositoryResult.Count);
         }
 
         [TestMethod]
         public async Task GetProjectNameByIdsAsync_CompletesSuccessfuly()
         {
-            //arrange
+            // arrange
             var connectionMock = new SqlConnectionWrapperMock();
             const string storedProcedure = "[dbo].[GetProjectNameByIds]";
-            var projectIds = new[] {1, 2, 3};
-            var parameters = new Dictionary<string, object> {{nameof(projectIds), SqlConnectionWrapper.ToDataTable(projectIds)}};
+            var projectIds = new[] { 1, 2, 3 };
+            var parameters = new Dictionary<string, object> { { nameof(projectIds), SqlConnectionWrapper.ToDataTable(projectIds) } };
             var result = new List<SqlProject>();
             for (int i = 0; i < 5; i++)
             {
-                result.Add(new SqlProject {ItemId = i, Name = $"Name{i}"});
+                result.Add(new SqlProject { ItemId = i, Name = $"Name{i}" });
             }
             connectionMock.SetupQueryAsync(storedProcedure, parameters, result);
 
-            //act
+            // act
             var repository = new ArtifactsPublishedRepository(connectionMock.Object);
             var repositoryResult = await repository.GetProjectNameByIdsAsync(projectIds);
 
-            //assert
+            // assert
             Assert.AreEqual(result.Count, repositoryResult.Count);
         }
     }

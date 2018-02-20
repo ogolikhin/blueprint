@@ -19,7 +19,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ProjectsChanged
 
         public async Task<List<int>> GetAffectedArtifactIds()
         {
-            //TODO
+            // TODO
             return await Task.FromResult(new List<int>());
         }
     }

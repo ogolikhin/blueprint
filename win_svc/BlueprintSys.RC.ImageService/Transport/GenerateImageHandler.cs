@@ -16,7 +16,7 @@ namespace BlueprintSys.RC.ImageService.Transport
             ImageResponseMessage imageGenerated;
             try
             {
-                //generate image
+                // Generate image
                 var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(message.ProcessJsonModel, message.MaxWidth, message.MaxHeight, ImageFormat.Png);
                 imageGenerated = new ImageResponseMessage
                 {

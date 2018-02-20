@@ -114,8 +114,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
             if (nPercentH < nPercentW)
             {
                 nPercent = nPercentH;
-                //Uncomment the line below in order to center the logo.
-                //destX = Convert.ToInt16((newWidth - (sourceWidth * nPercent)) / 2);
+                // Uncomment the line below in order to center the logo.
+                ////destX = Convert.ToInt16((newWidth - (sourceWidth * nPercent)) / 2);
             }
             else
             {

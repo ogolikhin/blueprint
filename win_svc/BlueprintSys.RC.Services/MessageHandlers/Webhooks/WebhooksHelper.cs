@@ -75,7 +75,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
                 return await httpClient.SendAsync(request);
             }
-            catch(HttpRequestException e)
+            catch (HttpRequestException e)
             {
                 if (e.InnerException is WebException &&
                     ((WebException)e.InnerException).Status == WebExceptionStatus.TrustFailure)
@@ -97,7 +97,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
                 return;
             }
 
-            foreach(var httpHeader in message.HttpHeaders)
+            foreach (var httpHeader in message.HttpHeaders)
             {
                 var headers = SystemEncryptions.Decrypt(httpHeader);
                 var keyValuePair = headers.Split(':');

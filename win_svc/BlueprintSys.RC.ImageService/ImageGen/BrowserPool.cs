@@ -15,13 +15,12 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
         private ConcurrentBag<IVirtualBrowser> _freeBrowsers;
         private static readonly int MaxSize = ServiceHelper.BrowserPoolMaxSize;
-        // If the pool is not enabled, the pool acts just as a factory. 
+        // If the pool is not enabled, the pool acts just as a factory.
         private static readonly bool IsPoolEnabled = ServiceHelper.BrowserPoolEnabled;
         private SemaphoreSlim _browserPool;
 
         private BrowserPool()
         {
-            
         }
 
         public static BrowserPool Create()
@@ -42,16 +41,16 @@ namespace BlueprintSys.RC.ImageService.ImageGen
             }
 
             IVirtualBrowser browser;
-            //if there is a free browser - use it
+            // If there is a free browser - use it
             if (IsPoolEnabled && _freeBrowsers.TryTake(out browser))
             {
                 return browser;
             }
 
-            //create a new browser
+            // Create a new browser
             browser = new VirtualBrowser();
 
-            //initialize it
+            // Initialize it
             if (!browser.IsBrowserInitialized)
             {
                 var tcs = new TaskCompletionSource<bool>();
@@ -61,7 +60,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
                 await tcs.Task;
             }
             browser.Size = new Size(1920, 1080);
-            //and use it
+            // and use it
             return browser;
         }
 

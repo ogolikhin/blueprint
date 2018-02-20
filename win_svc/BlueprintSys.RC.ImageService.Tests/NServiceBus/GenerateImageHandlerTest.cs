@@ -22,7 +22,7 @@ namespace BlueprintSys.RC.ImageService.Tests.NServiceBus
             var imageGenHelperMock = new Mock<IImageGenHelper>();
             imageGenHelperMock.Setup(
                 m => m.GenerateImageAsync(inputJson, It.IsAny<int>(), It.IsAny<int>(), It.IsAny<ImageFormat>()))
-                .Returns(Task.FromResult(new MemoryStream{Capacity = 100}));
+                .Returns(Task.FromResult(new MemoryStream { Capacity = 100 }));
             ImageGenService.Instance.ImageGenerator = imageGenHelperMock.Object;
 
             Test.Handler<GenerateImageHandler>()

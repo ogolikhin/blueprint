@@ -45,7 +45,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             }
             else
             {
-                Logger.Log($"Failed to send webhook. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.", message, tenant, LogLevel.Error);
+                Logger.Log($"Failed to send webhook. {(int)result.StatusCode} - {result.StatusCode}. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.", message, tenant, LogLevel.Error);
                 throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook");
             }
         }
@@ -54,7 +54,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
         {
             try
             {
-                var webhookUri = GetBaseAddress(message.Url);
+                var webhookUri = new Uri(message.Url);
                 var httpClientProvider = new HttpClientProvider();
                 var httpClient = httpClientProvider.CreateWithCustomCertificateValidation(webhookUri, message.IgnoreInvalidSSLCertificate, ConfigHelper.WebhookConnectionTimeout);
 
@@ -87,16 +87,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
                     throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to {e.Message}.");
                 }
             }
-        }
-
-        private Uri GetBaseAddress(string urlString)
-        {
-            var url = new Uri(urlString);
-            var builder = new UriBuilder();
-            builder.Scheme = url.Scheme;
-            builder.Host = url.Host;
-            builder.Port = url.Port;
-            return builder.Uri;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]

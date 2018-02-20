@@ -72,7 +72,7 @@ namespace AdminStore.Repositories
             return queryDataResult;
         }
 
-        public async Task<List<int>> DeleteGroupsAsync(OperationScope body, string search)
+        public async Task<List<int>> DeleteGroupsAsync(OperationScope body, string search, IDbTransaction transaction)
         {
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -83,12 +83,20 @@ namespace AdminStore.Repositories
             parameters.Add("@GroupsIds", SqlConnectionWrapper.ToDataTable(body.Ids));
             parameters.Add("@Search", search);
             parameters.Add("@SelectAll", body.SelectAll);
-            var result = (await _connectionWrapper.QueryAsync<int>("DeleteGroups", parameters, commandType: CommandType.StoredProcedure)).ToList();
 
+            List<int> result;
+            if (transaction == null)
+            {
+                result = (await _connectionWrapper.QueryAsync<int>("DeleteGroups", parameters, commandType: CommandType.StoredProcedure)).ToList();
+            }
+            else
+            {
+                result = (await transaction.Connection.QueryAsync<int>("DeleteGroups", parameters, transaction, commandType: CommandType.StoredProcedure)).ToList();
+            }
             return result;
         }
 
-        public async Task<int> AddGroupAsync(GroupDto group)
+        public async Task<int> AddGroupAsync(GroupDto group, IDbTransaction transaction)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@Name", group.Name);
@@ -98,7 +106,16 @@ namespace AdminStore.Repositories
             parameters.Add("@ProjectId", group.ProjectId);
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            var groupId = await _connectionWrapper.ExecuteScalarAsync<int>("AddGroup", parameters, commandType: CommandType.StoredProcedure);
+            int groupId;
+            if (transaction == null)
+            {
+                groupId = await _connectionWrapper.ExecuteScalarAsync<int>("AddGroup", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                groupId = await transaction.Connection.ExecuteScalarAsync<int>("AddGroup", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
+
             var errorCode = parameters.Get<int?>("ErrorCode");
 
             if (errorCode.HasValue)
@@ -122,7 +139,7 @@ namespace AdminStore.Repositories
             return groupId;
         }
 
-        public async Task UpdateGroupAsync(int groupId, GroupDto group)
+        public async Task UpdateGroupAsync(int groupId, GroupDto group, IDbTransaction transaction)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@GroupId", groupId);
@@ -133,7 +150,15 @@ namespace AdminStore.Repositories
 
             parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            await _connectionWrapper.ExecuteScalarAsync<int>("UpdateGroup", parameters, commandType: CommandType.StoredProcedure);
+            if (transaction == null)
+            {
+                await _connectionWrapper.ExecuteScalarAsync<int>("UpdateGroup", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                await transaction.Connection.ExecuteScalarAsync<int>("UpdateGroup", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
+
             var errorCode = parameters.Get<int?>("ErrorCode");
 
             if (errorCode.HasValue)

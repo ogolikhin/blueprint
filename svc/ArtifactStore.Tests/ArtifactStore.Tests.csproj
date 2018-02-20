@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="App_Start\WebApiConfigTests.cs" />
     <Compile Include="ArtifactList\ArtifactListServiceTests.cs" />
+    <Compile Include="ArtifactList\Helpers\ArtifactListExceptionHelperTests.cs" />
     <Compile Include="ArtifactList\Models\ProfileColumnsTests.cs" />
     <Compile Include="Collections\CollectionsControllerTests.cs" />
     <Compile Include="Collections\CollectionsServiceTests.cs" />

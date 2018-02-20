@@ -281,6 +281,130 @@ namespace ArtifactStore.Collections
             await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task SaveProfileColumnsAsync_InvalidColumnsForSaving_InvalidName_ThrowInvalidColumnsException()
+        {
+            var propertyTypeInfos = new List<PropertyTypeInfo>();
+
+            foreach (var column in _profileColumns.Items)
+            {
+                propertyTypeInfos.Add(new PropertyTypeInfo()
+                {
+                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Name = column.PropertyName + DateTime.Now.ToLongDateString(),
+                    Predefined = column.Predefined,
+                    PrimitiveType = column.PrimitiveType
+                });
+            }
+
+            _collectionsRepository
+                .Setup(q => q.GetPropertyTypeInfosForItemTypesAsync(
+                    It.IsAny<IEnumerable<int>>(), null))
+                .ReturnsAsync(propertyTypeInfos);
+
+            await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task SaveProfileColumnsAsync_InvalidColumnsForSaving_InvalidPredefined_ThrowInvalidColumnsException()
+        {
+            var propertyTypeInfos = new List<PropertyTypeInfo>();
+
+            foreach (var column in _profileColumns.Items)
+            {
+                propertyTypeInfos.Add(new PropertyTypeInfo()
+                {
+                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Name = column.PropertyName,
+                    Predefined = PropertyTypePredefined.BackgroundColor,
+                    PrimitiveType = column.PrimitiveType
+                });
+            }
+
+            _collectionsRepository
+                .Setup(q => q.GetPropertyTypeInfosForItemTypesAsync(
+                    It.IsAny<IEnumerable<int>>(), null))
+                .ReturnsAsync(propertyTypeInfos);
+
+            await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task SaveProfileColumnsAsync_InvalidColumnsForSaving_InvalidPrimitiveType_ThrowInvalidColumnsException()
+        {
+            var propertyTypeInfos = new List<PropertyTypeInfo>();
+
+            foreach (var column in _profileColumns.Items)
+            {
+                propertyTypeInfos.Add(new PropertyTypeInfo()
+                {
+                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Name = column.PropertyName,
+                    Predefined = column.Predefined,
+                    PrimitiveType = PropertyPrimitiveType.Date
+                });
+            }
+
+            _collectionsRepository
+                .Setup(q => q.GetPropertyTypeInfosForItemTypesAsync(
+                    It.IsAny<IEnumerable<int>>(), null))
+                .ReturnsAsync(propertyTypeInfos);
+
+            await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task SaveProfileColumnsAsync_InvalidColumnsForSaving_InvalidPropertyTypeId_ThrowInvalidColumnsException()
+        {
+            var propertyTypeInfos = new List<PropertyTypeInfo>();
+
+            foreach (var column in _profileColumns.Items)
+            {
+                propertyTypeInfos.Add(new PropertyTypeInfo()
+                {
+                    Id = column.PropertyTypeId.GetValueOrDefault() + 1,
+                    Name = column.PropertyName,
+                    Predefined = column.Predefined,
+                    PrimitiveType = column.PrimitiveType
+                });
+            }
+
+            _collectionsRepository
+                .Setup(q => q.GetPropertyTypeInfosForItemTypesAsync(
+                    It.IsAny<IEnumerable<int>>(), null))
+                .ReturnsAsync(propertyTypeInfos);
+
+            await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
+        }
+
+        [TestMethod]
+        public async Task SaveProfileColumnsAsync_AllDataValid_SuccessResult()
+        {
+            var propertyTypeInfos = new List<PropertyTypeInfo>();
+
+            foreach (var column in _profileColumns.Items)
+            {
+                propertyTypeInfos.Add(new PropertyTypeInfo()
+                {
+                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Name = column.PropertyName,
+                    Predefined = column.Predefined,
+                    PrimitiveType = column.PrimitiveType
+                });
+            }
+
+            _collectionsRepository
+                .Setup(q => q.GetPropertyTypeInfosForItemTypesAsync(
+                    It.IsAny<IEnumerable<int>>(), null))
+                .ReturnsAsync(propertyTypeInfos);
+
+            await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
+        }
+
         #endregion SaveColumnSettingsAsync
 
         #region GetColumnsAsync

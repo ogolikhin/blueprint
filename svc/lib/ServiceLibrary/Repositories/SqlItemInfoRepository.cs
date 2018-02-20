@@ -181,11 +181,19 @@ namespace ServiceLibrary.Repositories
             return (await _connectionWrapper.QueryAsync<ItemRawData>("GetItemsRawDataCreatedDate", prm, commandType: CommandType.StoredProcedure));
         }
 
-        public async Task<int> GetTopRevisionId()
+        public async Task<int> GetTopRevisionId(IDbTransaction transaction)
         {
-            var queryText = "SELECT MAX([RevisionId]) FROM [dbo].[Revisions];";
-
-            return (await _connectionWrapper.QueryAsync<int>(queryText)).SingleOrDefault();
+            const string queryText = "SELECT MAX([RevisionId]) FROM [dbo].[Revisions];";
+            int result;
+            if (transaction == null)
+            {
+                result = (await _connectionWrapper.QueryAsync<int>(queryText)).SingleOrDefault();
+            }
+            else
+            {
+                result = (await transaction.Connection.QueryAsync<int>(queryText, transaction: transaction)).SingleOrDefault();
+            }
+            return result;
         }
     }
 }

@@ -49,7 +49,7 @@ namespace AdminStore.Repositories
 
         Task UpdateRoleAssignmentAsync(int projectId, int roleAssignmentId, RoleAssignmentDTO roleAssignment);
 
-        Task RunInTransactionAsync(Func<IDbTransaction, Task> action);
+        Task RunInTransactionAsync(Func<IDbTransaction, long, Task> action);
 
         Task<IEnumerable<int>> GetProjectArtifactIds(int projectId, int revisionId, int userId, bool? addDrafts = false, IDbTransaction transaction = null);
     }

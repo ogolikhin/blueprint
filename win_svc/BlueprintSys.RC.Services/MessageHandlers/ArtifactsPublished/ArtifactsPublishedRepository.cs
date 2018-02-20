@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Dapper;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
-using ServiceLibrary.Repositories.Workflow;
 using ServiceLibrary.Repositories.Webhooks;
+using ServiceLibrary.Repositories.Workflow;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
@@ -40,7 +40,6 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
     public class ArtifactsPublishedRepository : BaseRepository, IArtifactsPublishedRepository
     {
         public IWorkflowRepository WorkflowRepository { get; }
-
         public IWebhookRepository WebhookRepository { get; }
 
         public ArtifactsPublishedRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
@@ -68,7 +67,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
             param.Add("@revisionId", revisionId);
             param.Add("@eventType", eventType);
             param.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds));
-            return (await ConnectionWrapper.QueryAsync<SqlWorkflowEvent>("GetWorkflowTriggersForArtifacts", param, commandType: CommandType.StoredProcedure)).ToList();
+            return (await ConnectionWrapper.QueryAsync<SqlWorkflowEvent>("[dbo].[GetWorkflowTriggersForArtifacts]", param, commandType: CommandType.StoredProcedure)).ToList();
         }
 
         public async Task<List<SqlWorkFlowStateInformation>> GetWorkflowStatesForArtifactsAsync(int userId, IEnumerable<int> artifactIds, int revisionId, bool addDrafts = true)
@@ -78,7 +77,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
             param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
             param.Add("@revisionId", revisionId);
             param.Add("@addDrafts", addDrafts);
-            return (await ConnectionWrapper.QueryAsync<SqlWorkFlowStateInformation>("GetWorkflowStatesForArtifacts", param, commandType: CommandType.StoredProcedure)).ToList();
+            return (await ConnectionWrapper.QueryAsync<SqlWorkFlowStateInformation>("[dbo].[GetWorkflowStatesForArtifacts]", param, commandType: CommandType.StoredProcedure)).ToList();
         }
 
         public async Task<Dictionary<int, List<int>>> GetInstancePropertyTypeIdsMap(IEnumerable<int> customPropertyTypeIds)
@@ -93,7 +92,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
         {
             var param = new DynamicParameters();
             param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(projectIds));
-            return (await ConnectionWrapper.QueryAsync<SqlProject>("GetProjectNameByIds", param, commandType: CommandType.StoredProcedure)).ToList();
+            return (await ConnectionWrapper.QueryAsync<SqlProject>("[dbo].[GetProjectNameByIds]", param, commandType: CommandType.StoredProcedure)).ToList();
         }
     }
 }

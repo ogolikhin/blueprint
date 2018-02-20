@@ -15,7 +15,7 @@ namespace ArtifactStore.ArtifactList.Helpers
     public class ArtifactListExceptionHelperTests
     {
         private IReadOnlyList<ProfileColumn> _profileColumns;
-        const int _maxPropertiesToShow = 3;
+        private const int _maxPropertiesToShow = 3;
 
         [TestInitialize]
         public void Initialize()

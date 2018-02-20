@@ -29,9 +29,9 @@ namespace SearchEngineLibrary.Service
         }
 
         public async Task<SearchArtifactsResult> Search(int scopeId, Pagination pagination, ScopeType scopeType, bool includeDrafts, int userId, IDbTransaction transaction = null)
-        {           
+        {
             var artifactBasicDetails = await _sqlArtifactRepository.GetArtifactBasicDetails(scopeId, userId, transaction);
-                      
+
             if (artifactBasicDetails == null)
             {
                 var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotFound, scopeId);

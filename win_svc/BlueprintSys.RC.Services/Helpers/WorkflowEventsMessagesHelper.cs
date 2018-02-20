@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BlueprintSys.RC.Services.MessageHandlers;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
-using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -24,12 +24,12 @@ namespace BlueprintSys.RC.Services.Helpers
 
         public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId, 
             int revisionId, 
-            string userName, 
+            string userName,
+            long transactionId,
             WorkflowEventTriggers postOpTriggers, 
             IBaseArtifactVersionControlInfo artifactInfo, 
             string projectName, 
             IDictionary<int, IList<Property>> modifiedProperties, 
-            bool sendArtifactPublishedMessage, 
             string artifactUrl, 
             string baseUrl,
             IEnumerable<int> ancestorArtifactTypeIds, 
@@ -56,7 +56,8 @@ namespace BlueprintSys.RC.Services.Helpers
                             continue;
                         }
                         var notificationMessage = await GetNotificationMessage(userId, 
-                            revisionId, 
+                            revisionId,
+                            transactionId,
                             artifactInfo,
                             projectName,
                             notificationAction,
@@ -81,6 +82,7 @@ namespace BlueprintSys.RC.Services.Helpers
                         ancestors.Add(artifactInfo.ItemTypeId);
                         var generateChildrenMessage = new GenerateDescendantsMessage
                         {
+                            TransactionId = transactionId,
                             ChildCount = generateChildrenAction.ChildCount.GetValueOrDefault(10),
                             DesiredArtifactTypeId = generateChildrenAction.ArtifactTypeId,
                             ArtifactId = artifactInfo.Id,
@@ -105,6 +107,7 @@ namespace BlueprintSys.RC.Services.Helpers
                         }
                         var generateTestsMessage = new GenerateTestsMessage
                         {
+                            TransactionId = transactionId,
                             ArtifactId = artifactInfo.Id,
                             RevisionId = revisionId,
                             UserId = userId,
@@ -125,6 +128,7 @@ namespace BlueprintSys.RC.Services.Helpers
                         }
                         var generateUserStoriesMessage = new GenerateUserStoriesMessage
                         {
+                            TransactionId = transactionId,
                             ArtifactId = artifactInfo.Id,
                             RevisionId = revisionId,
                             UserId = userId,
@@ -142,7 +146,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             continue;
                         }
 
-                        var webhookMessage = await GetWebhookMessage(userId, revisionId, webhookAction, webhooksRepository, artifactInfo);
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhookRepository, artifactInfo);
 
                         if (webhookMessage == null)
                         {
@@ -153,42 +157,11 @@ namespace BlueprintSys.RC.Services.Helpers
                         break;
                 }
             }
-
-            //Add published artifact message
-            if (sendArtifactPublishedMessage)
-            {
-                var publishedMessage =
-                    GetPublishedMessage(userId, revisionId, artifactInfo, modifiedProperties) as
-                        ArtifactsPublishedMessage;
-
-                if (publishedMessage != null && publishedMessage.Artifacts.Any())
-                {
-                    resultMessages.Add(publishedMessage);
-                }
-            }
             return resultMessages;
         }
 
         public static async Task ProcessMessages(string logSource,
-            IApplicationSettingsRepository applicationSettingsRepository,
-            IServiceLogRepository serviceLogRepository,
-            IList<IWorkflowMessage> messages,
-            string exceptionMessagePrepender,
-            IWorkflowMessagingProcessor workflowMessagingProcessor)
-        {
-            var tenantInfo = await applicationSettingsRepository.GetTenantInfo();
-            if (string.IsNullOrWhiteSpace(tenantInfo?.TenantId))
-            {
-                throw new TenantInfoNotFoundException("No tenant information found. Please contact your administrator.");
-            }
-
-            await
-                ProcessMessages(logSource, tenantInfo.TenantId, serviceLogRepository, messages,
-                    exceptionMessagePrepender, workflowMessagingProcessor);
-        }
-
-        public static async Task ProcessMessages(string logSource,
-            string tenantId,
+            TenantInformation tenant,
             IServiceLogRepository serviceLogRepository,
             IList<IWorkflowMessage> messages,
             string exceptionMessagePrepender,
@@ -205,8 +178,8 @@ namespace BlueprintSys.RC.Services.Helpers
             {
                 try
                 {
-                    await processor.SendMessageAsync(tenantId, actionMessage);
-                    string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenantId} to the Message queue";
+                    await ActionMessageSender.Send((ActionMessage) actionMessage, tenant, processor);
+                    string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenant.TenantId} to the Message queue";
                     await
                         serviceLogRepository.LogInformation(logSource, message);
                 }
@@ -223,6 +196,7 @@ namespace BlueprintSys.RC.Services.Helpers
 
         private static async Task<IWorkflowMessage> GetNotificationMessage(int userId,
             int revisionId,
+            long transactionId,
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
             EmailNotificationAction notificationAction,
@@ -241,6 +215,7 @@ namespace BlueprintSys.RC.Services.Helpers
 
             var notificationMessage = new NotificationMessage
             {
+                TransactionId = transactionId,
                 ArtifactName = artifactInfo.Name,
                 ProjectName = projectName,
                 Subject = I18NHelper.FormatInvariant("Artifact {0} has been created.",artifactInfo.Id),
@@ -284,47 +259,8 @@ namespace BlueprintSys.RC.Services.Helpers
             return emails;
         }
 
-        private static IWorkflowMessage GetPublishedMessage(int userId,
-            int revisionId,
-            IBaseArtifactVersionControlInfo artifactInfo,
-            IDictionary<int, IList<Property>> modifiedProperties)
-        {
-            var message = new ArtifactsPublishedMessage
-            {
-                UserId = userId,
-                RevisionId = revisionId
-            };
-            var artifacts = new List<PublishedArtifactInformation>();
-            var artifact = new PublishedArtifactInformation
-            {
-                Id = artifactInfo.Id,
-                Name = artifactInfo.Name,
-                Predefined = (int)artifactInfo.PredefinedType,
-                IsFirstTimePublished = false, //State change always occurs on published artifacts
-                ProjectId = artifactInfo.ProjectId,
-                Url = ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true),
-                BaseUrl = ServerUriHelper.GetBaseHostForStoryteller(),
-                ModifiedProperties = new List<PublishedPropertyInformation>()
-            };
-
-            IList<Property> artifactModifiedProperties;
-            if (modifiedProperties?.Count > 0 && modifiedProperties.TryGetValue(artifactInfo.Id, out artifactModifiedProperties) && artifactModifiedProperties?.Count > 0)
-            {
-                artifact.ModifiedProperties.AddRange(artifactModifiedProperties.Select(p => new PublishedPropertyInformation
-                {
-                    TypeId = p.PropertyTypeId,
-                    PredefinedType = (int)p.Predefined
-                }));
-                //Only add artifact to list if there is a list of modified properties
-                artifacts.Add(artifact);
-            }
-
-            message.Artifacts = artifacts;
-            return message;
-        }
-
-        private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, WebhookAction webhookAction,
-            IWebhooksRepository webhooksRepository, IBaseArtifactVersionControlInfo artifactInfo)
+        private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, long transactionId, WebhookAction webhookAction,
+            IWebhookRepository webhookRepository, IBaseArtifactVersionControlInfo artifactInfo)
         {
             List<int> webhookId = new List<int> { webhookAction.WebhookId };
             var webhookInfos = await webhooksRepository.GetWebhooks(webhookId);
@@ -334,6 +270,7 @@ namespace BlueprintSys.RC.Services.Helpers
 
             var webhookMessage = new WebhookMessage
             {
+                TransactionId = transactionId,
                 UserId = userId,
                 RevisionId = revisionId,
                 // Authentication Information

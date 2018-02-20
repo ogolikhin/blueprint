@@ -581,7 +581,7 @@ namespace AdminStore.Repositories
 
         #endregion
 
-        public async Task RunInTransactionAsync(Func<IDbTransaction, Task> action)
+        public async Task RunInTransactionAsync(Func<IDbTransaction, long, Task> action)
         {
             await _sqlHelper.RunInTransactionAsync(ServiceConstants.RaptorMain, action);
         }

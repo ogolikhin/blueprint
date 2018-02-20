@@ -18,20 +18,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged
             var message = (WorkflowsChangedMessage) actionMessage;
             var repository = (IWorkflowsChangedRepository) baseRepository;
 
-            var revisionId = message.RevisionId;
-
-            var revisionStatus = await repository.ValidateRevision(revisionId, repository, message, tenant);
-            if (revisionStatus == RevisionStatus.RolledBack)
-            {
-                return false;
-            }
-
             Logger.Log("Getting affected artifact IDs", message, tenant);
             var workflowIds = new[]
             {
                 message.WorkflowId
             };
-            var artifactIds = await repository.GetAffectedArtifactIds(workflowIds, revisionId);
+            var artifactIds = await repository.GetAffectedArtifactIds(workflowIds, message.RevisionId);
             await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor);
             return true;
         }

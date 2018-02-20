@@ -278,11 +278,11 @@ namespace AdminStore.Services.Workflow
                 repo =>
                     repo.CreateRevisionInTransactionAsync(It.IsAny<IDbTransaction>(), It.IsAny<int>(),
                         It.IsAny<string>())).ReturnsAsync(1);
-            _workflowRepositoryMock.Setup(repo => repo.RunInTransactionAsync(It.IsAny<Func<IDbTransaction, Task>>()))
+            _workflowRepositoryMock.Setup(repo => repo.RunInTransactionAsync(It.IsAny<Func<IDbTransaction, long, Task>>()))
                 .Returns(Task.Run(() => { }))
-                .Callback((Func<IDbTransaction, Task> action) =>
+                .Callback((Func<IDbTransaction, long, Task> action) =>
                 {
-                    action(transactionMock.Object);
+                    action(transactionMock.Object, 0);
                 });
 
             // Act

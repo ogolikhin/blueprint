@@ -23,6 +23,7 @@ namespace ArtifactStore.Helpers
         Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
             int revisionId,
             string userName,
+            long transactionId,
             WorkflowEventTriggers postOpTriggers,
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
@@ -50,6 +51,7 @@ namespace ArtifactStore.Helpers
         public async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
             int revisionId,
             string userName,
+            long transactionId,
             WorkflowEventTriggers postOpTriggers,
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
@@ -82,6 +84,7 @@ namespace ArtifactStore.Helpers
                         }
                         var notificationMessage = await GetNotificationMessage(userId,
                             revisionId,
+                            transactionId,
                             artifactInfo,
                             projectName,
                             notificationAction,
@@ -104,6 +107,7 @@ namespace ArtifactStore.Helpers
                         }
                         var generateChildrenMessage = new GenerateDescendantsMessage
                         {
+                            TransactionId = transactionId,
                             ChildCount = generateChildrenAction.ChildCount.GetValueOrDefault(10),
                             DesiredArtifactTypeId = generateChildrenAction.ArtifactTypeId,
                             ArtifactId = artifactInfo.Id,
@@ -125,6 +129,7 @@ namespace ArtifactStore.Helpers
                         }
                         var generateTestsMessage = new GenerateTestsMessage
                         {
+                            TransactionId = transactionId,
                             ArtifactId = artifactInfo.Id,
                             RevisionId = revisionId,
                             UserId = userId,
@@ -143,6 +148,7 @@ namespace ArtifactStore.Helpers
                         }
                         var generateUserStoriesMessage = new GenerateUserStoriesMessage
                         {
+                            TransactionId = transactionId,
                             ArtifactId = artifactInfo.Id,
                             RevisionId = revisionId,
                             UserId = userId,
@@ -160,7 +166,7 @@ namespace ArtifactStore.Helpers
                             continue;
                         }
 
-                        var webhookMessage = await GetWebhookMessage(userId, revisionId, webhookAction, webhooksRepository, artifactInfo, transaction);
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhookRepository, artifactInfo, transaction);
 
                         if (webhookMessage == null)
                         {
@@ -175,7 +181,7 @@ namespace ArtifactStore.Helpers
             // Add published artifact message
             if (sendArtifactPublishedMessage)
             {
-                var publishedMessage = GetPublishedMessage(userId, revisionId, artifactInfo, modifiedProperties) as ArtifactsPublishedMessage;
+                var publishedMessage = GetPublishedMessage(userId, revisionId, transactionId, artifactInfo, modifiedProperties) as ArtifactsPublishedMessage;
                 if (publishedMessage != null && publishedMessage.Artifacts.Any())
                 {
                     resultMessages.Add(publishedMessage);
@@ -188,6 +194,7 @@ namespace ArtifactStore.Helpers
             };
             var artifactsChangedMessage = new ArtifactsChangedMessage(artifactIds)
             {
+                TransactionId = transactionId,
                 UserId = userId,
                 RevisionId = revisionId,
                 ChangeType = ArtifactChangedType.Publish
@@ -237,6 +244,7 @@ namespace ArtifactStore.Helpers
 
         private static async Task<IWorkflowMessage> GetNotificationMessage(int userId,
             int revisionId,
+            long transactionId,
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
             EmailNotificationAction notificationAction,
@@ -272,6 +280,7 @@ namespace ArtifactStore.Helpers
 
             var notificationMessage = new NotificationMessage
             {
+                TransactionId = transactionId,
                 ArtifactName = artifactInfo.Name,
                 ProjectName = projectName,
                 Subject = I18NHelper.FormatInvariant("Artifact {0} has been updated.", artifactInfo.Id),
@@ -291,13 +300,11 @@ namespace ArtifactStore.Helpers
             return notificationMessage;
         }
 
-        private static IWorkflowMessage GetPublishedMessage(int userId,
-            int revisionId,
-            IBaseArtifactVersionControlInfo artifactInfo,
-            IDictionary<int, IList<Property>> modifiedProperties)
+        private static IWorkflowMessage GetPublishedMessage(int userId, int revisionId, long transactionId, IBaseArtifactVersionControlInfo artifactInfo, IDictionary<int, IList<Property>> modifiedProperties)
         {
             var message = new ArtifactsPublishedMessage
             {
+                TransactionId = transactionId,
                 UserId = userId,
                 RevisionId = revisionId
             };
@@ -329,8 +336,8 @@ namespace ArtifactStore.Helpers
             return message;
         }
 
-        private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, WebhookAction webhookAction,
-            IWebhooksRepository webhooksRepository, IBaseArtifactVersionControlInfo artifactInfo, IDbTransaction transaction)
+        private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, long transactionId, WebhookAction webhookAction,
+            IWebhookRepository webhookRepository, IBaseArtifactVersionControlInfo artifactInfo, IDbTransaction transaction)
         {
             List<int> webhookId = new List<int> { webhookAction.WebhookId };
             var webhookInfos = await webhooksRepository.GetWebhooks(webhookId, transaction);
@@ -340,6 +347,7 @@ namespace ArtifactStore.Helpers
 
             var webhookMessage = new WebhookMessage
             {
+                TransactionId = transactionId,
                 UserId = userId,
                 RevisionId = revisionId,
                 // Authentication Information

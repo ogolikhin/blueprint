@@ -140,45 +140,6 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
-        [ExpectedException(typeof(EntityNotFoundException))]
-        [TestMethod]
-        public async Task ProcessCreatedArtifacts_NoArtifactInfosRetrieved_ThrowsException()
-        {
-            //Arrange
-            var message = new ArtifactsPublishedMessage
-            {
-                RevisionId = _revisionId,
-                UserId = _userId,
-                UserName = "admin",
-                Artifacts = new List<PublishedArtifactInformation>
-                {
-                    new PublishedArtifactInformation
-                    {
-                        Id = 1,
-                        Name = "A",
-                        ModifiedProperties = new List<PublishedPropertyInformation>(),
-                        ProjectId = 2,
-                        IsFirstTimePublished = true,
-                        Url = "localhost:id",
-                        BaseUrl = "localhost",
-                        Predefined = (int)ItemTypePredefined.Process
-                    }
-                }
-            };
-            _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId,
-                It.IsAny<IEnumerable<int>>(),
-                _revisionId,
-                It.IsAny<IDbTransaction>())).ReturnsAsync(Enumerable.Empty<WorkflowMessageArtifactInfo>());
-
-            //Act
-            await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant,
-                message,
-                _artifactsPublishedRepositoryMock.Object,
-                _serviceLogRepositoryMock.Object,
-                _wfMessagingMock.Object,
-                1);
-        }
-
         [TestMethod]
         public async Task ProcessCreatedArtifacts_NoEventTriggersForArtifact_ReturnsFalseAndSendsNoMessages()
         {

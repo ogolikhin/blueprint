@@ -292,18 +292,11 @@ namespace ArtifactStore.Collections
                 propertyTypeInfos.Add(new PropertyTypeInfo()
                 {
                     Id = column.PropertyTypeId.GetValueOrDefault(),
-                    Name = column.PropertyName,
+                    Name = column.PropertyName + DateTime.Now.ToLongDateString(),
                     Predefined = column.Predefined,
                     PrimitiveType = column.PrimitiveType
                 });
             }
-
-            var item = _profileColumns.Items.FirstOrDefault();
-            _profileColumns = new ProfileColumns(_profileColumns.Items.Union(new ProfileColumn[]
-            {
-                new ProfileColumn(item.PropertyName + DateTime.Now.ToLongTimeString(), item.Predefined, item.PrimitiveType,
-                    item.PropertyTypeId)
-            }));
 
             _collectionsRepository
                 .Setup(q => q.GetPropertyTypeInfosForItemTypesAsync(
@@ -389,7 +382,7 @@ namespace ArtifactStore.Collections
         }
 
         [TestMethod]
-        public async Task SaveProfileColumnsAsync_ValidColumnsForSaving_Success()
+        public async Task SaveProfileColumnsAsync_AllDataValid_SuccessResult()
         {
             var propertyTypeInfos = new List<PropertyTypeInfo>();
 

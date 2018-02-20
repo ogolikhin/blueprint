@@ -286,6 +286,12 @@ namespace ArtifactStore.Collections
         public async Task SaveProfileColumnsAsync_InvalidColumnsForSaving_InvalidName_ThrowInvalidColumnsException()
         {
             var propertyTypeInfos = new List<PropertyTypeInfo>();
+            _profileColumns = new ProfileColumns(
+                new List<ProfileColumn>
+                {
+                    new ProfileColumn("System", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
+                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
+                });
 
             foreach (var column in _profileColumns.Items)
             {
@@ -311,6 +317,12 @@ namespace ArtifactStore.Collections
         public async Task SaveProfileColumnsAsync_InvalidColumnsForSaving_InvalidPredefined_ThrowInvalidColumnsException()
         {
             var propertyTypeInfos = new List<PropertyTypeInfo>();
+            _profileColumns = new ProfileColumns(
+                new List<ProfileColumn>
+                {
+                    new ProfileColumn("System", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
+                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
+                });
 
             foreach (var column in _profileColumns.Items)
             {
@@ -336,6 +348,12 @@ namespace ArtifactStore.Collections
         public async Task SaveProfileColumnsAsync_InvalidColumnsForSaving_InvalidPrimitiveType_ThrowInvalidColumnsException()
         {
             var propertyTypeInfos = new List<PropertyTypeInfo>();
+            _profileColumns = new ProfileColumns(
+                new List<ProfileColumn>
+                {
+                    new ProfileColumn("System", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
+                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
+                });
 
             foreach (var column in _profileColumns.Items)
             {
@@ -361,6 +379,12 @@ namespace ArtifactStore.Collections
         public async Task SaveProfileColumnsAsync_InvalidColumnsForSaving_InvalidPropertyTypeId_ThrowInvalidColumnsException()
         {
             var propertyTypeInfos = new List<PropertyTypeInfo>();
+            _profileColumns = new ProfileColumns(
+                new List<ProfileColumn>
+                {
+                    new ProfileColumn("System", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
+                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
+                });
 
             foreach (var column in _profileColumns.Items)
             {

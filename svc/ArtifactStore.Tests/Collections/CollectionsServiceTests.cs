@@ -429,6 +429,84 @@ namespace ArtifactStore.Collections
             await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
         }
 
+        [TestMethod]
+        public async Task SaveProfileColumnsAsync_WeHaveChangedCustomsPropertyNames_SuccessResult_ReturnedTrue()
+        {
+            var propertyTypeInfos = new List<PropertyTypeInfo>();
+
+            foreach (var column in _profileColumns.Items)
+            {
+                propertyTypeInfos.Add(new PropertyTypeInfo()
+                {
+                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Name = column.PropertyName + DateTime.Now.ToLongTimeString(),
+                    Predefined = column.Predefined,
+                    PrimitiveType = column.PrimitiveType
+                });
+            }
+
+            _collectionsRepository
+                .Setup(q => q.GetPropertyTypeInfosForItemTypesAsync(
+                    It.IsAny<IEnumerable<int>>(), null))
+                .ReturnsAsync(propertyTypeInfos);
+
+            var result = await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
+
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task SaveProfileColumnsAsync_WeHaveChangedCustomsPropertyPrimitiveTypes_SuccessResult_ReturnedTrue()
+        {
+            var propertyTypeInfos = new List<PropertyTypeInfo>();
+
+            foreach (var column in _profileColumns.Items)
+            {
+                propertyTypeInfos.Add(new PropertyTypeInfo()
+                {
+                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Name = column.PropertyName,
+                    Predefined = column.Predefined,
+                    PrimitiveType = PropertyPrimitiveType.User
+                });
+            }
+
+            _collectionsRepository
+                .Setup(q => q.GetPropertyTypeInfosForItemTypesAsync(
+                    It.IsAny<IEnumerable<int>>(), null))
+                .ReturnsAsync(propertyTypeInfos);
+
+            var result = await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
+
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task SaveProfileColumnsAsync_WeDoNottHaveChangedCustomsProperties_SuccessResult_ReturnedFalse()
+        {
+            var propertyTypeInfos = new List<PropertyTypeInfo>();
+
+            foreach (var column in _profileColumns.Items)
+            {
+                propertyTypeInfos.Add(new PropertyTypeInfo()
+                {
+                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Name = column.PropertyName,
+                    Predefined = column.Predefined,
+                    PrimitiveType = column.PrimitiveType
+                });
+            }
+
+            _collectionsRepository
+                .Setup(q => q.GetPropertyTypeInfosForItemTypesAsync(
+                    It.IsAny<IEnumerable<int>>(), null))
+                .ReturnsAsync(propertyTypeInfos);
+
+            var result = await _collectionService.SaveProfileColumnsAsync(_collectionId, _profileColumns, _userId);
+
+            Assert.IsFalse(result);
+        }
+
         #endregion SaveColumnSettingsAsync
 
         #region GetColumnsAsync

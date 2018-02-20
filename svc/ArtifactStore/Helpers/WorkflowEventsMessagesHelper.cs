@@ -31,7 +31,7 @@ namespace ArtifactStore.Helpers
             bool sendArtifactPublishedMessage,
             string artifactUrl,
             string baseUrl,
-            IUsersRepository repository,
+            IUsersRepository userRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhookRepository webhookRepository,
             IDbTransaction transaction = null);
@@ -59,7 +59,7 @@ namespace ArtifactStore.Helpers
             bool sendArtifactPublishedMessage,
             string artifactUrl,
             string baseUrl,
-            IUsersRepository repository,
+            IUsersRepository userRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhookRepository webhookRepository,
             IDbTransaction transaction = null)
@@ -90,7 +90,7 @@ namespace ArtifactStore.Helpers
                             notificationAction,
                             artifactUrl,
                             baseHostUri,
-                            repository,
+                            userRepository,
                             transaction);
                         if (notificationMessage == null)
                         {
@@ -159,7 +159,7 @@ namespace ArtifactStore.Helpers
                         };
                         resultMessages.Add(generateUserStoriesMessage);
                         break;
-                    case MessageActionType.Webhook:
+                    case MessageActionType.Webhooks:
                         var webhookAction = workflowEventTrigger.Action as WebhookAction;
                         if (webhookAction == null)
                         {
@@ -242,7 +242,16 @@ namespace ArtifactStore.Helpers
         }
 
 
-        private static async Task<IWorkflowMessage> GetNotificationMessage(int userId, int revisionId, long transactionId, IBaseArtifactVersionControlInfo artifactInfo, string projectName, EmailNotificationAction notificationAction, string artifactUrl, string blueprintUrl, IUsersRepository repository, IDbTransaction transaction)
+        private static async Task<IWorkflowMessage> GetNotificationMessage(int userId,
+            int revisionId,
+            long transactionId,
+            IBaseArtifactVersionControlInfo artifactInfo,
+            string projectName,
+            EmailNotificationAction notificationAction,
+            string artifactUrl,
+            string blueprintUrl,
+            IUsersRepository userRepository,
+            IDbTransaction transaction)
         {
             string messageHeader = I18NHelper.FormatInvariant("You are being notified because of an update to the artifact with Id: {0}.", artifactInfo.Id);
             var artifactPartUrl = artifactUrl ?? ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
@@ -255,7 +264,7 @@ namespace ArtifactStore.Helpers
             if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
             {
                 var userInfos =
-                    await repository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
+                    await userRepository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
                         (artifactInfo.Id,
                             notificationAction.PropertyTypeId.Value,
                             revisionId,
@@ -334,15 +343,23 @@ namespace ArtifactStore.Helpers
             var webhookInfos = await webhookRepository.GetWebhooks(webhookId, transaction);
             var webhookInfo = webhookInfos.FirstOrDefault();
 
+            var securityInfo = SerializationHelper.FromXml<XmlWebhookSecurityInfo>(webhookInfo.SecurityInfo);
+
             var webhookMessage = new WebhookMessage
             {
                 TransactionId = transactionId,
                 UserId = userId,
                 RevisionId = revisionId,
+                // Authentication Information
                 Url = webhookInfo.Url,
-                SecurityInfo = webhookInfo.SecurityInfo,
-                ArtifactId = artifactInfo.Id,
-                ArtifactName = artifactInfo.Name
+                IgnoreInvalidSSLCertificate = securityInfo.IgnoreInvalidSSLCertificate,
+                HttpHeaders = securityInfo.HttpHeaders,
+                BasicAuthUsername = securityInfo.BasicAuth?.Username,
+                BasicAuthPassword = securityInfo.BasicAuth?.Password,
+                SignatureSecretToken = securityInfo.Signature?.SecretToken,
+                SignatureAlgorithm = securityInfo.Signature?.Algorithm,
+                // Payload Information
+                WebhookJsonPayload = artifactInfo.ToJSON()
             };
 
             return webhookMessage;

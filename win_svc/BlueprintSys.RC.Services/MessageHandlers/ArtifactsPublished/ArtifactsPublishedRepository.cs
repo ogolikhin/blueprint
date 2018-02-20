@@ -33,6 +33,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
         Task<List<SqlProject>> GetProjectNameByIdsAsync(IEnumerable<int> projectIds);
 
         IWorkflowRepository WorkflowRepository { get; }
+
         IWebhookRepository WebhookRepository { get; }
     }
 

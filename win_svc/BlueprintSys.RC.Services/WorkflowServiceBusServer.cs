@@ -9,6 +9,7 @@ using BlueprintSys.RC.Services.MessageHandlers.Notifications;
 using BlueprintSys.RC.Services.MessageHandlers.ProjectsChanged;
 using BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged;
 using BlueprintSys.RC.Services.MessageHandlers.UsersGroupsChanged;
+using BlueprintSys.RC.Services.MessageHandlers.Webhooks;
 using BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using ServiceLibrary.Models.Enums;
@@ -28,7 +29,8 @@ namespace BlueprintSys.RC.Services
             { MessageActionType.ProjectsChanged, typeof(ProjectsChangedMessageHandler) },
             { MessageActionType.PropertyItemTypesChanged, typeof(PropertyItemTypesChangedMessageHandler) },
             { MessageActionType.UsersGroupsChanged, typeof(UsersGroupsChangedMessageHandler) },
-            { MessageActionType.WorkflowsChanged, typeof(WorkflowsChangedMessageHandler) }
+            { MessageActionType.WorkflowsChanged, typeof(WorkflowsChangedMessageHandler) },
+            { MessageActionType.Webhooks, typeof(WebhooksHandler) }
         };
 
         protected override Dictionary<MessageActionType, Type> GetMessageActionToHandlerMapping()

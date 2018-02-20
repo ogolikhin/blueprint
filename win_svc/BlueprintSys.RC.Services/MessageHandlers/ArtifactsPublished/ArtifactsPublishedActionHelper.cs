@@ -5,7 +5,6 @@ using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
 using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Repositories.Webhooks;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
@@ -48,8 +47,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     message,
                     repository,
                     serviceLogRepository, 
-                    WorkflowMessagingProcessor.Instance,
-                    repository.WebhookRepository);
+                    WorkflowMessagingProcessor.Instance);
 
             if (!handledAllCreatedArtifacts)
             {

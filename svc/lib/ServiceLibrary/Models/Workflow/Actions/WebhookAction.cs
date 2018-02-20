@@ -7,7 +7,7 @@ namespace ServiceLibrary.Models.Workflow.Actions
     {
         public int WebhookId { get; set; }
 
-        public override MessageActionType ActionType { get; } = MessageActionType.Webhook;
+        public override MessageActionType ActionType { get; } = MessageActionType.Webhooks;
 
         public override PropertySetResult ValidateAction(IExecutionParameters executionParameters)
         {

@@ -7,8 +7,8 @@ using BlueprintSys.RC.Services.MessageHandlers.Notifications;
 using BlueprintSys.RC.Services.MessageHandlers.ProjectsChanged;
 using BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged;
 using BlueprintSys.RC.Services.MessageHandlers.UsersGroupsChanged;
-using BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged;
 using BlueprintSys.RC.Services.MessageHandlers.Webhooks;
+using BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Host;
 using BluePrintSys.Messaging.CrossCutting.Logging;
@@ -71,12 +71,20 @@ namespace BlueprintSys.RC.Services.MessageHandlers
                     return;
                 }
 
-                var messageId = GetMessageHeaderValue(Headers.MessageId, context);
+                message.NSBMessageId = GetMessageHeaderValue(Headers.MessageId, context);
                 var timeSent = GetMessageHeaderValue(Headers.TimeSent, context);
+                try
+                {
+                    message.NSBRetryCount = GetMessageHeaderValue(Headers.DelayedRetries, context);
+                }
+                catch (MessageHeaderValueNotFoundException)
+                {
+                    message.NSBRetryCount = "0";
+                }
 
-                Logger.Log($"Started handling {actionType} action. Message ID: {messageId}. Time Sent: {timeSent}", message, tenant);
+                Logger.Log($"Started handling {actionType} action. Message ID: {message.NSBMessageId}. Time Sent: {timeSent}", message, tenant);
                 var result = await ActionHelper.HandleAction(tenant, message, repository);
-                Logger.Log($"Finished handling {actionType} action. Result: {result}. Message ID: {messageId}. Time Sent: {timeSent}", message, tenant);
+                Logger.Log($"Finished handling {actionType} action. Result: {result}. Message ID: {message.NSBMessageId}. Time Sent: {timeSent}", message, tenant);
             }
             catch (Exception ex)
             {
@@ -119,7 +127,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers
                     return new UsersGroupsChangedRepository(connectionString);
                 case MessageActionType.WorkflowsChanged:
                     return new WorkflowsChangedRepository(connectionString);
-                case MessageActionType.Webhook:
+                case MessageActionType.Webhooks:
                     return new WebhooksRepository(connectionString);
                 default:
                     throw new UnsupportedActionTypeException($"Failed to instantiate repository for unsupported Action Type: {actionType}");

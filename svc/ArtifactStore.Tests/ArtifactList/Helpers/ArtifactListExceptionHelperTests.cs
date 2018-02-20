@@ -15,6 +15,7 @@ namespace ArtifactStore.ArtifactList.Helpers
     public class ArtifactListExceptionHelperTests
     {
         private IReadOnlyList<ProfileColumn> _profileColumns;
+        const int _maxPropertiesToShow = 3;
 
         [TestInitialize]
         public void Initialize()
@@ -26,12 +27,57 @@ namespace ArtifactStore.ArtifactList.Helpers
         }
 
         [TestMethod]
-        public void InvalidColumnsException_AllParamsIsValid_ReturnBadRequestException()
+        public void InvalidColumnsException_AllParamsIsValid_OneProfileColumn_ReturnBadRequestException()
         {
+            var expectedMessage = I18NHelper.FormatInvariant(
+                ErrorMessages.ArtifactList.ColumnsSettings.SingleInvalidColumn,
+                _profileColumns.First().PropertyName);
+
             var result = ArtifactListExceptionHelper.InvalidColumnsException(_profileColumns);
 
             Assert.IsNotNull(result);
-            Assert.IsFalse(string.IsNullOrEmpty(result.Message));
+            Assert.AreEqual(expectedMessage, result.Message);
+        }
+
+        [TestMethod]
+        public void InvalidColumnsException_AllParamsIsValid_TwoOrThreeProfileColumns_ReturnBadRequestException()
+        {
+            _profileColumns = new List<ProfileColumn>
+            {
+                new ProfileColumn("Custom1", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Number, 2),
+                new ProfileColumn("Custom2", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Number, 2),
+                new ProfileColumn("Custom3", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Number, 2)
+            };
+
+            var expectedMessage = I18NHelper.FormatInvariant(
+                ErrorMessages.ArtifactList.ColumnsSettings.SomeInvalidColumns,
+                string.Join(", ", _profileColumns.Take(_maxPropertiesToShow).Select(column => column.PropertyName)));
+
+            var result = ArtifactListExceptionHelper.InvalidColumnsException(_profileColumns);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedMessage, result.Message);
+        }
+
+        [TestMethod]
+        public void InvalidColumnsException_AllParamsIsValid_MoreThenThreeProfileColumns_ReturnBadRequestException()
+        {
+            _profileColumns = new List<ProfileColumn>
+            {
+                new ProfileColumn("Custom1", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Number, 2),
+                new ProfileColumn("Custom2", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Number, 2),
+                new ProfileColumn("Custom3", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Number, 2),
+                new ProfileColumn("Custom4", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Number, 2)
+            };
+
+            var expectedMessage = I18NHelper.FormatInvariant(
+                ErrorMessages.ArtifactList.ColumnsSettings.MultipleInvalidColumns,
+                string.Join(", ", _profileColumns.Take(_maxPropertiesToShow).Select(column => column.PropertyName)));
+
+            var result = ArtifactListExceptionHelper.InvalidColumnsException(_profileColumns);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedMessage, result.Message);
         }
 
         [TestMethod]

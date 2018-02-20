@@ -33,9 +33,9 @@ namespace BlueprintSys.RC.Services.Helpers
             string artifactUrl, 
             string baseUrl,
             IEnumerable<int> ancestorArtifactTypeIds, 
-            IUsersRepository userRepository, 
+            IUsersRepository usersRepository, 
             IServiceLogRepository serviceLogRepository,
-            IWebhookRepository webhookRepository)
+            IWebhooksRepository webhooksRepository)
         {
             var resultMessages = new List<IWorkflowMessage>();
             //var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
@@ -63,7 +63,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             notificationAction,
                             artifactUrl,
                             baseHostUri,
-                            userRepository);
+                            usersRepository);
                         if (notificationMessage == null)
                         {
                             await serviceLogRepository.LogInformation(LogSource, $"Skipping Email notification action for artifact {artifactInfo.Id}");
@@ -202,7 +202,7 @@ namespace BlueprintSys.RC.Services.Helpers
             EmailNotificationAction notificationAction,
             string artifactUrl,
             string blueprintUrl,
-            IUsersRepository userRepository)
+            IUsersRepository usersRepository)
         {
             string messageHeader = I18NHelper.FormatInvariant("You are being notified because artifact with Id: {0} has been created.", artifactInfo.Id);
             var artifactPartUrl = artifactUrl ?? ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
@@ -211,7 +211,7 @@ namespace BlueprintSys.RC.Services.Helpers
                 return null;
             }
             var baseUrl = blueprintUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
-            var emails = await GetEmailValues(revisionId, artifactInfo.Id, notificationAction, userRepository);
+            var emails = await GetEmailValues(revisionId, artifactInfo.Id, notificationAction, usersRepository);
 
             var notificationMessage = new NotificationMessage
             {
@@ -236,13 +236,13 @@ namespace BlueprintSys.RC.Services.Helpers
         }
 
         internal static async Task<List<string>>  GetEmailValues(int revisionId, int artifactId,
-            EmailNotificationAction notificationAction, IUsersRepository userRepository)
+            EmailNotificationAction notificationAction, IUsersRepository usersRepository)
         {
             var emails = new List<string>();
             if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
             {
                 var userInfos =
-                    await userRepository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
+                    await usersRepository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
                         (artifactId,
                             notificationAction.PropertyTypeId.Value,
                             revisionId);
@@ -263,7 +263,7 @@ namespace BlueprintSys.RC.Services.Helpers
             IWebhookRepository webhookRepository, IBaseArtifactVersionControlInfo artifactInfo)
         {
             List<int> webhookId = new List<int> { webhookAction.WebhookId };
-            var webhookInfos = await webhookRepository.GetWebhooks(webhookId);
+            var webhookInfos = await webhooksRepository.GetWebhooks(webhookId);
             var webhookInfo = webhookInfos.FirstOrDefault();
 
             var securityInfo = SerializationHelper.FromXml<XmlWebhookSecurityInfo>(webhookInfo.SecurityInfo);

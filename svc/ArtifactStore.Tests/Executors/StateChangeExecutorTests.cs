@@ -42,7 +42,7 @@ namespace ArtifactStore.Executors
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<IStateChangeExecutorHelper> _stateChangeHelperMock;
         private Mock<IWorkflowEventsMessagesHelper> _workflowEventsMessagesHelperMock;
-        private Mock<IWebhookRepository> _webhookRepositoryMock;
+        private Mock<IWebhooksRepository> _webhooksRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -79,7 +79,7 @@ namespace ArtifactStore.Executors
                     _applicationSettingsRepositoryMock.Object,
                     _serviceLogRepositoryMock.Object,
                     _usersRepositoryMock.Object,
-                    _webhookRepositoryMock.Object),
+                    _webhooksRepositoryMock.Object),
                 _stateChangeHelperMock.Object,
                 _workflowEventsMessagesHelperMock.Object);
         }

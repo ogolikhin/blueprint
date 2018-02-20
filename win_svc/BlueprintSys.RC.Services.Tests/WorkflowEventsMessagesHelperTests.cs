@@ -34,7 +34,7 @@ namespace BlueprintSys.RC.Services.Tests
         private int[] _ancestorArtifactTypeIds;
         private Mock<IUsersRepository> _mockUsersRepository;
         private Mock<IServiceLogRepository> _mockServiceLogRepository;
-        private Mock<IWebhookRepository> _mockWebhookRepository;
+        private Mock<IWebhooksRepository> _mockWebhooksRepository;
 
         [TestInitialize]
         public void TestInitialize()
@@ -52,7 +52,7 @@ namespace BlueprintSys.RC.Services.Tests
             _ancestorArtifactTypeIds = new int[]{};
             _mockUsersRepository = new Mock<IUsersRepository>(MockBehavior.Strict);
             _mockServiceLogRepository = new Mock<IServiceLogRepository>(MockBehavior.Strict);
-            _mockWebhookRepository = new Mock<IWebhookRepository>(MockBehavior.Strict);
+            _mockWebhooksRepository = new Mock<IWebhooksRepository>(MockBehavior.Strict);
         }
 
         [TestMethod]

@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -60,7 +59,7 @@ namespace ServiceLibrary.Helpers
         {
             if (ignoreSSLCertErrors)
             {
-                return HttpClientsWhoIgnoreCertificateErrors.GetOrAdd(baseAddress, CreateInternalIgnoresCertificateErrors(baseAddress, connectionTimeout));
+                return HttpClientsWhoIgnoreCertificateErrors.GetOrAdd(baseAddress, CreateInternalWithCustomCertificateValidation(baseAddress, connectionTimeout));
             }
 
             return HttpClients.GetOrAdd(baseAddress, CreateInternalWithTimeout(baseAddress, connectionTimeout));
@@ -86,7 +85,7 @@ namespace ServiceLibrary.Helpers
             return result;
         }
 
-        private HttpClient CreateInternalIgnoresCertificateErrors(Uri baseAddress, int connectionTimeout)
+        private HttpClient CreateInternalWithCustomCertificateValidation(Uri baseAddress, int connectionTimeout)
         {
             var httpClientHandler = new WebRequestHandler();
             httpClientHandler.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
@@ -105,7 +104,14 @@ namespace ServiceLibrary.Helpers
                 return false;
             };
 
-            return CreateInternalWithTimeout(baseAddress, connectionTimeout);
+            var result = new HttpClient(httpClientHandler)
+            {
+                BaseAddress = baseAddress,
+                Timeout = TimeSpan.FromSeconds(connectionTimeout)
+            };
+            result.DefaultRequestHeaders.Accept.Clear();
+            result.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            return result;
         }
     }
 }

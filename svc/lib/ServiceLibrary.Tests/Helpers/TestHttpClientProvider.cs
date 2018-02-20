@@ -24,7 +24,7 @@ namespace ServiceLibrary.Helpers
 
         public HttpClient CreateWithCustomCertificateValidation(Uri baseAddress, bool ignoreSSLCertErrors, int connectionTimeout)
         {
-            throw new NotImplementedException();
+            return Create(baseAddress);
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)

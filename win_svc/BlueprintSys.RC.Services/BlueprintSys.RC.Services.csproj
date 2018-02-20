@@ -142,6 +142,7 @@
     <Compile Include="MessageHandlers\UsersGroupsChanged\UsersGroupsChangedMessageHandler.cs" />
     <Compile Include="MessageHandlers\Webhooks\WebhooksHandler.cs" />
     <Compile Include="MessageHandlers\Webhooks\WebhooksHelper.cs" />
+    <Compile Include="MessageHandlers\Webhooks\WebhooksRepository.cs" />
     <Compile Include="MessageHandlers\WorkflowsChanged\WorkflowsChangedActionHelper.cs" />
     <Compile Include="MessageHandlers\WorkflowsChanged\WorkflowsChangedMessageHandler.cs" />
     <Compile Include="MessageHandlers\BaseRepository.cs" />

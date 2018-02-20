@@ -7,6 +7,7 @@ using BlueprintSys.RC.Services.MessageHandlers.Notifications;
 using BlueprintSys.RC.Services.MessageHandlers.ProjectsChanged;
 using BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged;
 using BlueprintSys.RC.Services.MessageHandlers.UsersGroupsChanged;
+using BlueprintSys.RC.Services.MessageHandlers.Webhooks;
 using BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Host;
@@ -127,7 +128,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers
                 case MessageActionType.WorkflowsChanged:
                     return new WorkflowsChangedRepository(connectionString);
                 case MessageActionType.Webhooks:
-                    return null;
+                    return new WebhooksRepository(connectionString);
                 default:
                     throw new UnsupportedActionTypeException($"Failed to instantiate repository for unsupported Action Type: {actionType}");
             }

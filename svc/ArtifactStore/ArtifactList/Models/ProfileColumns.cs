@@ -69,11 +69,11 @@ namespace ArtifactStore.ArtifactList.Models
         {
             return _columns
                 .Where(column =>
-                    !columns.Any(standardColumn =>
-                        standardColumn.PropertyName == column.PropertyName &&
-                        standardColumn.Predefined == column.Predefined &&
-                        standardColumn.PrimitiveType == column.PrimitiveType &&
-                        standardColumn.PropertyTypeId == column.PropertyTypeId) &&
+                    !columns.Any(systemColumn =>
+                        systemColumn.PropertyName == column.PropertyName &&
+                        systemColumn.Predefined == column.Predefined &&
+                        systemColumn.PrimitiveType == column.PrimitiveType &&
+                        systemColumn.PropertyTypeId == column.PropertyTypeId) &&
                     !columns.Any(customColumn =>
                         customColumn.Predefined == PropertyTypePredefined.CustomGroup &&
                         customColumn.PropertyTypeId == column.PropertyTypeId))

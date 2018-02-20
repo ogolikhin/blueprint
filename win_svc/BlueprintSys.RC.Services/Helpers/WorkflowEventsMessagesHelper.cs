@@ -146,7 +146,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             continue;
                         }
 
-                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhookRepository, artifactInfo);
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, artifactInfo);
 
                         if (webhookMessage == null)
                         {
@@ -260,7 +260,7 @@ namespace BlueprintSys.RC.Services.Helpers
         }
 
         private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, long transactionId, WebhookAction webhookAction,
-            IWebhookRepository webhookRepository, IBaseArtifactVersionControlInfo artifactInfo)
+            IWebhooksRepository webhooksRepository, IBaseArtifactVersionControlInfo artifactInfo)
         {
             List<int> webhookId = new List<int> { webhookAction.WebhookId };
             var webhookInfos = await webhooksRepository.GetWebhooks(webhookId);

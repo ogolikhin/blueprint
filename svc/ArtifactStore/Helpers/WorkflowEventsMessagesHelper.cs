@@ -166,7 +166,7 @@ namespace ArtifactStore.Helpers
                             continue;
                         }
 
-                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhookRepository, artifactInfo, transaction);
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, artifactInfo, transaction);
 
                         if (webhookMessage == null)
                         {
@@ -337,7 +337,7 @@ namespace ArtifactStore.Helpers
         }
 
         private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, long transactionId, WebhookAction webhookAction,
-            IWebhookRepository webhookRepository, IBaseArtifactVersionControlInfo artifactInfo, IDbTransaction transaction)
+            IWebhooksRepository webhooksRepository, IBaseArtifactVersionControlInfo artifactInfo, IDbTransaction transaction)
         {
             List<int> webhookId = new List<int> { webhookAction.WebhookId };
             var webhookInfos = await webhooksRepository.GetWebhooks(webhookId, transaction);

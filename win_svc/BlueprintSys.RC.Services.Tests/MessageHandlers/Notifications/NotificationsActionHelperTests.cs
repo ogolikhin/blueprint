@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
 using BlueprintSys.RC.Services.MessageHandlers.Notifications;
@@ -168,6 +169,54 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.Notifications
             // Assert
             Assert.IsFalse(result);
             _notificationRepositoryMock.Verify(m => m.GetEmailSettings(), Times.Once);
+            _notificationRepositoryMock.Verify(m => m.SendEmail(It.IsAny<SMTPClientConfiguration>(), It.IsAny<Message>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task NotificationsActionHelper_HandleActionReturnsFalse_WhenRecipientsAreNull()
+        {
+            // Arrange
+            _notificationMessage.To = null;
+
+            // Act
+            var result = await _notificationsActionHelper.HandleAction(_tenantInformation, _notificationMessage, _notificationRepositoryMock.Object);
+
+            // Assert
+            Assert.IsFalse(result);
+            _notificationRepositoryMock.Verify(m => m.GetEmailSettings(), Times.Never);
+            _notificationRepositoryMock.Verify(m => m.SendEmail(It.IsAny<SMTPClientConfiguration>(), It.IsAny<Message>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task NotificationsActionHelper_HandleActionReturnsFalse_WhenRecipientsAreEmpty()
+        {
+            // Arrange
+            _notificationMessage.To = new List<string>();
+
+            // Act
+            var result = await _notificationsActionHelper.HandleAction(_tenantInformation, _notificationMessage, _notificationRepositoryMock.Object);
+
+            // Assert
+            Assert.IsFalse(result);
+            _notificationRepositoryMock.Verify(m => m.GetEmailSettings(), Times.Never);
+            _notificationRepositoryMock.Verify(m => m.SendEmail(It.IsAny<SMTPClientConfiguration>(), It.IsAny<Message>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task NotificationsActionHelper_HandleActionReturnsFalse_WhenRecipientsAreWhitespace()
+        {
+            // Arrange
+            _notificationMessage.To = new List<string>
+            {
+                " "
+            };
+
+            // Act
+            var result = await _notificationsActionHelper.HandleAction(_tenantInformation, _notificationMessage, _notificationRepositoryMock.Object);
+
+            // Assert
+            Assert.IsFalse(result);
+            _notificationRepositoryMock.Verify(m => m.GetEmailSettings(), Times.Never);
             _notificationRepositoryMock.Verify(m => m.SendEmail(It.IsAny<SMTPClientConfiguration>(), It.IsAny<Message>()), Times.Never);
         }
     }

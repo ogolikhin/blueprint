@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -90,7 +89,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
         private void AddHttpHeaders(HttpRequestMessage request, WebhookMessage message, TenantInformation tenant)
         {
             if (message.HttpHeaders.IsEmpty())
@@ -147,7 +146,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             {
                 SignatureAlgorithm webhookAlgorithm;
                 var algorithm = Enum.TryParse(message.SignatureAlgorithm, out webhookAlgorithm) ? webhookAlgorithm : SignatureAlgorithm.HMACSHA256;
-                var messageHashCheckSum = CreateEncodedSignature(message.WebhookJsonPayload, message.SignatureSecretToken, algorithm);
+                var secretToken = SystemEncryptions.Decrypt(message.SignatureSecretToken);
+                var messageHashCheckSum = CreateEncodedSignature(message.WebhookJsonPayload, secretToken, algorithm);
                 request.Headers.Add("X-BLUEPRINT-SIGNATURE", messageHashCheckSum);
             }
             catch
@@ -158,13 +158,13 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
         private string CreateEncodedSignature(string message, string secretToken, SignatureAlgorithm algorithm = SignatureAlgorithm.HMACSHA256)
         {
-            var encoding = new System.Text.ASCIIEncoding();
+            var encoding = new ASCIIEncoding();
             byte[] keyByte = encoding.GetBytes(secretToken);
             byte[] messageBytes = encoding.GetBytes(message);
             using (var hmac = CreateHmacSignatureInstance(algorithm, keyByte))
             {
                 byte[] hashmessage = hmac.ComputeHash(messageBytes);
-                return Convert.ToBase64String(hashmessage);
+                return BitConverter.ToString(hashmessage).Replace("-", "").ToUpperInvariant();
             }
         }
 

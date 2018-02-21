@@ -52,12 +52,13 @@ namespace BlueprintSys.RC.ImageService.ImageGen
             };
         }
 
-        private readonly Dictionary<EventHandler<VirtualBrowserLoadingStateChangedEventArgs>, 
-            EventHandler<LoadingStateChangedEventArgs>> _loadingStateChangedDelegates = 
+        private readonly Dictionary<EventHandler<VirtualBrowserLoadingStateChangedEventArgs>,
+            EventHandler<LoadingStateChangedEventArgs>> _loadingStateChangedDelegates =
             new Dictionary<EventHandler<VirtualBrowserLoadingStateChangedEventArgs>, EventHandler<LoadingStateChangedEventArgs>>();
         public event EventHandler<VirtualBrowserLoadingStateChangedEventArgs> LoadingStateChanged
         {
-            add {
+            add
+            {
                 _loadingStateChangedDelegates[value] = (s, e) =>
                 {
                     value(this, ConvertEventArgs(e));

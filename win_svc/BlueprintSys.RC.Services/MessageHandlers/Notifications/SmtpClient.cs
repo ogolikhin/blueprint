@@ -58,12 +58,12 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
                     Port = Configuration.Port,
                     Timeout = 100000
                 };
-                //default 100 secs
+                // Default 100 secs
                 if (Configuration.Authenticated)
                 {
                     smtpServer.AccountName = Configuration.UserName;
                     smtpServer.Password = Configuration.Password;
-                    //MailBee.AuthenticationMethods.None by default
+                    // MailBee.AuthenticationMethods.None by default
                     smtpServer.AuthMethods = MailBee.AuthenticationMethods.Auto;
                 }
                 smtpServer.SslMode = SslStartupMode;

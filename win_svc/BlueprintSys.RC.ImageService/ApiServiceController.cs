@@ -13,15 +13,14 @@ namespace BlueprintSys.RC.ImageService
 {
     public class ImageController : ApiController
     {
-     
         public async Task<HttpResponseMessage> Get()
         {
-            //get parameters
+            // Get parameters
             var formatStr = Request.GetQueryNameValuePairs().FirstOrDefault(p => p.Key.Equals("format")).Value;
-            //set image format
+            // Set image format
             var format = formatStr == "jpeg" || formatStr == "jpg" ? ImageFormat.Jpeg : ImageFormat.Png;
 
-            //generate image
+            // Generate image
             var processJsonModel = File.ReadAllText("ProcessData_Temp_200.json");
             var image = await ImageGenService.Instance.ImageGenerator.GenerateImageAsync(processJsonModel, 6000, 6000, format);
             if (image == null)
@@ -32,7 +31,7 @@ namespace BlueprintSys.RC.ImageService
 
             image.Position = 0;
 
-            //crate response
+            // Crate response
             var mimeType = format.Equals(ImageFormat.Jpeg) ? MimeMapping.GetMimeMapping(".jpeg") : MimeMapping.GetMimeMapping(".png");
             var response = Request.CreateResponse(HttpStatusCode.OK, true);
 

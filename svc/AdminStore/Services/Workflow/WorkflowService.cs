@@ -53,7 +53,7 @@ namespace AdminStore.Services.Workflow
         private readonly IApplicationSettingsRepository _applicationSettingsRepository;
         private readonly IServiceLogRepository _serviceLogRepository;
         private readonly ISendMessageExecutor _sendMessageExecutor;
-        private readonly IWebhookRepository _webhookRepository;
+        private readonly IWebhooksRepository _webhooksRepository;
 
         private const string WorkflowImportErrorsFile = "$workflow_import_errors$.txt";
 
@@ -71,7 +71,7 @@ namespace AdminStore.Services.Workflow
                   new ApplicationSettingsRepository(),
                   new ServiceLogRepository(),
                   new SendMessageExecutor(),
-                  new WebhookRepository())
+                  new WebhooksRepository())
         {
             _workflowDataValidator = new WorkflowDataValidator(
                 _workflowRepository,
@@ -94,7 +94,7 @@ namespace AdminStore.Services.Workflow
             IApplicationSettingsRepository applicationSettingsRepository,
             IServiceLogRepository serviceLogRepository,
             ISendMessageExecutor sendMessageExecutor,
-            IWebhookRepository webhookRepository)
+            IWebhooksRepository webhooksRepository)
         {
             _workflowRepository = workflowRepository;
             _workflowXmlValidator = workflowXmlValidator;
@@ -108,7 +108,7 @@ namespace AdminStore.Services.Workflow
             _applicationSettingsRepository = applicationSettingsRepository;
             _serviceLogRepository = serviceLogRepository;
             _sendMessageExecutor = sendMessageExecutor;
-            _webhookRepository = webhookRepository;
+            _webhooksRepository = webhooksRepository;
         }
 
         public IFileRepository FileRepository
@@ -1722,7 +1722,7 @@ namespace AdminStore.Services.Workflow
         #region Webhooks
         private async Task CreateWebooksAsync(IeWorkflow workflow, int workflowId, IDbTransaction transaction, WorkflowDataMaps dataMaps)
         {
-            var importWebhooksParams = new List<SqlWebhook>();
+            var importWebhooksParams = new List<SqlWebhooks>();
 
             workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
             {
@@ -1733,7 +1733,7 @@ namespace AdminStore.Services.Workflow
                 importWebhooksParams.AddRange(ToSqlWebhooks(e, workflowId, dataMaps));
             });
 
-            var newWebhooks = await _webhookRepository.CreateWebhooks(importWebhooksParams, transaction);
+            var newWebhooks = await _webhooksRepository.CreateWebhooks(importWebhooksParams, transaction);
 
             var index = 0;
             workflow.TransitionEvents.OfType<IeTransitionEvent>().ForEach(e =>
@@ -1750,11 +1750,11 @@ namespace AdminStore.Services.Workflow
         {
             if (workflowDiffResult.AddedEvents.Any())
             {
-                var createWebhooksParams = new List<SqlWebhook>();
+                var createWebhooksParams = new List<SqlWebhooks>();
                 workflowDiffResult.AddedEvents.ForEach(e => createWebhooksParams.AddRange(ToSqlWebhooks(e, workflowId, dataMaps)));
                 if (createWebhooksParams.Any())
                 {
-                    var createdWebhooks = await _webhookRepository.CreateWebhooks(createWebhooksParams, transaction);
+                    var createdWebhooks = await _webhooksRepository.CreateWebhooks(createWebhooksParams, transaction);
 
                     var index = 0;
                     workflowDiffResult.AddedEvents.ForEach(e =>
@@ -1767,8 +1767,8 @@ namespace AdminStore.Services.Workflow
             if (workflowDiffResult.ChangedEvents.Any())
             {
                 // Need to handle situations where an existing webhook has been updated or a new webhook has been added within a changed event
-                var updateWebhookParams = new List<SqlWebhook>();
-                var createWebhooksParams = new List<SqlWebhook>();
+                var updateWebhookParams = new List<SqlWebhooks>();
+                var createWebhooksParams = new List<SqlWebhooks>();
 
                 // Since a workflow event can contain both new and updated webhook actions, we need to handle each trigger individually
                 foreach (var changedEvent in workflowDiffResult.ChangedEvents)
@@ -1787,17 +1787,17 @@ namespace AdminStore.Services.Workflow
                     }
                 }
 
-                var createdAndUpdatedWebhooks = new List<SqlWebhook>();
+                var createdAndUpdatedWebhooks = new List<SqlWebhooks>();
                 // Updated all webhooks that already exist
                 if (updateWebhookParams.Any())
                 {
-                    createdAndUpdatedWebhooks.AddRange(await _webhookRepository.UpdateWebhooks(updateWebhookParams, transaction));
+                    createdAndUpdatedWebhooks.AddRange(await _webhooksRepository.UpdateWebhooks(updateWebhookParams, transaction));
                 }
 
                 // Create any newly added webhook
                 if (createWebhooksParams.Any())
                 {
-                    createdAndUpdatedWebhooks.AddRange(await _webhookRepository.CreateWebhooks(createWebhooksParams, transaction));
+                    createdAndUpdatedWebhooks.AddRange(await _webhooksRepository.CreateWebhooks(createWebhooksParams, transaction));
                 }
 
                 // After All Webhooks have been created / updated, we need to go back and update our dataMap for all events
@@ -1812,10 +1812,10 @@ namespace AdminStore.Services.Workflow
             }
         }
 
-        private List<SqlWebhook> ToSqlWebhooks(IeEvent wEvent, int workflowId, WorkflowDataMaps dataMaps)
+        private List<SqlWebhooks> ToSqlWebhooks(IeEvent wEvent, int workflowId, WorkflowDataMaps dataMaps)
         {
             // Bulk conversion of all webhook action triggers within an event to SqlWebhook
-            var sqlWebhooks = new List<SqlWebhook>();
+            var sqlWebhooks = new List<SqlWebhooks>();
 
             if (wEvent == null || (wEvent.EventType != EventTypes.Transition && wEvent.EventType != EventTypes.NewArtifact))
             {
@@ -1824,7 +1824,7 @@ namespace AdminStore.Services.Workflow
 
             foreach (var action in wEvent.Triggers.Select(t => t.Action).OfType<IeWebhookAction>())
             {
-                var sqlwebhook = new SqlWebhook
+                var sqlwebhook = new SqlWebhooks
                 {
                     WebhookId = action.IdSerializable,
                     Url = action.Url,
@@ -1841,15 +1841,15 @@ namespace AdminStore.Services.Workflow
             return sqlWebhooks;
         }
 
-        private SqlWebhook ToSqlWebhook(EventTypes eventType, IeWebhookAction webhookAction, int workflowId, WorkflowDataMaps dataMaps)
+        private SqlWebhooks ToSqlWebhook(EventTypes eventType, IeWebhookAction webhookAction, int workflowId, WorkflowDataMaps dataMaps)
         {
-            SqlWebhook sqlWebhook = null;
+            SqlWebhooks sqlWebhook = null;
             if (eventType != EventTypes.Transition && eventType != EventTypes.NewArtifact)
             {
                 return sqlWebhook;
             }
 
-            sqlWebhook = new SqlWebhook()
+            sqlWebhook = new SqlWebhooks()
             {
                 WebhookId = webhookAction.IdSerializable,
                 Url = webhookAction.Url,
@@ -1922,7 +1922,7 @@ namespace AdminStore.Services.Workflow
             return SerializationHelper.ToXml(securityInfo);
         }
 
-        private void UpdateWebhooksDataMap(IeEvent e, WorkflowDataMaps dataMaps, IEnumerable<SqlWebhook> newWebhooks, ref int counter)
+        private void UpdateWebhooksDataMap(IeEvent e, WorkflowDataMaps dataMaps, IEnumerable<SqlWebhooks> newWebhooks, ref int counter)
         {
             if (e == null)
             {
@@ -1965,7 +1965,7 @@ namespace AdminStore.Services.Workflow
         {
             var webhookIds = triggers.Select(t => t.Action).OfType<IeWebhookAction>().Select(a => (int)a.Id);
 
-            var webhooks = await _webhookRepository.GetWebhooks(webhookIds);
+            var webhooks = await _webhooksRepository.GetWebhooks(webhookIds);
 
             foreach (var webhook in webhooks)
             {

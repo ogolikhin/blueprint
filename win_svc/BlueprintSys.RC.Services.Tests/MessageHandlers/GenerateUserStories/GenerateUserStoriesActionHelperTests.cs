@@ -65,13 +65,13 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
         [TestMethod]
         public async Task HandleAction_BoundardyIsReachedForProjectTenant_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             _generateActionsRepositoryMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(It.IsAny<int>())).ReturnsAsync(true);
 
-            //Act
+            // Act
             var result = await _actionHelper.HandleAction(_tenantInformation, _message, _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed when boundary reached");
             _jobsRepositoryMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -79,7 +79,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
         [TestMethod]
         public async Task HandleAction_CannotCreateJob_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             _jobsRepositoryMock.Setup(t => t.AddJobMessage(JobType.GenerateUserStories,
                 false,
                 It.IsAny<string>(),
@@ -88,8 +88,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
                 It.IsAny<string>(),
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>()
-            )).ReturnsAsync((int?) null);
+                It.IsAny<string>())).ReturnsAsync((int?)null);
             _generateActionsRepositoryMock.Setup(m => m.IsProjectMaxArtifactBoundaryReached(It.IsAny<int>())).ReturnsAsync(false);
             var sqlUser = new SqlUser
             {
@@ -99,10 +98,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
             _generateActionsRepositoryMock.Setup(m => m.GetUser(It.IsAny<int>())).ReturnsAsync(sqlUser);
             _generateActionsRepositoryMock.Setup(t => t.JobsRepository).Returns(_jobsRepositoryMock.Object);
 
-            //Act
+            // Act
             var result = await _actionHelper.HandleAction(_tenantInformation, _message, _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Should return false if job creation fails.");
             _jobsRepositoryMock.Verify(m => m.AddJobMessage(JobType.GenerateUserStories, It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
@@ -110,7 +109,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
         [TestMethod]
         public async Task HandleAction_WhenMessageIsValid_ReturnsTrue()
         {
-            //Arrange
+            // Arrange
             _jobsRepositoryMock.Setup(t => t.AddJobMessage(JobType.GenerateUserStories,
                 false,
                 It.IsAny<string>(),
@@ -119,8 +118,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
                 It.IsAny<string>(),
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>()
-                )).ReturnsAsync(1);
+                It.IsAny<string>())).ReturnsAsync(1);
             _generateActionsRepositoryMock.Setup(m => m.IsProjectMaxArtifactBoundaryReached(It.IsAny<int>())).ReturnsAsync(false);
             var sqlUser = new SqlUser
             {
@@ -130,10 +128,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateUserStories
             _generateActionsRepositoryMock.Setup(m => m.GetUser(It.IsAny<int>())).ReturnsAsync(sqlUser);
             _generateActionsRepositoryMock.Setup(t => t.JobsRepository).Returns(_jobsRepositoryMock.Object);
 
-            //Act
+            // Act
             var result = await _actionHelper.HandleAction(_tenantInformation, _message, _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result);
             _jobsRepositoryMock.Verify(m => m.AddJobMessage(JobType.GenerateUserStories, It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }

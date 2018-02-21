@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueprintSys.RC.ImageService", "BlueprintSys.RC.ImageService\BlueprintSys.RC.ImageService.csproj", "{D749C205-6478-4F29-AE62-425CF3525532}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -61,18 +61,16 @@ Global
 		{D749C205-6478-4F29-AE62-425CF3525532}.Release|x64.Build.0 = Release|x64
 		{D749C205-6478-4F29-AE62-425CF3525532}.Release|x86.ActiveCfg = Release|x86
 		{D749C205-6478-4F29-AE62-425CF3525532}.Release|x86.Build.0 = Release|x86
-		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Debug|x64.ActiveCfg = Debug|x64
 		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Debug|x64.Build.0 = Debug|x64
-		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Debug|x86.Build.0 = Debug|Any CPU
-		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Debug|x86.ActiveCfg = Debug|x86
+		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Debug|x86.Build.0 = Debug|x86
+		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Release|Any CPU.ActiveCfg = Release|x86
 		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Release|x64.ActiveCfg = Release|x64
 		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Release|x64.Build.0 = Release|x64
-		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Release|x86.ActiveCfg = Release|Any CPU
-		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Release|x86.Build.0 = Release|Any CPU
+		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Release|x86.ActiveCfg = Release|x86
+		{4E038D5E-8E8F-4158-A3ED-D06531BE135E}.Release|x86.Build.0 = Release|x86
 		{C6352FB5-BFA5-4D67-86F8-69C8B5F95495}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C6352FB5-BFA5-4D67-86F8-69C8B5F95495}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6352FB5-BFA5-4D67-86F8-69C8B5F95495}.Debug|x64.ActiveCfg = Debug|x64
@@ -153,5 +151,8 @@ Global
 		{42662DE2-4604-427C-91F9-5F47AF8F1E1B} = {E895F8F9-1089-4EB8-BA90-BD64BDA7AA91}
 		{03BD78CA-0BB7-4488-A0B3-4E07CE05391F} = {E895F8F9-1089-4EB8-BA90-BD64BDA7AA91}
 		{74353EB4-59E8-4F3E-A9E3-9927546970FD} = {E895F8F9-1089-4EB8-BA90-BD64BDA7AA91}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CBC05A4E-6746-4990-8F93-CF5666052F96}
 	EndGlobalSection
 EndGlobal

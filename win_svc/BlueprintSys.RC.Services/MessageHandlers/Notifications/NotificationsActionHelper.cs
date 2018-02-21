@@ -15,8 +15,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
     {
         protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
-            var message = (NotificationMessage) actionMessage;
-            var result = await SendNotificationEmail(tenant, message, (INotificationRepository) baseRepository);
+            var message = (NotificationMessage)actionMessage;
+            var result = await SendNotificationEmail(tenant, message, (INotificationRepository)baseRepository);
             Logger.Log($"Finished processing message with result: {result}", message, tenant);
             return await Task.FromResult(result == SendEmailResult.Success);
         }
@@ -34,7 +34,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
             }
             Logger.Log($"Email settings found. Host Name: {emailSettings.HostName}. Sender Email Address: {emailSettings.SenderEmailAddress}. User Name: {emailSettings.UserName}", message, tenant);
 
-            //Get the logo
+            // Get the logo
             byte[] logoImageArray = new LogoDataProvider().GetLogo();
             string logoImageSrc = null;
             if (logoImageArray != null)

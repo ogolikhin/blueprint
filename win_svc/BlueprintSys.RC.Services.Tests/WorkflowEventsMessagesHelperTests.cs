@@ -34,7 +34,7 @@ namespace BlueprintSys.RC.Services.Tests
         private int[] _ancestorArtifactTypeIds;
         private Mock<IUsersRepository> _mockUsersRepository;
         private Mock<IServiceLogRepository> _mockServiceLogRepository;
-        private Mock<IWebhookRepository> _mockWebhookRepository;
+        private Mock<IWebhooksRepository> _mockWebhooksRepository;
 
         [TestInitialize]
         public void TestInitialize()
@@ -49,26 +49,26 @@ namespace BlueprintSys.RC.Services.Tests
             _modifiedProperties = new Dictionary<int, IList<Property>>();
             _artifactUrl = "";
             _baseUrl = "";
-            _ancestorArtifactTypeIds = new int[]{};
+            _ancestorArtifactTypeIds = new int[] { };
             _mockUsersRepository = new Mock<IUsersRepository>(MockBehavior.Strict);
             _mockServiceLogRepository = new Mock<IServiceLogRepository>(MockBehavior.Strict);
-            _mockWebhookRepository = new Mock<IWebhookRepository>(MockBehavior.Strict);
+            _mockWebhooksRepository = new Mock<IWebhooksRepository>(MockBehavior.Strict);
         }
 
         [TestMethod]
         public async Task GenerateMessages_ReturnsNotificationMessage_WhenActionIsEmailNotificationAction()
         {
-            //arrange
+            // arrange
             var workflowEventTrigger = new WorkflowEventTrigger
             {
                 Action = new EmailNotificationAction()
             };
             _workflowEventTriggers.Add(workflowEventTrigger);
 
-            //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhookRepository.Object);
+            // act
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
 
-            //assert
+            // assert
             Assert.IsTrue(messages.Count == 1);
             Assert.IsTrue(messages.Single() is NotificationMessage);
         }
@@ -76,7 +76,7 @@ namespace BlueprintSys.RC.Services.Tests
         [TestMethod]
         public async Task GetEmailValues_ReturnsEmails_WhenEmailNotificationActionContainsEmails()
         {
-            //arrange
+            // arrange
             const int numEmails = 5;
             var emailNotificationAction = new EmailNotificationAction();
             for (int i = 0; i < numEmails; i++)
@@ -84,17 +84,17 @@ namespace BlueprintSys.RC.Services.Tests
                 emailNotificationAction.Emails.Add($"email{i}");
             }
 
-            //act
+            // act
             var emails = await WorkflowEventsMessagesHelper.GetEmailValues(_revisionId, 123, emailNotificationAction, _mockUsersRepository.Object);
 
-            //assert
+            // assert
             Assert.AreEqual(numEmails, emails.Count);
         }
 
         [TestMethod]
         public async Task GetEmailValues_ReturnsEmails_WhenEmailNotificationActionHasPropertyTypeId()
         {
-            //arrange
+            // arrange
             const int numEmails = 7;
             var emailNotificationAction = new EmailNotificationAction
             {
@@ -111,27 +111,27 @@ namespace BlueprintSys.RC.Services.Tests
             }
             _mockUsersRepository.Setup(m => m.GetUserInfoForWorkflowArtifactForAssociatedUserProperty(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IDbTransaction>())).ReturnsAsync(userInfos);
 
-            //act
+            // act
             var emails = await WorkflowEventsMessagesHelper.GetEmailValues(_revisionId, 456, emailNotificationAction, _mockUsersRepository.Object);
 
-            //assert
+            // assert
             Assert.AreEqual(numEmails, emails.Count);
         }
 
         [TestMethod]
         public async Task GenerateMessages_ReturnsGenerateDescendantsMessage_WhenActionIsGenerateChildrenAction()
         {
-            //arrange
+            // arrange
             var workflowEventTrigger = new WorkflowEventTrigger
             {
                 Action = new GenerateChildrenAction()
             };
             _workflowEventTriggers.Add(workflowEventTrigger);
 
-            //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhookRepository.Object);
+            // act
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
 
-            //assert
+            // assert
             Assert.IsTrue(messages.Count == 1);
             Assert.IsTrue(messages.Single() is GenerateDescendantsMessage);
         }
@@ -139,7 +139,7 @@ namespace BlueprintSys.RC.Services.Tests
         [TestMethod]
         public async Task GenerateMessages_ReturnsGenerateTestsMessage_WhenActionIsGenerateTestCasesActionAndPredefinedTypeIsProcess()
         {
-            //arrange
+            // arrange
             var workflowEventTrigger = new WorkflowEventTrigger
             {
                 Action = new GenerateTestCasesAction()
@@ -147,10 +147,10 @@ namespace BlueprintSys.RC.Services.Tests
             _workflowEventTriggers.Add(workflowEventTrigger);
             _baseArtifactVersionControlInfo.PredefinedType = ItemTypePredefined.Process;
 
-            //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhookRepository.Object);
+            // act
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
 
-            //assert
+            // assert
             Assert.IsTrue(messages.Count == 1);
             Assert.IsTrue(messages.Single() is GenerateTestsMessage);
         }
@@ -158,7 +158,7 @@ namespace BlueprintSys.RC.Services.Tests
         [TestMethod]
         public async Task GenerateMessages_ReturnsNoMessage_WhenActionIsGenerateTestCasesActionAndPredefinedTypeIsNotProcess()
         {
-            //arrange
+            // arrange
             var workflowEventTrigger = new WorkflowEventTrigger
             {
                 Action = new GenerateTestCasesAction()
@@ -167,17 +167,17 @@ namespace BlueprintSys.RC.Services.Tests
             _baseArtifactVersionControlInfo.PredefinedType = ItemTypePredefined.None;
             _mockServiceLogRepository.Setup(m => m.LogInformation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(true));
 
-            //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhookRepository.Object);
+            // act
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
 
-            //assert
+            // assert
             Assert.IsTrue(messages.Count == 0);
         }
 
         [TestMethod]
         public async Task GenerateMessages_ReturnsGenerateUserStoriesMessage_WhenActionIsGenerateUserStoriesActionAndPredefinedTypeIsProcess()
         {
-            //arrange
+            // arrange
             var workflowEventTrigger = new WorkflowEventTrigger
             {
                 Action = new GenerateUserStoriesAction()
@@ -185,10 +185,10 @@ namespace BlueprintSys.RC.Services.Tests
             _workflowEventTriggers.Add(workflowEventTrigger);
             _baseArtifactVersionControlInfo.PredefinedType = ItemTypePredefined.Process;
 
-            //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhookRepository.Object);
+            // act
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
 
-            //assert
+            // assert
             Assert.IsTrue(messages.Count == 1);
             Assert.IsTrue(messages.Single() is GenerateUserStoriesMessage);
         }
@@ -196,7 +196,7 @@ namespace BlueprintSys.RC.Services.Tests
         [TestMethod]
         public async Task GenerateMessages_ReturnsNoMessage_WhenActionIsGenerateUserStoriesActionAndPredefinedTypeIsNotProcess()
         {
-            //arrange
+            // arrange
             var workflowEventTrigger = new WorkflowEventTrigger
             {
                 Action = new GenerateUserStoriesAction()
@@ -205,10 +205,10 @@ namespace BlueprintSys.RC.Services.Tests
             _baseArtifactVersionControlInfo.PredefinedType = ItemTypePredefined.None;
             _mockServiceLogRepository.Setup(m => m.LogInformation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(true));
 
-            //act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhookRepository.Object);
+            // act
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
 
-            //assert
+            // assert
             Assert.IsTrue(messages.Count == 0);
         }
     }

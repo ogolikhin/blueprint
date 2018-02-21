@@ -8,14 +8,18 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Repositories.Webhooks;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
     internal class CreatedArtifactsNotificationHandler
     {
         private const string LogSource = "ArtifactsPublishedActionHelper.CreatedArtifacts";
-        internal static async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant, ArtifactsPublishedMessage message, IArtifactsPublishedRepository repository, IServiceLogRepository serviceLogRepository, IWorkflowMessagingProcessor messageProcessor, IWebhookRepository webhookRepository)
+        internal static async Task<bool> ProcessCreatedArtifacts(TenantInformation tenant,
+            ArtifactsPublishedMessage message,
+            IArtifactsPublishedRepository repository,
+            IServiceLogRepository serviceLogRepository,
+            IWorkflowMessagingProcessor messageProcessor,
+            int transactionCommitWaitTimeInMilliSeconds = 60000)
         {
             var createdArtifacts = message?.Artifacts?.Where(p => p.IsFirstTimePublished && repository.WorkflowRepository.IsWorkflowSupported((ItemTypePredefined)p.Predefined)).ToList();
             if (createdArtifacts == null || createdArtifacts.Count <= 0)
@@ -44,7 +48,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     new[] { createdArtifact.Id },
                     message.RevisionId, true);
 
-                if (eventTriggers?.AsynchronousTriggers == null 
+                if (eventTriggers?.AsynchronousTriggers == null
                     || eventTriggers.AsynchronousTriggers.Count == 0)
                 {
                     Logger.Log($"Found no async triggers for artifact with ID {createdArtifact.Id}", message, tenant);
@@ -67,7 +71,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     createdArtifact.AncestorArtifactTypeIds,
                     repository.UsersRepository,
                     serviceLogRepository,
-                    webhookRepository);
+                    repository.WebhooksRepository);
 
                 if (actionMessages == null || actionMessages.Count == 0)
                 {

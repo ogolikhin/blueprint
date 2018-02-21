@@ -47,13 +47,13 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
             var settings = new CefSettings
             {
-                //By default CefSharp will use an in-memory cache, you need to specify a Cache Folder to persist data
+                // By default CefSharp will use an in-memory cache, you need to specify a Cache Folder to persist data
                 CachePath =
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                         "CefSharp\\Cache")
             };
 
-            //Perform dependency check to make sure all relevant resources are in our output directory.
+            // Perform dependency check to make sure all relevant resources are in our output directory.
             Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
 
             // Keep it for testing purposes but make it safe.
@@ -104,7 +104,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
                 BrowserPool.Dispose();
 
-                Log.Info("ImageGen Service is stopped.");                
+                Log.Info("ImageGen Service is stopped.");
             }
             catch (Exception e)
             {
@@ -119,6 +119,5 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
             return true;
         }
-       
     }
 }

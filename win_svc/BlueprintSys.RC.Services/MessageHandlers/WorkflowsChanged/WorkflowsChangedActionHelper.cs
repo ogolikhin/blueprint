@@ -15,8 +15,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged
 
         public async Task<bool> HandleWorkflowsChangedAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository, IWorkflowMessagingProcessor workflowMessagingProcessor)
         {
-            var message = (WorkflowsChangedMessage) actionMessage;
-            var repository = (IWorkflowsChangedRepository) baseRepository;
+            var message = (WorkflowsChangedMessage)actionMessage;
+            var repository = (IWorkflowsChangedRepository)baseRepository;
 
             Logger.Log("Getting affected artifact IDs", message, tenant);
             var workflowIds = new[]

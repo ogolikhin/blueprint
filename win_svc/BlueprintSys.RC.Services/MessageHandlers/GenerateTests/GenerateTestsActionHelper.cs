@@ -11,7 +11,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateTests
     {
         protected override async Task<bool> HandleActionInternal(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository)
         {
-            var message = (GenerateTestsMessage) actionMessage;
+            var message = (GenerateTestsMessage)actionMessage;
             if (message == null || message.ArtifactId <= 0 || message.ProjectId <= 0 || message.RevisionId <= 0 || message.UserId <= 0 || string.IsNullOrWhiteSpace(message.UserName) || tenant == null)
             {
                 Logger.Log($"Invalid GenerateTestsMessage received: {message?.ToJSON()}", message, tenant, LogLevel.Error);
@@ -20,7 +20,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateTests
 
             Logger.Log($"Handling of type: {message.ActionType} started for user ID {message.UserId}, revision ID {message.RevisionId} with message {message.ToJSON()}", message, tenant, LogLevel.Debug);
 
-            var repository = (IGenerateActionsRepository) baseRepository;
+            var repository = (IGenerateActionsRepository)baseRepository;
 
             var generateProcessTestInfos = new List<GenerateProcessTestInfo>
             {

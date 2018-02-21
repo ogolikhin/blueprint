@@ -60,7 +60,7 @@ namespace AdminStore.Services.Workflow
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
         private Mock<ISendMessageExecutor> _sendMessageExecutorMock;
-        private Mock<IWebhookRepository> _webhookRepositoryMock;
+        private Mock<IWebhooksRepository> _webhooksRepositoryMock;
 
         #endregion
 
@@ -79,7 +79,7 @@ namespace AdminStore.Services.Workflow
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>();
             _serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
             _sendMessageExecutorMock = new Mock<ISendMessageExecutor>();
-            _webhookRepositoryMock = new Mock<IWebhookRepository>();
+            _webhooksRepositoryMock = new Mock<IWebhooksRepository>();
 
             _service = new WorkflowService(_workflowRepositoryMock.Object,
                 _workflowXmlValidatorMock.Object,
@@ -93,7 +93,7 @@ namespace AdminStore.Services.Workflow
                 _applicationSettingsRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _sendMessageExecutorMock.Object,
-                _webhookRepositoryMock.Object);
+                _webhooksRepositoryMock.Object);
 
             _workflowDataValidatorMock = new Mock<IWorkflowDataValidator>();
             _workflowDataValidatorMock

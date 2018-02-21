@@ -45,7 +45,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             }
             else
             {
-                Logger.Log($"Failed to send webhook. {(int)result.StatusCode} - {result.StatusCode}. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.", message, tenant, LogLevel.Error);
+                Logger.Log($"Failed to send webhook. {(int)result.StatusCode} - {result.StatusCode}. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.",
+                    message, tenant, LogLevel.Error);
                 throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook");
             }
         }
@@ -101,13 +102,17 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             {
                 var headers = SystemEncryptions.Decrypt(httpHeader);
                 var keyValuePair = headers.Split(':');
-                try
+
+                // Do not allow overriding of Restricted Http Headers
+                if (WebHeaderCollection.IsRestricted(keyValuePair[0]))
+                {
+                    Logger.Log($"'{keyValuePair[0]}' is a restricted Http Header. '{keyValuePair[0]}:{keyValuePair[1]}' was not added to the headers of the webhook request.",
+                        message, tenant, LogLevel.Error);
+                    continue;
+                }
+                else
                 {
                     request.Headers.Add(keyValuePair[0], keyValuePair[1]);
-                }
-                catch (ArgumentException)
-                {
-                    Logger.Log($"Failed to add the following Http Header to Webhook: {keyValuePair[0]}:{keyValuePair[1]}.", message, tenant, LogLevel.Error);
                 }
             }
         }

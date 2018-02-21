@@ -5,7 +5,6 @@ using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
 using ServiceLibrary.Repositories.ConfigControl;
-using ServiceLibrary.Repositories.Webhooks;
 
 namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 {
@@ -29,7 +28,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                 new LocalFileLog(),
                 tenant.AdminStoreLog);
 
-            //Get modified properties for all artifacts and create a dictionary with key as artifact ids
+            // Get modified properties for all artifacts and create a dictionary with key as artifact ids
             bool handledAllUpdatedArtifacts = await UpdatedArtifactsNotificationHandler.ProcessUpdatedArtifacts(tenant,
                 message,
                 repository,
@@ -41,15 +40,14 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                 Logger.Log("Could not process messages for all published updated artifacts", message, tenant, LogLevel.Debug);
             }
             Logger.Log("Finished processing updated artifacts", message, tenant);
-            
+
             var handledAllCreatedArtifacts =
                 await
-                    CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(tenant, 
+                    CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(tenant,
                     message,
                     repository,
-                    serviceLogRepository, 
-                    WorkflowMessagingProcessor.Instance,
-                    repository.WebhookRepository);
+                    serviceLogRepository,
+                    WorkflowMessagingProcessor.Instance);
 
             if (!handledAllCreatedArtifacts)
             {

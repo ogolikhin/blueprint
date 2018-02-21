@@ -38,9 +38,9 @@ namespace BlueprintSys.RC.ImageService.Tests.Logging
             Log.Error(ERROR_MSG);
 
             Log.Fatal(FATAL_MSG);
-            
-              
-            // Let it finish...          
+
+
+            // Let it finish...
             Thread.Sleep(1000);
 
             // Get all Five log Entries from Memory Appender
@@ -63,7 +63,7 @@ namespace BlueprintSys.RC.ImageService.Tests.Logging
 
             // Must be at least One Appender
             Assert.IsTrue(appenders.Length >= 1);
-            
+
         }
 
         [TestMethod]

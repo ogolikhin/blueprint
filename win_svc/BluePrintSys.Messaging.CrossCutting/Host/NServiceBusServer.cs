@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BluePrintSys.Messaging.CrossCutting.Configuration;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using NServiceBus;
+using NServiceBus.Transport;
 using NServiceBus.Transport.SQLServer;
 using RabbitMQ.Client.Exceptions;
 using ServiceLibrary.Exceptions;
@@ -125,6 +126,8 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             }
             var recoverability = endpointConfiguration.Recoverability();
             recoverability.DisableLegacyRetriesSatellite();
+            recoverability.AddUnrecoverableException<WebhookExceptionDoNotRetry>();
+            recoverability.CustomPolicy(WebhookRetryPolicy);
             recoverability.Immediate(immediate =>
             {
                 immediate.NumberOfRetries(6);
@@ -231,6 +234,26 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 Log.Error(errorMessage);
                 throw new Exception(errorMessage);
             }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
+        public RecoverabilityAction WebhookRetryPolicy(RecoverabilityConfig config, ErrorContext context)
+        {
+            if (context.Exception is WebhookExceptionRetryPerPolicy)
+            {
+                // Check that the number of delayed deliveries does not exceed configurable webhook retry count
+                if (context.DelayedDeliveriesPerformed < ConfigHelper.WebhookRetryCount)
+                {
+                    // Set delayed retry internal to that set by the configurable webhook retry internal
+                    return RecoverabilityAction.DelayedRetry(TimeSpan.FromSeconds(ConfigHelper.WebhookRetryInterval));
+                }
+                // If the webhook could not be delivered within the specified number of retry attempts. Log error and do not send to ErrorQueue
+                Log.Error($"Failed to send webhook after {context.DelayedDeliveriesPerformed} attempts.");
+                return null;
+            }
+            // For all other exceptions, fall back to default policy
+            return DefaultRecoverabilityPolicy.Invoke(config, context);
         }
     }
 

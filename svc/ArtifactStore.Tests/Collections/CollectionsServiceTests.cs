@@ -289,7 +289,7 @@ namespace ArtifactStore.Collections
             _profileColumns = new ProfileColumns(
                 new List<ProfileColumn>
                 {
-                    new ProfileColumn("Standard", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
+                    new ProfileColumn("System", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
                     new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
                 });
 
@@ -297,7 +297,7 @@ namespace ArtifactStore.Collections
             {
                 propertyTypeInfos.Add(new PropertyTypeInfo()
                 {
-                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Id = column.PropertyTypeId,
                     Name = column.PropertyName + DateTime.Now.ToLongDateString(),
                     Predefined = column.Predefined,
                     PrimitiveType = column.PrimitiveType
@@ -320,7 +320,7 @@ namespace ArtifactStore.Collections
             _profileColumns = new ProfileColumns(
                 new List<ProfileColumn>
                 {
-                    new ProfileColumn("Standard", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
+                    new ProfileColumn("System", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
                     new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
                 });
 
@@ -328,7 +328,7 @@ namespace ArtifactStore.Collections
             {
                 propertyTypeInfos.Add(new PropertyTypeInfo()
                 {
-                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Id = column.PropertyTypeId,
                     Name = column.PropertyName,
                     Predefined = PropertyTypePredefined.BackgroundColor,
                     PrimitiveType = column.PrimitiveType
@@ -351,7 +351,7 @@ namespace ArtifactStore.Collections
             _profileColumns = new ProfileColumns(
                 new List<ProfileColumn>
                 {
-                    new ProfileColumn("Standard", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
+                    new ProfileColumn("System", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
                     new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
                 });
 
@@ -359,7 +359,7 @@ namespace ArtifactStore.Collections
             {
                 propertyTypeInfos.Add(new PropertyTypeInfo()
                 {
-                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Id = column.PropertyTypeId,
                     Name = column.PropertyName,
                     Predefined = column.Predefined,
                     PrimitiveType = PropertyPrimitiveType.Date
@@ -382,7 +382,7 @@ namespace ArtifactStore.Collections
             _profileColumns = new ProfileColumns(
                 new List<ProfileColumn>
                 {
-                    new ProfileColumn("Standard", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
+                    new ProfileColumn("System", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text, 1),
                     new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
                 });
 
@@ -409,12 +409,18 @@ namespace ArtifactStore.Collections
         public async Task SaveProfileColumnsAsync_AllDataValid_SuccessResult()
         {
             var propertyTypeInfos = new List<PropertyTypeInfo>();
+            _profileColumns = new ProfileColumns(
+                new List<ProfileColumn>
+                {
+                    new ProfileColumn("System", PropertyTypePredefined.ArtifactType, PropertyPrimitiveType.Text),
+                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Text, 2)
+                });
 
             foreach (var column in _profileColumns.Items)
             {
                 propertyTypeInfos.Add(new PropertyTypeInfo()
                 {
-                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Id = column.PropertyTypeId,
                     Name = column.PropertyName,
                     Predefined = column.Predefined,
                     PrimitiveType = column.PrimitiveType
@@ -438,7 +444,7 @@ namespace ArtifactStore.Collections
             {
                 propertyTypeInfos.Add(new PropertyTypeInfo()
                 {
-                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Id = column.PropertyTypeId,
                     Name = column.PropertyName + DateTime.Now.ToLongTimeString(),
                     Predefined = column.Predefined,
                     PrimitiveType = column.PrimitiveType
@@ -464,7 +470,7 @@ namespace ArtifactStore.Collections
             {
                 propertyTypeInfos.Add(new PropertyTypeInfo()
                 {
-                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Id = column.PropertyTypeId,
                     Name = column.PropertyName,
                     Predefined = column.Predefined,
                     PrimitiveType = PropertyPrimitiveType.User
@@ -490,7 +496,7 @@ namespace ArtifactStore.Collections
             {
                 propertyTypeInfos.Add(new PropertyTypeInfo()
                 {
-                    Id = column.PropertyTypeId.GetValueOrDefault(),
+                    Id = column.PropertyTypeId,
                     Name = column.PropertyName,
                     Predefined = column.Predefined,
                     PrimitiveType = column.PrimitiveType

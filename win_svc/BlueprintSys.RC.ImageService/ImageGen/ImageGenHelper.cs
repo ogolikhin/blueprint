@@ -15,7 +15,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
     public class ImageGenHelper : IImageGenHelper
     {
         private readonly IBrowserPool _browserPool;
-        private readonly ConcurrentDictionary<IVirtualBrowser, TaskCompletionSource<bool>> 
+        private readonly ConcurrentDictionary<IVirtualBrowser, TaskCompletionSource<bool>>
             _tcs = new ConcurrentDictionary<IVirtualBrowser, TaskCompletionSource<bool>>();
 
         private static readonly int MaxWaitTimeSeconds = ServiceHelper.BrowserResizeEventMaxWaitTimeSeconds;
@@ -58,9 +58,9 @@ namespace BlueprintSys.RC.ImageService.ImageGen
                         {
                             task.Result.Save(imageStream, ImageFormat.Png);
                         }
-                    //We no longer need the Bitmap.
-                    // Dispose it to avoid keeping the memory alive.  Especially important in 32 - bit applications.
-                    task.Result.Dispose();
+                        // We no longer need the Bitmap.
+                        // Dispose it to avoid keeping the memory alive.  Especially important in 32 - bit applications.
+                        task.Result.Dispose();
                     }
                     finally
                     {
@@ -80,7 +80,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
             return imageStream;
         }
 
-        //This is needed from rendering transparent background as black
+        // This is needed from rendering transparent background as black
         private Bitmap DrawImageOnWhiteBackground(IScreenshot screenshot, int width, int height)
         {
             Bitmap blank = new Bitmap(width, height);
@@ -95,7 +95,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
             try
             {
                 var task = new TaskCompletionSource<bool>();
-                if(!_tcs.TryAdd(browser, task))
+                if (!_tcs.TryAdd(browser, task))
                 {
                     Debug.Assert(false, "Unexpected Error: The dictionary does not contain a key (browser) added previously.");
                 }
@@ -176,9 +176,9 @@ namespace BlueprintSys.RC.ImageService.ImageGen
                     // Disabling the scroll bars on 'body' element does not work.
                     // The scroll bars should be disabled on the Process container.
                     // But this causes shifting task headers and labels.
-                    //browser.ExecuteScriptAsync("document.body.style.overflow = 'hidden'");
+                    //// browser.ExecuteScriptAsync("document.body.style.overflow = 'hidden'");
 
-                    //Give the browser a little time to render
+                    // Give the browser a little time to render
                     Thread.Sleep(RenderDelayMilliseconds);
                 });
 

@@ -52,7 +52,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
                 DesiredArtifactTypeName = desiredItemType.Name,
                 AncestorArtifactTypeIds = message.AncestorArtifactTypeIds?.ToArray()
             };
-            
+
             var parameters = SerializationHelper.ToXml(generateDescendantsInfo);
 
             var user = await repository.GetUser(message.UserId);
@@ -65,7 +65,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.GenerateDescendants
                 message.ProjectId,
                 message.ProjectName,
                 message.UserId,
-                user?.Login, //Login is equal to username
+                user?.Login, // Login is equal to username
                 message.BaseHostUri);
 
             if (jobId.HasValue)

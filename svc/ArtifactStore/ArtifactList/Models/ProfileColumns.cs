@@ -65,18 +65,18 @@ namespace ArtifactStore.ArtifactList.Models
             return !_columns.IsEmpty() && _columns.Any(column => column.Predefined == predefined);
         }
 
-        public IReadOnlyList<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> columns)
+        public IReadOnlyList<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> propertyTypes)
         {
             return _columns
                 .Where(column =>
-                    !columns.Any(standardColumn =>
-                        standardColumn.PropertyName == column.PropertyName &&
-                        standardColumn.Predefined == column.Predefined &&
-                        standardColumn.PrimitiveType == column.PrimitiveType &&
-                        standardColumn.PropertyTypeId == column.PropertyTypeId) &&
-                    !columns.Any(customColumn =>
-                        customColumn.Predefined == PropertyTypePredefined.CustomGroup &&
-                        customColumn.PropertyTypeId == column.PropertyTypeId))
+                    !propertyTypes.Any(propertyType =>
+                        propertyType.PropertyName == column.PropertyName &&
+                        propertyType.Predefined == column.Predefined &&
+                        propertyType.PrimitiveType == column.PrimitiveType &&
+                        propertyType.PropertyTypeId == column.PropertyTypeId) &&
+                    !propertyTypes.Any(customPropertyType =>
+                        customPropertyType.Predefined == PropertyTypePredefined.CustomGroup &&
+                        customPropertyType.PropertyTypeId == column.PropertyTypeId))
                 .ToList();
         }
 
@@ -114,7 +114,8 @@ namespace ArtifactStore.ArtifactList.Models
 
         private bool NameMatches(string name)
         {
-            return !string.IsNullOrEmpty(name) && _columns.Any(column => column.NameMatches(name));
+            return !string.IsNullOrEmpty(name) &&
+                   _columns.Any(column => column.NameMatches(name) && column.PropertyName.Length == name.Length);
         }
     }
 }

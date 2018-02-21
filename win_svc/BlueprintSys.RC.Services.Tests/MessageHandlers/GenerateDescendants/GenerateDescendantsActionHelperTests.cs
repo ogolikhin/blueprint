@@ -30,7 +30,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
 
         private Mock<IGenerateActionsRepository> _generateActionsRepositoryMock;
         private Mock<ISqlItemTypeRepository> _itemTypeRepoMock;
-        private Mock<IUsersRepository> _userRepoMock; 
+        private Mock<IUsersRepository> _userRepoMock;
         private Mock<IJobsRepository> _jobsRepoMock;
 
         [TestInitialize]
@@ -66,11 +66,11 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         [TestMethod]
         public async Task HandleAction_BoundardyIsReachedForProjectTenant_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
             _generateActionsRepositoryMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(true);
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -85,10 +85,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 DesiredArtifactTypeId = DesiredArtifactTypeId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed when boundary reached");
             _jobsRepoMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -96,11 +95,11 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         [TestMethod]
         public async Task HandleAction_ArtifactIdIsInvalid_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
             _generateActionsRepositoryMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -114,10 +113,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 DesiredArtifactTypeId = DesiredArtifactTypeId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed for invalid message");
             _jobsRepoMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -125,11 +123,11 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         [TestMethod]
         public async Task HandleAction_RevisionIdIsInvalid_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
             _generateActionsRepositoryMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -143,10 +141,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 DesiredArtifactTypeId = DesiredArtifactTypeId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed for invalid message");
             _jobsRepoMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -154,11 +151,11 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         [TestMethod]
         public async Task HandleAction_DesiredArtifactTypeIdIsInvalid_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
             _generateActionsRepositoryMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -172,10 +169,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 ProjectId = ProjectId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed for invalid message");
             _jobsRepoMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -183,11 +179,11 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         [TestMethod]
         public async Task HandleAction_UserNameIsInvalid_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
             _generateActionsRepositoryMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -201,10 +197,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 RevisionId = RevisionId,
                 DesiredArtifactTypeId = DesiredArtifactTypeId
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed for invalid message");
             _jobsRepoMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -212,14 +207,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         [TestMethod]
         public async Task HandleAction_DesiredItemTypeNotFound_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
             _generateActionsRepositoryMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
             _itemTypeRepoMock.Setup(
                 t => t.GetCustomItemTypeForProvidedStandardItemTypeIdInProject(ProjectId, DesiredArtifactTypeId))
                 .ReturnsAsync((SqlItemType)null);
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -234,10 +229,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 DesiredArtifactTypeId = DesiredArtifactTypeId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed for invalid message");
             _jobsRepoMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -245,7 +239,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         [TestMethod]
         public async Task HandleAction_CannotCreateJob_ReturnsFalse()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
             _generateActionsRepositoryMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
             _itemTypeRepoMock.Setup(
@@ -278,7 +272,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 UserName,
                 It.IsAny<string>())).ReturnsAsync((int?)null);
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -293,10 +287,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 DesiredArtifactTypeId = DesiredArtifactTypeId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Action should have failed when job creation failed");
             _jobsRepoMock.Verify(t => t.AddJobMessage(JobType.GenerateDescendants, It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
@@ -304,7 +297,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         [TestMethod]
         public async Task HandleAction_CreatesJob_ReturnsTrue()
         {
-            //Arrange
+            // Arrange
             var actionHelper = new GenerateDescendantsActionHelper();
             _generateActionsRepositoryMock.Setup(t => t.IsProjectMaxArtifactBoundaryReached(ProjectId)).ReturnsAsync(false);
             _itemTypeRepoMock.Setup(
@@ -337,7 +330,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 UserName,
                 It.IsAny<string>())).ReturnsAsync(2);
 
-            //Act
+            // Act
             var result = await actionHelper.HandleAction(new TenantInformation
             {
                 TenantId = Guid.NewGuid().ToString(),
@@ -352,10 +345,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
                 DesiredArtifactTypeId = DesiredArtifactTypeId,
                 UserName = UserName
             },
-            _generateActionsRepositoryMock.Object
-            );
+            _generateActionsRepositoryMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "Action should have succeeded");
             _jobsRepoMock.Verify(t => t.AddJobMessage(JobType.GenerateDescendants, It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
@@ -363,7 +355,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
         [TestMethod]
         public async Task HandleAction_WhenAncestorInfiniteLoopExists_ReturnsFalse()
         {
-            //arrange
+            // arrange
             const int duplicateId = 11;
             var ancestorsWithDuplicate = new[]
             {
@@ -391,10 +383,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.GenerateDescendants
             var tenantInformation = new TenantInformation();
             var actionHelper = new GenerateDescendantsActionHelper();
 
-            //act
+            // act
             var result = await actionHelper.HandleAction(tenantInformation, generateDescendantsMessage, _generateActionsRepositoryMock.Object);
 
-            //assert
+            // assert
             Assert.IsFalse(result, "Children should not have been generated.");
             _jobsRepoMock.Verify(t => t.AddJobMessage(It.IsAny<JobType>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }

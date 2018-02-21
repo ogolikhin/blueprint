@@ -47,11 +47,11 @@ namespace BlueprintSys.RC.Services.Helpers
                 var triggersWithEmailActions = xmlWorkflowEventTriggers.Triggers.Where(trigger => trigger.Action.ActionType == ActionTypes.EmailNotification);
                 foreach (var trigger in triggersWithEmailActions)
                 {
-                    var action = (XmlEmailNotificationAction) trigger.Action;
+                    var action = (XmlEmailNotificationAction)trigger.Action;
                     XmlStateCondition condition = null;
                     if (trigger.Condition?.ConditionType == ConditionTypes.State)
                     {
-                        condition = (XmlStateCondition) trigger.Condition;
+                        condition = (XmlStateCondition)trigger.Condition;
                     }
                     var emailNotification = new EmailNotificationAction
                     {

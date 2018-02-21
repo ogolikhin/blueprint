@@ -15,8 +15,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.UsersGroupsChanged
 
         public async Task<bool> HandleUsersGroupsChangedAction(TenantInformation tenant, ActionMessage actionMessage, IBaseRepository baseRepository, IWorkflowMessagingProcessor workflowMessagingProcessor)
         {
-            var message = (UsersGroupsChangedMessage) actionMessage;
-            var repository = (IUsersGroupsChangedRepository) baseRepository;
+            var message = (UsersGroupsChangedMessage)actionMessage;
+            var repository = (IUsersGroupsChangedRepository)baseRepository;
 
             Logger.Log($"Handling Users Groups Changed Message for change type {message.ChangeType}", message, tenant);
 

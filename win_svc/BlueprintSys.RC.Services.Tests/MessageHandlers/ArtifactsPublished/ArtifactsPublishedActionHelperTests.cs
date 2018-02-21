@@ -90,14 +90,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                     Name = ""
                 }
             };
-            _instancePropertyTypeIds = new Dictionary<int, List<int>> {{0, new List<int> {0}}};
+            _instancePropertyTypeIds = new Dictionary<int, List<int>> { { 0, new List<int> { 0 } } };
             var emailNotification = new EmailNotificationAction
             {
                 ConditionalStateId = WorkflowStateId,
                 PropertyTypeId = PropertyTypeId
             };
             emailNotification.Emails.Add("");
-            _notificationActions = new List<EmailNotificationAction> {emailNotification};
+            _notificationActions = new List<EmailNotificationAction> { emailNotification };
 
             _messageWithModifiedProperties = new ArtifactsPublishedMessage
             {
@@ -122,7 +122,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         {
             var message = new ArtifactsPublishedMessage();
 
-            //empty list of triggers
+            // empty list of triggers
             var emptyTriggersList = new List<SqlWorkflowEvent>();
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(emptyTriggersList);
 
@@ -135,8 +135,8 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenNoPublishedArtifactsAreFound()
         {
-            //empty array of artifacts
-            var message = new ArtifactsPublishedMessage {Artifacts = new PublishedArtifactInformation[] { }};
+            // empty array of artifacts
+            var message = new ArtifactsPublishedMessage { Artifacts = new PublishedArtifactInformation[] { } };
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
 
@@ -149,10 +149,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenNoWorkflowStatesAreFound()
         {
-            var message = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation()}};
+            var message = new ArtifactsPublishedMessage { Artifacts = new[] { new PublishedArtifactInformation() } };
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
-            //empty list of states
+            // empty list of states
             var emptyStatesList = new List<SqlWorkFlowStateInformation>();
             _repositoryMock.Setup(m => m.GetWorkflowStatesForArtifactsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>())).ReturnsAsync(emptyStatesList);
 
@@ -165,14 +165,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenNoNotificationActionsAreFound()
         {
-            var message = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation()}};
+            var message = new ArtifactsPublishedMessage { Artifacts = new[] { new PublishedArtifactInformation() } };
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
             _repositoryMock.Setup(m => m.GetWorkflowStatesForArtifactsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>())).ReturnsAsync(_states);
             _repositoryMock.Setup(m => m.GetProjectNameByIdsAsync(It.IsAny<IEnumerable<int>>())).ReturnsAsync(_projects);
 
             var actionsParserMock = new Mock<IActionsParser>();
-            //empty list of notification actions
+            // empty list of notification actions
             var emptyNotificationActionsList = new List<EmailNotificationAction>();
             actionsParserMock.Setup(m => m.GetNotificationActions(It.IsAny<IEnumerable<SqlWorkflowEvent>>())).Returns(emptyNotificationActionsList);
             var actionHelper = new ArtifactsPublishedActionHelper(actionsParserMock.Object);
@@ -184,8 +184,8 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenThereIsATriggerWithoutModifiedProperties()
         {
-            //no modified properties
-            var message = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation()}};
+            // no modified properties
+            var message = new ArtifactsPublishedMessage { Artifacts = new[] { new PublishedArtifactInformation() } };
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
             _repositoryMock.Setup(m => m.GetWorkflowStatesForArtifactsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>())).ReturnsAsync(_states);
@@ -202,7 +202,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenThereIsATriggerWithModifiedProperties()
         {
-            //message with a list of modified properties
+            // message with a list of modified properties
             var message = _messageWithModifiedProperties;
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
@@ -221,7 +221,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenPropertyTypeIdDoesNotMatchNotificationPropertyTypeId()
         {
-            //non-matching PropertyChange Type IDs
+            // non-matching PropertyChange Type IDs
             const int notificationPropertyTypeId = 1 + PropertyTypeId;
             var emailNotification = new EmailNotificationAction
             {
@@ -233,7 +233,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
             {
                 emailNotification
             };
-            var message = new ArtifactsPublishedMessage {Artifacts = new[] {new PublishedArtifactInformation {ModifiedProperties = new List<PublishedPropertyInformation> {new PublishedPropertyInformation {TypeId = PropertyTypeId}}}}};
+            var message = new ArtifactsPublishedMessage { Artifacts = new[] { new PublishedArtifactInformation { ModifiedProperties = new List<PublishedPropertyInformation> { new PublishedPropertyInformation { TypeId = PropertyTypeId } } } } };
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
             _repositoryMock.Setup(m => m.GetWorkflowStatesForArtifactsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>())).ReturnsAsync(_states);
@@ -250,9 +250,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ArtifactsPublishedActionHelper_ReturnsFalse_WhenWorkflowStateIdDoesNotMatchConditionalStateId()
         {
-            //non-matching State IDs
+            // non-matching State IDs
             const int conditionalStateId = 1 + WorkflowStateId;
-            var states = new List<SqlWorkFlowStateInformation> {new SqlWorkFlowStateInformation {WorkflowStateId = WorkflowStateId, ArtifactId = 0, EndRevision = 0, ItemId = 0, ItemTypeId = 0, LockedByUserId = 0, Name = "", ProjectId = 0, Result = 0, StartRevision = 0, WorkflowId = 0, WorkflowName = "", WorkflowStateName = ""}};
+            var states = new List<SqlWorkFlowStateInformation> { new SqlWorkFlowStateInformation { WorkflowStateId = WorkflowStateId, ArtifactId = 0, EndRevision = 0, ItemId = 0, ItemTypeId = 0, LockedByUserId = 0, Name = "", ProjectId = 0, Result = 0, StartRevision = 0, WorkflowId = 0, WorkflowName = "", WorkflowStateName = "" } };
             var emailNotification =
                 new EmailNotificationAction
                 {
@@ -260,7 +260,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                     PropertyTypeId = PropertyTypeId
                 };
             emailNotification.Emails.Add("");
-            var notificationActions = new List<EmailNotificationAction> {emailNotification};
+            var notificationActions = new List<EmailNotificationAction> { emailNotification };
 
             _repositoryMock.Setup(m => m.GetWorkflowPropertyTransitionsForArtifactsAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IEnumerable<int>>())).ReturnsAsync(_triggers);
             _repositoryMock.Setup(m => m.GetWorkflowStatesForArtifactsAsync(It.IsAny<int>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>())).ReturnsAsync(states);

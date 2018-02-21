@@ -21,5 +21,11 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
         string TenantsDatabase { get; }
 
         string NServiceBusInstanceId { get; }
+
+        int WebhookConnectionTimeout { get; }
+
+        int WebhookRetryCount { get; }
+
+        int WebhookRetryInterval { get; }
     }
 }

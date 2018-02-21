@@ -29,7 +29,7 @@ namespace ArtifactStore.Executors
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepositoryMock;
         private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
-        private Mock<IWebhookRepository> _webhookRepositoryMock;
+        private Mock<IWebhooksRepository> _webhooksRepositoryMock;
 
         [TestInitialize]
         public void Setup()
@@ -42,7 +42,7 @@ namespace ArtifactStore.Executors
             _applicationSettingsRepositoryMock = new Mock<IApplicationSettingsRepository>(MockBehavior.Loose);
             _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
             _usersRepositoryMock = new Mock<IUsersRepository>(MockBehavior.Loose);
-            _webhookRepositoryMock = new Mock<IWebhookRepository>(MockBehavior.Loose);
+            _webhooksRepositoryMock = new Mock<IWebhooksRepository>(MockBehavior.Loose);
 
             _stateChangeExecutorRepositories = new StateChangeExecutorRepositories(_artifactVersionsRepository.Object,
                 _workflowRepository.Object,
@@ -52,7 +52,7 @@ namespace ArtifactStore.Executors
                 _applicationSettingsRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _usersRepositoryMock.Object,
-                _webhookRepositoryMock.Object);
+                _webhooksRepositoryMock.Object);
 
             _stateChangeExecutorHelper = new StateChangeExecutorHelper(_stateChangeExecutorRepositories);
         }

@@ -41,12 +41,12 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsChanged
         [TestMethod]
         public async Task ArtifactsChangedActionHelper_DoesNotRepopulateSearchItems_WhenMessageHasNoArtifactIds()
         {
-            //arrange
+            // arrange
             var artifactIds = new List<int>();
             _message.ArtifactIds = artifactIds;
-            //act
+            // act
             var result = await _helper.HandleAction(_tenantInformation, _message, _repositoryMock.Object);
-            //assert
+            // assert
             Assert.AreEqual(_message.ArtifactIds.Count(), artifactIds.Count);
             Assert.IsFalse(result);
             _repositoryMock.Verify(m => m.RepopulateSearchItems(It.IsAny<IEnumerable<int>>()), Times.Never);
@@ -55,12 +55,12 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsChanged
         [TestMethod]
         public async Task ArtifactsChangedActionHelper_DoesNotRepopulateSearchItems_WhenMessageHasNullArtifactIds()
         {
-            //arrange
+            // arrange
             _message.ArtifactIds = null;
             _message.ChangeType = ArtifactChangedType.Indirect;
-            //act
+            // act
             var result = await _helper.HandleAction(_tenantInformation, _message, _repositoryMock.Object);
-            //assert
+            // assert
             Assert.IsNull(_message.ArtifactIds);
             Assert.IsFalse(result);
             _repositoryMock.Verify(m => m.RepopulateSearchItems(It.IsAny<IEnumerable<int>>()), Times.Never);
@@ -69,7 +69,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsChanged
         [TestMethod]
         public async Task ArtifactsChangedActionHelper_RepopulatesSearchItems_WhenMessageContainsSingleArtifactId()
         {
-            //arrange
+            // arrange
             var artifactIds = new List<int>
             {
                 1
@@ -77,9 +77,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsChanged
             _message.ArtifactIds = artifactIds;
             _message.ChangeType = ArtifactChangedType.Publish;
             _repositoryMock.Setup(m => m.RepopulateSearchItems(It.IsAny<IEnumerable<int>>())).ReturnsAsync(1);
-            //act
+            // act
             var result = await _helper.HandleAction(_tenantInformation, _message, _repositoryMock.Object);
-            //assert
+            // assert
             Assert.AreEqual(_message.ArtifactIds.Count(), artifactIds.Count);
             Assert.IsTrue(result);
             _repositoryMock.Verify(m => m.RepopulateSearchItems(It.IsAny<IEnumerable<int>>()), Times.Once);
@@ -88,7 +88,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsChanged
         [TestMethod]
         public async Task ArtifactsChangedActionHelper_RepopulatesSearchItems_WhenMessageContainsMultipleArtifactIds()
         {
-            //arrange
+            // arrange
             var artifactIds = new[]
             {
                 123,
@@ -98,9 +98,9 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsChanged
             _message.ArtifactIds = artifactIds;
             _message.ChangeType = ArtifactChangedType.Move;
             _repositoryMock.Setup(m => m.RepopulateSearchItems(It.IsAny<IEnumerable<int>>())).ReturnsAsync(2);
-            //act
+            // act
             var result = await _helper.HandleAction(_tenantInformation, _message, _repositoryMock.Object);
-            //assert
+            // assert
             Assert.AreEqual(_message.ArtifactIds.Count(), artifactIds.Length);
             Assert.IsTrue(result);
             _repositoryMock.Verify(m => m.RepopulateSearchItems(It.IsAny<IEnumerable<int>>()), Times.Once);

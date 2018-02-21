@@ -18,6 +18,6 @@ namespace ArtifactStore.Executors
         IApplicationSettingsRepository ApplicationSettingsRepository { get; }
         IServiceLogRepository ServiceLogRepository { get; }
         IUsersRepository UsersRepository { get; }
-        IWebhookRepository WebhookRepository { get; }
+        IWebhooksRepository WebhooksRepository { get; }
     }
 }

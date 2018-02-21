@@ -35,7 +35,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers
                 {
                     throw new ArgumentOutOfRangeException($"Invalid Transaction Status: {status}");
                 }
-                var transactionStatus = (TransactionStatus) status;
+                var transactionStatus = (TransactionStatus)status;
                 switch (transactionStatus)
                 {
                     case TransactionStatus.Committed:

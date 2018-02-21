@@ -18,7 +18,7 @@ namespace BlueprintSys.RC.Services.Tests
         [TestMethod]
         public async Task TenantInfoRetriever_ReturnsTenants()
         {
-            //arrange
+            // arrange
             var mockConfigHelper = new Mock<IConfigHelper>();
             mockConfigHelper.Setup(m => m.CacheExpirationMinutes).Returns(1);
             var mockActionHandlerServiceRepository = new Mock<IBaseRepository>();
@@ -41,10 +41,10 @@ namespace BlueprintSys.RC.Services.Tests
             mockActionHandlerServiceRepository.Setup(m => m.GetTenantsFromTenantsDb()).ReturnsAsync(sqlTenants);
             var tenantInfoRetriever = new TenantInfoRetriever(mockActionHandlerServiceRepository.Object, mockConfigHelper.Object);
 
-            //act
+            // act
             var tenants = await tenantInfoRetriever.GetTenants();
 
-            //assert
+            // assert
             Assert.AreEqual(sqlTenants.Count, tenants.Count);
             foreach (var sqlTenant in sqlTenants)
             {

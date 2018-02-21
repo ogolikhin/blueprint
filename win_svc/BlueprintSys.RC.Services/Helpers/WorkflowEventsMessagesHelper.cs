@@ -22,10 +22,23 @@ namespace BlueprintSys.RC.Services.Helpers
     {
         private const string LogSource = "StateChange.WorkflowEventsMessagesHelper";
 
-        public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId, int revisionId, string userName, long transactionId, WorkflowEventTriggers postOpTriggers, IBaseArtifactVersionControlInfo artifactInfo, string projectName, IDictionary<int, IList<Property>> modifiedProperties, string artifactUrl, string baseUrl, IEnumerable<int> ancestorArtifactTypeIds, IUsersRepository repository, IServiceLogRepository serviceLogRepository, IWebhookRepository webhookRepository)
+        public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
+            int revisionId,
+            string userName,
+            long transactionId,
+            WorkflowEventTriggers postOpTriggers,
+            IBaseArtifactVersionControlInfo artifactInfo,
+            string projectName,
+            IDictionary<int, IList<Property>> modifiedProperties,
+            string artifactUrl,
+            string baseUrl,
+            IEnumerable<int> ancestorArtifactTypeIds,
+            IUsersRepository usersRepository,
+            IServiceLogRepository serviceLogRepository,
+            IWebhooksRepository webhooksRepository)
         {
             var resultMessages = new List<IWorkflowMessage>();
-            //var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
+            ////var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
             var baseHostUri = baseUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
 
             foreach (var workflowEventTrigger in postOpTriggers)
@@ -42,7 +55,7 @@ namespace BlueprintSys.RC.Services.Helpers
                         {
                             continue;
                         }
-                        var notificationMessage = await GetNotificationMessage(userId, 
+                        var notificationMessage = await GetNotificationMessage(userId,
                             revisionId,
                             transactionId,
                             artifactInfo,
@@ -50,7 +63,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             notificationAction,
                             artifactUrl,
                             baseHostUri,
-                            repository);
+                            usersRepository);
                         if (notificationMessage == null)
                         {
                             await serviceLogRepository.LogInformation(LogSource, $"Skipping Email notification action for artifact {artifactInfo.Id}");
@@ -80,7 +93,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             UserName = userName,
                             BaseHostUri = baseHostUri,
                             ProjectName = projectName,
-                            TypePredefined = (int) artifactInfo.PredefinedType
+                            TypePredefined = (int)artifactInfo.PredefinedType
                         };
                         resultMessages.Add(generateChildrenMessage);
                         break;
@@ -126,14 +139,14 @@ namespace BlueprintSys.RC.Services.Helpers
                         };
                         resultMessages.Add(generateUserStoriesMessage);
                         break;
-                    case MessageActionType.Webhook:
+                    case MessageActionType.Webhooks:
                         var webhookAction = workflowEventTrigger.Action as WebhookAction;
                         if (webhookAction == null)
                         {
                             continue;
                         }
 
-                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhookRepository, artifactInfo);
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, artifactInfo);
 
                         if (webhookMessage == null)
                         {
@@ -165,7 +178,7 @@ namespace BlueprintSys.RC.Services.Helpers
             {
                 try
                 {
-                    await ActionMessageSender.Send((ActionMessage) actionMessage, tenant, processor);
+                    await ActionMessageSender.Send((ActionMessage)actionMessage, tenant, processor);
                     string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenant.TenantId} to the Message queue";
                     await
                         serviceLogRepository.LogInformation(logSource, message);
@@ -181,7 +194,15 @@ namespace BlueprintSys.RC.Services.Helpers
             }
         }
 
-        private static async Task<IWorkflowMessage> GetNotificationMessage(int userId, int revisionId, long transactionId, IBaseArtifactVersionControlInfo artifactInfo, string projectName, EmailNotificationAction notificationAction, string artifactUrl, string blueprintUrl, IUsersRepository repository)
+        private static async Task<IWorkflowMessage> GetNotificationMessage(int userId,
+            int revisionId,
+            long transactionId,
+            IBaseArtifactVersionControlInfo artifactInfo,
+            string projectName,
+            EmailNotificationAction notificationAction,
+            string artifactUrl,
+            string blueprintUrl,
+            IUsersRepository usersRepository)
         {
             string messageHeader = I18NHelper.FormatInvariant("You are being notified because artifact with Id: {0} has been created.", artifactInfo.Id);
             var artifactPartUrl = artifactUrl ?? ServerUriHelper.GetArtifactUrl(artifactInfo.Id, true);
@@ -190,14 +211,14 @@ namespace BlueprintSys.RC.Services.Helpers
                 return null;
             }
             var baseUrl = blueprintUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
-            var emails = await GetEmailValues(revisionId, artifactInfo.Id, notificationAction, repository);
+            var emails = await GetEmailValues(revisionId, artifactInfo.Id, notificationAction, usersRepository);
 
             var notificationMessage = new NotificationMessage
             {
                 TransactionId = transactionId,
                 ArtifactName = artifactInfo.Name,
                 ProjectName = projectName,
-                Subject = I18NHelper.FormatInvariant("Artifact {0} has been created.",artifactInfo.Id),
+                Subject = I18NHelper.FormatInvariant("Artifact {0} has been created.", artifactInfo.Id),
                 From = notificationAction.FromDisplayName,
                 To = emails,
                 Message = notificationAction.Message,
@@ -214,46 +235,54 @@ namespace BlueprintSys.RC.Services.Helpers
             return notificationMessage;
         }
 
-        internal static async Task<List<string>>  GetEmailValues(int revisionId, int artifactId,
-            EmailNotificationAction notificationAction, IUsersRepository repository)
+        internal static async Task<List<string>> GetEmailValues(int revisionId, int artifactId,
+            EmailNotificationAction notificationAction, IUsersRepository usersRepository)
         {
             var emails = new List<string>();
             if (notificationAction.PropertyTypeId.HasValue && notificationAction.PropertyTypeId.Value > 0)
             {
                 var userInfos =
-                    await repository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
+                    await usersRepository.GetUserInfoForWorkflowArtifactForAssociatedUserProperty
                         (artifactId,
                             notificationAction.PropertyTypeId.Value,
                             revisionId);
-                //Make sure that email is provided
+                // Make sure that email is provided
                 emails.AddRange(from userInfo in userInfos
-                    where !string.IsNullOrWhiteSpace(userInfo?.Email)
-                    select userInfo.Email);
+                                where !string.IsNullOrWhiteSpace(userInfo?.Email)
+                                select userInfo.Email);
             }
             else
             {
-                //Take email from list of provided emails
+                // Take email from list of provided emails
                 emails.AddRange(notificationAction.Emails ?? new List<string>());
             }
             return emails;
         }
 
         private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, long transactionId, WebhookAction webhookAction,
-            IWebhookRepository webhookRepository, IBaseArtifactVersionControlInfo artifactInfo)
+            IWebhooksRepository webhooksRepository, IBaseArtifactVersionControlInfo artifactInfo)
         {
             List<int> webhookId = new List<int> { webhookAction.WebhookId };
-            var webhookInfos = await webhookRepository.GetWebhooks(webhookId);
+            var webhookInfos = await webhooksRepository.GetWebhooks(webhookId);
             var webhookInfo = webhookInfos.FirstOrDefault();
+
+            var securityInfo = SerializationHelper.FromXml<XmlWebhookSecurityInfo>(webhookInfo.SecurityInfo);
 
             var webhookMessage = new WebhookMessage
             {
                 TransactionId = transactionId,
                 UserId = userId,
                 RevisionId = revisionId,
+                // Authentication Information
                 Url = webhookInfo.Url,
-                SecurityInfo = webhookInfo.SecurityInfo,
-                ArtifactId = artifactInfo.Id,
-                ArtifactName = artifactInfo.Name
+                IgnoreInvalidSSLCertificate = securityInfo.IgnoreInvalidSSLCertificate,
+                HttpHeaders = securityInfo.HttpHeaders,
+                BasicAuthUsername = securityInfo.BasicAuth?.Username,
+                BasicAuthPassword = securityInfo.BasicAuth?.Password,
+                SignatureSecretToken = securityInfo.Signature?.SecretToken,
+                SignatureAlgorithm = securityInfo.Signature?.Algorithm,
+                // Payload Information
+                WebhookJsonPayload = artifactInfo.ToJSON()
             };
 
             return webhookMessage;

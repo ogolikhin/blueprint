@@ -99,7 +99,8 @@ namespace ArtifactStore.ArtifactList.Models
 
         private bool NameMatches(string name)
         {
-            return !string.IsNullOrEmpty(name) && _columns.Any(column => column.NameMatches(name));
+            return !string.IsNullOrEmpty(name) &&
+                   _columns.Any(column => column.NameMatches(name) && column.PropertyName.Length == name.Length);
         }
     }
 }

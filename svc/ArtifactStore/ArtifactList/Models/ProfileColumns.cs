@@ -65,18 +65,18 @@ namespace ArtifactStore.ArtifactList.Models
             return !_columns.IsEmpty() && _columns.Any(column => column.Predefined == predefined);
         }
 
-        public IReadOnlyList<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> columns)
+        public IReadOnlyList<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> propertyTypes)
         {
             return _columns
                 .Where(column =>
-                    !columns.Any(systemColumn =>
-                        systemColumn.PropertyName == column.PropertyName &&
-                        systemColumn.Predefined == column.Predefined &&
-                        systemColumn.PrimitiveType == column.PrimitiveType &&
-                        systemColumn.PropertyTypeId == column.PropertyTypeId) &&
-                    !columns.Any(customColumn =>
-                        customColumn.Predefined == PropertyTypePredefined.CustomGroup &&
-                        customColumn.PropertyTypeId == column.PropertyTypeId))
+                    !propertyTypes.Any(propertyType =>
+                        propertyType.PropertyName == column.PropertyName &&
+                        propertyType.Predefined == column.Predefined &&
+                        propertyType.PrimitiveType == column.PrimitiveType &&
+                        propertyType.PropertyTypeId == column.PropertyTypeId) &&
+                    !propertyTypes.Any(customPropertyType =>
+                        customPropertyType.Predefined == PropertyTypePredefined.CustomGroup &&
+                        customPropertyType.PropertyTypeId == column.PropertyTypeId))
                 .ToList();
         }
 

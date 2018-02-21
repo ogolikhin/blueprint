@@ -184,9 +184,9 @@ namespace ArtifactStore.Collections
             }
 
             var profileColumns = new ProfileColumns(profileColumnsDto.Items);
-            var result = await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
+            var customPropertiesChanged = await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
 
-            return result
+            return customPropertiesChanged
                 ? Request.CreateResponse(HttpStatusCode.NoContent, ErrorMessages.ArtifactList.ColumnsSettings.ChangedCustomProperties)
                 : Request.CreateResponse(HttpStatusCode.NoContent);
         }

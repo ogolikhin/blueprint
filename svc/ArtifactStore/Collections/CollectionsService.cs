@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
@@ -19,6 +20,9 @@ namespace ArtifactStore.Collections
 {
     public class CollectionsService : ICollectionsService
     {
+        private const string ChoiceValueFrame = "\"";
+        private const string ChoiceValueSeparator = ",";
+
         private readonly ICollectionsRepository _collectionsRepository;
         private readonly ILockArtifactsRepository _lockArtifactsRepository;
         private readonly IItemInfoRepository _itemInfoRepository;
@@ -101,10 +105,13 @@ namespace ArtifactStore.Collections
             var searchArtifactsResult = await _searchEngineService.Search(
                 collection.Id, pagination, ScopeType.Contents, true, userId);
 
-            var artifacts = await _collectionsRepository.GetArtifactsWithPropertyValuesAsync(
-                userId, searchArtifactsResult.ArtifactIds);
+            var profileColumns = await _artifactListService.GetProfileColumnsAsync(
+                collection.Id, userId, ProfileColumns.Default);
 
-            var populatedArtifacts = PopulateArtifactsProperties(artifacts);
+            var artifacts = await _collectionsRepository.GetArtifactsWithPropertyValuesAsync(
+                userId, searchArtifactsResult.ArtifactIds, profileColumns);
+
+            var populatedArtifacts = PopulateArtifactsProperties(artifacts, profileColumns);
             populatedArtifacts.ItemsCount = searchArtifactsResult.Total;
 
             return populatedArtifacts;
@@ -338,15 +345,57 @@ namespace ArtifactStore.Collections
                 propertyTypeInfo.Id);
         }
 
-        private static CollectionArtifacts PopulateArtifactsProperties(IReadOnlyList<CollectionArtifact> artifacts)
+        private static CollectionArtifacts PopulateArtifactsProperties(
+            IReadOnlyList<CollectionArtifact> artifacts, ProfileColumns profileColumns)
         {
-            var artifactIdsResult = artifacts.Select(x => x.ArtifactId).Distinct().ToList();
-
             var artifactDtos = new List<ArtifactDto>();
             var settingsColumns = new List<ProfileColumn>();
-            var areColumnsPopulated = false;
 
-            foreach (var id in artifactIdsResult)
+            if (artifacts.Any())
+            {
+                var artifactProperties = artifacts
+                    .Select(p =>
+                        new { p.PropertyTypePredefined, p.PropertyName, p.PropertyTypeId, p.PrimitiveType })
+                    .Distinct()
+                    .ToList();
+
+                foreach (var artifactProperty in artifactProperties)
+                {
+                    var propertyTypePredefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined;
+                    var profileColumn = new ProfileColumn
+                    {
+                        PropertyName = artifactProperty.PropertyName,
+                        Predefined = propertyTypePredefined,
+                        PropertyTypeId = artifactProperty.PropertyTypeId,
+                        PrimitiveType = artifactProperty.PrimitiveType.HasValue
+                            ? (PropertyPrimitiveType)artifactProperty.PrimitiveType.Value
+                            : propertyTypePredefined == PropertyTypePredefined.ID
+                            ? PropertyPrimitiveType.Text
+                            : propertyTypePredefined == PropertyTypePredefined.CreatedBy
+                            ? PropertyPrimitiveType.User
+                            : propertyTypePredefined == PropertyTypePredefined.CreatedOn
+                            ? PropertyPrimitiveType.Date
+                            : propertyTypePredefined == PropertyTypePredefined.LastEditedBy
+                            ? PropertyPrimitiveType.User
+                            : propertyTypePredefined == PropertyTypePredefined.LastEditedOn
+                            ? PropertyPrimitiveType.Date
+                            : propertyTypePredefined == PropertyTypePredefined.ArtifactType
+                            ? PropertyPrimitiveType.Choice
+                            : PropertyPrimitiveType.Text
+                    };
+
+                    settingsColumns.Add(profileColumn);
+                }
+            }
+
+            settingsColumns = settingsColumns.Any()
+                ? (from p in profileColumns.Items // Select from profileColumns first to keep order of columns.
+                   join s in settingsColumns on p equals s // Skip columns, that were changed or removed.
+                   select p).ToList()
+                : profileColumns.Items.ToList();
+
+            var artifactIds = artifacts.Select(x => x.ArtifactId).Distinct().ToList();
+            foreach (var id in artifactIds)
             {
                 var artifactProperties = artifacts.Where(x => x.ArtifactId == id).ToList();
 
@@ -354,57 +403,66 @@ namespace ArtifactStore.Collections
                 int? itemTypeId = null;
                 int? predefinedType = null;
                 int? itemTypeIconId = null;
+                bool choicePropertyFilled = false;
 
                 foreach (var artifactProperty in artifactProperties)
                 {
-                    ProfileColumn profileColumn = null;
                     var propertyInfo = new PropertyValueInfo();
-
-                    if (!areColumnsPopulated)
-                    {
-                        profileColumn = new ProfileColumn
-                        {
-                            PropertyName = artifactProperty.PropertyName,
-                            Predefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined,
-                            PrimitiveType = artifactProperty.PrimitiveType.HasValue
-                                ? (PropertyPrimitiveType)artifactProperty.PrimitiveType.Value
-                                : (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
-                                  PropertyTypePredefined.ID
-                                    ? PropertyPrimitiveType.Number
-                                    : (PropertyTypePredefined)artifactProperty.PropertyTypePredefined ==
-                                      PropertyTypePredefined.ArtifactType
-                                        ? PropertyPrimitiveType.Choice
-                                        : 0,
-                            PropertyTypeId = artifactProperty.PropertyTypeId
-                        };
-                    }
+                    var propertyTypePredefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined;
+                    var primitiveType = (PropertyPrimitiveType?)artifactProperty.PrimitiveType;
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
                     propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
 
-                    if ((PropertyTypePredefined)artifactProperty.PropertyTypePredefined == PropertyTypePredefined.ID)
+                    if (propertyTypePredefined == PropertyTypePredefined.ID)
                     {
-                        propertyInfo.Value = I18NHelper.FormatInvariant("{0}{1}", artifactProperty.Prefix,
-                            artifactProperty.ArtifactId);
-
                         itemTypeId = artifactProperty.ItemTypeId;
                         predefinedType = artifactProperty.PredefinedType;
                         itemTypeIconId = artifactProperty.ItemTypeIconId;
                     }
-                    else
-                    {
-                        propertyInfo.Value = artifactProperty.PropertyValue;
-                    }
 
-                    if (!areColumnsPopulated)
-                    {
-                        settingsColumns.Add(profileColumn);
-                    }
+                    propertyInfo.Value =
+                        propertyTypePredefined != PropertyTypePredefined.CustomGroup && primitiveType != PropertyPrimitiveType.Choice
+                        ? artifactProperty.PredefinedPropertyValue
+                        : primitiveType == PropertyPrimitiveType.Date
+                        ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)
+                        : primitiveType == PropertyPrimitiveType.Number
+                        ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
+                        : primitiveType == PropertyPrimitiveType.Image
+                        ? artifactProperty.ItemTypeIconId?.ToString(CultureInfo.InvariantCulture)
+                        : primitiveType == PropertyPrimitiveType.Choice
+                        ? null // Fill choice values below
+                        : artifactProperty.FullTextValue;
 
-                    propertyInfos.Add(propertyInfo);
+                    propertyInfo.Value = !String.IsNullOrEmpty(artifactProperty.Prefix)
+                        ? artifactProperty.Prefix + propertyInfo.Value
+                        : propertyInfo.Value;
+
+                    if (primitiveType != PropertyPrimitiveType.Choice)
+                    {
+                        propertyInfos.Add(propertyInfo);
+                    }
+                    else if (!choicePropertyFilled)
+                    {
+                        var choiceProperties = artifactProperties
+                            .Where(x =>
+                                x.PrimitiveType == (int)PropertyPrimitiveType.Choice
+                                && artifactProperty.ArtifactId == x.ArtifactId
+                                && artifactProperty.PropertyTypeId == x.PropertyTypeId
+                                && artifactProperty.PropertyTypePredefined == x.PropertyTypePredefined)
+                            .Select(x => new { x.ArtifactId, x.PropertyTypeId, x.PredefinedType, x.FullTextValue, x.ValueId })
+                            .Distinct();
+
+                        propertyInfo.Value =
+                            ChoiceValueFrame +
+                            String.Join(ChoiceValueFrame + ChoiceValueSeparator + ChoiceValueFrame,
+                                choiceProperties.Select(x => x.FullTextValue)) +
+                            ChoiceValueFrame;
+
+                        propertyInfos.Add(propertyInfo);
+                        choicePropertyFilled = true;
+                    }
                 }
-
-                areColumnsPopulated = true;
 
                 artifactDtos.Add(new ArtifactDto
                 {
@@ -416,20 +474,12 @@ namespace ArtifactStore.Collections
                 });
             }
 
-            if (!settingsColumns.Any())
-            {
-                settingsColumns = ProfileColumns.Default.Items.ToList();
-            }
-
             return new CollectionArtifacts
             {
                 Items = artifactDtos,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = settingsColumns.OrderBy(
-                        x => Array.IndexOf(
-                            ProfileColumns.Default.Items.Select(column => column.Predefined).ToArray(),
-                            x.Predefined))
+                    Columns = settingsColumns
                 }
             };
         }

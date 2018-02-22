@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using Dapper;
 using ServiceLibrary.Helpers;
@@ -27,23 +28,24 @@ namespace ArtifactStore.Collections
         }
 
         public async Task<IReadOnlyList<CollectionArtifact>> GetArtifactsWithPropertyValuesAsync(
-            int userId, IEnumerable<int> artifactIds)
+            int userId, IEnumerable<int> artifactIds, ProfileColumns profileColumns)
         {
-            var propertyTypePredefineds = new List<int>
-            {
-                (int)PropertyTypePredefined.ArtifactType,
-                (int)PropertyTypePredefined.ID
-            }; // ArtifactType = 4148, ID = 4097
+            var propertyTypePredefineds = (
+                from c in profileColumns.Items
+                where c.Predefined != PropertyTypePredefined.CustomGroup
+                select (int)c.Predefined).ToList();
 
-            // TODO: should be filled with real data after implementation of getting list of property type ids from profile settings.
-            var propertyTypeIds = new List<int>();
+            var propertyTypeIds = (
+                from c in profileColumns.Items
+                where c.PropertyTypeId != null
+                select c.PropertyTypeId.Value).ToList();
 
             var parameters = new DynamicParameters();
-            parameters.Add("@UserId", userId, DbType.Int32);
-            parameters.Add("@AddDrafts", true, DbType.Boolean);
-            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
-            parameters.Add("@PropertyTypePredefineds", SqlConnectionWrapper.ToDataTable(propertyTypePredefineds));
-            parameters.Add("@PropertyTypeIds", SqlConnectionWrapper.ToDataTable(propertyTypeIds));
+            parameters.Add("@userId", userId, DbType.Int32);
+            parameters.Add("@addDrafts", true, DbType.Boolean);
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            parameters.Add("@propertyTypePredefineds", SqlConnectionWrapper.ToDataTable(propertyTypePredefineds));
+            parameters.Add("@propertyTypeIds", SqlConnectionWrapper.ToDataTable(propertyTypeIds));
 
             var result = await _connectionWrapper.QueryAsync<CollectionArtifact>(
                 "GetPropertyValuesForArtifacts", parameters, commandType: CommandType.StoredProcedure);

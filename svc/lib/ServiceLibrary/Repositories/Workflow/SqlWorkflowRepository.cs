@@ -714,6 +714,31 @@ namespace ServiceLibrary.Repositories.Workflow
                     param,
                     commandType: CommandType.StoredProcedure)).ToList();
         }
+
+        public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
+            int userId, IEnumerable<int> artifactIds)
+        {
+            var propertyTypePredefineds = new List<int>
+            {
+                (int)PropertyTypePredefined.ArtifactType,
+                (int)PropertyTypePredefined.ID
+            }; // ArtifactType = 4148, ID = 4097
+
+            // TODO: should be filled with real data after implementation of getting list of property type ids from profile settings.
+            var propertyTypeIds = new List<int>();
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId, DbType.Int32);
+            parameters.Add("@AddDrafts", true, DbType.Boolean);
+            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            parameters.Add("@PropertyTypePredefineds", SqlConnectionWrapper.ToDataTable(propertyTypePredefineds));
+            parameters.Add("@PropertyTypeIds", SqlConnectionWrapper.ToDataTable(propertyTypeIds));
+
+            var result = await ConnectionWrapper.QueryAsync<ArtifactPropertyInfo>(
+                "GetPropertyValuesForArtifacts", parameters, commandType: CommandType.StoredProcedure);
+
+            return result.ToList();
+        }
         #endregion
     }
 }

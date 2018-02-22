@@ -149,6 +149,7 @@
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
     <Compile Include="Helpers\Validators\SearchFieldValidator.cs" />
+    <Compile Include="Models\ArtifactPropertyInfo.cs" />
     <Compile Include="Models\Enums\IconType.cs" />
     <Compile Include="Models\Icon.cs" />
     <Compile Include="Models\ItemsRemovalParams.cs" />

@@ -72,6 +72,12 @@ namespace ArtifactStore.Executors
                     _input.FromStateId,
                     _input.ToStateId);
 
+                // only populate properties for webhook triggers
+                if (triggers.AsynchronousTriggers.Any(tr => tr.ActionType == MessageActionType.Webhooks))
+                {
+                    artifactInfo.ArtifactPropertyInfo = await _stateChangeExecutorRepositories.ArtifactVersionsRepository.GetArtifactPropertyInfoAsync(_input.ArtifactId, _userId);
+                }
+
                 var constraints = new List<IConstraint>();
 
 

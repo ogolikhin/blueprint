@@ -146,6 +146,9 @@ namespace BlueprintSys.RC.Services.Helpers
                             continue;
                         }
 
+                        ((WorkflowMessageArtifactInfo)artifactInfo).BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}");
+                        ((WorkflowMessageArtifactInfo)artifactInfo).ApiLink = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}");
+
                         var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, artifactInfo);
 
                         if (webhookMessage == null)

@@ -338,7 +338,7 @@ namespace ArtifactStore.Collections
                 propertyTypeInfo.Id);
         }
 
-        private static CollectionArtifacts PopulateArtifactsProperties(IReadOnlyList<CollectionArtifact> artifacts)
+        private static CollectionArtifacts PopulateArtifactsProperties(IReadOnlyList<ArtifactPropertyInfo> artifacts)
         {
             var artifactIdsResult = artifacts.Select(x => x.ArtifactId).Distinct().ToList();
 

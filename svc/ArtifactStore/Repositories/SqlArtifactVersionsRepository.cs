@@ -235,6 +235,11 @@ namespace ArtifactStore.Repositories
             return baselineArtifacts != null && baselineArtifacts.Contains(artifactId);
         }
 
+        public async Task<IEnumerable<ArtifactPropertyInfo>> GetArtifactPropertyInfoAsync(int itemId, int userId)
+        {
+            return await _artifactRepository.GetArtifactsWithPropertyValuesAsync(userId, new List<int> { itemId });
+        }
+
         public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int? baselineId, int userId)
         {
             var artifactBasicDetails = await _artifactRepository.GetArtifactBasicDetails(itemId, userId);

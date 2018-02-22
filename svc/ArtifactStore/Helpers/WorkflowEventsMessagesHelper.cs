@@ -166,6 +166,9 @@ namespace ArtifactStore.Helpers
                             continue;
                         }
 
+                        ((VersionControlArtifactInfo)artifactInfo).BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}");
+                        ((VersionControlArtifactInfo)artifactInfo).ApiLink = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}");
+
                         var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, artifactInfo, transaction);
 
                         if (webhookMessage == null)

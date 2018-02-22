@@ -1,4 +1,6 @@
-﻿using ServiceLibrary.Models.VersionControl;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+using ServiceLibrary.Models.VersionControl;
 
 namespace ServiceLibrary.Models.Workflow
 {
@@ -15,5 +17,21 @@ namespace ServiceLibrary.Models.Workflow
         public ItemTypePredefined PredefinedType { get; set; }
 
         public string ProjectName { get; set; }
+
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<ArtifactPropertyInfo> ArtifactPropertyInfo { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string BlueprintUrl { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string ApiLink { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string ArtifactTypeName { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string BaseArtifactType { get; set; }
     }
 }

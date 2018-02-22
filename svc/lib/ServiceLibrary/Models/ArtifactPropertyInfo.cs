@@ -1,6 +1,6 @@
-namespace ArtifactStore.Collections.Models
+namespace ServiceLibrary.Models
 {
-    public class CollectionArtifact
+    public class ArtifactPropertyInfo
     {
         public int ArtifactId { get; set; }
 

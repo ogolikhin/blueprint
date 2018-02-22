@@ -36,6 +36,8 @@ namespace ServiceLibrary.Repositories.Workflow
         Task<IEnumerable<WorkflowMessageArtifactInfo>> GetWorkflowMessageArtifactInfoAsync(int userId, IEnumerable<int> artifactIds, int revisionId,
             IDbTransaction transaction = null);
 
+        Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(int userId, IEnumerable<int> artifactIds);
+
         bool IsWorkflowSupported(ItemTypePredefined baseArtifactItemType);
     }
 }

@@ -6,6 +6,7 @@ using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -55,6 +56,11 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     continue;
                 }
                 Logger.Log($"Found {eventTriggers.AsynchronousTriggers.Count} async triggers for artifact with ID {createdArtifact.Id}", message, tenant);
+
+                if (eventTriggers.AsynchronousTriggers.Any(tr => tr.ActionType == MessageActionType.Webhooks))
+                {
+                    artifactInfo.ArtifactPropertyInfo = await repository.WorkflowRepository.GetArtifactsWithPropertyValuesAsync(message.UserId, new List<int>(createdArtifact.Id));
+                }
 
                 int artifactId = createdArtifact.Id;
 

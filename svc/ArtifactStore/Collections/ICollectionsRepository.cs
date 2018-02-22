@@ -2,6 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 using ArtifactStore.Collections.Models;
+using ServiceLibrary.Models;
 
 namespace ArtifactStore.Collections
 {
@@ -9,7 +10,7 @@ namespace ArtifactStore.Collections
     {
         Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(int collectionId, int userId, bool addDrafts = true);
 
-        Task<IReadOnlyList<CollectionArtifact>> GetArtifactsWithPropertyValuesAsync(
+        Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
             int userId, IEnumerable<int> artifactIds);
 
         Task<int> AddArtifactsToCollectionAsync(int collectionId, IEnumerable<int> artifactIds, int userId,

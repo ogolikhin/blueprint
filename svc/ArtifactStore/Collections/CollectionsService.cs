@@ -456,7 +456,7 @@ namespace ArtifactStore.Collections
                         propertyInfo.Value =
                             ChoiceValueFrame +
                             String.Join(ChoiceValueFrame + ChoiceValueSeparator + ChoiceValueFrame,
-                                choiceProperties.Select(x => x.FullTextValue)) +
+                                choiceProperties.Select(x => x.FullTextValue?.Replace(ChoiceValueFrame, ChoiceValueFrame + ChoiceValueFrame))) +
                             ChoiceValueFrame;
 
                         propertyInfos.Add(propertyInfo);

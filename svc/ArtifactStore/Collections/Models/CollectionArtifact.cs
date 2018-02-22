@@ -30,8 +30,6 @@ namespace ArtifactStore.Collections.Models
 
         public int PropertyTypePredefined { get; set; }
 
-        public string PropertyValue { get; set; }
-
         public int? ValueId { get; set; }
 
     }

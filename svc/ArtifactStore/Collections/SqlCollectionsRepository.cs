@@ -48,7 +48,7 @@ namespace ArtifactStore.Collections
             parameters.Add("@propertyTypeIds", SqlConnectionWrapper.ToDataTable(propertyTypeIds));
 
             var result = await _connectionWrapper.QueryAsync<CollectionArtifact>(
-                "GetPropertyValuesForArtifacts", parameters, commandType: CommandType.StoredProcedure);
+                "GetPropertyValuesForArtifactsNew", parameters, commandType: CommandType.StoredProcedure);
 
             return result.ToList();
         }

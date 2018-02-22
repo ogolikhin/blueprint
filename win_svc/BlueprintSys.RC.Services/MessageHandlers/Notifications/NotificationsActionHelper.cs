@@ -25,11 +25,17 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Notifications
         {
             Logger.Log($"Handling started for user ID {message.UserId} with message {message.ToJSON()}", message, tenant);
 
+            if (message.To == null || !message.To.Any() || message.To.All(string.IsNullOrWhiteSpace))
+            {
+                Logger.Log("Failed to send email because no recipients were specified", message, tenant, LogLevel.Error);
+                return await Task.FromResult(SendEmailResult.Error);
+            }
+
             Logger.Log("Getting email settings", message, tenant);
             var emailSettings = await repository.GetEmailSettings();
-            if (emailSettings == null)
+            if (emailSettings == null || string.IsNullOrWhiteSpace(emailSettings.HostName))
             {
-                Logger.Log($"Failed to send email because no email settings were provided for tenant {tenant.TenantId}", message, tenant, LogLevel.Error);
+                Logger.Log($"Failed to send email because invalid email settings were provided for tenant {tenant.TenantId}", message, tenant, LogLevel.Error);
                 return await Task.FromResult(SendEmailResult.Error);
             }
             Logger.Log($"Email settings found. Host Name: {emailSettings.HostName}. Sender Email Address: {emailSettings.SenderEmailAddress}. User Name: {emailSettings.UserName}", message, tenant);

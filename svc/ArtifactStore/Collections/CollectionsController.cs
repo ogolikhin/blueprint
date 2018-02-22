@@ -166,6 +166,7 @@ namespace ArtifactStore.Collections
         /// </summary>
         /// <param name="id">Collection id.</param>
         /// <param name="profileColumnsDto">Profile columns to save.</param>
+        /// <response code="200">OK. Artifact list columns settings were saved. Returned warning about changing custom properties</response>
         /// <response code="204">NoContent. Artifact list columns settings were saved.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions to save artifact list columns settings.</response>
@@ -187,7 +188,7 @@ namespace ArtifactStore.Collections
             var customPropertiesChanged = await _collectionsService.SaveProfileColumnsAsync(id, profileColumns, Session.UserId);
 
             return customPropertiesChanged
-                ? Request.CreateResponse(HttpStatusCode.NoContent, ErrorMessages.ArtifactList.ColumnsSettings.ChangedCustomProperties)
+                ? Request.CreateResponse(HttpStatusCode.OK, ErrorMessages.ArtifactList.ColumnsSettings.ChangedCustomProperties)
                 : Request.CreateResponse(HttpStatusCode.NoContent);
         }
     }

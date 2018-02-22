@@ -260,7 +260,7 @@ namespace ArtifactStore.Collections
             var result = await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(result.StatusCode, HttpStatusCode.NoContent);
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
 
             var resultMessage = await result.Content.ReadAsAsync<string>();
 

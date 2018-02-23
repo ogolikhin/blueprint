@@ -8,6 +8,8 @@ using ServiceLibrary.Models.ProjectMeta;
 namespace ArtifactStore.ArtifactList.Models
 {
     public class ProfileColumn
+        : EqualityComparer<ProfileColumn>, // EqualityComparer<T>.Default is used in Join method.
+        IEquatable<ProfileColumn> // IEquatable<T> is used by EqualityComparer<T>.Default property.
     {
         public string PropertyName { get; set; }
 
@@ -52,6 +54,50 @@ namespace ArtifactStore.ArtifactList.Models
         {
             return string.IsNullOrEmpty(search) ||
                    PropertyName.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        public override bool Equals(object value)
+        {
+            if (value == null)
+                return false;
+
+            if (object.ReferenceEquals(this, value))
+                return true;
+
+            if (this.GetType() != value.GetType())
+                return false;
+
+            return Equals((ProfileColumn)value);
+        }
+
+        public override bool Equals(ProfileColumn x, ProfileColumn y)
+        {
+            return (x == null && y == null) || x.Equals(y);
+        }
+
+        public bool Equals(ProfileColumn value)
+        {
+            if (value == null)
+                return false;
+
+            if (ReferenceEquals(this, value))
+                return true;
+
+            return
+                this.PropertyName == value.PropertyName &&
+                this.Predefined == value.Predefined &&
+                this.PrimitiveType == value.PrimitiveType &&
+                this.PropertyTypeId == value.PropertyTypeId;
+        }
+
+        public override int GetHashCode()
+        {
+            return new { PropertyName, Predefined, PrimitiveType, PropertyTypeId }.GetHashCode();
+        }
+
+        public override int GetHashCode(ProfileColumn obj)
+        {
+            return obj.GetHashCode();
         }
 
         public bool ExistsIn(IEnumerable<PropertyTypeInfo> propertyTypeInfos)

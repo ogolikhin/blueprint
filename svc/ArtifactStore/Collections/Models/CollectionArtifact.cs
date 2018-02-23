@@ -22,7 +22,9 @@ namespace ArtifactStore.Collections.Models
 
         public string Prefix { get; set; }
 
-        public int? PrimitiveType { get; set; }
+        public int PrimitiveType { get; set; }
+
+        public int? PrimitiveItemTypePredefined { get; set; }
 
         public int? PropertyTypeId { get; set; }
 

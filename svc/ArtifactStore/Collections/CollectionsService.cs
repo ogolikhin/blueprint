@@ -367,21 +367,7 @@ namespace ArtifactStore.Collections
                         PropertyName = artifactProperty.PropertyName,
                         Predefined = propertyTypePredefined,
                         PropertyTypeId = artifactProperty.PropertyTypeId,
-                        PrimitiveType = artifactProperty.PrimitiveType.HasValue
-                            ? (PropertyPrimitiveType)artifactProperty.PrimitiveType.Value
-                            : propertyTypePredefined == PropertyTypePredefined.ID
-                            ? PropertyPrimitiveType.Text
-                            : propertyTypePredefined == PropertyTypePredefined.CreatedBy
-                            ? PropertyPrimitiveType.User
-                            : propertyTypePredefined == PropertyTypePredefined.CreatedOn
-                            ? PropertyPrimitiveType.Date
-                            : propertyTypePredefined == PropertyTypePredefined.LastEditedBy
-                            ? PropertyPrimitiveType.User
-                            : propertyTypePredefined == PropertyTypePredefined.LastEditedOn
-                            ? PropertyPrimitiveType.Date
-                            : propertyTypePredefined == PropertyTypePredefined.ArtifactType
-                            ? PropertyPrimitiveType.Choice
-                            : PropertyPrimitiveType.Text
+                        PrimitiveType = (PropertyPrimitiveType)artifactProperty.PrimitiveType
                     };
 
                     settingsColumns.Add(profileColumn);
@@ -403,7 +389,7 @@ namespace ArtifactStore.Collections
                 int? itemTypeId = null;
                 int? predefinedType = null;
                 int? itemTypeIconId = null;
-                bool choicePropertyFilled = false;
+                var filledChoiceProperties = new List<Tuple<int, int?, int, int?>>();
 
                 foreach (var artifactProperty in artifactProperties)
                 {
@@ -417,11 +403,11 @@ namespace ArtifactStore.Collections
                     if (propertyTypePredefined == PropertyTypePredefined.ID)
                     {
                         itemTypeId = artifactProperty.ItemTypeId;
-                        predefinedType = artifactProperty.PredefinedType;
+                        predefinedType = artifactProperty.PrimitiveItemTypePredefined;
                         itemTypeIconId = artifactProperty.ItemTypeIconId;
                     }
 
-                    bool systemColumn = artifactProperty.PropertyTypeId == null;
+                    bool systemColumn = propertyTypePredefined != PropertyTypePredefined.CustomGroup;
 
                     propertyInfo.Value = systemColumn
                             && primitiveType != PropertyPrimitiveType.Choice // Fill choice values below
@@ -430,21 +416,26 @@ namespace ArtifactStore.Collections
                         ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)
                         : primitiveType == PropertyPrimitiveType.Number
                         ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
-                        : primitiveType == PropertyPrimitiveType.Image
-                        ? artifactProperty.ItemTypeIconId?.ToString(CultureInfo.InvariantCulture)
                         : primitiveType == PropertyPrimitiveType.Choice
                         ? null // Fill choice values below
                         : artifactProperty.FullTextValue;
 
-                    propertyInfo.Value = !String.IsNullOrEmpty(artifactProperty.Prefix)
+                    propertyInfo.Value =
+                        propertyTypePredefined == PropertyTypePredefined.ID
                         ? artifactProperty.Prefix + propertyInfo.Value
                         : propertyInfo.Value;
+
+                    var choiceTuple = new Tuple<int, int?, int, int?>(
+                        artifactProperty.ArtifactId,
+                        artifactProperty.PropertyTypeId,
+                        artifactProperty.PropertyTypePredefined,
+                        artifactProperty.ValueId);
 
                     if (primitiveType != PropertyPrimitiveType.Choice)
                     {
                         propertyInfos.Add(propertyInfo);
                     }
-                    else if (!choicePropertyFilled)
+                    else if (!filledChoiceProperties.Contains(choiceTuple))
                     {
                         var choiceProperties = artifactProperties
                             .Where(x =>
@@ -469,7 +460,7 @@ namespace ArtifactStore.Collections
                             ChoiceValueFrame;
 
                         propertyInfos.Add(propertyInfo);
-                        choicePropertyFilled = true;
+                        filledChoiceProperties.Add(choiceTuple);
                     }
                 }
 

@@ -421,8 +421,10 @@ namespace ArtifactStore.Collections
                         itemTypeIconId = artifactProperty.ItemTypeIconId;
                     }
 
-                    propertyInfo.Value =
-                        propertyTypePredefined != PropertyTypePredefined.CustomGroup && primitiveType != PropertyPrimitiveType.Choice
+                    bool systemColumn = artifactProperty.PropertyTypeId == null;
+
+                    propertyInfo.Value = systemColumn
+                            && primitiveType != PropertyPrimitiveType.Choice // Fill choice values below
                         ? artifactProperty.PredefinedPropertyValue
                         : primitiveType == PropertyPrimitiveType.Date
                         ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)
@@ -450,13 +452,20 @@ namespace ArtifactStore.Collections
                                 && artifactProperty.ArtifactId == x.ArtifactId
                                 && artifactProperty.PropertyTypeId == x.PropertyTypeId
                                 && artifactProperty.PropertyTypePredefined == x.PropertyTypePredefined)
-                            .Select(x => new { x.ArtifactId, x.PropertyTypeId, x.PredefinedType, x.FullTextValue, x.ValueId })
+                            .Select(x => new
+                            {
+                                x.ArtifactId,
+                                x.PropertyTypeId,
+                                x.PredefinedType,
+                                Value = systemColumn ? x.PredefinedPropertyValue : x.FullTextValue,
+                                x.ValueId // ValueId is necessary for deduplication
+                            })
                             .Distinct();
 
                         propertyInfo.Value =
-                            ChoiceValueFrame +
-                            String.Join(ChoiceValueFrame + ChoiceValueSeparator + ChoiceValueFrame,
-                                choiceProperties.Select(x => x.FullTextValue?.Replace(ChoiceValueFrame, ChoiceValueFrame + ChoiceValueFrame))) +
+                            ChoiceValueFrame + // "
+                            String.Join(ChoiceValueFrame + ChoiceValueSeparator + ChoiceValueFrame, // ","
+                                choiceProperties.Select(x => x.Value?.Replace(ChoiceValueFrame, ChoiceValueFrame + ChoiceValueFrame))) +
                             ChoiceValueFrame;
 
                         propertyInfos.Add(propertyInfo);

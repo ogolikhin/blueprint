@@ -381,6 +381,7 @@ namespace ArtifactStore.Collections
                 : profileColumns.Items.ToList();
 
             var artifactIds = artifacts.Select(x => x.ArtifactId).Distinct().ToList();
+
             foreach (var id in artifactIds)
             {
                 var artifactProperties = artifacts.Where(x => x.ArtifactId == id).ToList();

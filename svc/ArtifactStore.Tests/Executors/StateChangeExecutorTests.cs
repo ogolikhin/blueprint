@@ -66,7 +66,7 @@ namespace ArtifactStore.Executors
             _stateChangeHelperMock = new Mock<IStateChangeExecutorHelper>(MockBehavior.Loose);
             _workflowEventsMessagesHelperMock = new Mock<IWorkflowEventsMessagesHelper>();
             _webhooksRepositoryMock = new Mock<IWebhooksRepository>(MockBehavior.Loose);
-            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<WorkflowEventTriggers>(), It.IsAny<IBaseArtifactVersionControlInfo>(), It.IsAny<string>(), It.IsAny<IDictionary<int, IList<Property>>>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IUsersRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<IWebhooksRepository>(), It.IsAny<IDbTransaction>())).ReturnsAsync(new List<IWorkflowMessage>());
+            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<WorkflowEventTriggers>(), It.IsAny<IBaseArtifactVersionControlInfo>(), It.IsAny<string>(), It.IsAny<IDictionary<int, IList<Property>>>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IUsersRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<IWebhooksRepository>(), It.IsAny<IEnumerable<ArtifactPropertyInfo>>(), It.IsAny<IDbTransaction>())).ReturnsAsync(new List<IWorkflowMessage>());
 
             _stateChangeExecutor = new StateChangeExecutor(UserId,
                 ex,

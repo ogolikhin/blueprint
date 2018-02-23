@@ -34,6 +34,7 @@ namespace ArtifactStore.Helpers
             IUsersRepository usersRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhooksRepository webhooksRepository,
+            IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos,
             IDbTransaction transaction = null);
 
         Task ProcessMessages(string logSource,
@@ -62,6 +63,7 @@ namespace ArtifactStore.Helpers
             IUsersRepository usersRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhooksRepository webhooksRepository,
+            IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos,
             IDbTransaction transaction = null)
         {
             var resultMessages = new List<IWorkflowMessage>();
@@ -166,10 +168,56 @@ namespace ArtifactStore.Helpers
                             continue;
                         }
 
-                        ((VersionControlArtifactInfo)artifactInfo).BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}");
-                        ((VersionControlArtifactInfo)artifactInfo).ApiLink = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}");
+                        var webhookArtifactInfo = new WebhookArtifactInfo
+                        {
+                            Id = "",
+                            EventType = "",
+                            PublisherId = "",
+                            Scope = new WebhookArtifactInfoScope
+                            {
+                                Type = "",
+                                WorkflowId = -1
+                            },
+                            Resource = new WebhookResource
+                            {
+                                Name = artifactInfo.Name,
+                                ProjectId = artifactInfo.ProjectId,
+                                ParentId = -1,
+                                ArtifactTypeId = artifactInfo.ItemTypeId,
+                                ArtifactTypeName = "",
+                                BaseArtifactType = "",
+                                ArtifactPropertyInfo = ConvertToWebhookPropertyInfo(artifactPropertyInfos),
+                                State = new WebhookStateInfo
+                                {
+                                    Id = -1,
+                                    Name = "",
+                                    WorkflowId = -1
+                                },
+                                ChangedState = new WebhookStateChangeInfo
+                                {
+                                    NewValue = new WebhookStateInfo
+                                    {
+                                        Id = -1,
+                                        Name = "",
+                                        WorkflowId = -1
+                                    },
+                                    OldValue = new WebhookStateInfo
+                                    {
+                                        Id = -1,
+                                        Name = "",
+                                        WorkflowId = -1
+                                    }
+                                },
+                                RevisionTime = "",
+                                Revision = -1,
+                                Version = -1,
+                                Id = artifactInfo.Id,
+                                BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
+                                Link = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}")
+                            }
+                        };
 
-                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, artifactInfo, transaction);
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, webhookArtifactInfo, transaction);
 
                         if (webhookMessage == null)
                         {
@@ -205,6 +253,26 @@ namespace ArtifactStore.Helpers
             resultMessages.Add(artifactsChangedMessage);
 
             return resultMessages;
+        }
+
+        private IEnumerable<WebhookPropertyInfo> ConvertToWebhookPropertyInfo(IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos)
+        {
+            var webhookPropertyInfos = new List<WebhookPropertyInfo>();
+            foreach (var artifactPropertyInfo in artifactPropertyInfos)
+            {
+                webhookPropertyInfos.Add(new WebhookPropertyInfo
+                {
+                    BasePropertyType = "",
+                    Choices = new List<string>(),
+                    DateValue = "",
+                    Name = artifactPropertyInfo.PropertyName,
+                    NumberValue = -1f,
+                    PropertyTypeId = artifactPropertyInfo.PropertyTypeId,
+                    TextOrChoiceValue = "",
+                    UsersAndGroups = new List<WebhookUserPropertyValue>()
+                });
+            }
+            return webhookPropertyInfos;
         }
 
         public async Task ProcessMessages(string logSource,
@@ -340,7 +408,7 @@ namespace ArtifactStore.Helpers
         }
 
         private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, long transactionId, WebhookAction webhookAction,
-            IWebhooksRepository webhooksRepository, IBaseArtifactVersionControlInfo artifactInfo, IDbTransaction transaction)
+            IWebhooksRepository webhooksRepository, WebhookArtifactInfo webhookArtifactInfo, IDbTransaction transaction)
         {
             List<int> webhookId = new List<int> { webhookAction.WebhookId };
             var webhookInfos = await webhooksRepository.GetWebhooks(webhookId, transaction);
@@ -362,7 +430,7 @@ namespace ArtifactStore.Helpers
                 SignatureSecretToken = securityInfo.Signature?.SecretToken,
                 SignatureAlgorithm = securityInfo.Signature?.Algorithm,
                 // Payload Information
-                WebhookJsonPayload = artifactInfo.ToJSON()
+                WebhookJsonPayload = webhookArtifactInfo.ToJSON()
             };
 
             return webhookMessage;

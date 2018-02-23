@@ -35,7 +35,8 @@ namespace BlueprintSys.RC.Services.Helpers
             IEnumerable<int> ancestorArtifactTypeIds, 
             IUsersRepository usersRepository, 
             IServiceLogRepository serviceLogRepository,
-            IWebhooksRepository webhooksRepository)
+            IWebhooksRepository webhooksRepository,
+            IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos)
         {
             var resultMessages = new List<IWorkflowMessage>();
             //var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
@@ -146,9 +147,54 @@ namespace BlueprintSys.RC.Services.Helpers
                             continue;
                         }
 
-                        ((WorkflowMessageArtifactInfo)artifactInfo).BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}");
-                        ((WorkflowMessageArtifactInfo)artifactInfo).ApiLink = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}");
-
+                        var webhookArtifactInfo = new WebhookArtifactInfo
+                        {
+                            Id = "",
+                            EventType = "",
+                            PublisherId = "",
+                            Scope = new WebhookArtifactInfoScope
+                            {
+                                Type = "",
+                                WorkflowId = -1
+                            },
+                            Resource = new WebhookResource
+                            {
+                                Name = artifactInfo.Name,
+                                ProjectId = artifactInfo.ProjectId,
+                                ParentId = -1,
+                                ArtifactTypeId = artifactInfo.ItemTypeId,
+                                ArtifactTypeName = "",
+                                BaseArtifactType = "",
+                                ArtifactPropertyInfo = ConvertToWebhookPropertyInfo(artifactPropertyInfos),
+                                State = new WebhookStateInfo
+                                {
+                                    Id = -1,
+                                    Name = "",
+                                    WorkflowId = -1
+                                },
+                                ChangedState = new WebhookStateChangeInfo
+                                {
+                                    NewValue = new WebhookStateInfo
+                                    {
+                                        Id = -1,
+                                        Name = "",
+                                        WorkflowId = -1
+                                    },
+                                    OldValue = new WebhookStateInfo
+                                    {
+                                        Id = -1,
+                                        Name = "",
+                                        WorkflowId = -1
+                                    }
+                                },
+                                RevisionTime = "",
+                                Revision = -1,
+                                Version = -1,
+                                Id = artifactInfo.Id,
+                                BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
+                                Link = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}")
+                            }
+                        };
                         var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, artifactInfo);
 
                         if (webhookMessage == null)
@@ -161,6 +207,26 @@ namespace BlueprintSys.RC.Services.Helpers
                 }
             }
             return resultMessages;
+        }
+
+        private static IEnumerable<WebhookPropertyInfo> ConvertToWebhookPropertyInfo(IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos)
+        {
+            var webhookPropertyInfos = new List<WebhookPropertyInfo>();
+            foreach (var artifactPropertyInfo in artifactPropertyInfos)
+            {
+                webhookPropertyInfos.Add(new WebhookPropertyInfo
+                {
+                    BasePropertyType = "",
+                    Choices = new List<string>(),
+                    DateValue = "",
+                    Name = artifactPropertyInfo.PropertyName,
+                    NumberValue = -1f,
+                    PropertyTypeId = artifactPropertyInfo.PropertyTypeId,
+                    TextOrChoiceValue = "",
+                    UsersAndGroups = new List<WebhookUserPropertyValue>()
+                });
+            }
+            return webhookPropertyInfos;
         }
 
         public static async Task ProcessMessages(string logSource,

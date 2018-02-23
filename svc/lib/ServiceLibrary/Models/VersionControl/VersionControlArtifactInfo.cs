@@ -66,21 +66,5 @@ namespace ServiceLibrary.Models.VersionControl
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsNotExistsInBaseline { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<ArtifactPropertyInfo> ArtifactPropertyInfo { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string BlueprintUrl { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string ApiLink { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string ArtifactTypeName { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string BaseArtifactType { get; set; }
-
     }
 }

@@ -155,6 +155,7 @@
     <Compile Include="Models\ItemsRemovalParams.cs" />
     <Compile Include="Models\ItemsRemovalParamsExtensions.cs" />
     <Compile Include="Models\Workflow\Actions\WebhookAction.cs" />
+    <Compile Include="Models\Workflow\WebhookArtifactInfo.cs" />
     <Compile Include="Models\Workflow\XmlWebhookAction.cs" />
     <Compile Include="Models\XmlWebhookSecurityInfo.cs" />
     <Compile Include="Repositories\Webhooks\IWebhooksRepository.cs" />

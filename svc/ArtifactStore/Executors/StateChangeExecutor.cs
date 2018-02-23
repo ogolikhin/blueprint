@@ -73,9 +73,10 @@ namespace ArtifactStore.Executors
                     _input.ToStateId);
 
                 // only populate properties for webhook triggers
+                IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos = null;
                 if (triggers.AsynchronousTriggers.Any(tr => tr.ActionType == MessageActionType.Webhooks))
                 {
-                    artifactInfo.ArtifactPropertyInfo = await _stateChangeExecutorRepositories.ArtifactVersionsRepository.GetArtifactPropertyInfoAsync(_input.ArtifactId, _userId);
+                    artifactPropertyInfos = await _stateChangeExecutorRepositories.ArtifactVersionsRepository.GetArtifactPropertyInfoAsync(_input.ArtifactId, _userId);
                 }
 
                 var constraints = new List<IConstraint>();
@@ -109,7 +110,7 @@ namespace ArtifactStore.Executors
                 };
 
             // Generate asynchronous messages for sending
-            result.ActionMessages.AddRange((await _workflowEventsMessagesHelper.GenerateMessages(
+            result.ActionMessages.AddRange(await _workflowEventsMessagesHelper.GenerateMessages(
                     _userId,
                     publishRevision,
                     _input.UserName,
@@ -124,7 +125,8 @@ namespace ArtifactStore.Executors
                     _stateChangeExecutorRepositories.UsersRepository,
                     _stateChangeExecutorRepositories.ServiceLogRepository,
                     _stateChangeExecutorRepositories.WebhooksRepository,
-                    transaction)));
+                    artifactPropertyInfos,
+                    transaction));
 
                 await _workflowEventsMessagesHelper.ProcessMessages(LogSource,
                     _stateChangeExecutorRepositories.ApplicationSettingsRepository,

@@ -381,6 +381,7 @@ namespace ArtifactStore.Collections
                 : profileColumns.Items.ToList();
 
             var artifactIds = artifacts.Select(x => x.ArtifactId).Distinct().ToList();
+
             foreach (var id in artifactIds)
             {
                 var artifactProperties = artifacts.Where(x => x.ArtifactId == id).ToList();
@@ -389,13 +390,13 @@ namespace ArtifactStore.Collections
                 int? itemTypeId = null;
                 int? predefinedType = null;
                 int? itemTypeIconId = null;
-                var filledChoiceProperties = new List<Tuple<int, int?, int, int?>>();
+                var filledMultiValueProperties = new List<Tuple<int, int?, PropertyTypePredefined, PropertyPrimitiveType>>();
 
                 foreach (var artifactProperty in artifactProperties)
                 {
                     var propertyInfo = new PropertyValueInfo();
                     var propertyTypePredefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined;
-                    var primitiveType = (PropertyPrimitiveType?)artifactProperty.PrimitiveType;
+                    var primitiveType = (PropertyPrimitiveType)artifactProperty.PrimitiveType;
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
                     propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
@@ -408,16 +409,17 @@ namespace ArtifactStore.Collections
                     }
 
                     bool systemColumn = propertyTypePredefined != PropertyTypePredefined.CustomGroup;
+                    bool multiValue = primitiveType == PropertyPrimitiveType.Choice || primitiveType == PropertyPrimitiveType.User;
 
                     propertyInfo.Value = systemColumn
-                            && primitiveType != PropertyPrimitiveType.Choice // Fill choice values below
+                            && !multiValue // Fill multi value properties below
                         ? artifactProperty.PredefinedPropertyValue
                         : primitiveType == PropertyPrimitiveType.Date
                         ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)
                         : primitiveType == PropertyPrimitiveType.Number
                         ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
-                        : primitiveType == PropertyPrimitiveType.Choice
-                        ? null // Fill choice values below
+                        : multiValue
+                        ? null // Fill multi value properties below
                         : artifactProperty.FullTextValue;
 
                     propertyInfo.Value =
@@ -425,29 +427,26 @@ namespace ArtifactStore.Collections
                         ? artifactProperty.Prefix + propertyInfo.Value
                         : propertyInfo.Value;
 
-                    var choiceTuple = new Tuple<int, int?, int, int?>(
+                    var multiValueTuple = new Tuple<int, int?, PropertyTypePredefined, PropertyPrimitiveType>(
                         artifactProperty.ArtifactId,
                         artifactProperty.PropertyTypeId,
-                        artifactProperty.PropertyTypePredefined,
-                        artifactProperty.ValueId);
+                        (PropertyTypePredefined)artifactProperty.PropertyTypePredefined,
+                        (PropertyPrimitiveType)artifactProperty.PrimitiveType);
 
-                    if (primitiveType != PropertyPrimitiveType.Choice)
+                    if (!multiValue)
                     {
                         propertyInfos.Add(propertyInfo);
                     }
-                    else if (!filledChoiceProperties.Contains(choiceTuple))
+                    else if (!filledMultiValueProperties.Contains(multiValueTuple))
                     {
-                        var choiceProperties = artifactProperties
+                        var multiValueProperties = artifactProperties
                             .Where(x =>
-                                x.PrimitiveType == (int)PropertyPrimitiveType.Choice
+                                artifactProperty.PrimitiveType == x.PrimitiveType
                                 && artifactProperty.ArtifactId == x.ArtifactId
                                 && artifactProperty.PropertyTypeId == x.PropertyTypeId
                                 && artifactProperty.PropertyTypePredefined == x.PropertyTypePredefined)
                             .Select(x => new
                             {
-                                x.ArtifactId,
-                                x.PropertyTypeId,
-                                x.PredefinedType,
                                 Value = systemColumn ? x.PredefinedPropertyValue : x.FullTextValue,
                                 x.ValueId // ValueId is necessary for deduplication
                             })
@@ -456,11 +455,11 @@ namespace ArtifactStore.Collections
                         propertyInfo.Value =
                             ChoiceValueFrame + // "
                             String.Join(ChoiceValueFrame + ChoiceValueSeparator + ChoiceValueFrame, // ","
-                                choiceProperties.Select(x => x.Value?.Replace(ChoiceValueFrame, ChoiceValueFrame + ChoiceValueFrame))) +
+                                multiValueProperties.Select(x => x.Value?.Replace(ChoiceValueFrame, ChoiceValueFrame + ChoiceValueFrame))) +
                             ChoiceValueFrame;
 
                         propertyInfos.Add(propertyInfo);
-                        filledChoiceProperties.Add(choiceTuple);
+                        filledMultiValueProperties.Add(multiValueTuple);
                     }
                 }
 

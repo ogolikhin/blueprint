@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 
 namespace ArtifactStore.Collections
@@ -10,7 +11,7 @@ namespace ArtifactStore.Collections
         Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(int collectionId, int userId, bool addDrafts = true);
 
         Task<IReadOnlyList<CollectionArtifact>> GetArtifactsWithPropertyValuesAsync(
-            int userId, IEnumerable<int> artifactIds);
+            int userId, IEnumerable<int> artifactIds, ProfileColumns profileColumns);
 
         Task<int> AddArtifactsToCollectionAsync(int collectionId, IEnumerable<int> artifactIds, int userId,
             IDbTransaction transaction = null);

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Collections
@@ -37,7 +39,7 @@ namespace ArtifactStore.Collections
                     PrimitiveType = 0,
                     ItemTypeId = 134,
                     PredefinedType = 4107,
-                    PropertyValue = "Value_Name",
+                    FullTextValue = "Value_Name",
                     ItemTypeIconId = 0
                 },
                 new CollectionArtifact
@@ -50,7 +52,7 @@ namespace ArtifactStore.Collections
                     PrimitiveType = 0,
                     ItemTypeId = 132,
                     PredefinedType = 4105,
-                    PropertyValue = "Value_Description",
+                    FullTextValue = "Value_Description",
                     ItemTypeIconId = 0
                 }
             };
@@ -182,12 +184,24 @@ namespace ArtifactStore.Collections
         {
             // Arrange
             var artifactIds = new List<int> { 1, 2, 3 };
-            _cxn.SetupQueryAsync("GetPropertyValuesForArtifacts", It.IsAny<Dictionary<string, object>>(),
+            var columns = new List<ProfileColumn>();
+            foreach (var artifact in _expectedCollectionArtifacts)
+            {
+                columns.Add(new ProfileColumn()
+                {
+                    Predefined = (PropertyTypePredefined)artifact.PredefinedType,
+                    PropertyName = artifact.PropertyName,
+                    PropertyTypeId = artifact.PropertyTypeId
+                });
+            }
+            var profileColumns = new ProfileColumns(columns);
+
+            _cxn.SetupQueryAsync("GetPropertyValuesForArtifactsNew", It.IsAny<Dictionary<string, object>>(),
                 _expectedCollectionArtifacts);
 
             // Act
             var actualResult =
-                await _repository.GetArtifactsWithPropertyValuesAsync(_userId, artifactIds);
+                await _repository.GetArtifactsWithPropertyValuesAsync(_userId, artifactIds, profileColumns);
 
             // assert
             Assert.IsNotNull(actualResult);

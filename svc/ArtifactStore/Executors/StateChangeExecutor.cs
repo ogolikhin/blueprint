@@ -70,7 +70,8 @@ namespace ArtifactStore.Executors
                     _input.ArtifactId,
                     currentState.WorkflowId,
                     _input.FromStateId,
-                    _input.ToStateId);
+                    _input.ToStateId,
+                    _input.TransitionId);
 
                 var constraints = new List<IConstraint>();
 

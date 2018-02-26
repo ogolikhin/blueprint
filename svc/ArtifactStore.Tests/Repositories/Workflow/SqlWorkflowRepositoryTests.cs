@@ -320,7 +320,7 @@ namespace ArtifactStore.Repositories.Workflow
 
         #endregion
 
-            #region ChangeStateForArtifactAsync
+        #region ChangeStateForArtifactAsync
 
         [TestMethod]
         public async Task ChangeStateForArtifactAsync_WithEditPermissions_SuccessfullyReturnsState()

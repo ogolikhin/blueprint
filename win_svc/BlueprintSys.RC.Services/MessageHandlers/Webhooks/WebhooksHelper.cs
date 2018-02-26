@@ -77,14 +77,21 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             }
             catch (HttpRequestException e)
             {
-                if (e.InnerException is WebException &&
-                    ((WebException)e.InnerException).Status == WebExceptionStatus.TrustFailure)
+                if (e.InnerException is WebException)
                 {
-                    throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to invalid SSL Certificate. {e}.");
+                    var webException = (WebException)e.InnerException;
+                    if (webException.Status == WebExceptionStatus.TrustFailure)
+                    {
+                        throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to invalid SSL Certificate. {webException.Message}.");
+                    }
+                    else
+                    {
+                        throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due {webException.Status}. {webException.Message} {webException.Response}");
+                    }
                 }
                 else
                 {
-                    throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to {e.Message}.");
+                    throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to {e.InnerException}.");
                 }
             }
         }

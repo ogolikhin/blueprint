@@ -247,40 +247,12 @@ namespace ArtifactStore.Collections
                 throw ArtifactListExceptionHelper.InvalidColumnsException(invalidColumns);
             }
 
-            var savingProfileColumnsTuple = GetValidColumns(profileColumns, propertyTypeInfos);
+            var savingProfileColumnsTuple = profileColumns.ToValidColumns(propertyTypeInfos);
 
             await _artifactListService.SaveProfileColumnsAsync(collection.Id,
                 savingProfileColumnsTuple.Item1, userId);
 
             return savingProfileColumnsTuple.Item2;
-        }
-
-        /// <summary>
-        /// Returns Valid ProfileColumns for saving to Database in Item1
-        /// and IsChanged Custom Properties in Item2
-        /// </summary>
-        /// <param name="profileColumns">ProfileColumns for saving</param>
-        /// <param name="propertyTypeInfos">Original Properties in DataBase</param>
-        private static Tuple<ProfileColumns, bool> GetValidColumns(ProfileColumns profileColumns,
-            IReadOnlyList<PropertyTypeInfo> propertyTypeInfos)
-        {
-            var changedColumnIds = profileColumns.GetChangedColumnIds(propertyTypeInfos);
-
-            if (!changedColumnIds.Any()) return new Tuple<ProfileColumns, bool>(profileColumns, false);
-
-            var originalProfileColumns = new ProfileColumns(profileColumns.Items
-                .Except(profileColumns.Items.Where(
-                    q => changedColumnIds.Any(changed => changed.Value == q.PropertyTypeId)))
-                .Union(propertyTypeInfos.Where(q => changedColumnIds.Any(changed => changed.Value == q.Id))
-                    .Select(propertyTypeInfo => new ProfileColumn
-                    {
-                        Predefined = propertyTypeInfo.Predefined,
-                        PropertyName = propertyTypeInfo.Name,
-                        PropertyTypeId = propertyTypeInfo.Id,
-                        PrimitiveType = propertyTypeInfo.PrimitiveType
-                    })));
-
-            return new Tuple<ProfileColumns, bool>(originalProfileColumns, true);
         }
 
         private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)

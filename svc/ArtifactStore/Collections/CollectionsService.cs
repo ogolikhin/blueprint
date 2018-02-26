@@ -445,7 +445,7 @@ namespace ArtifactStore.Collections
                     }
                     else if (!filledMultiValueProperties.Contains(multiValueTuple))
                     {
-                        var multiValueProperties = artifactProperties
+                        var values = artifactProperties
                             .Where(x =>
                                 artifactProperty.PrimitiveType == x.PrimitiveType
                                 && artifactProperty.ArtifactId == x.ArtifactId
@@ -458,11 +458,19 @@ namespace ArtifactStore.Collections
                             })
                             .Distinct();
 
-                        propertyInfo.Value =
-                            ChoiceValueFrame + // "
-                            String.Join(ChoiceValueFrame + ChoiceValueSeparator + ChoiceValueFrame, // ","
-                                multiValueProperties.Select(x => x.Value?.Replace(ChoiceValueFrame, ChoiceValueFrame + ChoiceValueFrame))) +
-                            ChoiceValueFrame;
+                        if (values.Count() > 1)
+                        {
+                            values = values
+                                .Select(x => new
+                                {
+                                    Value = x.Value.Contains(ChoiceValueSeparator)
+                                        ? ChoiceValueFrame + x.Value + ChoiceValueFrame
+                                        : x.Value,
+                                    x.ValueId
+                                });
+
+                        }
+                        propertyInfo.Value = string.Join(ChoiceValueSeparator, values.Select(x => x.Value));
 
                         propertyInfos.Add(propertyInfo);
                         filledMultiValueProperties.Add(multiValueTuple);

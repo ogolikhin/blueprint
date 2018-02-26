@@ -196,7 +196,7 @@ namespace ArtifactStore.Collections
             }
             var profileColumns = new ProfileColumns(columns);
 
-            _cxn.SetupQueryAsync("GetPropertyValuesForArtifactsNew", It.IsAny<Dictionary<string, object>>(),
+            _cxn.SetupQueryAsync("GetPropertyValuesForArtifacts", It.IsAny<Dictionary<string, object>>(),
                 _expectedCollectionArtifacts);
 
             // Act

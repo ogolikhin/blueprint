@@ -30,6 +30,7 @@ namespace ArtifactStore.Executors
         private const int FromStateId = 3;
         private const int ToStateId = 4;
         private const int CurrentVersionId = 5;
+        private const int TransitionId = 6;
         private StateChangeExecutor _stateChangeExecutor;
         private Mock<IWorkflowRepository> _workflowRepository;
         private Mock<IArtifactVersionsRepository> _artifactVersionsRepository;
@@ -52,7 +53,8 @@ namespace ArtifactStore.Executors
                 ArtifactId = ArtifactId,
                 ToStateId = ToStateId,
                 FromStateId = FromStateId,
-                CurrentVersionId = CurrentVersionId
+                CurrentVersionId = CurrentVersionId,
+                TransitionId = TransitionId
             };
             _workflowRepository = new Mock<IWorkflowRepository>(MockBehavior.Strict);
             _artifactVersionsRepository = new Mock<IArtifactVersionsRepository>(MockBehavior.Strict);
@@ -292,10 +294,10 @@ namespace ArtifactStore.Executors
                 .ReturnsAsync(fromState);
 
             _workflowRepository.Setup(
-                t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId, TransitionId))
                 .ReturnsAsync((WorkflowTransition)null);
             _workflowRepository.Setup(
-                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId, TransitionId))
                 .ThrowsAsync(new ConflictException("", ErrorCodes.Conflict));
 
             // Act
@@ -354,16 +356,16 @@ namespace ArtifactStore.Executors
             var transition = new WorkflowTransition()
             {
                 FromState = fromState,
-                Id = 10,
+                Id = TransitionId,
                 ToState = toState,
                 WorkflowId = WorkflowId,
                 Name = "Ready to Closed"
             };
             _workflowRepository.Setup(
-                t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId, TransitionId))
                 .ReturnsAsync(transition);
             _workflowRepository.Setup(
-                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId, TransitionId))
                 .ReturnsAsync(new WorkflowTriggersContainer());
 
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
@@ -418,16 +420,16 @@ namespace ArtifactStore.Executors
             var transition = new WorkflowTransition()
             {
                 FromState = fromState,
-                Id = 10,
+                Id = TransitionId,
                 ToState = toState,
                 WorkflowId = WorkflowId,
                 Name = "Ready to Closed"
             };
             _workflowRepository.Setup(
-                t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId, TransitionId))
                 .ReturnsAsync(transition);
             _workflowRepository.Setup(
-                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId, TransitionId))
                 .ReturnsAsync(new WorkflowTriggersContainer());
 
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))
@@ -484,13 +486,13 @@ namespace ArtifactStore.Executors
             var transition = new WorkflowTransition()
             {
                 FromState = fromState,
-                Id = 10,
+                Id = TransitionId,
                 ToState = toState,
                 WorkflowId = WorkflowId,
                 Name = "Ready to Closed"
             };
             _workflowRepository.Setup(
-                t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                t => t.GetTransitionForAssociatedStatesAsync(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId, TransitionId))
                 .ReturnsAsync(transition);
 
             var workflowEventAction = new Mock<IWorkflowEventAction>();
@@ -503,7 +505,7 @@ namespace ArtifactStore.Executors
             });
 
             _workflowRepository.Setup(
-                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId))
+                t => t.GetWorkflowEventTriggersForTransition(UserId, ArtifactId, WorkflowId, FromStateId, ToStateId, TransitionId))
                 .ReturnsAsync(triggerContainer);
 
             _workflowRepository.Setup(t => t.ChangeStateForArtifactAsync(UserId, ArtifactId, It.IsAny<WorkflowStateChangeParameterEx>(), It.IsAny<IDbTransaction>()))

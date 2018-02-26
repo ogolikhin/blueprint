@@ -194,6 +194,7 @@ namespace ArtifactStore.Services
             int workflowId = 4;
             int fromStateId = 2;
             int toStateId = 5;
+            const int transitionId = 10;
 
             var vcArtifactInfo = new VersionControlArtifactInfo
             {
@@ -217,7 +218,8 @@ namespace ArtifactStore.Services
             {
                 CurrentVersionId = 10,
                 ToStateId = toStateId,
-                FromStateId = fromStateId
+                FromStateId = fromStateId,
+                TransitionId = transitionId
             };
 
             var fromState = new WorkflowState
@@ -238,16 +240,16 @@ namespace ArtifactStore.Services
             var transition = new WorkflowTransition()
             {
                 FromState = fromState,
-                Id = 10,
+                Id = transitionId,
                 ToState = toState,
                 WorkflowId = workflowId,
                 Name = "Ready to Closed"
             };
             _workflowRepositoryMock.Setup(
-                t => t.GetTransitionForAssociatedStatesAsync(userId, itemId, workflowId, fromStateId, toStateId))
+                t => t.GetTransitionForAssociatedStatesAsync(userId, itemId, workflowId, fromStateId, toStateId, transitionId))
                 .ReturnsAsync(transition);
             _workflowRepositoryMock.Setup(
-                t => t.GetWorkflowEventTriggersForTransition(userId, itemId, workflowId, fromStateId, toStateId))
+                t => t.GetWorkflowEventTriggersForTransition(userId, itemId, workflowId, fromStateId, toStateId, transitionId))
                 .ReturnsAsync(new WorkflowTriggersContainer());
 
 

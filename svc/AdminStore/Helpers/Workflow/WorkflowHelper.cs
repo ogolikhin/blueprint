@@ -559,7 +559,15 @@ namespace AdminStore.Helpers.Workflow
                     }
                     break;
                 case ActionTypes.Webhook:
-                    // At the moment, we do not allow webhooks to be displayed within the workflow diagram
+                    var ieWebhookAction = ieBaseAction as IeWebhookAction;
+                    if (ieWebhookAction != null)
+                    {
+                        return new DWebhookAction
+                        {
+                            Name = ieWebhookAction.Name,
+                            Url = ieWebhookAction.Url
+                        };
+                    }
                     break;
                 default:
                     return null;

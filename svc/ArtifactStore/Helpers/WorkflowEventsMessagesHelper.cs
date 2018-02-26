@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Exceptions;
@@ -14,6 +15,7 @@ using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.Webhooks;
 
 namespace ArtifactStore.Helpers
@@ -28,14 +30,17 @@ namespace ArtifactStore.Helpers
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
             IDictionary<int, IList<Property>> modifiedProperties,
+            WorkflowState currentState,
+            WorkflowState newState,
             bool sendArtifactPublishedMessage,
             string artifactUrl,
             string baseUrl,
             IUsersRepository usersRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhooksRepository webhooksRepository,
-            IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos,
-            IDbTransaction transaction = null);
+            IProjectMetaRepository projectMetaRepository,
+            IArtifactVersionsRepository artifactVersionsRepository,
+        IDbTransaction transaction = null);
 
         Task ProcessMessages(string logSource,
             IApplicationSettingsRepository applicationSettingsRepository,
@@ -57,13 +62,16 @@ namespace ArtifactStore.Helpers
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
             IDictionary<int, IList<Property>> modifiedProperties,
+            WorkflowState currentState,
+            WorkflowState newState,
             bool sendArtifactPublishedMessage,
             string artifactUrl,
             string baseUrl,
             IUsersRepository usersRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhooksRepository webhooksRepository,
-            IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos,
+            IProjectMetaRepository projectMetaRepository,
+            IArtifactVersionsRepository artifactVersionsRepository,
             IDbTransaction transaction = null)
         {
             var resultMessages = new List<IWorkflowMessage>();
@@ -168,49 +176,50 @@ namespace ArtifactStore.Helpers
                             continue;
                         }
 
+                        var customTypes = await projectMetaRepository.GetCustomProjectTypesAsync(artifactInfo.ProjectId, userId);
+                        var artifactType = customTypes.ArtifactTypes.FirstOrDefault(at => at.Id == artifactInfo.ItemTypeId);
+
+                        var artifactPropertyInfos = await artifactVersionsRepository.GetArtifactPropertyInfoAsync(artifactInfo.Id, userId, artifactType.CustomPropertyTypeIds);
+
+                        var propertyTypes = await projectMetaRepository.GetStandardProjectPropertyTypesAsync(artifactPropertyInfos.Select(api => api.PropertyTypePredefined));
+
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {
-                            Id = "",
-                            EventType = "",
-                            PublisherId = "",
+                            Id = Guid.NewGuid().ToString(),
+                            EventType = "ArtifactStateChanged", // TODO constant
+                            PublisherId = "storyteller", // TODO constant
                             Scope = new WebhookArtifactInfoScope
                             {
-                                Type = "",
-                                WorkflowId = -1
+                                Type = "Workflow",  // TODO constant
+                                WorkflowId = currentState.WorkflowId
                             },
                             Resource = new WebhookResource
                             {
                                 Name = artifactInfo.Name,
                                 ProjectId = artifactInfo.ProjectId,
-                                ParentId = -1,
+                                ParentId = ((VersionControlArtifactInfo)artifactInfo).ParentId,
                                 ArtifactTypeId = artifactInfo.ItemTypeId,
-                                ArtifactTypeName = "",
-                                BaseArtifactType = "",
+                                ArtifactTypeName = artifactType?.Name,
+                                BaseArtifactType = artifactType?.PredefinedType?.ToString(),
                                 ArtifactPropertyInfo = ConvertToWebhookPropertyInfo(artifactPropertyInfos),
-                                State = new WebhookStateInfo
-                                {
-                                    Id = -1,
-                                    Name = "",
-                                    WorkflowId = -1
-                                },
                                 ChangedState = new WebhookStateChangeInfo
                                 {
                                     NewValue = new WebhookStateInfo
                                     {
-                                        Id = -1,
-                                        Name = "",
-                                        WorkflowId = -1
+                                        Id = newState.Id,
+                                        Name = newState.Name,
+                                        WorkflowId = newState.WorkflowId
                                     },
                                     OldValue = new WebhookStateInfo
                                     {
-                                        Id = -1,
-                                        Name = "",
-                                        WorkflowId = -1
+                                        Id = currentState.Id,
+                                        Name = currentState.Name,
+                                        WorkflowId = currentState.WorkflowId
                                     }
                                 },
                                 RevisionTime = "",
-                                Revision = -1,
-                                Version = -1,
+                                Revision = revisionId,
+                                Version = ((VersionControlArtifactInfo)artifactInfo).Version,
                                 Id = artifactInfo.Id,
                                 BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
                                 Link = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}")

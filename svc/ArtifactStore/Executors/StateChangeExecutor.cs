@@ -14,6 +14,7 @@ using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
+using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace ArtifactStore.Executors
 {
@@ -73,11 +74,11 @@ namespace ArtifactStore.Executors
                     _input.ToStateId);
 
                 // only populate properties for webhook triggers
-                IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos = null;
+                /*IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos = null;
                 if (triggers.AsynchronousTriggers.Any(tr => tr.ActionType == MessageActionType.Webhooks))
                 {
                     artifactPropertyInfos = await _stateChangeExecutorRepositories.ArtifactVersionsRepository.GetArtifactPropertyInfoAsync(_input.ArtifactId, _userId);
-                }
+                }*/
 
                 var constraints = new List<IConstraint>();
 
@@ -119,13 +120,16 @@ namespace ArtifactStore.Executors
                     artifactInfo,
                     artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId)?.Name,
                     artifactResultSet?.ModifiedProperties,
+                    currentState,
+                    stateChangeResult.Item,
                     true,
                     null,
                     null,
                     _stateChangeExecutorRepositories.UsersRepository,
                     _stateChangeExecutorRepositories.ServiceLogRepository,
                     _stateChangeExecutorRepositories.WebhooksRepository,
-                    artifactPropertyInfos,
+                    _stateChangeExecutorRepositories.ProjectMetaRepository,
+                    _stateChangeExecutorRepositories.ArtifactVersionsRepository,
                     transaction));
 
                 await _workflowEventsMessagesHelper.ProcessMessages(LogSource,

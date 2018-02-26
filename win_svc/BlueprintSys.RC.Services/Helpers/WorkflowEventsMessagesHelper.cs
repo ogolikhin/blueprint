@@ -149,12 +149,12 @@ namespace BlueprintSys.RC.Services.Helpers
 
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {
-                            Id = "",
-                            EventType = "",
-                            PublisherId = "",
+                            Id = Guid.NewGuid().ToString(),
+                            EventType = "ArtifactCreated", // TODO constant
+                            PublisherId = "storyteller", // TODO constant
                             Scope = new WebhookArtifactInfoScope
                             {
-                                Type = "",
+                                Type = "Workflow",  // TODO constant
                                 WorkflowId = -1
                             },
                             Resource = new WebhookResource
@@ -172,30 +172,15 @@ namespace BlueprintSys.RC.Services.Helpers
                                     Name = "",
                                     WorkflowId = -1
                                 },
-                                ChangedState = new WebhookStateChangeInfo
-                                {
-                                    NewValue = new WebhookStateInfo
-                                    {
-                                        Id = -1,
-                                        Name = "",
-                                        WorkflowId = -1
-                                    },
-                                    OldValue = new WebhookStateInfo
-                                    {
-                                        Id = -1,
-                                        Name = "",
-                                        WorkflowId = -1
-                                    }
-                                },
                                 RevisionTime = "",
-                                Revision = -1,
+                                Revision = revisionId,
                                 Version = -1,
                                 Id = artifactInfo.Id,
                                 BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
                                 Link = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}")
                             }
                         };
-                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, artifactInfo);
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, webhookArtifactInfo);
 
                         if (webhookMessage == null)
                         {
@@ -329,7 +314,7 @@ namespace BlueprintSys.RC.Services.Helpers
         }
 
         private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, long transactionId, WebhookAction webhookAction,
-            IWebhooksRepository webhooksRepository, IBaseArtifactVersionControlInfo artifactInfo)
+            IWebhooksRepository webhooksRepository, WebhookArtifactInfo webhookArtifactInfo)
         {
             List<int> webhookId = new List<int> { webhookAction.WebhookId };
             var webhookInfos = await webhooksRepository.GetWebhooks(webhookId);
@@ -351,7 +336,7 @@ namespace BlueprintSys.RC.Services.Helpers
                 SignatureSecretToken = securityInfo.Signature?.SecretToken,
                 SignatureAlgorithm = securityInfo.Signature?.Algorithm,
                 // Payload Information
-                WebhookJsonPayload = artifactInfo.ToJSON()
+                WebhookJsonPayload = webhookArtifactInfo.ToJSON()
             };
 
             return webhookMessage;

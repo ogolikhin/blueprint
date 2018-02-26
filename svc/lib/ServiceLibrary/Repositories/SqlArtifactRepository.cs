@@ -799,7 +799,7 @@ namespace ServiceLibrary.Repositories
         }
 
         public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
-            int userId, IEnumerable<int> artifactIds)
+            int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypeIds = null)
         {
             var propertyTypePredefineds = new List<int>
             {
@@ -808,7 +808,10 @@ namespace ServiceLibrary.Repositories
             }; // ArtifactType = 4148, ID = 4097
 
             // TODO: should be filled with real data after implementation of getting list of property type ids from profile settings.
-            var propertyTypeIds = new List<int>();
+            if (propertyTypeIds == null)
+            {
+                propertyTypeIds = new List<int>();
+            }
 
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId, DbType.Int32);

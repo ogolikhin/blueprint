@@ -42,6 +42,6 @@ namespace ServiceLibrary.Repositories
 
         Task<IEnumerable<PropertyType>> GetStandardProperties(ISet<int> standardArtifactTypeIds);
 
-        Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(int userId, IEnumerable<int> artifactIds);
+        Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypeIds = null);
     }
 }

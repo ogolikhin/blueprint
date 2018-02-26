@@ -165,6 +165,8 @@
                     "The selected columns are no longer applicable: {0}. Please ensure correct values are selected.";
                 public static readonly string MultipleInvalidColumns =
                     "The selected columns are no longer applicable: {0}... Please ensure correct values are selected.";
+                public static readonly string ChangedCustomProperties =
+                    "Properties have been updated by an administrative User, which may have in impacted your Collection.";
             }
         }
 

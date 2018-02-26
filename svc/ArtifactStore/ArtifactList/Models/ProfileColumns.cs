@@ -65,16 +65,44 @@ namespace ArtifactStore.ArtifactList.Models
             return !_columns.IsEmpty() && _columns.Any(column => column.Predefined == predefined);
         }
 
-        public IReadOnlyList<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> columns)
+        public IReadOnlyList<ProfileColumn> GetInvalidColumns(IEnumerable<ProfileColumn> propertyTypes)
         {
             return _columns
                 .Where(column =>
-                    !columns.Any(customColumn =>
-                        customColumn.PropertyName == column.PropertyName &&
-                        customColumn.Predefined == column.Predefined &&
-                        customColumn.PrimitiveType == column.PrimitiveType &&
-                        customColumn.PropertyTypeId == column.PropertyTypeId))
+                    !propertyTypes.Any(propertyType => column.Equals(propertyType))
+                    && !propertyTypes.Any(
+                        customPropertyType =>
+                            customPropertyType.Predefined == PropertyTypePredefined.CustomGroup
+                            && customPropertyType.PropertyTypeId == column.PropertyTypeId))
                 .ToList();
+        }
+
+        /// <summary>
+        /// Item 1 returns valid ProfileColumns.
+        /// Item 2 returns wether profile columns were changed in comparison to the corresponding custom properties.
+        /// </summary>
+        /// <param name="propertyTypes">Original properties in database.</param>
+        public Tuple<ProfileColumns, bool> ToValidColumns(IReadOnlyList<PropertyTypeInfo> propertyTypes)
+        {
+            var changedCustomColumns = _columns
+                .Where(column =>
+                    propertyTypes.Any(propertyType =>
+                        propertyType.Predefined == PropertyTypePredefined.CustomGroup
+                        && propertyType.Id == column.PropertyTypeId
+                        && (propertyType.PrimitiveType != column.PrimitiveType
+                            || propertyType.Name != column.PropertyName)));
+
+            foreach (var changedCustomColumn in changedCustomColumns)
+            {
+                var propertyType = propertyTypes
+                    .Where(x => changedCustomColumn.PropertyTypeId == x.Id)
+                    .FirstOrDefault();
+                changedCustomColumn.Predefined = propertyType.Predefined;
+                changedCustomColumn.PropertyName = propertyType.Name;
+                changedCustomColumn.PrimitiveType = propertyType.PrimitiveType;
+            }
+
+            return new Tuple<ProfileColumns, bool>(this, changedCustomColumns.Any());
         }
 
         private void Add(ProfileColumn column)

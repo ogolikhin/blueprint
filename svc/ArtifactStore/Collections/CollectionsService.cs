@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Helpers;
@@ -227,7 +228,7 @@ namespace ArtifactStore.Collections
             };
         }
 
-        public async Task SaveProfileColumnsAsync(int collectionId, ProfileColumns profileColumns, int userId)
+        public async Task<bool> SaveProfileColumnsAsync(int collectionId, ProfileColumns profileColumns, int userId)
         {
             if (userId < 1)
             {
@@ -238,15 +239,20 @@ namespace ArtifactStore.Collections
             var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts);
 
-            var columns = GetUnselectedColumns(propertyTypeInfos);
-            var invalidColumns = profileColumns.GetInvalidColumns(columns);
+            var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
+            var invalidColumns = profileColumns.GetInvalidColumns(propertyTypes);
 
             if (invalidColumns.Any())
             {
                 throw ArtifactListExceptionHelper.InvalidColumnsException(invalidColumns);
             }
 
-            await _artifactListService.SaveProfileColumnsAsync(collection.Id, profileColumns, userId);
+            var savingProfileColumnsTuple = profileColumns.ToValidColumns(propertyTypeInfos);
+
+            await _artifactListService.SaveProfileColumnsAsync(collection.Id,
+                savingProfileColumnsTuple.Item1, userId);
+
+            return savingProfileColumnsTuple.Item2;
         }
 
         private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)

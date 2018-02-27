@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
-using ServiceLibrary.Models.VersionControl;
+﻿using ServiceLibrary.Models.VersionControl;
 
 namespace ServiceLibrary.Models.Workflow
 {
@@ -11,6 +9,8 @@ namespace ServiceLibrary.Models.Workflow
         public string Name { get; set; }
 
         public int ProjectId { get; set; }
+
+        public int ParentId { get; set; }
 
         public int ItemTypeId { get; set; }
 

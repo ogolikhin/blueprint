@@ -26,7 +26,7 @@ namespace BlueprintSys.RC.Services.Helpers
         private const string WebhookEventType = "ArtifactCreated";
         private const string WebhookPublisherId = "storyteller";
         private const string WebhookType = "Workflow";
-        private const int WebhookArtifactVersione = 1;
+        private const int WebhookArtifactVersion = 1;
 
         public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
             int revisionId,
@@ -181,7 +181,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             {
                                 Name = artifactInfo.Name,
                                 ProjectId = artifactInfo.ProjectId,
-                                ParentId = -1,
+                                ParentId = ((WorkflowMessageArtifactInfo)artifactInfo).ParentId,
                                 ArtifactTypeId = artifactInfo.ItemTypeId,
                                 ArtifactTypeName = artifactType?.Name,
                                 BaseArtifactType = artifactType?.PredefinedType?.ToString(),
@@ -194,7 +194,7 @@ namespace BlueprintSys.RC.Services.Helpers
                                 },
                                 RevisionTime = "",
                                 Revision = revisionId,
-                                Version = WebhookArtifactVersione,
+                                Version = WebhookArtifactVersion,
                                 Id = artifactInfo.Id,
                                 BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
                                 Link = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}")

@@ -3,12 +3,6 @@ using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Workflow
 {
-    public class WebhookArtifactInfoScope
-    {
-        public string Type { get; set; }
-        public int WorkflowId { get; set; }
-    }
-
     public class WebhookArtifactInfo
     {
         public string Id { get; set; }
@@ -20,6 +14,12 @@ namespace ServiceLibrary.Models.Workflow
         public WebhookArtifactInfoScope Scope { get; set; }
 
         public WebhookResource Resource { get; set; }
+    }
+
+    public class WebhookArtifactInfoScope
+    {
+        public string Type { get; set; }
+        public int WorkflowId { get; set; }
     }
 
     public class WebhookResource

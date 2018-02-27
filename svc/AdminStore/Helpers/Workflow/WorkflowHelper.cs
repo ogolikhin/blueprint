@@ -486,7 +486,13 @@ namespace AdminStore.Helpers.Workflow
                         };
                     break;
                 case ActionTypes.Webhook:
-                    // At the moment, we do not allow webhooks to be updated within the workflow diagram
+                    var dWebhookAction = dBaseAction as DWebhookAction;
+                    if (dWebhookAction != null)
+                        return new IeWebhookAction
+                        {
+                            Name = dWebhookAction.Name,
+                            Url = dWebhookAction.Url
+                        };
                     break;
                 default:
                     return null;

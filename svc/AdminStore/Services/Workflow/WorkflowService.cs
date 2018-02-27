@@ -624,6 +624,12 @@ namespace AdminStore.Services.Workflow
 
         private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, WorkflowDataMaps dataMaps, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
+            if (workflowMode == WorkflowMode.Canvas)
+            {
+                // Ignore all webhooks when in canvas mode - EPIC STOR-2862 - Webhook v1.0 only allows webhook update via Workflow Xml update
+                wEvent.Triggers = wEvent.Triggers.Where(t => t.Action.ActionType != ActionTypes.Webhook).ToList();
+            }
+
             var sqlEvent = new SqlWorkflowEvent
             {
                 WorkflowEventId = wEvent.Id.GetValueOrDefault(),

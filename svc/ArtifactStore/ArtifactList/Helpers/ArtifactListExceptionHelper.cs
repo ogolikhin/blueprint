@@ -48,7 +48,7 @@ namespace ArtifactStore.ArtifactList.Helpers
                     string.Join(", ", invalidColumns.Take(maxPropertiesToShow).Select(column => column.PropertyName)));
             }
 
-            return new BadRequestException(message, ErrorCodes.BadRequest);
+            return new BadRequestException(message, ErrorCodes.InvalidColumns);
         }
     }
 }

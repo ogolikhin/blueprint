@@ -23,6 +23,10 @@ namespace BlueprintSys.RC.Services.Helpers
     public class WorkflowEventsMessagesHelper
     {
         private const string LogSource = "StateChange.WorkflowEventsMessagesHelper";
+        private const string WebhookEventType = "ArtifactCreated";
+        private const string WebhookPublisherId = "storyteller";
+        private const string WebhookType = "Workflow";
+        private const int WebhookArtifactVersione = 1;
 
         public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
             int revisionId,
@@ -166,11 +170,11 @@ namespace BlueprintSys.RC.Services.Helpers
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {
                             Id = Guid.NewGuid().ToString(),
-                            EventType = "ArtifactCreated", // TODO constant
-                            PublisherId = "storyteller", // TODO constant
+                            EventType = WebhookEventType,
+                            PublisherId = WebhookPublisherId,
                             Scope = new WebhookArtifactInfoScope
                             {
-                                Type = "Workflow",  // TODO constant
+                                Type = WebhookType,
                                 WorkflowId = currentState.WorkflowId
                             },
                             Resource = new WebhookResource
@@ -190,7 +194,7 @@ namespace BlueprintSys.RC.Services.Helpers
                                 },
                                 RevisionTime = "",
                                 Revision = revisionId,
-                                Version = 1, // TODO constant
+                                Version = WebhookArtifactVersione,
                                 Id = artifactInfo.Id,
                                 BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
                                 Link = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}")
@@ -217,14 +221,14 @@ namespace BlueprintSys.RC.Services.Helpers
             {
                 webhookPropertyInfos.Add(new WebhookPropertyInfo
                 {
-                    BasePropertyType = "",
-                    Choices = new List<string>(),
-                    DateValue = "",
+                    BasePropertyType = artifactPropertyInfo.PrimitiveType.ToString(),
+                    Choices = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Choice ? artifactPropertyInfo.FullTextValue.Split(',') : null,
+                    DateValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Date ? artifactPropertyInfo.DateTimeValue.ToString() : null,
                     Name = artifactPropertyInfo.PropertyName,
-                    NumberValue = -1f,
+                    NumberValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Number ? (float?)float.Parse(artifactPropertyInfo.FullTextValue) : null,
                     PropertyTypeId = artifactPropertyInfo.PropertyTypeId,
-                    TextOrChoiceValue = "",
-                    UsersAndGroups = new List<WebhookUserPropertyValue>()
+                    TextOrChoiceValue = artifactPropertyInfo.FullTextValue,
+                    UsersAndGroups = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User ? new List<WebhookUserPropertyValue>() : null
                 });
             }
             return webhookPropertyInfos;

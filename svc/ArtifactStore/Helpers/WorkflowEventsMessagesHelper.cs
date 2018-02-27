@@ -54,6 +54,9 @@ namespace ArtifactStore.Helpers
     public class WorkflowEventsMessagesHelper : IWorkflowEventsMessagesHelper
     {
         private const string LogSource = "ArtifactStore.Helpers.WorkflowEventsMessagesHelper";
+        private const string WebhookEventType = "ArtifactStateChanged";
+        private const string WebhookPublisherId = "storyteller";
+        private const string WebhookType = "Workflow";
 
         public async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
             int revisionId,
@@ -194,11 +197,11 @@ namespace ArtifactStore.Helpers
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {
                             Id = Guid.NewGuid().ToString(),
-                            EventType = "ArtifactStateChanged", // TODO constant
-                            PublisherId = "storyteller", // TODO constant
+                            EventType = WebhookEventType,
+                            PublisherId = WebhookPublisherId,
                             Scope = new WebhookArtifactInfoScope
                             {
-                                Type = "Workflow",  // TODO constant
+                                Type = WebhookType,
                                 WorkflowId = currentState.WorkflowId
                             },
                             Resource = new WebhookResource

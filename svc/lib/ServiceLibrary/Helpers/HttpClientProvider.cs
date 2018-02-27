@@ -39,9 +39,9 @@ namespace ServiceLibrary.Helpers
         /// </summary>
         /// <param name="baseAddress"></param>
         /// <param name="ignoreSSLCertErrors"></param>
-        /// <param name="connectionTimeout"></param>
+        /// <param name="connectionTimeoutInSeconds"></param>
         /// <returns></returns>
-        HttpClient CreateWithCustomCertificateValidation(Uri baseAddress, bool ignoreSSLCertErrors, int connectionTimeout);
+        HttpClient CreateWithCustomCertificateValidation(Uri baseAddress, bool ignoreSSLCertErrors, int connectionTimeoutInSeconds);
     }
 
     public class HttpClientProvider : IHttpClientProvider
@@ -55,14 +55,14 @@ namespace ServiceLibrary.Helpers
             return HttpClients.GetOrAdd(baseAddress, CreateInternal);
         }
 
-        public HttpClient CreateWithCustomCertificateValidation(Uri baseAddress, bool ignoreSSLCertErrors, int connectionTimeout)
+        public HttpClient CreateWithCustomCertificateValidation(Uri baseAddress, bool ignoreSSLCertErrors, int connectionTimeoutInSeconds)
         {
             if (ignoreSSLCertErrors)
             {
-                return HttpClientsWhoIgnoreCertificateErrors.GetOrAdd(baseAddress, CreateInternalWithCustomCertificateValidation(baseAddress, connectionTimeout));
+                return HttpClientsWhoIgnoreCertificateErrors.GetOrAdd(baseAddress, CreateInternalWithCustomCertificateValidation(baseAddress, connectionTimeoutInSeconds));
             }
 
-            return HttpClients.GetOrAdd(baseAddress, CreateInternalWithTimeout(baseAddress, connectionTimeout));
+            return HttpClients.GetOrAdd(baseAddress, CreateInternalWithTimeout(baseAddress, connectionTimeoutInSeconds));
         }
 
         private HttpClient CreateInternal(Uri baseAddress)
@@ -73,19 +73,19 @@ namespace ServiceLibrary.Helpers
             return result;
         }
 
-        private HttpClient CreateInternalWithTimeout(Uri baseAddress, int connectionTimeout)
+        private HttpClient CreateInternalWithTimeout(Uri baseAddress, int connectionTimeoutInSeconds)
         {
             var result = new HttpClient
             {
                 BaseAddress = baseAddress,
-                Timeout = TimeSpan.FromSeconds(connectionTimeout)
+                Timeout = TimeSpan.FromSeconds(connectionTimeoutInSeconds)
             };
             result.DefaultRequestHeaders.Accept.Clear();
             result.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             return result;
         }
 
-        private HttpClient CreateInternalWithCustomCertificateValidation(Uri baseAddress, int connectionTimeout)
+        private HttpClient CreateInternalWithCustomCertificateValidation(Uri baseAddress, int connectionTimeoutInSeconds)
         {
             var httpClientHandler = new WebRequestHandler();
             httpClientHandler.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
@@ -107,7 +107,7 @@ namespace ServiceLibrary.Helpers
             var result = new HttpClient(httpClientHandler)
             {
                 BaseAddress = baseAddress,
-                Timeout = TimeSpan.FromSeconds(connectionTimeout)
+                Timeout = TimeSpan.FromSeconds(connectionTimeoutInSeconds)
             };
             result.DefaultRequestHeaders.Accept.Clear();
             result.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

@@ -22,24 +22,24 @@ namespace BlueprintSys.RC.Services.Helpers
     {
         private const string LogSource = "StateChange.WorkflowEventsMessagesHelper";
 
-        public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId, 
-            int revisionId, 
+        public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
+            int revisionId,
             string userName,
             long transactionId,
-            WorkflowEventTriggers postOpTriggers, 
-            IBaseArtifactVersionControlInfo artifactInfo, 
-            string projectName, 
-            IDictionary<int, IList<Property>> modifiedProperties, 
-            string artifactUrl, 
+            WorkflowEventTriggers postOpTriggers,
+            IBaseArtifactVersionControlInfo artifactInfo,
+            string projectName,
+            IDictionary<int, IList<Property>> modifiedProperties,
+            string artifactUrl,
             string baseUrl,
-            IEnumerable<int> ancestorArtifactTypeIds, 
-            IUsersRepository usersRepository, 
+            IEnumerable<int> ancestorArtifactTypeIds,
+            IUsersRepository usersRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhooksRepository webhooksRepository,
             IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos)
         {
             var resultMessages = new List<IWorkflowMessage>();
-            //var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
+            ////var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
             var baseHostUri = baseUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
 
             foreach (var workflowEventTrigger in postOpTriggers)
@@ -56,7 +56,7 @@ namespace BlueprintSys.RC.Services.Helpers
                         {
                             continue;
                         }
-                        var notificationMessage = await GetNotificationMessage(userId, 
+                        var notificationMessage = await GetNotificationMessage(userId,
                             revisionId,
                             transactionId,
                             artifactInfo,
@@ -94,7 +94,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             UserName = userName,
                             BaseHostUri = baseHostUri,
                             ProjectName = projectName,
-                            TypePredefined = (int) artifactInfo.PredefinedType
+                            TypePredefined = (int)artifactInfo.PredefinedType
                         };
                         resultMessages.Add(generateChildrenMessage);
                         break;
@@ -232,7 +232,7 @@ namespace BlueprintSys.RC.Services.Helpers
             {
                 try
                 {
-                    await ActionMessageSender.Send((ActionMessage) actionMessage, tenant, processor);
+                    await ActionMessageSender.Send((ActionMessage)actionMessage, tenant, processor);
                     string message = $"Sent {actionMessage.ActionType} message: {actionMessage.ToJSON()} with tenant id: {tenant.TenantId} to the Message queue";
                     await
                         serviceLogRepository.LogInformation(logSource, message);
@@ -272,7 +272,7 @@ namespace BlueprintSys.RC.Services.Helpers
                 TransactionId = transactionId,
                 ArtifactName = artifactInfo.Name,
                 ProjectName = projectName,
-                Subject = I18NHelper.FormatInvariant("Artifact {0} has been created.",artifactInfo.Id),
+                Subject = I18NHelper.FormatInvariant("Artifact {0} has been created.", artifactInfo.Id),
                 From = notificationAction.FromDisplayName,
                 To = emails,
                 Message = notificationAction.Message,
@@ -289,7 +289,7 @@ namespace BlueprintSys.RC.Services.Helpers
             return notificationMessage;
         }
 
-        internal static async Task<List<string>>  GetEmailValues(int revisionId, int artifactId,
+        internal static async Task<List<string>> GetEmailValues(int revisionId, int artifactId,
             EmailNotificationAction notificationAction, IUsersRepository usersRepository)
         {
             var emails = new List<string>();
@@ -300,14 +300,14 @@ namespace BlueprintSys.RC.Services.Helpers
                         (artifactId,
                             notificationAction.PropertyTypeId.Value,
                             revisionId);
-                //Make sure that email is provided
+                // Make sure that email is provided
                 emails.AddRange(from userInfo in userInfos
-                    where !string.IsNullOrWhiteSpace(userInfo?.Email)
-                    select userInfo.Email);
+                                where !string.IsNullOrWhiteSpace(userInfo?.Email)
+                                select userInfo.Email);
             }
             else
             {
-                //Take email from list of provided emails
+                // Take email from list of provided emails
                 emails.AddRange(notificationAction.Emails ?? new List<string>());
             }
             return emails;

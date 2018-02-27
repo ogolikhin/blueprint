@@ -11,7 +11,7 @@ namespace ServiceLibrary.Repositories.Workflow
     {
         Task<IList<WorkflowTransition>> GetTransitionsAsync(int userId, int artifactId, int workflowId, int stateId);
 
-        Task<WorkflowTransition> GetTransitionForAssociatedStatesAsync(int userId, int artifactId, int workflowId, int fromStateId, int toStateId);
+        Task<WorkflowTransition> GetTransitionForAssociatedStatesAsync(int userId, int artifactId, int workflowId, int fromStateId, int toStateId, int transitionId);
 
         Task<WorkflowState> GetStateForArtifactAsync(int userId, int artifactId, int revisionId, bool addDrafts);
 
@@ -20,7 +20,7 @@ namespace ServiceLibrary.Repositories.Workflow
 
         Task<Dictionary<int, List<WorkflowPropertyType>>> GetCustomItemTypeToPropertiesMap(int userId, int artifactId, int projectId, IEnumerable<int> instanceItemTypeIds, IEnumerable<int> instancePropertyIds);
 
-        Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId, int workflowId, int fromStateId, int toStateId);
+        Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId, int workflowId, int fromStateId, int toStateId, int transitionId);
 
         /// <summary>
         ///

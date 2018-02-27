@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,7 +44,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             }
             else
             {
-                Logger.Log($"Failed to send webhook. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.", message, tenant, LogLevel.Error);
+                Logger.Log($"Failed to send webhook. {(int)result.StatusCode} - {result.StatusCode}. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.",
+                    message, tenant, LogLevel.Error);
                 throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook");
             }
         }
@@ -54,7 +54,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
         {
             try
             {
-                var webhookUri = GetBaseAddress(message.Url);
+                var webhookUri = new Uri(message.Url);
                 var httpClientProvider = new HttpClientProvider();
                 var httpClient = httpClientProvider.CreateWithCustomCertificateValidation(webhookUri, message.IgnoreInvalidSSLCertificate, ConfigHelper.WebhookConnectionTimeout);
 
@@ -75,31 +75,28 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
                 return await httpClient.SendAsync(request);
             }
-            catch(HttpRequestException e)
+            catch (HttpRequestException e)
             {
-                if (e.InnerException is WebException &&
-                    ((WebException)e.InnerException).Status == WebExceptionStatus.TrustFailure)
+                if (e.InnerException is WebException)
                 {
-                    throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to invalid SSL Certificate. {e}.");
+                    var webException = (WebException)e.InnerException;
+                    if (webException.Status == WebExceptionStatus.TrustFailure)
+                    {
+                        throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to invalid SSL Certificate. {webException.Message}.");
+                    }
+                    else
+                    {
+                        throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due {webException.Status}. {webException.Message} {webException.Response}");
+                    }
                 }
                 else
                 {
-                    throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to {e.Message}.");
+                    throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook due to {e.InnerException}.");
                 }
             }
         }
 
-        private Uri GetBaseAddress(string urlString)
-        {
-            var url = new Uri(urlString);
-            var builder = new UriBuilder();
-            builder.Scheme = url.Scheme;
-            builder.Host = url.Host;
-            builder.Port = url.Port;
-            return builder.Uri;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object)")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object,System.Object,System.Object)")]
         private void AddHttpHeaders(HttpRequestMessage request, WebhookMessage message, TenantInformation tenant)
         {
             if (message.HttpHeaders.IsEmpty())
@@ -107,17 +104,21 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
                 return;
             }
 
-            foreach(var httpHeader in message.HttpHeaders)
+            foreach (var httpHeader in message.HttpHeaders)
             {
                 var headers = SystemEncryptions.Decrypt(httpHeader);
                 var keyValuePair = headers.Split(':');
-                try
+
+                // Do not allow overriding of Restricted Http Headers
+                if (WebHeaderCollection.IsRestricted(keyValuePair[0]))
+                {
+                    Logger.Log($"'{keyValuePair[0]}' is a restricted Http Header. '{keyValuePair[0]}:{keyValuePair[1]}' was not added to the headers of the webhook request.",
+                        message, tenant, LogLevel.Error);
+                    continue;
+                }
+                else
                 {
                     request.Headers.Add(keyValuePair[0], keyValuePair[1]);
-                }
-                catch (ArgumentException)
-                {
-                    Logger.Log($"Failed to add the following Http Header to Webhook: {keyValuePair[0]}:{keyValuePair[1]}.", message, tenant, LogLevel.Error);
                 }
             }
         }
@@ -152,7 +153,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
             {
                 SignatureAlgorithm webhookAlgorithm;
                 var algorithm = Enum.TryParse(message.SignatureAlgorithm, out webhookAlgorithm) ? webhookAlgorithm : SignatureAlgorithm.HMACSHA256;
-                var messageHashCheckSum = CreateEncodedSignature(message.WebhookJsonPayload, message.SignatureSecretToken, algorithm);
+                var secretToken = SystemEncryptions.Decrypt(message.SignatureSecretToken);
+                var messageHashCheckSum = CreateEncodedSignature(message.WebhookJsonPayload, secretToken, algorithm);
                 request.Headers.Add("X-BLUEPRINT-SIGNATURE", messageHashCheckSum);
             }
             catch
@@ -163,13 +165,13 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
         private string CreateEncodedSignature(string message, string secretToken, SignatureAlgorithm algorithm = SignatureAlgorithm.HMACSHA256)
         {
-            var encoding = new System.Text.ASCIIEncoding();
+            var encoding = new ASCIIEncoding();
             byte[] keyByte = encoding.GetBytes(secretToken);
             byte[] messageBytes = encoding.GetBytes(message);
             using (var hmac = CreateHmacSignatureInstance(algorithm, keyByte))
             {
                 byte[] hashmessage = hmac.ComputeHash(messageBytes);
-                return Convert.ToBase64String(hashmessage);
+                return BitConverter.ToString(hashmessage).Replace("-", "").ToUpperInvariant();
             }
         }
 

@@ -44,18 +44,18 @@ namespace ServiceLibrary.Repositories.Workflow
             return await GetTransitionsForStateInternalAsync(userId, workflowId, stateId);
         }
 
-        public async Task<WorkflowTransition> GetTransitionForAssociatedStatesAsync(int userId, int artifactId, int workflowId, int fromStateId, int toStateId)
+        public async Task<WorkflowTransition> GetTransitionForAssociatedStatesAsync(int userId, int artifactId, int workflowId, int fromStateId, int toStateId, int transitionId)
         {
             // Do not return transitions if the user does not have edit permissions
             await CheckForArtifactPermissions(userId, artifactId, permissions: RolePermissions.Edit);
 
-            return await GetTransitionForAssociatedStatesInternalAsync(userId, workflowId, fromStateId, toStateId);
+            return await GetTransitionForAssociatedStatesInternalAsync(userId, workflowId, fromStateId, toStateId, transitionId);
         }
 
         public async Task<WorkflowTriggersContainer> GetWorkflowEventTriggersForTransition(int userId, int artifactId, int workflowId,
-            int fromStateId, int toStateId)
+            int fromStateId, int toStateId, int transitionId)
         {
-            var desiredTransition = await GetTransitionForAssociatedStatesAsync(userId, artifactId, workflowId, fromStateId, toStateId);
+            var desiredTransition = await GetTransitionForAssociatedStatesAsync(userId, artifactId, workflowId, fromStateId, toStateId, transitionId);
 
             if (desiredTransition == null)
             {
@@ -244,18 +244,19 @@ namespace ServiceLibrary.Repositories.Workflow
                             commandType: CommandType.StoredProcedure), userId);
         }
 
-        private async Task<WorkflowTransition> GetTransitionForAssociatedStatesInternalAsync(int userId, int workflowId, int fromStateId, int toStateId)
+        private async Task<WorkflowTransition> GetTransitionForAssociatedStatesInternalAsync(int userId, int workflowId, int fromStateId, int toStateId, int transitionId)
         {
             var param = new DynamicParameters();
             param.Add("@workflowId", workflowId);
             param.Add("@fromStateId", fromStateId);
             param.Add("@toStateId", toStateId);
             param.Add("@userId", userId);
-
-            return ToWorkflowTransitions(
-                    await
-                        ConnectionWrapper.QueryAsync<SqlWorkflowTransition>("GetTransitionAssociatedWithStates", param,
-                            commandType: CommandType.StoredProcedure), userId).FirstOrDefault();
+            var workflowTransitions = ToWorkflowTransitions(await ConnectionWrapper.QueryAsync<SqlWorkflowTransition>("GetTransitionAssociatedWithStates", param, commandType: CommandType.StoredProcedure), userId);
+            if (transitionId < 1)
+            {
+                return workflowTransitions.FirstOrDefault();
+            }
+            return workflowTransitions.SingleOrDefault(t => t.Id == transitionId);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]

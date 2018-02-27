@@ -29,8 +29,8 @@ namespace SearchEngineLibrary.Repository
             int scopeId, Pagination pagination, bool includeDrafts, int userId, IDbTransaction transaction)
         {
             var searchArtifactsResult = new SearchArtifactsResult { ArtifactIds = new List<int>() };
-            
-            Tuple<IEnumerable<int>, IEnumerable<int>> result; 
+
+            Tuple<IEnumerable<int>, IEnumerable<int>> result;
 
             if (transaction == null)
             {

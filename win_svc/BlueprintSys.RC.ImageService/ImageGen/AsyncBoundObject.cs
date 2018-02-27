@@ -38,8 +38,8 @@ namespace BlueprintSys.RC.ImageService.ImageGen
         {
             DisposeRenderTimeoutCancellationToken();
 
-            Width = (int) Math.Ceiling(width);
-            Height = (int) Math.Ceiling(height);
+            Width = (int)Math.Ceiling(width);
+            Height = (int)Math.Ceiling(height);
             Scale = scale;
 
             RenderCompletionSource.SetResult(true);

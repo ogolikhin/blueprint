@@ -6,6 +6,6 @@ namespace AdminStore.Models.DiagramWorkflow
     {
         public override ActionTypes ActionType => ActionTypes.Webhook;
 
-        public int WebhookId { get; set; }
+        public string Url { get; set; }
     }
 }

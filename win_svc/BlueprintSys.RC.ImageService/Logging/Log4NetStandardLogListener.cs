@@ -20,7 +20,7 @@ namespace BlueprintSys.RC.ImageService.Logging
         /// Locking object.
         /// </summary>
         protected static readonly object Padlock = new object();
-        
+
         /// <summary>
         /// Interface used for all logging to Log4Net
         /// </summary>
@@ -64,7 +64,7 @@ namespace BlueprintSys.RC.ImageService.Logging
         {
             get
             {
-                //HACK: This works because Emergency is higher than anything we have defined, but is still turned off when it's disabled
+                // HACK: This works because Emergency is higher than anything we have defined, but is still turned off when it's disabled
                 return Log != null && Log.Logger.IsEnabledFor(log4net.Core.Level.Emergency);
             }
         }
@@ -134,8 +134,7 @@ namespace BlueprintSys.RC.ImageService.Logging
             "Server",
             "ImageGenServiceLogger",
             new LogEntryLevelFilter(),
-            new Log4NetStandardLogEntryFormatter("Server")
-        )
+            new Log4NetStandardLogEntryFormatter("Server"))
         {
             // Get the logger hierarchy so we can try to find errors later
             var loggerHierarchy = GetCurrentHierarchy();
@@ -148,7 +147,7 @@ namespace BlueprintSys.RC.ImageService.Logging
                 throw new Exception(message);
             }
 
-            //HACK: There is very little that can be done with this to make sure it was loaded properly.  There seems to be no way to make sure the root was properly setup.
+            // HACK: There is very little that can be done with this to make sure it was loaded properly.  There seems to be no way to make sure the root was properly setup.
             /* Tried to:
              * -Create a logger and add the appender
              * -Look for any property on the ILogWriter to tell if it was a non-default logger
@@ -170,7 +169,7 @@ namespace BlueprintSys.RC.ImageService.Logging
         /// <returns>Returns true if there was one to clear</returns>
         public static bool Clear()
         {
-            //We need to lock this because we might have threads coming in at the same as as the thread is being cleared
+            // We need to lock this because we might have threads coming in at the same as as the thread is being cleared
             lock (Padlock)
             {
                 // Check if we need to clear it or not
@@ -219,7 +218,7 @@ namespace BlueprintSys.RC.ImageService.Logging
         {
             return (Hierarchy)log4net.LogManager.GetRepository();
         }
-        
+
         #region Implementation of ILogWriter
 
         /// <summary>
@@ -244,27 +243,27 @@ namespace BlueprintSys.RC.ImageService.Logging
             {
                 case Level.Info:
                     Log.Info(message);
-                    //if (IsInfoEnabled) LoggingService.LogToLoggingService(entry, message);
+                    ////if (IsInfoEnabled) LoggingService.LogToLoggingService(entry, message);
                     break;
 
                 case Level.Warn:
                     Log.Warn(message);
-                    //if (IsWarnEnabled) LoggingService.LogToLoggingService(entry, message);
+                    ////if (IsWarnEnabled) LoggingService.LogToLoggingService(entry, message);
                     break;
 
                 case Level.Error:
                     Log.Error(message);
-                    //if (IsErrorEnabled) LoggingService.LogToLoggingService(entry, message);
+                    ////if (IsErrorEnabled) LoggingService.LogToLoggingService(entry, message);
                     break;
 
                 case Level.Fatal:
                     Log.Fatal(message);
-                    //if (IsFatalEnabled) LoggingService.LogToLoggingService(entry, message);
+                    ////if (IsFatalEnabled) LoggingService.LogToLoggingService(entry, message);
                     break;
 
                 default:
                     Log.Debug(message);
-                    //if (IsDebugEnabled) LoggingService.LogToLoggingService(entry, message);
+                    ////if (IsDebugEnabled) LoggingService.LogToLoggingService(entry, message);
                     break;
             }
 
@@ -295,7 +294,7 @@ namespace BlueprintSys.RC.ImageService.Logging
                     }
                     else
                     {
-                        //TODO: Somehow make this work for multiple file appenders. Currently only considering the first file appender.
+                        // TODO: Somehow make this work for multiple file appenders. Currently only considering the first file appender.
                         var fileAppender = hierarchy.GetAppenders().OfType<FileAppender>().FirstOrDefault();
                         _file = fileAppender == null ? string.Empty : fileAppender.File;
                     }

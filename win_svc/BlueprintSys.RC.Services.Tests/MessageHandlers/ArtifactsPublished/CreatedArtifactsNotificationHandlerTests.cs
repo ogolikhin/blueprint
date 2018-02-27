@@ -107,15 +107,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessCreatedArtifacts_MessageIsNull_ReturnsFalse()
         {
-            
-            //Act
+            // Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant,
                 null,
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
@@ -129,21 +128,21 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 UserName = "admin",
                 Artifacts = new List<PublishedArtifactInformation>()
             };
-            //Act
-            var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant, 
-                message, 
+            // Act
+            var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant,
+                message,
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "Message should not be processed successfully");
         }
 
         [TestMethod]
         public async Task ProcessCreatedArtifacts_NoEventTriggersForArtifact_ReturnsFalseAndSendsNoMessages()
         {
-            //Arrange
+            // Arrange
             _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId,
                 It.IsAny<IEnumerable<int>>(),
                 _revisionId,
@@ -152,14 +151,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 It.IsAny<IEnumerable<int>>(),
                 _revisionId, true)).ReturnsAsync(new WorkflowTriggersContainer());
 
-            //Act
-           var result =  await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant,
+            // Act
+           var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant,
                 _message,
                 _artifactsPublishedRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "No messages should be sent when there are no triggers");
             _wfMessagingMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(0));
         }
@@ -167,7 +166,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessCreatedArtifacts_OnlySynchronousTriggersForArtifact_ReturnsFalseAndSendsNoMessages()
         {
-            //Arrange
+            // Arrange
             _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, It.IsAny<IDbTransaction>())).ReturnsAsync(_workflowMessageArtifactInfos);
             var workflowTriggersContainer = new WorkflowTriggersContainer();
             workflowTriggersContainer.SynchronousTriggers.Add(
@@ -179,10 +178,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 });
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, true)).ReturnsAsync(workflowTriggersContainer);
 
-            //Act
+            // Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant, _message, _artifactsPublishedRepositoryMock.Object, _serviceLogRepositoryMock.Object, _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsFalse(result, "No messages should be sent for synchronous triggers");
             _wfMessagingMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(0));
         }
@@ -190,7 +189,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessCreatedArtifacts_SendsSingleMessage_WhenSingleGenerateChildrenTriggerExistsForArtifact()
         {
-            //Arrange
+            // Arrange
             _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId,
                 It.IsAny<IEnumerable<int>>(),
                 _revisionId,
@@ -204,20 +203,20 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 {
                     ArtifactTypeId = ItemTypeId,
                     ChildCount = 3
-                } 
+                }
             });
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId,
                 It.IsAny<IEnumerable<int>>(),
                 _revisionId, true)).ReturnsAsync(workflowTriggersContainer);
 
-            //Act
+            // Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant,
                  _message,
                  _artifactsPublishedRepositoryMock.Object,
                  _serviceLogRepositoryMock.Object,
                  _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "One message was sent successfully");
             _wfMessagingMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(1));
         }
@@ -225,7 +224,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessCreatedArtifacts_SendsMultipleMessages_WhenMultipleGenerateChildrenTriggersExistForArtifact()
         {
-            //Arrange
+            // Arrange
             _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, It.IsAny<IDbTransaction>())).ReturnsAsync(_workflowMessageArtifactInfos);
             var workflowTriggersContainer = new WorkflowTriggersContainer();
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, true)).ReturnsAsync(workflowTriggersContainer);
@@ -247,10 +246,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
             }
             workflowTriggersContainer.AsynchronousTriggers.AddRange(workflowEventTriggers);
 
-            //Act
+            // Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant, _message, _artifactsPublishedRepositoryMock.Object, _serviceLogRepositoryMock.Object, _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "Multiple messages were sent successfully");
             _wfMessagingMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(workflowEventTriggers.Count));
         }
@@ -258,7 +257,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessCreatedArtifacts_SendsSingleMessage_WhenSingleGenerateTestCasesTriggerExistsForArtifact()
         {
-            //Arrange
+            // Arrange
             _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, It.IsAny<IDbTransaction>())).ReturnsAsync(_workflowMessageArtifactInfos);
             var workflowTriggersContainer = new WorkflowTriggersContainer();
             workflowTriggersContainer.AsynchronousTriggers.Add(
@@ -270,10 +269,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 });
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, true)).ReturnsAsync(workflowTriggersContainer);
 
-            //Act
+            // Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant, _message, _artifactsPublishedRepositoryMock.Object, _serviceLogRepositoryMock.Object, _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "One message was sent successfully");
             _wfMessagingMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(1));
         }
@@ -281,7 +280,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessCreatedArtifacts_SendsMultipleMessages_WhenMultipleGenerateTestCasesTriggersExistForArtifact()
         {
-            //Arrange
+            // Arrange
             _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, It.IsAny<IDbTransaction>())).ReturnsAsync(_workflowMessageArtifactInfos);
             var workflowTriggersContainer = new WorkflowTriggersContainer();
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, true)).ReturnsAsync(workflowTriggersContainer);
@@ -299,10 +298,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
             }
             workflowTriggersContainer.AsynchronousTriggers.AddRange(workflowEventTriggers);
 
-            //Act
+            // Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant, _message, _artifactsPublishedRepositoryMock.Object, _serviceLogRepositoryMock.Object, _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "Multiple messages were sent successfully");
             _wfMessagingMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(workflowEventTriggers.Count));
         }
@@ -310,7 +309,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessCreatedArtifacts_SendsSingleMessage_WhenSingleGenerateUserStoriesTriggerExistsForArtifact()
         {
-            //Arrange
+            // Arrange
             _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, It.IsAny<IDbTransaction>())).ReturnsAsync(_workflowMessageArtifactInfos);
             var workflowTriggersContainer = new WorkflowTriggersContainer();
             workflowTriggersContainer.AsynchronousTriggers.Add(
@@ -322,10 +321,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 });
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, true)).ReturnsAsync(workflowTriggersContainer);
 
-            //Act
+            // Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant, _message, _artifactsPublishedRepositoryMock.Object, _serviceLogRepositoryMock.Object, _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "One message was sent successfully");
             _wfMessagingMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(1));
         }
@@ -333,7 +332,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessCreatedArtifacts_SendsMultipleMessages_WhenMultipleGenerateUserStoriesTriggersExistForArtifact()
         {
-            //Arrange
+            // Arrange
             _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, It.IsAny<IDbTransaction>())).ReturnsAsync(_workflowMessageArtifactInfos);
             var workflowTriggersContainer = new WorkflowTriggersContainer();
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, true)).ReturnsAsync(workflowTriggersContainer);
@@ -351,10 +350,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
             }
             workflowTriggersContainer.AsynchronousTriggers.AddRange(workflowEventTriggers);
 
-            //Act
+            // Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant, _message, _artifactsPublishedRepositoryMock.Object, _serviceLogRepositoryMock.Object, _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "Multiple messages were sent successfully");
             _wfMessagingMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(workflowEventTriggers.Count));
         }
@@ -362,7 +361,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessCreatedArtifacts_SendsSingleMessage_WhenSingleEmailNotificationTriggerExistsForArtifact()
         {
-            //Arrange
+            // Arrange
             _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, It.IsAny<IDbTransaction>())).ReturnsAsync(_workflowMessageArtifactInfos);
             var workflowTriggersContainer = new WorkflowTriggersContainer();
             workflowTriggersContainer.AsynchronousTriggers.Add(
@@ -374,10 +373,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
                 });
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, true)).ReturnsAsync(workflowTriggersContainer);
 
-            //Act
+            // Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant, _message, _artifactsPublishedRepositoryMock.Object, _serviceLogRepositoryMock.Object, _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "One message was sent successfully");
             _wfMessagingMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(1));
         }
@@ -385,7 +384,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
         [TestMethod]
         public async Task ProcessCreatedArtifacts_SendsMultipleMessages_WhenMultipleEmailNotificationTriggersExistForArtifact()
         {
-            //Arrange
+            // Arrange
             _workflowRepoMock.Setup(t => t.GetWorkflowMessageArtifactInfoAsync(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, It.IsAny<IDbTransaction>())).ReturnsAsync(_workflowMessageArtifactInfos);
             var workflowTriggersContainer = new WorkflowTriggersContainer();
             _workflowRepoMock.Setup(t => t.GetWorkflowEventTriggersForNewArtifactEvent(_userId, It.IsAny<IEnumerable<int>>(), _revisionId, true)).ReturnsAsync(workflowTriggersContainer);
@@ -403,10 +402,10 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.ArtifactsPublished
             }
             workflowTriggersContainer.AsynchronousTriggers.AddRange(workflowEventTriggers);
 
-            //Act
+            // Act
             var result = await CreatedArtifactsNotificationHandler.ProcessCreatedArtifacts(_tenant, _message, _artifactsPublishedRepositoryMock.Object, _serviceLogRepositoryMock.Object, _wfMessagingMock.Object);
 
-            //Assert
+            // Assert
             Assert.IsTrue(result, "Multiple messages were sent successfully");
             _wfMessagingMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(workflowEventTriggers.Count));
         }

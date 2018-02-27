@@ -49,7 +49,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     new[] { createdArtifact.Id },
                     message.RevisionId, true);
 
-                if (eventTriggers?.AsynchronousTriggers == null 
+                if (eventTriggers?.AsynchronousTriggers == null
                     || eventTriggers.AsynchronousTriggers.Count == 0)
                 {
                     Logger.Log($"Found no async triggers for artifact with ID {createdArtifact.Id}", message, tenant);

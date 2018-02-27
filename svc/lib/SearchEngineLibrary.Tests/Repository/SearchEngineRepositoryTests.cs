@@ -28,14 +28,14 @@ namespace SearchEngineLibrary.Tests.Repository
             _sqlConnectionWrapperMock = new SqlConnectionWrapperMock();
             _searchEngineRepository = new SearchEngineRepository(_sqlConnectionWrapperMock.Object);
             _pagination = new Pagination { Limit = 10, Offset = 0 };
-            _searchArtifactsResult = new SearchArtifactsResult { Total = 3, ArtifactIds = new List<int> {1, 2, 3} };
+            _searchArtifactsResult = new SearchArtifactsResult { Total = 3, ArtifactIds = new List<int> { 1, 2, 3 } };
         }
 
 
         [TestMethod]
         public async Task GetCollectionContentSearchArtifactResults_AllSearchItemsExists_ReturnedSearchArtifactsResult()
         {
-            // arrange           
+            // arrange
             var returnResult = new Tuple<IEnumerable<int>, IEnumerable<int>>(new int[] { _searchArtifactsResult.Total }, _searchArtifactsResult.ArtifactIds);
             _sqlConnectionWrapperMock.SetupQueryMultipleAsync(QueryBuilder.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId), null, returnResult, commandType: CommandType.Text);
 

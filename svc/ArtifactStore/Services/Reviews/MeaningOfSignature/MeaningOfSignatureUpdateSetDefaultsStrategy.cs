@@ -6,6 +6,8 @@ namespace ArtifactStore.Services.Reviews.MeaningOfSignature
 {
     public class MeaningOfSignatureUpdateSetDefaultsStrategy : IMeaningOfSignatureUpdateStrategy
     {
+        public bool ClearMeaningOfSignaturesIfNoUpdates => true;
+
         public IEnumerable<MeaningOfSignatureUpdate> GetMeaningOfSignatureUpdates(
             int participantId, Dictionary<int, List<ParticipantMeaningOfSignatureResult>> possibleMeaningOfSignatures,
             IEnumerable<MeaningOfSignatureParameter> meaningOfSignatureParameters)

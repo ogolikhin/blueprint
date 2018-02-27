@@ -16,8 +16,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
     internal class UpdatedArtifactsNotificationHandler
     {
         private const string LogSource = "ArtifactsPublishedActionHelper.UpdatedArtifacts";
-        internal static async Task<bool> ProcessUpdatedArtifacts(TenantInformation tenant,
-            
+        internal static async Task<bool> ProcessUpdatedArtifacts(
+            TenantInformation tenant,
             ArtifactsPublishedMessage message,
             IArtifactsPublishedRepository repository,
             IServiceLogRepository serviceLogRepository,
@@ -39,7 +39,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                 return false;
             }
 
-            //Get artifacts which have modified properties list populated
+            // Get artifacts which have modified properties list populated
             var allArtifactsModifiedProperties = updatedArtifacts.ToDictionary(k => k.Id,
                 v => v.ModifiedProperties ?? new List<PublishedPropertyInformation>());
 
@@ -52,14 +52,14 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                 return false;
             }
 
-            //Get property transitions for published artifact ids.
+            // Get property transitions for published artifact ids.
             var publishedArtifactIds = updatedArtifacts.Select(a => a.Id).ToHashSet();
             var artifactPropertyEvents =
                 await
                     repository.GetWorkflowPropertyTransitionsForArtifactsAsync(message.UserId,
                     message.RevisionId,
                         (int)TransitionType.Property, publishedArtifactIds);
-            //if no property transitions found, then call does not need to proceed
+            // If no property transitions found, then call does not need to proceed
             Logger.Log($"{artifactPropertyEvents?.Count ?? 0} workflow property events found", message, tenant, LogLevel.Debug);
             if (artifactPropertyEvents == null || artifactPropertyEvents.Count == 0)
             {
@@ -67,10 +67,10 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                 return false;
             }
 
-            //convert all property transitions to a dictionary with artifact id as key
+            // Convert all property transitions to a dictionary with artifact id as key
             var activePropertyTransitions = new Dictionary<int, IList<SqlWorkflowEvent>>();
             var publishedArtifactEvents = artifactPropertyEvents.Where(ape => publishedArtifactIds.Contains(ape.VersionItemId));
-            //key = artifact id, value = all events
+            // key = artifact id, value = all events
             foreach (var artifactPropertyEvent in publishedArtifactEvents)
             {
                 if (activePropertyTransitions.ContainsKey(artifactPropertyEvent.VersionItemId))
@@ -97,7 +97,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                 return false;
             }
 
-            //Get project names
+            // Get project names
             var projectIds = updatedArtifacts.Select(a => a.ProjectId).ToList();
             var projects = await repository.GetProjectNameByIdsAsync(projectIds);
             Logger.Log($"{projects.Count} project names found for project IDs: {string.Join(", ", projectIds)}", message, tenant,
@@ -105,7 +105,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 
             var notificationMessages = new Dictionary<int, List<IWorkflowMessage>>();
 
-            //for artifacts in active property transitions
+            // For artifacts in active property transitions
             foreach (var artifactId in activePropertyTransitions.Keys)
             {
                 Logger.Log($"Processing artifact with ID: {artifactId}", message, tenant, LogLevel.Debug);
@@ -124,7 +124,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     Logger.Log($"modified properties not found for {artifactId}", message, tenant, LogLevel.Debug);
                     continue;
                 }
-                
+
                 Logger.Log($"{artifactModifiedProperties?.Count ?? 0} modified properties found", message, tenant,
                     LogLevel.Debug);
                 if (artifactModifiedProperties == null || !artifactModifiedProperties.Any())
@@ -149,7 +149,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     .Select(a => a.TypeId)
                     .ToHashSet();
 
-                //Process custom properties
+                // Process custom properties
                 Logger.Log(
                     $"{modifiedCustomPropertiesSet.Count} instance property type IDs being located: {string.Join(", ", modifiedCustomPropertiesSet)}",
                     message, tenant, LogLevel.Debug);
@@ -177,16 +177,16 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
             return true;
         }
 
-        private static async Task ProcessSystemPropertyChange(TenantInformation tenant, 
-            ArtifactsPublishedMessage message, 
-            IArtifactsPublishedRepository repository, 
-            List<EmailNotificationAction> notifications, 
-            HashSet<PropertyTypePredefined> modifiedSystemPropertiesSet, 
-            SqlWorkFlowStateInformation currentStateInfo, 
-            List<PublishedArtifactInformation> updatedArtifacts, 
-            int artifactId, 
-            Dictionary<int, SqlWorkFlowStateInformation> workflowStates, 
-            List<SqlProject> projects, 
+        private static async Task ProcessSystemPropertyChange(TenantInformation tenant,
+            ArtifactsPublishedMessage message,
+            IArtifactsPublishedRepository repository,
+            List<EmailNotificationAction> notifications,
+            HashSet<PropertyTypePredefined> modifiedSystemPropertiesSet,
+            SqlWorkFlowStateInformation currentStateInfo,
+            List<PublishedArtifactInformation> updatedArtifacts,
+            int artifactId,
+            Dictionary<int, SqlWorkFlowStateInformation> workflowStates,
+            List<SqlProject> projects,
             Dictionary<int, List<IWorkflowMessage>> notificationMessages)
         {
             if (modifiedSystemPropertiesSet.Count == 0)
@@ -205,7 +205,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 
                 int eventPropertyTypeId = notificationAction.EventPropertyTypeId.Value;
 
-                //If system property provided is neither name or description
+                // If system property provided is neither name or description
                 if (eventPropertyTypeId != WorkflowConstants.PropertyTypeFakeIdName &&
                     eventPropertyTypeId != WorkflowConstants.PropertyTypeFakeIdDescription)
                 {
@@ -215,7 +215,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     continue;
                 }
 
-                //if modified properties does not conatin event property type Id
+                // If modified properties does not conatin event property type Id
                 if (!modifiedSystemPropertiesSet.Contains(GetPropertyTypePredefined(notificationAction.EventPropertyTypeId.Value)))
                 {
                     continue;
@@ -225,7 +225,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     (currentStateInfo == null ||
                      currentStateInfo.WorkflowStateId != notificationAction.ConditionalStateId.Value))
                 {
-                    //the conditional state id is present, but either the current state info is not present or the current state is not same as conditional state
+                    // The conditional state id is present, but either the current state info is not present or the current state is not same as conditional state
                     var currentStateId = currentStateInfo?.WorkflowStateId.ToString() ?? "none";
                     Logger.Log(
                         $"Conditional state ID {notificationAction.ConditionalStateId.Value} does not match current state ID: {currentStateId}",
@@ -291,23 +291,23 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
             return PropertyTypePredefined.None;
         }
 
-        private static async Task ProcessCustomPropertyChange(TenantInformation tenant, 
+        private static async Task ProcessCustomPropertyChange(TenantInformation tenant,
             ArtifactsPublishedMessage message,
-            IArtifactsPublishedRepository repository, 
+            IArtifactsPublishedRepository repository,
             List<EmailNotificationAction> notifications,
             HashSet<int> modifiedCustomPropertiesSet,
-            SqlWorkFlowStateInformation currentStateInfo, 
-            List<PublishedArtifactInformation> updatedArtifacts, 
-            int artifactId, 
+            SqlWorkFlowStateInformation currentStateInfo,
+            List<PublishedArtifactInformation> updatedArtifacts,
+            int artifactId,
             Dictionary<int, SqlWorkFlowStateInformation> workflowStates,
-            List<SqlProject> projects, 
+            List<SqlProject> projects,
             Dictionary<int, List<IWorkflowMessage>> notificationMessages)
         {
             if (modifiedCustomPropertiesSet.Count == 0)
             {
                 return;
             }
-            //Dictionary<int, List<int>> instancePropertyTypeIds
+            ////Dictionary<int, List<int>> instancePropertyTypeIds
             var instancePropertyTypeIds = await repository.GetInstancePropertyTypeIdsMap(modifiedCustomPropertiesSet);
             Logger.Log(
                 $"{instancePropertyTypeIds.Count} instance property type IDs found: {string.Join(", ", instancePropertyTypeIds.Select(k => k.Key))}",
@@ -344,7 +344,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     (currentStateInfo == null ||
                      currentStateInfo.WorkflowStateId != notificationAction.ConditionalStateId.Value))
                 {
-                    //the conditional state id is present, but either the current state info is not present or the current state is not same as conditional state
+                    // The conditional state id is present, but either the current state info is not present or the current state is not same as conditional state
                     var currentStateId = currentStateInfo?.WorkflowStateId.ToString() ?? "none";
                     Logger.Log(
                         $"Conditional state ID {notificationAction.ConditionalStateId.Value} does not match current state ID: {currentStateId}",

@@ -302,7 +302,15 @@ namespace ArtifactStore.Services.Reviews
                     throw new BadRequestException("Could not update meaning of signature because participant is not an approver.", ErrorCodes.ParticipantIsNotAnApprover);
                 }
 
-                var meaningOfSignatureUpdates = updateStrategy.GetMeaningOfSignatureUpdates(participantId, possibleMeaningOfSignatures, meaningOfSignatureParamList);
+                var meaningOfSignatureUpdates = updateStrategy.GetMeaningOfSignatureUpdates(participantId, possibleMeaningOfSignatures, meaningOfSignatureParamList).ToList();
+
+
+                if (!meaningOfSignatureUpdates.Any())
+                {
+                    participant.SelectedRoleMoSAssignments = new List<ParticipantMeaningOfSignature>();
+
+                    return;
+                }
 
                 if (participant.SelectedRoleMoSAssignments == null)
                 {

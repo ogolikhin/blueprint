@@ -67,7 +67,7 @@ namespace BlueprintSys.RC.ImageService.Transport
                 transport = endpointConfiguration.UseTransport<SqlServerTransport>();
                 ((TransportExtensions<SqlServerTransport>)transport).Transactions(TransportTransactionMode.SendsAtomicWithReceive);
                 ((TransportExtensions<SqlServerTransport>)transport).ConnectionString(connectionString);
-                ((TransportExtensions<SqlServerTransport>) transport).DefaultSchema("queue");
+                ((TransportExtensions<SqlServerTransport>)transport).DefaultSchema("queue");
             }
 
             var assemblyScanner = endpointConfiguration.AssemblyScanner();
@@ -102,7 +102,7 @@ namespace BlueprintSys.RC.ImageService.Transport
                 });
 
             var loggerDefinition = NServiceBus.Logging.LogManager.Use<LoggerDefinition>();
-            loggerDefinition.Level(NServiceBus.Logging.LogLevel.Warn); 
+            loggerDefinition.Level(NServiceBus.Logging.LogLevel.Warn);
 
             _endpointInstance = await Endpoint.Start(endpointConfiguration);
         }
@@ -110,5 +110,5 @@ namespace BlueprintSys.RC.ImageService.Transport
 
     }
 
-    
+
 }

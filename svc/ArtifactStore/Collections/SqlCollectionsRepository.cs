@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using Dapper;
 using ServiceLibrary.Helpers;
@@ -35,9 +36,9 @@ namespace ArtifactStore.Collections
             _artifactRepository = artifactRepository;
         }
 
-        public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(int userId, IEnumerable<int> artifactIds)
+        public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(int userId, IEnumerable<int> artifactIds, ProfileColumns profileColumns)
         {
-            return await _artifactRepository.GetArtifactsWithPropertyValuesAsync(userId, artifactIds);
+            return await _artifactRepository.GetArtifactsWithPropertyValuesAsync(userId, artifactIds, profileColumns);
         }
 
         public async Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(

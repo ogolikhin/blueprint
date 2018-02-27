@@ -90,16 +90,17 @@ namespace ArtifactStore.ArtifactList.Models
                         propertyType.Predefined == PropertyTypePredefined.CustomGroup
                         && propertyType.Id == column.PropertyTypeId
                         && (propertyType.PrimitiveType != column.PrimitiveType
-                            || propertyType.Name != column.PropertyName)));
+                            || propertyType.Name != column.PropertyName)))
+                .ToList();
 
             foreach (var changedCustomColumn in changedCustomColumns)
             {
-                var propertyType = propertyTypes
-                    .Where(x => changedCustomColumn.PropertyTypeId == x.Id)
-                    .FirstOrDefault();
-                changedCustomColumn.Predefined = propertyType.Predefined;
-                changedCustomColumn.PropertyName = propertyType.Name;
-                changedCustomColumn.PrimitiveType = propertyType.PrimitiveType;
+                var propertyType = propertyTypes.FirstOrDefault(x => changedCustomColumn.PropertyTypeId == x.Id);
+                var column = _columns.FirstOrDefault(q => q.PropertyTypeId == changedCustomColumn.PropertyTypeId);
+
+                column.Predefined = propertyType.Predefined;
+                column.PropertyName = propertyType.Name;
+                column.PrimitiveType = propertyType.PrimitiveType;
             }
 
             return new Tuple<ProfileColumns, bool>(this, changedCustomColumns.Any());

@@ -624,6 +624,12 @@ namespace AdminStore.Services.Workflow
 
         private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, WorkflowDataMaps dataMaps, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
+            if (workflowMode == WorkflowMode.Canvas)
+            {
+                // Ignore all webhooks when in canvas mode - EPIC STOR-2862 - Webhook v1.0 only allows webhook update via Workflow Xml update
+                wEvent.Triggers = wEvent.Triggers.Where(t => t.Action.ActionType != ActionTypes.Webhook).ToList();
+            }
+
             var sqlEvent = new SqlWorkflowEvent
             {
                 WorkflowEventId = wEvent.Id.GetValueOrDefault(),
@@ -840,7 +846,7 @@ namespace AdminStore.Services.Workflow
                         ToStateId = e.ToStateId,
                         PermissionGroups = DeserializePermissionGroups(e.Permissions, groupIds),
                         SkipPermissionGroups = GetSkipPermissionGroup(e.Permissions),
-                        Triggers = DeserializeTriggersForWorkflowMode(e.Triggers, dataMaps, userIds, groupIds, mode),
+                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds),
                         PortPair = mode == WorkflowMode.Canvas ? DeserializeTransitionCanvasSettings(e.CanvasSettings) : null
                     }).Distinct().ToList(),
                 // Do not include PropertyChangeEvent if PropertyType is not found.
@@ -853,14 +859,14 @@ namespace AdminStore.Services.Workflow
                         Name = e.Name,
                         PropertyId = e.PropertyTypeId,
                         PropertyName = GetPropertyChangedName(e.PropertyTypeId, dataMaps),
-                        Triggers = DeserializeTriggersForWorkflowMode(e.Triggers, dataMaps, userIds, groupIds, mode)
+                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
                 NewArtifactEvents = workflowEvents.Where(e => e.Type == (int)DWorkflowEventType.NewArtifact).
                     Select(e => new IeNewArtifactEvent
                     {
                         Id = e.WorkflowEventId,
                         Name = e.Name,
-                        Triggers = DeserializeTriggersForWorkflowMode(e.Triggers, dataMaps, userIds, groupIds, mode)
+                        Triggers = DeserializeTriggers(e.Triggers, dataMaps, userIds, groupIds)
                     }).Distinct().ToList(),
                 Projects = GetProjects(workflowArtifactTypes, mode)
             };
@@ -1166,24 +1172,14 @@ namespace AdminStore.Services.Workflow
             return skip;
         }
 
-        private List<IeTrigger> DeserializeTriggersForWorkflowMode(string triggers, WorkflowDataNameMaps dataMaps,
-            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect, WorkflowMode mode)
+        private List<IeTrigger> DeserializeTriggers(string triggers, WorkflowDataNameMaps dataMaps,
+            ISet<int> userIdsToCollect, ISet<int> groupIdsToCollect)
         {
             var xmlTriggers = SerializationHelper.FromXml<XmlWorkflowEventTriggers>(triggers);
 
             var ieTriggers = _triggerConverter.FromXmlModel(xmlTriggers, dataMaps, userIdsToCollect, groupIdsToCollect).ToList();
 
-            if (ieTriggers.IsEmpty())
-            {
-                return null;
-            }
-
-            if (mode == WorkflowMode.Canvas)
-            {
-                return ieTriggers.Where(t => t.Action?.ActionType != ActionTypes.Webhook).ToList();
-            }
-
-            return ieTriggers;
+            return ieTriggers.IsEmpty() ? null : ieTriggers;
         }
 
         private static WorkflowDataNameMaps LoadDataMaps(ProjectTypes standardTypes, IDictionary<int, string> stateMap)

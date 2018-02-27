@@ -197,10 +197,11 @@ namespace ArtifactStore.Repositories.Workflow
             int workflowId = 4;
             int fromStateId = 5;
             int toStateId = 6;
+            const int transitionId = 1;
 
             var expected = new SqlWorkflowTransition
             {
-                WorkflowEventId = 1,
+                WorkflowEventId = transitionId,
                 ToStateId = toStateId,
                 ToStateName = "New",
                 FromStateId = fromStateId,
@@ -229,13 +230,92 @@ namespace ArtifactStore.Repositories.Workflow
                  expected
              });
             // Act
-            var result = (await repository.GetTransitionForAssociatedStatesAsync(userId, 1, workflowId, fromStateId, toStateId));
+            var result = (await repository.GetTransitionForAssociatedStatesAsync(userId, 1, workflowId, fromStateId, toStateId, transitionId));
 
             // Assert
             Assert.AreEqual(workflowId, result.WorkflowId);
             Assert.AreEqual(fromStateId, result.FromState.Id);
             Assert.AreEqual(toStateId, result.ToState.Id);
-            Assert.AreEqual(1, result.Id);
+            Assert.AreEqual(transitionId, result.Id);
+        }
+
+        [TestMethod]
+        public async Task GetTransitionForAssociatedStatesAsync_ReturnsCorrectTransition_WhenMultipleTransitionsHaveTheSameDestinationState()
+        {
+            // Arrange
+            const int transitionId = 123;
+            const int userId = 1;
+            const int workflowId = 2;
+            const int fromStateId = 3;
+            const int toStateId = 4;
+            const int artifactId = 5;
+
+            var artifactIds = new[]
+            {
+                artifactId
+            };
+            var permissionsRepository = CreatePermissionsRepositoryMock(artifactIds, userId, RolePermissions.Edit);
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlWorkflowRepository(cxn.Object, permissionsRepository.Object);
+
+            var artifactDetailsParameters = new Dictionary<string, object>
+            {
+                { "userId", userId },
+                { "itemId", artifactId }
+            };
+            var artifactDetailsResult = new List<ArtifactBasicDetails>
+            {
+                new ArtifactBasicDetails
+                {
+                    PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor
+                }
+            };
+            cxn.SetupQueryAsync("GetArtifactBasicDetails", artifactDetailsParameters, artifactDetailsResult);
+
+            var expectedResult = new SqlWorkflowTransition
+            {
+                WorkflowEventId = transitionId,
+                ToStateId = toStateId,
+                FromStateId = fromStateId,
+                WorkflowId = workflowId
+            };
+            var unexpectedResult1 = new SqlWorkflowTransition
+            {
+                WorkflowEventId = transitionId - 1,
+                ToStateId = toStateId,
+                FromStateId = fromStateId,
+                WorkflowId = workflowId
+            };
+            var unexpectedResult2 = new SqlWorkflowTransition
+            {
+                WorkflowEventId = transitionId + 1,
+                ToStateId = toStateId,
+                FromStateId = fromStateId,
+                WorkflowId = workflowId
+            };
+            var transitionsResult = new List<SqlWorkflowTransition>
+            {
+                unexpectedResult1,
+                expectedResult,
+                unexpectedResult2
+            };
+            var transitionsParameters = new Dictionary<string, object>
+            {
+                { "workflowId", workflowId },
+                { "fromStateId", fromStateId },
+                { "toStateId", toStateId },
+                { "userId", userId }
+            };
+            cxn.SetupQueryAsync("GetTransitionAssociatedWithStates", transitionsParameters, transitionsResult);
+
+            // Act
+            var result = await repository.GetTransitionForAssociatedStatesAsync(userId, artifactId, workflowId, fromStateId, toStateId, transitionId);
+
+            // Assert
+            Assert.AreEqual(transitionId, result.Id);
+            Assert.AreEqual(workflowId, result.WorkflowId);
+            Assert.AreEqual(fromStateId, result.FromState.Id);
+            Assert.AreEqual(toStateId, result.ToState.Id);
         }
 
         #endregion

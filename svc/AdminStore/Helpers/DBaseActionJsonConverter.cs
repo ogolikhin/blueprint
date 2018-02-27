@@ -16,6 +16,8 @@ namespace AdminStore.Helpers
                     return new DPropertyChangeAction();
                 case "2":
                     return new DGenerateAction();
+                case "3":
+                    return new DWebhookAction();
                 default:
                     return null;
             }

@@ -79,7 +79,7 @@ namespace ArtifactStore.ArtifactList.Models
 
         /// <summary>
         /// Item 1 returns valid ProfileColumns.
-        /// Item 2 returns wether profile columns were changed in comparison to the corresponding custom properties.
+        /// Item 2 returns whether profile columns were changed in comparison to the corresponding custom properties.
         /// </summary>
         /// <param name="propertyTypes">Original properties in database.</param>
         public Tuple<ProfileColumns, bool> ToValidColumns(IReadOnlyList<PropertyTypeInfo> propertyTypes)
@@ -90,13 +90,13 @@ namespace ArtifactStore.ArtifactList.Models
                         propertyType.Predefined == PropertyTypePredefined.CustomGroup
                         && propertyType.Id == column.PropertyTypeId
                         && (propertyType.PrimitiveType != column.PrimitiveType
-                            || propertyType.Name != column.PropertyName)));
+                            || propertyType.Name != column.PropertyName)))
+                .ToList();
 
             foreach (var changedCustomColumn in changedCustomColumns)
             {
-                var propertyType = propertyTypes
-                    .Where(x => changedCustomColumn.PropertyTypeId == x.Id)
-                    .FirstOrDefault();
+                var propertyType = propertyTypes.First(x => changedCustomColumn.PropertyTypeId == x.Id);
+
                 changedCustomColumn.Predefined = propertyType.Predefined;
                 changedCustomColumn.PropertyName = propertyType.Name;
                 changedCustomColumn.PrimitiveType = propertyType.PrimitiveType;

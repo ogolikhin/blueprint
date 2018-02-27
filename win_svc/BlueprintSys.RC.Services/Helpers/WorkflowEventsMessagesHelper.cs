@@ -9,11 +9,13 @@ using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.Webhooks;
 
 namespace BlueprintSys.RC.Services.Helpers
@@ -30,16 +32,16 @@ namespace BlueprintSys.RC.Services.Helpers
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
             IDictionary<int, IList<Property>> modifiedProperties,
+            WorkflowState currentState,
             string artifactUrl,
             string baseUrl,
             IEnumerable<int> ancestorArtifactTypeIds,
             IUsersRepository usersRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhooksRepository webhooksRepository,
-            IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos)
+            IProjectMetaRepository projectMetaRepository)
         {
             var resultMessages = new List<IWorkflowMessage>();
-            ////var project = artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId);
             var baseHostUri = baseUrl ?? ServerUriHelper.GetBaseHostUri()?.ToString();
 
             foreach (var workflowEventTrigger in postOpTriggers)
@@ -147,6 +149,20 @@ namespace BlueprintSys.RC.Services.Helpers
                             continue;
                         }
 
+                        var customTypes = await projectMetaRepository.GetCustomProjectTypesAsync(artifactInfo.ProjectId, userId);
+                        var artifactType = customTypes.ArtifactTypes.FirstOrDefault(at => at.Id == artifactInfo.ItemTypeId);
+
+                        var artifactPropertyInfos = await webhooksRepository.GetArtifactsWithPropertyValuesAsync(
+                            userId,
+                            new List<int> { artifactInfo.Id },
+                            new List<int>
+                            {
+                                (int)PropertyTypePredefined.Name,
+                                (int)PropertyTypePredefined.Description,
+                                (int)PropertyTypePredefined.ID
+                            },
+                            artifactType.CustomPropertyTypeIds);
+
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {
                             Id = Guid.NewGuid().ToString(),
@@ -155,7 +171,7 @@ namespace BlueprintSys.RC.Services.Helpers
                             Scope = new WebhookArtifactInfoScope
                             {
                                 Type = "Workflow",  // TODO constant
-                                WorkflowId = -1
+                                WorkflowId = currentState.WorkflowId
                             },
                             Resource = new WebhookResource
                             {
@@ -163,18 +179,18 @@ namespace BlueprintSys.RC.Services.Helpers
                                 ProjectId = artifactInfo.ProjectId,
                                 ParentId = -1,
                                 ArtifactTypeId = artifactInfo.ItemTypeId,
-                                ArtifactTypeName = "",
-                                BaseArtifactType = "",
+                                ArtifactTypeName = artifactType?.Name,
+                                BaseArtifactType = artifactType?.PredefinedType?.ToString(),
                                 ArtifactPropertyInfo = ConvertToWebhookPropertyInfo(artifactPropertyInfos),
                                 State = new WebhookStateInfo
                                 {
-                                    Id = -1,
-                                    Name = "",
-                                    WorkflowId = -1
+                                    Id = currentState.Id,
+                                    Name = currentState.Name,
+                                    WorkflowId = currentState.WorkflowId
                                 },
                                 RevisionTime = "",
                                 Revision = revisionId,
-                                Version = -1,
+                                Version = 1, // TODO constant
                                 Id = artifactInfo.Id,
                                 BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
                                 Link = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}")

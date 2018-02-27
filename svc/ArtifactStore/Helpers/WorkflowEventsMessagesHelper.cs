@@ -181,8 +181,8 @@ namespace ArtifactStore.Helpers
                         var artifactType = customTypes.ArtifactTypes.FirstOrDefault(at => at.Id == artifactInfo.ItemTypeId);
 
                         var artifactPropertyInfos = await artifactVersionsRepository.GetArtifactPropertyInfoAsync(
-                            artifactInfo.Id,
                             userId,
+                            new List<int> { artifactInfo.Id },
                             new List<int>
                             {
                                 (int)PropertyTypePredefined.Name,
@@ -190,8 +190,6 @@ namespace ArtifactStore.Helpers
                                 (int)PropertyTypePredefined.ID
                             },
                             artifactType.CustomPropertyTypeIds);
-
-                        // var propertyTypes = await projectMetaRepository.GetStandardProjectPropertyTypesAsync(artifactPropertyInfos.Select(api => api.PropertyTypePredefined));
 
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {

@@ -801,12 +801,6 @@ namespace ServiceLibrary.Repositories
         public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
             int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypePredefineds, IEnumerable<int> propertyTypeIds)
         {
-            /* var propertyTypePredefineds = new List<int>
-            {
-                (int)PropertyTypePredefined.ArtifactType,
-                (int)PropertyTypePredefined.ID
-            };*/ // ArtifactType = 4148, ID = 4097
-
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId, DbType.Int32);
             parameters.Add("@AddDrafts", true, DbType.Boolean);

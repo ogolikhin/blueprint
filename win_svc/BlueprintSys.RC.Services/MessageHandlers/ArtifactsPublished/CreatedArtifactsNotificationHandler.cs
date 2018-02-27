@@ -57,13 +57,9 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                 }
                 Logger.Log($"Found {eventTriggers.AsynchronousTriggers.Count} async triggers for artifact with ID {createdArtifact.Id}", message, tenant);
 
-                IEnumerable<ArtifactPropertyInfo> artifactPropertyInfo = null;
-                if (eventTriggers.AsynchronousTriggers.Any(tr => tr.ActionType == MessageActionType.Webhooks))
-                {
-                    artifactPropertyInfo = await repository.WorkflowRepository.GetArtifactsWithPropertyValuesAsync(message.UserId, new List<int>(createdArtifact.Id));
-                }
-
                 int artifactId = createdArtifact.Id;
+
+                var currentState = await repository.WorkflowRepository.GetStateForArtifactAsync(message.UserId, createdArtifact.Id, int.MaxValue, true);
 
                 var actionMessages = await WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
                     message.RevisionId,
@@ -73,13 +69,14 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     artifactInfo,
                     artifactInfo.ProjectName,
                     new Dictionary<int, IList<Property>>(),
+                    currentState,
                     createdArtifact.Url,
                     createdArtifact.BaseUrl,
                     createdArtifact.AncestorArtifactTypeIds,
                     repository.UsersRepository,
                     serviceLogRepository,
                     repository.WebhooksRepository,
-                    artifactPropertyInfo);
+                    repository.ProjectMetaRepository);
 
                 if (actionMessages == null || actionMessages.Count == 0)
                 {

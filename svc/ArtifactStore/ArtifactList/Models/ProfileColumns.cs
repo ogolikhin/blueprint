@@ -95,7 +95,7 @@ namespace ArtifactStore.ArtifactList.Models
 
             foreach (var changedCustomColumn in changedCustomColumns)
             {
-                var propertyType = propertyTypes.FirstOrDefault(x => changedCustomColumn.PropertyTypeId == x.Id);
+                var propertyType = propertyTypes.First(x => changedCustomColumn.PropertyTypeId == x.Id);
 
                 changedCustomColumn.Predefined = propertyType.Predefined;
                 changedCustomColumn.PropertyName = propertyType.Name;

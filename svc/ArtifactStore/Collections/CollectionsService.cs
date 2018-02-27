@@ -406,6 +406,7 @@ namespace ArtifactStore.Collections
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
                     propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
+                    propertyInfo.IsRichText = artifactProperty.IsRichText;
 
                     if (propertyTypePredefined == PropertyTypePredefined.ID)
                     {
@@ -426,6 +427,8 @@ namespace ArtifactStore.Collections
                         ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
                         : multiValue
                         ? null // Fill multi value properties below
+                        : artifactProperty.IsRichText
+                        ? artifactProperty.HtmlTextValue
                         : artifactProperty.FullTextValue;
 
                     propertyInfo.Value =

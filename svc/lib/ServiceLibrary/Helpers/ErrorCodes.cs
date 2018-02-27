@@ -158,7 +158,7 @@
 
         // Collection
         public const int IncorrectType = 18002;
-        public const int InvalidColumns = 18903;
+        public const int InvalidColumns = 18003;
 
     }
 }

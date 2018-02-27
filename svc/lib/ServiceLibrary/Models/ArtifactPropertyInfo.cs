@@ -1,3 +1,6 @@
+using System;
+using ServiceLibrary.Models.ProjectMeta;
+
 namespace ServiceLibrary.Models
 {
     public class ArtifactPropertyInfo
@@ -20,7 +23,7 @@ namespace ServiceLibrary.Models
 
         public string Prefix { get; set; }
 
-        public int PrimitiveType { get; set; }
+        public PropertyPrimitiveType PrimitiveType { get; set; }
 
         public int? PrimitiveItemTypePredefined { get; set; }
 

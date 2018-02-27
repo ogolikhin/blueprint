@@ -10,6 +10,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
@@ -179,9 +180,18 @@ namespace ArtifactStore.Helpers
                         var customTypes = await projectMetaRepository.GetCustomProjectTypesAsync(artifactInfo.ProjectId, userId);
                         var artifactType = customTypes.ArtifactTypes.FirstOrDefault(at => at.Id == artifactInfo.ItemTypeId);
 
-                        var artifactPropertyInfos = await artifactVersionsRepository.GetArtifactPropertyInfoAsync(artifactInfo.Id, userId, artifactType.CustomPropertyTypeIds);
+                        var artifactPropertyInfos = await artifactVersionsRepository.GetArtifactPropertyInfoAsync(
+                            artifactInfo.Id,
+                            userId,
+                            new List<int>
+                            {
+                                (int)PropertyTypePredefined.Name,
+                                (int)PropertyTypePredefined.Description,
+                                (int)PropertyTypePredefined.ID
+                            },
+                            artifactType.CustomPropertyTypeIds);
 
-                        var propertyTypes = await projectMetaRepository.GetStandardProjectPropertyTypesAsync(artifactPropertyInfos.Select(api => api.PropertyTypePredefined));
+                        // var propertyTypes = await projectMetaRepository.GetStandardProjectPropertyTypesAsync(artifactPropertyInfos.Select(api => api.PropertyTypePredefined));
 
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {
@@ -271,14 +281,14 @@ namespace ArtifactStore.Helpers
             {
                 webhookPropertyInfos.Add(new WebhookPropertyInfo
                 {
-                    BasePropertyType = "",
-                    Choices = new List<string>(),
-                    DateValue = "",
+                    BasePropertyType = artifactPropertyInfo.PrimitiveType.ToString(),
+                    Choices = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Choice ? artifactPropertyInfo.FullTextValue.Split(',') : null,
+                    DateValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Date ? artifactPropertyInfo.DateTimeValue.ToString() : null,
                     Name = artifactPropertyInfo.PropertyName,
-                    NumberValue = -1f,
+                    NumberValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Number ? (float?)float.Parse(artifactPropertyInfo.FullTextValue) : null,
                     PropertyTypeId = artifactPropertyInfo.PropertyTypeId,
-                    TextOrChoiceValue = "",
-                    UsersAndGroups = new List<WebhookUserPropertyValue>()
+                    TextOrChoiceValue = artifactPropertyInfo.FullTextValue,
+                    UsersAndGroups = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User ? new List<WebhookUserPropertyValue>() : null
                 });
             }
             return webhookPropertyInfos;

@@ -7,6 +7,7 @@ using ArtifactStore.Collections.Models;
 using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Collections
@@ -38,7 +39,16 @@ namespace ArtifactStore.Collections
 
         public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(int userId, IEnumerable<int> artifactIds, ProfileColumns profileColumns)
         {
-            return await _artifactRepository.GetArtifactsWithPropertyValuesAsync(userId, artifactIds, profileColumns);
+            var propertyTypePredefineds = (
+                from c in profileColumns.Items
+                where c.Predefined != PropertyTypePredefined.CustomGroup
+                select (int)c.Predefined).ToList();
+
+            var propertyTypeIds = (
+                from c in profileColumns.Items
+                where c.PropertyTypeId != null
+                select c.PropertyTypeId.Value).ToList();
+            return await _artifactRepository.GetArtifactsWithPropertyValuesAsync(userId, artifactIds, propertyTypePredefineds, propertyTypeIds);
         }
 
         public async Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(

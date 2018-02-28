@@ -64,7 +64,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
         {
             WorkflowRepository = new SqlWorkflowRepository(connectionWrapper, ArtifactPermissionsRepository);
             WebhooksRepository = new WebhooksRepository(connectionWrapper);
-            ProjectMetaRepository = new SqlProjectMetaRepository();
+            ProjectMetaRepository = new SqlProjectMetaRepository(connectionWrapper);
         }
 
         public async Task<List<SqlWorkflowEvent>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)

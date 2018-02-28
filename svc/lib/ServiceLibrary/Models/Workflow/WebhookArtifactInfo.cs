@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Workflow
@@ -43,8 +45,6 @@ namespace ServiceLibrary.Models.Workflow
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public WebhookStateChangeInfo ChangedState { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string RevisionTime { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Revision { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Version { get; set; }
@@ -72,29 +72,30 @@ namespace ServiceLibrary.Models.Workflow
     public class WebhookPropertyInfo
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-
         public string Name { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? PropertyTypeId { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string TextOrChoiceValue { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string BasePropertyType { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 
-        public float? NumberValue { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public decimal? NumberValue { get; set; }
 
-        public string DateValue { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? DateValue { get; set; }
 
-        public IEnumerable<WebhookUserPropertyValue> UsersAndGroups { get; set; }
+        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For json serialization, the property sometimes needs to be null")]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<WebhookUserPropertyValue> UsersAndGroups { get; set; }
 
-        public IEnumerable<string> Choices { get; set; }
+        [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For json serialization, the property sometimes needs to be null")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> Choices { get; set; }
 
     }
 
@@ -113,7 +114,7 @@ namespace ServiceLibrary.Models.Workflow
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Email { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int ProjectId { get; set; }
+        public int? ProjectId { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Type { get; set; }
     }

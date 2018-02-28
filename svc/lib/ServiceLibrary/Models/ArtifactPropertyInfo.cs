@@ -1,8 +1,9 @@
 using System;
+using ServiceLibrary.Models.ProjectMeta;
 
-namespace ArtifactStore.Collections.Models
+namespace ServiceLibrary.Models
 {
-    public class CollectionArtifact
+    public class ArtifactPropertyInfo
     {
         public int ArtifactId { get; set; }
 
@@ -22,7 +23,7 @@ namespace ArtifactStore.Collections.Models
 
         public string Prefix { get; set; }
 
-        public int PrimitiveType { get; set; }
+        public PropertyPrimitiveType PrimitiveType { get; set; }
 
         public int? PrimitiveItemTypePredefined { get; set; }
 

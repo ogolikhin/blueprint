@@ -11,6 +11,7 @@ using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.Webhooks;
 
 namespace BlueprintSys.RC.Services.Tests
@@ -29,12 +30,14 @@ namespace BlueprintSys.RC.Services.Tests
         private WorkflowMessageArtifactInfo _baseArtifactVersionControlInfo;
         private string _projectName;
         private Dictionary<int, IList<Property>> _modifiedProperties;
+        private WorkflowState _currentState;
         private string _artifactUrl;
         private string _baseUrl;
         private int[] _ancestorArtifactTypeIds;
         private Mock<IUsersRepository> _mockUsersRepository;
         private Mock<IServiceLogRepository> _mockServiceLogRepository;
         private Mock<IWebhooksRepository> _mockWebhooksRepository;
+        private Mock<IProjectMetaRepository> _mockProjectMetaRepository;
 
         [TestInitialize]
         public void TestInitialize()
@@ -47,12 +50,14 @@ namespace BlueprintSys.RC.Services.Tests
             _baseArtifactVersionControlInfo = new WorkflowMessageArtifactInfo();
             _projectName = "";
             _modifiedProperties = new Dictionary<int, IList<Property>>();
+            _currentState = new WorkflowState();
             _artifactUrl = "";
             _baseUrl = "";
             _ancestorArtifactTypeIds = new int[] { };
             _mockUsersRepository = new Mock<IUsersRepository>(MockBehavior.Strict);
             _mockServiceLogRepository = new Mock<IServiceLogRepository>(MockBehavior.Strict);
             _mockWebhooksRepository = new Mock<IWebhooksRepository>(MockBehavior.Strict);
+            _mockProjectMetaRepository = new Mock<IProjectMetaRepository>(MockBehavior.Strict);
         }
 
         [TestMethod]
@@ -66,7 +71,23 @@ namespace BlueprintSys.RC.Services.Tests
             _workflowEventTriggers.Add(workflowEventTrigger);
 
             // act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(
+                _userId,
+                _revisionId,
+                _userName,
+                _transactionId,
+                _workflowEventTriggers,
+                _baseArtifactVersionControlInfo,
+                _projectName,
+                _modifiedProperties,
+                _currentState,
+                _artifactUrl,
+                _baseUrl,
+                _ancestorArtifactTypeIds,
+                _mockUsersRepository.Object,
+                _mockServiceLogRepository.Object,
+                _mockWebhooksRepository.Object,
+                _mockProjectMetaRepository.Object);
 
             // assert
             Assert.IsTrue(messages.Count == 1);
@@ -129,7 +150,23 @@ namespace BlueprintSys.RC.Services.Tests
             _workflowEventTriggers.Add(workflowEventTrigger);
 
             // act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(
+                _userId,
+                _revisionId,
+                _userName,
+                _transactionId,
+                _workflowEventTriggers,
+                _baseArtifactVersionControlInfo,
+                _projectName,
+                _modifiedProperties,
+                _currentState,
+                _artifactUrl,
+                _baseUrl,
+                _ancestorArtifactTypeIds,
+                _mockUsersRepository.Object,
+                _mockServiceLogRepository.Object,
+                _mockWebhooksRepository.Object,
+                _mockProjectMetaRepository.Object);
 
             // assert
             Assert.IsTrue(messages.Count == 1);
@@ -148,7 +185,23 @@ namespace BlueprintSys.RC.Services.Tests
             _baseArtifactVersionControlInfo.PredefinedType = ItemTypePredefined.Process;
 
             // act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(
+                _userId,
+                _revisionId,
+                _userName,
+                _transactionId,
+                _workflowEventTriggers,
+                _baseArtifactVersionControlInfo,
+                _projectName,
+                _modifiedProperties,
+                _currentState,
+                _artifactUrl,
+                _baseUrl,
+                _ancestorArtifactTypeIds,
+                _mockUsersRepository.Object,
+                _mockServiceLogRepository.Object,
+                _mockWebhooksRepository.Object,
+                _mockProjectMetaRepository.Object);
 
             // assert
             Assert.IsTrue(messages.Count == 1);
@@ -168,7 +221,23 @@ namespace BlueprintSys.RC.Services.Tests
             _mockServiceLogRepository.Setup(m => m.LogInformation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(true));
 
             // act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(
+                _userId,
+                _revisionId,
+                _userName,
+                _transactionId,
+                _workflowEventTriggers,
+                _baseArtifactVersionControlInfo,
+                _projectName,
+                _modifiedProperties,
+                _currentState,
+                _artifactUrl,
+                _baseUrl,
+                _ancestorArtifactTypeIds,
+                _mockUsersRepository.Object,
+                _mockServiceLogRepository.Object,
+                _mockWebhooksRepository.Object,
+                _mockProjectMetaRepository.Object);
 
             // assert
             Assert.IsTrue(messages.Count == 0);
@@ -186,7 +255,23 @@ namespace BlueprintSys.RC.Services.Tests
             _baseArtifactVersionControlInfo.PredefinedType = ItemTypePredefined.Process;
 
             // act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(
+                _userId,
+                _revisionId,
+                _userName,
+                _transactionId,
+                _workflowEventTriggers,
+                _baseArtifactVersionControlInfo,
+                _projectName,
+                _modifiedProperties,
+                _currentState,
+                _artifactUrl,
+                _baseUrl,
+                _ancestorArtifactTypeIds,
+                _mockUsersRepository.Object,
+                _mockServiceLogRepository.Object,
+                _mockWebhooksRepository.Object,
+                _mockProjectMetaRepository.Object);
 
             // assert
             Assert.IsTrue(messages.Count == 1);
@@ -206,7 +291,23 @@ namespace BlueprintSys.RC.Services.Tests
             _mockServiceLogRepository.Setup(m => m.LogInformation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(true));
 
             // act
-            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(_userId, _revisionId, _userName, _transactionId, _workflowEventTriggers, _baseArtifactVersionControlInfo, _projectName, _modifiedProperties, _artifactUrl, _baseUrl, _ancestorArtifactTypeIds, _mockUsersRepository.Object, _mockServiceLogRepository.Object, _mockWebhooksRepository.Object);
+            var messages = await WorkflowEventsMessagesHelper.GenerateMessages(
+                _userId,
+                _revisionId,
+                _userName,
+                _transactionId,
+                _workflowEventTriggers,
+                _baseArtifactVersionControlInfo,
+                _projectName,
+                _modifiedProperties,
+                _currentState,
+                _artifactUrl,
+                _baseUrl,
+                _ancestorArtifactTypeIds,
+                _mockUsersRepository.Object,
+                _mockServiceLogRepository.Object,
+                _mockWebhooksRepository.Object,
+                _mockProjectMetaRepository.Object);
 
             // assert
             Assert.IsTrue(messages.Count == 0);

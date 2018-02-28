@@ -16,6 +16,7 @@ using ArtifactStore.Helpers;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ApplicationSettings;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.Reuse;
 using ServiceLibrary.Repositories.Workflow;
 using ServiceLibrary.Repositories.Webhooks;
@@ -43,7 +44,8 @@ namespace ArtifactStore.Controllers
                     new ApplicationSettingsRepository(),
                     new ServiceLogRepository(),
                     new SqlUsersRepository(),
-                    new WebhooksRepository()),
+                    new WebhooksRepository(),
+                    new SqlProjectMetaRepository()),
                 new WorkflowEventsMessagesHelper()))
         {
         }

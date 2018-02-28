@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using ArtifactStore.Repositories;
@@ -190,7 +191,11 @@ namespace ArtifactStore.Helpers
                             {
                                 (int)PropertyTypePredefined.Name,
                                 (int)PropertyTypePredefined.Description,
-                                (int)PropertyTypePredefined.ID
+                                (int)PropertyTypePredefined.ID,
+                                (int)PropertyTypePredefined.CreatedBy,
+                                (int)PropertyTypePredefined.LastEditedOn,
+                                (int)PropertyTypePredefined.LastEditedBy,
+                                (int)PropertyTypePredefined.CreatedOn
                             },
                             artifactType.CustomPropertyTypeIds);
 
@@ -286,7 +291,7 @@ namespace ArtifactStore.Helpers
                     Choices = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Choice ? artifactPropertyInfo.FullTextValue.Split(',') : null,
                     DateValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Date ? artifactPropertyInfo.DateTimeValue.ToString() : null,
                     Name = artifactPropertyInfo.PropertyName,
-                    NumberValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Number ? (float?)float.Parse(artifactPropertyInfo.FullTextValue) : null,
+                    NumberValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Number ? (float?)float.Parse(artifactPropertyInfo.FullTextValue, CultureInfo.InvariantCulture) : null,
                     PropertyTypeId = artifactPropertyInfo.PropertyTypeId,
                     TextOrChoiceValue = artifactPropertyInfo.FullTextValue,
                     UsersAndGroups = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User ? new List<WebhookUserPropertyValue>() : null

@@ -14,5 +14,7 @@ namespace ServiceLibrary.Repositories.Webhooks
         Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
             int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypePredefineds,
             IEnumerable<int> propertyTypeIds);
+
+        Task<IEnumerable<RevisionDataInfo>> GetRevisionInfos(IEnumerable<int> revisionIds);
     }
 }

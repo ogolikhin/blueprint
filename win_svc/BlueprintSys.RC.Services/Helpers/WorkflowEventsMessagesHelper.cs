@@ -174,6 +174,8 @@ namespace BlueprintSys.RC.Services.Helpers
                             },
                             artifactType.CustomPropertyTypeIds);
 
+                        var revisionInfo = await webhooksRepository.GetRevisionInfos(new List<int> { revisionId });
+
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {
                             Id = Guid.NewGuid().ToString(),
@@ -201,6 +203,7 @@ namespace BlueprintSys.RC.Services.Helpers
                                     WorkflowId = currentState.WorkflowId
                                 },
                                 Revision = revisionId,
+                                RevisionTimestamp = revisionInfo?.FirstOrDefault()?.Timestamp,
                                 Version = WebhookArtifactVersion,
                                 Id = artifactInfo.Id,
                                 BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),

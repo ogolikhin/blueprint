@@ -204,6 +204,8 @@ namespace ArtifactStore.Helpers
                             },
                             artifactType.CustomPropertyTypeIds);
 
+                        var revisionInfo = await webhooksRepository.GetRevisionInfos(new List<int> { revisionId });
+
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {
                             Id = Guid.NewGuid().ToString(),
@@ -240,6 +242,7 @@ namespace ArtifactStore.Helpers
                                     }
                                 },
                                 Revision = revisionId,
+                                RevisionTimestamp = revisionInfo?.FirstOrDefault()?.Timestamp,
                                 Version = ((VersionControlArtifactInfo)artifactInfo).Version,
                                 Id = artifactInfo.Id,
                                 BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),

@@ -7,7 +7,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.ProjectMeta;
 
 namespace ServiceLibrary.Repositories.Webhooks
 {
@@ -143,6 +142,18 @@ namespace ServiceLibrary.Repositories.Webhooks
                 "GetPropertyValuesForArtifacts", parameters, commandType: CommandType.StoredProcedure);
 
             return result.ToList();
+        }
+
+        public async Task<IEnumerable<RevisionDataInfo>> GetRevisionInfos(IEnumerable<int> revisionIds)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@revisionIds", SqlConnectionWrapper.ToDataTable(revisionIds));
+
+            var result = await _connectionWrapper.QueryAsync<RevisionDataInfo>(
+                "GetRevisionInfos", parameters, commandType: CommandType.StoredProcedure);
+
+            return result.ToList();
+
         }
     }
 }

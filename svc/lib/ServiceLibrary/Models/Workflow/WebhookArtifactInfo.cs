@@ -47,6 +47,8 @@ namespace ServiceLibrary.Models.Workflow
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Revision { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? RevisionTimestamp { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Version { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Id { get; set; }

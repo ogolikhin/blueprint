@@ -436,7 +436,7 @@ namespace ArtifactStore.Collections
         }
 
         [TestMethod]
-        public async Task SaveProfileColumnsAsync_WeHaveChangedCustomsPropertyNames_SuccessResult_ReturnedTrue()
+        public async Task SaveProfileColumnsAsync_ChangedCustomPropertyNames_SuccessResult_ReturnedTrue()
         {
             var propertyTypeInfos = new List<PropertyTypeInfo>();
 
@@ -462,7 +462,7 @@ namespace ArtifactStore.Collections
         }
 
         [TestMethod]
-        public async Task SaveProfileColumnsAsync_WeHaveChangedCustomsPropertyPrimitiveTypes_SuccessResult_ReturnedTrue()
+        public async Task SaveProfileColumnsAsync_ChangedCustomPropertyPrimitiveTypes_SuccessResult_ReturnedTrue()
         {
             var propertyTypeInfos = new List<PropertyTypeInfo>();
 
@@ -488,7 +488,7 @@ namespace ArtifactStore.Collections
         }
 
         [TestMethod]
-        public async Task SaveProfileColumnsAsync_WeDoNottHaveChangedCustomsProperties_SuccessResult_ReturnedFalse()
+        public async Task SaveProfileColumnsAsync_NotChangedCustomProperties_SuccessResult_ReturnedFalse()
         {
             var propertyTypeInfos = new List<PropertyTypeInfo>();
 

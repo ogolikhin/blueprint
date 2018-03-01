@@ -9,6 +9,7 @@ using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.Reuse;
 using ServiceLibrary.Repositories.Workflow;
 using ServiceLibrary.Repositories.Webhooks;
@@ -30,6 +31,7 @@ namespace ArtifactStore.Executors
         private Mock<IServiceLogRepository> _serviceLogRepositoryMock;
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<IWebhooksRepository> _webhooksRepositoryMock;
+        private Mock<IProjectMetaRepository> _projectMetaRepositoryMock;
 
         [TestInitialize]
         public void Setup()
@@ -43,6 +45,7 @@ namespace ArtifactStore.Executors
             _serviceLogRepositoryMock = new Mock<IServiceLogRepository>(MockBehavior.Loose);
             _usersRepositoryMock = new Mock<IUsersRepository>(MockBehavior.Loose);
             _webhooksRepositoryMock = new Mock<IWebhooksRepository>(MockBehavior.Loose);
+            _projectMetaRepositoryMock = new Mock<IProjectMetaRepository>(MockBehavior.Loose);
 
             _stateChangeExecutorRepositories = new StateChangeExecutorRepositories(_artifactVersionsRepository.Object,
                 _workflowRepository.Object,
@@ -52,7 +55,8 @@ namespace ArtifactStore.Executors
                 _applicationSettingsRepositoryMock.Object,
                 _serviceLogRepositoryMock.Object,
                 _usersRepositoryMock.Object,
-                _webhooksRepositoryMock.Object);
+                _webhooksRepositoryMock.Object,
+                _projectMetaRepositoryMock.Object);
 
             _stateChangeExecutorHelper = new StateChangeExecutorHelper(_stateChangeExecutorRepositories);
         }

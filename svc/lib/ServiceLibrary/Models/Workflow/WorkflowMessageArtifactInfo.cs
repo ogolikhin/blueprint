@@ -10,6 +10,8 @@ namespace ServiceLibrary.Models.Workflow
 
         public int ProjectId { get; set; }
 
+        public int ParentId { get; set; }
+
         public int ItemTypeId { get; set; }
 
         public ItemTypePredefined PredefinedType { get; set; }

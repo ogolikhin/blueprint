@@ -352,7 +352,7 @@ namespace ArtifactStore.Collections
         }
 
         private static CollectionArtifacts PopulateArtifactsProperties(
-            IReadOnlyList<CollectionArtifact> artifacts, ProfileColumns profileColumns)
+            IReadOnlyList<ArtifactPropertyInfo> artifacts, ProfileColumns profileColumns)
         {
             var artifactDtos = new List<ArtifactDto>();
             var settingsColumns = new List<ProfileColumn>();
@@ -406,6 +406,7 @@ namespace ArtifactStore.Collections
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
                     propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
+                    propertyInfo.IsRichText = artifactProperty.IsRichText ? true : (bool?)null; // Set null to ignore the property in final output.
 
                     if (propertyTypePredefined == PropertyTypePredefined.ID)
                     {
@@ -426,6 +427,8 @@ namespace ArtifactStore.Collections
                         ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
                         : multiValue
                         ? null // Fill multi value properties below
+                        : artifactProperty.IsRichText
+                        ? artifactProperty.HtmlTextValue
                         : artifactProperty.FullTextValue;
 
                     propertyInfo.Value =

@@ -2,6 +2,7 @@
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.Reuse;
 using ServiceLibrary.Repositories.Webhooks;
 using ServiceLibrary.Repositories.Workflow;
@@ -19,5 +20,6 @@ namespace ArtifactStore.Executors
         IServiceLogRepository ServiceLogRepository { get; }
         IUsersRepository UsersRepository { get; }
         IWebhooksRepository WebhooksRepository { get; }
+        IProjectMetaRepository ProjectMetaRepository { get; }
     }
 }

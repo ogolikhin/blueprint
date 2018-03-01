@@ -104,17 +104,9 @@ namespace ServiceLibrary.Models.Workflow
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string DisplayName { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Title { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Department { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int Id { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Email { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? ProjectId { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Type { get; set; }
     }

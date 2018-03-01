@@ -28,6 +28,7 @@ namespace BlueprintSys.RC.Services.Helpers
         private const string WebhookPublisherId = "storyteller";
         private const string WebhookType = "Workflow";
         private const string WebhookGroupType = "Group";
+        private const string WebhookUserType = "User";
         private const int WebhookArtifactVersion = 1;
 
         public static async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
@@ -192,7 +193,7 @@ namespace BlueprintSys.RC.Services.Helpers
                                 ArtifactTypeName = artifactType?.Name,
                                 BaseArtifactType = artifactType?.PredefinedType?.ToString(),
                                 ArtifactPropertyInfo =
-                                    await ConvertToWebhookPropertyInfo(artifactPropertyInfos, usersRepository),
+                                    await ConvertToWebhookPropertyInfo(artifactPropertyInfos, customTypes.PropertyTypes, usersRepository),
                                 State = new WebhookStateInfo
                                 {
                                     Id = currentState.Id,
@@ -221,14 +222,16 @@ namespace BlueprintSys.RC.Services.Helpers
         }
 
         private static async Task<IEnumerable<WebhookPropertyInfo>> ConvertToWebhookPropertyInfo(
-             IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos, IUsersRepository usersRepository)
+            IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos, List<PropertyType> propertyTypes, IUsersRepository usersRepository)
         {
             var webhookPropertyInfos = new Dictionary<int, WebhookPropertyInfo>();
+            int tmpKey = -1;
             foreach (var artifactPropertyInfo in artifactPropertyInfos)
             {
                 if (!artifactPropertyInfo.PropertyTypeId.HasValue)
                 {
-                    continue;
+                    // system properties have no property ID, assign a tmpKey as ID to not handle them in a separate list
+                    artifactPropertyInfo.PropertyTypeId = tmpKey--;
                 }
 
                 WebhookUserPropertyValue userProperty = null;
@@ -246,28 +249,20 @@ namespace BlueprintSys.RC.Services.Helpers
                         {
                             DisplayName = userInfo.DisplayName,
                             Id = userInfo.UserId,
-                            Name = userInfo.Login,
-                            Email = userInfo.Email
+                            Type = WebhookUserType
                         };
                     }
                     else
                     {
-                        userInfo = (await usersRepository.GetUserInfosFromGroupsAsync(new List<int> { artifactPropertyInfo.ValueId.Value })).FirstOrDefault();
-                        if (userInfo != null)
+                        var group = (await usersRepository.GetExistingGroupsByIds(new List<int> { artifactPropertyInfo.ValueId.Value }, false)).FirstOrDefault();
+                        if (group != null)
                         {
-                            var group = (await usersRepository.GetExistingGroupsByIds(new List<int> { artifactPropertyInfo.ValueId.Value }, false)).FirstOrDefault();
-                            if (group != null)
+                            userProperty = new WebhookUserPropertyValue
                             {
-                                userProperty = new WebhookUserPropertyValue
-                                {
-                                    DisplayName = userInfo.DisplayName,
-                                    Id = userInfo.UserId,
-                                    Name = group.Name,
-                                    Email = userInfo.Email,
-                                    ProjectId = group.ProjectId,
-                                    Type = WebhookGroupType
-                                };
-                            }
+                                Id = group.GroupId,
+                                Name = group.Name,
+                                Type = WebhookGroupType
+                            };
                         }
                     }
                 }
@@ -288,17 +283,26 @@ namespace BlueprintSys.RC.Services.Helpers
                 }
                 else
                 {
+                    var propertyType = propertyTypes.FirstOrDefault(pt => pt.Id == artifactPropertyInfo.PropertyTypeId);
+                    bool isCustomChoice = false;
+                    if (artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Choice && propertyType != null)
+                    {
+                        isCustomChoice = propertyType.ValidValues.FirstOrDefault(vv =>
+                                vv.Value.Equals(artifactPropertyInfo.FullTextValue)) == null;
+                    }
                     webhookPropertyInfos[artifactPropertyInfo.PropertyTypeId.Value] = new WebhookPropertyInfo
                     {
                         BasePropertyType = artifactPropertyInfo.PrimitiveType.ToString(),
-                        Choices = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Choice
+                        Choices = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Choice && !isCustomChoice
                             ? new List<string> { artifactPropertyInfo.FullTextValue }
                             : null,
                         DateValue = artifactPropertyInfo.DateTimeValue,
                         Name = artifactPropertyInfo.PropertyName,
                         NumberValue = artifactPropertyInfo.DecimalValue,
                         PropertyTypeId = artifactPropertyInfo.PropertyTypeId,
-                        TextOrChoiceValue = artifactPropertyInfo.FullTextValue,
+                        TextOrChoiceValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Text || isCustomChoice
+                            ? artifactPropertyInfo.FullTextValue
+                            : null,
                         UsersAndGroups = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User
                             ? new List<WebhookUserPropertyValue> { userProperty }
                             : null

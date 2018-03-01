@@ -19,8 +19,8 @@ namespace BlueprintSys.RC.ImageService
                 x.Service<ImageGenService>(s =>
                 {
                     s.ConstructUsing(name => ImageGenService.Instance);
-                    s.WhenStarted(tc => tc.Start(null));
-                    s.WhenStopped(tc => tc.Stop(null));
+                    s.WhenStarted((tc, hostControl) => tc.Start(hostControl));
+                    s.WhenStopped((tc, hostControl) => tc.Stop(hostControl));
                 });
                 x.RunAsLocalSystem();
 

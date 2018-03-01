@@ -27,6 +27,8 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
         private readonly NServiceBusServer _nServiceBusServer = new NServiceBusServer();
 
+        private volatile bool _stoppingService;
+
         private ImageGenService()
         {
             _config = new HttpSelfHostConfiguration(ServiceAddress);
@@ -68,13 +70,14 @@ namespace BlueprintSys.RC.ImageService.ImageGen
                 Log.DebugFormat("Failed to start self host web server.", e);
             }
 
-            Task.Run(() => _nServiceBusServer.Start(NServiceBusConnectionString))
-                .ContinueWith(startTask =>
+            Task.Run(() => _nServiceBusServer.Start(NServiceBusConnectionString, () => {
+                Stop(hostControl);
+            })).ContinueWith(startTask =>
                 {
                     if (!string.IsNullOrEmpty(startTask.Result))
                     {
                         Log.Error(startTask.Result);
-                        Stop(null);
+                        Stop(hostControl);
                     }
                 });
 
@@ -84,6 +87,15 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
         public bool Stop(HostControl hostControl)
         {
+            lock (this)
+            {
+                if (_stoppingService)
+                {
+                    return true;
+                }
+                _stoppingService = true;
+            }
+
             try
             {
                 Log.Info("ImageGen Service is stopping...");
@@ -115,6 +127,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
                 // Remove Log Listener
                 Log4NetStandardLogListener.Clear();
                 LogManager.Manager.ClearListeners();
+                hostControl.Stop();
             }
 
             return true;

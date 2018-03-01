@@ -24,12 +24,18 @@
         public const int DefaultBrowserRenderDelayMilliseconds = 500;
 
         public const string NServiceBusConnectionStringKey = "NServiceBus.ConnectionString";
-        public const string DefaultNServiceBusConnectionString = "host=titan.blueprintsys.net;username=admin;password=$admin2011";
+        public const string DefaultNServiceBusConnectionString = "Data Source=BlueprintDevDB;Initial Catalog=Raptor;Integrated Security=True;Max Pool Size=80";
+
+        public const string NServiceBusCriticalErrorRetryDelayKey = "NServiceBus.CriticalErrorRetryDelay";
+        public const int DefaultNServiceBusCriticalErrorRetryDelay = 2;
 
         public const string NServiceBusInstanceIdKey = "NServiceBus.InstanceId";
         public const string DefaultNServiceBusInstanceId = "";
 
         public const string BrowserRenderWaitTimeSecondsKey = "BrowserRender.WaitTimeSeconds";
         public const int DefaultBrowserRenderWaitTimeSeconds = 10;
+
+        public const string NServiceBusCriticalErrorRetryCountKey = "NServiceBus.CriticalErrorRetryCount";
+        public const int DefaultNServiceBusCriticalErrorRetryCount = 3;
     }
 }

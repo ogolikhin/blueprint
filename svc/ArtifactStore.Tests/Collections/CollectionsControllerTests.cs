@@ -120,7 +120,8 @@ namespace ArtifactStore.Collections
                             new PropertyValueInfo
                             {
                                 PropertyTypeId = 81,
-                                Value = "Value_Description"
+                                Value = "Value_Description",
+                                IsRichText = true
                             }
                         }
                     },
@@ -139,7 +140,8 @@ namespace ArtifactStore.Collections
                             new PropertyValueInfo
                             {
                                 PropertyTypeId = 81,
-                                Value = "Value_Description_2"
+                                Value = "Value_Description_2",
+                                IsRichText = true
                             }
                         }
                     }

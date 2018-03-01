@@ -12,6 +12,7 @@ namespace ArtifactStore.Collections.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Value { get; set; }
 
-        public bool IsRichText { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsRichText { get; set; }
     }
 }

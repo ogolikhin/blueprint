@@ -14,6 +14,7 @@ using ServiceLibrary.Models.Reuse;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
+using ServiceLibrary.Repositories.ProjectMeta;
 
 namespace ArtifactStore.Executors
 {
@@ -104,7 +105,7 @@ namespace ArtifactStore.Executors
                 };
 
             // Generate asynchronous messages for sending
-            result.ActionMessages.AddRange((await _workflowEventsMessagesHelper.GenerateMessages(
+            result.ActionMessages.AddRange(await _workflowEventsMessagesHelper.GenerateMessages(
                     _userId,
                     publishRevision,
                     _input.UserName,
@@ -113,13 +114,17 @@ namespace ArtifactStore.Executors
                     artifactInfo,
                     artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId)?.Name,
                     artifactResultSet?.ModifiedProperties,
+                    currentState,
+                    stateChangeResult.Item,
                     true,
                     null,
                     null,
                     _stateChangeExecutorRepositories.UsersRepository,
                     _stateChangeExecutorRepositories.ServiceLogRepository,
                     _stateChangeExecutorRepositories.WebhooksRepository,
-                    transaction)));
+                    _stateChangeExecutorRepositories.ProjectMetaRepository,
+                    _stateChangeExecutorRepositories.ArtifactVersionsRepository,
+                    transaction));
 
                 await _workflowEventsMessagesHelper.ProcessMessages(LogSource,
                     _stateChangeExecutorRepositories.ApplicationSettingsRepository,

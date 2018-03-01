@@ -29,7 +29,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
         {
         }
 
-        internal SqlProjectMetaRepository(ISqlConnectionWrapper connectionWrapper)
+        public SqlProjectMetaRepository(ISqlConnectionWrapper connectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
         }

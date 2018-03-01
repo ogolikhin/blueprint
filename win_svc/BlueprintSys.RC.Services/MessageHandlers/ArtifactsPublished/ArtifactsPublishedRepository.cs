@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dapper;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.Webhooks;
 using ServiceLibrary.Repositories.Workflow;
 
@@ -35,6 +36,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
         IWorkflowRepository WorkflowRepository { get; }
 
         IWebhooksRepository WebhooksRepository { get; }
+
+        IProjectMetaRepository ProjectMetaRepository { get; }
     }
 
     public class ArtifactsPublishedRepository : BaseRepository, IArtifactsPublishedRepository
@@ -42,6 +45,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
         public IWorkflowRepository WorkflowRepository { get; }
 
         public IWebhooksRepository WebhooksRepository { get; }
+
+        public IProjectMetaRepository ProjectMetaRepository { get; }
 
         public ArtifactsPublishedRepository(string connectionString) : this(new SqlConnectionWrapper(connectionString))
         {
@@ -59,6 +64,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
         {
             WorkflowRepository = new SqlWorkflowRepository(connectionWrapper, ArtifactPermissionsRepository);
             WebhooksRepository = new WebhooksRepository(connectionWrapper);
+            ProjectMetaRepository = new SqlProjectMetaRepository(connectionWrapper);
         }
 
         public async Task<List<SqlWorkflowEvent>> GetWorkflowPropertyTransitionsForArtifactsAsync(int userId, int revisionId, int eventType, IEnumerable<int> itemIds)

@@ -797,5 +797,21 @@ namespace ServiceLibrary.Repositories
 
             return propertyTypes;
         }
+
+        public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
+            int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypePredefineds, IEnumerable<int> propertyTypeIds)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId, DbType.Int32);
+            parameters.Add("@AddDrafts", true, DbType.Boolean);
+            parameters.Add("@ArtifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            parameters.Add("@PropertyTypePredefineds", SqlConnectionWrapper.ToDataTable(propertyTypePredefineds));
+            parameters.Add("@PropertyTypeIds", SqlConnectionWrapper.ToDataTable(propertyTypeIds));
+
+            var result = await ConnectionWrapper.QueryAsync<ArtifactPropertyInfo>(
+                "GetPropertyValuesForArtifacts", parameters, commandType: CommandType.StoredProcedure);
+
+            return result.ToList();
+        }
     }
 }

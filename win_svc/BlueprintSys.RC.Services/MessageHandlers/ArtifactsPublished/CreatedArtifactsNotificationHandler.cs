@@ -6,6 +6,7 @@ using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -58,6 +59,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
 
                 int artifactId = createdArtifact.Id;
 
+                var currentState = await repository.WorkflowRepository.GetStateForArtifactAsync(message.UserId, createdArtifact.Id, int.MaxValue, true);
+
                 var actionMessages = await WorkflowEventsMessagesHelper.GenerateMessages(message.UserId,
                     message.RevisionId,
                     message.UserName,
@@ -66,12 +69,14 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsPublished
                     artifactInfo,
                     artifactInfo.ProjectName,
                     new Dictionary<int, IList<Property>>(),
+                    currentState,
                     createdArtifact.Url,
                     createdArtifact.BaseUrl,
                     createdArtifact.AncestorArtifactTypeIds,
                     repository.UsersRepository,
                     serviceLogRepository,
-                    repository.WebhooksRepository);
+                    repository.WebhooksRepository,
+                    repository.ProjectMetaRepository);
 
                 if (actionMessages == null || actionMessages.Count == 0)
                 {

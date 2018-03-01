@@ -352,7 +352,7 @@ namespace ArtifactStore.Collections
         }
 
         private static CollectionArtifacts PopulateArtifactsProperties(
-            IReadOnlyList<CollectionArtifact> artifacts, ProfileColumns profileColumns)
+            IReadOnlyList<ArtifactPropertyInfo> artifacts, ProfileColumns profileColumns)
         {
             var artifactDtos = new List<ArtifactDto>();
             var settingsColumns = new List<ProfileColumn>();

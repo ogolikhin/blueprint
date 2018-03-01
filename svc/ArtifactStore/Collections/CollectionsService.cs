@@ -406,7 +406,10 @@ namespace ArtifactStore.Collections
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
                     propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
-                    propertyInfo.IsRichText = artifactProperty.IsRichText;
+                    if (artifactProperty.IsRichText)
+                    {
+                        propertyInfo.IsRichText = true;
+                    }
 
                     if (propertyTypePredefined == PropertyTypePredefined.ID)
                     {

@@ -6,6 +6,7 @@ using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using Dapper;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 
@@ -17,17 +18,26 @@ namespace ArtifactStore.Collections
             "SELECT * FROM [dbo].[GetArtifactIdsInCollection](@userId, @collectionId, @addDrafts)";
 
         private readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly IArtifactRepository _artifactRepository;
 
         public SqlCollectionsRepository() : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 
-        public SqlCollectionsRepository(ISqlConnectionWrapper connectionWrapper)
+        internal SqlCollectionsRepository(ISqlConnectionWrapper connectionWrapper)
+            : this(
+                connectionWrapper,
+                new SqlArtifactRepository(connectionWrapper))
         {
-            _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<IReadOnlyList<CollectionArtifact>> GetArtifactsWithPropertyValuesAsync(
+        public SqlCollectionsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactRepository artifactRepository)
+        {
+            _connectionWrapper = connectionWrapper;
+            _artifactRepository = artifactRepository;
+        }
+
+        public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
             int userId, IEnumerable<int> artifactIds, IEnumerable<ProfileColumn> profileColumns)
         {
             var propertyTypePredefineds = (
@@ -40,17 +50,7 @@ namespace ArtifactStore.Collections
                 where c.PropertyTypeId != null
                 select c.PropertyTypeId.Value).ToList();
 
-            var parameters = new DynamicParameters();
-            parameters.Add("@userId", userId, DbType.Int32);
-            parameters.Add("@addDrafts", true, DbType.Boolean);
-            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
-            parameters.Add("@propertyTypePredefineds", SqlConnectionWrapper.ToDataTable(propertyTypePredefineds));
-            parameters.Add("@propertyTypeIds", SqlConnectionWrapper.ToDataTable(propertyTypeIds));
-
-            var result = await _connectionWrapper.QueryAsync<CollectionArtifact>(
-                "GetPropertyValuesForArtifacts", parameters, commandType: CommandType.StoredProcedure);
-
-            return result.ToList();
+            return await _artifactRepository.GetArtifactsWithPropertyValuesAsync(userId, artifactIds, propertyTypePredefineds, propertyTypeIds);
         }
 
         public async Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(

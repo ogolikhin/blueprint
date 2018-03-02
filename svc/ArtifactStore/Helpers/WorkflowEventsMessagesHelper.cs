@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.Repositories;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Models.Workflow.Actions;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.Webhooks;
 
 namespace ArtifactStore.Helpers
@@ -28,12 +32,16 @@ namespace ArtifactStore.Helpers
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
             IDictionary<int, IList<Property>> modifiedProperties,
+            WorkflowState currentState,
+            WorkflowState newState,
             bool sendArtifactPublishedMessage,
             string artifactUrl,
             string baseUrl,
             IUsersRepository usersRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhooksRepository webhooksRepository,
+            IProjectMetaRepository projectMetaRepository,
+            IArtifactVersionsRepository artifactVersionsRepository,
             IDbTransaction transaction = null);
 
         Task ProcessMessages(string logSource,
@@ -47,6 +55,11 @@ namespace ArtifactStore.Helpers
     public class WorkflowEventsMessagesHelper : IWorkflowEventsMessagesHelper
     {
         private const string LogSource = "ArtifactStore.Helpers.WorkflowEventsMessagesHelper";
+        private const string WebhookEventType = "ArtifactStateChanged";
+        private const string WebhookPublisherId = "storyteller";
+        private const string WebhookType = "Workflow";
+        private const string WebhookGroupType = "Group";
+        private const string WebhookUserType = "User";
 
         public async Task<IList<IWorkflowMessage>> GenerateMessages(int userId,
             int revisionId,
@@ -56,12 +69,16 @@ namespace ArtifactStore.Helpers
             IBaseArtifactVersionControlInfo artifactInfo,
             string projectName,
             IDictionary<int, IList<Property>> modifiedProperties,
+            WorkflowState currentState,
+            WorkflowState newState,
             bool sendArtifactPublishedMessage,
             string artifactUrl,
             string baseUrl,
             IUsersRepository usersRepository,
             IServiceLogRepository serviceLogRepository,
             IWebhooksRepository webhooksRepository,
+            IProjectMetaRepository projectMetaRepository,
+            IArtifactVersionsRepository artifactVersionsRepository,
             IDbTransaction transaction = null)
         {
             var resultMessages = new List<IWorkflowMessage>();
@@ -94,7 +111,8 @@ namespace ArtifactStore.Helpers
                             transaction);
                         if (notificationMessage == null)
                         {
-                            await serviceLogRepository.LogInformation(LogSource, $"Skipping Email notification action for artifact {artifactInfo.Id}");
+                            await serviceLogRepository.LogInformation(LogSource,
+                                $"Skipping Email notification action for artifact {artifactInfo.Id}");
                             continue;
                         }
                         resultMessages.Add(notificationMessage);
@@ -166,11 +184,77 @@ namespace ArtifactStore.Helpers
                             continue;
                         }
 
-                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, artifactInfo, transaction);
+                        var customTypes =
+                            await projectMetaRepository.GetCustomProjectTypesAsync(artifactInfo.ProjectId, userId);
+                        var artifactType =
+                            customTypes.ArtifactTypes.FirstOrDefault(at => at.Id == artifactInfo.ItemTypeId);
+
+                        var artifactPropertyInfos = await artifactVersionsRepository.GetArtifactPropertyInfoAsync(
+                            userId,
+                            new List<int> { artifactInfo.Id },
+                            new List<int>
+                            {
+                                (int)PropertyTypePredefined.Name,
+                                (int)PropertyTypePredefined.Description,
+                                (int)PropertyTypePredefined.ID,
+                                (int)PropertyTypePredefined.CreatedBy,
+                                (int)PropertyTypePredefined.LastEditedOn,
+                                (int)PropertyTypePredefined.LastEditedBy,
+                                (int)PropertyTypePredefined.CreatedOn
+                            },
+                            artifactType.CustomPropertyTypeIds);
+
+                        var webhookArtifactInfo = new WebhookArtifactInfo
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            EventType = WebhookEventType,
+                            PublisherId = WebhookPublisherId,
+                            Scope = new WebhookArtifactInfoScope
+                            {
+                                Type = WebhookType,
+                                WorkflowId = currentState.WorkflowId
+                            },
+                            Resource = new WebhookResource
+                            {
+                                Name = artifactInfo.Name,
+                                ProjectId = artifactInfo.ProjectId,
+                                ParentId = ((VersionControlArtifactInfo)artifactInfo).ParentId,
+                                ArtifactTypeId = artifactInfo.ItemTypeId,
+                                ArtifactTypeName = artifactType?.Name,
+                                BaseArtifactType = artifactType?.PredefinedType?.ToString(),
+                                ArtifactPropertyInfo =
+                                    await ConvertToWebhookPropertyInfo(artifactPropertyInfos, customTypes.PropertyTypes, usersRepository),
+                                ChangedState = new WebhookStateChangeInfo
+                                {
+                                    NewValue = new WebhookStateInfo
+                                    {
+                                        Id = newState.Id,
+                                        Name = newState.Name,
+                                        WorkflowId = newState.WorkflowId
+                                    },
+                                    OldValue = new WebhookStateInfo
+                                    {
+                                        Id = currentState.Id,
+                                        Name = currentState.Name,
+                                        WorkflowId = currentState.WorkflowId
+                                    }
+                                },
+                                Revision = revisionId,
+                                Version = ((VersionControlArtifactInfo)artifactInfo).Version,
+                                Id = artifactInfo.Id,
+                                BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
+                                Link = string.Format(
+                                    $"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}")
+                            }
+                        };
+
+                        var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction,
+                            webhooksRepository, webhookArtifactInfo, transaction);
 
                         if (webhookMessage == null)
                         {
-                            await serviceLogRepository.LogInformation(LogSource, $"Skipping Webhook action for artifact {artifactInfo.Id}: {artifactInfo.Name}.");
+                            await serviceLogRepository.LogInformation(LogSource,
+                                $"Skipping Webhook action for artifact {artifactInfo.Id}: {artifactInfo.Name}.");
                             continue;
                         }
                         resultMessages.Add(webhookMessage);
@@ -181,7 +265,9 @@ namespace ArtifactStore.Helpers
             // Add published artifact message
             if (sendArtifactPublishedMessage)
             {
-                var publishedMessage = GetPublishedMessage(userId, revisionId, transactionId, artifactInfo, modifiedProperties) as ArtifactsPublishedMessage;
+                var publishedMessage =
+                    GetPublishedMessage(userId, revisionId, transactionId, artifactInfo, modifiedProperties) as
+                        ArtifactsPublishedMessage;
                 if (publishedMessage != null && publishedMessage.Artifacts.Any())
                 {
                     resultMessages.Add(publishedMessage);
@@ -202,6 +288,96 @@ namespace ArtifactStore.Helpers
             resultMessages.Add(artifactsChangedMessage);
 
             return resultMessages;
+        }
+
+        private async Task<IEnumerable<WebhookPropertyInfo>> ConvertToWebhookPropertyInfo(
+            IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos, List<PropertyType> propertyTypes, IUsersRepository usersRepository)
+        {
+            var webhookPropertyInfos = new Dictionary<int, WebhookPropertyInfo>();
+            int tmpKey = -1;
+            foreach (var artifactPropertyInfo in artifactPropertyInfos)
+            {
+                if (!artifactPropertyInfo.PropertyTypeId.HasValue)
+                {
+                    // system properties have no property ID, assign a tmpKey as ID to not handle them in a separate list
+                    artifactPropertyInfo.PropertyTypeId = tmpKey--;
+                }
+
+                WebhookUserPropertyValue userProperty = null;
+
+                if (artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User)
+                {
+                    if (!artifactPropertyInfo.ValueId.HasValue)
+                    {
+                        continue;
+                    }
+                    var userInfo = (await usersRepository.GetUserInfos(new List<int> { artifactPropertyInfo.ValueId.Value })).FirstOrDefault();
+                    if (userInfo != null)
+                    {
+                        userProperty = new WebhookUserPropertyValue
+                        {
+                            DisplayName = userInfo.DisplayName,
+                            Id = userInfo.UserId,
+                            Type = WebhookUserType
+                        };
+                    }
+                    else
+                    {
+                        var group = (await usersRepository.GetExistingGroupsByIds(new List<int> { artifactPropertyInfo.ValueId.Value }, false)).FirstOrDefault();
+                        if (group != null)
+                        {
+                            userProperty = new WebhookUserPropertyValue
+                            {
+                                Id = group.GroupId,
+                                Name = group.Name,
+                                Type = WebhookGroupType
+                            };
+                        }
+                    }
+                }
+                if (webhookPropertyInfos.ContainsKey(artifactPropertyInfo.PropertyTypeId.Value))
+                {
+                    if (artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Choice &&
+                        webhookPropertyInfos[artifactPropertyInfo.PropertyTypeId.Value].Choices != null &&
+                        artifactPropertyInfo.FullTextValue != null)
+                    {
+                        webhookPropertyInfos[artifactPropertyInfo.PropertyTypeId.Value].Choices.Add(artifactPropertyInfo.FullTextValue);
+                    } else if (artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User &&
+                        webhookPropertyInfos[artifactPropertyInfo.PropertyTypeId.Value].UsersAndGroups != null &&
+                        userProperty != null)
+                    {
+                        webhookPropertyInfos[artifactPropertyInfo.PropertyTypeId.Value].UsersAndGroups.Add(userProperty);
+                    }
+                }
+                else
+                {
+                    var propertyType = propertyTypes.FirstOrDefault(pt => pt.Id == artifactPropertyInfo.PropertyTypeId);
+                    bool isCustomChoice = false;
+                    if (artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Choice && propertyType != null)
+                    {
+                        isCustomChoice = propertyType.ValidValues.FirstOrDefault(vv =>
+                                vv.Value.Equals(artifactPropertyInfo.FullTextValue)) == null;
+                    }
+                    webhookPropertyInfos[artifactPropertyInfo.PropertyTypeId.Value] = new WebhookPropertyInfo
+                    {
+                        BasePropertyType = artifactPropertyInfo.PrimitiveType.ToString(),
+                        Choices = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Choice && !isCustomChoice
+                            ? new List<string> { artifactPropertyInfo.FullTextValue }
+                            : null,
+                        DateValue = artifactPropertyInfo.DateTimeValue,
+                        Name = artifactPropertyInfo.PropertyName,
+                        NumberValue = artifactPropertyInfo.DecimalValue,
+                        PropertyTypeId = artifactPropertyInfo.PropertyTypeId,
+                        TextOrChoiceValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Text || isCustomChoice
+                            ? artifactPropertyInfo.FullTextValue
+                            : null,
+                        UsersAndGroups = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User
+                            ? new List<WebhookUserPropertyValue> { userProperty }
+                            : null
+                    };
+                }
+            }
+            return webhookPropertyInfos.Values.ToList();
         }
 
         public async Task ProcessMessages(string logSource,
@@ -337,7 +513,7 @@ namespace ArtifactStore.Helpers
         }
 
         private static async Task<IWorkflowMessage> GetWebhookMessage(int userId, int revisionId, long transactionId, WebhookAction webhookAction,
-            IWebhooksRepository webhooksRepository, IBaseArtifactVersionControlInfo artifactInfo, IDbTransaction transaction)
+            IWebhooksRepository webhooksRepository, WebhookArtifactInfo webhookArtifactInfo, IDbTransaction transaction)
         {
             List<int> webhookId = new List<int> { webhookAction.WebhookId };
             var webhookInfos = await webhooksRepository.GetWebhooks(webhookId, transaction);
@@ -359,7 +535,7 @@ namespace ArtifactStore.Helpers
                 SignatureSecretToken = securityInfo.Signature?.SecretToken,
                 SignatureAlgorithm = securityInfo.Signature?.Algorithm,
                 // Payload Information
-                WebhookJsonPayload = artifactInfo.ToJSON()
+                WebhookJsonPayload = webhookArtifactInfo.ToJSON()
             };
 
             return webhookMessage;

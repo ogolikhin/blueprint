@@ -371,7 +371,7 @@ namespace ArtifactStore.Collections
                 propertyTypeInfo.Id);
         }
 
-        private static CollectionArtifacts PopulateArtifactsProperties(IEnumerable<int> artifactIds, IReadOnlyList<CollectionArtifact> artifacts, IEnumerable<ProfileColumn> profileColumns)
+        private static CollectionArtifacts PopulateArtifactsProperties(IEnumerable<int> artifactIds, IReadOnlyList<ArtifactPropertyInfo> artifacts, IEnumerable<ProfileColumn> profileColumns)
         {
             var artifactDtos = new List<ArtifactDto>();
 
@@ -393,6 +393,7 @@ namespace ArtifactStore.Collections
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
                     propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
+                    propertyInfo.IsRichText = artifactProperty.IsRichText ? true : (bool?)null; // Set null to ignore the property in final output.
 
                     if (propertyTypePredefined == PropertyTypePredefined.ID)
                     {
@@ -413,6 +414,8 @@ namespace ArtifactStore.Collections
                         ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
                         : multiValue
                         ? null // Fill multi value properties below
+                        : artifactProperty.IsRichText
+                        ? artifactProperty.HtmlTextValue
                         : artifactProperty.FullTextValue;
 
                     propertyInfo.Value =

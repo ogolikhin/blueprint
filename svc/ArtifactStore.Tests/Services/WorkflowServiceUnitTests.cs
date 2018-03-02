@@ -15,6 +15,7 @@ using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.Reuse;
 using ServiceLibrary.Repositories.Workflow;
 using ServiceLibrary.Repositories.Webhooks;
@@ -37,6 +38,7 @@ namespace ArtifactStore.Services
         private Mock<IUsersRepository> _usersRepositoryMock;
         private Mock<IWorkflowEventsMessagesHelper> _workflowEventsMessagesHelperMock;
         private Mock<IWebhooksRepository> _webhooksRepositoryMock;
+        private Mock<IProjectMetaRepository> _projectMetaRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -53,7 +55,28 @@ namespace ArtifactStore.Services
             _usersRepositoryMock = new Mock<IUsersRepository>(MockBehavior.Loose);
             _workflowEventsMessagesHelperMock = new Mock<IWorkflowEventsMessagesHelper>();
             _webhooksRepositoryMock = new Mock<IWebhooksRepository>(MockBehavior.Loose);
-            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<WorkflowEventTriggers>(), It.IsAny<IBaseArtifactVersionControlInfo>(), It.IsAny<string>(), It.IsAny<IDictionary<int, IList<Property>>>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IUsersRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<IWebhooksRepository>(), It.IsAny<IDbTransaction>())).ReturnsAsync(new List<IWorkflowMessage>());
+            _projectMetaRepositoryMock = new Mock<IProjectMetaRepository>(MockBehavior.Loose);
+            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<long>(),
+                It.IsAny<WorkflowEventTriggers>(),
+                It.IsAny<IBaseArtifactVersionControlInfo>(),
+                It.IsAny<string>(),
+                It.IsAny<IDictionary<int, IList<Property>>>(),
+                It.IsAny<WorkflowState>(),
+                It.IsAny<WorkflowState>(),
+                It.IsAny<bool>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<IUsersRepository>(),
+                It.IsAny<IServiceLogRepository>(),
+                It.IsAny<IWebhooksRepository>(),
+                It.IsAny<IProjectMetaRepository>(),
+                It.IsAny<IArtifactVersionsRepository>(),
+                It.IsAny<IDbTransaction>()))
+            .ReturnsAsync(new List<IWorkflowMessage>());
 
             _workflowServiceMock = new WorkflowService(_sqlHelperMock,
                 _itemInfoRepositoryMock.Object,
@@ -65,7 +88,8 @@ namespace ArtifactStore.Services
                     _applicationSettingsRepositoryMock.Object,
                     _serviceLogRepositoryMock.Object,
                     _usersRepositoryMock.Object,
-                    _webhooksRepositoryMock.Object),
+                    _webhooksRepositoryMock.Object,
+                    _projectMetaRepositoryMock.Object),
                 _workflowEventsMessagesHelperMock.Object);
         }
 

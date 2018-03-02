@@ -15,6 +15,7 @@ using ServiceLibrary.Models.VersionControl;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.ProjectMeta;
 using ServiceLibrary.Repositories.Reuse;
 using ServiceLibrary.Repositories.Workflow;
 using ServiceLibrary.Repositories.Webhooks;
@@ -44,6 +45,7 @@ namespace ArtifactStore.Executors
         private Mock<IStateChangeExecutorHelper> _stateChangeHelperMock;
         private Mock<IWorkflowEventsMessagesHelper> _workflowEventsMessagesHelperMock;
         private Mock<IWebhooksRepository> _webhooksRepositoryMock;
+        private Mock<IProjectMetaRepository> _projectMetaRepositoryMock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -68,7 +70,28 @@ namespace ArtifactStore.Executors
             _stateChangeHelperMock = new Mock<IStateChangeExecutorHelper>(MockBehavior.Loose);
             _workflowEventsMessagesHelperMock = new Mock<IWorkflowEventsMessagesHelper>();
             _webhooksRepositoryMock = new Mock<IWebhooksRepository>(MockBehavior.Loose);
-            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<WorkflowEventTriggers>(), It.IsAny<IBaseArtifactVersionControlInfo>(), It.IsAny<string>(), It.IsAny<IDictionary<int, IList<Property>>>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IUsersRepository>(), It.IsAny<IServiceLogRepository>(), It.IsAny<IWebhooksRepository>(), It.IsAny<IDbTransaction>())).ReturnsAsync(new List<IWorkflowMessage>());
+            _projectMetaRepositoryMock = new Mock<IProjectMetaRepository>(MockBehavior.Loose);
+            _workflowEventsMessagesHelperMock.Setup(m => m.GenerateMessages(
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<long>(),
+                It.IsAny<WorkflowEventTriggers>(),
+                It.IsAny<IBaseArtifactVersionControlInfo>(),
+                It.IsAny<string>(),
+                It.IsAny<IDictionary<int, IList<Property>>>(),
+                It.IsAny<WorkflowState>(),
+                It.IsAny<WorkflowState>(),
+                It.IsAny<bool>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<IUsersRepository>(),
+                It.IsAny<IServiceLogRepository>(),
+                It.IsAny<IWebhooksRepository>(),
+                It.IsAny<IProjectMetaRepository>(),
+                It.IsAny<IArtifactVersionsRepository>(),
+                It.IsAny<IDbTransaction>()))
+            .ReturnsAsync(new List<IWorkflowMessage>());
 
             _stateChangeExecutor = new StateChangeExecutor(UserId,
                 ex,
@@ -81,7 +104,8 @@ namespace ArtifactStore.Executors
                     _applicationSettingsRepositoryMock.Object,
                     _serviceLogRepositoryMock.Object,
                     _usersRepositoryMock.Object,
-                    _webhooksRepositoryMock.Object),
+                    _webhooksRepositoryMock.Object,
+                    _projectMetaRepositoryMock.Object),
                 _stateChangeHelperMock.Object,
                 _workflowEventsMessagesHelperMock.Object);
         }

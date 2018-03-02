@@ -7,6 +7,7 @@ using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Models;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 
@@ -17,7 +18,7 @@ namespace ArtifactStore.Collections
     {
         private int _userId;
         private int _collectionId;
-        private List<CollectionArtifact> _expectedCollectionArtifacts;
+        private List<ArtifactPropertyInfo> _expectedCollectionArtifacts;
 
         private SqlConnectionWrapperMock _cxn;
         private SqlCollectionsRepository _repository;
@@ -27,9 +28,9 @@ namespace ArtifactStore.Collections
         {
             _userId = 1;
             _collectionId = 1;
-            _expectedCollectionArtifacts = new List<CollectionArtifact>
+            _expectedCollectionArtifacts = new List<ArtifactPropertyInfo>
             {
-                new CollectionArtifact
+                new ArtifactPropertyInfo
                 {
                     PropertyName = "Name",
                     PropertyTypeId = 80,
@@ -42,7 +43,7 @@ namespace ArtifactStore.Collections
                     FullTextValue = "Value_Name",
                     ItemTypeIconId = 0
                 },
-                new CollectionArtifact
+                new ArtifactPropertyInfo
                 {
                     PropertyName = "Description",
                     PropertyTypeId = 81,

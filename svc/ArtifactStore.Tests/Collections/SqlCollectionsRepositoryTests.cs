@@ -188,21 +188,20 @@ namespace ArtifactStore.Collections
             var columns = new List<ProfileColumn>();
             foreach (var artifact in _expectedCollectionArtifacts)
             {
-                columns.Add(new ProfileColumn()
+                columns.Add(new ProfileColumn
                 {
                     Predefined = (PropertyTypePredefined)artifact.PredefinedType,
                     PropertyName = artifact.PropertyName,
                     PropertyTypeId = artifact.PropertyTypeId
                 });
             }
-            var profileColumns = new ProfileColumns(columns);
 
             _cxn.SetupQueryAsync("GetPropertyValuesForArtifacts", It.IsAny<Dictionary<string, object>>(),
                 _expectedCollectionArtifacts);
 
             // Act
             var actualResult =
-                await _repository.GetArtifactsWithPropertyValuesAsync(_userId, artifactIds, profileColumns);
+                await _repository.GetArtifactsWithPropertyValuesAsync(_userId, artifactIds, columns);
 
             // assert
             Assert.IsNotNull(actualResult);

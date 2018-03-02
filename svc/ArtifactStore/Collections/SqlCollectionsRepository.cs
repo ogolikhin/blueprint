@@ -37,17 +37,19 @@ namespace ArtifactStore.Collections
             _artifactRepository = artifactRepository;
         }
 
-        public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(int userId, IEnumerable<int> artifactIds, ProfileColumns profileColumns)
+        public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
+            int userId, IEnumerable<int> artifactIds, IEnumerable<ProfileColumn> profileColumns)
         {
             var propertyTypePredefineds = (
-                from c in profileColumns.Items
+                from c in profileColumns
                 where c.Predefined != PropertyTypePredefined.CustomGroup
                 select (int)c.Predefined).ToList();
 
             var propertyTypeIds = (
-                from c in profileColumns.Items
+                from c in profileColumns
                 where c.PropertyTypeId != null
                 select c.PropertyTypeId.Value).ToList();
+
             return await _artifactRepository.GetArtifactsWithPropertyValuesAsync(userId, artifactIds, propertyTypePredefineds, propertyTypeIds);
         }
 

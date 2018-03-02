@@ -52,7 +52,13 @@ namespace BlueprintSys.RC.ImageService.Helpers
 
         public static int NServiceBusCriticalErrorRetryCount
             => AppSettingsHelper.GetConfigIntValue(
-                    ServiceConfiguration.NServiceBusCriticalErrorRetryDelayKey,
+                    ServiceConfiguration.NServiceBusCriticalErrorRetryCountKey,
                     ServiceConfiguration.DefaultNServiceBusCriticalErrorRetryCount);
+
+        // Should not be used (default is false) - adding it just in case if recovery policy is not working
+        public static bool NServiceBusIgnoreCriticalErrors
+            => AppSettingsHelper.GetConfigBoolValue(
+                ServiceConfiguration.NServiceBusIgnoreCriticalErrors,
+                ServiceConfiguration.DefaultNServiceBusIgnoreCriticalErrors);
     }
 }

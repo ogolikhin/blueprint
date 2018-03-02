@@ -24,15 +24,16 @@ namespace BlueprintSys.RC.ImageService.Transport
             private readonly TimeSpan _delay;
             private readonly Func<Task> _createEndPoint;
             private readonly Action _onFailure;
-
+            private readonly bool _ignoreCriticalErrors;
             private int _isRecoveryRequested = NotRequested;
 
-            public CriticalErrorRecovery(int retryCount, TimeSpan delay, Func<Task> createEndPoint, Action onFailure)
+            public CriticalErrorRecovery(int retryCount, TimeSpan delay, Func<Task> createEndPoint, Action onFailure, bool ignoreCriticalErrors = false)
             {
                 _retryCount = retryCount;
                 _delay = delay;
                 _createEndPoint = createEndPoint;
                 _onFailure = onFailure;
+                _ignoreCriticalErrors = ignoreCriticalErrors;
             }
 
             public void TryToRecover()
@@ -56,13 +57,13 @@ namespace BlueprintSys.RC.ImageService.Transport
                     {
                         Log.Info("ReCreating EndPoint Started");
                         await _createEndPoint.Invoke();
-                        Log.Info("ReCreating EndPoint Succeed");
+                        Log.Warn("ReCreating EndPoint Succeed");
                         Interlocked.Exchange(ref _isRecoveryRequested, NotRequested);
                         return;
                     }
                     catch (Exception ex)
                     {
-                        Log.Info("ReCreating EndPoint Failed: " + ex.Message);
+                        Log.Warn("ReCreating EndPoint Failed: " + ex.Message);
                     }
                 }
                 _onFailure();
@@ -70,6 +71,12 @@ namespace BlueprintSys.RC.ImageService.Transport
 
             public async Task OnCriticalError(ICriticalErrorContext context)
             {
+                if (_ignoreCriticalErrors)
+                {
+                    Log.Warn("Critical Error ignored");
+                    return;
+                }
+
                 try
                 {
                     // To leave the process active, dispose the bus.
@@ -108,7 +115,12 @@ namespace BlueprintSys.RC.ImageService.Transport
 
             // TODO: do we need already started exception ?
 
-            recovery = new CriticalErrorRecovery(ServiceHelper.NServiceBusCriticalErrorRetryCount, ServiceHelper.NServiceBusCriticalErrorRetryDelay, () => CreateEndPoint(Handler, connectionString), onCriticalError);
+            recovery = new CriticalErrorRecovery(
+                ServiceHelper.NServiceBusCriticalErrorRetryCount,
+                ServiceHelper.NServiceBusCriticalErrorRetryDelay,
+                () => CreateEndPoint(Handler, connectionString),
+                onCriticalError,
+                ServiceHelper.NServiceBusIgnoreCriticalErrors);
 
             try
             {

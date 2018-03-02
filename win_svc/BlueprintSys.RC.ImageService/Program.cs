@@ -1,6 +1,7 @@
 ﻿using BlueprintSys.RC.ImageService.Helpers;
 using BlueprintSys.RC.ImageService.ImageGen;
 using CefSharp;
+using System;
 using Topshelf;
 
 namespace BlueprintSys.RC.ImageService
@@ -36,7 +37,11 @@ namespace BlueprintSys.RC.ImageService
             });
 
             // See #2 above.
-            Cef.Shutdown();
+            if (Environment.UserInteractive)
+            {
+                Cef.Shutdown();
+            }
         }
     }
 }
+

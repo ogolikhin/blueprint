@@ -37,5 +37,8 @@
 
         public const string NServiceBusCriticalErrorRetryCountKey = "NServiceBus.CriticalErrorRetryCount";
         public const int DefaultNServiceBusCriticalErrorRetryCount = 3;
+
+        public const string NServiceBusIgnoreCriticalErrors = "NServiceBus.IgnoreCriticalErrors";
+        public const bool DefaultNServiceBusIgnoreCriticalErrors = false;
     }
 }

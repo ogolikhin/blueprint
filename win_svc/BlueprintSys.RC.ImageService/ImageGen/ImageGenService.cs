@@ -71,13 +71,14 @@ namespace BlueprintSys.RC.ImageService.ImageGen
             }
 
             Task.Run(() => _nServiceBusServer.Start(NServiceBusConnectionString, () => {
-                Stop(hostControl);
+                Log.Error("ImageGen service stopping after critical error");
+                hostControl.Stop();
             })).ContinueWith(startTask =>
                 {
                     if (!string.IsNullOrEmpty(startTask.Result))
                     {
                         Log.Error(startTask.Result);
-                        Stop(hostControl);
+                        hostControl.Stop();
                     }
                 });
 
@@ -127,7 +128,6 @@ namespace BlueprintSys.RC.ImageService.ImageGen
                 // Remove Log Listener
                 Log4NetStandardLogListener.Clear();
                 LogManager.Manager.ClearListeners();
-                hostControl.Stop();
             }
 
             return true;

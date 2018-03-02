@@ -115,8 +115,8 @@ namespace ArtifactStore.Collections
 
             var validColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, string.Empty).ToList();
 
-            var artifactIds = searchArtifactsResult.ArtifactIds.Skip(pagination.Offset ?? 0)
-                .Take(pagination.Limit ?? 0).ToList();
+            var artifactIds = searchArtifactsResult.ArtifactIds.Skip((int)pagination.Offset)
+                .Take((int)pagination.Limit).ToList();
 
             var artifactsWithPropertyValues = await _collectionsRepository.GetArtifactsWithPropertyValuesAsync(
                 userId, artifactIds, validColumns);
@@ -215,7 +215,7 @@ namespace ArtifactStore.Collections
         public async Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null)
         {
             var collection = await GetCollectionAsync(collectionId, userId);
-            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
+            var artifacts = await GetArtifactItemsDetailsAsync(collectionId, userId);
 
             if (artifacts.IsEmpty())
             {
@@ -245,7 +245,7 @@ namespace ArtifactStore.Collections
             }
 
             var collection = await GetCollectionAsync(collectionId, userId);
-            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
+            var artifacts = await GetArtifactItemsDetailsAsync(collectionId, userId);
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts);
 
             var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
@@ -264,7 +264,7 @@ namespace ArtifactStore.Collections
             return savingProfileColumnsTuple.Item2;
         }
 
-        private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)
+        private async Task<IReadOnlyList<ItemDetails>> GetArtifactItemsDetailsAsync(int collectionId, int userId)
         {
             var artifactIds = await _collectionsRepository.GetContentArtifactIdsAsync(collectionId, userId);
 

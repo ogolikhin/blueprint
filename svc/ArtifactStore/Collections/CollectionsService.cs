@@ -23,6 +23,7 @@ namespace ArtifactStore.Collections
     {
         private const string ChoiceValueFrame = "\"";
         private const string ChoiceValueSeparator = ",";
+        private const int ColumnLimit = 100;
 
         private readonly ICollectionsRepository _collectionsRepository;
         private readonly ILockArtifactsRepository _lockArtifactsRepository;
@@ -230,10 +231,14 @@ namespace ArtifactStore.Collections
             var profileColumns = await _artifactListService.GetProfileColumnsAsync(
                 collection.Id, userId, ProfileColumns.Default);
 
+            var selectedColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, search).ToList();
+
+            int? countOfNeededColumns = string.IsNullOrEmpty(search) ? ColumnLimit - selectedColumns.Count : (int?)null;
+
             return new GetColumnsDto
             {
-                SelectedColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, search),
-                UnselectedColumns = GetUnselectedColumns(propertyTypeInfos, profileColumns)
+                SelectedColumns = selectedColumns,
+                UnselectedColumns = GetUnselectedColumns(propertyTypeInfos, profileColumns, countOfNeededColumns)
             };
         }
 
@@ -319,13 +324,13 @@ namespace ArtifactStore.Collections
         }
 
         private static IEnumerable<ProfileColumn> GetUnselectedColumns(
-            IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns = null)
+            IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns = null, int? count = null)
         {
             return propertyTypeInfos
                 .Select(info => info.IsCustom ?
                     CreateCustomPropertyColumn(info, profileColumns) :
                     CreateSystemPropertyColumn(info, profileColumns))
-                .Where(column => column != null)
+                .Where(column => column != null).TakeIfNotNull(count)
                 .ToList();
         }
 

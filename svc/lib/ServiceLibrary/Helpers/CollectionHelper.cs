@@ -90,6 +90,11 @@ namespace ServiceLibrary.Helpers
             return result;
         }
 
+        public static IEnumerable<TResult> TakeIfNotNull<TResult>(this IEnumerable<TResult> source, int? count)
+        {
+            return !count.HasValue ? source : source.Take(count.Value);
+        }
+
         #endregion IEnumerable<T> Extension Methods
 
         public static IEnumerable<T> EnumerableFrom<T>(T item)

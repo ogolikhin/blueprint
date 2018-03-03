@@ -693,6 +693,45 @@ namespace ArtifactStore.Collections
             CollectionAssert.AreEquivalent(Enumerable.Empty<ProfileColumn>().ToList(), result.UnselectedColumns.ToList());
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetColumnsAsync_CollectionNotFound_ArtifactBasicDetailsIsNull_ThrowResourceNotFoundException()
+        {
+            ArtifactBasicDetails artifactBasicDetails = null;
+            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null)).ReturnsAsync(artifactBasicDetails);
+
+            await _collectionService.GetColumnsAsync(_collectionId, _userId, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetColumnsAsync_CollectionNotFound_DraftDeletedInArtifactBasicDetailsIsTrue_ThrowResourceNotFoundException()
+        {
+            var artifactBasicDetails = new ArtifactBasicDetails { DraftDeleted = true };
+            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null)).ReturnsAsync(artifactBasicDetails);
+
+            await _collectionService.GetColumnsAsync(_collectionId, _userId, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetColumnsAsync_CollectionNotFound_LatestDeletedInArtifactBasicDetailsIsTrue_ThrowResourceNotFoundException()
+        {
+            var artifactBasicDetails = new ArtifactBasicDetails { LatestDeleted = true };
+            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null)).ReturnsAsync(artifactBasicDetails);
+
+            await _collectionService.GetColumnsAsync(_collectionId, _userId, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetColumnsAsync_FoundArtifactIsNotCollection_ThrowInvalidTypeException()
+        {
+            var artifactBasicDetails = new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor, DraftDeleted = false, LatestDeleted = false };
+            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null)).ReturnsAsync(artifactBasicDetails);
+
+            await _collectionService.GetColumnsAsync(_collectionId, _userId, null);
+        }
         #endregion GetColumnsAsync
 
         #region Private methods

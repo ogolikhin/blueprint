@@ -71,8 +71,16 @@ namespace BlueprintSys.RC.ImageService.ImageGen
             }
 
             Task.Run(() => _nServiceBusServer.Start(NServiceBusConnectionString, () => {
-                Log.Error("ImageGen service stopping after critical error");
-                hostControl.Stop();
+                Log.Error("ImageGen service - restarting after critical error");
+                if (Environment.UserInteractive)
+                {
+                    hostControl.Stop();
+                }
+                else
+                {
+                    Stop(hostControl);
+                    Environment.FailFast("ImageGen service - NSB critical error");
+                }
             })).ContinueWith(startTask =>
                 {
                     if (!string.IsNullOrEmpty(startTask.Result))

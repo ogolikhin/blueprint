@@ -304,10 +304,20 @@ namespace BlueprintSys.RC.Services.Helpers
                         NumberValue = artifactPropertyInfo.DecimalValue,
                         PropertyTypeId = artifactPropertyInfo.PropertyTypeId,
                         TextOrChoiceValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Text || isCustomChoice
-                            ? artifactPropertyInfo.FullTextValue
+                            ? (artifactPropertyInfo.IsRichText ? artifactPropertyInfo.HtmlTextValue : artifactPropertyInfo.FullTextValue)
                             : null,
                         UsersAndGroups = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User
                             ? new List<WebhookUserPropertyValue> { userProperty }
+                            : null,
+                        IsRichText = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Text
+                            ? (bool?)artifactPropertyInfo.IsRichText
+                            : null,
+                        IsReadOnly = (artifactPropertyInfo.PropertyTypePredefined == (int)PropertyTypePredefined.ID ||
+                                      artifactPropertyInfo.PropertyTypePredefined == (int)PropertyTypePredefined.CreatedBy ||
+                                      artifactPropertyInfo.PropertyTypePredefined == (int)PropertyTypePredefined.LastEditedOn ||
+                                      artifactPropertyInfo.PropertyTypePredefined == (int)PropertyTypePredefined.LastEditedBy ||
+                                      artifactPropertyInfo.PropertyTypePredefined == (int)PropertyTypePredefined.CreatedOn)
+                            ? (bool?)true
                             : null
                     };
                 }

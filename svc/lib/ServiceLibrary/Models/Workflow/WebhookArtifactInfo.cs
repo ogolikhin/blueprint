@@ -98,6 +98,10 @@ namespace ServiceLibrary.Models.Workflow
         [SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For json serialization, the property sometimes needs to be null")]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<string> Choices { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsRichText { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsReadOnly { get; set; }
 
     }
 

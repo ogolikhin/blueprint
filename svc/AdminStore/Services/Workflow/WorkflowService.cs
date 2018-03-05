@@ -624,12 +624,6 @@ namespace AdminStore.Services.Workflow
 
         private SqlWorkflowEvent ToSqlWorkflowEvent(IeEvent wEvent, int newWorkflowId, WorkflowDataMaps dataMaps, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
-            if (workflowMode == WorkflowMode.Canvas)
-            {
-                // Ignore all webhooks when in canvas mode - EPIC STOR-2862 - Webhook v1.0 only allows webhook update via Workflow Xml update
-                wEvent.Triggers = wEvent.Triggers.Where(t => t.Action.ActionType != ActionTypes.Webhook).ToList();
-            }
-
             var sqlEvent = new SqlWorkflowEvent
             {
                 WorkflowEventId = wEvent.Id.GetValueOrDefault(),
@@ -1578,7 +1572,7 @@ namespace AdminStore.Services.Workflow
             var stateMap = await UpdateWorkflowStatesAsync(workflow.Id.Value, workflowDiffResult, publishRevision, transaction, workflowMode);
             var dataMaps = CreateDataMap(dataValidationResult, stateMap);
 
-            await UpdateWebhooksAsync(workflow.Id.Value, workflowDiffResult, dataMaps, transaction);
+            await UpdateWebhooksAsync(workflow.Id.Value, workflowDiffResult, dataMaps, transaction, workflowMode);
 
             await UpdateWorkflowEventsAsync(workflow.Id.Value, workflowDiffResult, dataMaps, publishRevision, transaction, workflowMode);
 
@@ -1742,9 +1736,10 @@ namespace AdminStore.Services.Workflow
             });
         }
 
-        private async Task UpdateWebhooksAsync(int workflowId, WorkflowDiffResult workflowDiffResult, WorkflowDataMaps dataMaps, IDbTransaction transaction)
+        private async Task UpdateWebhooksAsync(int workflowId, WorkflowDiffResult workflowDiffResult, WorkflowDataMaps dataMaps, IDbTransaction transaction, WorkflowMode workflowMode = WorkflowMode.Xml)
         {
-            if (workflowDiffResult.AddedEvents.Any())
+            // Only create webhooks via the Workflow XML
+            if (workflowDiffResult.AddedEvents.Any() && workflowMode == WorkflowMode.Xml)
             {
                 var createWebhooksParams = new List<SqlWebhooks>();
                 workflowDiffResult.AddedEvents.ForEach(e => createWebhooksParams.AddRange(ToSqlWebhooks(e, workflowId, dataMaps)));
@@ -1762,47 +1757,95 @@ namespace AdminStore.Services.Workflow
 
             if (workflowDiffResult.ChangedEvents.Any())
             {
-                // Need to handle situations where an existing webhook has been updated or a new webhook has been added within a changed event
-                var updateWebhookParams = new List<SqlWebhooks>();
-                var createWebhooksParams = new List<SqlWebhooks>();
-
-                // Since a workflow event can contain both new and updated webhook actions, we need to handle each trigger individually
-                foreach (var changedEvent in workflowDiffResult.ChangedEvents)
+                if (workflowMode == WorkflowMode.Xml)
                 {
-                    foreach (var webhookAction in changedEvent.Triggers.Select(t => t.Action).OfType<IeWebhookAction>())
+                    // Need to handle situations where an existing webhook has been updated or a new webhook has been added within a changed event
+                    var updateWebhookParams = new List<SqlWebhooks>();
+                    var createWebhooksParams = new List<SqlWebhooks>();
+
+                    // Since a workflow event can contain both new and updated webhook actions, we need to handle each trigger individually
+                    foreach (var changedEvent in workflowDiffResult.ChangedEvents)
                     {
-                        // If a webhook does not have an assigned Id, assume that it needs to be created
-                        if (webhookAction.IdSerializable > 0)
+                        foreach (var webhookAction in changedEvent.Triggers.Select(t => t.Action).OfType<IeWebhookAction>())
                         {
-                            updateWebhookParams.Add(ToSqlWebhook(changedEvent.EventType, webhookAction, workflowId, dataMaps));
+                            // If a webhook does not have an assigned Id, assume that it needs to be created
+                            if (webhookAction.IdSerializable > 0)
+                            {
+                                updateWebhookParams.Add(ToSqlWebhook(changedEvent.EventType, webhookAction, workflowId, dataMaps));
+                            }
+                            else
+                            {
+                                createWebhooksParams.Add(ToSqlWebhook(changedEvent.EventType, webhookAction, workflowId, dataMaps));
+                            }
                         }
-                        else
+                    }
+
+                    var createdAndUpdatedWebhooks = new List<SqlWebhooks>();
+                    // Updated all webhooks that already exist
+                    if (updateWebhookParams.Any())
+                    {
+                        createdAndUpdatedWebhooks.AddRange(await _webhooksRepository.UpdateWebhooks(updateWebhookParams, transaction));
+                    }
+
+                    // Create any newly added webhook
+                    if (createWebhooksParams.Any())
+                    {
+                        createdAndUpdatedWebhooks.AddRange(await _webhooksRepository.CreateWebhooks(createWebhooksParams, transaction));
+                    }
+
+                    // After All Webhooks have been created / updated, we need to go back and update our dataMap for all events
+                    if (createdAndUpdatedWebhooks.Any())
+                    {
+                        var index = 0;
+                        workflowDiffResult.ChangedEvents.ForEach(e =>
                         {
-                            createWebhooksParams.Add(ToSqlWebhook(changedEvent.EventType, webhookAction, workflowId, dataMaps));
-                        }
+                            UpdateWebhooksDataMap(e, dataMaps, createdAndUpdatedWebhooks, ref index);
+                        });
                     }
                 }
 
-                var createdAndUpdatedWebhooks = new List<SqlWebhooks>();
-                // Updated all webhooks that already exist
-                if (updateWebhookParams.Any())
+                // We don't allow webhooks to be updated from the Canvas
+                if (workflowMode == WorkflowMode.Canvas)
                 {
-                    createdAndUpdatedWebhooks.AddRange(await _webhooksRepository.UpdateWebhooks(updateWebhookParams, transaction));
-                }
-
-                // Create any newly added webhook
-                if (createWebhooksParams.Any())
-                {
-                    createdAndUpdatedWebhooks.AddRange(await _webhooksRepository.CreateWebhooks(createWebhooksParams, transaction));
-                }
-
-                // After All Webhooks have been created / updated, we need to go back and update our dataMap for all events
-                if (createdAndUpdatedWebhooks.Any())
-                {
-                    var index = 0;
+                    // Get the basic webhook information that we orginally send to the UI
+                    List<IeWebhookAction> webhookActions = new List<IeWebhookAction>();
                     workflowDiffResult.ChangedEvents.ForEach(e =>
                     {
-                        UpdateWebhooksDataMap(e, dataMaps, createdAndUpdatedWebhooks, ref index);
+                        webhookActions.AddRange(e.Triggers.Where(t => t.Action.ActionType == ActionTypes.Webhook)
+                                                .Select(t => new IeWebhookAction
+                                                {
+                                                    IdSerializable = ((IeWebhookAction)t.Action).IdSerializable,
+                                                    Name = ((IeWebhookAction)t.Action).Name,
+                                                    Url = ((IeWebhookAction)t.Action).Url
+                                                }));
+                    });
+
+                    // Using the webhookIds from above, get all webhook information that we have in the DB
+                    var webhooks = await _webhooksRepository.GetWebhooks(webhookActions.Select(wa => wa.IdSerializable).ToList(), transaction);
+                    webhookActions.ForEach(wa =>
+                    {
+                        var sqlWebhook = webhooks.Where(sqlw => sqlw.WebhookId == wa.IdSerializable).First();
+                        var securityInfo = SerializationHelper.FromXml<XmlWebhookSecurityInfo>(sqlWebhook.SecurityInfo);
+
+                        wa.IgnoreInvalidSSLCertificate = securityInfo.IgnoreInvalidSSLCertificate;
+                        wa.HttpHeaders = securityInfo.HttpHeaders;
+                        wa.BasicAuth = new IeBasicAuth { Username = securityInfo.BasicAuth?.Username, Password = securityInfo.BasicAuth?.Password };
+                        wa.Signature = new IeSignature { Algorithm = securityInfo.Signature?.Algorithm, SecretToken = securityInfo.Signature?.SecretToken };
+
+                        dataMaps.WebhooksByActionObj.Add(wa, wa.IdSerializable);
+                    });
+
+                    // Update workflow events with the full webhook information that we retrieved from the DB
+                    workflowDiffResult.ChangedEvents.ForEach(e =>
+                    {
+                        e.Triggers.ForEach(t =>
+                        {
+                            if (t.Action.ActionType == ActionTypes.Webhook)
+                            {
+
+                                t.Action = webhookActions.First(w => w.IdSerializable == ((IeWebhookAction)t.Action).IdSerializable);
+                            }
+                        });
                     });
                 }
             }

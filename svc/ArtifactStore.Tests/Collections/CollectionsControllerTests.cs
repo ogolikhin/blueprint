@@ -3,6 +3,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Hosting;
 using System.Web.Http.Results;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Models;
@@ -35,7 +37,6 @@ namespace ArtifactStore.Collections
         private CollectionArtifacts _expectedCollectionArtifacts;
         private GetColumnsDto _columns;
         private ProfileColumnsDto _profileColumnsDto;
-
 
         [TestInitialize]
         public void Initialize()
@@ -120,7 +121,8 @@ namespace ArtifactStore.Collections
                             new PropertyValueInfo
                             {
                                 PropertyTypeId = 81,
-                                Value = "Value_Description"
+                                Value = "Value_Description",
+                                IsRichText = true
                             }
                         }
                     },
@@ -139,7 +141,8 @@ namespace ArtifactStore.Collections
                             new PropertyValueInfo
                             {
                                 PropertyTypeId = 81,
-                                Value = "Value_Description_2"
+                                Value = "Value_Description_2",
+                                IsRichText = true
                             }
                         }
                     }
@@ -245,6 +248,26 @@ namespace ArtifactStore.Collections
             await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);
         }
 
+        [TestMethod]
+        public async Task SaveColumnsSettingsAsync_SaveChangedCustomProperty_ReturnWarningMessage()
+        {
+            _collectionsController.Request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey,
+                new HttpConfiguration());
+
+            _collectionsServiceMock.Setup(q => q.SaveProfileColumnsAsync(_collectionId,
+                    It.IsAny<ProfileColumns>(), _sessionUserId)).ReturnsAsync(true);
+
+            var expectedMessage = ErrorMessages.ArtifactList.ColumnsSettings.ChangedCustomProperties;
+
+            var result = await _collectionsController.SaveColumnsSettingsAsync(_collectionId, _profileColumnsDto);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+            var resultMessage = await result.Content.ReadAsAsync<string>();
+
+            Assert.AreEqual(expectedMessage, resultMessage);
+        }
         #endregion SaveColumnsSettingsAsync
 
         #region GetArtifactsInCollectionAsync

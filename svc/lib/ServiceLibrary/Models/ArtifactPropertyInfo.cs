@@ -38,5 +38,6 @@ namespace ServiceLibrary.Models
         public bool IsRichText { get; set; }
 
         public string HtmlTextValue { get; set; }
+
     }
 }

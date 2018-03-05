@@ -490,6 +490,7 @@ namespace AdminStore.Helpers.Workflow
                     if (dWebhookAction != null)
                         return new IeWebhookAction
                         {
+                            IdSerializable = dWebhookAction.WebhookId,
                             Name = dWebhookAction.Name,
                             Url = dWebhookAction.Url
                         };
@@ -570,6 +571,7 @@ namespace AdminStore.Helpers.Workflow
                     {
                         return new DWebhookAction
                         {
+                            WebhookId = ieWebhookAction.IdSerializable,
                             Name = ieWebhookAction.Name,
                             Url = ieWebhookAction.Url
                         };

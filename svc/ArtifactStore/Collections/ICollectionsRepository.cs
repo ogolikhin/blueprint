@@ -12,7 +12,7 @@ namespace ArtifactStore.Collections
         Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(int collectionId, int userId, bool addDrafts = true);
 
         Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
-            int userId, IEnumerable<int> artifactIds, ProfileColumns profileColumns);
+            int userId, IEnumerable<int> artifactIds, IEnumerable<ProfileColumn> profileColumns);
 
         Task<int> AddArtifactsToCollectionAsync(int collectionId, IEnumerable<int> artifactIds, int userId,
             IDbTransaction transaction = null);

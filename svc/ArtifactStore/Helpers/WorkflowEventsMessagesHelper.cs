@@ -204,6 +204,8 @@ namespace ArtifactStore.Helpers
                             },
                             artifactType.CustomPropertyTypeIds);
 
+                        var revisionInfo = await webhooksRepository.GetRevisionInfos(new List<int> { revisionId });
+
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {
                             Id = Guid.NewGuid().ToString(),
@@ -240,6 +242,7 @@ namespace ArtifactStore.Helpers
                                     }
                                 },
                                 Revision = revisionId,
+                                RevisionTimestamp = revisionInfo?.FirstOrDefault()?.Timestamp,
                                 Version = ((VersionControlArtifactInfo)artifactInfo).Version,
                                 Id = artifactInfo.Id,
                                 BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
@@ -369,11 +372,21 @@ namespace ArtifactStore.Helpers
                         NumberValue = artifactPropertyInfo.DecimalValue,
                         PropertyTypeId = artifactPropertyInfo.PropertyTypeId,
                         TextOrChoiceValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Text || isCustomChoice
-                            ? artifactPropertyInfo.FullTextValue
+                            ? (artifactPropertyInfo.IsRichText ? artifactPropertyInfo.HtmlTextValue : artifactPropertyInfo.FullTextValue)
                             : null,
                         UsersAndGroups = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User
                             ? new List<WebhookUserPropertyValue> { userProperty }
-                            : null
+                            : null,
+                        IsRichText = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Text
+                            ? (bool?)artifactPropertyInfo.IsRichText
+                            : null,
+                        IsReadOnly = (artifactPropertyInfo.PropertyTypePredefined == (int)PropertyTypePredefined.ID ||
+                             artifactPropertyInfo.PropertyTypePredefined == (int)PropertyTypePredefined.CreatedBy ||
+                             artifactPropertyInfo.PropertyTypePredefined == (int)PropertyTypePredefined.LastEditedOn ||
+                             artifactPropertyInfo.PropertyTypePredefined == (int)PropertyTypePredefined.LastEditedBy ||
+                             artifactPropertyInfo.PropertyTypePredefined == (int)PropertyTypePredefined.CreatedOn)
+                             ? (bool?)true
+                             : null
                     };
                 }
             }

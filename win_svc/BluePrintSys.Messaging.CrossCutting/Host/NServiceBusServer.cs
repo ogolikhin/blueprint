@@ -250,7 +250,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 // If the webhook could not be delivered within the specified number of retry attempts. Log error and send to ErrorQueue
                 string errorMsg = $"Failed to send webhook after {context.DelayedDeliveriesPerformed} attempts.";
                 Log.Error(errorMsg);
-                throw new WebhookExceptionDoNotRetry(errorMsg);
+                return RecoverabilityAction.MoveToError(ConfigHelper.ErrorQueue);
             }
             // For all other exceptions, fall back to default policy
             return DefaultRecoverabilityPolicy.Invoke(config, context);

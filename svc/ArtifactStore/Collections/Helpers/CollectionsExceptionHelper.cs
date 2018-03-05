@@ -32,7 +32,13 @@ namespace ArtifactStore.Collections.Helpers
         public static ConflictException LockedByAnotherUserException(int id, int userId)
         {
             var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.Collections.LockedByAnotherUser, id, userId);
-            return new ConflictException(errorMessage, ErrorCodes.Conflict);
+            return new ConflictException(errorMessage, ErrorCodes.LockedByOtherUser);
+        }
+
+        public static ConflictException LockFailedException(int id, int userId)
+        {
+            var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.Collections.LockFailed, userId, id);
+            return new ConflictException(errorMessage, ErrorCodes.LockFailed);
         }
     }
 }

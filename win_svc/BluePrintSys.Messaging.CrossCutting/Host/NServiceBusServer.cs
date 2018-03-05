@@ -13,6 +13,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using BluePrintSys.Messaging.Models.Actions;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {
@@ -27,6 +28,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 
         private static readonly object Locker = new object();
         private static TDerivedType _instance;
+        private CriticalErrorRecovery criticalErrorRecovery;
         protected abstract Dictionary<MessageActionType, Type> GetMessageActionToHandlerMapping();
 
         public static TDerivedType Instance
@@ -53,6 +55,20 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
         protected int SendTimeoutSeconds { get; set; }
         protected const string LicenseInfo = "<?xml version=\"1.0\" encoding=\"utf-8\"?><license id=\"c79869c4-f819-48fd-8988-f0d0fcf637ac\" expiration=\"2117-04-12T18:43:05.7462219\" type=\"Standard\" ProductName=\"Royalty Free Platform License\" WorkerThreads=\"Max\" LicenseVersion=\"6.0\" MaxMessageThroughputPerSecond=\"Max\" AllowedNumberOfWorkerNodes=\"Max\" UpgradeProtectionExpiration=\"2018-04-12\" Applications=\"NServiceBus;ServiceControl;ServicePulse;\" LicenseType=\"Royalty Free Platform License\" Perpetual=\"\" Quantity=\"1\" Edition=\"Advanced \">  <name>Blueprint Software Systems</name>  <Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\">    <SignedInfo>      <CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\" />      <SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\" />      <Reference URI=\"\">        <Transforms>          <Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\" />        </Transforms>        <DigestMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\" />        <DigestValue>4fPcuVF4dP8Spy8GgrR+ebjWp8k=</DigestValue>      </Reference>    </SignedInfo>    <SignatureValue>3Q6bMQl5xsD/jzxmQjE5ji/DfP6kOqjvsrOiDiiawr3hHF9EDCdCHAPOBwmOp5zD/vLAS83baqGF23AVcwAXo75GxJNHuuxRkRuhPuL8gX8pNBC+5opaQvKkR/lZ32cErg/+sdY5SHSik2io1QGFe7IclykFhtcSLkGFi4wZ5EM=</SignatureValue>  </Signature></license>";
         protected IEndpointInstance EndpointInstance { get; set; }
+        protected Func<Func<Task>, Action, CriticalErrorRecovery> CriticalErrorRecoveryFactory
+        {
+            get
+            {
+                return (createEndpoint, criticalActionCallback) => {
+                    return new CriticalErrorRecovery(
+                        ConfigHelper.NServiceBusCriticalErrorRetryCount,
+                        ConfigHelper.NServiceBusCriticalErrorRetryDelay,
+                        createEndpoint,
+                        criticalActionCallback,
+                        ConfigHelper.NServiceBusIgnoreCriticalErrors);
+                };
+            }
+        }
 
         public async Task Stop()
         {
@@ -61,9 +77,10 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 Log.Debug("Stopping Messaging Endpoint");
                 await EndpointInstance.Stop().ConfigureAwait(false);
             }
+            criticalErrorRecovery = null;
         }
 
-        public async Task<string> Start(string connectionString, bool sendOnly)
+        public async Task<string> Start(string connectionString, bool sendOnly, Action criticalErrorCallback = null)
         {
             if (string.IsNullOrEmpty(connectionString))
             {
@@ -73,6 +90,10 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 
             try
             {
+                criticalErrorRecovery = CriticalErrorRecoveryFactory(
+                    () => CreateEndPoint(MessageQueue, connectionString, sendOnly),
+                    criticalErrorCallback);
+
                 await CreateEndPoint(MessageQueue, connectionString, sendOnly);
                 Log.Debug("Started Messaging Endpoint");
                 return null;
@@ -128,6 +149,16 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             {
                 endpointConfiguration.SendOnly();
             }
+
+            if (criticalErrorRecovery != null)
+            {
+                endpointConfiguration.DefineCriticalErrorAction(criticalErrorRecovery.OnCriticalError);
+            }
+            else
+            {
+                Log.Warn("Default Critical Error Action is used");
+            }
+
             var recoverability = endpointConfiguration.Recoverability();
             recoverability.DisableLegacyRetriesSatellite();
             recoverability.AddUnrecoverableException<WebhookExceptionDoNotRetry>();

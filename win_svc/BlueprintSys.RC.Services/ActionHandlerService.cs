@@ -28,10 +28,32 @@ namespace BlueprintSys.RC.Services
 
             Log.Info("Action Handler Service is starting.");
             _messageTransportHost = new TransportHost(new ConfigHelper(), WorkflowServiceBusServer.Instance);
-            Task.Run(() => _messageTransportHost.Start(false, () => {
-                hostControl.Stop();
-                return true;
-            }));
+            Task.Run(() => _messageTransportHost.Start(
+                false,
+                () => {
+                    hostControl.Stop();
+                    return true;
+                },
+                () => {
+                    try
+                    {
+                        if (Environment.UserInteractive)
+                        {
+                            hostControl.Stop();
+                        }
+                        else
+                        {
+                            Stop(hostControl);
+                        }
+                    }
+                    finally
+                    {
+                        if (!Environment.UserInteractive)
+                        {
+                            Environment.FailFast("Messaging service - NSB critical error");
+                        }
+                    }
+                }));
             Log.Info("Action Handler Service started.");
 
             return true;

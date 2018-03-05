@@ -57,7 +57,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
                     Log.Warn("ReCreating EndPoint Failed: " + ex.Message);
                 }
             }
-            _onFailure();
+            _onFailure?.Invoke();
         }
 
         public async Task OnCriticalError(ICriticalErrorContext context)

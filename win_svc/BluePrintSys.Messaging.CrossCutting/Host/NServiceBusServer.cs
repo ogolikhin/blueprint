@@ -56,7 +56,11 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 
         public async Task Stop()
         {
-            await EndpointInstance.Stop().ConfigureAwait(false);
+            if (EndpointInstance != null)
+            {
+                Log.Debug("Stopping Messaging Endpoint");
+                await EndpointInstance.Stop().ConfigureAwait(false);
+            }
         }
 
         public async Task<string> Start(string connectionString, bool sendOnly)
@@ -95,14 +99,14 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             var transportType = NServiceBusValidator.GetTransportType(connectionString);
             if (transportType == NServiceBusTransportType.RabbitMq)
             {
-                Log.Info($"Configuring RabbitMQ Transport for {connectionString}");
+                Log.Info($"Configuring RabbitMQ Transport");
                 var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
                 transport.ConnectionString(connectionString);
                 assembliesToExclude.Add("nservicebus.transport.sqlserver.dll");
             }
             else if (transportType == NServiceBusTransportType.Sql)
             {
-                Log.Info($"Configuring SQL Server Transport for {connectionString}");
+                Log.Info($"Configuring SQL Server Transport");
                 var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
                 transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
                 transport.ConnectionString(connectionString);
@@ -130,12 +134,12 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             recoverability.CustomPolicy(WebhookRetryPolicy);
             recoverability.Immediate(immediate =>
             {
-                immediate.NumberOfRetries(6);
+                immediate.NumberOfRetries(ConfigHelper.NServiceBusNumberOfImmediateRetries);
             });
             recoverability.Delayed(delayed =>
             {
-                delayed.NumberOfRetries(5);
-                delayed.TimeIncrease(TimeSpan.FromMinutes(10));
+                delayed.NumberOfRetries(ConfigHelper.NServiceBusNumberOfDelayedRetries);
+                delayed.TimeIncrease(ConfigHelper.NServiceBusDelayIntervalIncrease);
             });
 
             var conventions = endpointConfiguration.Conventions();

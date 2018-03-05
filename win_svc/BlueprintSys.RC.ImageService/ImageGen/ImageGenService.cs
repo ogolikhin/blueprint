@@ -28,6 +28,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
         private readonly NServiceBusServer _nServiceBusServer = new NServiceBusServer();
 
         private volatile bool _stoppingService;
+        private Object _lockObject = new Object();
 
         private ImageGenService()
         {
@@ -96,7 +97,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
         public bool Stop(HostControl hostControl)
         {
-            lock (this)
+            lock (_lockObject)
             {
                 if (_stoppingService)
                 {

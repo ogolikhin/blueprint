@@ -50,7 +50,18 @@ namespace ArtifactStore.Collections
                 where c.PropertyTypeId != null
                 select c.PropertyTypeId.Value).ToList();
 
-            return await _artifactRepository.GetArtifactsWithPropertyValuesAsync(userId, artifactIds, propertyTypePredefineds, propertyTypeIds);
+            var artifactsWithProperties = await _artifactRepository.GetArtifactsWithPropertyValuesAsync(userId, artifactIds, propertyTypePredefineds, propertyTypeIds);
+
+            // Need to set PropertyTypeId to null for system properties (client uses this to distinguish from custom properties)
+            foreach (var artifact in artifactsWithProperties)
+            {
+                if (artifact.PropertyTypePredefined != (int)PropertyTypePredefined.CustomGroup)
+                {
+                    artifact.PropertyTypeId = null;
+                }
+            }
+
+            return artifactsWithProperties;
         }
 
         public async Task<IReadOnlyList<int>> GetContentArtifactIdsAsync(

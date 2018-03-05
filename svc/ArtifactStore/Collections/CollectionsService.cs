@@ -23,7 +23,7 @@ namespace ArtifactStore.Collections
     {
         private const string ChoiceValueFrame = "\"";
         private const string ChoiceValueSeparator = ",";
-        private const int ColumnLimit = 100;
+        private const int ColumnLimit = 101;
 
         private readonly ICollectionsRepository _collectionsRepository;
         private readonly ILockArtifactsRepository _lockArtifactsRepository;

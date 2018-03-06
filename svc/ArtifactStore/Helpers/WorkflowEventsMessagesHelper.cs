@@ -200,7 +200,8 @@ namespace ArtifactStore.Helpers
                                 (int)PropertyTypePredefined.CreatedBy,
                                 (int)PropertyTypePredefined.LastEditedOn,
                                 (int)PropertyTypePredefined.LastEditedBy,
-                                (int)PropertyTypePredefined.CreatedOn
+                                (int)PropertyTypePredefined.CreatedOn,
+                                (int)PropertyTypePredefined.UseCaseLevel
                             },
                             artifactType.CustomPropertyTypeIds);
 

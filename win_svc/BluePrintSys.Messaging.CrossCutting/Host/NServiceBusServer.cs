@@ -241,6 +241,14 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
         {
             if (context.Exception is WebhookExceptionRetryPerPolicy)
             {
+                // Check that the retry internal is valid
+                if (ConfigHelper.WebhookRetryInterval < 0)
+                {
+                    string errorMessage = $"Invalid Webhook Retry Interval of {ConfigHelper.WebhookRetryInterval} seconds.";
+                    Log.Error(errorMessage);
+                    return RecoverabilityAction.MoveToError(ConfigHelper.ErrorQueue);
+                }
+
                 // Check that the number of delayed deliveries does not exceed configurable webhook retry count
                 if (context.DelayedDeliveriesPerformed < ConfigHelper.WebhookRetryCount)
                 {

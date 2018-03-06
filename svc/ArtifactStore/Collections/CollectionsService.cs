@@ -99,8 +99,8 @@ namespace ArtifactStore.Collections
                 collectionPermissions);
         }
 
-        public async Task<CollectionArtifacts> GetArtifactsInCollectionAsync(
-            int collectionId, Pagination pagination, int userId)
+        public async Task<CollectionData> GetArtifactsInCollectionAsync(
+            int collectionId, int userId, Pagination pagination, ProfileColumns profileColumns)
         {
             var collection = await GetCollectionAsync(collectionId, userId);
 
@@ -109,12 +109,40 @@ namespace ArtifactStore.Collections
 
             var artifactItems = await GetArtifactItemsDetailsAsync(searchArtifactsResult.ArtifactIds, userId);
 
-            var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifactItems);
+            IEnumerable<ProfileColumn> validColumns;
+            var collectionArtifacts = new CollectionArtifacts();
+            ProfileColumns validProfileColumns = null;
 
-            var profileColumns = await _artifactListService.GetProfileColumnsAsync(
-                collection.Id, userId, ProfileColumns.Default);
+            if (profileColumns != null)
+            {
+                var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifactItems);
 
-            var validColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, string.Empty).ToList();
+                var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
+
+                var invalidValidColumns = profileColumns.GetInvalidValidColumns(propertyTypes);
+
+                var invalidColumns = invalidValidColumns.Item2;
+                validColumns = invalidValidColumns.Item1.ToList();
+
+                var invalidColumnsCount = invalidColumns.Count();
+                var validColumnsCount = validColumns.Count();
+
+                if (validColumnsCount < 1)
+                {
+                    collectionArtifacts.ColumnValidation = new ColumnValidation { Number = invalidColumnsCount, Status = ColumnValidationStatus.AllInvalid };
+                    validProfileColumns = new ProfileColumns(new List<ProfileColumn>());
+                    validColumns = ProfileColumns.Default.Items;
+                }
+                else if (validColumnsCount != profileColumns.Items.Count())
+                {
+                    collectionArtifacts.ColumnValidation = new ColumnValidation { Number = invalidColumnsCount, Status = ColumnValidationStatus.SomeValid };
+                    validProfileColumns = new ProfileColumns(validColumns);
+                }
+            }
+            else
+            {
+                validColumns = ProfileColumns.Default.Items;
+            }
 
             var artifactIds = searchArtifactsResult.ArtifactIds.Skip((int)pagination.Offset)
                 .Take((int)pagination.Limit).ToList();
@@ -123,9 +151,18 @@ namespace ArtifactStore.Collections
                 userId, artifactIds, validColumns);
 
             var populatedArtifacts = PopulateArtifactsProperties(artifactIds, artifactsWithPropertyValues, validColumns);
-            populatedArtifacts.ItemsCount = searchArtifactsResult.Total;
 
-            return populatedArtifacts;
+            collectionArtifacts.ItemsCount = searchArtifactsResult.Total;
+            collectionArtifacts.Items = populatedArtifacts.Item1;
+            collectionArtifacts.ArtifactListSettings = populatedArtifacts.Item2;
+
+            var collectionData = new CollectionData
+            {
+                ProfileColumns = validProfileColumns,
+                CollectionArtifacts = collectionArtifacts
+            };
+
+            return collectionData;
         }
 
         public async Task<AddArtifactsToCollectionResult> AddArtifactsToCollectionAsync(
@@ -254,7 +291,7 @@ namespace ArtifactStore.Collections
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts);
 
             var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
-            var invalidColumns = profileColumns.GetInvalidColumns(propertyTypes);
+            var invalidColumns = profileColumns.GetInvalidValidColumns(propertyTypes).Item2.ToList();
 
             if (invalidColumns.Any())
             {
@@ -376,7 +413,7 @@ namespace ArtifactStore.Collections
                 propertyTypeInfo.Id);
         }
 
-        private static CollectionArtifacts PopulateArtifactsProperties(IEnumerable<int> artifactIds, IReadOnlyList<ArtifactPropertyInfo> artifacts, IEnumerable<ProfileColumn> profileColumns)
+        private static Tuple<IEnumerable<ArtifactDto>, ArtifactListSettings> PopulateArtifactsProperties(IEnumerable<int> artifactIds, IReadOnlyList<ArtifactPropertyInfo> artifacts, IEnumerable<ProfileColumn> profileColumns)
         {
             var artifactDtos = new List<ArtifactDto>();
 
@@ -482,14 +519,10 @@ namespace ArtifactStore.Collections
                 });
             }
 
-            return new CollectionArtifacts
+            return new Tuple<IEnumerable<ArtifactDto>, ArtifactListSettings>(artifactDtos, new ArtifactListSettings
             {
-                Items = artifactDtos,
-                ArtifactListSettings = new ArtifactListSettings
-                {
-                    Columns = profileColumns
-                }
-            };
+                Columns = profileColumns
+            });
         }
 
         private async Task LockAsync(Collection collection, int userId, IDbTransaction transaction = null)

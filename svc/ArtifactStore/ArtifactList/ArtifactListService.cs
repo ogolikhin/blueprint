@@ -21,6 +21,26 @@ namespace ArtifactStore.ArtifactList
             _artifactListSettingsRepository = artifactListSettingsRepository;
         }
 
+        public async Task<ProfileSettings> GetProfileSettingsAsync(int itemId, int userId)
+        {
+            var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
+
+            if (existingSettings == null)
+            {
+                return null;
+            }
+
+            var profileSettings = new ProfileSettings
+            {
+                ProfileColumns = !existingSettings.Columns.IsEmpty()
+                    ? ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings)
+                    : null,
+                PaginationLimit = ArtifactListHelper.ConvertXmlProfileSettingsToPaginationLimit(existingSettings)
+            };
+
+            return profileSettings;
+        }
+
         public async Task<int?> GetPaginationLimitAsync(int itemId, int userId)
         {
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
@@ -31,13 +51,38 @@ namespace ArtifactStore.ArtifactList
         }
 
         public async Task<ProfileColumns> GetProfileColumnsAsync(
-            int itemId, int userId, ProfileColumns defaultColumns = null)
+            int itemId, int userId, ProfileColumns defaultColumns)
         {
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
             return existingSettings == null || existingSettings.Columns.IsEmpty()
                 ? defaultColumns
                 : ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings);
+        }
+
+
+        public async Task<ProfileColumns> GetProfileColumnsAsync(int itemId, int userId)
+        {
+            var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
+
+            if (existingSettings == null || existingSettings.Columns.IsEmpty())
+            {
+                return null;
+            }
+
+            return ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings);
+        }
+
+        public async Task SaveProfileSettingsAsync(int itemId,  int userId, ProfileColumns profileColumns, int? paginationLimit)
+        {
+            var profileSettingsParams = new ProfileSettingsParams { PaginationLimit = paginationLimit };
+
+            if (profileColumns != null)
+            {
+                profileSettingsParams.Columns = profileColumns;
+            }
+
+            await SaveSettingsAsync(itemId, userId, profileSettingsParams);
         }
 
         public async Task<int> SavePaginationLimitAsync(int itemId, int? paginationLimit, int userId)

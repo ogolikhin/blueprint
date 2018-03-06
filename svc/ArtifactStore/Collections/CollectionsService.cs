@@ -425,8 +425,8 @@ namespace ArtifactStore.Collections
 
                     propertyInfo.Value =
                         propertyTypePredefined == PropertyTypePredefined.ID
-                            ? artifactProperty.Prefix + propertyInfo.Value
-                            : propertyInfo.Value;
+                        ? artifactProperty.Prefix + propertyInfo.Value
+                        : propertyInfo.Value;
 
                     var multiValueTuple = new Tuple<int, int?, PropertyTypePredefined, PropertyPrimitiveType>(
                         artifactProperty.ArtifactId,

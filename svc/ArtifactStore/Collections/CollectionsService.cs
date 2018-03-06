@@ -22,7 +22,8 @@ namespace ArtifactStore.Collections
     public class CollectionsService : ICollectionsService
     {
         private const string ChoiceValueFrame = "\"";
-        private const string ChoiceValueSeparator = ",";
+        private const string ChoiceValueSeparator = ", ";
+        private const int ColumnLimit = 101;
 
         private readonly ICollectionsRepository _collectionsRepository;
         private readonly ILockArtifactsRepository _lockArtifactsRepository;
@@ -104,15 +105,24 @@ namespace ArtifactStore.Collections
             var collection = await GetCollectionAsync(collectionId, userId);
 
             var searchArtifactsResult = await _searchEngineService.Search(
-                collection.Id, pagination, ScopeType.Contents, true, userId);
+                collection.Id, null, ScopeType.Contents, true, userId);
+
+            var artifactItems = await GetArtifactItemsDetailsAsync(searchArtifactsResult.ArtifactIds, userId);
+
+            var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifactItems);
 
             var profileColumns = await _artifactListService.GetProfileColumnsAsync(
                 collection.Id, userId, ProfileColumns.Default);
 
-            var artifacts = await _collectionsRepository.GetArtifactsWithPropertyValuesAsync(
-                userId, searchArtifactsResult.ArtifactIds, profileColumns);
+            var validColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, string.Empty).ToList();
 
-            var populatedArtifacts = PopulateArtifactsProperties(artifacts, profileColumns);
+            var artifactIds = searchArtifactsResult.ArtifactIds.Skip((int)pagination.Offset)
+                .Take((int)pagination.Limit).ToList();
+
+            var artifactsWithPropertyValues = await _collectionsRepository.GetArtifactsWithPropertyValuesAsync(
+                userId, artifactIds, validColumns);
+
+            var populatedArtifacts = PopulateArtifactsProperties(artifactIds, artifactsWithPropertyValues, validColumns);
             populatedArtifacts.ItemsCount = searchArtifactsResult.Total;
 
             return populatedArtifacts;
@@ -206,7 +216,7 @@ namespace ArtifactStore.Collections
         public async Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null)
         {
             var collection = await GetCollectionAsync(collectionId, userId);
-            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
+            var artifacts = await GetArtifactItemsDetailsAsync(collectionId, userId);
 
             if (artifacts.IsEmpty())
             {
@@ -221,10 +231,14 @@ namespace ArtifactStore.Collections
             var profileColumns = await _artifactListService.GetProfileColumnsAsync(
                 collection.Id, userId, ProfileColumns.Default);
 
+            var selectedColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, search).ToList();
+
+            int? countOfNeededColumns = string.IsNullOrEmpty(search) ? ColumnLimit - selectedColumns.Count : (int?)null;
+
             return new GetColumnsDto
             {
-                SelectedColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, search),
-                UnselectedColumns = GetUnselectedColumns(propertyTypeInfos, profileColumns)
+                SelectedColumns = selectedColumns,
+                UnselectedColumns = GetUnselectedColumns(propertyTypeInfos, profileColumns, countOfNeededColumns)
             };
         }
 
@@ -236,7 +250,7 @@ namespace ArtifactStore.Collections
             }
 
             var collection = await GetCollectionAsync(collectionId, userId);
-            var artifacts = await GetContentArtifactDetailsAsync(collectionId, userId);
+            var artifacts = await GetArtifactItemsDetailsAsync(collectionId, userId);
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts);
 
             var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
@@ -255,14 +269,25 @@ namespace ArtifactStore.Collections
             return savingProfileColumnsTuple.Item2;
         }
 
-        private async Task<IReadOnlyList<ItemDetails>> GetContentArtifactDetailsAsync(int collectionId, int userId)
+        private async Task<IReadOnlyList<ItemDetails>> GetArtifactItemsDetailsAsync(int collectionId, int userId)
         {
             var artifactIds = await _collectionsRepository.GetContentArtifactIdsAsync(collectionId, userId);
+
+            var artifactItems = await GetArtifactItemsDetailsAsync(artifactIds, userId);
+
+            return artifactItems;
+        }
+
+
+        private async Task<IReadOnlyList<ItemDetails>> GetArtifactItemsDetailsAsync(IEnumerable<int> artifactIds, int userId)
+        {
             var artifactsInCollection = await _itemInfoRepository.GetItemsDetails(userId, artifactIds);
 
-            return artifactsInCollection
+            var artifactItems = artifactsInCollection
                 .Where(artifact => artifact.EndRevision == int.MaxValue || artifact.EndRevision == 1)
                 .ToList();
+
+            return artifactItems;
         }
 
         private async Task<Collection> ValidateCollectionAsync(int collectionId, int userId, IDbTransaction transaction)
@@ -299,13 +324,13 @@ namespace ArtifactStore.Collections
         }
 
         private static IEnumerable<ProfileColumn> GetUnselectedColumns(
-            IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns = null)
+            IEnumerable<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns = null, int? count = null)
         {
             return propertyTypeInfos
                 .Select(info => info.IsCustom ?
                     CreateCustomPropertyColumn(info, profileColumns) :
                     CreateSystemPropertyColumn(info, profileColumns))
-                .Where(column => column != null)
+                .Where(column => column != null).TakeIfNotNull(count)
                 .ToList();
         }
 
@@ -351,42 +376,9 @@ namespace ArtifactStore.Collections
                 propertyTypeInfo.Id);
         }
 
-        private static CollectionArtifacts PopulateArtifactsProperties(
-            IReadOnlyList<ArtifactPropertyInfo> artifacts, ProfileColumns profileColumns)
+        private static CollectionArtifacts PopulateArtifactsProperties(IEnumerable<int> artifactIds, IReadOnlyList<ArtifactPropertyInfo> artifacts, IEnumerable<ProfileColumn> profileColumns)
         {
             var artifactDtos = new List<ArtifactDto>();
-            var settingsColumns = new List<ProfileColumn>();
-
-            if (artifacts.Any())
-            {
-                var artifactProperties = artifacts
-                    .Select(p =>
-                        new { p.PropertyTypePredefined, p.PropertyName, p.PropertyTypeId, p.PrimitiveType })
-                    .Distinct()
-                    .ToList();
-
-                foreach (var artifactProperty in artifactProperties)
-                {
-                    var propertyTypePredefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined;
-                    var profileColumn = new ProfileColumn
-                    {
-                        PropertyName = artifactProperty.PropertyName,
-                        Predefined = propertyTypePredefined,
-                        PropertyTypeId = artifactProperty.PropertyTypeId,
-                        PrimitiveType = (PropertyPrimitiveType)artifactProperty.PrimitiveType
-                    };
-
-                    settingsColumns.Add(profileColumn);
-                }
-            }
-
-            settingsColumns = settingsColumns.Any()
-                ? (from p in profileColumns.Items // Select from profileColumns first to keep order of columns.
-                   join s in settingsColumns on p equals s // Skip columns, that were changed or removed.
-                   select p).ToList()
-                : profileColumns.Items.ToList();
-
-            var artifactIds = artifacts.Select(x => x.ArtifactId).Distinct().ToList();
 
             foreach (var id in artifactIds)
             {
@@ -402,7 +394,7 @@ namespace ArtifactStore.Collections
                 {
                     var propertyInfo = new PropertyValueInfo();
                     var propertyTypePredefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined;
-                    var primitiveType = (PropertyPrimitiveType)artifactProperty.PrimitiveType;
+                    var primitiveType = artifactProperty.PrimitiveType;
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
                     propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
@@ -486,7 +478,7 @@ namespace ArtifactStore.Collections
                     ItemTypeId = itemTypeId,
                     PredefinedType = predefinedType,
                     ItemTypeIconId = itemTypeIconId,
-                    PropertyInfos = propertyInfos.OrderBy(x => x.PropertyTypeId)
+                    PropertyInfos = propertyInfos.OrderBy(x => x.PropertyTypeId).ToList()
                 });
             }
 
@@ -495,7 +487,7 @@ namespace ArtifactStore.Collections
                 Items = artifactDtos,
                 ArtifactListSettings = new ArtifactListSettings
                 {
-                    Columns = settingsColumns
+                    Columns = profileColumns
                 }
             };
         }
@@ -506,7 +498,7 @@ namespace ArtifactStore.Collections
             {
                 if (!await _lockArtifactsRepository.LockArtifactAsync(collection.Id, userId, transaction))
                 {
-                    throw ExceptionHelper.ArtifactNotLockedException(collection.Id, userId);
+                    throw CollectionsExceptionHelper.LockFailedException(collection.Id, userId);
                 }
             }
             else if (collection.LockedByUserId != userId)

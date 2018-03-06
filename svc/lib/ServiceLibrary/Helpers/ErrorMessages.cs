@@ -177,6 +177,7 @@
             public static readonly string Unauthorized = "User does not have permissions to access the collection (Id:{0}).";
             public static readonly string NoEditPermission = "User does not have permissions to modify the collection (Id:{0}).";
             public static readonly string LockedByAnotherUser = "Collection (Id:{0}) is already locked by user (Id:{1}).";
+            public static readonly string LockFailed = "User (Id:{0}) failed to lock collection (Id:{1}).";
             public static readonly string AddArtifactsInvalidParameters = "Invalid parameters to add artifact(s)";
             public static readonly string ColumnsSettingsModelIsIncorrect = "The body of the call is malformed or has invalid parameter.";
             public static readonly string RemoveArtifactsInvalidParameters = "Incorrect input parameters.";

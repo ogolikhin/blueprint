@@ -105,15 +105,21 @@ namespace ArtifactStore.Executors
                     Result = stateChangeResult
                 };
 
-            // Generate asynchronous messages for sending
-            result.ActionMessages.AddRange(await _workflowEventsMessagesHelper.GenerateMessages(
+                var artifactInfoAfterTransition =
+                    await _stateChangeExecutorRepositories.ArtifactVersionsRepository.GetVersionControlArtifactInfoAsync(_input.ArtifactId,
+                        null,
+                        _userId,
+                        transaction);
+
+                // Generate asynchronous messages for sending
+                result.ActionMessages.AddRange(await _workflowEventsMessagesHelper.GenerateMessages(
                     _userId,
                     publishRevision,
                     _input.UserName,
                     transactionId,
                     triggers.AsynchronousTriggers,
-                    artifactInfo,
-                    artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfo.ProjectId)?.Name,
+                    artifactInfoAfterTransition,
+                    artifactResultSet?.Projects?.FirstOrDefault(d => d.Id == artifactInfoAfterTransition.ProjectId)?.Name,
                     artifactResultSet?.ModifiedProperties,
                     currentState,
                     stateChangeResult.Item,

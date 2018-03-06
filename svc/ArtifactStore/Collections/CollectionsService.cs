@@ -411,17 +411,17 @@ namespace ArtifactStore.Collections
                     bool multiValue = primitiveType == PropertyPrimitiveType.Choice || primitiveType == PropertyPrimitiveType.User;
 
                     propertyInfo.Value = systemColumn
-                                         && !multiValue // Fill multi value properties below
+                            && !multiValue // Fill multi value properties below
                         ? artifactProperty.PredefinedPropertyValue
                         : primitiveType == PropertyPrimitiveType.Date
-                            ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)
-                            : primitiveType == PropertyPrimitiveType.Number
-                                ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
-                                : multiValue
-                                    ? null // Fill multi value properties below
-                                    : artifactProperty.IsRichText
-                                        ? artifactProperty.HtmlTextValue
-                                        : artifactProperty.FullTextValue;
+                        ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)
+                        : primitiveType == PropertyPrimitiveType.Number
+                        ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
+                        : multiValue
+                        ? null // Fill multi value properties below
+                        : artifactProperty.IsRichText
+                        ? artifactProperty.HtmlTextValue
+                        : artifactProperty.FullTextValue;
 
                     propertyInfo.Value =
                         propertyTypePredefined == PropertyTypePredefined.ID

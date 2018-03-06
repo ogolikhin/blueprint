@@ -231,7 +231,7 @@ namespace ArtifactStore.Services
             };
             _artifactVersionsRepositoryMock.Setup(t => t.IsItemDeleted(itemId))
                 .ReturnsAsync(false);
-            _artifactVersionsRepositoryMock.Setup(t => t.GetVersionControlArtifactInfoAsync(itemId, null, 1))
+            _artifactVersionsRepositoryMock.Setup(t => t.GetVersionControlArtifactInfoAsync(itemId, null, 1, null))
                 .ReturnsAsync(vcArtifactInfo);
             _applicationSettingsRepositoryMock.Setup(t => t.GetTenantInfo(It.IsAny<IDbTransaction>())).ReturnsAsync(new TenantInfo()
             {

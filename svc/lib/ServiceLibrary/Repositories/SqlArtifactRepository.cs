@@ -799,7 +799,7 @@ namespace ServiceLibrary.Repositories
         }
 
         public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
-            int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypePredefineds, IEnumerable<int> propertyTypeIds)
+            int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypePredefineds, IEnumerable<int> propertyTypeIds, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId, DbType.Int32);
@@ -808,8 +808,17 @@ namespace ServiceLibrary.Repositories
             parameters.Add("@PropertyTypePredefineds", SqlConnectionWrapper.ToDataTable(propertyTypePredefineds));
             parameters.Add("@PropertyTypeIds", SqlConnectionWrapper.ToDataTable(propertyTypeIds));
 
-            var result = await ConnectionWrapper.QueryAsync<ArtifactPropertyInfo>(
-                "GetPropertyValuesForArtifacts", parameters, commandType: CommandType.StoredProcedure);
+            IEnumerable<ArtifactPropertyInfo> result;
+            if (transaction == null)
+            {
+                result = await ConnectionWrapper.QueryAsync<ArtifactPropertyInfo>(
+                    "GetPropertyValuesForArtifacts", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                result = await transaction.Connection.QueryAsync<ArtifactPropertyInfo>(
+                    "GetPropertyValuesForArtifacts", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
 
             return result.ToList();
         }

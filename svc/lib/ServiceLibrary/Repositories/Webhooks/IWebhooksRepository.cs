@@ -13,8 +13,8 @@ namespace ServiceLibrary.Repositories.Webhooks
 
         Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
             int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypePredefineds,
-            IEnumerable<int> propertyTypeIds);
+            IEnumerable<int> propertyTypeIds, IDbTransaction transaction = null);
 
-        Task<IEnumerable<RevisionDataInfo>> GetRevisionInfos(IEnumerable<int> revisionIds);
+        Task<IEnumerable<RevisionDataInfo>> GetRevisionInfos(IEnumerable<int> revisionIds, IDbTransaction transaction = null);
     }
 }

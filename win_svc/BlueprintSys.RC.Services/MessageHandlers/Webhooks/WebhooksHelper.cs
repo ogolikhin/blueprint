@@ -33,20 +33,21 @@ namespace BlueprintSys.RC.Services.MessageHandlers.Webhooks
 
             if (result.IsSuccessStatusCode)
             {
-                Logger.Log($"Finished processing webhook with result: {result.StatusCode}", message, tenant);
+                Logger.Log($"Finished processing Webhook with result: {(int)result.StatusCode} - {result.StatusCode}", message, tenant);
                 return true;
             }
 
             if (result.StatusCode == HttpStatusCode.Gone)
             {
-                Logger.Log($"Failed to send webhook. Will not try again.", message, tenant, LogLevel.Error);
-                throw new WebhookExceptionDoNotRetry($"Failed to send webhook.");
+                var errorMessage = $"Failed to send Webhook. Response was {(int)result.StatusCode} - {result.StatusCode}. Will not try again.";
+                Logger.Log(errorMessage, message, tenant, LogLevel.Error);
+                throw new WebhookExceptionDoNotRetry(errorMessage);
             }
             else
             {
-                Logger.Log($"Failed to send webhook. {(int)result.StatusCode} - {result.StatusCode}. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.",
-                    message, tenant, LogLevel.Error);
-                throw new WebhookExceptionRetryPerPolicy($"Failed to send webhook");
+                var errorMessage = $"Failed to send Webhook. Response was {(int)result.StatusCode} - {result.StatusCode}. Will try again in {ConfigHelper.WebhookRetryInterval} seconds.";
+                Logger.Log(errorMessage, message, tenant, LogLevel.Error);
+                throw new WebhookExceptionRetryPerPolicy(errorMessage);
             }
         }
 

@@ -193,7 +193,7 @@ namespace ArtifactStore.Collections
 
         #region GetArtifactsInCollectionAsync
         [TestMethod]
-        public async Task GetArtifactsInCollectionAsync_EmptyAndNotEmtpyArtifactsInCollection_Success()
+        public async Task GetArtifactsInCollectionAsync_EmptyAndNotEmptyArtifactsInCollection_Success()
         {
             #region Setup:
             var expectedCollectionArtifacts = new CollectionArtifacts

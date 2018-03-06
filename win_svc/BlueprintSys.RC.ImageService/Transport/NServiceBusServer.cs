@@ -106,7 +106,7 @@ namespace BlueprintSys.RC.ImageService.Transport
             endpointConfiguration.SendFailedMessagesTo("errors");
             endpointConfiguration.License(_licenseInfo);
 
-            endpointConfiguration.DefineCriticalErrorAction(recovery.OnCriticalError);
+            endpointConfiguration.DefineCriticalErrorAction(recovery.OnCriticalErrorAsync);
 
             var recoverability = endpointConfiguration.Recoverability();
             recoverability.DisableLegacyRetriesSatellite();

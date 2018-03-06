@@ -27,7 +27,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
             _ignoreCriticalErrors = ignoreCriticalErrors;
         }
 
-        public void TryToRecover()
+        private void TryToRecover()
         {
             if (Interlocked.CompareExchange(ref _isRecoveryRequested, Requested, NotRequested) == Requested)
             {
@@ -35,10 +35,10 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
                 return;
             }
 
-            Task.Factory.StartNew(Recover);
+            Task.Factory.StartNew(RecoverAsync);
         }
 
-        private async Task Recover()
+        private async Task RecoverAsync()
         {
             for (int i = 0; i < _retryCount; i++)
             {
@@ -60,7 +60,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
             _onFailure?.Invoke();
         }
 
-        public async Task OnCriticalError(ICriticalErrorContext context)
+        public async Task OnCriticalErrorAsync(ICriticalErrorContext context)
         {
             if (_ignoreCriticalErrors)
             {

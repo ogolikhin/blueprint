@@ -28,7 +28,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 
         private static readonly object Locker = new object();
         private static TDerivedType _instance;
-        private CriticalErrorRecovery criticalErrorRecovery;
+        private CriticalErrorRecovery _criticalErrorRecovery;
         protected abstract Dictionary<MessageActionType, Type> GetMessageActionToHandlerMapping();
 
         public static TDerivedType Instance
@@ -77,7 +77,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 Log.Debug("Stopping Messaging Endpoint");
                 await EndpointInstance.Stop().ConfigureAwait(false);
             }
-            criticalErrorRecovery = null;
+            _criticalErrorRecovery = null;
         }
 
         public async Task<string> Start(string connectionString, bool sendOnly, Action criticalErrorCallback = null)
@@ -90,7 +90,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
 
             try
             {
-                criticalErrorRecovery = CriticalErrorRecoveryFactory(
+                _criticalErrorRecovery = CriticalErrorRecoveryFactory(
                     () => CreateEndPoint(MessageQueue, connectionString, sendOnly),
                     criticalErrorCallback);
 
@@ -150,9 +150,9 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 endpointConfiguration.SendOnly();
             }
 
-            if (criticalErrorRecovery != null)
+            if (_criticalErrorRecovery != null)
             {
-                endpointConfiguration.DefineCriticalErrorAction(criticalErrorRecovery.OnCriticalError);
+                endpointConfiguration.DefineCriticalErrorAction(_criticalErrorRecovery.OnCriticalErrorAsync);
             }
             else
             {

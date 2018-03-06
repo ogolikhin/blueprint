@@ -79,8 +79,10 @@ namespace ArtifactStore.ArtifactList.Models
                 {
                     invalidColumns.Add(column);
                 }
-
-                validColumns.Add(column);
+                else
+                {
+                    validColumns.Add(column);
+                }
             }
 
             return new Tuple<IEnumerable<ProfileColumn>, IEnumerable<ProfileColumn>>(validColumns, invalidColumns);

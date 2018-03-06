@@ -10,6 +10,7 @@ using ArtifactStore.ArtifactList.Helpers;
 using ArtifactStore.ArtifactList.Models;
 using ArtifactStore.Collections.Helpers;
 using ArtifactStore.Collections.Models;
+using SearchEngineLibrary.Model;
 using SearchEngineLibrary.Service;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -107,50 +108,16 @@ namespace ArtifactStore.Collections
             var searchArtifactsResult = await _searchEngineService.Search(
                 collection.Id, null, ScopeType.Contents, true, userId);
 
-            var artifactItems = await GetArtifactItemsDetailsAsync(searchArtifactsResult.ArtifactIds, userId);
-
-            IEnumerable<ProfileColumn> validColumns;
             var collectionArtifacts = new CollectionArtifacts();
-            ProfileColumns validProfileColumns = null;
 
-            if (profileColumns != null)
-            {
-                var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifactItems);
+            var validatedColumns = await ValidateProfileColumns(userId, profileColumns, searchArtifactsResult, collectionArtifacts);
 
-                var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
-
-                var invalidValidColumns = profileColumns.GetInvalidValidColumns(propertyTypes);
-
-                var invalidColumns = invalidValidColumns.Item2;
-                validColumns = invalidValidColumns.Item1.ToList();
-
-                var invalidColumnsCount = invalidColumns.Count();
-                var validColumnsCount = validColumns.Count();
-
-                if (validColumnsCount < 1)
-                {
-                    collectionArtifacts.ColumnValidation = new ColumnValidation { Number = invalidColumnsCount, Status = ColumnValidationStatus.AllInvalid };
-                    validProfileColumns = new ProfileColumns(new List<ProfileColumn>());
-                    validColumns = ProfileColumns.Default.Items;
-                }
-                else if (validColumnsCount != profileColumns.Items.Count())
-                {
-                    collectionArtifacts.ColumnValidation = new ColumnValidation { Number = invalidColumnsCount, Status = ColumnValidationStatus.SomeValid };
-                    validProfileColumns = new ProfileColumns(validColumns);
-                }
-            }
-            else
-            {
-                validColumns = ProfileColumns.Default.Items;
-            }
-
-            var artifactIds = searchArtifactsResult.ArtifactIds.Skip((int)pagination.Offset)
-                .Take((int)pagination.Limit).ToList();
+            var artifactIds = searchArtifactsResult.ArtifactIds.Skip((int)pagination.Offset).Take((int)pagination.Limit).ToList();
 
             var artifactsWithPropertyValues = await _collectionsRepository.GetArtifactsWithPropertyValuesAsync(
-                userId, artifactIds, validColumns);
+                userId, artifactIds, validatedColumns.Item1);
 
-            var populatedArtifacts = PopulateArtifactsProperties(artifactIds, artifactsWithPropertyValues, validColumns);
+            var populatedArtifacts = PopulateArtifactsProperties(artifactIds, artifactsWithPropertyValues, validatedColumns.Item1);
 
             collectionArtifacts.ItemsCount = searchArtifactsResult.Total;
             collectionArtifacts.Items = populatedArtifacts.Item1;
@@ -158,7 +125,7 @@ namespace ArtifactStore.Collections
 
             var collectionData = new CollectionData
             {
-                ProfileColumns = validProfileColumns,
+                ProfileColumns = validatedColumns.Item2,
                 CollectionArtifacts = collectionArtifacts
             };
 
@@ -562,6 +529,52 @@ namespace ArtifactStore.Collections
                    artifact.PrimitiveItemTypePredefined != (int)ItemTypePredefined.Baseline &&
                    artifact.VersionProjectId == collection.ProjectId &&
                    (artifact.EndRevision == int.MaxValue || artifact.EndRevision == 1);
+        }
+
+        private async Task<Tuple<IEnumerable<ProfileColumn>, ProfileColumns>> ValidateProfileColumns(int userId, ProfileColumns profileColumns, SearchArtifactsResult searchArtifactsResult, CollectionArtifacts collectionArtifacts)
+        {
+            IEnumerable<ProfileColumn> validColumns;
+            ProfileColumns validProfileColumns = null;
+            var columnValidation = new ColumnValidation();
+
+            if (profileColumns != null)
+            {
+                var artifactItems = await GetArtifactItemsDetailsAsync(searchArtifactsResult.ArtifactIds, userId);
+
+                var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifactItems);
+
+                var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
+
+                var invalidValidColumns = profileColumns.GetInvalidValidColumns(propertyTypes);
+
+                validColumns = invalidValidColumns.Item1.ToList();
+                var invalidColumns = invalidValidColumns.Item2;
+
+                var invalidColumnsCount = invalidColumns.Count();
+                var validColumnsCount = validColumns.Count();
+
+                if (validColumnsCount < 1)
+                {
+                    columnValidation.Number = invalidColumnsCount;
+                    columnValidation.Status = ColumnValidationStatus.AllInvalid;
+                    validProfileColumns = new ProfileColumns(new List<ProfileColumn>());
+                    validColumns = ProfileColumns.Default.Items;
+                }
+                else if (validColumnsCount != profileColumns.Items.Count())
+                {
+                    columnValidation.Number = invalidColumnsCount;
+                    columnValidation.Status = ColumnValidationStatus.SomeValid;
+                    validProfileColumns = new ProfileColumns(validColumns);
+                }
+            }
+            else
+            {
+                validColumns = ProfileColumns.Default.Items;
+            }
+
+            collectionArtifacts.ColumnValidation = columnValidation;
+
+            return new Tuple<IEnumerable<ProfileColumn>, ProfileColumns>(validColumns, validProfileColumns);
         }
     }
 }

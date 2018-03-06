@@ -129,7 +129,7 @@ namespace ServiceLibrary.Repositories.Webhooks
         }
 
         public async Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
-            int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypePredefineds, IEnumerable<int> propertyTypeIds)
+            int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypePredefineds, IEnumerable<int> propertyTypeIds, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId, DbType.Int32);
@@ -138,22 +138,37 @@ namespace ServiceLibrary.Repositories.Webhooks
             parameters.Add("@PropertyTypePredefineds", SqlConnectionWrapper.ToDataTable(propertyTypePredefineds));
             parameters.Add("@PropertyTypeIds", SqlConnectionWrapper.ToDataTable(propertyTypeIds));
 
-            var result = await _connectionWrapper.QueryAsync<ArtifactPropertyInfo>(
-                "GetPropertyValuesForArtifacts", parameters, commandType: CommandType.StoredProcedure);
+            IEnumerable<ArtifactPropertyInfo> result;
+            if (transaction == null)
+            {
+                result = await _connectionWrapper.QueryAsync<ArtifactPropertyInfo>(
+                    "GetPropertyValuesForArtifacts", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                result = await transaction.Connection.QueryAsync<ArtifactPropertyInfo>(
+                    "GetPropertyValuesForArtifacts", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
 
             return result.ToList();
         }
 
-        public async Task<IEnumerable<RevisionDataInfo>> GetRevisionInfos(IEnumerable<int> revisionIds)
+        public async Task<IEnumerable<RevisionDataInfo>> GetRevisionInfos(IEnumerable<int> revisionIds, IDbTransaction transaction = null)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@revisionIds", SqlConnectionWrapper.ToDataTable(revisionIds));
 
-            var result = await _connectionWrapper.QueryAsync<RevisionDataInfo>(
-                "GetRevisionInfos", parameters, commandType: CommandType.StoredProcedure);
+            IEnumerable<RevisionDataInfo> result;
+            if (transaction == null)
+            {
+                result = await _connectionWrapper.QueryAsync<RevisionDataInfo>("GetRevisionInfos", parameters, commandType: CommandType.StoredProcedure);
+            }
+            else
+            {
+                result = await transaction.Connection.QueryAsync<RevisionDataInfo>("GetRevisionInfos", parameters, transaction, commandType: CommandType.StoredProcedure);
+            }
 
             return result.ToList();
-
         }
     }
 }

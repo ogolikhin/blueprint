@@ -206,8 +206,8 @@ namespace BlueprintSys.RC.Services.Helpers
                                 RevisionTimestamp = revisionInfo?.FirstOrDefault()?.Timestamp,
                                 Version = WebhookArtifactVersion,
                                 Id = artifactInfo.Id,
-                                BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
-                                Link = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}")
+                                BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}").Replace(" ", ""),
+                                Link = string.Format($"{baseHostUri}api/v1/projects/{artifactInfo.ProjectId}/artifacts/{artifactInfo.Id}").Replace(" ", "")
                             }
                         };
                         var webhookMessage = await GetWebhookMessage(userId, revisionId, transactionId, webhookAction, webhooksRepository, webhookArtifactInfo);
@@ -228,13 +228,11 @@ namespace BlueprintSys.RC.Services.Helpers
             IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos, List<PropertyType> propertyTypes, IUsersRepository usersRepository)
         {
             var webhookPropertyInfos = new Dictionary<int, WebhookPropertyInfo>();
-            int tmpKey = -1;
             foreach (var artifactPropertyInfo in artifactPropertyInfos)
             {
                 if (!artifactPropertyInfo.PropertyTypeId.HasValue)
                 {
-                    // system properties have no property ID, assign a tmpKey as ID to not handle them in a separate list
-                    artifactPropertyInfo.PropertyTypeId = tmpKey--;
+                    continue;
                 }
 
                 WebhookUserPropertyValue userProperty = null;

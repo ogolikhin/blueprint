@@ -88,7 +88,7 @@ namespace ArtifactStore.Repositories
                 VersionCount = 1
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId)).ReturnsAsync(() => _reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId, null)).ReturnsAsync(() => _reviewInfo);
 
         }
 
@@ -146,8 +146,8 @@ namespace ArtifactStore.Repositories
                 PredefinedType = ItemTypePredefined.ArtifactBaseline
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, userId)).ReturnsAsync(baselineInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, userId, null)).ReturnsAsync(baselineInfo);
 
             _cxn.SetupExecuteScalarAsync("GetReviewType", param, ReviewType.Formal);
 
@@ -202,7 +202,7 @@ namespace ArtifactStore.Repositories
                 PredefinedType = ItemTypePredefined.ArtifactReviewPackage
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             // Act
             var review = await _reviewsRepository.GetReviewSummary(reviewId, userId);
@@ -224,7 +224,7 @@ namespace ArtifactStore.Repositories
                 PredefinedType = ItemTypePredefined.Actor
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             var isExceptionThrown = false;
             // Act
@@ -259,7 +259,7 @@ namespace ArtifactStore.Repositories
                 PredefinedType = ItemTypePredefined.ArtifactReviewPackage
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
             var reviewDetails = new ReviewSummaryDetails
             {
                 ReviewPackageStatus = ReviewPackageStatus.Active,
@@ -340,8 +340,8 @@ namespace ArtifactStore.Repositories
                 PredefinedType = ItemTypePredefined.ArtifactBaseline
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId)).ReturnsAsync(reviewInfo);
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, UserId)).ReturnsAsync(baselineInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId, null)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, UserId, null)).ReturnsAsync(baselineInfo);
 
             _cxn.SetupExecuteScalarAsync("GetReviewType", param, ReviewType.Formal);
 
@@ -403,8 +403,8 @@ namespace ArtifactStore.Repositories
                 PredefinedType = ItemTypePredefined.ArtifactBaseline
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId)).ReturnsAsync(reviewInfo);
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, UserId)).ReturnsAsync(baselineInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId, null)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, UserId, null)).ReturnsAsync(baselineInfo);
 
             _cxn.SetupExecuteScalarAsync("GetReviewType", param, ReviewType.Formal);
 
@@ -471,8 +471,8 @@ namespace ArtifactStore.Repositories
                 PredefinedType = ItemTypePredefined.ArtifactBaseline
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId)).ReturnsAsync(reviewInfo);
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, UserId)).ReturnsAsync(baselineInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(ReviewId, null, UserId, null)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(baselineId, null, UserId, null)).ReturnsAsync(baselineInfo);
 
             _cxn.SetupExecuteScalarAsync("GetReviewType", param, ReviewType.Formal);
 
@@ -545,7 +545,7 @@ namespace ArtifactStore.Repositories
             {
                 PredefinedType = ItemTypePredefined.ArtifactReviewPackage
             };
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
             #endregion
 
             #region Mock the method GetReviewSummaryMetricsAsync
@@ -592,7 +592,7 @@ namespace ArtifactStore.Repositories
             {
                 PredefinedType = ItemTypePredefined.Actor // Invalid Artifact Type
             };
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             // Act
             try
@@ -627,7 +627,7 @@ namespace ArtifactStore.Repositories
             {
                 PredefinedType = ItemTypePredefined.ArtifactReviewPackage
             };
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             var resultSummaryMetrics = new FlatReviewSummaryMetrics
             {
@@ -747,7 +747,7 @@ namespace ArtifactStore.Repositories
                 VersionCount = 1
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
 
@@ -794,7 +794,7 @@ namespace ArtifactStore.Repositories
             var artifactId = 1;
 
             _artifactVersionsRepositoryMock
-                .Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId))
+                .Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null))
                 .Throws(new ResourceNotFoundException("Item(Id:1) is not found.", ErrorCodes.ResourceNotFound));
 
             // Act
@@ -819,7 +819,7 @@ namespace ArtifactStore.Repositories
                 VersionCount = 1
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
@@ -863,7 +863,7 @@ namespace ArtifactStore.Repositories
                 VersionCount = 1
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
 
@@ -905,7 +905,7 @@ namespace ArtifactStore.Repositories
                 VersionCount = 1
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
 
@@ -957,7 +957,7 @@ namespace ArtifactStore.Repositories
             };
 
             _artifactVersionsRepositoryMock
-                .Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId))
+                .Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null))
                 .Throws(new ResourceNotFoundException("Item(Id:1) is not found.", ErrorCodes.ResourceNotFound));
 
             // Act
@@ -982,7 +982,7 @@ namespace ArtifactStore.Repositories
                 VersionCount = 1
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
 
@@ -1026,7 +1026,7 @@ namespace ArtifactStore.Repositories
                 VersionCount = 1
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", refreshInterval)).ReturnsAsync(refreshInterval);
 
@@ -1068,7 +1068,7 @@ namespace ArtifactStore.Repositories
                 VersionCount = 0
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
             _applicationSettingsRepositoryMock.Setup(s => s.GetValue("ReviewArtifactHierarchyRebuildIntervalInMinutes", 20)).ReturnsAsync(20);
 
             // Act
@@ -4861,7 +4861,7 @@ namespace ArtifactStore.Repositories
             var reviewId = 1;
             var userId = 2;
 
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(new VersionControlArtifactInfo()
             {
                 VersionCount = 0
             });
@@ -4878,7 +4878,7 @@ namespace ArtifactStore.Repositories
             var reviewId = 1;
             var userId = 2;
 
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo()
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(new VersionControlArtifactInfo()
             {
                 IsDeleted = true
             });
@@ -5269,7 +5269,7 @@ namespace ArtifactStore.Repositories
                 Approval = "Not Specified"
             };
 
-            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(new VersionControlArtifactInfo
+            _artifactVersionsRepositoryMock.Setup(repo => repo.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(new VersionControlArtifactInfo
             {
                 VersionCount = 1
             });
@@ -5293,7 +5293,7 @@ namespace ArtifactStore.Repositories
                 VersionCount = 1
             };
 
-            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId)).ReturnsAsync(reviewInfo);
+            _artifactVersionsRepositoryMock.Setup(r => r.GetVersionControlArtifactInfoAsync(reviewId, null, userId, null)).ReturnsAsync(reviewInfo);
 
             SetupGetReviewDataQuery(ReviewId, UserId, _reviewContentsXml, _reviewPackageRawDataXml);
             // Act

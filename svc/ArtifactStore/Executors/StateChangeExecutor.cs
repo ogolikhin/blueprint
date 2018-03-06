@@ -60,7 +60,8 @@ namespace ArtifactStore.Executors
                 var artifactInfo =
                 await _stateChangeExecutorRepositories.ArtifactVersionsRepository.GetVersionControlArtifactInfoAsync(_input.ArtifactId,
                     null,
-                    _userId);
+                    _userId,
+                    transaction);
 
                 await ValidateArtifact(artifactInfo);
 

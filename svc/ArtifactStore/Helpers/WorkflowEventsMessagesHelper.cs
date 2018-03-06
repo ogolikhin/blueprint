@@ -189,7 +189,7 @@ namespace ArtifactStore.Helpers
                         var artifactType =
                             customTypes.ArtifactTypes.FirstOrDefault(at => at.Id == artifactInfo.ItemTypeId);
 
-                        var artifactPropertyInfos = await artifactVersionsRepository.GetArtifactPropertyInfoAsync(
+                        var artifactPropertyInfos = await webhooksRepository.GetArtifactsWithPropertyValuesAsync(
                             userId,
                             new List<int> { artifactInfo.Id },
                             new List<int>
@@ -202,9 +202,10 @@ namespace ArtifactStore.Helpers
                                 (int)PropertyTypePredefined.LastEditedBy,
                                 (int)PropertyTypePredefined.CreatedOn
                             },
-                            artifactType.CustomPropertyTypeIds);
+                            artifactType.CustomPropertyTypeIds,
+                            transaction);
 
-                        var revisionInfo = await webhooksRepository.GetRevisionInfos(new List<int> { revisionId });
+                        var revisionInfo = await webhooksRepository.GetRevisionInfos(new List<int> { revisionId }, transaction);
 
                         var webhookArtifactInfo = new WebhookArtifactInfo
                         {
@@ -243,7 +244,8 @@ namespace ArtifactStore.Helpers
                                 },
                                 Revision = revisionId,
                                 RevisionTimestamp = revisionInfo?.FirstOrDefault()?.Timestamp,
-                                Version = ((VersionControlArtifactInfo)artifactInfo).Version,
+                                Version = ((VersionControlArtifactInfo)artifactInfo).Version
+                                    ?? ((VersionControlArtifactInfo)artifactInfo).VersionCount,
                                 Id = artifactInfo.Id,
                                 BlueprintUrl = string.Format($"{baseHostUri}?ArtifactId={artifactInfo.Id}"),
                                 Link = string.Format(
@@ -297,13 +299,11 @@ namespace ArtifactStore.Helpers
             IEnumerable<ArtifactPropertyInfo> artifactPropertyInfos, List<PropertyType> propertyTypes, IUsersRepository usersRepository)
         {
             var webhookPropertyInfos = new Dictionary<int, WebhookPropertyInfo>();
-            int tmpKey = -1;
             foreach (var artifactPropertyInfo in artifactPropertyInfos)
             {
                 if (!artifactPropertyInfo.PropertyTypeId.HasValue)
                 {
-                    // system properties have no property ID, assign a tmpKey as ID to not handle them in a separate list
-                    artifactPropertyInfo.PropertyTypeId = tmpKey--;
+                    continue;
                 }
 
                 WebhookUserPropertyValue userProperty = null;

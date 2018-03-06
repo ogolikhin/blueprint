@@ -82,7 +82,7 @@ namespace ArtifactStore.Controllers
             const int itemId = 10;
             var vcArtifactInfo = new VersionControlArtifactInfo();
             var mockArtifactVersionsRepository = new Mock<IArtifactVersionsRepository>();
-            mockArtifactVersionsRepository.Setup(r => r.GetVersionControlArtifactInfoAsync(itemId, null, userId)).ReturnsAsync(vcArtifactInfo);
+            mockArtifactVersionsRepository.Setup(r => r.GetVersionControlArtifactInfoAsync(itemId, null, userId, null)).ReturnsAsync(vcArtifactInfo);
             var artifactVersionsController = new ArtifactVersionsController(mockArtifactVersionsRepository.Object, null)
             {
                 Request = new HttpRequestMessage()

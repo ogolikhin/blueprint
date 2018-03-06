@@ -118,7 +118,7 @@ namespace ArtifactStore.Executors
             _artifactVersionsRepository.Setup(t => t.IsItemDeleted(ArtifactId))
                 .ReturnsAsync(true);
 
-            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(It.IsAny<int>(), It.IsAny<int?>(), It.IsAny<int>()))
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(It.IsAny<int>(), It.IsAny<int?>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new VersionControlArtifactInfo() { Id = ArtifactId });
 
             // Act
@@ -153,7 +153,7 @@ namespace ArtifactStore.Executors
                     Id = UserId
                 }
             };
-            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId, null))
                 .ReturnsAsync(vcArtifactInfo);
 
             // Act
@@ -188,7 +188,7 @@ namespace ArtifactStore.Executors
                     Id = UserId + 10
                 }
             };
-            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId, null))
                 .ReturnsAsync(vcArtifactInfo);
 
             // Act
@@ -223,7 +223,7 @@ namespace ArtifactStore.Executors
                     Id = UserId
                 }
             };
-            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId, null))
                 .ReturnsAsync(vcArtifactInfo);
 
             _workflowRepository.Setup(t => t.GetStateForArtifactAsync(UserId, ArtifactId, int.MaxValue, true))
@@ -261,7 +261,7 @@ namespace ArtifactStore.Executors
                     Id = UserId
                 }
             };
-            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId, null))
                 .ReturnsAsync(vcArtifactInfo);
 
             var fromState = new WorkflowState
@@ -305,7 +305,7 @@ namespace ArtifactStore.Executors
                     Id = UserId
                 }
             };
-            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId, null))
                 .ReturnsAsync(vcArtifactInfo);
 
             var fromState = new WorkflowState
@@ -359,7 +359,7 @@ namespace ArtifactStore.Executors
                     Id = UserId
                 }
             };
-            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId, null))
                 .ReturnsAsync(vcArtifactInfo);
 
             var fromState = new WorkflowState
@@ -423,7 +423,7 @@ namespace ArtifactStore.Executors
                     Id = UserId
                 }
             };
-            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId, null))
                 .ReturnsAsync(vcArtifactInfo);
 
             var fromState = new WorkflowState
@@ -489,7 +489,7 @@ namespace ArtifactStore.Executors
                     Id = UserId
                 }
             };
-            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId))
+            _artifactVersionsRepository.Setup(t => t.GetVersionControlArtifactInfoAsync(ArtifactId, null, UserId, null))
                 .ReturnsAsync(vcArtifactInfo);
 
             var fromState = new WorkflowState

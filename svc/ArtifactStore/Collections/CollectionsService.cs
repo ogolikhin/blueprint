@@ -394,7 +394,7 @@ namespace ArtifactStore.Collections
                 {
                     var propertyInfo = new PropertyValueInfo();
                     var propertyTypePredefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined;
-                    var primitiveType = (PropertyPrimitiveType)artifactProperty.PrimitiveType;
+                    var primitiveType = artifactProperty.PrimitiveType;
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
                     propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
@@ -478,7 +478,7 @@ namespace ArtifactStore.Collections
                     ItemTypeId = itemTypeId,
                     PredefinedType = predefinedType,
                     ItemTypeIconId = itemTypeIconId,
-                    PropertyInfos = propertyInfos.OrderBy(x => x.PropertyTypeId)
+                    PropertyInfos = propertyInfos.OrderBy(x => x.PropertyTypeId).ToList()
                 });
             }
 

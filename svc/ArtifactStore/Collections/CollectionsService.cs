@@ -498,7 +498,7 @@ namespace ArtifactStore.Collections
             {
                 if (!await _lockArtifactsRepository.LockArtifactAsync(collection.Id, userId, transaction))
                 {
-                    throw ExceptionHelper.ArtifactNotLockedException(collection.Id, userId);
+                    throw CollectionsExceptionHelper.LockFailedException(collection.Id, userId);
                 }
             }
             else if (collection.LockedByUserId != userId)

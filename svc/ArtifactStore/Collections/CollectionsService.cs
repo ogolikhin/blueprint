@@ -22,7 +22,7 @@ namespace ArtifactStore.Collections
     public class CollectionsService : ICollectionsService
     {
         private const string ChoiceValueFrame = "\"";
-        private const string ChoiceValueSeparator = ",";
+        private const string ChoiceValueSeparator = ", ";
         private const int ColumnLimit = 101;
 
         private readonly ICollectionsRepository _collectionsRepository;

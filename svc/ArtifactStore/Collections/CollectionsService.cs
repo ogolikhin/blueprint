@@ -394,7 +394,7 @@ namespace ArtifactStore.Collections
                 {
                     var propertyInfo = new PropertyValueInfo();
                     var propertyTypePredefined = (PropertyTypePredefined)artifactProperty.PropertyTypePredefined;
-                    var primitiveType = (PropertyPrimitiveType)artifactProperty.PrimitiveType;
+                    var primitiveType = artifactProperty.PrimitiveType;
 
                     propertyInfo.PropertyTypeId = artifactProperty.PropertyTypeId;
                     propertyInfo.Predefined = artifactProperty.PropertyTypePredefined;
@@ -411,22 +411,22 @@ namespace ArtifactStore.Collections
                     bool multiValue = primitiveType == PropertyPrimitiveType.Choice || primitiveType == PropertyPrimitiveType.User;
 
                     propertyInfo.Value = systemColumn
-                            && !multiValue // Fill multi value properties below
+                                         && !multiValue // Fill multi value properties below
                         ? artifactProperty.PredefinedPropertyValue
                         : primitiveType == PropertyPrimitiveType.Date
-                        ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)
-                        : primitiveType == PropertyPrimitiveType.Number
-                        ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
-                        : multiValue
-                        ? null // Fill multi value properties below
-                        : artifactProperty.IsRichText
-                        ? artifactProperty.HtmlTextValue
-                        : artifactProperty.FullTextValue;
+                            ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)
+                            : primitiveType == PropertyPrimitiveType.Number
+                                ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
+                                : multiValue
+                                    ? null // Fill multi value properties below
+                                    : artifactProperty.IsRichText
+                                        ? artifactProperty.HtmlTextValue
+                                        : artifactProperty.FullTextValue;
 
                     propertyInfo.Value =
                         propertyTypePredefined == PropertyTypePredefined.ID
-                        ? artifactProperty.Prefix + propertyInfo.Value
-                        : propertyInfo.Value;
+                            ? artifactProperty.Prefix + propertyInfo.Value
+                            : propertyInfo.Value;
 
                     var multiValueTuple = new Tuple<int, int?, PropertyTypePredefined, PropertyPrimitiveType>(
                         artifactProperty.ArtifactId,
@@ -478,7 +478,7 @@ namespace ArtifactStore.Collections
                     ItemTypeId = itemTypeId,
                     PredefinedType = predefinedType,
                     ItemTypeIconId = itemTypeIconId,
-                    PropertyInfos = propertyInfos.OrderBy(x => x.PropertyTypeId)
+                    PropertyInfos = propertyInfos.OrderBy(x => x.PropertyTypeId).ToList()
                 });
             }
 

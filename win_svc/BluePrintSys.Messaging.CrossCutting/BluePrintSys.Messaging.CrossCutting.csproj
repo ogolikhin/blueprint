@@ -126,6 +126,7 @@
     <Compile Include="Logging\LogListener.cs" />
     <Compile Include="Logging\LogManager.cs" />
     <Compile Include="Logging\ServiceLocator.cs" />
+    <Compile Include="Logging\ServiceLogRepositoryAdapter.cs" />
     <Compile Include="Logging\StackTraceProvider.cs" />
     <Compile Include="Logging\StandardLogEntry.cs" />
     <Compile Include="Models\Enums\MessageType.cs" />

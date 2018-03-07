@@ -32,16 +32,26 @@ namespace SearchEngineLibrary.Helpers
                 DECLARE @infinityRevision INT = 2147483647
                 DECLARE @userId INT = {1}
                 {2}
+
                 CREATE TABLE #VersionArtifactId (id int identity(1,1), VersionArtifactId int)
 
                 INSERT INTO #VersionArtifactId
-                SELECT col.[VersionArtifactId] FROM [dbo].[CollectionAssignmentVersions] as col JOIN [dbo].[ItemVersions] as iv on iv.[HolderId] = col.[VersionArtifactId]
-                CROSS APPLY [dbo].[Getartifactpermission](@userId, iv.VersionProjectId, iv.VersionArtifactId) as p
-                WHERE [VersionCollectionId] = @scopeId AND p.Perm = 1 {3}
+                SELECT 
+                    col.[VersionArtifactId] 
+                FROM    [dbo].[CollectionAssignmentVersions] AS col 
+                JOIN    [dbo].[ItemVersions] AS iv 
+                    ON  iv.[HolderId] = col.[VersionArtifactId]
+                CROSS APPLY [dbo].[Getartifactpermission](@userId, iv.[VersionProjectId], col.[VersionArtifactId]) AS p
+                WHERE [VersionCollectionId] = @scopeId AND p.[Perm] = 1 {3}
 
-                SELECT COUNT(VersionArtifactId) as Total FROM #VersionArtifactId
-                SELECT DISTINCT(VersionArtifactId) FROM #VersionArtifactId ORDER BY [VersionArtifactId]
+                SELECT COUNT(VersionArtifactId) AS Total 
+                FROM #VersionArtifactId
+
+                SELECT DISTINCT(VersionArtifactId)
+                FROM #VersionArtifactId 
+                ORDER BY [VersionArtifactId]
                 {4}
+
                 DROP TABLE #VersionArtifactId",
                 id, userId, paginationParams, partWhereInQuery, paginationOffset);
 

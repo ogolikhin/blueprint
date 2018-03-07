@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Logging;
@@ -33,11 +34,11 @@ namespace BlueprintSys.RC.Services.Tests
         public async Task TransportHost_StartsSuccessfully()
         {
             // arrange
-            _mockNServiceBusServer.Setup(m => m.Start(It.IsAny<string>(), It.IsAny<bool>())).ReturnsAsync(string.Empty);
+            _mockNServiceBusServer.Setup(m => m.Start(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Action>())).ReturnsAsync(string.Empty);
             // act
             await _transportHost.Start(false);
             // assert
-            _mockNServiceBusServer.Verify(m => m.Start(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+            _mockNServiceBusServer.Verify(m => m.Start(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Action>()), Times.Once);
         }
 
         [TestMethod]
@@ -48,7 +49,7 @@ namespace BlueprintSys.RC.Services.Tests
             var appender = new MemoryAppender();
             log4net.Config.BasicConfigurator.Configure(appender);
             const string errorMessage = "error message";
-            _mockNServiceBusServer.Setup(m => m.Start(It.IsAny<string>(), It.IsAny<bool>())).ReturnsAsync(errorMessage);
+            _mockNServiceBusServer.Setup(m => m.Start(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Action>())).ReturnsAsync(errorMessage);
 
             // act
             await _transportHost.Start(false, () => true);
@@ -61,7 +62,7 @@ namespace BlueprintSys.RC.Services.Tests
             // assert
             Assert.AreEqual(1, logEntries.Length);
             Assert.AreEqual(errorMessage, logEntries.Single().RenderedMessage);
-            _mockNServiceBusServer.Verify(m => m.Start(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+            _mockNServiceBusServer.Verify(m => m.Start(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Action>()), Times.Once);
         }
 
         [TestMethod]

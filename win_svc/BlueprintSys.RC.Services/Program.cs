@@ -14,8 +14,8 @@ namespace BlueprintSys.RC.Services
                 x.Service<ActionHandlerService>(s =>
                 {
                     s.ConstructUsing(name => ActionHandlerService.Instance);
-                    s.WhenStarted(tc => tc.Start(null));
-                    s.WhenStopped(tc => tc.Stop(null));
+                    s.WhenStarted((tc, hostControl) => tc.Start(hostControl));
+                    s.WhenStopped((tc, hostControl) => tc.Stop(hostControl));
                 });
                 x.RunAsLocalSystem();
 

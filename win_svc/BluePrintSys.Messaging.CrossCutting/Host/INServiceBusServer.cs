@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using ServiceLibrary.Models.Workflow;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
@@ -8,7 +9,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
         Task Send(string tenantId, IWorkflowMessage message);
 
         Task GetStatus(Messaging.Models.Actions.StatusCheckMessage message);
-        Task<string> Start(string connectionString, bool sendOnly);
+        Task<string> Start(string connectionString, bool sendOnly, Action criticalErrorCallback = null);
         Task Stop();
     }
 }

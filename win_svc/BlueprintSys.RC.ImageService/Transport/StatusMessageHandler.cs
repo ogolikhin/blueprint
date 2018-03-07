@@ -1,6 +1,7 @@
 ﻿using NServiceBus;
 using System.Threading.Tasks;
 using BluePrintSys.Messaging.Models.ProcessImageGeneration;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 
 namespace BlueprintSys.RC.ImageService.Transport
 {
@@ -9,6 +10,7 @@ namespace BlueprintSys.RC.ImageService.Transport
     {
         public async Task Handle(StatusCheckMessage message, IMessageHandlerContext context)
         {
+            Log.Debug("ImageGen status message processed");
             await Task.FromResult(true);
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web.Http;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Swagger;
 
@@ -15,6 +16,8 @@ namespace ArtifactStore
             GlobalConfiguration.Configure(config => SwaggerConfig.Register(config, "~/bin/ArtifactStore.XML", "ArtifactStore"));
 #endif
             HttpsSecurity.Configure();
+            // TODO: Make log level configurable
+            ServiceLogRepositoryAdapter.Initialize("ArtifactStore.Log");
         }
 
         protected void Application_Error(object sender, EventArgs e)
@@ -33,6 +36,7 @@ namespace ArtifactStore
         protected void Application_End(object sender, EventArgs e)
         {
             WorkflowMessagingProcessor.Shutdown();
+            ServiceLogRepositoryAdapter.Shutdown();
         }
     }
 }

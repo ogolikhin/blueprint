@@ -1,4 +1,5 @@
 ﻿using ServiceLibrary.Models.Enums;
+using System;
 
 namespace BluePrintSys.Messaging.CrossCutting.Configuration
 {
@@ -27,5 +28,13 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
         int WebhookRetryCount { get; }
 
         int WebhookRetryInterval { get; }
+
+        TimeSpan NServiceBusCriticalErrorRetryDelay { get; }
+        int NServiceBusCriticalErrorRetryCount { get; }
+        bool NServiceBusIgnoreCriticalErrors { get; }
+
+        int NServiceBusNumberOfImmediateRetries { get; }
+        int NServiceBusNumberOfDelayedRetries { get; }
+        TimeSpan NServiceBusDelayIntervalIncrease { get; }
     }
 }

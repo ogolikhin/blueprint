@@ -47,9 +47,9 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             }
         }
 
-        public async Task Start(bool sendOnly, Func<bool> errorCallback = null)
+        public async Task Start(bool sendOnly, Func<bool> errorCallback = null, Action criticalErrorCallback = null)
         {
-            var result = await _nServiceBusServer.Start(_configHelper.NServiceBusConnectionString, sendOnly);
+            var result = await _nServiceBusServer.Start(_configHelper.NServiceBusConnectionString, sendOnly, criticalErrorCallback);
             if (!string.IsNullOrEmpty(result))
             {
                 Log.Error(result);

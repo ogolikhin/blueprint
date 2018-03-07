@@ -51,7 +51,7 @@ namespace ArtifactStore.ArtifactList
         }
 
         public async Task<ProfileColumns> GetProfileColumnsAsync(
-            int itemId, int userId, ProfileColumns defaultColumns)
+            int itemId, int userId, ProfileColumns defaultColumns = null)
         {
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
@@ -60,27 +60,9 @@ namespace ArtifactStore.ArtifactList
                 : ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings);
         }
 
-
-        public async Task<ProfileColumns> GetProfileColumnsAsync(int itemId, int userId)
-        {
-            var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
-
-            if (existingSettings == null || existingSettings.Columns.IsEmpty())
-            {
-                return null;
-            }
-
-            return ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings);
-        }
-
         public async Task SaveProfileSettingsAsync(int itemId,  int userId, ProfileColumns profileColumns, int? paginationLimit)
         {
-            var profileSettingsParams = new ProfileSettingsParams { PaginationLimit = paginationLimit };
-
-            if (profileColumns != null)
-            {
-                profileSettingsParams.Columns = profileColumns;
-            }
+            var profileSettingsParams = new ProfileSettingsParams { PaginationLimit = paginationLimit, Columns = profileColumns };
 
             await SaveSettingsAsync(itemId, userId, profileSettingsParams);
         }

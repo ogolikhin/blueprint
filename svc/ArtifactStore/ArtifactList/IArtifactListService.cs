@@ -9,9 +9,7 @@ namespace ArtifactStore.ArtifactList
 
         Task<int?> GetPaginationLimitAsync(int itemId, int userId);
 
-        Task<ProfileColumns> GetProfileColumnsAsync(int itemId, int userId, ProfileColumns defaultColumns);
-
-        Task<ProfileColumns> GetProfileColumnsAsync(int itemId, int userId);
+        Task<ProfileColumns> GetProfileColumnsAsync(int itemId, int userId, ProfileColumns defaultColumns = null);
 
         Task SaveProfileSettingsAsync(int itemId, int userId, ProfileColumns profileColumns, int? paginationLimit);
 

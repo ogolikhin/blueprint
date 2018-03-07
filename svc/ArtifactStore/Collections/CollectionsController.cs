@@ -75,7 +75,18 @@ namespace ArtifactStore.Collections
             var collectionData = await _collectionsService.GetArtifactsInCollectionAsync(id, userId, pagination, profileSettings?.ProfileColumns);
             collectionData.CollectionArtifacts.Pagination = pagination;
 
-            await _artifactListService.SaveProfileSettingsAsync(id, userId, collectionData.ProfileColumns, collectionData.CollectionArtifacts.Pagination.Limit);
+            switch (collectionData.CollectionArtifacts.ColumnValidation.Status)
+            {
+                case ColumnValidationStatus.AllInvalid:
+                    await _artifactListService.SaveProfileSettingsAsync(id, userId, new ProfileColumns(new List<ProfileColumn>()), collectionData.CollectionArtifacts.Pagination.Limit);
+                    break;
+                case ColumnValidationStatus.SomeValid:
+                    await _artifactListService.SaveProfileSettingsAsync(id, userId, collectionData.ProfileColumns, collectionData.CollectionArtifacts.Pagination.Limit);
+                    break;
+                default:
+                    await _artifactListService.SavePaginationLimitAsync(id, pagination.Limit, userId);
+                    break;
+            }
 
             return Ok(collectionData.CollectionArtifacts);
         }

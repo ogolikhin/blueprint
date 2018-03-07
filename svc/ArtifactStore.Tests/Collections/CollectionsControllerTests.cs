@@ -148,7 +148,8 @@ namespace ArtifactStore.Collections
                             }
                         }
                     }
-                }
+                },
+                ColumnValidation = new ColumnValidation()
             };
 
             _columns = new GetColumnsDto

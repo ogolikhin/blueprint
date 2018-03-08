@@ -13,6 +13,7 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using BluePrintSys.Messaging.Models.Actions;
+using NServiceBus.Persistence.Sql;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
 {
@@ -108,6 +109,15 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 transport.ConnectionString(connectionString);
                 transport.DefaultSchema("queue");
                 assembliesToExclude.Add("nservicebus.transports.rabbitmq.dll");
+                if (!sendOnly)
+                {
+                    var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
+                    var connection = @"Data Source=.\SqlExpress;Initial Catalog=NsbSamplesSqlPersistence;Integrated Security=True";
+                    persistence.SqlDialect<SqlDialect.MsSqlServer>();
+                    persistence.ConnectionBuilder(() => new SqlConnection(connection));
+                    var subscriptions = persistence.SubscriptionSettings();
+                    subscriptions.CacheFor(TimeSpan.FromMinutes(1));
+                }
             }
 
             var assemblyScanner = endpointConfiguration.AssemblyScanner();

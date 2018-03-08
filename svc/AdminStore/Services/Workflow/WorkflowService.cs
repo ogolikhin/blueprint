@@ -1689,7 +1689,6 @@ namespace AdminStore.Services.Workflow
             return iePortPair;
         }
 
-
         private static string SerializeTransitionCanvasSettings(IePortPair iePortPair)
         {
             if (iePortPair == null) return null;
@@ -1839,7 +1838,6 @@ namespace AdminStore.Services.Workflow
                         {
                             if (t.Action.ActionType == ActionTypes.Webhook)
                             {
-
                                 t.Action = webhookActions.First(w => w.IdSerializable == ((IeWebhookAction)t.Action).IdSerializable);
                             }
                         });
@@ -2000,13 +1998,29 @@ namespace AdminStore.Services.Workflow
         private async Task UpdateWebhookInfoAsync(IeWorkflow ieWorkflow)
         {
             // Identify all triggers that contain webhooks
-            var allWebhookTriggers = ieWorkflow.TransitionEvents.Where(e => e.Triggers != null)
-                                                                .SelectMany(e => e.Triggers)
-                                                                .Where(t => t.Action.ActionType == ActionTypes.Webhook)
-                                                                .Union(ieWorkflow.NewArtifactEvents.Where(e => e.Triggers != null)
-                                                                                                    .SelectMany(e => e.Triggers)
-                                                                                                    .Where(t => t.Action.ActionType == ActionTypes.Webhook))
-                                                                .ToList();
+            List<IeTrigger> allWebhookTriggers = new List<IeTrigger>();
+            ieWorkflow.TransitionEvents.ForEach(e =>
+            {
+                e?.Triggers?.ForEach(t =>
+                {
+                    if (t.Action.ActionType == ActionTypes.Webhook)
+                    {
+                        allWebhookTriggers.Add(t);
+                    }
+                });
+            });
+
+            ieWorkflow.NewArtifactEvents.ForEach(e =>
+            {
+                e?.Triggers?.ForEach(t =>
+                {
+                    if (t.Action.ActionType == ActionTypes.Webhook)
+                    {
+                        allWebhookTriggers.Add(t);
+                    }
+                });
+            });
+
             // Check if any webhooks where found
             if (allWebhookTriggers.IsEmpty())
             {

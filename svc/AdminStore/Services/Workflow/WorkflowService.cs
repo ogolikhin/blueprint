@@ -865,10 +865,7 @@ namespace AdminStore.Services.Workflow
                 Projects = GetProjects(workflowArtifactTypes, mode)
             };
 
-            var allWebhookTriggers = ieWorkflow.TransitionEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)
-                .Concat(ieWorkflow.NewArtifactEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)).ToList();
-
-            await LookupWebhookActionsFromIds(allWebhookTriggers);
+            await UpdateWebhookInfoAsync(ieWorkflow);
 
             await UpdateUserAndGroupInfo(ieWorkflow, userIds, groupIds);
             // Remove Property Change and New Artifact events if they do not have any triggers.
@@ -2000,6 +1997,30 @@ namespace AdminStore.Services.Workflow
             }
         }
 
+        private async Task UpdateWebhookInfoAsync(IeWorkflow ieWorkflow)
+        {
+            // Identify all triggers that contain webhooks
+            var allWebhookTriggers = ieWorkflow.TransitionEvents.Where(e => e.Triggers != null)
+                                                                .SelectMany(e => e.Triggers)
+                                                                .Where(t => t.Action.ActionType == ActionTypes.Webhook)
+                                                                .Union(ieWorkflow.NewArtifactEvents.Where(e => e.Triggers != null)
+                                                                                                    .SelectMany(e => e.Triggers)
+                                                                                                    .Where(t => t.Action.ActionType == ActionTypes.Webhook))
+                                                                .ToList();
+            // Check if any webhooks where found
+            if (allWebhookTriggers.IsEmpty())
+            {
+                return;
+            }
+
+            // Lookup all Webhook Info
+            await LookupWebhookActionsFromIds(allWebhookTriggers);
+
+            // Update Webhook Info within ieWorkflow object
+            var webhookMap = allWebhookTriggers.ToDictionary(w => ((IeWebhookAction)w.Action).IdSerializable, w => (IeWebhookAction)w.Action);
+            UpdateWebhookInfo(ieWorkflow, webhookMap);
+        }
+
         private async Task LookupWebhookActionsFromIds(List<IeTrigger> triggers)
         {
             var webhookIds = triggers.Select(t => t.Action).OfType<IeWebhookAction>().Select(a => (int)a.Id);
@@ -2037,6 +2058,39 @@ namespace AdminStore.Services.Workflow
                     }
                 }
             }
+        }
+
+        private void UpdateWebhookInfo(IeWorkflow workflow, IDictionary<int, IeWebhookAction> webhookMap)
+        {
+            workflow.TransitionEvents?.ForEach(te =>
+            {
+                te?.Triggers?.ForEach(tg =>
+                {
+                    if (tg?.Action?.ActionType == ActionTypes.Webhook)
+                    {
+                        IeWebhookAction webhookInfo;
+                        if (webhookMap.TryGetValue(((IeWebhookAction)tg.Action).IdSerializable, out webhookInfo))
+                        {
+                            tg.Action = webhookInfo;
+                        }
+                    }
+                });
+            });
+
+            workflow.NewArtifactEvents?.ForEach(a =>
+            {
+                a?.Triggers?.ForEach(tg =>
+                {
+                    if (tg?.Action?.ActionType == ActionTypes.Webhook)
+                    {
+                        IeWebhookAction webhookInfo;
+                        if (webhookMap.TryGetValue(((IeWebhookAction)tg.Action).IdSerializable, out webhookInfo))
+                        {
+                            tg.Action = webhookInfo;
+                        }
+                    }
+                });
+            });
         }
         #endregion Webhooks
     }

@@ -2001,22 +2001,22 @@ namespace AdminStore.Services.Workflow
         {
             // Identify all triggers that contain webhooks
             List<IeTrigger> allWebhookTriggers = new List<IeTrigger>();
-            ieWorkflow.TransitionEvents.ForEach(e =>
+            ieWorkflow.TransitionEvents?.ForEach(e =>
             {
                 e?.Triggers?.ForEach(t =>
                 {
-                    if (t.Action.ActionType == ActionTypes.Webhook)
+                    if (t?.Action?.ActionType == ActionTypes.Webhook)
                     {
                         allWebhookTriggers.Add(t);
                     }
                 });
             });
 
-            ieWorkflow.NewArtifactEvents.ForEach(e =>
+            ieWorkflow.NewArtifactEvents?.ForEach(e =>
             {
                 e?.Triggers?.ForEach(t =>
                 {
-                    if (t.Action.ActionType == ActionTypes.Webhook)
+                    if (t?.Action?.ActionType == ActionTypes.Webhook)
                     {
                         allWebhookTriggers.Add(t);
                     }

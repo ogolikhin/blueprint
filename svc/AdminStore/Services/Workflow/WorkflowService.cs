@@ -1776,27 +1776,25 @@ namespace AdminStore.Services.Workflow
                         }
                     }
 
-                    var createdAndUpdatedWebhooks = new List<SqlWebhooks>();
                     // Updated all webhooks that already exist
                     if (updateWebhookParams.Any())
                     {
-                        createdAndUpdatedWebhooks.AddRange(await _webhooksRepository.UpdateWebhooks(updateWebhookParams, transaction));
+                        await _webhooksRepository.UpdateWebhooks(updateWebhookParams, transaction);
                     }
 
                     // Create any newly added webhook
                     if (createWebhooksParams.Any())
                     {
-                        createdAndUpdatedWebhooks.AddRange(await _webhooksRepository.CreateWebhooks(createWebhooksParams, transaction));
-                    }
-
-                    // After All Webhooks have been created / updated, we need to go back and update our dataMap for all events
-                    if (createdAndUpdatedWebhooks.Any())
-                    {
-                        var index = 0;
-                        workflowDiffResult.ChangedEvents.ForEach(e =>
+                        var createdWebhooks = await _webhooksRepository.CreateWebhooks(createWebhooksParams, transaction);
+                        // After All Webhooks have been created, we need to go back and update our dataMap for all events
+                        if (createdWebhooks.Any())
                         {
-                            UpdateWebhooksDataMap(e, dataMaps, createdAndUpdatedWebhooks, ref index);
-                        });
+                            var index = 0;
+                            workflowDiffResult.ChangedEvents.ForEach(e =>
+                            {
+                                UpdateWebhooksDataMap(e, dataMaps, createdWebhooks, ref index);
+                            });
+                        }
                     }
                 }
 
@@ -1893,7 +1891,11 @@ namespace AdminStore.Services.Workflow
                 SecurityInfo = SerializeWebhookSecurityInfo(webhookAction),
                 WorkflowId = workflowId
             };
-            dataMaps.WebhooksByActionObj.Add(webhookAction, webhookAction.IdSerializable);
+
+            if (webhookAction.Id == null)
+            {
+                dataMaps.WebhooksByActionObj.Add(webhookAction, webhookAction.IdSerializable);
+            }
 
             return sqlWebhook;
         }
@@ -1985,10 +1987,10 @@ namespace AdminStore.Services.Workflow
                 {
                     if (!dataMaps.WebhooksByActionObj.ContainsKey(webhookAction))
                     {
-                        throw new KeyNotFoundException("Webhook DataMap does not contain Webhook specificied within Trigger.");
+                        continue;
                     }
 
-                    // Webhook Actions are only added to DataMap after an SqlWebhook obj has been created in preparation of being updated/created within the DB
+                    // Webhook Actions are only added to DataMap after an SqlWebhook obj has been created in preparation of being created within the DB
                     dataMaps.WebhooksByActionObj[webhookAction] = newWebhooks.ElementAt(counter).WebhookId;
                     counter++;
                 }

@@ -2033,7 +2033,15 @@ namespace AdminStore.Services.Workflow
             await LookupWebhookActionsFromIds(allWebhookTriggers);
 
             // Update Webhook Info within ieWorkflow object
-            var webhookMap = allWebhookTriggers.ToDictionary(w => ((IeWebhookAction)w.Action).IdSerializable, w => (IeWebhookAction)w.Action);
+            var webhookMap = new Dictionary<int, IeWebhookAction>();
+            foreach (var w in allWebhookTriggers)
+            {
+                var key = ((IeWebhookAction)w.Action).IdSerializable;
+                if (!webhookMap.ContainsKey(key))
+                {
+                    webhookMap[key] = (IeWebhookAction)w.Action;
+                }
+            }
             UpdateWebhookInfo(ieWorkflow, webhookMap);
         }
 

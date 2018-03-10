@@ -317,10 +317,14 @@ namespace ArtifactStore.Collections
         private static IEnumerable<ProfileColumn> GetSelectedColumns(
             IReadOnlyList<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns, string search)
         {
-            return profileColumns.Items
-                .Where(column => column.ExistsIn(propertyTypeInfos) && column.NameMatches(search))
+            var profilePropertyNames = profileColumns.Items.Select(x => x.PropertyName).ToList();
+
+            return propertyTypeInfos
+                .Where(column => column.ExistsIn(profileColumns) && column.NameMatches(search))
                 .Select(column => new ProfileColumn(
-                    column.PropertyName, column.Predefined, column.PrimitiveType, column.PropertyTypeId));
+                    column.Name, column.Predefined, column.PrimitiveType,
+                    column.Predefined == PropertyTypePredefined.CustomGroup ? column.Id : null))
+                .OrderBy(col => profilePropertyNames.FindIndex(x => x == col.PropertyName));
         }
 
         private static IEnumerable<ProfileColumn> GetUnselectedColumns(

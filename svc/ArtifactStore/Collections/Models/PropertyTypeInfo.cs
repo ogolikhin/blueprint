@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using ArtifactStore.ArtifactList.Models;
 using ServiceLibrary.Models.ProjectMeta;
 
 namespace ArtifactStore.Collections.Models
@@ -21,19 +19,6 @@ namespace ArtifactStore.Collections.Models
         public bool PredefinedMatches(IEnumerable<PropertyTypePredefined> predefineds)
         {
             return predefineds != null && predefineds.Contains(Predefined);
-        }
-
-        public bool ExistsIn(ProfileColumns profileColumns)
-        {
-            return Predefined == PropertyTypePredefined.CustomGroup
-                ? profileColumns.Items.Any(info => info.PropertyTypeId == Id)
-                : profileColumns.Items.Any(info => info.Predefined == Predefined);
-        }
-
-        public bool NameMatches(string search)
-        {
-            return string.IsNullOrEmpty(search) ||
-                   Name.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 }

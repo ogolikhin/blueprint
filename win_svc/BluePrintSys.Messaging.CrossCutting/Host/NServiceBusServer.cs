@@ -13,6 +13,8 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using BluePrintSys.Messaging.Models.Actions;
+using NServiceBus.Features;
+using NServiceBus.Persistence;
 using NServiceBus.Persistence.Sql;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
@@ -87,7 +89,6 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             var assembliesToExclude = new HashSet<string>
             {
                 "Common.dll",
-                "NServiceBus.Persistence.Sql.dll",
                 "BluePrintSys.Messaging.CrossCutting.dll",
                 "Dapper.StrongName.dll",
                 "MailBee.NET.4.dll"
@@ -100,6 +101,8 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
                 transport.ConnectionString(connectionString);
                 assembliesToExclude.Add("nservicebus.transport.sqlserver.dll");
+                assembliesToExclude.Add("NServiceBus.Persistence.Sql.dll");
+                endpointConfiguration.UsePersistence<InMemoryPersistence>();
             }
             else if (transportType == NServiceBusTransportType.Sql)
             {
@@ -111,20 +114,21 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 assembliesToExclude.Add("nservicebus.transports.rabbitmq.dll");
                 if (!sendOnly)
                 {
-                    var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
-                    var connection = @"Data Source=.\SqlExpress;Initial Catalog=NsbSamplesSqlPersistence;Integrated Security=True";
-                    persistence.SqlDialect<SqlDialect.MsSqlServer>();
-                    persistence.ConnectionBuilder(() => new SqlConnection(connection));
-                    var subscriptions = persistence.SubscriptionSettings();
-                    subscriptions.CacheFor(TimeSpan.FromMinutes(1));
+                    var persistence = endpointConfiguration.UsePersistence<SqlPersistence, StorageType.Timeouts>();
+                    endpointConfiguration.DisableFeature<MessageDrivenSubscriptions>();
+                    persistence.Schema("queue");
+                    persistence.ConnectionBuilder(() => new SqlConnection(connectionString));
+                }
+                else
+                {
+                    assembliesToExclude.Add("NServiceBus.Persistence.Sql.dll");
+                    endpointConfiguration.UsePersistence<InMemoryPersistence>();
                 }
             }
-
             var assemblyScanner = endpointConfiguration.AssemblyScanner();
             assemblyScanner.ExcludeAssemblies(assembliesToExclude.ToArray());
             ExcludeMessageHandlers(assemblyScanner);
 
-            endpointConfiguration.UsePersistence<InMemoryPersistence>();
             endpointConfiguration.UseSerialization<JsonSerializer>();
             endpointConfiguration.EnableInstallers();
             endpointConfiguration.LimitMessageProcessingConcurrencyTo(ConfigHelper.MessageProcessingMaxConcurrency);
@@ -134,6 +138,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             {
                 endpointConfiguration.SendOnly();
             }
+
             var recoverability = endpointConfiguration.Recoverability();
             recoverability.DisableLegacyRetriesSatellite();
             recoverability.AddUnrecoverableException<WebhookExceptionDoNotRetry>();

@@ -16,5 +16,8 @@ namespace ArtifactStore.Collections.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Pagination Pagination { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public ColumnValidation ColumnValidation { get; set; }
     }
 }

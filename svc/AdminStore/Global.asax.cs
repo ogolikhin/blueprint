@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Web.Http;
+using BluePrintSys.Messaging.CrossCutting.Helpers;
+using BluePrintSys.Messaging.CrossCutting.Logging;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Swagger;
 
@@ -15,6 +17,7 @@ namespace AdminStore
                 "AdminStore is Web Service to facilitate application and project administration functionality, user authentication and authorization."));
 #endif
             HttpsSecurity.Configure();
+            ServiceLogRepositoryAdapter.Initialize("AdminStore.Log");
         }
 
         protected void Application_Error(object sender, EventArgs e)
@@ -28,6 +31,12 @@ namespace AdminStore
             var xmlFormatter = GlobalConfiguration.Configuration.Formatters.XmlFormatter;
             ServerHelper.UpdateResponseWithError(Request, Response, jsonFormatter, xmlFormatter, ex.Message);
             Server.ClearError();
+        }
+
+        protected void Application_End(object sender, EventArgs e)
+        {
+            WorkflowMessagingProcessor.Shutdown();
+            ServiceLogRepositoryAdapter.Shutdown();
         }
     }
 }

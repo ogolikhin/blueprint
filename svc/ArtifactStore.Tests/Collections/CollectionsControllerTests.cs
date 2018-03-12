@@ -34,7 +34,7 @@ namespace ArtifactStore.Collections
         private AddArtifactsToCollectionResult _addArtifactsResult;
         private RemoveArtifactsFromCollectionResult _removeArtifactsFromCollectionResult;
         private Pagination _pagination;
-        private CollectionArtifacts _expectedCollectionArtifacts;
+        private CollectionData _expectedCollectionData;
         private GetColumnsDto _columns;
         private ProfileColumnsDto _profileColumnsDto;
 
@@ -80,7 +80,9 @@ namespace ArtifactStore.Collections
                 }
             };
 
-            _expectedCollectionArtifacts = new CollectionArtifacts
+            _expectedCollectionData = new CollectionData();
+            _expectedCollectionData.ProfileColumns = null;
+            _expectedCollectionData.CollectionArtifacts = new CollectionArtifacts
             {
                 ItemsCount = 2,
                 ArtifactListSettings = new ArtifactListSettings
@@ -146,7 +148,8 @@ namespace ArtifactStore.Collections
                             }
                         }
                     }
-                }
+                },
+                ColumnValidation = new ColumnValidation()
             };
 
             _columns = new GetColumnsDto
@@ -277,8 +280,8 @@ namespace ArtifactStore.Collections
         {
             // Arrange
 
-            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _pagination, _sessionUserId))
-                .ReturnsAsync(_expectedCollectionArtifacts);
+            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _sessionUserId, _pagination, null))
+                .ReturnsAsync(_expectedCollectionData);
 
             // act
             var actualResult =
@@ -287,11 +290,11 @@ namespace ArtifactStore.Collections
 
             // assert
             Assert.IsNotNull(actualResult);
-            Assert.AreEqual(_expectedCollectionArtifacts, actualResult.Content);
-            Assert.AreEqual(_expectedCollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
-            Assert.AreEqual(_expectedCollectionArtifacts.Items.Count(), actualResult.Content.Items.Count());
-            Assert.AreEqual(_expectedCollectionArtifacts.Pagination.Limit, actualResult.Content.Pagination.Limit);
-            Assert.AreEqual(_expectedCollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts, actualResult.Content);
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.Items.Count(), actualResult.Content.Items.Count());
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.Pagination.Limit, actualResult.Content.Pagination.Limit);
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
         }
 
         [TestMethod]
@@ -299,10 +302,10 @@ namespace ArtifactStore.Collections
         {
             // Setup:
             _pagination.Limit = 1;
-            _expectedCollectionArtifacts.Items = _expectedCollectionArtifacts.Items.Take((int)_pagination.Limit);
+            _expectedCollectionData.CollectionArtifacts.Items = _expectedCollectionData.CollectionArtifacts.Items.Take((int)_pagination.Limit);
 
-            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _pagination, _sessionUserId))
-                .ReturnsAsync(_expectedCollectionArtifacts);
+            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _sessionUserId, _pagination, null))
+                .ReturnsAsync(_expectedCollectionData);
 
             // Execute:
             var actualResult =
@@ -311,11 +314,11 @@ namespace ArtifactStore.Collections
 
             // Verify:
             Assert.IsNotNull(actualResult);
-            Assert.AreEqual(_expectedCollectionArtifacts, actualResult.Content);
-            Assert.AreEqual(_expectedCollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts, actualResult.Content);
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
             Assert.AreEqual(1, actualResult.Content.Items.Count());
             Assert.AreEqual(1, actualResult.Content.Pagination.Limit);
-            Assert.AreEqual(_expectedCollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
         }
 
         [TestMethod]
@@ -323,10 +326,10 @@ namespace ArtifactStore.Collections
         {
             // Setup:
             _pagination.Offset = 1;
-            _expectedCollectionArtifacts.Items = _expectedCollectionArtifacts.Items.Skip((int)_pagination.Offset);
+            _expectedCollectionData.CollectionArtifacts.Items = _expectedCollectionData.CollectionArtifacts.Items.Skip((int)_pagination.Offset);
 
-            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _pagination, _sessionUserId))
-                .ReturnsAsync(_expectedCollectionArtifacts);
+            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _sessionUserId, _pagination, null))
+                .ReturnsAsync(_expectedCollectionData);
 
             // Execute:
             var actualResult =
@@ -335,11 +338,11 @@ namespace ArtifactStore.Collections
 
             // Verify:
             Assert.IsNotNull(actualResult);
-            Assert.AreEqual(_expectedCollectionArtifacts, actualResult.Content);
-            Assert.AreEqual(_expectedCollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts, actualResult.Content);
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
             Assert.AreEqual(1, actualResult.Content.Items.Count());
             Assert.AreEqual(1, actualResult.Content.Pagination.Offset);
-            Assert.AreEqual(_expectedCollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
+            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
         }
 
         #endregion GetArtifactsInCollectionAsync

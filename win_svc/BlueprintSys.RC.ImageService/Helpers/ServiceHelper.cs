@@ -1,4 +1,5 @@
 ﻿using BluePrintSys.Messaging.CrossCutting;
+using System;
 
 namespace BlueprintSys.RC.ImageService.Helpers
 {
@@ -33,6 +34,12 @@ namespace BlueprintSys.RC.ImageService.Helpers
             => AppSettingsHelper.GetConfigStringValue(ServiceConfiguration.NServiceBusConnectionStringKey,
                 ServiceConfiguration.DefaultNServiceBusConnectionString);
 
+        public static TimeSpan NServiceBusCriticalErrorRetryDelay
+            => TimeSpan.FromMinutes(
+                AppSettingsHelper.GetConfigIntValue(
+                    ServiceConfiguration.NServiceBusCriticalErrorRetryDelayKey,
+                    ServiceConfiguration.DefaultNServiceBusCriticalErrorRetryDelay));
+
         public static string NServiceBusInstanceId
             => AppSettingsHelper.GetConfigStringValue(ServiceConfiguration.NServiceBusInstanceIdKey,
                 ServiceConfiguration.DefaultNServiceBusInstanceId);
@@ -42,5 +49,16 @@ namespace BlueprintSys.RC.ImageService.Helpers
                 ServiceConfiguration.DefaultBrowserRenderWaitTimeSeconds);
 
         public static string RenderTimeoutErrorMessage => "The Process rendering did not complete withing the timeout period.";
+
+        public static int NServiceBusCriticalErrorRetryCount
+            => AppSettingsHelper.GetConfigIntValue(
+                    ServiceConfiguration.NServiceBusCriticalErrorRetryCountKey,
+                    ServiceConfiguration.DefaultNServiceBusCriticalErrorRetryCount);
+
+        // Should not be used (default is false) - adding it just in case if recovery policy is not working
+        public static bool NServiceBusIgnoreCriticalErrors
+            => AppSettingsHelper.GetConfigBoolValue(
+                ServiceConfiguration.NServiceBusIgnoreCriticalErrors,
+                ServiceConfiguration.DefaultNServiceBusIgnoreCriticalErrors);
     }
 }

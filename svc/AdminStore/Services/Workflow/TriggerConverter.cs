@@ -544,15 +544,10 @@ namespace AdminStore.Services.Workflow
                 return null;
             }
 
-            if (!dataMaps.WebhooksByActionObj.ContainsKey(ieWebhookAction))
-            {
-                return null;
-            }
-
             return new XmlWebhookAction
             {
                 Name = ieWebhookAction.Name,
-                WebhookId = dataMaps.WebhooksByActionObj[ieWebhookAction]
+                WebhookId = ieWebhookAction.Id ?? dataMaps.WebhooksByActionObj[ieWebhookAction]
             };
         }
 

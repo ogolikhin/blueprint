@@ -337,13 +337,13 @@ namespace ArtifactStore.Collections
             #endregion
 
             // Execute:
-            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, new Pagination { Limit = 10, Offset = 0 }, _userId);
+            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination { Limit = 10, Offset = 0 }, new ProfileColumns(new List<ProfileColumn>()));
 
             // Verify:
             Assert.IsNotNull(actual);
-            Assert.AreEqual(expectedCollectionArtifacts.ItemsCount, actual.ItemsCount);
-            Assert.AreEqual(expectedCollectionArtifacts.Items.Count(), actual.Items.Count());
-            Assert.AreEqual(expectedCollectionArtifacts.Items.ToJSON(), actual.Items.ToJSON());
+            Assert.AreEqual(expectedCollectionArtifacts.ItemsCount, actual.CollectionArtifacts.ItemsCount);
+            Assert.AreEqual(expectedCollectionArtifacts.Items.Count(), actual.CollectionArtifacts.Items.Count());
+            Assert.AreEqual(expectedCollectionArtifacts.Items.ToJSON(), actual.CollectionArtifacts.Items.ToJSON());
         }
 
         [TestMethod]
@@ -353,7 +353,7 @@ namespace ArtifactStore.Collections
             ArtifactBasicDetails artifactBasicDetails = null;
             _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null)).ReturnsAsync(artifactBasicDetails);
 
-            await _collectionService.GetArtifactsInCollectionAsync(_collectionId, new Pagination(), _userId);
+            await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination(), new ProfileColumns(new List<ProfileColumn>()));
         }
 
         [TestMethod]
@@ -363,7 +363,7 @@ namespace ArtifactStore.Collections
             var artifactBasicDetails = new ArtifactBasicDetails { DraftDeleted = true };
             _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null)).ReturnsAsync(artifactBasicDetails);
 
-            await _collectionService.GetArtifactsInCollectionAsync(_collectionId, new Pagination(), _userId);
+            await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination(), new ProfileColumns(new List<ProfileColumn>()));
         }
 
         [TestMethod]
@@ -373,7 +373,7 @@ namespace ArtifactStore.Collections
             var artifactBasicDetails = new ArtifactBasicDetails { LatestDeleted = true };
             _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null)).ReturnsAsync(artifactBasicDetails);
 
-            await _collectionService.GetArtifactsInCollectionAsync(_collectionId, new Pagination(), _userId);
+            await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination(), new ProfileColumns(new List<ProfileColumn>()));
         }
 
         [TestMethod]
@@ -383,7 +383,7 @@ namespace ArtifactStore.Collections
             var artifactBasicDetails = new ArtifactBasicDetails { PrimitiveItemTypePredefined = (int)ItemTypePredefined.Actor, DraftDeleted = false, LatestDeleted = false };
             _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null)).ReturnsAsync(artifactBasicDetails);
 
-            await _collectionService.GetArtifactsInCollectionAsync(_collectionId, new Pagination(), _userId);
+            await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination(), new ProfileColumns(new List<ProfileColumn>()));
         }
         #endregion
 

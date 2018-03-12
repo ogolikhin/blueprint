@@ -8,7 +8,7 @@ namespace ArtifactStore.Collections
 {
     public interface ICollectionsService
     {
-        Task<CollectionArtifacts> GetArtifactsInCollectionAsync(int collectionId, Pagination pagination, int userId);
+        Task<CollectionData> GetArtifactsInCollectionAsync(int collectionId, int userId, Pagination pagination, ProfileColumns profileColumns);
 
         Task<AddArtifactsToCollectionResult> AddArtifactsToCollectionAsync(int collectionId, IEnumerable<int> artifactIds, int userId);
 

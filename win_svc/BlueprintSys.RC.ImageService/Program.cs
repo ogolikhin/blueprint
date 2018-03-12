@@ -1,6 +1,7 @@
 ﻿using BlueprintSys.RC.ImageService.Helpers;
 using BlueprintSys.RC.ImageService.ImageGen;
 using CefSharp;
+using System;
 using Topshelf;
 
 namespace BlueprintSys.RC.ImageService
@@ -19,8 +20,8 @@ namespace BlueprintSys.RC.ImageService
                 x.Service<ImageGenService>(s =>
                 {
                     s.ConstructUsing(name => ImageGenService.Instance);
-                    s.WhenStarted(tc => tc.Start(null));
-                    s.WhenStopped(tc => tc.Stop(null));
+                    s.WhenStarted((tc, hostControl) => tc.Start(hostControl));
+                    s.WhenStopped((tc, hostControl) => tc.Stop(hostControl));
                 });
                 x.RunAsLocalSystem();
 
@@ -36,7 +37,11 @@ namespace BlueprintSys.RC.ImageService
             });
 
             // See #2 above.
-            Cef.Shutdown();
+            if (Environment.UserInteractive)
+            {
+                Cef.Shutdown();
+            }
         }
     }
 }
+

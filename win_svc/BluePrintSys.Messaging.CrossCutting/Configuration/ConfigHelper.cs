@@ -1,4 +1,5 @@
 ﻿using ServiceLibrary.Models.Enums;
+using System;
 
 namespace BluePrintSys.Messaging.CrossCutting.Configuration
 {
@@ -51,5 +52,41 @@ namespace BluePrintSys.Messaging.CrossCutting.Configuration
         public const string WebhookRetryIntervalKey = "WebhookRetryInterval";
         public const int WebhookRetryIntervalDefault = 900;
         public int WebhookRetryInterval => AppSettingsHelper.GetConfigIntValue(WebhookRetryIntervalKey, WebhookRetryIntervalDefault);
+
+        // NSB - Critical Error handling
+        // <!-- Delay before retry in minutes -->
+        // <add key = "NServiceBus.CriticalErrorRetryDelay" value="2" />
+        public const string NServiceBusCriticalErrorRetryDelayKey = "NServiceBus.CriticalErrorRetryDelay";
+        public const int NServiceBusCriticalErrorRetryDelayDefault = 2;
+        public TimeSpan NServiceBusCriticalErrorRetryDelay =>
+            TimeSpan.FromMinutes(AppSettingsHelper.GetConfigIntValue(NServiceBusCriticalErrorRetryDelayKey, NServiceBusCriticalErrorRetryDelayDefault));
+
+        // <!-- Number of unsuccesseful retries before service restart/stop -->
+        // <add key = "NServiceBus.CriticalErrorRetryCount" value ="3"/>
+        public const string NServiceBusCriticalErrorRetryCountKey = "NServiceBus.CriticalErrorRetryCount";
+        public const int NServiceBusCriticalErrorRetryCountDefault = 3;
+        public int NServiceBusCriticalErrorRetryCount =>
+            AppSettingsHelper.GetConfigIntValue(NServiceBusCriticalErrorRetryCountKey, NServiceBusCriticalErrorRetryCountDefault);
+
+        public const string NServiceBusIgnoreCriticalErrorsKey = "NServiceBus.IgnoreCriticalErrors";
+        public const bool NServiceBusIgnoreCriticalErrorsDefault = false;
+        public bool NServiceBusIgnoreCriticalErrors =>
+            AppSettingsHelper.GetConfigBoolValue(NServiceBusIgnoreCriticalErrorsKey, NServiceBusIgnoreCriticalErrorsDefault);
+
+        // Default Retry Policy configuration
+        public const string NServiceBusNumberOfImmediateRetriesKey = "NServiceBus.NumberOfImmediateRetries";
+        public const int NServiceBusNumberOfImmediateRetriesDefault = 3;
+        public int NServiceBusNumberOfImmediateRetries =>
+            AppSettingsHelper.GetConfigIntValue(NServiceBusNumberOfImmediateRetriesKey, NServiceBusNumberOfImmediateRetriesDefault);
+
+        public const string NServiceBusNumberOfDelayedRetriesKey = "NServiceBus.NumberOfDelayedRetries";
+        public const int NServiceBusNumberOfDelayedRetriesDefault = 5;
+        public int NServiceBusNumberOfDelayedRetries =>
+            AppSettingsHelper.GetConfigIntValue(NServiceBusNumberOfDelayedRetriesKey, NServiceBusNumberOfDelayedRetriesDefault);
+
+        public const string NServiceBusDelayIntervalIncreaseKey = "NServiceBus.DelayIntervalIncrease";
+        public const int NServiceBusDelayIntervalIncreaseDefault = 10;
+        public TimeSpan NServiceBusDelayIntervalIncrease =>
+            TimeSpan.FromMinutes(AppSettingsHelper.GetConfigIntValue(NServiceBusDelayIntervalIncreaseKey, NServiceBusDelayIntervalIncreaseDefault));
     }
 }

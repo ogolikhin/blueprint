@@ -64,18 +64,31 @@ namespace ArtifactStore.Collections
 
             var userId = Session.UserId;
 
+            var profileSettings = await _artifactListService.GetProfileSettingsAsync(id, userId);
+
             pagination = pagination ?? new Pagination();
             pagination.Offset = pagination.Offset ?? DefaultPaginationOffset;
             pagination.Limit = pagination.Limit
-                ?? await _artifactListService.GetPaginationLimitAsync(id, userId)
+                ?? profileSettings?.PaginationLimit
                 ?? DefaultPaginationLimit;
 
-            var artifacts = await _collectionsService.GetArtifactsInCollectionAsync(id, pagination, userId);
-            artifacts.Pagination = pagination;
+            var collectionData = await _collectionsService.GetArtifactsInCollectionAsync(id, userId, pagination, profileSettings?.ProfileColumns);
+            collectionData.CollectionArtifacts.Pagination = pagination;
 
-            await _artifactListService.SavePaginationLimitAsync(id, pagination.Limit, userId);
+            switch (collectionData.CollectionArtifacts.ColumnValidation.Status)
+            {
+                case ColumnValidationStatus.AllInvalid:
+                    await _artifactListService.SaveProfileSettingsAsync(id, userId, new ProfileColumns(new List<ProfileColumn>()), collectionData.CollectionArtifacts.Pagination.Limit);
+                    break;
+                case ColumnValidationStatus.SomeValid:
+                    await _artifactListService.SaveProfileSettingsAsync(id, userId, collectionData.ProfileColumns, collectionData.CollectionArtifacts.Pagination.Limit);
+                    break;
+                default:
+                    await _artifactListService.SavePaginationLimitAsync(id, pagination.Limit, userId);
+                    break;
+            }
 
-            return Ok(artifacts);
+            return Ok(collectionData.CollectionArtifacts);
         }
 
         /// <summary>

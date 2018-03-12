@@ -27,6 +27,9 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
         private readonly NServiceBusServer _nServiceBusServer = new NServiceBusServer();
 
+        private volatile bool _stoppingService;
+        private Object _lockObject = new Object();
+
         private ImageGenService()
         {
             _config = new HttpSelfHostConfiguration(ServiceAddress);
@@ -68,13 +71,23 @@ namespace BlueprintSys.RC.ImageService.ImageGen
                 Log.DebugFormat("Failed to start self host web server.", e);
             }
 
-            Task.Run(() => _nServiceBusServer.Start(NServiceBusConnectionString))
-                .ContinueWith(startTask =>
+            Task.Run(() => _nServiceBusServer.Start(NServiceBusConnectionString, () => {
+                Log.Error("ImageGen service - restarting after critical error");
+                if (Environment.UserInteractive)
+                {
+                    hostControl.Stop();
+                }
+                else
+                {
+                    Stop(hostControl);
+                    Environment.FailFast("ImageGen service - NSB critical error");
+                }
+            })).ContinueWith(startTask =>
                 {
                     if (!string.IsNullOrEmpty(startTask.Result))
                     {
                         Log.Error(startTask.Result);
-                        Stop(null);
+                        hostControl.Stop();
                     }
                 });
 
@@ -84,6 +97,15 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
         public bool Stop(HostControl hostControl)
         {
+            lock (_lockObject)
+            {
+                if (_stoppingService)
+                {
+                    return true;
+                }
+                _stoppingService = true;
+            }
+
             try
             {
                 Log.Info("ImageGen Service is stopping...");

@@ -865,10 +865,7 @@ namespace AdminStore.Services.Workflow
                 Projects = GetProjects(workflowArtifactTypes, mode)
             };
 
-            var allWebhookTriggers = ieWorkflow.TransitionEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)
-                .Concat(ieWorkflow.NewArtifactEvents.Where(e => e.Triggers != null).SelectMany(e => e.Triggers)).ToList();
-
-            await LookupWebhookActionsFromIds(allWebhookTriggers);
+            await UpdateWebhookInfoAsync(ieWorkflow);
 
             await UpdateUserAndGroupInfo(ieWorkflow, userIds, groupIds);
             // Remove Property Change and New Artifact events if they do not have any triggers.
@@ -1692,7 +1689,6 @@ namespace AdminStore.Services.Workflow
             return iePortPair;
         }
 
-
         private static string SerializeTransitionCanvasSettings(IePortPair iePortPair)
         {
             if (iePortPair == null) return null;
@@ -1780,27 +1776,25 @@ namespace AdminStore.Services.Workflow
                         }
                     }
 
-                    var createdAndUpdatedWebhooks = new List<SqlWebhooks>();
                     // Updated all webhooks that already exist
                     if (updateWebhookParams.Any())
                     {
-                        createdAndUpdatedWebhooks.AddRange(await _webhooksRepository.UpdateWebhooks(updateWebhookParams, transaction));
+                        await _webhooksRepository.UpdateWebhooks(updateWebhookParams, transaction);
                     }
 
                     // Create any newly added webhook
                     if (createWebhooksParams.Any())
                     {
-                        createdAndUpdatedWebhooks.AddRange(await _webhooksRepository.CreateWebhooks(createWebhooksParams, transaction));
-                    }
-
-                    // After All Webhooks have been created / updated, we need to go back and update our dataMap for all events
-                    if (createdAndUpdatedWebhooks.Any())
-                    {
-                        var index = 0;
-                        workflowDiffResult.ChangedEvents.ForEach(e =>
+                        var createdWebhooks = await _webhooksRepository.CreateWebhooks(createWebhooksParams, transaction);
+                        // After All Webhooks have been created, we need to go back and update our dataMap for all events
+                        if (createdWebhooks.Any())
                         {
-                            UpdateWebhooksDataMap(e, dataMaps, createdAndUpdatedWebhooks, ref index);
-                        });
+                            var index = 0;
+                            workflowDiffResult.ChangedEvents.ForEach(e =>
+                            {
+                                UpdateWebhooksDataMap(e, dataMaps, createdWebhooks, ref index);
+                            });
+                        }
                     }
                 }
 
@@ -1842,7 +1836,6 @@ namespace AdminStore.Services.Workflow
                         {
                             if (t.Action.ActionType == ActionTypes.Webhook)
                             {
-
                                 t.Action = webhookActions.First(w => w.IdSerializable == ((IeWebhookAction)t.Action).IdSerializable);
                             }
                         });
@@ -1898,7 +1891,11 @@ namespace AdminStore.Services.Workflow
                 SecurityInfo = SerializeWebhookSecurityInfo(webhookAction),
                 WorkflowId = workflowId
             };
-            dataMaps.WebhooksByActionObj.Add(webhookAction, webhookAction.IdSerializable);
+
+            if (webhookAction.Id == null)
+            {
+                dataMaps.WebhooksByActionObj.Add(webhookAction, webhookAction.IdSerializable);
+            }
 
             return sqlWebhook;
         }
@@ -1990,14 +1987,62 @@ namespace AdminStore.Services.Workflow
                 {
                     if (!dataMaps.WebhooksByActionObj.ContainsKey(webhookAction))
                     {
-                        throw new KeyNotFoundException("Webhook DataMap does not contain Webhook specificied within Trigger.");
+                        continue;
                     }
 
-                    // Webhook Actions are only added to DataMap after an SqlWebhook obj has been created in preparation of being updated/created within the DB
+                    // Webhook Actions are only added to DataMap after an SqlWebhook obj has been created in preparation of being created within the DB
                     dataMaps.WebhooksByActionObj[webhookAction] = newWebhooks.ElementAt(counter).WebhookId;
                     counter++;
                 }
             }
+        }
+
+        private async Task UpdateWebhookInfoAsync(IeWorkflow ieWorkflow)
+        {
+            // Identify all triggers that contain webhooks
+            List<IeTrigger> allWebhookTriggers = new List<IeTrigger>();
+            ieWorkflow.TransitionEvents?.ForEach(e =>
+            {
+                e?.Triggers?.ForEach(t =>
+                {
+                    if (t?.Action?.ActionType == ActionTypes.Webhook)
+                    {
+                        allWebhookTriggers.Add(t);
+                    }
+                });
+            });
+
+            ieWorkflow.NewArtifactEvents?.ForEach(e =>
+            {
+                e?.Triggers?.ForEach(t =>
+                {
+                    if (t?.Action?.ActionType == ActionTypes.Webhook)
+                    {
+                        allWebhookTriggers.Add(t);
+                    }
+                });
+            });
+
+            // Check if any webhooks where found
+            if (allWebhookTriggers.IsEmpty())
+            {
+                return;
+            }
+
+            // Lookup all Webhook Info
+            await LookupWebhookActionsFromIds(allWebhookTriggers);
+
+            // Update Webhook Info within ieWorkflow object
+            var webhookMap = new Dictionary<int, IeWebhookAction>();
+            foreach (var w in allWebhookTriggers)
+            {
+                var key = ((IeWebhookAction)w.Action).IdSerializable;
+                if (!webhookMap.ContainsKey(key))
+                {
+                    webhookMap[key] = (IeWebhookAction)w.Action;
+                }
+            }
+            UpdateWebhookInfo(ieWorkflow, webhookMap);
         }
 
         private async Task LookupWebhookActionsFromIds(List<IeTrigger> triggers)
@@ -2037,6 +2082,39 @@ namespace AdminStore.Services.Workflow
                     }
                 }
             }
+        }
+
+        private void UpdateWebhookInfo(IeWorkflow workflow, IDictionary<int, IeWebhookAction> webhookMap)
+        {
+            workflow.TransitionEvents?.ForEach(te =>
+            {
+                te?.Triggers?.ForEach(tg =>
+                {
+                    if (tg?.Action?.ActionType == ActionTypes.Webhook)
+                    {
+                        IeWebhookAction webhookInfo;
+                        if (webhookMap.TryGetValue(((IeWebhookAction)tg.Action).IdSerializable, out webhookInfo))
+                        {
+                            tg.Action = webhookInfo;
+                        }
+                    }
+                });
+            });
+
+            workflow.NewArtifactEvents?.ForEach(a =>
+            {
+                a?.Triggers?.ForEach(tg =>
+                {
+                    if (tg?.Action?.ActionType == ActionTypes.Webhook)
+                    {
+                        IeWebhookAction webhookInfo;
+                        if (webhookMap.TryGetValue(((IeWebhookAction)tg.Action).IdSerializable, out webhookInfo))
+                        {
+                            tg.Action = webhookInfo;
+                        }
+                    }
+                });
+            });
         }
         #endregion Webhooks
     }

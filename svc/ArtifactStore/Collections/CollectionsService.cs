@@ -321,7 +321,9 @@ namespace ArtifactStore.Collections
         private static IEnumerable<ProfileColumn> GetSelectedColumns(
             IReadOnlyList<PropertyTypeInfo> propertyTypeInfos, ProfileColumns profileColumns, string search)
         {
-            return profileColumns.Items
+            var validProfileColumns = profileColumns.ToValidColumns(propertyTypeInfos).Item1;
+
+            return validProfileColumns.Items
                 .Where(column => column.ExistsIn(propertyTypeInfos) && column.NameMatches(search))
                 .Select(column => new ProfileColumn(
                     column.PropertyName, column.Predefined, column.PrimitiveType, column.PropertyTypeId));
@@ -544,7 +546,9 @@ namespace ArtifactStore.Collections
 
                 var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
 
-                var invalidValidColumns = profileColumns.GetInvalidValidColumns(propertyTypes);
+                var validatedProfileColumns = profileColumns.ToValidColumns(propertyTypeInfos).Item1;
+
+                var invalidValidColumns = validatedProfileColumns.GetInvalidValidColumns(propertyTypes);
 
                 var validColumns = invalidValidColumns.Item1;
                 var invalidColumns = invalidValidColumns.Item2;
@@ -566,7 +570,7 @@ namespace ArtifactStore.Collections
                 }
                 else
                 {
-                    validProfileColumns = new ProfileColumns(profileColumns.Items);
+                    validProfileColumns = new ProfileColumns(validatedProfileColumns.Items);
                 }
             }
             else

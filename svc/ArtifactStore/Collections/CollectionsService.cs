@@ -546,7 +546,9 @@ namespace ArtifactStore.Collections
 
                 var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
 
-                var invalidValidColumns = profileColumns.GetInvalidValidColumns(propertyTypes);
+                var validatedProfileColumns = profileColumns.ToValidColumns(propertyTypeInfos).Item1;
+
+                var invalidValidColumns = validatedProfileColumns.GetInvalidValidColumns(propertyTypes);
 
                 var validColumns = invalidValidColumns.Item1;
                 var invalidColumns = invalidValidColumns.Item2;
@@ -568,7 +570,7 @@ namespace ArtifactStore.Collections
                 }
                 else
                 {
-                    validProfileColumns = new ProfileColumns(profileColumns.Items);
+                    validProfileColumns = new ProfileColumns(validatedProfileColumns.Items);
                 }
             }
             else

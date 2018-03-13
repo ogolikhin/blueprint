@@ -34,7 +34,7 @@ namespace ArtifactStore.ArtifactList.Helpers
             if (invalidColumns.Count == 1)
             {
                 message = I18NHelper.FormatInvariant(
-                    ErrorMessages.ArtifactList.ColumnsSettings.SingleInvalidColumn,
+                    ErrorMessages.ArtifactList.ColumnsSettings.SingleOrSomeInvalidColumns,
                     invalidColumns.First().PropertyName);
             }
             else
@@ -44,7 +44,7 @@ namespace ArtifactStore.ArtifactList.Helpers
                 message = I18NHelper.FormatInvariant(
                     invalidColumns.Count > maxPropertiesToShow ?
                         ErrorMessages.ArtifactList.ColumnsSettings.MultipleInvalidColumns :
-                        ErrorMessages.ArtifactList.ColumnsSettings.SomeInvalidColumns,
+                        ErrorMessages.ArtifactList.ColumnsSettings.SingleOrSomeInvalidColumns,
                     string.Join(", ", invalidColumns.Take(maxPropertiesToShow).Select(column => column.PropertyName)));
             }
 

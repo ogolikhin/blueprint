@@ -49,46 +49,5 @@ namespace ArtifactStore.ArtifactList
                 .ReturnsAsync(_xmlProfileSettings);
             _service = new ArtifactListService(_repositoryMock.Object);
         }
-
-        [TestMethod]
-        public async Task GetProfileColumnsAsync_WithoutFallback_NoSettingsExist_ReturnsNull()
-        {
-            // Arrange
-            _repositoryMock
-                .Setup(m => m.GetSettingsAsync(_itemId, _userId))
-                .ReturnsAsync((XmlProfileSettings)null);
-
-            // Act
-            var result = await _service.GetProfileColumnsAsync(_itemId, _userId);
-
-            // Assert
-            Assert.IsNull(result);
-        }
-
-        [TestMethod]
-        public async Task GetProfileColumnsAsync_WithFallback_NoSettingsExist_ReturnsDefaultColumns()
-        {
-            // Arrange
-            var defaultColumns = ProfileColumns.Default;
-            _repositoryMock
-                .Setup(m => m.GetSettingsAsync(_itemId, _userId))
-                .ReturnsAsync((XmlProfileSettings)null);
-
-            // Act
-            var result = await _service.GetProfileColumnsAsync(_itemId, _userId, defaultColumns);
-
-            // Assert
-            Assert.AreEqual(defaultColumns, result);
-        }
-
-        [TestMethod]
-        public async Task GetProfileColumnsAsync_SettingsExist_ReturnsSettings()
-        {
-            // Act
-            var result = await _service.GetProfileColumnsAsync(_itemId, _userId);
-
-            // Assert
-            Assert.IsNotNull(result);
-        }
     }
 }

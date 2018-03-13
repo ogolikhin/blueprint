@@ -72,7 +72,7 @@ namespace ArtifactStore.Collections
                 ?? profileSettings?.PaginationLimit
                 ?? DefaultPaginationLimit;
 
-            var collectionData = await _collectionsService.GetArtifactsInCollectionAsync(id, userId, pagination, profileSettings?.ProfileColumns);
+            var collectionData = await _collectionsService.GetArtifactsInCollectionAsync(id, userId, pagination, profileSettings?.Columns);
             collectionData.CollectionArtifacts.Pagination = pagination;
 
             switch (collectionData.CollectionArtifacts.ColumnValidation.Status)

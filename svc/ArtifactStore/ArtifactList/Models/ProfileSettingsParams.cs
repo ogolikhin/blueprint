@@ -1,6 +1,6 @@
 ﻿namespace ArtifactStore.ArtifactList.Models
 {
-    internal class ProfileSettingsParams
+    public class ProfileSettingsParams
     {
         private ProfileColumns _columns;
         private bool _columnsUndefined = true;

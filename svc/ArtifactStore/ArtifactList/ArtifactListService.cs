@@ -21,7 +21,7 @@ namespace ArtifactStore.ArtifactList
             _artifactListSettingsRepository = artifactListSettingsRepository;
         }
 
-        public async Task<ProfileSettings> GetProfileSettingsAsync(int itemId, int userId)
+        public async Task<ProfileSettingsParams> GetProfileSettingsAsync(int itemId, int userId)
         {
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
@@ -30,34 +30,15 @@ namespace ArtifactStore.ArtifactList
                 return null;
             }
 
-            var profileSettings = new ProfileSettings
+            var profileSettings = new ProfileSettingsParams
             {
-                ProfileColumns = !existingSettings.Columns.IsEmpty()
+                Columns = !existingSettings.Columns.IsEmpty()
                     ? ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings)
                     : null,
                 PaginationLimit = ArtifactListHelper.ConvertXmlProfileSettingsToPaginationLimit(existingSettings)
             };
 
             return profileSettings;
-        }
-
-        public async Task<int?> GetPaginationLimitAsync(int itemId, int userId)
-        {
-            var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
-
-            return existingSettings != null
-                ? ArtifactListHelper.ConvertXmlProfileSettingsToPaginationLimit(existingSettings)
-                : null;
-        }
-
-        public async Task<ProfileColumns> GetProfileColumnsAsync(
-            int itemId, int userId, ProfileColumns defaultColumns = null)
-        {
-            var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
-
-            return existingSettings == null || existingSettings.Columns.IsEmpty()
-                ? defaultColumns
-                : ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings);
         }
 
         public async Task SaveProfileSettingsAsync(int itemId,  int userId, ProfileColumns profileColumns, int? paginationLimit)

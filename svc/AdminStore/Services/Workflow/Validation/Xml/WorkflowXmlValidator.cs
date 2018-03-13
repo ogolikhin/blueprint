@@ -1248,6 +1248,7 @@ namespace AdminStore.Services.Workflow.Validation.Xml
             ValidateDuplicateStateIds(workflow, result);
             ValidateDuplicateWorkflowEventIds(workflow, result);
             ValidateDuplicateProjectIds(workflow, result);
+            ValidateDuplicateWebhookIds(workflow, result);
         }
 
         private static void ValidateDuplicateStateIds(IeWorkflow workflow, WorkflowXmlValidationResult result)
@@ -1319,6 +1320,36 @@ namespace AdminStore.Services.Workflow.Validation.Xml
                 {
                     Element = project,
                     ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateArtifactTypeIdsInProject
+                });
+            }
+        }
+
+        private static void ValidateDuplicateWebhookIds(IeWorkflow workflow, WorkflowXmlValidationResult result)
+        {
+            var webhookIds = new List<int>();
+
+            var tIds = workflow?.TransitionEvents?.SelectMany(t => t.Triggers)
+                                                  .Where(t => t?.Action?.ActionType == ActionTypes.Webhook && ((IeWebhookAction)t.Action).Id.HasValue)
+                                                  .Select(wb => ((IeWebhookAction)wb.Action).Id.Value);
+            if (tIds != null)
+            {
+                webhookIds.AddRange(tIds);
+            }
+
+            var naIds = workflow?.NewArtifactEvents?.SelectMany(t => t.Triggers)
+                                                    .Where(t => t?.Action?.ActionType == ActionTypes.Webhook && ((IeWebhookAction)t.Action).Id.HasValue)
+                                                    .Select(wb => ((IeWebhookAction)wb.Action).Id.Value);
+            if (naIds != null)
+            {
+                webhookIds.AddRange(naIds);
+            }
+
+            if (webhookIds.Count != webhookIds.Distinct().Count())
+            {
+                result.Errors.Add(new WorkflowXmlValidationError
+                {
+                    Element = workflow,
+                    ErrorCode = WorkflowXmlValidationErrorCodes.DuplicateWebhookIdsInProject
                 });
             }
         }

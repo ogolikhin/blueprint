@@ -70,6 +70,7 @@
         DuplicateStateIds,
         DuplicateWorkflowEventIds,
         DuplicateProjectIds,
-        DuplicateArtifactTypeIdsInProject
+        DuplicateArtifactTypeIdsInProject,
+        DuplicateWebhookIdsInProject
     }
 }

@@ -39,5 +39,7 @@ namespace ServiceLibrary.Models
 
         public string HtmlTextValue { get; set; }
 
+        public int? DecimalPlaces { get; set; }
+
     }
 }

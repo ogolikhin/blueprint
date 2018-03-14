@@ -21,7 +21,7 @@ namespace ArtifactStore.ArtifactList
             _artifactListSettingsRepository = artifactListSettingsRepository;
         }
 
-        public async Task<ProfileSettingsParams> GetProfileSettingsAsync(int itemId, int userId)
+        public async Task<ProfileSettings> GetProfileSettingsAsync(int itemId, int userId)
         {
             var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
 
@@ -30,7 +30,7 @@ namespace ArtifactStore.ArtifactList
                 return null;
             }
 
-            var profileSettings = new ProfileSettingsParams
+            var profileSettings = new ProfileSettings
             {
                 Columns = !existingSettings.Columns.IsEmpty()
                     ? ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings)
@@ -43,22 +43,22 @@ namespace ArtifactStore.ArtifactList
 
         public async Task SaveProfileSettingsAsync(int itemId,  int userId, ProfileColumns profileColumns, int? paginationLimit)
         {
-            var profileSettingsParams = new ProfileSettingsParams { PaginationLimit = paginationLimit, Columns = profileColumns };
+            var profileSettingsParams = new ProfileSettings { PaginationLimit = paginationLimit, Columns = profileColumns };
 
             await SaveSettingsAsync(itemId, userId, profileSettingsParams);
         }
 
         public async Task<int> SavePaginationLimitAsync(int itemId, int? paginationLimit, int userId)
         {
-            return await SaveSettingsAsync(itemId, userId, new ProfileSettingsParams { PaginationLimit = paginationLimit });
+            return await SaveSettingsAsync(itemId, userId, new ProfileSettings { PaginationLimit = paginationLimit });
         }
 
         public async Task<int> SaveProfileColumnsAsync(int itemId, ProfileColumns profileColumns, int userId)
         {
-            return await SaveSettingsAsync(itemId, userId, new ProfileSettingsParams { Columns = profileColumns });
+            return await SaveSettingsAsync(itemId, userId, new ProfileSettings { Columns = profileColumns });
         }
 
-        private async Task<int> SaveSettingsAsync(int itemId, int userId, ProfileSettingsParams profileSettings)
+        private async Task<int> SaveSettingsAsync(int itemId, int userId, ProfileSettings profileSettings)
         {
             if (profileSettings == null)
             {

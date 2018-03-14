@@ -36,7 +36,7 @@ namespace ArtifactStore.Collections
         private ISet<int> _artifactIds;
         private int _collectionId;
         private ProfileColumns _profileColumnsSettings;
-        private ProfileSettingsParams _profileSettings;
+        private ProfileSettings _profileSettings;
         private ArtifactBasicDetails _collectionDetails;
         private List<ItemDetails> _artifacts;
         private List<PropertyTypeInfo> _propertyTypeInfos;
@@ -76,7 +76,7 @@ namespace ArtifactStore.Collections
                 Total = _artifactIds.Count
             };
 
-            _profileSettings = new ProfileSettingsParams();
+            _profileSettings = new ProfileSettings();
 
             _profileSettings.Columns = new ProfileColumns(
                 new List<ProfileColumn>
@@ -293,7 +293,7 @@ namespace ArtifactStore.Collections
 
             var propertyTypeInfos = new List<PropertyTypeInfo>();
 
-            var profileSettings = new ProfileSettingsParams();
+            var profileSettings = new ProfileSettings();
 
             var profileColumns = new ProfileColumns(new List<ProfileColumn>());
 
@@ -903,7 +903,7 @@ namespace ArtifactStore.Collections
 
         #region Private methods
 
-        private void InitializeProfileColumnsAndPropertyTypeInfos(ProfileSettingsParams profileSettings, IReadOnlyList<PropertyTypeInfo> propertyTypeInfos)
+        private void InitializeProfileColumnsAndPropertyTypeInfos(ProfileSettings profileSettings, IReadOnlyList<PropertyTypeInfo> propertyTypeInfos)
         {
             _artifactListService
                 .Setup(s => s.GetProfileSettingsAsync(It.IsAny<int>(), It.IsAny<int>()))

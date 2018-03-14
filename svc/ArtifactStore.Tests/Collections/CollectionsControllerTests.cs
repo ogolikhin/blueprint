@@ -22,13 +22,15 @@ namespace ArtifactStore.Collections
     [TestClass]
     public class CollectionsControllerTests
     {
-        private int _userId = 1;
+        private const int DefaultPaginationOffset = 0;
+        private const int DefaultPaginationLimit = 10;
 
+        private int _userId = 1;
         private Mock<IArtifactListService> _artifactListServiceMock;
         private Mock<ICollectionsService> _collectionsServiceMock;
         private CollectionsController _collectionsController;
         private Session _session;
-        private int _sessionUserId = 1;
+        private readonly int _sessionUserId = 1;
         private ISet<int> _artifactIds;
         private int _collectionId;
         private AddArtifactsToCollectionResult _addArtifactsResult;
@@ -80,76 +82,78 @@ namespace ArtifactStore.Collections
                 }
             };
 
-            _expectedCollectionData = new CollectionData();
-            _expectedCollectionData.ProfileColumns = null;
-            _expectedCollectionData.CollectionArtifacts = new CollectionArtifacts
+            _expectedCollectionData = new CollectionData
             {
-                ItemsCount = 2,
-                ArtifactListSettings = new ArtifactListSettings
+                ProfileColumns = null,
+                CollectionArtifacts = new CollectionArtifacts
                 {
-                    Columns = new List<ProfileColumn>
+                    ItemsCount = 2,
+                    ArtifactListSettings = new ArtifactListSettings
                     {
-                        new ProfileColumn
+                        Columns = new List<ProfileColumn>
                         {
-                            Predefined = PropertyTypePredefined.Name,
-                            PrimitiveType = PropertyPrimitiveType.Text,
-                            PropertyName = "Name",
-                            PropertyTypeId = 80
+                            new ProfileColumn
+                            {
+                                Predefined = PropertyTypePredefined.Name,
+                                PrimitiveType = PropertyPrimitiveType.Text,
+                                PropertyName = "Name",
+                                PropertyTypeId = 80
+                            },
+                            new ProfileColumn
+                            {
+                                Predefined = PropertyTypePredefined.Description,
+                                PrimitiveType = PropertyPrimitiveType.Text,
+                                PropertyName = "Description",
+                                PropertyTypeId = 81
+                            }
                         },
-                        new ProfileColumn
-                        {
-                            Predefined = PropertyTypePredefined.Description,
-                            PrimitiveType = PropertyPrimitiveType.Text,
-                            PropertyName = "Description",
-                            PropertyTypeId = 81
-                        }
+                        Filters = new List<ArtifactListFilter>()
                     },
-                    Filters = new List<ArtifactListFilter>()
-                },
-                Items = new List<ArtifactDto>
-                {
-                    new ArtifactDto
+                    Items = new List<ArtifactDto>
                     {
-                        ArtifactId = 7545,
-                        ItemTypeId = 134,
-                        PredefinedType = 4107,
-                        PropertyInfos = new List<PropertyValueInfo>
+                        new ArtifactDto
                         {
-                            new PropertyValueInfo
+                            ArtifactId = 7545,
+                            ItemTypeId = 134,
+                            PredefinedType = 4107,
+                            PropertyInfos = new List<PropertyValueInfo>
                             {
-                                PropertyTypeId = 80,
-                                Value = "Value_Name"
-                            },
-                            new PropertyValueInfo
+                                new PropertyValueInfo
+                                {
+                                    PropertyTypeId = 80,
+                                    Value = "Value_Name"
+                                },
+                                new PropertyValueInfo
+                                {
+                                    PropertyTypeId = 81,
+                                    Value = "Value_Description",
+                                    IsRichText = true
+                                }
+                            }
+                        },
+                        new ArtifactDto
+                        {
+                            ArtifactId = 7551,
+                            ItemTypeId = 132,
+                            PredefinedType = 4105,
+                            PropertyInfos = new List<PropertyValueInfo>
                             {
-                                PropertyTypeId = 81,
-                                Value = "Value_Description",
-                                IsRichText = true
+                                new PropertyValueInfo
+                                {
+                                    PropertyTypeId = 80,
+                                    Value = "Value_Name_2"
+                                },
+                                new PropertyValueInfo
+                                {
+                                    PropertyTypeId = 81,
+                                    Value = "Value_Description_2",
+                                    IsRichText = true
+                                }
                             }
                         }
                     },
-                    new ArtifactDto
-                    {
-                        ArtifactId = 7551,
-                        ItemTypeId = 132,
-                        PredefinedType = 4105,
-                        PropertyInfos = new List<PropertyValueInfo>
-                        {
-                            new PropertyValueInfo
-                            {
-                                PropertyTypeId = 80,
-                                Value = "Value_Name_2"
-                            },
-                            new PropertyValueInfo
-                            {
-                                PropertyTypeId = 81,
-                                Value = "Value_Description_2",
-                                IsRichText = true
-                            }
-                        }
-                    }
-                },
-                ColumnValidation = new ColumnValidation()
+                    ColumnValidation = new ColumnValidation()
+                }
             };
 
             _columns = new GetColumnsDto
@@ -276,75 +280,68 @@ namespace ArtifactStore.Collections
         #region GetArtifactsInCollectionAsync
 
         [TestMethod]
-        public async Task GetArtifactsInCollectionAsync_AllParametersAreValid_Success()
+        public async Task GetArtifactsInCollectionAsync_PaginationParameterIsNull_ProfileSettingsIsNull_Success()
         {
             // Arrange
+            _pagination = null;
 
-            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _sessionUserId, _pagination, null))
+            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Pagination>(), It.IsAny<ProfileColumns>()))
                 .ReturnsAsync(_expectedCollectionData);
 
             // act
             var actualResult =
                 await _collectionsController.GetArtifactsInCollectionAsync(_collectionId,
-                        _pagination) as OkNegotiatedContentResult<CollectionArtifacts>;
+                    _pagination) as OkNegotiatedContentResult<CollectionArtifacts>;
 
             // assert
             Assert.IsNotNull(actualResult);
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts, actualResult.Content);
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.Items.Count(), actualResult.Content.Items.Count());
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.Pagination.Limit, actualResult.Content.Pagination.Limit);
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
+            Assert.IsNotNull(actualResult.Content);
+            Assert.AreEqual(actualResult.Content.Pagination.Limit, DefaultPaginationLimit);
+            Assert.AreEqual(actualResult.Content.Pagination.Offset, DefaultPaginationOffset);
         }
 
         [TestMethod]
-        public async Task GetArtifactsInCollectionAsync_AllParametersAreValid_WithPaginationLimit()
+        public async Task GetArtifactsInCollectionAsync_PaginationLimitAndOffsetParametersAreNotNull_ProfileSettingsIsNull_Success()
         {
             // Setup:
-            _pagination.Limit = 1;
-            _expectedCollectionData.CollectionArtifacts.Items = _expectedCollectionData.CollectionArtifacts.Items.Take((int)_pagination.Limit);
-
-            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _sessionUserId, _pagination, null))
+            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Pagination>(), It.IsAny<ProfileColumns>()))
                 .ReturnsAsync(_expectedCollectionData);
 
             // Execute:
             var actualResult =
                 await _collectionsController.GetArtifactsInCollectionAsync(_collectionId,
-                        _pagination) as OkNegotiatedContentResult<CollectionArtifacts>;
+                    _pagination) as OkNegotiatedContentResult<CollectionArtifacts>;
 
             // Verify:
             Assert.IsNotNull(actualResult);
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts, actualResult.Content);
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
-            Assert.AreEqual(1, actualResult.Content.Items.Count());
-            Assert.AreEqual(1, actualResult.Content.Pagination.Limit);
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
+            Assert.IsNotNull(actualResult.Content);
+            Assert.AreEqual(actualResult.Content.Pagination.Limit, _pagination.Limit);
+            Assert.AreEqual(actualResult.Content.Pagination.Offset, _pagination.Offset);
         }
 
         [TestMethod]
-        public async Task GetArtifactsInCollectionAsync_AllParametersAreValid_WithPaginationOffset()
+        public async Task GetArtifactsInCollectionAsync_PaginationLimitParameterIsNull_ProfileSettingsIsNotNull_Success()
         {
             // Setup:
-            _pagination.Offset = 1;
-            _expectedCollectionData.CollectionArtifacts.Items = _expectedCollectionData.CollectionArtifacts.Items.Skip((int)_pagination.Offset);
+            _pagination.Limit = null;
+            var profileSettings = new ProfileSettingsParams { PaginationLimit = 10 };
 
-            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(_collectionId, _sessionUserId, _pagination, null))
+            _artifactListServiceMock.Setup(q => q.GetProfileSettingsAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(profileSettings);
+
+            _collectionsServiceMock.Setup(q => q.GetArtifactsInCollectionAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Pagination>(), It.IsAny<ProfileColumns>()))
                 .ReturnsAsync(_expectedCollectionData);
 
             // Execute:
             var actualResult =
                 await _collectionsController.GetArtifactsInCollectionAsync(_collectionId,
-                        _pagination) as OkNegotiatedContentResult<CollectionArtifacts>;
+                    _pagination) as OkNegotiatedContentResult<CollectionArtifacts>;
 
             // Verify:
             Assert.IsNotNull(actualResult);
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts, actualResult.Content);
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.ItemsCount, actualResult.Content.ItemsCount);
-            Assert.AreEqual(1, actualResult.Content.Items.Count());
-            Assert.AreEqual(1, actualResult.Content.Pagination.Offset);
-            Assert.AreEqual(_expectedCollectionData.CollectionArtifacts.Pagination.Offset, actualResult.Content.Pagination.Offset);
+            Assert.IsNotNull(actualResult.Content);
+            Assert.AreEqual(actualResult.Content.Pagination.Limit, profileSettings.PaginationLimit);
         }
-
         #endregion GetArtifactsInCollectionAsync
 
         #region GetColumnsAsync

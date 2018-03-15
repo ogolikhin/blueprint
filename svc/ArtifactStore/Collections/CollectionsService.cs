@@ -421,7 +421,7 @@ namespace ArtifactStore.Collections
                     bool multiValue = primitiveType == PropertyPrimitiveType.Choice || primitiveType == PropertyPrimitiveType.User;
 
                     propertyInfo.Value = systemColumn
-                        && !multiValue // Fill multi value properties below
+                            && !multiValue // Fill multi value properties below
                         ? artifactProperty.PredefinedPropertyValue
                         : primitiveType == PropertyPrimitiveType.Date
                         ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)

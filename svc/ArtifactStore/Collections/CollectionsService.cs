@@ -426,7 +426,7 @@ namespace ArtifactStore.Collections
                         : primitiveType == PropertyPrimitiveType.Date
                         ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)
                         : primitiveType == PropertyPrimitiveType.Number
-                        ? artifactProperty.DecimalValue?.ToString(CultureInfo.InvariantCulture)
+                        ? artifactProperty.DecimalValue?.ToString("0.#############################", CultureInfo.InvariantCulture)
                         : multiValue
                         ? null // Fill multi value properties below
                         : artifactProperty.IsRichText

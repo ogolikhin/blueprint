@@ -29,24 +29,13 @@ namespace ArtifactStore.ArtifactList.Helpers
                 throw new ArgumentException(nameof(invalidColumns));
             }
 
-            string message;
+            const int maxPropertiesToShow = 3;
 
-            if (invalidColumns.Count == 1)
-            {
-                message = I18NHelper.FormatInvariant(
-                    ErrorMessages.ArtifactList.ColumnsSettings.SingleInvalidColumn,
-                    invalidColumns.First().PropertyName);
-            }
-            else
-            {
-                const int maxPropertiesToShow = 3;
-
-                message = I18NHelper.FormatInvariant(
-                    invalidColumns.Count > maxPropertiesToShow ?
-                        ErrorMessages.ArtifactList.ColumnsSettings.MultipleInvalidColumns :
-                        ErrorMessages.ArtifactList.ColumnsSettings.SomeInvalidColumns,
-                    string.Join(", ", invalidColumns.Take(maxPropertiesToShow).Select(column => column.PropertyName)));
-            }
+            var message = I18NHelper.FormatInvariant(
+                invalidColumns.Count > maxPropertiesToShow
+                    ? ErrorMessages.ArtifactList.ColumnsSettings.MultipleInvalidColumns
+                    : ErrorMessages.ArtifactList.ColumnsSettings.SingleOrSomeInvalidColumns,
+                string.Join(", ", invalidColumns.Take(maxPropertiesToShow).Select(column => column.PropertyName)));
 
             return new BadRequestException(message, ErrorCodes.InvalidColumns);
         }

@@ -110,7 +110,10 @@ namespace ArtifactStore.Collections
 
             var collectionArtifacts = new CollectionArtifacts();
 
-            var validatedColumns = await ValidateProfileColumns(userId, profileColumns, searchArtifactsResult, collectionArtifacts);
+            var validProfileColumnsAndColumnValidation = await ValidateProfileColumns(userId, profileColumns, searchArtifactsResult);
+
+            var validatedColumns = validProfileColumnsAndColumnValidation.Item1;
+            collectionArtifacts.ColumnValidation = validProfileColumnsAndColumnValidation.Item2;
 
             var artifactIds = searchArtifactsResult.ArtifactIds.Skip((int)pagination.Offset).Take((int)pagination.Limit).ToList();
 
@@ -232,8 +235,9 @@ namespace ArtifactStore.Collections
             }
 
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts, search);
-            var profileColumns = await _artifactListService.GetProfileColumnsAsync(
-                collection.Id, userId, ProfileColumns.Default);
+
+            var profileColumns = (await _artifactListService.GetProfileSettingsAsync(collection.Id, userId))?.Columns ??
+                                 ProfileColumns.Default;
 
             var selectedColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, search).ToList();
 
@@ -258,7 +262,7 @@ namespace ArtifactStore.Collections
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts);
 
             var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
-            var invalidColumns = profileColumns.GetInvalidValidColumns(propertyTypes).Item2.ToList();
+            var invalidColumns = profileColumns.GetInvalidAndValidColumns(propertyTypes).Item2.ToList();
 
             if (invalidColumns.Any())
             {
@@ -534,7 +538,15 @@ namespace ArtifactStore.Collections
                    (artifact.EndRevision == int.MaxValue || artifact.EndRevision == 1);
         }
 
-        private async Task<ProfileColumns> ValidateProfileColumns(int userId, ProfileColumns profileColumns, SearchArtifactsResult searchArtifactsResult, CollectionArtifacts collectionArtifacts)
+        /// <summary>
+        /// Valid profile columns according to database properties and consider count of invalid columns.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="profileColumns"></param>
+        /// <param name="searchArtifactsResult"></param>
+        /// <returns> Valid profile columns and count of invalid columns with status. </returns>
+        private async Task<Tuple<ProfileColumns, ColumnValidation>> ValidateProfileColumns(int userId,
+            ProfileColumns profileColumns, SearchArtifactsResult searchArtifactsResult)
         {
             ProfileColumns validProfileColumns;
             var columnValidation = new ColumnValidation();
@@ -549,7 +561,7 @@ namespace ArtifactStore.Collections
 
                 var validatedProfileColumns = profileColumns.ToValidColumns(propertyTypeInfos).Item1;
 
-                var invalidValidColumns = validatedProfileColumns.GetInvalidValidColumns(propertyTypes);
+                var invalidValidColumns = validatedProfileColumns.GetInvalidAndValidColumns(propertyTypes);
 
                 var validColumns = invalidValidColumns.Item1;
                 var invalidColumns = invalidValidColumns.Item2;
@@ -579,9 +591,7 @@ namespace ArtifactStore.Collections
                 validProfileColumns = new ProfileColumns(ProfileColumns.Default.Items);
             }
 
-            collectionArtifacts.ColumnValidation = columnValidation;
-
-            return validProfileColumns;
+            return new Tuple<ProfileColumns, ColumnValidation>(validProfileColumns, columnValidation);
         }
     }
 }

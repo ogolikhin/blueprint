@@ -30,7 +30,7 @@ namespace ArtifactStore.ArtifactList.Helpers
         public void InvalidColumnsException_AllParamsIsValid_OneProfileColumn_ReturnBadRequestException()
         {
             var expectedMessage = I18NHelper.FormatInvariant(
-                ErrorMessages.ArtifactList.ColumnsSettings.SingleInvalidColumn,
+                ErrorMessages.ArtifactList.ColumnsSettings.SingleOrSomeInvalidColumns,
                 _profileColumns.First().PropertyName);
 
             var result = ArtifactListExceptionHelper.InvalidColumnsException(_profileColumns);
@@ -50,7 +50,7 @@ namespace ArtifactStore.ArtifactList.Helpers
             };
 
             var expectedMessage = I18NHelper.FormatInvariant(
-                ErrorMessages.ArtifactList.ColumnsSettings.SomeInvalidColumns,
+                ErrorMessages.ArtifactList.ColumnsSettings.SingleOrSomeInvalidColumns,
                 string.Join(", ", _profileColumns.Take(_maxPropertiesToShow).Select(column => column.PropertyName)));
 
             var result = ArtifactListExceptionHelper.InvalidColumnsException(_profileColumns);

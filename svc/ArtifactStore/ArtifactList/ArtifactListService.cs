@@ -32,7 +32,7 @@ namespace ArtifactStore.ArtifactList
 
             var profileSettings = new ProfileSettings
             {
-                ProfileColumns = !existingSettings.Columns.IsEmpty()
+                Columns = !existingSettings.Columns.IsEmpty()
                     ? ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings)
                     : null,
                 PaginationLimit = ArtifactListHelper.ConvertXmlProfileSettingsToPaginationLimit(existingSettings)
@@ -41,43 +41,24 @@ namespace ArtifactStore.ArtifactList
             return profileSettings;
         }
 
-        public async Task<int?> GetPaginationLimitAsync(int itemId, int userId)
-        {
-            var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
-
-            return existingSettings != null
-                ? ArtifactListHelper.ConvertXmlProfileSettingsToPaginationLimit(existingSettings)
-                : null;
-        }
-
-        public async Task<ProfileColumns> GetProfileColumnsAsync(
-            int itemId, int userId, ProfileColumns defaultColumns = null)
-        {
-            var existingSettings = await _artifactListSettingsRepository.GetSettingsAsync(itemId, userId);
-
-            return existingSettings == null || existingSettings.Columns.IsEmpty()
-                ? defaultColumns
-                : ArtifactListHelper.ConvertXmlProfileSettingsToProfileColumns(existingSettings);
-        }
-
         public async Task SaveProfileSettingsAsync(int itemId,  int userId, ProfileColumns profileColumns, int? paginationLimit)
         {
-            var profileSettingsParams = new ProfileSettingsParams { PaginationLimit = paginationLimit, Columns = profileColumns };
+            var profileSettingsParams = new ProfileSettings { PaginationLimit = paginationLimit, Columns = profileColumns };
 
             await SaveSettingsAsync(itemId, userId, profileSettingsParams);
         }
 
         public async Task<int> SavePaginationLimitAsync(int itemId, int? paginationLimit, int userId)
         {
-            return await SaveSettingsAsync(itemId, userId, new ProfileSettingsParams { PaginationLimit = paginationLimit });
+            return await SaveSettingsAsync(itemId, userId, new ProfileSettings { PaginationLimit = paginationLimit });
         }
 
         public async Task<int> SaveProfileColumnsAsync(int itemId, ProfileColumns profileColumns, int userId)
         {
-            return await SaveSettingsAsync(itemId, userId, new ProfileSettingsParams { Columns = profileColumns });
+            return await SaveSettingsAsync(itemId, userId, new ProfileSettings { Columns = profileColumns });
         }
 
-        private async Task<int> SaveSettingsAsync(int itemId, int userId, ProfileSettingsParams profileSettings)
+        private async Task<int> SaveSettingsAsync(int itemId, int userId, ProfileSettings profileSettings)
         {
             if (profileSettings == null)
             {

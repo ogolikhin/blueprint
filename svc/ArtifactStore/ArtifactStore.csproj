@@ -121,7 +121,6 @@
     <Compile Include="ArtifactList\Helpers\ArtifactListExceptionHelper.cs" />
     <Compile Include="ArtifactList\Models\ProfileColumns.cs" />
     <Compile Include="ArtifactList\Models\ProfileSettings.cs" />
-    <Compile Include="ArtifactList\Models\ProfileSettingsParams.cs" />
     <Compile Include="ArtifactList\Models\Xml\XmlProfileColumn.cs" />
     <Compile Include="ArtifactList\Models\Xml\XmlProfileSettings.cs" />
     <Compile Include="ArtifactList\SqlArtifactListSettingsRepository.cs" />

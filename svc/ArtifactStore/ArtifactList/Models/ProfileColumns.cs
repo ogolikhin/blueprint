@@ -65,7 +65,7 @@ namespace ArtifactStore.ArtifactList.Models
             return !_columns.IsEmpty() && _columns.Any(column => column.Predefined == predefined);
         }
 
-        public Tuple<IEnumerable<ProfileColumn>, IEnumerable<ProfileColumn>> GetInvalidValidColumns(IEnumerable<ProfileColumn> propertyTypes)
+        public Tuple<IEnumerable<ProfileColumn>, IEnumerable<ProfileColumn>> GetInvalidAndValidColumns(IEnumerable<ProfileColumn> propertyTypes)
         {
             var validColumns = new List<ProfileColumn>();
             var invalidColumns = new List<ProfileColumn>();

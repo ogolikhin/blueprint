@@ -420,14 +420,13 @@ namespace ArtifactStore.Collections
                     bool systemColumn = propertyTypePredefined != PropertyTypePredefined.CustomGroup;
                     bool multiValue = primitiveType == PropertyPrimitiveType.Choice || primitiveType == PropertyPrimitiveType.User;
 
-                    // artifactProperty.DecimalPlaces = 5;
                     propertyInfo.Value = systemColumn
                         && !multiValue // Fill multi value properties below
                         ? artifactProperty.PredefinedPropertyValue
                         : primitiveType == PropertyPrimitiveType.Date
                         ? artifactProperty.DateTimeValue?.ToString(CultureInfo.InvariantCulture)
-                        : primitiveType == PropertyPrimitiveType.Number && artifactProperty.DecimalValue.HasValue
-                        ? artifactProperty.DecimalValue.Value.ToString("G29", CultureInfo.InvariantCulture)
+                        : primitiveType == PropertyPrimitiveType.Number
+                        ? artifactProperty.DecimalValue?.ToString("0.#############################", CultureInfo.InvariantCulture)
                         : multiValue
                         ? null // Fill multi value properties below
                         : artifactProperty.IsRichText

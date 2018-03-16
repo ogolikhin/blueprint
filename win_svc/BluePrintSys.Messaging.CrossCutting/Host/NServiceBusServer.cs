@@ -13,6 +13,9 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.Workflow;
 using BluePrintSys.Messaging.Models.Actions;
+using NServiceBus.Features;
+using NServiceBus.Persistence;
+using NServiceBus.Persistence.Sql;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 
 namespace BluePrintSys.Messaging.CrossCutting.Host
@@ -111,7 +114,6 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             var assembliesToExclude = new HashSet<string>
             {
                 "Common.dll",
-                "NServiceBus.Persistence.Sql.dll",
                 "BluePrintSys.Messaging.CrossCutting.dll",
                 "Dapper.StrongName.dll",
                 "MailBee.NET.4.dll"
@@ -124,6 +126,8 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
                 transport.ConnectionString(connectionString);
                 assembliesToExclude.Add("nservicebus.transport.sqlserver.dll");
+                assembliesToExclude.Add("NServiceBus.Persistence.Sql.dll");
+                endpointConfiguration.UsePersistence<InMemoryPersistence>();
             }
             else if (transportType == NServiceBusTransportType.Sql)
             {
@@ -133,13 +137,23 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
                 transport.ConnectionString(connectionString);
                 transport.DefaultSchema("queue");
                 assembliesToExclude.Add("nservicebus.transports.rabbitmq.dll");
+                if (!sendOnly)
+                {
+                    var persistence = endpointConfiguration.UsePersistence<SqlPersistence, StorageType.Timeouts>();
+                    endpointConfiguration.DisableFeature<MessageDrivenSubscriptions>();
+                    persistence.Schema("queue");
+                    persistence.ConnectionBuilder(() => new SqlConnection(connectionString));
+                }
+                else
+                {
+                    assembliesToExclude.Add("NServiceBus.Persistence.Sql.dll");
+                    endpointConfiguration.UsePersistence<InMemoryPersistence>();
+                }
             }
-
             var assemblyScanner = endpointConfiguration.AssemblyScanner();
             assemblyScanner.ExcludeAssemblies(assembliesToExclude.ToArray());
             ExcludeMessageHandlers(assemblyScanner);
 
-            endpointConfiguration.UsePersistence<InMemoryPersistence>();
             endpointConfiguration.UseSerialization<JsonSerializer>();
             endpointConfiguration.EnableInstallers();
             endpointConfiguration.LimitMessageProcessingConcurrencyTo(ConfigHelper.MessageProcessingMaxConcurrency);

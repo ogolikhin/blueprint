@@ -94,6 +94,7 @@ namespace AdminStore.Services.Workflow.Validation
         private const string TemplateXmlDuplicateWorkflowEventIds = "One or more Workflow Events have a duplicate ID. A Workflow Event ID must be unique.";
         private const string TemplateXmlDuplicateProjectIds = "One or more Projects have a duplicate ID. A Project ID must be unique.";
         private const string TemplateXmlDuplicateArtifactTypeIdsInProject = "One or more Projects contain duplicate artifact type IDs. Please ensure for each <Project> element, its <ArtifactType> child elements do not have identical 'Id' attribute values. If you are modifying an existing Workflow, try removing the 'Id' attribute from any newly added or changed <ArtifactType> elements.";
+        private const string TemplateXmlDuplicateWebhookIdsInProject = "One or more Webhooks have a duplicate Id. A Webhook ID must be unique.";
         // Messages for the Data validation.
         private const string TemplateDataWorkflowNameNotUnique = "Main <Workflow> element: The value of the <Name> child element already exists. Workflows must have unique names.";
         private const string TemplateDataProjectByPathNotFound = "<Project> elements: The project path '{0}' was not found.";
@@ -508,6 +509,10 @@ namespace AdminStore.Services.Workflow.Validation
                     break;
                 case WorkflowXmlValidationErrorCodes.DuplicateArtifactTypeIdsInProject:
                     template = TemplateXmlDuplicateArtifactTypeIdsInProject;
+                    errParams = new object[] { };
+                    break;
+                case WorkflowXmlValidationErrorCodes.DuplicateWebhookIdsInProject:
+                    template = TemplateXmlDuplicateWebhookIdsInProject;
                     errParams = new object[] { };
                     break;
                 case WorkflowXmlValidationErrorCodes.WebhookActionUrlNotSpecified:

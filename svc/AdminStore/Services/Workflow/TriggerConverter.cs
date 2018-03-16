@@ -547,7 +547,7 @@ namespace AdminStore.Services.Workflow
             return new XmlWebhookAction
             {
                 Name = ieWebhookAction.Name,
-                WebhookId = ieWebhookAction.Id ?? dataMaps.WebhooksByActionObj[ieWebhookAction]
+                WebhookId = ieWebhookAction.Id.HasValue && ieWebhookAction.Id != 0 ? (int)ieWebhookAction.Id : dataMaps.WebhooksByActionObj[ieWebhookAction]
             };
         }
 

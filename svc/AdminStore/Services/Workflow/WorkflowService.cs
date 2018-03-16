@@ -1892,7 +1892,7 @@ namespace AdminStore.Services.Workflow
                 WorkflowId = workflowId
             };
 
-            if (webhookAction.Id == null)
+            if (webhookAction.Id == null || webhookAction.Id == 0)
             {
                 dataMaps.WebhooksByActionObj.Add(webhookAction, webhookAction.IdSerializable);
             }

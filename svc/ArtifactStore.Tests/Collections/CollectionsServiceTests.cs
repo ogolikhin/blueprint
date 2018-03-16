@@ -35,7 +35,7 @@ namespace ArtifactStore.Collections
         private int _userId = 1;
         private ISet<int> _artifactIds;
         private int _collectionId;
-        private ProfileSettingsParams _profileSettings;
+        private ProfileSettings _profileSettings;
         private ArtifactBasicDetails _collectionDetails;
         private List<ItemDetails> _artifacts;
         private List<PropertyTypeInfo> _propertyTypeInfos;
@@ -72,7 +72,7 @@ namespace ArtifactStore.Collections
             _artifactIds = new HashSet<int> { 1, 2, 3 };
             _collectionId = 1;
 
-            _profileSettings = new ProfileSettingsParams();
+            _profileSettings = new ProfileSettings();
 
             _profileSettings.Columns = new ProfileColumns(
                 new List<ProfileColumn>
@@ -784,7 +784,7 @@ namespace ArtifactStore.Collections
 
             _artifactListService
                 .Setup(s => s.GetProfileSettingsAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync((ProfileSettingsParams)null);
+                .ReturnsAsync((ProfileSettings)null);
 
             var result = await _collectionService.GetColumnsAsync(_collectionId, _userId);
 
@@ -808,7 +808,7 @@ namespace ArtifactStore.Collections
         [TestMethod]
         public async Task GetColumnsAsync_CustomProfileColumnsExistInPropertyTypeInfos_SelectedColumnsNotEmpty_Success()
         {
-            var profileSettings = new ProfileSettingsParams();
+            var profileSettings = new ProfileSettings();
             var profileColumns = new List<ProfileColumn>();
 
             foreach (var propertyInfo in _propertyTypeInfos)
@@ -834,7 +834,7 @@ namespace ArtifactStore.Collections
         {
             const string searchWildCard = "Test1";
 
-            var profileSettings = new ProfileSettingsParams();
+            var profileSettings = new ProfileSettings();
             var profileColumns = new List<ProfileColumn>();
 
             foreach (var propertyInfo in _propertyTypeInfos)
@@ -865,7 +865,7 @@ namespace ArtifactStore.Collections
         {
             const string searchWildCard = "Test3";
 
-            var profileSettings = new ProfileSettingsParams();
+            var profileSettings = new ProfileSettings();
             var profileColumns = new List<ProfileColumn>();
 
             foreach (var propertyInfo in _propertyTypeInfos)
@@ -896,7 +896,7 @@ namespace ArtifactStore.Collections
         {
             _propertyTypeInfos.Add(new PropertyTypeInfo { Name = "Test3", Id = 3, Predefined = PropertyTypePredefined.Name, PrimitiveType = PropertyPrimitiveType.Choice });
 
-            var profileSettings = new ProfileSettingsParams();
+            var profileSettings = new ProfileSettings();
             var profileColumns = new List<ProfileColumn>();
 
             foreach (var propertyInfo in _propertyTypeInfos)
@@ -927,7 +927,7 @@ namespace ArtifactStore.Collections
         {
             _artifactListService
                 .Setup(s => s.GetProfileSettingsAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new ProfileSettingsParams { Columns = new ProfileColumns(new List<ProfileColumn>()) });
+                .ReturnsAsync(new ProfileSettings { Columns = new ProfileColumns(new List<ProfileColumn>()) });
 
             var result = await _collectionService.GetColumnsAsync(_collectionId, _userId);
 
@@ -969,7 +969,7 @@ namespace ArtifactStore.Collections
 
             _artifactListService
                 .Setup(s => s.GetProfileSettingsAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new ProfileSettingsParams { Columns = new ProfileColumns(new List<ProfileColumn> { new ProfileColumn
+                .ReturnsAsync(new ProfileSettings { Columns = new ProfileColumns(new List<ProfileColumn> { new ProfileColumn
                 {
                     PropertyName = propertyTypeInfo.Name,
                     Predefined = propertyTypeInfo.Predefined,
@@ -1003,7 +1003,7 @@ namespace ArtifactStore.Collections
 
             _artifactListService
                 .Setup(s => s.GetProfileSettingsAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new ProfileSettingsParams
+                .ReturnsAsync(new ProfileSettings
                 {
                     Columns = new ProfileColumns(new List<ProfileColumn> { new ProfileColumn
                     {

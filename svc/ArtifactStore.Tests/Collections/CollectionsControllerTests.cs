@@ -324,7 +324,7 @@ namespace ArtifactStore.Collections
         {
             // Setup:
             _pagination.Limit = null;
-            var profileSettings = new ProfileSettingsParams { PaginationLimit = 10 };
+            var profileSettings = new ProfileSettings { PaginationLimit = 10 };
 
             _artifactListServiceMock.Setup(q => q.GetProfileSettingsAsync(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(profileSettings);

@@ -5,7 +5,7 @@ namespace ArtifactStore.ArtifactList
 {
     public interface IArtifactListService
     {
-        Task<ProfileSettingsParams> GetProfileSettingsAsync(int itemId, int userId);
+        Task<ProfileSettings> GetProfileSettingsAsync(int itemId, int userId);
 
         Task SaveProfileSettingsAsync(int itemId, int userId, ProfileColumns profileColumns, int? paginationLimit);
 

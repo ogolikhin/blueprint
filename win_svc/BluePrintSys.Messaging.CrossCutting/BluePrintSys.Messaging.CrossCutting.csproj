@@ -107,6 +107,7 @@
     <Compile Include="Configuration\ConfigHelper.cs" />
     <Compile Include="Configuration\IConfigHelper.cs" />
     <Compile Include="Helpers\CriticalErrorRecovery.cs" />
+    <Compile Include="Helpers\LazyNoExceptionCache.cs" />
     <Compile Include="Helpers\SendMessageExecutor.cs" />
     <Compile Include="Helpers\WorkflowMessaging.cs" />
     <Compile Include="Host\ActionMessageHeaders.cs" />

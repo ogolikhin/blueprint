@@ -18,7 +18,9 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
     public class WorkflowMessagingProcessor : IWorkflowMessagingProcessor
     {
         private readonly IMessageTransportHost _messageTransportHost;
-        private static Lazy<WorkflowMessagingProcessor> _instance = new Lazy<WorkflowMessagingProcessor>(() => new WorkflowMessagingProcessor());
+        private readonly static LazyNoExceptionCache<WorkflowMessagingProcessor> _instance = new LazyNoExceptionCache<WorkflowMessagingProcessor>(
+            () => new WorkflowMessagingProcessor(),
+            (processor) => processor.Stop());
         public static WorkflowMessagingProcessor Instance => _instance.Value;
 
         public static SendMessageAsyncDelegate SendMessageAsyncDelegate =
@@ -34,14 +36,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Helpers
 
             Task.Factory.StartNew(
                 async () => {
-                    await _messageTransportHost.Start(true, criticalErrorCallback: () => {
-                        var instance = _instance;
-                        if (instance.IsValueCreated)
-                        {
-                            instance.Value.Stop();
-                        }
-                        _instance = new Lazy<WorkflowMessagingProcessor>(() => new WorkflowMessagingProcessor());
-                    });
+                    await _messageTransportHost.Start(true, criticalErrorCallback: _instance.Reset);
                 }).Unwrap().Wait();
 
             Log.Debug("Workflow Messaging: Finished opening the endpoint.");

@@ -7,6 +7,7 @@ using BlueprintSys.RC.Services.MessageHandlers;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.CrossCutting.Logging;
 using BluePrintSys.Messaging.Models.Actions;
+using Newtonsoft.Json;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
@@ -238,12 +239,8 @@ namespace BlueprintSys.RC.Services.Helpers
 
                 WebhookUserPropertyValue userProperty = null;
 
-                if (artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User)
+                if (artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User && artifactPropertyInfo.ValueId.HasValue)
                 {
-                    if (!artifactPropertyInfo.ValueId.HasValue)
-                    {
-                        continue;
-                    }
                     var userInfo = (await usersRepository.GetUserInfos(new List<int> { artifactPropertyInfo.ValueId.Value })).FirstOrDefault();
                     if (userInfo != null)
                     {
@@ -305,7 +302,7 @@ namespace BlueprintSys.RC.Services.Helpers
                         TextOrChoiceValue = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Text || isCustomChoice
                             ? (artifactPropertyInfo.IsRichText ? artifactPropertyInfo.HtmlTextValue : artifactPropertyInfo.FullTextValue)
                             : null,
-                        UsersAndGroups = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User
+                        UsersAndGroups = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.User && artifactPropertyInfo.ValueId.HasValue
                             ? new List<WebhookUserPropertyValue> { userProperty }
                             : null,
                         IsRichText = artifactPropertyInfo.PrimitiveType == PropertyPrimitiveType.Text
@@ -446,7 +443,7 @@ namespace BlueprintSys.RC.Services.Helpers
                 SignatureSecretToken = securityInfo.Signature?.SecretToken,
                 SignatureAlgorithm = securityInfo.Signature?.Algorithm,
                 // Payload Information
-                WebhookJsonPayload = webhookArtifactInfo.ToJSON()
+                WebhookJsonPayload = JsonConvert.SerializeObject(webhookArtifactInfo)
             };
 
             return webhookMessage;

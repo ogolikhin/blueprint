@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -26,10 +27,31 @@ namespace ServiceLibrary.Repositories
     public class SqlConnectionWrapper : ISqlConnectionWrapper
     {
         private readonly string _connectionString;
+        private static int _commandTimeout = -1;
 
         public SqlConnectionWrapper(string connectionString)
         {
             _connectionString = connectionString;
+        }
+
+        /// <summary>
+        /// The length of time in seconds Blueprint will wait for a SQL operation to complete before raising a timeout exception.
+        /// </summary>
+        internal static int CommandTimeout
+        {
+            get
+            {
+                if (_commandTimeout > 0)
+                {
+                    return _commandTimeout;
+                }
+
+                const int defaultValue = 600;
+                const string configKey = "CommandTimeout";
+                var appSetting = ConfigurationManager.AppSettings[configKey];
+                _commandTimeout = appSetting != null ? int.Parse(appSetting, CultureInfo.InvariantCulture) : defaultValue;
+                return _commandTimeout;
+            }
         }
 
         public DbConnection CreateConnection()
@@ -42,7 +64,7 @@ namespace ServiceLibrary.Repositories
             using (var connection = CreateConnection())
             {
                 connection.Open();
-                return await connection.ExecuteAsync(sql, param, transaction, commandTimeout, commandType);
+                return await connection.ExecuteAsync(sql, param, transaction, commandTimeout ?? CommandTimeout, commandType);
             }
         }
 
@@ -51,7 +73,7 @@ namespace ServiceLibrary.Repositories
             using (var connection = CreateConnection())
             {
                 connection.Open();
-                return await connection.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType);
+                return await connection.QueryAsync<T>(sql, param, transaction, commandTimeout ?? CommandTimeout, commandType);
             }
         }
 
@@ -60,7 +82,7 @@ namespace ServiceLibrary.Repositories
             using (var connection = CreateConnection())
             {
                 connection.Open();
-                return connection.Query<T>(sql, param, transaction, buffered, commandTimeout, commandType);
+                return connection.Query<T>(sql, param, transaction, buffered, commandTimeout ?? CommandTimeout, commandType);
             }
         }
 
@@ -69,7 +91,7 @@ namespace ServiceLibrary.Repositories
             using (var connection = CreateConnection())
             {
                 connection.Open();
-                return await connection.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType);
+                return await connection.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout ?? CommandTimeout, commandType);
             }
         }
 
@@ -78,7 +100,7 @@ namespace ServiceLibrary.Repositories
             using (var connection = CreateConnection())
             {
                 connection.Open();
-                return connection.ExecuteScalar<T>(sql, param, transaction, commandTimeout, commandType);
+                return connection.ExecuteScalar<T>(sql, param, transaction, commandTimeout ?? CommandTimeout, commandType);
             }
         }
 
@@ -88,7 +110,7 @@ namespace ServiceLibrary.Repositories
             using (var connection = CreateConnection())
             {
                 connection.Open();
-                using (var reader = connection.QueryMultiple(sql, param, transaction, commandTimeout, commandType))
+                using (var reader = connection.QueryMultiple(sql, param, transaction, commandTimeout ?? CommandTimeout, commandType))
                 {
                     var result1 = await reader.ReadAsync<T1>();
                     var result2 = await reader.ReadAsync<T2>();
@@ -103,7 +125,7 @@ namespace ServiceLibrary.Repositories
             using (var connection = CreateConnection())
             {
                 connection.Open();
-                using (var reader = connection.QueryMultiple(sql, param, transaction, commandTimeout, commandType))
+                using (var reader = connection.QueryMultiple(sql, param, transaction, commandTimeout ?? CommandTimeout, commandType))
                 {
                     var result1 = await reader.ReadAsync<T1>();
                     var result2 = await reader.ReadAsync<T2>();
@@ -119,7 +141,7 @@ namespace ServiceLibrary.Repositories
             using (var connection = CreateConnection())
             {
                 connection.Open();
-                using (var reader = connection.QueryMultiple(sql, param, transaction, commandTimeout, commandType))
+                using (var reader = connection.QueryMultiple(sql, param, transaction, commandTimeout ?? CommandTimeout, commandType))
                 {
                     var result1 = await reader.ReadAsync<T1>();
                     var result2 = await reader.ReadAsync<T2>();

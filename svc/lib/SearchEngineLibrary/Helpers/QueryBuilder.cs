@@ -11,49 +11,42 @@ namespace SearchEngineLibrary.Helpers
         /// <param name="userId">userId is required for permissions check and getting of draft.</param>
         public static string GetCollectionContentSearchArtifactResults(int id, Pagination pagination, bool includeDraft, int userId)
         {
+            const int maxRevision = int.MaxValue;
+
             var partWhereInQuery = includeDraft ?
-                @"AND (col.[EndRevision] = @infinityRevision OR (col.[StartRevision] = 1 AND (col.[EndRevision] = 1 OR col.[EndRevision] = -1) AND col.[VersionUserId] = @userId))
-                    AND (iv.[EndRevision] = @infinityRevision OR (iv.[StartRevision] = 1 AND (iv.[EndRevision] = 1 OR iv.[EndRevision] = -1) AND iv.[VersionUserId] = @userId))
-                    GROUP BY col.[VersionArtifactId] HAVING MIN(col.[EndRevision]) > 0 AND MIN(iv.[EndRevision]) > 0 "
-                :
-                @"AND col.[EndRevision] = @infinityRevision AND iv.[EndRevision] = @infinityRevision ";
+                I18NHelper.FormatInvariant(
+                    @"AND (col.[EndRevision] = {0} OR (col.[StartRevision] = 1 AND col.[VersionUserId] = {1}))
+                      AND (iv.[EndRevision] = {0} OR (iv.[StartRevision] = 1 AND iv.[VersionUserId] = {1}))
+                      GROUP BY col.[VersionArtifactId] HAVING MIN(col.[EndRevision]) > 0 AND MIN(iv.[EndRevision]) > 0 ",
+                    maxRevision, userId) :
+                I18NHelper.FormatInvariant(@"AND col.[EndRevision] = {0} AND iv.[EndRevision] = {0} ", maxRevision);
 
-            var paginationParams = pagination != null ?
-                I18NHelper.FormatInvariant(@"
-                    DECLARE @Offset INT = {0}
-                    DECLARE @Limit INT = {1}",
-                    pagination.Offset, pagination.Limit)
-                : string.Empty;
-
-            var paginationOffset = pagination != null ? "OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY" : string.Empty;
+            var paginationOffset = pagination != null ?
+                I18NHelper.FormatInvariant("OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY", pagination.Offset, pagination.Limit) :
+                string.Empty;
 
             var query = I18NHelper.FormatInvariant(@"
-                DECLARE @scopeId INT = {0}
-                DECLARE @infinityRevision INT = 2147483647
-                DECLARE @userId INT = {1}
-                {2}
-
-                CREATE TABLE #VersionArtifactId (id int identity(1,1), VersionArtifactId int)
+                CREATE TABLE #VersionArtifactId ([Id] INT IDENTITY(1, 1), [VersionArtifactId] INT)
 
                 INSERT INTO #VersionArtifactId
                 SELECT 
-                    col.[VersionArtifactId] 
-                FROM    [dbo].[CollectionAssignmentVersions] AS col 
-                JOIN    [dbo].[ItemVersions] AS iv 
+                    col.[VersionArtifactId]
+                FROM    [dbo].[CollectionAssignmentVersions] AS col
+                JOIN    [dbo].[ItemVersions] AS iv
                     ON  iv.[HolderId] = col.[VersionArtifactId]
-                CROSS APPLY [dbo].[Getartifactpermission](@userId, iv.[VersionProjectId], col.[VersionArtifactId]) AS p
-                WHERE [VersionCollectionId] = @scopeId AND p.[Perm] = 1 {3}
+                CROSS APPLY [dbo].[Getartifactpermission]({1}, iv.[VersionProjectId], col.[VersionArtifactId]) AS p
+                WHERE [VersionCollectionId] = {0} AND p.[Perm] = 1 {2}
 
-                SELECT COUNT(VersionArtifactId) AS Total 
+                SELECT COUNT([VersionArtifactId]) AS Total
                 FROM #VersionArtifactId
 
-                SELECT DISTINCT(VersionArtifactId)
-                FROM #VersionArtifactId 
+                SELECT DISTINCT([VersionArtifactId])
+                FROM #VersionArtifactId
                 ORDER BY [VersionArtifactId]
-                {4}
+                {3}
 
                 DROP TABLE #VersionArtifactId",
-                id, userId, paginationParams, partWhereInQuery, paginationOffset);
+                id, userId, partWhereInQuery, paginationOffset);
 
             return query;
         }

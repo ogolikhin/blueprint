@@ -117,6 +117,7 @@
         public const int BoundaryReached = 12004;
         public const int RabbitMqSend = 12005;
         public const int SqlServerSend = 12006;
+        public const int NServiceBusSendTimeout = 12007;
 
         // Unexpected Errors
         public const int UnexpectedError = 13001;

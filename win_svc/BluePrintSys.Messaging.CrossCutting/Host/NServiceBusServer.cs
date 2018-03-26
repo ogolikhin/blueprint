@@ -281,7 +281,7 @@ namespace BluePrintSys.Messaging.CrossCutting.Host
             {
                 var errorMessage = $"Send failed for Action Message due to a timeout after {SendTimeoutSeconds} seconds.";
                 Log.Error(errorMessage);
-                throw new Exception(errorMessage);
+                throw new NServiceBusSendTimeoutException(errorMessage);
             }
         }
 

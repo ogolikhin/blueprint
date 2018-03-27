@@ -123,6 +123,7 @@
     <Compile Include="Exceptions\ElasticsearchException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\NServiceBusConnectionException.cs" />
+    <Compile Include="Exceptions\NServiceBusSendTimeoutException.cs" />
     <Compile Include="Exceptions\RabbitMqSendException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\SearchEngineNotFoundException.cs" />

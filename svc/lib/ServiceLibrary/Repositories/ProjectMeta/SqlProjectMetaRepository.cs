@@ -270,7 +270,7 @@ namespace ServiceLibrary.Repositories.ProjectMeta
 
         private static ProjectApprovalStatus MapApprovalStatus(ProjectSetting projectSetting)
         {
-            var values = projectSetting.Setting.Split(';');
+            var values = projectSetting.Setting.Split(new char[] { ';' }, 2);
 
             if (values.Length != 2)
             {

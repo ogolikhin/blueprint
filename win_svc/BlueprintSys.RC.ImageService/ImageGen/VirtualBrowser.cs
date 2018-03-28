@@ -30,7 +30,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
         public AsyncBoundObject AsyncBoundObject => _asyncBoundObject;
 
-        public IScreenshot Bitmap => new Screenshot(_browser.Bitmap);
+        public IScreenshot Bitmap => _browser.Bitmap != null ? new Screenshot(_browser.Bitmap) : null;
 
         public event EventHandler BrowserInitialized
         {

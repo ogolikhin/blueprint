@@ -20,6 +20,9 @@
         public const string BrowserResizeEventDelayIntervalMillisecondsKey = "BrowserResizeEvent.DelayIntervalMilliseconds";
         public const int DefaultBrowserResizeEventDelayIntervalMilliseconds = 10;
 
+        public const string BrowserResizeEventPostDelayMillisecondsKey = "BrowserResizeEvent.PostDelayMilliseconds";
+        public const int DefaultBrowserResizeEventPostDelayMilliseconds = 100;
+
         public const string BrowserRenderDelayMillisecondsKey = "BrowserRender.DelayMilliseconds";
         public const int DefaultBrowserRenderDelayMilliseconds = 500;
 

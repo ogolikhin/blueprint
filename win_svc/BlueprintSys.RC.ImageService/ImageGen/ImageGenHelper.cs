@@ -20,6 +20,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
         private static readonly int MaxWaitTimeSeconds = ServiceHelper.BrowserResizeEventMaxWaitTimeSeconds;
         private static readonly int DelayIntervalMilliseconds = ServiceHelper.BrowserResizeEventDelayIntervalMilliseconds;
+        private static readonly int PostResizeDelayMilliseconds = ServiceHelper.BrowserResizeEventPostDelayMilliseconds;
         private static readonly int RenderDelayMilliseconds = ServiceHelper.BrowserRenderDelayMilliseconds;
         private static readonly int RenderWaitSeconds = ServiceHelper.BrowserRenderWaitTimeSeconds;
 
@@ -150,6 +151,8 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
                 if (browser.Bitmap != null && browser.Bitmap.Width == w && browser.Bitmap.Height == h)
                 {
+                    // extra delay because the roster dimentions get updated before the actual image
+                    await Task.Delay(PostResizeDelayMilliseconds);
                     break;
                 }
                 await Task.Delay(DelayIntervalMilliseconds);

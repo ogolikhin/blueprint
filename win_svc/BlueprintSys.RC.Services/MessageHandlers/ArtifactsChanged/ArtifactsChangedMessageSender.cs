@@ -9,7 +9,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged
 {
     public static class ArtifactsChangedMessageSender
     {
-        public const int MaximumArtifactBatchSize = 10000;
+        public const int MaximumArtifactBatchSize = 1000;
 
         public static async Task Send(IEnumerable<int> artifactIds, TenantInformation tenant, ActionMessage sourceMessage, IWorkflowMessagingProcessor workflowMessagingProcessor)
         {

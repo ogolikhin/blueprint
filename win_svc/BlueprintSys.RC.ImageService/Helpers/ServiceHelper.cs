@@ -26,6 +26,10 @@ namespace BlueprintSys.RC.ImageService.Helpers
             => AppSettingsHelper.GetConfigIntValue(ServiceConfiguration.BrowserResizeEventDelayIntervalMillisecondsKey,
                 ServiceConfiguration.DefaultBrowserResizeEventDelayIntervalMilliseconds);
 
+        public static int BrowserResizeEventPostDelayMilliseconds
+            => AppSettingsHelper.GetConfigIntValue(ServiceConfiguration.BrowserResizeEventPostDelayMillisecondsKey,
+                ServiceConfiguration.DefaultBrowserResizeEventPostDelayMilliseconds);
+
         public static int BrowserRenderDelayMilliseconds
             => AppSettingsHelper.GetConfigIntValue(ServiceConfiguration.BrowserRenderDelayMillisecondsKey,
                 ServiceConfiguration.DefaultBrowserRenderDelayMilliseconds);

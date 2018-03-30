@@ -1,15 +1,15 @@
-using BluePrintSys.RC.Service.Business.Baselines.Impl;
-using Dapper;
-using ServiceLibrary.Exceptions;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using BluePrintSys.RC.Service.Business.Baselines.Impl;
+using Dapper;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories.ProjectMeta;
 
@@ -754,7 +754,7 @@ namespace ServiceLibrary.Repositories
             return ConnectionWrapper.ExecuteScalarAsync<bool>("IsArtifactLockedByUser", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync(IEnumerable<int> artifactIds, int userId)
+        public async Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync(IEnumerable<int> artifactIds, int userId, bool addDrafts = true)
         {
             if (artifactIds == null)
             {
@@ -764,9 +764,12 @@ namespace ServiceLibrary.Repositories
             var artifactsPermissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
             artifactIds = artifactsPermissions.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
 
-            var param = new DynamicParameters();
-            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
-            var artifacts = await ConnectionWrapper.QueryAsync<ProcessInfo>("GetProcessInformation", param, commandType: CommandType.StoredProcedure);
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@addDrafts", addDrafts);
+            parameters.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+
+            var artifacts = await ConnectionWrapper.QueryAsync<ProcessInfo>("GetProcessInformation", parameters, commandType: CommandType.StoredProcedure);
 
             return ProcessInfoMapper.Map(artifacts);
         }

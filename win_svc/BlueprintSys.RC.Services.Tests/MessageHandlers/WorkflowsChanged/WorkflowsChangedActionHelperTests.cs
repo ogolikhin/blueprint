@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged;
 using BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
@@ -17,6 +16,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.WorkflowsChanged
     [TestClass]
     public class WorkflowsChangedActionHelperTests
     {
+        private const int BatchSize = 1000;
         private WorkflowsChangedActionHelper _helper;
         private WorkflowsChangedMessage _message;
         private Mock<IWorkflowsChangedRepository> _repositoryMock;
@@ -61,12 +61,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.WorkflowsChanged
                 1
             };
             _repositoryMock.Setup(m => m.GetAffectedArtifactIds(It.IsAny<IEnumerable<int>>(), It.IsAny<int>())).ReturnsAsync(affectedArtifacts);
+            _repositoryMock.Setup(m => m.GetNServiceBusBatchSize()).ReturnsAsync(BatchSize);
             _workflowMessagingProcessorMock.Setup(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>())).Returns(Task.FromResult(true));
             // act
             var result = await _helper.HandleWorkflowsChangedAction(_tenantInformation, _message, _repositoryMock.Object, _workflowMessagingProcessorMock.Object);
             // assert
             Assert.IsTrue(result);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIds(It.IsAny<IEnumerable<int>>(), It.IsAny<int>()), Times.Once);
+            _repositoryMock.Verify(m => m.GetNServiceBusBatchSize(), Times.Once);
             _workflowMessagingProcessorMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Once);
         }
 
@@ -80,12 +82,14 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.WorkflowsChanged
                 2
             };
             _repositoryMock.Setup(m => m.GetAffectedArtifactIds(It.IsAny<IEnumerable<int>>(), It.IsAny<int>())).ReturnsAsync(affectedArtifacts);
+            _repositoryMock.Setup(m => m.GetNServiceBusBatchSize()).ReturnsAsync(BatchSize);
             _workflowMessagingProcessorMock.Setup(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>())).Returns(Task.FromResult(true));
             // act
             var result = await _helper.HandleWorkflowsChangedAction(_tenantInformation, _message, _repositoryMock.Object, _workflowMessagingProcessorMock.Object);
             // assert
             Assert.IsTrue(result);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIds(It.IsAny<IEnumerable<int>>(), It.IsAny<int>()), Times.Once);
+            _repositoryMock.Verify(m => m.GetNServiceBusBatchSize(), Times.Once);
             _workflowMessagingProcessorMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Once);
         }
 
@@ -94,17 +98,19 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.WorkflowsChanged
         {
             // arrange
             var affectedArtifacts = new List<int>();
-            for (int i = 0; i < ArtifactsChangedMessageSender.MaximumArtifactBatchSize + 1; i++)
+            for (int i = 0; i < BatchSize + 1; i++)
             {
                 affectedArtifacts.Add(i);
             }
             _repositoryMock.Setup(m => m.GetAffectedArtifactIds(It.IsAny<IEnumerable<int>>(), It.IsAny<int>())).ReturnsAsync(affectedArtifacts);
+            _repositoryMock.Setup(m => m.GetNServiceBusBatchSize()).ReturnsAsync(BatchSize);
             _workflowMessagingProcessorMock.Setup(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>())).Returns(Task.FromResult(true));
             // act
             var result = await _helper.HandleWorkflowsChangedAction(_tenantInformation, _message, _repositoryMock.Object, _workflowMessagingProcessorMock.Object);
             // assert
             Assert.IsTrue(result);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIds(It.IsAny<IEnumerable<int>>(), It.IsAny<int>()), Times.Once);
+            _repositoryMock.Verify(m => m.GetNServiceBusBatchSize(), Times.Once);
             _workflowMessagingProcessorMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(2));
         }
     }

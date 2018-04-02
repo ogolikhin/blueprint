@@ -24,7 +24,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.WorkflowsChanged
                 message.WorkflowId
             };
             var artifactIds = await repository.GetAffectedArtifactIds(workflowIds, message.RevisionId);
-            await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor);
+            await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor, repository);
             return true;
         }
     }

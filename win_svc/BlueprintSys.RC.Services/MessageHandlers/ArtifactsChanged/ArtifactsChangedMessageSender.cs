@@ -9,9 +9,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged
 {
     public static class ArtifactsChangedMessageSender
     {
-        public const int MaximumArtifactBatchSize = 1000;
-
-        public static async Task Send(IEnumerable<int> artifactIds, TenantInformation tenant, ActionMessage sourceMessage, IWorkflowMessagingProcessor workflowMessagingProcessor)
+        public static async Task Send(IEnumerable<int> artifactIds, TenantInformation tenant, ActionMessage sourceMessage, IWorkflowMessagingProcessor workflowMessagingProcessor, IBaseRepository repository)
         {
             var artifacts = artifactIds?.ToList();
             if (artifacts == null || !artifacts.Any())
@@ -29,16 +27,19 @@ namespace BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged
                 ChangeType = ArtifactChangedType.Indirect
             };
 
+            var batchSize = await repository.GetNServiceBusBatchSize();
+            Logger.Log($"Retrieved batch size: {batchSize}", sourceMessage, tenant);
+
             while (artifacts.Any())
             {
-                var batch = artifacts.Take(MaximumArtifactBatchSize).ToList();
+                var batch = artifacts.Take(batchSize).ToList();
                 artifactsChangedMessage.ArtifactIds = batch;
 
                 Logger.Log($"Sending Artifacts Changed Message for {batch.Count} artifact IDs: {string.Join(",", batch)}", sourceMessage, tenant);
                 await ActionMessageSender.Send(artifactsChangedMessage, tenant, workflowMessagingProcessor);
                 Logger.Log("Finished sending Artifacts Changed Message", sourceMessage, tenant);
 
-                artifacts = artifacts.Skip(MaximumArtifactBatchSize).ToList();
+                artifacts = artifacts.Skip(batchSize).ToList();
             }
         }
     }

@@ -21,6 +21,8 @@ namespace BlueprintSys.RC.Services.MessageHandlers
         /// Calls the [dbo].[GetTransactionStatus] stored procedure.
         /// </summary>
         Task<int> GetTransactionStatus(long transactionId);
+
+        Task<int> GetNServiceBusBatchSize();
     }
 
     public class BaseRepository : SqlInstanceSettingsRepository, IBaseRepository
@@ -64,6 +66,17 @@ namespace BlueprintSys.RC.Services.MessageHandlers
             var param = new DynamicParameters();
             param.Add("@transactionId", transactionId);
             return await ConnectionWrapper.ExecuteScalarAsync<int>("[dbo].[GetTransactionStatus]", param, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<int> GetNServiceBusBatchSize()
+        {
+            var setting = (await ConnectionWrapper.QueryAsync<string>(@"SELECT [Value] FROM [dbo].[ApplicationSettings] WHERE [Key] = 'NServiceBusBatchSize'", commandType: CommandType.Text)).FirstOrDefault();
+            int batchSize;
+            if (int.TryParse(setting, out batchSize) && batchSize > 0)
+            {
+                return batchSize;
+            }
+            return 1000;
         }
     }
 }

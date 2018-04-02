@@ -43,7 +43,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged
                 artifactIds.AddRange(affectedArtifacts);
             }
 
-            await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor);
+            await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor, repository);
             return true;
         }
     }

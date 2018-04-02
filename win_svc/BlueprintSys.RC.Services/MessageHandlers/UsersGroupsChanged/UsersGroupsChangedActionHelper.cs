@@ -28,7 +28,7 @@ namespace BlueprintSys.RC.Services.MessageHandlers.UsersGroupsChanged
 
             Logger.Log("Getting affected artifact IDs", message, tenant);
             var artifactIds = await repository.GetAffectedArtifactIds(message.UserIds, message.GroupIds, message.RevisionId);
-            await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor);
+            await ArtifactsChangedMessageSender.Send(artifactIds, tenant, actionMessage, workflowMessagingProcessor, repository);
             return true;
         }
     }

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlueprintSys.RC.Services.Helpers;
-using BlueprintSys.RC.Services.MessageHandlers.ArtifactsChanged;
 using BlueprintSys.RC.Services.MessageHandlers.PropertyItemTypesChanged;
 using BluePrintSys.Messaging.CrossCutting.Helpers;
 using BluePrintSys.Messaging.Models.Actions;
@@ -17,6 +16,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
     [TestClass]
     public class PropertyItemTypesChangedActionHelperTests
     {
+        private const int BatchSize = 1000;
         private PropertyItemTypesChangedActionHelper _helper;
         private PropertyItemTypesChangedMessage _message;
         private Mock<IPropertyItemTypesChangedRepository> _repositoryMock;
@@ -74,6 +74,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
                 1
             };
             _repositoryMock.Setup(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(affectedArtifacts);
+            _repositoryMock.Setup(m => m.GetNServiceBusBatchSize()).ReturnsAsync(BatchSize);
             _workflowMessagingProcessorMock.Setup(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>())).Returns(Task.FromResult(true));
             // act
             var result = await _helper.HandlePropertyItemTypesChangedAction(_tenantInformation, _message, _repositoryMock.Object, _workflowMessagingProcessorMock.Object);
@@ -81,6 +82,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
             Assert.IsTrue(result);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Never);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Once);
+            _repositoryMock.Verify(m => m.GetNServiceBusBatchSize(), Times.Once);
             _workflowMessagingProcessorMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Once);
         }
 
@@ -110,6 +112,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
             };
             _repositoryMock.Setup(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(affectedArtifactsForItems);
             _repositoryMock.Setup(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(affectedArtifactsForProperties);
+            _repositoryMock.Setup(m => m.GetNServiceBusBatchSize()).ReturnsAsync(BatchSize);
             _workflowMessagingProcessorMock.Setup(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>())).Returns(Task.FromResult(true));
             // act
             var result = await _helper.HandlePropertyItemTypesChangedAction(_tenantInformation, _message, _repositoryMock.Object, _workflowMessagingProcessorMock.Object);
@@ -117,6 +120,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
             Assert.IsTrue(result);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Once);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Once);
+            _repositoryMock.Verify(m => m.GetNServiceBusBatchSize(), Times.Once);
             _workflowMessagingProcessorMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Once);
         }
 
@@ -130,11 +134,12 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
                 2
             };
             var affectedArtifacts = new List<int>();
-            for (int i = 0; i < ArtifactsChangedMessageSender.MaximumArtifactBatchSize * 3 + 1; i++)
+            for (int i = 0; i < BatchSize * 3 + 1; i++)
             {
                 affectedArtifacts.Add(i);
             }
             _repositoryMock.Setup(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(affectedArtifacts);
+            _repositoryMock.Setup(m => m.GetNServiceBusBatchSize()).ReturnsAsync(BatchSize);
             _workflowMessagingProcessorMock.Setup(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>())).Returns(Task.FromResult(true));
             // act
             var result = await _helper.HandlePropertyItemTypesChangedAction(_tenantInformation, _message, _repositoryMock.Object, _workflowMessagingProcessorMock.Object);
@@ -142,6 +147,7 @@ namespace BlueprintSys.RC.Services.Tests.MessageHandlers.PropertyItemTypesChange
             Assert.IsTrue(result);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForItemTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Once);
             _repositoryMock.Verify(m => m.GetAffectedArtifactIdsForPropertyTypes(It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()), Times.Never);
+            _repositoryMock.Verify(m => m.GetNServiceBusBatchSize(), Times.Once);
             _workflowMessagingProcessorMock.Verify(m => m.SendMessageAsync(It.IsAny<string>(), It.IsAny<IWorkflowMessage>()), Times.Exactly(4));
         }
     }

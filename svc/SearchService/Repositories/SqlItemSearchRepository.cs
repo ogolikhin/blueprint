@@ -178,25 +178,32 @@ namespace SearchService.Repositories
             int startOffset,
             int pageSize)
         {
-            var param = new DynamicParameters();
-            param.Add("@userId", userId);
-            param.Add("@query", searchCriteria.Query);
-            param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds));
+            var parameters = new DynamicParameters();
+            parameters.Add("@userId", userId);
+            parameters.Add("@query", searchCriteria.Query);
+            parameters.Add("@projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds));
+
             if (searchCriteria.PredefinedTypeIds != null && searchCriteria.PredefinedTypeIds.Any())
-                param.Add("@predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds));
+            {
+                parameters.Add("@predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds));
+            }
+
             if (searchCriteria.ItemTypeIds != null && searchCriteria.ItemTypeIds.Any())
-                param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds));
-            param.Add("@excludedPredefineds", SqlConnectionWrapper.ToDataTable(GetExcludedPredefineds(searchCriteria)));
-            param.Add("@startOffset", startOffset);
-            param.Add("@pageSize", pageSize);
-            param.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
+            {
+                parameters.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds));
+            }
+
+            parameters.Add("@excludedPredefineds", SqlConnectionWrapper.ToDataTable(GetExcludedPredefineds(searchCriteria)));
+            parameters.Add("@startOffset", startOffset);
+            parameters.Add("@pageSize", pageSize);
+            parameters.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
             List<ItemNameSearchResult> items;
 
             try
             {
                 items = (await _connectionWrapper.QueryAsync<ItemNameSearchResult>("SearchItemNameByItemTypes",
-                    param,
+                    parameters,
                     commandType: CommandType.StoredProcedure,
                     commandTimeout: _searchConfigurationProvider.SearchTimeout)).ToList();
             }
@@ -246,7 +253,7 @@ namespace SearchService.Repositories
                 {
                     result.item.ArtifactPath = result.lpath.Value.Select(a => a.Name).ToList();
                     result.item.IdPath = result.lpath.Value.Select(a => a.Id).ToList();
-                    result.item.ParentPredefinedType = result.lpath.Value.Select(a => a.PredefinedType).FirstOrDefault();
+                    result.item.ParentPredefinedType = result.lpath.Value.Select(a => a.PredefinedType).LastOrDefault();
                 }
             }
 

@@ -146,9 +146,7 @@ namespace SearchService.Controllers
             _criteriaValidator.Validate(SearchOption.ItemName, ModelState.IsValid, searchCriteria, 1);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize, MaxResultCount);
-
             int searchStartOffset = GetStartCounter(startOffset, 0, 0);
-
 
             try
             {

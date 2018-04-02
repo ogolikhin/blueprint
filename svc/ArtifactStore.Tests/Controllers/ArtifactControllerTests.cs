@@ -1,72 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Web.Http;
-using System.Net;
 using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Controllers
 {
     [TestClass]
     public class ArtifactControllerTests
     {
-        private const int userId = 1;
-        private Session session;
-        private HashSet<int> artifactIds;
-        private List<ProcessInfoDto> processInfo;
-        private Mock<IArtifactRepository> mockArtifactRepository;
-        private Mock<IServiceLogRepository> mockServiceLogRepository;
-        private Mock<IArtifactPermissionsRepository> mockArtifactPermissionsRepository;
+        private const int UserId = 1;
+        private Session _session;
+        private HashSet<int> _artifactIds;
+        private List<ProcessInfoDto> _processInfo;
+        private Mock<IArtifactRepository> _mockArtifactRepository;
+        private Mock<IServiceLogRepository> _mockServiceLogRepository;
+        private Mock<IArtifactPermissionsRepository> _mockArtifactPermissionsRepository;
         private Mock<IPrivilegesRepository> _mockSqlPrivilegesRepository;
-        private ArtifactController artifactController;
-        private StandardArtifactTypes filter;
+        private ArtifactController _artifactController;
+        private StandardArtifactTypes _filter;
 
         [TestInitialize]
         public void Initialize()
         {
-            session = new Session { UserId = userId };
-            artifactIds = new HashSet<int>() { 1, 2, 3 };
-            processInfo = new List<ProcessInfoDto>()
+            _session = new Session { UserId = UserId };
+            _artifactIds = new HashSet<int> { 1, 2, 3 };
+            _processInfo = new List<ProcessInfoDto>
             {
-                new ProcessInfoDto()
+                new ProcessInfoDto
                 {
                     ItemId = 1,
                     ProcessType = ProcessType.None
                 },
-                new ProcessInfoDto()
+                new ProcessInfoDto
                 {
                     ItemId = 2,
                     ProcessType = ProcessType.None
                 },
-                new ProcessInfoDto()
+                new ProcessInfoDto
                 {
                     ItemId = 3,
                     ProcessType = ProcessType.None
                 }
             };
 
-            filter = StandardArtifactTypes.All;
+            _filter = StandardArtifactTypes.All;
 
-            mockArtifactRepository = new Mock<IArtifactRepository>();
-            mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            _mockArtifactRepository = new Mock<IArtifactRepository>();
+            _mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            _mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             _mockSqlPrivilegesRepository = new Mock<IPrivilegesRepository>();
-            artifactController = new ArtifactController(mockArtifactRepository.Object,
-                mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, mockServiceLogRepository.Object)
+            _artifactController = new ArtifactController(_mockArtifactRepository.Object,
+                _mockArtifactPermissionsRepository.Object, _mockSqlPrivilegesRepository.Object, _mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
 
-            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
+            _artifactController.Request.Properties[ServiceConstants.SessionProperty] = _session;
         }
 
         [TestMethod]
@@ -178,8 +177,7 @@ namespace ArtifactStore.Controllers
             var session = new Session { UserId = userId };
             const int artifactId = 2;
             var artifactIds = new[] { artifactId };
-            var permissionsDictionary = new Dictionary<int, RolePermissions>();
-            permissionsDictionary.Add(artifactId, RolePermissions.None);
+            var permissionsDictionary = new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.None } };
             var mockArtifactRepository = new Mock<IArtifactRepository>();
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(artifactIds, userId, false, int.MaxValue, true, null)).ReturnsAsync(permissionsDictionary);
@@ -191,9 +189,11 @@ namespace ArtifactStore.Controllers
             HttpResponseException result = null;
 
             // Act
-            try {
+            try
+            {
                 await artifactController.GetSubArtifactTreeAsync(artifactId);
-            } catch (HttpResponseException e)
+            }
+            catch (HttpResponseException e)
             {
                 result = e;
             }
@@ -209,8 +209,7 @@ namespace ArtifactStore.Controllers
             var session = new Session { UserId = userId };
             const int artifactId = 2;
             var artifactIds = new[] { artifactId };
-            var permissionsDictionary = new Dictionary<int, RolePermissions>();
-            permissionsDictionary.Add(artifactId, RolePermissions.Read);
+            var permissionsDictionary = new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } };
             var subArtifacts = new List<SubArtifact> { new SubArtifact { Id = 1 } };
             var mockArtifactRepository = new Mock<IArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetSubArtifactTreeAsync(artifactId, userId, int.MaxValue, true)).ReturnsAsync(subArtifacts);
@@ -258,14 +257,15 @@ namespace ArtifactStore.Controllers
         public async Task Artifact_GetProcessInfo_Success()
         {
             // Arrange
-            mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId))
-                                  .ReturnsAsync(processInfo);
+            _mockArtifactRepository
+                .Setup(r => r.GetProcessInformationAsync(_artifactIds, _session.UserId, true))
+                .ReturnsAsync(_processInfo);
 
             // Act
-            var result = await artifactController.GetProcessInformationAsync(artifactIds);
+            var result = await _artifactController.GetProcessInformationAsync(_artifactIds);
 
             // Assert
-            Assert.AreSame(processInfo, result);
+            Assert.AreSame(_processInfo, result);
         }
 
         [TestMethod]
@@ -273,15 +273,15 @@ namespace ArtifactStore.Controllers
         public async Task Artifact_GetProcessInfo_ThrowsBadRequestException()
         {
             // Arrange
-            artifactIds = null;
-            processInfo = new List<ProcessInfoDto>() { };
+            _artifactIds = null;
+            _processInfo = new List<ProcessInfoDto>();
 
-            mockArtifactRepository.Setup(r => r.GetProcessInformationAsync(artifactIds, session.UserId))
-                                  .ReturnsAsync(processInfo);
+            _mockArtifactRepository
+                .Setup(r => r.GetProcessInformationAsync(_artifactIds, _session.UserId, true))
+                .ReturnsAsync(_processInfo);
 
             // Act
-            var result = await artifactController.GetProcessInformationAsync(artifactIds);
-
+            var result = await _artifactController.GetProcessInformationAsync(_artifactIds);
         }
 
         #region GetStandardProperties
@@ -290,22 +290,22 @@ namespace ArtifactStore.Controllers
         public async Task GetStandardProperties_AllParametersAreCorrect_SuccessResult()
         {
             // Arrange
-            HashSet<int> artifactTypeIds = new HashSet<int>() { 1, 2, 3 };
-            List<PropertyType> properties = new List<PropertyType>()
+            var artifactTypeIds = new HashSet<int> { 1, 2, 3 };
+            var properties = new List<PropertyType>
             {
-                new PropertyType() { Id = 1, Name = "Property1" },
-                new PropertyType() { Id = 2, Name = "Property2" }
+                new PropertyType { Id = 1, Name = "Property1" },
+                new PropertyType { Id = 2, Name = "Property2" }
             };
 
-            mockArtifactRepository.Setup(r => r.GetStandardProperties(artifactTypeIds))
+            _mockArtifactRepository.Setup(r => r.GetStandardProperties(artifactTypeIds))
                                   .ReturnsAsync(properties);
 
             _mockSqlPrivilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             // Act
-            var result = await artifactController.GetStandardProperties(artifactTypeIds);
+            var result = await _artifactController.GetStandardProperties(artifactTypeIds);
 
             // Assert
             Assert.IsNotNull(result);
@@ -317,14 +317,12 @@ namespace ArtifactStore.Controllers
         public async Task GetStandardProperties_IncorrectParameters_ThrowsBadRequestException()
         {
             // Arrange
-            HashSet<int> artifactTypeIds = null;
-
             _mockSqlPrivilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             // Act
-            await artifactController.GetStandardProperties(artifactTypeIds);
+            await _artifactController.GetStandardProperties(null);
 
             // Assert
         }
@@ -334,14 +332,12 @@ namespace ArtifactStore.Controllers
         public async Task GetStandardProperties_InsufficientPermissions_ThrowsAuthorizationException()
         {
             // Arrange
-            HashSet<int> artifactTypeIds = null;
-
             _mockSqlPrivilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ManageGroups);
 
             // Act
-            await artifactController.GetStandardProperties(artifactTypeIds);
+            await _artifactController.GetStandardProperties(null);
 
             // Assert
         }
@@ -353,15 +349,15 @@ namespace ArtifactStore.Controllers
         {
             // Arrange
             var artifacts = new List<StandardArtifactType> { new StandardArtifactType { Id = 1, Name = "CustomActor" } };
-            mockArtifactRepository.Setup(r => r.GetStandardArtifactTypes(filter))
+            _mockArtifactRepository.Setup(r => r.GetStandardArtifactTypes(_filter))
                                   .ReturnsAsync(artifacts);
 
             _mockSqlPrivilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             // Act
-            var result = await artifactController.GetStandardArtifactTypes(filter);
+            var result = await _artifactController.GetStandardArtifactTypes(_filter);
 
             // Assert
             Assert.IsNotNull(result);
@@ -374,11 +370,11 @@ namespace ArtifactStore.Controllers
         {
             // Arrange
             _mockSqlPrivilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.AccessAllProjectData);
 
             // Act
-            await artifactController.GetStandardArtifactTypes((StandardArtifactTypes)100);
+            await _artifactController.GetStandardArtifactTypes((StandardArtifactTypes)100);
 
             // Assert
         }
@@ -389,11 +385,11 @@ namespace ArtifactStore.Controllers
         {
             // Arrange
             _mockSqlPrivilegesRepository
-                .Setup(t => t.GetInstanceAdminPrivilegesAsync(userId))
+                .Setup(t => t.GetInstanceAdminPrivilegesAsync(UserId))
                 .ReturnsAsync(InstanceAdminPrivileges.ViewUsers);
 
             // Act
-            await artifactController.GetStandardArtifactTypes(filter);
+            await _artifactController.GetStandardArtifactTypes(_filter);
 
             // Assert
         }

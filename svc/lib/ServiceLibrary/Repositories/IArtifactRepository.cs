@@ -34,7 +34,7 @@ namespace ServiceLibrary.Repositories
 
         Task<bool> IsArtifactLockedByUserAsync(int artifactId, int userId);
 
-        Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync(IEnumerable<int> artifactIds, int userId);
+        Task<IEnumerable<ProcessInfoDto>> GetProcessInformationAsync(IEnumerable<int> artifactIds, int userId, bool addDrafts = true);
 
         Task<IEnumerable<StandardArtifactType>> GetStandardArtifactTypes(StandardArtifactTypes filter = StandardArtifactTypes.All);
 

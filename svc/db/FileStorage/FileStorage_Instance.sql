@@ -730,8 +730,8 @@ DECLARE @blueprintDB SYSNAME, @jobname SYSNAME, @schedulename SYSNAME
 DECLARE @jobId BINARY(16), @cmd varchar(2000)
 
 SET @blueprintDB = DB_NAME()
-SET @jobname = @blueprintDB+N'_Maintenance'
-SET @schedulename = @blueprintDB+N'_Maintenance_Schedule'
+SET @jobname = @blueprintDB+N'_FS_Maintenance'
+SET @schedulename = @blueprintDB+N'_FS_Maintenance_Schedule'
 
 -- drop the job if it exists
 -- We can't do the following line, because we don't have access to the table in Amazon RDS:

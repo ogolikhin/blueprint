@@ -33,8 +33,6 @@ Print 'Migrating 7.0.1.0 ...'
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\DeleteLogs.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetLogs.sql" ) ) #>
 
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Jobs\Blueprint_AdminStorage_Maintenance.sql" ) ) #>
-
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Data\DefaultConfigSettings.sql" ) ) #>
 
 -- --------------------------------------------------

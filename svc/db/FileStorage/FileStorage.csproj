@@ -46,7 +46,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Functions\ValidateExpiryTime.sql" />
-    <Content Include="Jobs\Blueprint_FileStorage_Maintenance.sql" />
+    <Content Include="Jobs\Blueprint_FileStorage_FS_Maintenance.sql" />
     <Content Include="Jobs\FileStorageMaintenanceJob.sql" />
     <Content Include="Migration\8.1.0.0\8.1.0.0.sql">
       <DependentUpon>8.1.0.0.tt</DependentUpon>
@@ -84,6 +84,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>9.0.0.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Migration\9.0.0.0\DeleteBlueprint_FileStorage_Maintenance.sql" />
     <Content Include="Procedures.sql">
       <DependentUpon>Procedures.tt</DependentUpon>
       <AutoGen>True</AutoGen>

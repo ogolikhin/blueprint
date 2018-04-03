@@ -1,4 +1,6 @@
-﻿SET @blueprintDB = DB_NAME()
+﻿DECLARE @blueprintDB SYSNAME, @jobname SYSNAME
+
+SET @blueprintDB = DB_NAME()
 SET @jobname = @blueprintDB+N'_Maintenance'
 
 -- drop the job if it exists

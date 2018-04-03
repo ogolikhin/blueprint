@@ -1203,6 +1203,8 @@ IF NOT ([AdminStore].[IsSchemaVersionLessOrEqual](N'9.0.0') <> 0)
 Print 'Migrating 9.0.0.0 ...'
 -- -----------------------------------------------------------------------------------------------
 
+DECLARE @blueprintDB SYSNAME, @jobname SYSNAME
+
 SET @blueprintDB = DB_NAME()
 SET @jobname = @blueprintDB+N'_Maintenance'
 

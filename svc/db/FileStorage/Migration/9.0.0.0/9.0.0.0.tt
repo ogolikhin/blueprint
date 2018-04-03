@@ -9,6 +9,9 @@ IF NOT ([FileStore].[IsSchemaVersionLessOrEqual](N'9.0.0') <> 0)
 Print 'Migrating 9.0.0.0 ...'
 -- -----------------------------------------------------------------------------------------------
 
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"DeleteBlueprint_FileStorage_Maintenance.sql" ) ) #>
+
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Jobs\Blueprint_FileStorage_FS_Maintenance.sql" ) ) #>
 
 -- -----------------------------------------------------------------------------------------------
 -- Always add your code just above this comment block

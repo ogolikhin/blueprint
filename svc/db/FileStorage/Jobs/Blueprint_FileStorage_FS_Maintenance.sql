@@ -1,9 +1,9 @@
-DECLARE @blueprintDB SYSNAME, @jobname SYSNAME, @schedulename SYSNAME
+﻿DECLARE @blueprintDB SYSNAME, @jobname SYSNAME, @schedulename SYSNAME
 DECLARE @jobId BINARY(16), @cmd varchar(2000)
 
 SET @blueprintDB = DB_NAME()
-SET @jobname = @blueprintDB+N'_Maintenance'
-SET @schedulename = @blueprintDB+N'_Maintenance_Schedule'
+SET @jobname = @blueprintDB+N'_FS_Maintenance'
+SET @schedulename = @blueprintDB+N'_FS_Maintenance_Schedule'
 
 -- drop the job if it exists
 -- We can't do the following line, because we don't have access to the table in Amazon RDS:
@@ -26,13 +26,13 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 		@notify_level_netsend=0, 
 		@notify_level_page=0, 
 		@delete_level=0, 
-		@description=N'Blueprint admin storage maintenance', 
+		@description=N'Blueprint file storage maintenance', 
 		@job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
--- Add Step 1 - Delete old logs from AdminStorage
-SET @cmd = N'[AdminStore].[DeleteLogs]'
-EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete old logs from AdminStorage', 
+-- Add Step 1 - Delete expired files from FileStorage
+SET @cmd = N'[FileStore].DeleteExpiredFiles'
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete expired files from FileStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
 		@on_success_action=1, 

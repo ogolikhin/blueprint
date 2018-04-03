@@ -21,8 +21,6 @@ Print 'Migrating 7.0.1.0 ...'
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\UpdateFileHead.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\ReadChunkContent.sql" ) ) #>
 
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Jobs\Blueprint_FileStorage_Maintenance.sql" ) ) #>
-
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------

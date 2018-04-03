@@ -10,7 +10,6 @@ Print 'Migrating 7.4.0.0 ...'
 -- --------------------------------------------------
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"RemoveDboAssociations.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Jobs\Blueprint_FileStorage_Maintenance.sql" ) ) #>
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

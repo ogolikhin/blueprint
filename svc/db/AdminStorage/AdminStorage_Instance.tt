@@ -33,7 +33,7 @@ GO
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures.sql" ) ) #>
 
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Jobs\Blueprint_AdminStorage_Maintenance.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Jobs\Blueprint_AdminStorage_AS_Maintenance.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Data\DefaultConfigSettings.sql" ) ) #>
 

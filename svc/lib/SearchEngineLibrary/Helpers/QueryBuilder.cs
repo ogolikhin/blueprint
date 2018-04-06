@@ -6,10 +6,11 @@ namespace SearchEngineLibrary.Helpers
     public static class QueryBuilder
     {
         /// <param name="id">Collection Id.</param>
+        /// <param name="projectId"></param>
         /// <param name="pagination">Used to specify pagination settings. If pagintaion is not needed, than null value should be passed.</param>
         /// <param name="includeDraft">Specifies whether draft versions should be included into search results.</param>
         /// <param name="userId">userId is required for permissions check and getting of draft.</param>
-        public static string GetCollectionContentSearchArtifactResults(int id, Pagination pagination, bool includeDraft, int userId)
+        public static string GetCollectionContentSearchArtifactResults(int id, int projectId, Pagination pagination, bool includeDraft, int userId)
         {
             const int maxRevision = int.MaxValue;
 
@@ -34,8 +35,9 @@ namespace SearchEngineLibrary.Helpers
                 FROM    [dbo].[CollectionAssignmentVersions] AS col
                 JOIN    [dbo].[ItemVersions] AS iv
                     ON  iv.[HolderId] = col.[VersionArtifactId]
+                    AND iv.[VersionProjectId] = {0}
                 CROSS APPLY [dbo].[Getartifactpermission]({1}, iv.[VersionProjectId], col.[VersionArtifactId]) AS p
-                WHERE [VersionCollectionId] = {0} AND p.[Perm] = 1 {2}
+                WHERE [VersionCollectionId] = {2} AND p.[Perm] = 1 {3}
 
                 SELECT COUNT([VersionArtifactId]) AS Total
                 FROM #VersionArtifactId
@@ -43,10 +45,10 @@ namespace SearchEngineLibrary.Helpers
                 SELECT DISTINCT([VersionArtifactId])
                 FROM #VersionArtifactId
                 ORDER BY [VersionArtifactId]
-                {3}
+                {4}
 
                 DROP TABLE #VersionArtifactId",
-                id, userId, partWhereInQuery, paginationOffset);
+                projectId, userId, id, partWhereInQuery, paginationOffset);
 
             return query;
         }

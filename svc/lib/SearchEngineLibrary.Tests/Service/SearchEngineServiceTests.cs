@@ -2,15 +2,14 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using SearchEngineLibrary.Model;
 using SearchEngineLibrary.Repository;
 using SearchEngineLibrary.Service;
-using ServiceLibrary.Repositories;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
-using ServiceLibrary.Helpers;
-using ServiceLibrary.Exceptions;
-using System;
-using SearchEngineLibrary.Model;
+using ServiceLibrary.Repositories;
 
 namespace SearchEngineLibrary.Tests.Service
 {
@@ -20,6 +19,7 @@ namespace SearchEngineLibrary.Tests.Service
         private ISearchEngineService _searchEngineService;
         private Mock<ISearchEngineRepository> _searchEngineRepositoryMock;
         private Mock<IArtifactRepository> _sqlArtifactRepositoryMock;
+        private const int ProjectId = 1;
         private const int ScopeId = 1;
         private const int UserId = 1;
         private Pagination _pagination;
@@ -39,11 +39,19 @@ namespace SearchEngineLibrary.Tests.Service
         public async Task Search_AllSearchItemsExists_ReturnedSearchArtifactsResult()
         {
             // arrange
-            _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId, null)).ReturnsAsync(new ArtifactBasicDetails() { PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection });
-            _searchEngineRepositoryMock.Setup(q => q.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId, null)).ReturnsAsync(_searchArtifactsResult);
+            _sqlArtifactRepositoryMock
+                .Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId, null))
+                .ReturnsAsync(new ArtifactBasicDetails
+                {
+                    ProjectId = ProjectId,
+                    PrimitiveItemTypePredefined = (int)ItemTypePredefined.ArtifactCollection
+                });
+            _searchEngineRepositoryMock
+                .Setup(q => q.GetCollectionContentSearchArtifactResults(ScopeId, ProjectId, _pagination, true, UserId, null))
+                .ReturnsAsync(_searchArtifactsResult);
 
             // act
-            var result = await _searchEngineService.Search(ScopeId, _pagination, ScopeType.Contents, true, UserId);
+            var result = await _searchEngineService.Search(ScopeId, ProjectId, _pagination, ScopeType.Contents, true, UserId);
 
             // assert
             Assert.AreEqual(_searchArtifactsResult, result);
@@ -53,9 +61,12 @@ namespace SearchEngineLibrary.Tests.Service
         public async Task Search_NotFoundArtifact_ResourceNotFoundException()
         {
             // arrange
-            ArtifactBasicDetails artifactBasicDetails = null;
-            _sqlArtifactRepositoryMock.Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId, null)).ReturnsAsync(artifactBasicDetails);
-            _searchEngineRepositoryMock.Setup(q => q.GetCollectionContentSearchArtifactResults(ScopeId, _pagination, true, UserId, null)).ReturnsAsync(_searchArtifactsResult);
+            _sqlArtifactRepositoryMock
+                .Setup(q => q.GetArtifactBasicDetails(ScopeId, UserId, null))
+                .ReturnsAsync((ArtifactBasicDetails)null);
+            _searchEngineRepositoryMock
+                .Setup(q => q.GetCollectionContentSearchArtifactResults(ScopeId, ProjectId, _pagination, true, UserId, null))
+                .ReturnsAsync(_searchArtifactsResult);
             var errorMessage = I18NHelper.FormatInvariant(ErrorMessages.ArtifactNotFound, ScopeId);
             var excectedResult = new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             ResourceNotFoundException exception = null;
@@ -63,7 +74,7 @@ namespace SearchEngineLibrary.Tests.Service
             // act
             try
             {
-                await _searchEngineService.Search(ScopeId, _pagination, ScopeType.Contents, true, UserId);
+                await _searchEngineService.Search(ScopeId, ProjectId, _pagination, ScopeType.Contents, true, UserId);
             }
             catch (ResourceNotFoundException ex)
             {

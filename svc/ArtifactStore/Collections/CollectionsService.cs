@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using ArtifactStore.ArtifactList;
 using ArtifactStore.ArtifactList.Helpers;
@@ -106,7 +105,7 @@ namespace ArtifactStore.Collections
             var collection = await GetCollectionAsync(collectionId, userId);
 
             var searchArtifactsResult = await _searchEngineService.Search(
-                collection.Id, null, ScopeType.Contents, true, userId);
+                collection.Id, collection.ProjectId, null, ScopeType.Contents, true, userId);
 
             var collectionArtifacts = new CollectionArtifacts();
 
@@ -194,7 +193,7 @@ namespace ArtifactStore.Collections
                 var collection = await ValidateCollectionAsync(collectionId, userId, transaction);
 
                 var searchArtifactsResult = await _searchEngineService.Search(
-                    collection.Id, null, ScopeType.Contents, true, userId, transaction);
+                    collection.Id, collection.ProjectId, null, ScopeType.Contents, true, userId, transaction);
 
                 var artifactsToRemove = removalParams.SelectionType == SelectionType.Selected ?
                     searchArtifactsResult.ArtifactIds.Intersect(removalParams.ItemIds).ToList() :
@@ -223,7 +222,7 @@ namespace ArtifactStore.Collections
         public async Task<GetColumnsDto> GetColumnsAsync(int collectionId, int userId, string search = null)
         {
             var collection = await GetCollectionAsync(collectionId, userId);
-            var artifacts = await GetArtifactItemsDetailsAsync(collectionId, userId);
+            var artifacts = await GetArtifactItemsDetailsAsync(collection, userId);
 
             if (artifacts.IsEmpty())
             {
@@ -241,7 +240,7 @@ namespace ArtifactStore.Collections
 
             var selectedColumns = GetSelectedColumns(propertyTypeInfos, profileColumns, search).ToList();
 
-            int? countOfNeededColumns = string.IsNullOrEmpty(search) ? ColumnLimit - selectedColumns.Count : (int?)null;
+            var countOfNeededColumns = string.IsNullOrEmpty(search) ? ColumnLimit - selectedColumns.Count : (int?)null;
 
             return new GetColumnsDto
             {
@@ -258,7 +257,7 @@ namespace ArtifactStore.Collections
             }
 
             var collection = await GetCollectionAsync(collectionId, userId);
-            var artifacts = await GetArtifactItemsDetailsAsync(collectionId, userId);
+            var artifacts = await GetArtifactItemsDetailsAsync(collection, userId);
             var propertyTypeInfos = await GetPropertyTypeInfosAsync(artifacts);
 
             var propertyTypes = GetUnselectedColumns(propertyTypeInfos);
@@ -277,15 +276,14 @@ namespace ArtifactStore.Collections
             return savingProfileColumnsTuple.Item2;
         }
 
-        private async Task<IReadOnlyList<ItemDetails>> GetArtifactItemsDetailsAsync(int collectionId, int userId)
+        private async Task<IReadOnlyList<ItemDetails>> GetArtifactItemsDetailsAsync(Collection collection, int userId)
         {
-            var artifactIds = await _collectionsRepository.GetContentArtifactIdsAsync(collectionId, userId);
+            var artifactIds = await _collectionsRepository.GetContentArtifactIdsAsync(collection.Id, userId);
 
-            var artifactItems = await GetArtifactItemsDetailsAsync(artifactIds, userId);
-
-            return artifactItems;
+            return (await GetArtifactItemsDetailsAsync(artifactIds, userId))
+                .Where(artifact => artifact.VersionProjectId == collection.ProjectId)
+                .ToList();
         }
-
 
         private async Task<IReadOnlyList<ItemDetails>> GetArtifactItemsDetailsAsync(IEnumerable<int> artifactIds, int userId)
         {
@@ -417,8 +415,8 @@ namespace ArtifactStore.Collections
                         itemTypeIconId = artifactProperty.ItemTypeIconId;
                     }
 
-                    bool systemColumn = propertyTypePredefined != PropertyTypePredefined.CustomGroup;
-                    bool multiValue = primitiveType == PropertyPrimitiveType.Choice || primitiveType == PropertyPrimitiveType.User;
+                    var systemColumn = propertyTypePredefined != PropertyTypePredefined.CustomGroup;
+                    var multiValue = primitiveType == PropertyPrimitiveType.Choice || primitiveType == PropertyPrimitiveType.User;
 
                     propertyInfo.Value = systemColumn
                             && !multiValue // Fill multi value properties below

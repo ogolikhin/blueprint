@@ -26,7 +26,7 @@ namespace SearchEngineLibrary.Repository
         }
 
         public async Task<SearchArtifactsResult> GetCollectionContentSearchArtifactResults(
-            int scopeId, Pagination pagination, bool includeDrafts, int userId, IDbTransaction transaction)
+            int scopeId, int projectId, Pagination pagination, bool includeDrafts, int userId, IDbTransaction transaction)
         {
             var searchArtifactsResult = new SearchArtifactsResult { ArtifactIds = new List<int>() };
 
@@ -35,15 +35,16 @@ namespace SearchEngineLibrary.Repository
             if (transaction == null)
             {
                 result = await _connectionWrapper.QueryMultipleAsync<int, int>(
-                        QueryBuilder.GetCollectionContentSearchArtifactResults(scopeId, pagination, includeDrafts, userId),
+                        QueryBuilder.GetCollectionContentSearchArtifactResults(scopeId, projectId, pagination, includeDrafts, userId),
                         commandType: CommandType.Text);
             }
             else
             {
-                using (var command = await transaction.Connection.QueryMultipleAsync(QueryBuilder.GetCollectionContentSearchArtifactResults(scopeId, pagination, includeDrafts, userId),
-                                                                                     param: null,
-                                                                                     transaction: transaction,
-                                                                                     commandType: CommandType.Text))
+                using (var command = await transaction.Connection.QueryMultipleAsync(
+                    QueryBuilder.GetCollectionContentSearchArtifactResults(scopeId, projectId, pagination, includeDrafts, userId),
+                    null,
+                    transaction,
+                    commandType: CommandType.Text))
                 {
                     var item1 = command.Read<int>().ToList();
                     var item2 = command.Read<int>().ToList();

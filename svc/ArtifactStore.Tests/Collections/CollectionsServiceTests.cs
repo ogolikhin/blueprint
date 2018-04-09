@@ -35,7 +35,6 @@ namespace ArtifactStore.Collections
         private int _userId = 1;
         private ISet<int> _artifactIds;
         private int _collectionId;
-        private ProfileSettings _profileSettings;
         private ArtifactBasicDetails _collectionDetails;
         private List<ItemDetails> _artifacts;
         private List<PropertyTypeInfo> _propertyTypeInfos;
@@ -71,14 +70,6 @@ namespace ArtifactStore.Collections
 
             _artifactIds = new HashSet<int> { 1, 2, 3 };
             _collectionId = 1;
-
-            _profileSettings = new ProfileSettings();
-
-            _profileSettings.Columns = new ProfileColumns(
-                new List<ProfileColumn>
-                {
-                    new ProfileColumn("Custom", PropertyTypePredefined.CustomGroup, PropertyPrimitiveType.Number, 2)
-                });
 
             _collectionPermissions = new Dictionary<int, RolePermissions>
             {
@@ -226,9 +217,8 @@ namespace ArtifactStore.Collections
 
             _artifactIdsForCollection = new List<int>();
             var artifactDtos = _collectionArtifacts.Items.ToList();
-            for (int i = 0; i < artifactDtos.Count; i++)
+            foreach (var artifact in artifactDtos)
             {
-                var artifact = artifactDtos[i];
                 _artifactIdsForCollection.Add(artifact.ArtifactId);
             }
 
@@ -253,7 +243,8 @@ namespace ArtifactStore.Collections
                     });
             }
 
-            _searchEngineService.Setup(s => s.Search(It.IsAny<int>(), It.IsAny<Pagination>(), It.IsAny<ScopeType>(), It.IsAny<bool>(), It.IsAny<int>(), null))
+            _searchEngineService
+                .Setup(s => s.Search(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Pagination>(), It.IsAny<ScopeType>(), It.IsAny<bool>(), It.IsAny<int>(), null))
                 .ReturnsAsync(new SearchArtifactsResult
                 {
                     ArtifactIds = _artifactIdsForCollection,
@@ -298,9 +289,10 @@ namespace ArtifactStore.Collections
         {
             // Setup:
             var profileColumns = new ProfileColumns(_collectionArtifacts.ArtifactListSettings.Columns);
+            var pagination = new Pagination { Limit = 10, Offset = 0 };
 
             // Execute:
-            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination { Limit = 10, Offset = 0 }, profileColumns);
+            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, pagination, profileColumns);
 
             // Verify:
             Assert.IsNotNull(actual);
@@ -314,9 +306,10 @@ namespace ArtifactStore.Collections
         {
             // Setup:
             var profileColumns = new ProfileColumns(_collectionArtifacts.ArtifactListSettings.Columns);
+            var pagination = new Pagination { Limit = 10, Offset = 0 };
 
             // Execute:
-            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination { Limit = 10, Offset = 0 }, profileColumns);
+            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, pagination, profileColumns);
 
             // Verify:
             Assert.IsNotNull(actual);
@@ -338,11 +331,12 @@ namespace ArtifactStore.Collections
                     PrimitiveType = PropertyPrimitiveType.Image
                 }
             };
+            var pagination = new Pagination { Limit = 10, Offset = 0 };
 
             var profileColumns = new ProfileColumns(invalidProfileColumns.Union(_collectionArtifacts.ArtifactListSettings.Columns));
 
             // Execute:
-            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination { Limit = 10, Offset = 0 }, profileColumns);
+            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, pagination, profileColumns);
 
             // Verify:
             Assert.IsNotNull(actual);
@@ -373,9 +367,10 @@ namespace ArtifactStore.Collections
             };
 
             var profileColumns = new ProfileColumns(invalidProfileColumns);
+            var pagination = new Pagination { Limit = 10, Offset = 0 };
 
             // Execute:
-            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination { Limit = 10, Offset = 0 }, profileColumns);
+            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, pagination, profileColumns);
 
             // Verify:
             Assert.IsNotNull(actual);
@@ -387,9 +382,10 @@ namespace ArtifactStore.Collections
         public async Task GetArtifactsInCollectionAsync_ColumnValidationIsAllValid_ProfileIsEmpty_Success()
         {
             // Setup:
+            var pagination = new Pagination { Limit = 10, Offset = 0 };
 
             // Execute:
-            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination { Limit = 10, Offset = 0 }, null);
+            var actual = await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, pagination, null);
 
             // Verify:
             Assert.IsNotNull(actual);
@@ -401,8 +397,9 @@ namespace ArtifactStore.Collections
         [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetArtifactsInCollection_CollectionNotFound_ArtifactBasicDetailsIsNull_ThrowResourceNotFoundException()
         {
-            ArtifactBasicDetails artifactBasicDetails = null;
-            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null)).ReturnsAsync(artifactBasicDetails);
+            _artifactRepository
+                .Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null))
+                .ReturnsAsync((ArtifactBasicDetails)null);
 
             await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination(), new ProfileColumns(new List<ProfileColumn>()));
         }
@@ -412,7 +409,9 @@ namespace ArtifactStore.Collections
         public async Task GetArtifactsInCollection_CollectionNotFound_DraftDeletedInArtifactBasicDetailsIsTrue_ThrowResourceNotFoundException()
         {
             var artifactBasicDetails = new ArtifactBasicDetails { DraftDeleted = true };
-            _artifactRepository.Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null)).ReturnsAsync(artifactBasicDetails);
+            _artifactRepository
+                .Setup(q => q.GetArtifactBasicDetails(_collectionId, _userId, null))
+                .ReturnsAsync(artifactBasicDetails);
 
             await _collectionService.GetArtifactsInCollectionAsync(_collectionId, _userId, new Pagination(), new ProfileColumns(new List<ProfileColumn>()));
         }
@@ -813,8 +812,13 @@ namespace ArtifactStore.Collections
 
             foreach (var propertyInfo in _propertyTypeInfos)
             {
-                profileColumns.Add(new ProfileColumn { PropertyName = propertyInfo.Name, PropertyTypeId = propertyInfo.Id,
-                    Predefined = propertyInfo.Predefined, PrimitiveType = propertyInfo.PrimitiveType });
+                profileColumns.Add(new ProfileColumn
+                {
+                    PropertyName = propertyInfo.Name,
+                    PropertyTypeId = propertyInfo.Id,
+                    Predefined = propertyInfo.Predefined,
+                    PrimitiveType = propertyInfo.PrimitiveType
+                });
             }
 
             profileSettings.Columns = new ProfileColumns(profileColumns);
@@ -959,9 +963,7 @@ namespace ArtifactStore.Collections
                 PrimitiveType = PropertyPrimitiveType.Number
             };
 
-            _propertyTypeInfos = new List<PropertyTypeInfo>();
-            _propertyTypeInfos.Add(propertyTypeInfo);
-
+            _propertyTypeInfos = new List<PropertyTypeInfo> { propertyTypeInfo };
 
             _collectionsRepository
                 .Setup(r => r.GetPropertyTypeInfosForItemTypesAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<string>()))
@@ -969,13 +971,16 @@ namespace ArtifactStore.Collections
 
             _artifactListService
                 .Setup(s => s.GetProfileSettingsAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new ProfileSettings { Columns = new ProfileColumns(new List<ProfileColumn> { new ProfileColumn
+                .ReturnsAsync(new ProfileSettings
+                {
+                    Columns = new ProfileColumns(new List<ProfileColumn> { new ProfileColumn
                 {
                     PropertyName = propertyTypeInfo.Name,
                     Predefined = propertyTypeInfo.Predefined,
                     PrimitiveType = propertyTypeInfo.PrimitiveType,
                     PropertyTypeId = propertyTypeInfo.Id
-                } }) });
+                } })
+                });
 
             var result = await _collectionService.GetColumnsAsync(_collectionId, _userId);
 
@@ -994,8 +999,7 @@ namespace ArtifactStore.Collections
                 PrimitiveType = PropertyPrimitiveType.Number
             };
 
-            _propertyTypeInfos = new List<PropertyTypeInfo>();
-            _propertyTypeInfos.Add(propertyTypeInfo);
+            _propertyTypeInfos = new List<PropertyTypeInfo> { propertyTypeInfo };
 
             _collectionsRepository
                 .Setup(r => r.GetPropertyTypeInfosForItemTypesAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<string>()))

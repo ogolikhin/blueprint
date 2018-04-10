@@ -107,6 +107,26 @@ namespace ServiceLibrary.Repositories.Webhooks
             return result;
         }
 
+        public async Task<IEnumerable<SqlWebhooks>> GetWebhooksByWorkflowId(int workflowId, IDbTransaction transaction = null)
+        {
+            var parameter = new DynamicParameters();
+            parameter.Add("@workflowId", workflowId);
+
+            const string query = @"SELECT * FROM [dbo].[Webhooks] WHERE [dbo].[Webhooks].[WorkflowId] = @workflowId";
+
+            IEnumerable<SqlWebhooks> queryResult;
+            if (transaction == null)
+            {
+                queryResult = await _connectionWrapper.QueryAsync<SqlWebhooks>(query, parameter, commandType: CommandType.Text);
+            }
+            else
+            {
+                queryResult = await _connectionWrapper.QueryAsync<SqlWebhooks>(query, parameter, transaction, commandType: CommandType.Text);
+            }
+
+            return queryResult;
+        }
+
         private static DataTable ToWebhooksCollectionDataTable(IEnumerable<SqlWebhooks> webhooks)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };

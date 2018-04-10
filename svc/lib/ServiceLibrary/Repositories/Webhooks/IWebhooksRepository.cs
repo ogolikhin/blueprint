@@ -10,6 +10,7 @@ namespace ServiceLibrary.Repositories.Webhooks
         Task<IEnumerable<SqlWebhooks>> CreateWebhooks(IEnumerable<SqlWebhooks> webhooks, IDbTransaction transaction = null);
         Task<IEnumerable<SqlWebhooks>> UpdateWebhooks(IEnumerable<SqlWebhooks> webhooks, IDbTransaction transaction = null);
         Task<IEnumerable<SqlWebhooks>> GetWebhooks(IEnumerable<int> webhookIds, IDbTransaction transaction = null);
+        Task<IEnumerable<SqlWebhooks>> GetWebhooksByWorkflowId(int workflowId, IDbTransaction transaction = null);
 
         Task<IReadOnlyList<ArtifactPropertyInfo>> GetArtifactsWithPropertyValuesAsync(
             int userId, IEnumerable<int> artifactIds, IEnumerable<int> propertyTypePredefineds,

@@ -144,6 +144,7 @@ namespace AdminStore.Services.Workflow.Validation
         private const string TemplateDataPropertyChangeActionNotUserPropertyUsersGroupsNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <UsersGroups> elements are used only with user-type properties.";
         private const string TemplateDataPropertyChangeActionRequiredUserPropertyPropertyValueNotApplicable = "<PropertyChangeAction> elements: The property and value types do not match. Please ensure <PropertyValue> elements are not used with user-type properties.";
         private const string TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed = "<PropertyChangeAction> elements: Multiple <ValidValue> child elements are provided for a choice-type property that allows only one.";
+        private const string TemplateDataWebhookActionNotFoundById = "Webhook Action of Id '{0}' was not found.";
 
         #region Interface Implementation
 
@@ -741,6 +742,10 @@ namespace AdminStore.Services.Workflow.Validation
                 case WorkflowDataValidationErrorCodes.PropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed:
                     template = TemplateDataPropertyChangeActionChoicePropertyMultipleValidValuesNotAllowed;
                     errParams = new object[] { };
+                    break;
+                case WorkflowDataValidationErrorCodes.WebhookActionNotFoundById:
+                    template = TemplateDataWebhookActionNotFoundById;
+                    errParams = new object[] { (int)error.Element };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

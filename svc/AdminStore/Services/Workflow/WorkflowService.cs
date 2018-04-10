@@ -77,7 +77,8 @@ namespace AdminStore.Services.Workflow
                 _workflowRepository,
                 _usersRepository,
                 _projectMetaRepository,
-                _propertyValueValidatorFactory);
+                _propertyValueValidatorFactory,
+                _webhooksRepository);
 
             _artifactRepository = new SqlArtifactRepository();
         }

@@ -10,6 +10,7 @@ using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Models.Workflow;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
+using ServiceLibrary.Repositories.Webhooks;
 
 namespace AdminStore.Services.Workflow.Validation.Data
 {
@@ -22,6 +23,7 @@ namespace AdminStore.Services.Workflow.Validation.Data
         private Mock<IPropertyValueValidatorFactory> _propertyValueValidatorFactoryMock;
         private Mock<IPropertyValueValidator> _propertyValueValidatorMock;
         private Mock<WorkflowDataValidator> _dataValidatorMock;
+        private Mock<IWebhooksRepository> _webhookRepositoryMock;
 
         [TestInitialize]
         public void Initialize()
@@ -34,12 +36,14 @@ namespace AdminStore.Services.Workflow.Validation.Data
             _propertyValueValidatorFactoryMock
                 .Setup(m => m.Create(It.IsAny<PropertyType>(), It.IsAny<IList<SqlUser>>(), It.IsAny<IList<SqlGroup>>(), It.IsAny<bool>()))
                 .Returns(() => _propertyValueValidatorMock.Object);
+            _webhookRepositoryMock = new Mock<IWebhooksRepository>();
 
             _dataValidatorMock = new Mock<WorkflowDataValidator>(
                 _workflowRepositoryMock.Object,
                 _usersRepositoryMock.Object,
                 _projectMetadataRepositoryMock.Object,
-                _propertyValueValidatorFactoryMock.Object)
+                _propertyValueValidatorFactoryMock.Object,
+                _webhookRepositoryMock.Object)
             {
                 CallBase = true
             };

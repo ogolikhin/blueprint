@@ -11,6 +11,7 @@ using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Models.ProjectMeta;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ProjectMeta;
+using ServiceLibrary.Repositories.Webhooks;
 
 namespace AdminStore.Services.Workflow.Validation.Data
 {
@@ -20,17 +21,20 @@ namespace AdminStore.Services.Workflow.Validation.Data
         private readonly IUsersRepository _userRepository;
         private readonly IProjectMetaRepository _projectMetaRepository;
         private readonly IPropertyValueValidatorFactory _propertyValueValidatorFactory;
+        private readonly IWebhooksRepository _webhookRepository;
 
         public WorkflowDataValidator(
             IWorkflowRepository workflowRepository,
             IUsersRepository userRepository,
             IProjectMetaRepository projectMetaRepository,
-            IPropertyValueValidatorFactory propertyValueValidatorFactory)
+            IPropertyValueValidatorFactory propertyValueValidatorFactory,
+            IWebhooksRepository webhookRepository)
         {
             _workflowRepository = workflowRepository;
             _userRepository = userRepository;
             _projectMetaRepository = projectMetaRepository;
             _propertyValueValidatorFactory = propertyValueValidatorFactory;
+            _webhookRepository = webhookRepository;
         }
 
         #region Interface Implementation
@@ -91,6 +95,9 @@ namespace AdminStore.Services.Workflow.Validation.Data
                 out userIdsToLookup, out groupIdsToLookup, ignoreIds);
             result.Users.AddRange(await _userRepository.GetExistingUsersByNamesAsync(userNamesToLookup));
             result.Groups.AddRange(await _userRepository.GetExistingGroupsByNamesAsync(groupNamesToLookup, false));
+
+            var webhooksInWorkflow = await _webhookRepository.GetWebhooksByWorkflowId(workflow.IdSerializable);
+            result.ValidWebhookIds.AddRange(webhooksInWorkflow.Select(w => w.WebhookId).ToHashSet());
 
             if (!ignoreIds)
             {
@@ -551,7 +558,7 @@ namespace AdminStore.Services.Workflow.Validation.Data
                     ValidateGenerateActionData(result, (IeGenerateAction)action, ignoreIds);
                     break;
                 case ActionTypes.Webhook:
-                    // No data to validate
+                    ValidateWebhookActionData(result, (IeWebhookAction)action);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action.ActionType));
@@ -732,6 +739,22 @@ namespace AdminStore.Services.Workflow.Validation.Data
                     Element = action.ArtifactType,
                     ErrorCode = WorkflowDataValidationErrorCodes.GenerateChildArtifactsActionArtifactTypeNotFoundByName
                 });
+            }
+        }
+
+        public virtual void ValidateWebhookActionData(WorkflowDataValidationResult result, IeWebhookAction action)
+        {
+            // If a webhook Id is provided, verify that the Webhook record exists
+            if (action.IdSerializable > 0)
+            {
+                if (!result.ValidWebhookIds.Contains(action.IdSerializable))
+                {
+                    result.Errors.Add(new WorkflowDataValidationError
+                    {
+                        Element = action.IdSerializable,
+                        ErrorCode = WorkflowDataValidationErrorCodes.WebhookActionNotFoundById
+                    });
+                }
             }
         }
 

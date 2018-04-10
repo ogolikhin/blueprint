@@ -22,5 +22,7 @@ namespace AdminStore.Services.Workflow.Validation.Data
         public Dictionary<int, PropertyType> StandardPropertyTypeMapById { get; } = new Dictionary<int, PropertyType>();
         public List<SqlUser> Users { get; } = new List<SqlUser>();
         public List<SqlGroup> Groups { get; } = new List<SqlGroup>();
+
+        public HashSet<int> ValidWebhookIds { get; } = new HashSet<int>();
     }
 }

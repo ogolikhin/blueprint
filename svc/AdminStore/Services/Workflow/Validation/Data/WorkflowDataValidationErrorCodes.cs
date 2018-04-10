@@ -53,6 +53,7 @@
         GenerateChildArtifactsActionArtifactTypeNotFoundById,
         PropertyChangeActionValidValueNotFoundById,
         PropertyChangeActionGroupNotFoundById,
-        PropertyChangeActionUserNotFoundById
+        PropertyChangeActionUserNotFoundById,
+        WebhookActionNotFoundById
     }
 }

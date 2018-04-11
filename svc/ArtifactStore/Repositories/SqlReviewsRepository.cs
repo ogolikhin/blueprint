@@ -1237,7 +1237,7 @@ namespace ArtifactStore.Repositories
                 {
                     tocItem.HasAccess = true;
 
-                    if (reviewPackage.IsIgnoreFolder && tocItem.ItemTypePredefined == (int)ItemTypePredefined.PrimitiveFolder)
+                    if (reviewPackage.IsIgnoreFolder && tocItem.ItemTypePredefined == (int)ItemTypePredefined.PrimitiveFolder && !tocItem.IsApprovalRequired)
                     {
                         tocItem.IsIncluded = false;
                     }

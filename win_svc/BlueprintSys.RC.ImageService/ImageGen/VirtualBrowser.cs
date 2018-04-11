@@ -17,7 +17,7 @@ namespace BlueprintSys.RC.ImageService.ImageGen
             _browser = new ChromiumWebBrowser();
             _asyncBoundObject = new AsyncBoundObject();
 
-            _browser.RegisterJsObject("cefSharp", AsyncBoundObject);
+            _browser.RegisterAsyncJsObject("cefSharp", AsyncBoundObject);
         }
 
         public bool IsBrowserInitialized => _browser.IsBrowserInitialized;

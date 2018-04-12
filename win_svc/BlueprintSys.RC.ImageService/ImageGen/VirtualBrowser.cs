@@ -14,10 +14,10 @@ namespace BlueprintSys.RC.ImageService.ImageGen
 
         public VirtualBrowser()
         {
-            _browser = new ChromiumWebBrowser();
+            _browser = new ChromiumWebBrowser(automaticallyCreateBrowser: false);
             _asyncBoundObject = new AsyncBoundObject();
-
             _browser.RegisterAsyncJsObject("cefSharp", AsyncBoundObject);
+            _browser.CreateBrowser(IntPtr.Zero);
         }
 
         public bool IsBrowserInitialized => _browser.IsBrowserInitialized;

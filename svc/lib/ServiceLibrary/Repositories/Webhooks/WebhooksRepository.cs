@@ -34,7 +34,7 @@ namespace ServiceLibrary.Repositories.Webhooks
             if (dWebhooks.Any())
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@webhooks", ToWebhooksCollectionDataTable(dWebhooks));
+                parameters.Add("@webhooks", ToWebhooksCollectionDataTable(dWebhooks, true));
 
                 if (transaction == null)
                 {
@@ -63,7 +63,7 @@ namespace ServiceLibrary.Repositories.Webhooks
             if (dWebhooks.Any())
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@webhooks", ToWebhooksCollectionDataTable(dWebhooks));
+                parameters.Add("@webhooks", ToWebhooksCollectionDataTable(dWebhooks, false));
 
                 if (transaction == null)
                 {
@@ -127,7 +127,7 @@ namespace ServiceLibrary.Repositories.Webhooks
             return queryResult;
         }
 
-        private static DataTable ToWebhooksCollectionDataTable(IEnumerable<SqlWebhooks> webhooks)
+        private static DataTable ToWebhooksCollectionDataTable(IEnumerable<SqlWebhooks> webhooks, bool ignoreId)
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
             table.SetTypeName("WebhooksCollection");
@@ -141,7 +141,7 @@ namespace ServiceLibrary.Repositories.Webhooks
 
             foreach (var webhook in webhooks)
             {
-                table.Rows.Add(webhook.WebhookId, webhook.Url, webhook.SecurityInfo, webhook.State, webhook.Scope,
+                table.Rows.Add(ignoreId ? 0 : webhook.WebhookId, webhook.Url, webhook.SecurityInfo, webhook.State, webhook.Scope,
                     webhook.EventType, webhook.WorkflowId);
             }
 
